@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.qouteall.immersive_portals.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "ExampleMixin",
+    "MixinClientWorld",
+    "MixinCommandManager",
+    "MixinMinecraftServer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
