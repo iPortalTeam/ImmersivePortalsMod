@@ -22,7 +22,7 @@ import java.net.Proxy;
 public class MixinMinecraftServer {
     @Inject(
         method = "Lnet/minecraft/server/MinecraftServer;<init>(Ljava/io/File;Ljava/net/Proxy;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/server/command/CommandManager;Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;Lcom/mojang/authlib/minecraft/MinecraftSessionService;Lcom/mojang/authlib/GameProfileRepository;Lnet/minecraft/util/UserCache;Lnet/minecraft/server/WorldGenerationProgressListenerFactory;Ljava/lang/String;)V",
-        at = @At("HEAD")
+        at = @At("RETURN")
     )
     private void onServerConstruct(
         File file_1,

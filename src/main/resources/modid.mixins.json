@@ -6,9 +6,16 @@
   ],
   "client": [
     "ExampleMixin",
+    "MixinBackgroundRenderer",
+    "MixinChunkHolder",
+    "MixinChunkTicketManager",
+    "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
     "MixinCommandManager",
-    "MixinMinecraftServer"
+    "MixinGameRenderer",
+    "MixinGlFrameBuffer",
+    "MixinMinecraftServer",
+    "MixinServerChunkManager"
   ],
   "injectors": {
     "defaultRequire": 1

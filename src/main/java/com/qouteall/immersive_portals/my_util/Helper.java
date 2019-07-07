@@ -6,7 +6,9 @@ import com.sun.istack.internal.Nullable;
 import javafx.util.Pair;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -267,12 +269,18 @@ public class Helper {
         return new Vec3d(entity.prevRenderX, entity.prevRenderY, entity.prevRenderZ);
     }
     
+    public static Vec3d interpolatePos(Entity entity, float partialTicks) {
+        Vec3d currPos = entity.getPos();
+        Vec3d lastTickPos = lastTickPosOf(entity);
+        return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
+    }
+    
     public static void setPosAndLastTickPos(
         Entity entity,
         Vec3d pos,
         Vec3d lastTickPos
     ) {
-        //TODO move this func
+        
         
         //NOTE do not call entity.setPosition() because it may tick the entity
         
@@ -408,6 +416,11 @@ public class Helper {
         return getServer().getWorld(dimension);
     }
     
+    public static ClientWorld loadClientWorld(DimensionType dimension) {
+        assert false;
+        return null;
+    }
+    
     public static void log(Object str) {
         System.out.println(str);
     }
@@ -427,5 +440,63 @@ public class Helper {
             new Vec3d(box.maxX, box.maxY, box.minZ),
             new Vec3d(box.maxX, box.maxY, box.maxZ)
         };
+    }
+    
+    public static void putVec3d(CompoundTag compoundTag, String name, Vec3d vec3d) {
+        compoundTag.putDouble(name + "X", vec3d.x);
+        compoundTag.putDouble(name + "Y", vec3d.y);
+        compoundTag.putDouble(name + "Z", vec3d.z);
+    }
+    
+    public static Vec3d getVec3d(CompoundTag compoundTag, String name) {
+        return new Vec3d(
+            compoundTag.getDouble(name + "X"),
+            compoundTag.getDouble(name + "Y"),
+            compoundTag.getDouble(name + "Z")
+        );
+    }
+    
+    public static void putVec3i(CompoundTag compoundTag, String name, Vec3i vec3i) {
+        compoundTag.putInt(name + "X", vec3i.getX());
+        compoundTag.putInt(name + "Y", vec3i.getY());
+        compoundTag.putInt(name + "Z", vec3i.getZ());
+    }
+    
+    public static BlockPos getVec3i(CompoundTag compoundTag, String name) {
+        return new BlockPos(
+            compoundTag.getInt(name + "X"),
+            compoundTag.getInt(name + "Y"),
+            compoundTag.getInt(name + "Z")
+        );
+    }
+    
+    public static  <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
+        World world,
+        Vec3d center,
+        EntityType<ENTITY> entityType,
+        double range
+    ) {
+        Box box = new Box(center, center).expand(range);
+        return (Stream) world.getEntities(entityType, box, e -> true).stream();
+    }
+    
+    public static  <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
+        Entity center,
+        EntityType<ENTITY> entityType,
+        double range
+    ) {
+        return getEntitiesNearby(
+            center.world,
+            center.getPos(),
+            entityType,
+            range
+        );
+    }
+    
+    public static Box getChunkBoundingBox(ChunkPos chunkPos) {
+        return new Box(
+            chunkPos.getCenterBlockPos(),
+            chunkPos.getCenterBlockPos().add(16, 256, 16)
+        );
     }
 }

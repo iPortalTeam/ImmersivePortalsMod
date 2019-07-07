@@ -10,10 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinCommandManager {
     @Inject(
         method = "Lnet/minecraft/server/command/CommandManager;<init>(Z)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/brigadier/CommandDispatcher;findAmbiguities(Lcom/mojang/brigadier/AmbiguityConsumer;)V"
-        )
+        at = @At("RETURN")
     )
     static private void initCommands(boolean isOnServer, CallbackInfo ci) {
     
