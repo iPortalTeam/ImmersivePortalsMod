@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.PortalEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormats;
@@ -7,38 +8,34 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class ViewAreaRenderer {
     static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, PortalEntity portal, BufferBuilder bufferbuilder,
-        Entity viewEntity
+        Entity viewEntity, float partialTicks
     ) {
         //if layerWidth is small, the teleportation will not be seamless
         
         //counter-clockwise triangles are front-faced in default
         
-        final float layerWidth = 0.3F;
+        final float layerWidth = 0.5F;
         
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         
-        //these 4 vertices are shrink-ed
-        Vec3d offset1 = portal.getPos().subtract(viewEntity.getPos());
-        Vec3d[] frontFace =
-            Arrays.stream(portal.getFourVertices(0))
-            .map(pos->pos.add(offset1))
+        Vec3d posInPlayerCoordinate = portal.getPos().subtract(
+            Helper.interpolatePos(viewEntity, partialTicks)
+        );
+        Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
+        
+        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesInLocalCoordinate(0))
+            .map(pos -> pos.add(posInPlayerCoordinate))
             .toArray(Vec3d[]::new);
-        assert false;
-        Vec3d[] frontFaceShrunken = portal.getFourVertices(0.01);
-        Vec3d offset = portal.normal.multiply(-layerWidth);
-        Vec3d[] backFace = {
-            frontFaceShrunken[0].add(offset),
-            frontFaceShrunken[1].add(offset),
-            frontFaceShrunken[2].add(offset),
-            frontFaceShrunken[3].add(offset)
-        };
+        
+        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesInLocalCoordinate(0.01))
+            .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
+            .toArray(Vec3d[]::new);
         
         //3  2
         //1  0
@@ -96,10 +93,11 @@ public class ViewAreaRenderer {
         );
     }
     
-    static void putIntoVertex(BufferBuilder bufferBuilder, Vec3d pos, Vec3d fogColor) {
-        bufferBuilder.vertex(pos.x, pos.y, pos.z).
-            color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1).
-            next();
+    static private void putIntoVertex(BufferBuilder bufferBuilder, Vec3d pos, Vec3d fogColor) {
+        bufferBuilder
+            .vertex(pos.x, pos.y, pos.z)
+            .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
+            .next();
     }
     
     //a d

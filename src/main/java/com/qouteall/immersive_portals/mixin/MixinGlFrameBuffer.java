@@ -16,7 +16,8 @@ public class MixinGlFrameBuffer {
     )
     private void onInitFrameBuffer(int int_1, int int_2, boolean boolean_1, CallbackInfo ci) {
         GlFramebuffer this_ = (GlFramebuffer) (Object) this;
-        
+    
+        GLX.glBindRenderbuffer(GLX.GL_RENDERBUFFER, this_.depthAttachment);
         GLX.glRenderbufferStorage(
             GLX.GL_RENDERBUFFER,
             org.lwjgl.opengl.EXTPackedDepthStencil.GL_DEPTH24_STENCIL8_EXT,
@@ -39,5 +40,7 @@ public class MixinGlFrameBuffer {
         this_.checkFramebufferStatus();
         this_.clear(boolean_1);
         this_.endRead();
+        
+        ci.cancel();
     }
 }

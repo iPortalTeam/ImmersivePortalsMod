@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import org.spongepowered.asm.mixin.Final;
@@ -23,12 +24,18 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Final
     @Mutable
     private BackgroundRenderer backgroundRenderer;
+    @Shadow
+    @Final
+    private Camera camera;
     
     @Inject(
         method = "Lnet/minecraft/client/render/GameRenderer;renderCenter(FJ)V",
-        at = @At(value = "INVOKE_STRING", target = "translucent")
+        at = @At(
+            value = "INVOKE",
+            shift = At.Shift.AFTER,
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderEntities(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/VisibleRegion;F)V")
     )
-    private void beforeRenderingTranslucent(
+    private void afterRenderingEntities(
         float partialTicks,
         long finishTimeNano,
         CallbackInfo ci
@@ -62,5 +69,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Override
     public void setBackgroundRenderer(BackgroundRenderer renderer) {
         backgroundRenderer = renderer;
+    }
+    
+    @Override
+    public Camera getCamera(){
+        return camera;
     }
 }

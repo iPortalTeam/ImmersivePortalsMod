@@ -35,7 +35,8 @@ public class ClientWorldLoader {
     
     private boolean isLoadingFakedWorld = false;
     
-    public boolean isClientRemoteTickingEnabled = true;
+    //TODO release it
+    public boolean isClientRemoteTickingEnabled = false;
     
     public boolean getIsLoadingFakedWorld() {
         return isLoadingFakedWorld;

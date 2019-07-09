@@ -1,22 +1,20 @@
 package com.qouteall.immersive_portals.portal_entity;
 
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
-import net.minecraft.client.network.packet.EntitySpawnS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-
-import java.util.stream.Stream;
 
 public class PortalEntity extends Entity {
     public static EntityType<PortalEntity> entityType;
@@ -25,14 +23,14 @@ public class PortalEntity extends Entity {
     public double height = 0;
     public Vec3d axisW;
     public Vec3d axisH;
-    public Vec3d normal;
+    private Vec3d normal;
     public DimensionType dimensionTo;
     public Vec3d destination;
     
     public static void init() {
         entityType = Registry.register(
             Registry.ENTITY_TYPE,
-            new Identifier("wiki-entity", "cookie-creeper"),
+            new Identifier("immersive_portals", "portal"),
             FabricEntityTypeBuilder.create(
                 EntityCategory.MISC,
                 (EntityType<PortalEntity> type, World world1) -> new PortalEntity(
@@ -94,8 +92,13 @@ public class PortalEntity extends Entity {
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = DimensionType.byRawId(compoundTag.getInt("dimensionTo"));
-        
-        normal = axisW.crossProduct(axisH).normalize();
+        destination = Helper.getVec3d(compoundTag, "destination");
+    }
+    
+    public Vec3d getNormal() {
+        if (normal == null)
+            normal = axisW.crossProduct(axisH).normalize();
+        return normal;
     }
     
     @Override
@@ -105,23 +108,53 @@ public class PortalEntity extends Entity {
         Helper.putVec3d(compoundTag, "axisW", axisW);
         Helper.putVec3d(compoundTag, "axisH", axisH);
         compoundTag.putInt("dimensionTo", dimensionTo.getRawId());
+        Helper.putVec3d(compoundTag, "destination", destination);
     }
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return new EntitySpawnS2CPacket(this);
+        return MyNetwork.createStcSpawnEntity(
+            entityType,
+            this
+        );
+    }
+    
+    @Override
+    public void tick() {
+        if (!world.isClient) {
+            if (!isPortalValid()) {
+                Helper.log("removed invalid portal" + this);
+                removed = true;
+            }
+        }
+        
+    }
+    
+    public boolean isPortalValid() {
+        return dimensionTo != null &&
+            width != 0 &&
+            height != 0 &&
+            axisW != null &&
+            axisH != null &&
+            destination != null;
     }
     
     public double getDistanceToPlane(
         Vec3d pos
     ) {
-        return pos.subtract(getPos()).dotProduct(normal);
+        return pos.subtract(getPos()).dotProduct(getNormal());
     }
     
     public boolean canSeeThroughFromPos(
         Vec3d playerPos
     ) {
         return getDistanceToPlane(playerPos) > 0;
+    }
+    
+    public boolean canRenderPortalInsideMe(PortalEntity anotherPortal) {
+        assert anotherPortal.dimension == dimensionTo;
+        double v = anotherPortal.getPos().subtract(destination).dotProduct(getNormal());
+        return v < -0.5;
     }
     
     public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
@@ -174,7 +207,17 @@ public class PortalEntity extends Entity {
     }
     
     public Vec3d getCullingPoint() {
-        return applyTransformationToPoint(getPos());
+        return destination;
+    }
+    
+    @Override
+    public String toString() {
+        return "Portal{" +
+            "pos=" + getBlockPos() +
+            ", dimensionTo=" + dimensionTo +
+            ", destination=" + new BlockPos(destination) +
+            ", normal=" + new BlockPos(getNormal()) +
+            '}';
     }
     
     

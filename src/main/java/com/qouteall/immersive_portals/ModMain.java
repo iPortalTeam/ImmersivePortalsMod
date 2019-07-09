@@ -1,12 +1,15 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal_entity.PortalEntity;
 import net.fabricmc.api.ModInitializer;
 
-public class ModMainCommon implements ModInitializer {
+public class ModMain implements ModInitializer {
     public static Signal clientTickSignal = new Signal();
     public static Signal serverTickSignal = new Signal();
+    public static MyTaskList clientTaskList = new MyTaskList();
+    public static MyTaskList serverTaskList = new MyTaskList();
     
     @Override
     public void onInitialize() {
@@ -16,6 +19,9 @@ public class ModMainCommon implements ModInitializer {
         PortalEntity.init();
         
         MyNetwork.init();
+        
+        clientTickSignal.connect(() -> clientTaskList.processTasks());
+        serverTickSignal.connect(() -> serverTaskList.processTasks());
         
     }
 }

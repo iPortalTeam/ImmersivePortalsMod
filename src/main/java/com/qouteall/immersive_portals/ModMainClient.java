@@ -6,6 +6,6 @@ import net.fabricmc.api.ClientModInitializer;
 public class ModMainClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-    
+        //TODO configure this
     }
 }

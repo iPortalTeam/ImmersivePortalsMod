@@ -32,19 +32,21 @@ public class MixinChunkHolder implements IEChunkHolder {
         boolean boolean_1,
         CallbackInfo ci
     ) {
-        assert dimension != null;
-        Globals.chunkSyncingManager
-            .getIndirectViewers(dimension, pos)
-            .forEach(
-                playerEntity -> {
-                    assert playerEntity.dimension != dimension;
-                    playerEntity.networkHandler.sendPacket(
-                        RedirectedMessageManager.createRedirectedMessage(
-                            dimension, packet_1
-                        )
-                    );
-                }
-            );
+        //TODO release this
+        //assert dimension != null;
+        
+//        Globals.chunkSyncingManager
+//            .getIndirectViewers(dimension, pos)
+//            .forEach(
+//                playerEntity -> {
+//                    assert playerEntity.dimension != dimension;
+//                    playerEntity.networkHandler.sendPacket(
+//                        RedirectedMessageManager.createRedirectedMessage(
+//                            dimension, packet_1
+//                        )
+//                    );
+//                }
+//            );
     }
     
     @Override

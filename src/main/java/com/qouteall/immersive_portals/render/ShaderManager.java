@@ -123,9 +123,9 @@ public class ShaderManager {
             );
             GL20.glUniform3f(
                 uniPortalNormal,
-                (float) portal.normal.x,
-                (float) portal.normal.y,
-                (float) portal.normal.z
+                (float) portal.getNormal().x,
+                (float) portal.getNormal().y,
+                (float) portal.getNormal().z
             );
         }
         else {

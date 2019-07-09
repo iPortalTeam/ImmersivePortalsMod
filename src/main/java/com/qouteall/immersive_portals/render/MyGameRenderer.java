@@ -13,6 +13,10 @@ import net.minecraft.util.SystemUtil;
 public class MyGameRenderer {
     private MinecraftClient mc = MinecraftClient.getInstance();
     
+    public MyGameRenderer() {
+    
+    }
+    
     public void renderWorld(
         float partialTicks,
         WorldRenderer newWorldRenderer,

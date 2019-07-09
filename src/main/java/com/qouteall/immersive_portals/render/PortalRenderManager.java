@@ -1,13 +1,14 @@
 package com.qouteall.immersive_portals.render;
 
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.PortalEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.*;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -32,10 +33,22 @@ public class PortalRenderManager {
     
     private float partialTicks = 0;
     private long finishTimeNano = 0;
+    private int idQueryObject = -1;
     private Entity cameraEntity;
     
     public PortalRenderManager() {
-        behavior = this::renderPortals;
+        behavior = this::renderViewAreas;
+        idQueryObject = GL15.glGenQueries();
+    }
+    
+    private void renderViewAreas() {
+        GL11.glDisable(GL_DEPTH_TEST);
+        GL11.glDisable(GL_STENCIL_TEST);
+        
+        getPortalsNearbySorted().forEach(portal-> {
+            setupCameraTransformation();
+            drawPortalViewTriangle(portal);
+        });
     }
     
     //0 for rendering outer world
@@ -54,12 +67,13 @@ public class PortalRenderManager {
     }
     
     public void doRendering(float partialTicks_, long finishTimeNano_) {
-        if (cameraEntity == null) {
-            return;
-        }
         
         if (!isRendering()) {
             prepareRendering(partialTicks, finishTimeNano);
+        }
+        
+        if (mc.cameraEntity == null) {
+            return;
         }
         
         behavior.run();
@@ -89,10 +103,8 @@ public class PortalRenderManager {
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         GL11.glDisable(GL_STENCIL_TEST);
-        
-        GL11.glColorMask(true, true, true, true);
+        GL11.glEnable(GL_DEPTH_TEST);
     }
-    
     
     private void renderPortals() {
         if (getPortalLayer() >= maxPortalLayer.get()) {
@@ -101,7 +113,15 @@ public class PortalRenderManager {
         
         assert cameraEntity.world == mc.world;
         assert cameraEntity.dimension == mc.world.dimension.getType();
-        
+    
+        List<PortalEntity> portalsNearby = getPortalsNearbySorted();
+    
+        for (PortalEntity portal : portalsNearby) {
+            renderPortal(portal);
+        }
+    }
+    
+    private List<PortalEntity> getPortalsNearbySorted() {
         List<PortalEntity> portalsNearby = mc.world.getEntities(
             PortalEntity.class,
             new Box(cameraEntity.getBlockPos()).expand(portalRenderingRange.get())
@@ -112,72 +132,72 @@ public class PortalRenderManager {
                 portalEntity.getPos().squaredDistanceTo(cameraEntity.getPos())
             )
         );
-        
-        for (PortalEntity portal : portalsNearby) {
-            renderPortal(portal);
-        }
+        return portalsNearby;
     }
     
     private void renderPortal(PortalEntity portal) {
+        if (!portal.isPortalValid()) {
+            Helper.err("rendering invalid portal " + portal);
+            return;
+        }
+        
         if (!portal.canSeeThroughFromPos(cameraEntity.getPos())) {
             return;
         }
         
+        int outerPortalStencilValue = getPortalLayer();
+        
+        if (isRendering()) {
+            PortalEntity outerPortal = portalLayers.peek();
+            if (!outerPortal.canRenderPortalInsideMe(portal)) {
+                return;
+            }
+        }
+        
         setupCameraTransformation();
         
-        int outerPortalStencilValue = getPortalLayer();
-        PortalEntity outerPortalEntity = portalLayers.peek();
-        
         boolean anySamplePassed = renderAndGetDoesAnySamplePassed(() -> {
-            renderPortalViewAreaToStencil(
-                outerPortalStencilValue,
-                portal,
-                partialTicks,
-                outerPortal
-            );
+            renderPortalViewAreaToStencil(portal);
         });
         
         if (!anySamplePassed) {
             return;
         }
         
+        //PUSH
         portalLayers.push(portal);
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
-        clearDepthOfThePortalViewArea(thisPortalStencilValue, portal, partialTicks);
+        clearDepthOfThePortalViewArea(portal);
         
         //it will setup camera transformation again and overwrite the current
-        managePlayerStateAndRenderPortalContent(
-            thisPortalStencilValue, portal, partialTicks
-        );
+        //TODO release it
+        //managePlayerStateAndRenderPortalContent(portal);
         
         //the world rendering may modify the transformation
         setupCameraTransformation();
         
-        restoreDepthOfPortalViewArea(
-            thisPortalStencilValue,
-            portal,
-            partialTicks
-        );
+        restoreDepthOfPortalViewArea(portal);
         
-        clampStencilValue(
-            outerPortalStencilValue
-        );
+        clampStencilValue(outerPortalStencilValue);
         
+        //POP
         portalLayers.pop();
     }
     
     private void setupCameraTransformation() {
         ((IEGameRenderer) mc.gameRenderer).applyCameraTransformations_(partialTicks);
+        Camera camera_1 = ((IEGameRenderer) mc.gameRenderer).getCamera();
+        camera_1.update(mc.world, (Entity)(mc.getCameraEntity() == null ? mc.player : mc.getCameraEntity()), mc.options.perspective > 0, mc.options.perspective == 2, partialTicks);
+    
     }
     
     private void renderPortalViewAreaToStencil(
-        int outerPortalStencilValue,
-        PortalEntity portal,
-        float partialTicks,
-        PortalEntity outerPortal
+        PortalEntity portal
     ) {
+        int outerPortalStencilValue = getPortalLayer();
+        
         //is the mask here different from the mask of glStencilMask?
         GL11.glStencilFunc(GL_EQUAL, outerPortalStencilValue, 0xFF);
         
@@ -190,22 +210,26 @@ public class PortalRenderManager {
         GL11.glStencilMask(0xFF);
         GlStateManager.depthMask(true);
         
-        drawPortalViewTriangle(partialTicks, portal);
+        GlStateManager.disableBlend();
+        
+        drawPortalViewTriangle(portal);
         
         Helper.checkGlError();
     }
     
     //it will render a box instead of a quad
-    private void drawPortalViewTriangle(float partialTicks, PortalEntity portal) {
+    private void drawPortalViewTriangle(PortalEntity portal) {
         Globals.shaderManager.unloadShader();
         
-        DimensionRenderHelper helper = Globals.gameRenderer.getRenderHelper(portal.dimensionTo);
+        DimensionRenderHelper helper =
+            Globals.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
         Vec3d fogColor = helper.getFogColor();
         
         GlStateManager.disableCull();
         GlStateManager.disableAlphaTest();
         GlStateManager.disableTexture();
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        GlStateManager.disableBlend();
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
@@ -220,38 +244,40 @@ public class PortalRenderManager {
         
         GlStateManager.enableCull();
         GlStateManager.enableAlphaTest();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
     }
     
     //it will overwrite the matrix
     //do not push matrix before calling this
     private void managePlayerStateAndRenderPortalContent(
-        int allowedStencilValue, PortalEntity portal, float partialTicks
+        PortalEntity portal
     ) {
-        Entity player = mc.getRenderViewEntity();
+        Entity player = mc.cameraEntity;
+        int allowedStencilValue = getPortalLayer();
         
         assert player.world == mc.world;
         
-        Vec3d originalPos = player.getPositionVector();
+        Vec3d originalPos = player.getPos();
         Vec3d originalLastTickPos = Helper.lastTickPosOf(player);
         DimensionType originalDimension = player.dimension;
-        WorldClient originalWorld = ((WorldClient) player.world);
+        ClientWorld originalWorld = ((ClientWorld) player.world);
         
         Vec3d newPos = portal.applyTransformationToPoint(originalPos);
         Vec3d newLastTickPos = portal.applyTransformationToPoint(originalLastTickPos);
         DimensionType newDimension = portal.dimensionTo;
-        WorldClient newWorld =
-            Globals.portalManagerClient.worldLoader.getOrCreateFakedWorld(newDimension);
+        ClientWorld newWorld =
+            Globals.clientWorldLoader.getOrCreateFakedWorld(newDimension);
         
         Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
         player.dimension = newDimension;
         player.world = newWorld;
         mc.world = newWorld;
         
-        MyViewFrustum.updateViewFrustum();
+        //TODO release this
+        //MyViewFrustum.updateViewFrustum();
         
         renderPortalContentAndNestedPortals(
-            allowedStencilValue, portal, partialTicks
+            portal
         );
         
         //restore the position
@@ -262,8 +288,10 @@ public class PortalRenderManager {
     }
     
     private void renderPortalContentAndNestedPortals(
-        int thisPortalStencilValue, PortalEntity portal, float partialTicks
+        PortalEntity portal
     ) {
+        int thisPortalStencilValue = getPortalLayer();
+        
         GlStateManager.enableAlphaTest();
         GlStateManager.enableCull();
         
@@ -273,23 +301,15 @@ public class PortalRenderManager {
         //do not manipulate stencil packetBuffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
-        renderingPortalEntity = portal;//this will be used in loadShaderAndMatrix()
+        WorldRenderer worldRenderer = Globals.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
+        ClientWorld destClientWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
         
-        _debugBuffers();
-        
-        //it will overwrite the matrix
-        Globals.gameRenderer.renderDimensionWorld(
-            portal.dimensionTo, partialTicks
+        Globals.myGameRenderer.renderWorld(
+            partialTicks, worldRenderer, destClientWorld
         );
-        
-        _debugBuffers();
         
         Helper.checkGlError();
         
-        renderingPortalEntity = null;
-        
-        //render nested portals
-        renderPortals(thisPortalStencilValue, partialTicks, portal);
     }
     
     private void renderScreenTriangle() {
@@ -302,29 +322,29 @@ public class PortalRenderManager {
         GlStateManager.loadIdentity();
         
         GlStateManager.disableAlphaTest();
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         
         GlStateManager.shadeModel(GL_SMOOTH);
         
-        Globals.gameRenderer.unloadShader();
+        Globals.shaderManager.unloadShader();
         
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
+        BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
+        bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         
-        bufferbuilder.pos(1, -1, 0).color(255, 255, 255, 255)
-            .endVertex();
-        bufferbuilder.pos(1, 1, 0).color(255, 255, 255, 255)
-            .endVertex();
-        bufferbuilder.pos(-1, 1, 0).color(255, 255, 255, 255)
-            .endVertex();
+        bufferbuilder.vertex(1, -1, 0).color(255, 255, 255, 255)
+            .next();
+        bufferbuilder.vertex(1, 1, 0).color(255, 255, 255, 255)
+            .next();
+        bufferbuilder.vertex(-1, 1, 0).color(255, 255, 255, 255)
+            .next();
         
-        bufferbuilder.pos(-1, 1, 0).color(255, 255, 255, 255)
-            .endVertex();
-        bufferbuilder.pos(-1, -1, 0).color(255, 255, 255, 255)
-            .endVertex();
-        bufferbuilder.pos(1, -1, 0).color(255, 255, 255, 255)
-            .endVertex();
+        bufferbuilder.vertex(-1, 1, 0).color(255, 255, 255, 255)
+            .next();
+        bufferbuilder.vertex(-1, -1, 0).color(255, 255, 255, 255)
+            .next();
+        bufferbuilder.vertex(1, -1, 0).color(255, 255, 255, 255)
+            .next();
         
         tessellator.draw();
         
@@ -335,14 +355,14 @@ public class PortalRenderManager {
         GlStateManager.popMatrix();
         
         GlStateManager.enableAlphaTest();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
     }
     
     private void clearDepthOfThePortalViewArea(
-        int allowedStencilValue,
-        PortalEntity portal,
-        float partialTicks
+        PortalEntity portal
     ) {
+        int allowedStencilValue = getPortalLayer();
+        
         GlStateManager.enableDepthTest();
         
         //do not manipulate stencil packetBuffer
@@ -375,10 +395,10 @@ public class PortalRenderManager {
     }
     
     private void restoreDepthOfPortalViewArea(
-        int thisPortalStencilValue,
-        PortalEntity portal,
-        float partialTicks
+        PortalEntity portal
     ) {
+        int thisPortalStencilValue = getPortalLayer();
+        
         //do not manipulate stencil packetBuffer
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
@@ -391,7 +411,7 @@ public class PortalRenderManager {
         //do manipulate the depth packetBuffer
         GL11.glDepthMask(true);
         
-        drawPortalViewTriangle(partialTicks, portal);
+        drawPortalViewTriangle(portal);
         
         GL11.glColorMask(true, true, true, true);
     }
@@ -465,9 +485,9 @@ public class PortalRenderManager {
         return result;
     }
     
-    private void debugRenderPortalContent(int portalId, float partialTicks) {
-        PortalEntity PortalEntity = PortalDataManager.getDataManagerOnClient().getPortal(portalId);
-        if (PortalEntity == null) {
+    private void debugRenderPortalContent(int portalId) {
+        PortalEntity portal = ((PortalEntity) mc.world.getEntityById(portalId));
+        if (portal == null) {
             Helper.err("debugging nonexistent portal?");
             return;
         }
@@ -479,23 +499,22 @@ public class PortalRenderManager {
         //NOTE in state_portalViewOfTheFirstPortal, max PortalEntity layer is 1
         //so that it will not render nested portals
         managePlayerStateAndRenderPortalContent(
-            0, portal, partialTicks
+            portal
         );
     }
     
-    public void renderViewArea(PortalEntity portal, float partialTicks) {
-        Entity renderViewEntity = mc.getRenderViewEntity();
+    public void renderViewArea(PortalEntity portal) {
+        Entity renderViewEntity = mc.cameraEntity;
         
-        if (!portal.canSeeThroughFromPos(renderViewEntity.getPositionVector())) {
+        if (!portal.canSeeThroughFromPos(renderViewEntity.getPos())) {
             return;
         }
         
-        Globals.gameRenderer.getRenderHelper(portal.dimensionTo)
-            .fogRenderer.updateFogColor(0);
+        //TODO maybe should update fog color here?
         
-        setupPlayerCameraTransform(partialTicks);
+        setupCameraTransformation();
         
-        renderPortalViewAreaToStencil(0, portal, partialTicks, null);
+        renderPortalViewAreaToStencil(portal);
     }
     
 }

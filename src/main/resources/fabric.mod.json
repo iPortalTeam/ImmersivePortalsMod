@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "immersive_portals",
   "version": "${version}",
 
   "name": "Immersive Portals",
@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.qoutall.immersive_portals.ExampleMod"
+      "com.qouteall.immersive_portals.ModMain"
     ]
   },
   "mixins": [

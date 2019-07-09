@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
@@ -17,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.Proxy;
+import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer {
@@ -38,5 +40,13 @@ public class MixinMinecraftServer {
         CallbackInfo ci
     ) {
         Helper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V",
+        at = @At("HEAD")
+    )
+    private void onServerTick(BooleanSupplier booleanSupplier_1, CallbackInfo ci) {
+        ModMain.serverTickSignal.emit();
     }
 }

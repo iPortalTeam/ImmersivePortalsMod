@@ -133,7 +133,7 @@ public class ChunkSyncingManager {
     }
     
     private Multimap<DimensionalChunkPos, ServerPlayerEntity> computeNewIndirectVisibilityMap() {
-        Multimap<DimensionalChunkPos, ServerPlayerEntity> newMap = new HashMultimap<>();
+        Multimap<DimensionalChunkPos, ServerPlayerEntity> newMap = HashMultimap.create();
         Helper.getServer().getPlayerManager().getPlayerList().forEach(
             playerEntity -> Helper.getEntitiesNearby(
                 playerEntity,
