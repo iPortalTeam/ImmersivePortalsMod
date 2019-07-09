@@ -5,6 +5,7 @@
   "mixins": [
   ],
   "client": [
+    "MixinAbstractClientPlayerEntity",
     "MixinBackgroundRenderer",
     "MixinChunkHolder",
     "MixinChunkTicketManager",
@@ -13,6 +14,7 @@
     "MixinCommandManager",
     "MixinGameRenderer",
     "MixinGlFrameBuffer",
+    "MixinGlStateManager",
     "MixinMinecraftClient",
     "MixinMinecraftServer",
     "MixinServerChunkManager"

@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 
 public class ShaderManager {
     private int idContentShaderProgram = -1;
-    public static boolean isShaderEnabled = true;
+    public static boolean isShaderEnabled = false;
     
     public ShaderManager() {
         idContentShaderProgram = compileShaderPrograms(

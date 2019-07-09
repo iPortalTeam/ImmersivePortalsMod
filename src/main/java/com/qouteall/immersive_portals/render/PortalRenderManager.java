@@ -37,18 +37,16 @@ public class PortalRenderManager {
     private Entity cameraEntity;
     
     public PortalRenderManager() {
-        behavior = this::renderViewAreas;
+        behavior = this::renderPortals;
         idQueryObject = GL15.glGenQueries();
     }
     
     private void renderViewAreas() {
-        GL11.glDisable(GL_DEPTH_TEST);
         GL11.glDisable(GL_STENCIL_TEST);
+    
+        setupCameraTransformation();
         
-        getPortalsNearbySorted().forEach(portal-> {
-            setupCameraTransformation();
-            drawPortalViewTriangle(portal);
-        });
+        getPortalsNearbySorted().forEach(this::drawPortalViewTriangle);
     }
     
     //0 for rendering outer world
@@ -66,10 +64,14 @@ public class PortalRenderManager {
         return portalLayers.peek();
     }
     
+    public boolean shouldSkipClearing(){
+        return isRendering();
+    }
+    
     public void doRendering(float partialTicks_, long finishTimeNano_) {
         
         if (!isRendering()) {
-            prepareRendering(partialTicks, finishTimeNano);
+            prepareRendering(partialTicks_, finishTimeNano_);
         }
         
         if (mc.cameraEntity == null) {
@@ -92,7 +94,7 @@ public class PortalRenderManager {
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         
-        GL11.glEnable(GL_DEPTH_TEST);
+        GlStateManager.enableDepthTest();
         GL11.glEnable(GL_STENCIL_TEST);
     }
     
@@ -103,7 +105,7 @@ public class PortalRenderManager {
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         GL11.glDisable(GL_STENCIL_TEST);
-        GL11.glEnable(GL_DEPTH_TEST);
+        GlStateManager.enableDepthTest();
     }
     
     private void renderPortals() {
@@ -114,9 +116,7 @@ public class PortalRenderManager {
         assert cameraEntity.world == mc.world;
         assert cameraEntity.dimension == mc.world.dimension.getType();
     
-        List<PortalEntity> portalsNearby = getPortalsNearbySorted();
-    
-        for (PortalEntity portal : portalsNearby) {
+        for (PortalEntity portal : getPortalsNearbySorted()) {
             renderPortal(portal);
         }
     }
@@ -171,11 +171,9 @@ public class PortalRenderManager {
         
         clearDepthOfThePortalViewArea(portal);
         
-        //it will setup camera transformation again and overwrite the current
-        //TODO release it
-        //managePlayerStateAndRenderPortalContent(portal);
+        managePlayerStateAndRenderPortalContent(portal);
         
-        //the world rendering may modify the transformation
+        //the world rendering will modify the transformation
         setupCameraTransformation();
         
         restoreDepthOfPortalViewArea(portal);
@@ -188,7 +186,7 @@ public class PortalRenderManager {
     
     private void setupCameraTransformation() {
         ((IEGameRenderer) mc.gameRenderer).applyCameraTransformations_(partialTicks);
-        Camera camera_1 = ((IEGameRenderer) mc.gameRenderer).getCamera();
+        Camera camera_1 = mc.gameRenderer.getCamera();
         camera_1.update(mc.world, (Entity)(mc.getCameraEntity() == null ? mc.player : mc.getCameraEntity()), mc.options.perspective > 0, mc.options.perspective == 2, partialTicks);
     
     }
@@ -214,6 +212,8 @@ public class PortalRenderManager {
         
         drawPortalViewTriangle(portal);
         
+        GlStateManager.enableBlend();
+        
         Helper.checkGlError();
     }
     
@@ -237,7 +237,8 @@ public class PortalRenderManager {
             fogColor,
             portal,
             bufferbuilder,
-            cameraEntity
+            mc.gameRenderer.getCamera().getPos(),
+            partialTicks
         );
         
         tessellator.draw();
@@ -285,6 +286,9 @@ public class PortalRenderManager {
         player.world = originalWorld;
         mc.world = originalWorld;
         Helper.setPosAndLastTickPos(player, originalPos, originalLastTickPos);
+        
+        //restore the transformation
+        setupCameraTransformation();
     }
     
     private void renderPortalContentAndNestedPortals(
@@ -444,7 +448,7 @@ public class PortalRenderManager {
         
         GL11.glColorMask(true, true, true, true);
         
-        GL11.glEnable(GL_DEPTH_TEST);
+        GlStateManager.enableDepthTest();
     }
     
     private boolean isQuerying = false;

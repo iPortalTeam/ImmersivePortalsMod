@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.MinecraftClient;
@@ -9,6 +10,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.SystemUtil;
+import org.lwjgl.opengl.GL11;
 
 public class MyGameRenderer {
     private MinecraftClient mc = MinecraftClient.getInstance();
@@ -36,9 +38,16 @@ public class MyGameRenderer {
         mc.world = newWorld;
         ieGameRenderer.setBackgroundRenderer(dimensionRenderHelper.fogRenderer);
         ieGameRenderer.setLightmapTextureManager(dimensionRenderHelper.lightmapTexture);
+        dimensionRenderHelper.lightmapTexture.update(0);
+        dimensionRenderHelper.lightmapTexture.enable();
         BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
         
         mc.getProfiler().push("render_portal_content");
+        
+        //TODO remove it
+//        GlStateManager.disableDepthTest();
+//        GlStateManager.enableAlphaTest();
+//        GlStateManager.enableTexture();
         
         //invoke it!
         mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());

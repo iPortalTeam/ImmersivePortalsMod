@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.client_world_management;
 
 import com.mojang.authlib.GameProfile;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -29,14 +30,16 @@ public class ClientWorldLoader {
     
     private MinecraftClient mc = MinecraftClient.getInstance();
     
-    private MyTaskList taskList = new MyTaskList();
-    
     private boolean isInitialized = false;
     
     private boolean isLoadingFakedWorld = false;
     
     //TODO release it
     public boolean isClientRemoteTickingEnabled = false;
+    
+    public ClientWorldLoader() {
+        ModMain.clientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
+    }
     
     public boolean getIsLoadingFakedWorld() {
         return isLoadingFakedWorld;
@@ -56,8 +59,7 @@ public class ClientWorldLoader {
         isInitialized = true;
     }
     
-    public void tick() {
-        taskList.processTasks();
+    private void tick() {
         if (isClientRemoteTickingEnabled) {
             clientWorldMap.values().forEach(ClientWorld -> {
                 if (mc.world != ClientWorld) {
@@ -67,6 +69,8 @@ public class ClientWorldLoader {
                 }
             });
         }
+        renderHelperMap.values().forEach(DimensionRenderHelper::tick);
+        
     }
     
     public void cleanUp() {

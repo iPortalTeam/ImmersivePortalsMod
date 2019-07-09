@@ -14,6 +14,4 @@ public interface IEGameRenderer {
     BackgroundRenderer getBackgroundRenderer();
     
     void setBackgroundRenderer(BackgroundRenderer backgroundRenderer);
-    
-    Camera getCamera();
 }

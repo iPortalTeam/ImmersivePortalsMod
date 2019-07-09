@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 public class ViewAreaRenderer {
     static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, PortalEntity portal, BufferBuilder bufferbuilder,
-        Entity viewEntity, float partialTicks
+        Vec3d cameraPos, float partialTicks
     ) {
         //if layerWidth is small, the teleportation will not be seamless
         
@@ -25,7 +25,7 @@ public class ViewAreaRenderer {
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         
         Vec3d posInPlayerCoordinate = portal.getPos().subtract(
-            Helper.interpolatePos(viewEntity, partialTicks)
+            cameraPos
         );
         Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
         
