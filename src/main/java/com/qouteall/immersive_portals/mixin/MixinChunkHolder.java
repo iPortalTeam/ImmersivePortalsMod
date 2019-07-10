@@ -1,8 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEChunkHolder;
-import com.qouteall.immersive_portals.world_syncing.RedirectedMessageManager;
 import net.minecraft.network.Packet;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.util.math.ChunkPos;

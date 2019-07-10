@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
+import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.fabricmc.api.ModInitializer;
 
 public class ModMain implements ModInitializer {
@@ -16,7 +16,7 @@ public class ModMain implements ModInitializer {
         // This code runs as soon as Minecraft is in a mod-load-ready state.
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
-        PortalEntity.init();
+        Portal.init();
         
         MyNetwork.init();
         

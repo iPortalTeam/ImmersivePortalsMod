@@ -2,8 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
-import com.qouteall.immersive_portals.world_syncing.RedirectedMessageManager;
+import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -21,7 +20,6 @@ import net.minecraft.util.PacketByteBuf;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.util.Optional;
 
 public class MyNetwork {

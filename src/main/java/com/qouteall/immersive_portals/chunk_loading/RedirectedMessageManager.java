@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.world_syncing;
+package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;

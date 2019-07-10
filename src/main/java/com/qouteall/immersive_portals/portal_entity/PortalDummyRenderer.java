@@ -5,14 +5,14 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.util.Identifier;
 
-public class PortalDummyRenderer extends EntityRenderer<PortalEntity> {
+public class PortalDummyRenderer extends EntityRenderer<Portal> {
     protected PortalDummyRenderer(EntityRenderDispatcher entityRenderDispatcher_1) {
         super(entityRenderDispatcher_1);
     }
     
     @Override
     public boolean isVisible(
-        PortalEntity entity_1,
+        Portal entity_1,
         VisibleRegion visibleRegion_1,
         double double_1,
         double double_2,
@@ -22,7 +22,7 @@ public class PortalDummyRenderer extends EntityRenderer<PortalEntity> {
     }
     
     @Override
-    protected Identifier getTexture(PortalEntity var1) {
+    protected Identifier getTexture(Portal var1) {
         return null;
     }
 }

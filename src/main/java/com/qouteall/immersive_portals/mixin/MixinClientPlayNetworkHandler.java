@@ -16,8 +16,4 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
         this.world = world;
     }
     
-    @Override
-    public ClientWorld getWorld() {
-        return world;
-    }
 }

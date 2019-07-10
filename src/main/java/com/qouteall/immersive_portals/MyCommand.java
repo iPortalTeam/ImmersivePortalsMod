@@ -6,11 +6,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
+import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -230,7 +229,7 @@ public class MyCommand {
             playerServer,
             Helper.myToString(
                 Helper.getEntitiesNearby(
-                    playerServer, PortalEntity.entityType,64
+                    playerServer, Portal.entityType,64
                 )
             )
         );
@@ -240,7 +239,7 @@ public class MyCommand {
             playerServer,
             Helper.myToString(
                 Helper.getEntitiesNearby(
-                    playerClient, PortalEntity.entityType,64
+                    playerClient, Portal.entityType,64
                 )
             )
         );
@@ -260,7 +259,7 @@ public class MyCommand {
                 Vec3d toPos = playerEntity.getPos();
                 DimensionType toDimension = player.dimension;
                 
-                PortalEntity portal = new PortalEntity(player.world);
+                Portal portal = new Portal(player.world);
                 portal.x = fromPos.x;
                 portal.y = fromPos.y;
                 portal.z = fromPos.z;

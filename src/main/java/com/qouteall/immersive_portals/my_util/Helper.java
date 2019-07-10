@@ -243,30 +243,6 @@ public class Helper {
         }
     }
     
-    public static void transferEntityClient(
-        Entity entity,
-        ClientWorld fromWorld,
-        ClientWorld toWorld
-    ) {
-        fromWorld.removeEntity(entity.getEntityId());
-        entity.removed = false;
-        entity.world = toWorld;
-        entity.dimension = toWorld.dimension.getType();
-        toWorld.addEntity(entity.getEntityId(), entity);
-    }
-    
-    public static void transferEntityServer(
-        Entity entity,
-        ServerWorld fromWorld,
-        ServerWorld toWorld
-    ) {
-        fromWorld.removeEntity(entity);
-        entity.removed = false;
-        entity.world = toWorld;
-        entity.dimension = toWorld.dimension.getType();
-        toWorld.spawnEntity(entity);
-    }
-    
     public static Vec3d lastTickPosOf(Entity entity) {
         return new Vec3d(entity.prevRenderX, entity.prevRenderY, entity.prevRenderZ);
     }

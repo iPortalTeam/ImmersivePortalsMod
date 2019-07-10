@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.my_util.Helper;
 
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
+import com.qouteall.immersive_portals.portal_entity.Portal;
 
 import net.minecraft.client.MinecraftClient;
 
@@ -112,7 +112,7 @@ public class ShaderManager {
         GL20.glUniformMatrix4fv(uniProjection, false, Helper.getProjectionMatrix());
         GL20.glUniformMatrix4fv(uniTextureMatrix, true, Helper.getTextureMatrix());
         
-        PortalEntity portal = Globals.portalRenderManager.getRenderingPortalData();
+        Portal portal = Globals.portalRenderManager.getRenderingPortalData();
         if (portal != null) {
             Vec3d cullingPoint = portal.getCullingPoint();
             GL20.glUniform3f(

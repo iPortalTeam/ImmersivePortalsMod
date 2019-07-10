@@ -1,29 +1,23 @@
-package com.qouteall.immersive_portals.world_syncing;
+package com.qouteall.immersive_portals.chunk_loading;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.qouteall.immersive_portals.exposer.IEServerChunkManager;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
+import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.*;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.dimension.Dimension;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChunkSyncingManager {
+    
     /**
      * see{@link net.minecraft.server.world.ChunkTicketManager.DistanceFromNearestPlayerTracker#getInitialLevel(long)}
      * see{@link net.minecraft.server.world.ChunkTicketManager#handleChunkEnter(ChunkSectionPos, ServerPlayerEntity)}
@@ -31,39 +25,14 @@ public class ChunkSyncingManager {
      * see{@link net.minecraft.server.world.ThreadedAnvilChunkStorage#getPlayersWatchingChunk(ChunkPos, boolean)}
      * {@link ChunkHolder#sendPacketToPlayersWatching(Packet, boolean)}
      */
-    public static class DimensionalChunkPos {
-        public DimensionType dimensionType;
-        public int x;
-        public int z;
-        
-        public DimensionalChunkPos(DimensionType dimensionType, int x, int z) {
-            this.dimensionType = dimensionType;
-            this.x = x;
-            this.z = z;
-        }
-        
-        public DimensionalChunkPos(DimensionType dimensionType, ChunkPos chunkPos) {
-            this(dimensionType, chunkPos.x, chunkPos.z);
-        }
-        
-        public ChunkPos getChunkPos() {
-            return new ChunkPos(x, z);
-        }
-        
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof DimensionalChunkPos)) {
-                return false;
-            }
-            DimensionalChunkPos obj1 = (DimensionalChunkPos) obj;
-            return (dimensionType == obj1.dimensionType) &&
-                (x == obj1.x) &&
-                (z == obj1.z);
-        }
-    }
     
+    /**
+     * {@link ThreadedAnvilChunkStorage#updateCameraPosition(ServerPlayerEntity)}
+     */
     
-    private Multimap<DimensionalChunkPos, ServerPlayerEntity> indirectVisibilityMap;
+    private Map<ServerPlayerEntity, Vec3d> lastPosUponUpdatingMap = new HashMap<>();
+    private Multimap<DimensionalChunkPos, ServerPlayerEntity> chunkToWatchingPlayers = HashMultimap.create();
+    private Multimap<ServerPlayerEntity, DimensionalChunkPos> playerToWatchedChunks = HashMultimap.create();
     
     private static final ChunkTicketType<ChunkPos> immersiveTicketType =
         ChunkTicketType.create(
@@ -104,10 +73,14 @@ public class ChunkSyncingManager {
         }
     }
     
+    private void updatePlayer() {
+    
+    }
+    
     public void tick() {
-        Multimap<DimensionalChunkPos, ServerPlayerEntity> oldMap = this.indirectVisibilityMap;
-        Multimap<DimensionalChunkPos, ServerPlayerEntity> newMap = computeNewIndirectVisibilityMap();
-        indirectVisibilityMap = newMap;
+        Multimap<DimensionalChunkPos, ServerPlayerEntity> oldMap = this.chunkToWatchingPlayers;
+        Multimap<DimensionalChunkPos, ServerPlayerEntity> newMap = computeNewVisibilityMap();
+        chunkToWatchingPlayers = newMap;
         
         Set<DimensionalChunkPos> oldWatchedChunks = oldMap.keySet();
         Set<DimensionalChunkPos> newWatchedChunks = newMap.keySet();
@@ -132,12 +105,12 @@ public class ChunkSyncingManager {
         );
     }
     
-    private Multimap<DimensionalChunkPos, ServerPlayerEntity> computeNewIndirectVisibilityMap() {
+    private Multimap<DimensionalChunkPos, ServerPlayerEntity> computeNewVisibilityMap() {
         Multimap<DimensionalChunkPos, ServerPlayerEntity> newMap = HashMultimap.create();
         Helper.getServer().getPlayerManager().getPlayerList().forEach(
             playerEntity -> Helper.getEntitiesNearby(
                 playerEntity,
-                PortalEntity.entityType,
+                Portal.entityType,
                 portalLoadingRange
             ).forEach(
                 portalEntity -> getNearbyChunkPoses(portalEntity).forEach(
@@ -148,7 +121,7 @@ public class ChunkSyncingManager {
         return newMap;
     }
     
-    private Stream<DimensionalChunkPos> getNearbyChunkPoses(PortalEntity portal) {
+    private Stream<DimensionalChunkPos> getNearbyChunkPoses(Portal portal) {
         List<DimensionalChunkPos> chunkPoses = new ArrayList<>();
         ChunkPos portalChunkPos = new ChunkPos(portal.getBlockPos());
         for (int dx = -portalChunkLoadingRadius; dx <= portalChunkLoadingRadius; dx++) {
@@ -168,7 +141,7 @@ public class ChunkSyncingManager {
         ChunkPos chunkPos
     ) {
         assert dimensionType != null;
-        return indirectVisibilityMap.get(
+        return chunkToWatchingPlayers.get(
             new DimensionalChunkPos(
                 dimensionType,
                 chunkPos.x,

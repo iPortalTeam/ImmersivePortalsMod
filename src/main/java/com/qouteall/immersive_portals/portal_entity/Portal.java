@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal_entity;
 
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
@@ -11,13 +12,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
-public class PortalEntity extends Entity {
-    public static EntityType<PortalEntity> entityType;
+public class Portal extends Entity {
+    public static EntityType<Portal> entityType;
     
     public double width = 0;
     public double height = 0;
@@ -33,7 +35,7 @@ public class PortalEntity extends Entity {
             new Identifier("immersive_portals", "portal"),
             FabricEntityTypeBuilder.create(
                 EntityCategory.MISC,
-                (EntityType<PortalEntity> type, World world1) -> new PortalEntity(
+                (EntityType<Portal> type, World world1) -> new Portal(
                     type, world1
                 )
             ).size(
@@ -42,25 +44,25 @@ public class PortalEntity extends Entity {
         );
         
         EntityRendererRegistry.INSTANCE.register(
-            PortalEntity.class,
+            Portal.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
         );
     }
     
-    public PortalEntity(
+    public Portal(
         EntityType<?> entityType_1,
         World world_1
     ) {
         super(entityType_1, world_1);
     }
     
-    public PortalEntity(
+    public Portal(
         World world
     ) {
         this(entityType, world);
     }
     
-    public PortalEntity(
+    public Portal(
         World world_1,
         double width,
         double height,
@@ -125,7 +127,9 @@ public class PortalEntity extends Entity {
             if (!isPortalValid()) {
                 Helper.log("removed invalid portal" + this);
                 removed = true;
+                return;
             }
+            Globals.serverTeleportationManager.onPortalTick(this);
         }
         
     }
@@ -145,13 +149,13 @@ public class PortalEntity extends Entity {
         return pos.subtract(getPos()).dotProduct(getNormal());
     }
     
-    public boolean canSeeThroughFromPos(
+    public boolean isInFrontOfPortal(
         Vec3d playerPos
     ) {
         return getDistanceToPlane(playerPos) > 0;
     }
     
-    public boolean canRenderPortalInsideMe(PortalEntity anotherPortal) {
+    public boolean canRenderPortalInsideMe(Portal anotherPortal) {
         assert anotherPortal.dimension == dimensionTo;
         double v = anotherPortal.getPos().subtract(destination).dotProduct(getNormal());
         return v < -0.5;
@@ -208,6 +212,13 @@ public class PortalEntity extends Entity {
     
     public Vec3d getCullingPoint() {
         return destination;
+    }
+    
+    public Box getPortalCollisionBox() {
+        return new Box(
+            getPointInPlane(width, height),
+            getPointInPlane(-width, -height)
+        ).expand(0.1);
     }
     
     @Override

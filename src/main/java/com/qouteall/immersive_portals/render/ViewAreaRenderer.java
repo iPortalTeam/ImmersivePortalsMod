@@ -1,10 +1,8 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
+import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Arrays;
@@ -13,7 +11,7 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class ViewAreaRenderer {
     static void buildPortalViewAreaTrianglesBuffer(
-        Vec3d fogColor, PortalEntity portal, BufferBuilder bufferbuilder,
+        Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
         Vec3d cameraPos, float partialTicks
     ) {
         //if layerWidth is small, the teleportation will not be seamless

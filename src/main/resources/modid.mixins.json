@@ -17,7 +17,9 @@
     "MixinGlStateManager",
     "MixinMinecraftClient",
     "MixinMinecraftServer",
-    "MixinServerChunkManager"
+    "MixinServerChunkManager",
+    "MixinThreadedAnvilChunkStorage",
+    "MixinWorld"
   ],
   "injectors": {
     "defaultRequire": 1

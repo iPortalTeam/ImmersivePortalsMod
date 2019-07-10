@@ -1,11 +1,10 @@
 package com.qouteall.immersive_portals.render;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.PortalEntity;
+import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.world.ClientWorld;
@@ -26,7 +25,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class PortalRenderManager {
     private MinecraftClient mc = MinecraftClient.getInstance();
-    private Stack<PortalEntity> portalLayers = new Stack<>();
+    private Stack<Portal> portalLayers = new Stack<>();
     public Supplier<Integer> maxPortalLayer = () -> 2;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     private Runnable behavior;
@@ -60,7 +59,7 @@ public class PortalRenderManager {
         return getPortalLayer() != 0;
     }
     
-    public PortalEntity getRenderingPortalData() {
+    public Portal getRenderingPortalData() {
         return portalLayers.peek();
     }
     
@@ -116,14 +115,14 @@ public class PortalRenderManager {
         assert cameraEntity.world == mc.world;
         assert cameraEntity.dimension == mc.world.dimension.getType();
     
-        for (PortalEntity portal : getPortalsNearbySorted()) {
+        for (Portal portal : getPortalsNearbySorted()) {
             renderPortal(portal);
         }
     }
     
-    private List<PortalEntity> getPortalsNearbySorted() {
-        List<PortalEntity> portalsNearby = mc.world.getEntities(
-            PortalEntity.class,
+    private List<Portal> getPortalsNearbySorted() {
+        List<Portal> portalsNearby = mc.world.getEntities(
+            Portal.class,
             new Box(cameraEntity.getBlockPos()).expand(portalRenderingRange.get())
         );
         
@@ -135,20 +134,20 @@ public class PortalRenderManager {
         return portalsNearby;
     }
     
-    private void renderPortal(PortalEntity portal) {
+    private void renderPortal(Portal portal) {
         if (!portal.isPortalValid()) {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
         
-        if (!portal.canSeeThroughFromPos(cameraEntity.getPos())) {
+        if (!portal.isInFrontOfPortal(cameraEntity.getPos())) {
             return;
         }
         
         int outerPortalStencilValue = getPortalLayer();
         
         if (isRendering()) {
-            PortalEntity outerPortal = portalLayers.peek();
+            Portal outerPortal = portalLayers.peek();
             if (!outerPortal.canRenderPortalInsideMe(portal)) {
                 return;
             }
@@ -192,7 +191,7 @@ public class PortalRenderManager {
     }
     
     private void renderPortalViewAreaToStencil(
-        PortalEntity portal
+        Portal portal
     ) {
         int outerPortalStencilValue = getPortalLayer();
         
@@ -218,7 +217,7 @@ public class PortalRenderManager {
     }
     
     //it will render a box instead of a quad
-    private void drawPortalViewTriangle(PortalEntity portal) {
+    private void drawPortalViewTriangle(Portal portal) {
         Globals.shaderManager.unloadShader();
         
         DimensionRenderHelper helper =
@@ -251,7 +250,7 @@ public class PortalRenderManager {
     //it will overwrite the matrix
     //do not push matrix before calling this
     private void managePlayerStateAndRenderPortalContent(
-        PortalEntity portal
+        Portal portal
     ) {
         Entity player = mc.cameraEntity;
         int allowedStencilValue = getPortalLayer();
@@ -292,7 +291,7 @@ public class PortalRenderManager {
     }
     
     private void renderPortalContentAndNestedPortals(
-        PortalEntity portal
+        Portal portal
     ) {
         int thisPortalStencilValue = getPortalLayer();
         
@@ -363,7 +362,7 @@ public class PortalRenderManager {
     }
     
     private void clearDepthOfThePortalViewArea(
-        PortalEntity portal
+        Portal portal
     ) {
         int allowedStencilValue = getPortalLayer();
         
@@ -399,7 +398,7 @@ public class PortalRenderManager {
     }
     
     private void restoreDepthOfPortalViewArea(
-        PortalEntity portal
+        Portal portal
     ) {
         int thisPortalStencilValue = getPortalLayer();
         
@@ -490,7 +489,7 @@ public class PortalRenderManager {
     }
     
     private void debugRenderPortalContent(int portalId) {
-        PortalEntity portal = ((PortalEntity) mc.world.getEntityById(portalId));
+        Portal portal = ((Portal) mc.world.getEntityById(portalId));
         if (portal == null) {
             Helper.err("debugging nonexistent portal?");
             return;
@@ -507,10 +506,10 @@ public class PortalRenderManager {
         );
     }
     
-    public void renderViewArea(PortalEntity portal) {
+    public void renderViewArea(Portal portal) {
         Entity renderViewEntity = mc.cameraEntity;
         
-        if (!portal.canSeeThroughFromPos(renderViewEntity.getPos())) {
+        if (!portal.isInFrontOfPortal(renderViewEntity.getPos())) {
             return;
         }
         
