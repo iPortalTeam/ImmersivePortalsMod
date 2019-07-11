@@ -1,7 +1,10 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEChunkHolder;
 import net.minecraft.network.Packet;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
@@ -12,6 +15,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Mixin(ChunkHolder.class)
 public class MixinChunkHolder implements IEChunkHolder {
     //not shadow
@@ -20,6 +28,10 @@ public class MixinChunkHolder implements IEChunkHolder {
     @Shadow
     @Final
     private ChunkPos pos;
+    
+    @Shadow
+    @Final
+    private ChunkHolder.PlayersWatchingChunkProvider playersWatchingChunkProvider;
     
     @Inject(
         method = "Lnet/minecraft/server/world/ChunkHolder;sendPacketToPlayersWatching(Lnet/minecraft/network/Packet;Z)V",
@@ -33,18 +45,23 @@ public class MixinChunkHolder implements IEChunkHolder {
         //TODO release this
         //assert dimension != null;
         
-//        Globals.chunkSyncingManager
-//            .getIndirectViewers(dimension, pos)
-//            .forEach(
-//                playerEntity -> {
-//                    assert playerEntity.dimension != dimension;
-//                    playerEntity.networkHandler.sendPacket(
-//                        RedirectedMessageManager.createRedirectedMessage(
-//                            dimension, packet_1
-//                        )
-//                    );
-//                }
-//            );
+        Set<ServerPlayerEntity> vanillaWatchers =
+            this.playersWatchingChunkProvider.getPlayersWatchingChunk(
+                this.pos, boolean_1
+            ).collect(Collectors.toSet());
+        Collection<ServerPlayerEntity> myWatchers = Globals.chunkTracker
+            .getPlayersViewingChunk(dimension, pos);
+        myWatchers.stream().filter(
+            player -> !vanillaWatchers.contains(player)
+        ).forEach(
+            playerEntity -> {
+                playerEntity.networkHandler.sendPacket(
+                    RedirectedMessageManager.createRedirectedMessage(
+                        dimension, packet_1
+                    )
+                );
+            }
+        );
     }
     
     @Override

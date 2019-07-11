@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
+import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
 import com.qouteall.immersive_portals.client_world_management.ClientWorldLoader;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
@@ -35,6 +37,8 @@ public class ModMain implements ModInitializer {
             Globals.portalRenderManager = new PortalRenderManager();
             Globals.shaderManager = new ShaderManager();
             Globals.clientWorldLoader = new ClientWorldLoader();
+            Globals.chunkTracker = new ChunkTracker();
+            Globals.chunkDataSyncManager = new ChunkDataSyncManager();
             Globals.myGameRenderer = new MyGameRenderer();
             Globals.collisionManagerClient = new PortalCollisionManager();
             Globals.collisionManagerServer = new PortalCollisionManager();

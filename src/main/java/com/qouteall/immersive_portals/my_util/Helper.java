@@ -25,6 +25,7 @@ import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -475,5 +476,25 @@ public class Helper {
         );
     }
     
+    public static <T> void compareOldAndNew(
+        Set<T> oldSet,
+        Set<T> newSet,
+        Consumer<T> forRemoved,
+        Consumer<T> forAdded
+    ) {
+        oldSet.stream().filter(
+            e -> !newSet.contains(e)
+        ).forEach(
+            forRemoved
+        );
+        newSet.stream().filter(
+            e -> !oldSet.contains(e)
+        ).forEach(
+            forAdded
+        );
+    }
     
+    public static long getServerGameTime(){
+        return getOverWorldOnServer().getTime();
+    }
 }
