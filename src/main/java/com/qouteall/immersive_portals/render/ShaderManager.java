@@ -22,10 +22,16 @@ public class ShaderManager {
     public static boolean isShaderEnabled = false;
     
     public ShaderManager() {
-        idContentShaderProgram = compileShaderPrograms(
-            "immersive_portals:shaders/content_shader_vs.glsl",
-            "immersive_portals:shaders/content_shader_fs.glsl"
-        );
+    
+    }
+    
+    private void initIfNeeded() {
+        if (idContentShaderProgram == -1) {
+            idContentShaderProgram = compileShaderPrograms(
+                "immersive_portals:shaders/content_shader_vs.glsl",
+                "immersive_portals:shaders/content_shader_fs.glsl"
+            );
+        }
     }
     
     //return the shader id
@@ -93,6 +99,8 @@ public class ShaderManager {
         if (!isShaderEnabled) {
             return;
         }
+        
+        initIfNeeded();
         
         GL20.glUseProgram(idContentShaderProgram);
         

@@ -17,6 +17,7 @@
     "MixinGlStateManager",
     "MixinMinecraftClient",
     "MixinMinecraftServer",
+    "MixinPlayerListEntry",
     "MixinServerChunkManager",
     "MixinThreadedAnvilChunkStorage",
     "MixinWorld"

@@ -24,11 +24,14 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 
+//this class is modified based on ClientChunkManager
+//re-write this class upon updating mod
 public class MyClientChunkManager extends ClientChunkManager {
     private static final Logger LOGGER = LogManager.getLogger();
     private final WorldChunk emptyChunk;
     private final LightingProvider lightingProvider;
     private final ClientWorld world;
+    
     //its performance is a little lower than vanilla
     //but this is indispensable
     private ConcurrentHashMap<ChunkPos, WorldChunk> chunkMap = new ConcurrentHashMap<>();
@@ -85,8 +88,8 @@ public class MyClientChunkManager extends ClientChunkManager {
         boolean boolean_1
     ) {
         ChunkPos chunkPos = new ChunkPos(int_1, int_2);
-        WorldChunk originalChunk = chunkMap.get(chunkPos);
-        if (!isChunkValid(originalChunk, int_1, int_2)) {
+        WorldChunk chunk = chunkMap.get(chunkPos);
+        if (!isChunkValid(chunk, int_1, int_2)) {
             if (!boolean_1) {
                 LOGGER.warn(
                     "Ignoring chunk since we don't have complete data: {}, {}",
@@ -96,17 +99,21 @@ public class MyClientChunkManager extends ClientChunkManager {
                 return null;
             }
             
-            WorldChunk newChunk = new WorldChunk(world_1, new ChunkPos(int_1, int_2), new Biome[256]);
-            newChunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
-            chunkMap.put(chunkPos,newChunk);
-    
-            world.unloadBlockEntities(originalChunk);
+            chunk = new WorldChunk(
+                world_1,
+                new ChunkPos(int_1, int_2),
+                new Biome[256]
+            );
+            chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
+            chunkMap.put(chunkPos, chunk);
+            
+            world.unloadBlockEntities(chunk);
         }
         else {
-            originalChunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
+            chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
         }
         
-        ChunkSection[] chunkSections_1 = originalChunk.getSectionArray();
+        ChunkSection[] chunkSections_1 = chunk.getSectionArray();
         LightingProvider lightingProvider_1 = this.getLightingProvider();
         lightingProvider_1.suppressLight(new ChunkPos(int_1, int_2), true);
         
@@ -118,7 +125,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             );
         }
         
-        return originalChunk;
+        return chunk;
     }
     
     @Override

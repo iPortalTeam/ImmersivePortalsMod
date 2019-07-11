@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.portal_entity.Portal;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Vec3d;
@@ -18,7 +20,7 @@ public class ViewAreaRenderer {
         
         //counter-clockwise triangles are front-faced in default
         
-        final float layerWidth = 0.5F;
+        float layerWidth = 0.5F;
         
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         

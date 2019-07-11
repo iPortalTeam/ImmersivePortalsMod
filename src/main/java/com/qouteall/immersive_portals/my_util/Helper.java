@@ -271,9 +271,6 @@ public class Helper {
         entity.prevX = lastTickPos.x;
         entity.prevY = lastTickPos.y;
         entity.prevZ = lastTickPos.z;
-        
-        //prevPos and lastTickPos are duplicate
-        //minecraft code base if full of chaos
     }
     
     public static WeakReference<MinecraftServer> refMinecraftServer;

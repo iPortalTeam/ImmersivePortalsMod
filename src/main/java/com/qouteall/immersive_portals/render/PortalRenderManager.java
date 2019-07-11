@@ -37,15 +37,20 @@ public class PortalRenderManager {
     
     public PortalRenderManager() {
         behavior = this::renderPortals;
-        idQueryObject = GL15.glGenQueries();
     }
     
     private void renderViewAreas() {
         GL11.glDisable(GL_STENCIL_TEST);
-    
+        
         setupCameraTransformation();
         
         getPortalsNearbySorted().forEach(this::drawPortalViewTriangle);
+    }
+    
+    private void initIfNeeded() {
+        if (idQueryObject == -1) {
+            idQueryObject = GL15.glGenQueries();
+        }
     }
     
     //0 for rendering outer world
@@ -63,11 +68,12 @@ public class PortalRenderManager {
         return portalLayers.peek();
     }
     
-    public boolean shouldSkipClearing(){
+    public boolean shouldSkipClearing() {
         return isRendering();
     }
     
     public void doRendering(float partialTicks_, long finishTimeNano_) {
+        initIfNeeded();
         
         if (!isRendering()) {
             prepareRendering(partialTicks_, finishTimeNano_);
@@ -114,7 +120,7 @@ public class PortalRenderManager {
         
         assert cameraEntity.world == mc.world;
         assert cameraEntity.dimension == mc.world.dimension.getType();
-    
+        
         for (Portal portal : getPortalsNearbySorted()) {
             renderPortal(portal);
         }
@@ -186,8 +192,14 @@ public class PortalRenderManager {
     private void setupCameraTransformation() {
         ((IEGameRenderer) mc.gameRenderer).applyCameraTransformations_(partialTicks);
         Camera camera_1 = mc.gameRenderer.getCamera();
-        camera_1.update(mc.world, (Entity)(mc.getCameraEntity() == null ? mc.player : mc.getCameraEntity()), mc.options.perspective > 0, mc.options.perspective == 2, partialTicks);
-    
+        camera_1.update(
+            mc.world,
+            (Entity) (mc.getCameraEntity() == null ? mc.player : mc.getCameraEntity()),
+            mc.options.perspective > 0,
+            mc.options.perspective == 2,
+            partialTicks
+        );
+        
     }
     
     private void renderPortalViewAreaToStencil(
@@ -287,6 +299,8 @@ public class PortalRenderManager {
         Helper.setPosAndLastTickPos(player, originalPos, originalLastTickPos);
         
         //restore the transformation
+        GlStateManager.enableDepthTest();
+        GlStateManager.disableBlend();
         setupCameraTransformation();
     }
     

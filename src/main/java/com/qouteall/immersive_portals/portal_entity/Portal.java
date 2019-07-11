@@ -123,15 +123,17 @@ public class Portal extends Entity {
     
     @Override
     public void tick() {
-        if (!world.isClient) {
+        if (world.isClient) {
+            Globals.collisionManagerClient.onPortalTick(this);
+        }
+        else {
             if (!isPortalValid()) {
                 Helper.log("removed invalid portal" + this);
                 removed = true;
                 return;
             }
-            Globals.serverTeleportationManager.onPortalTick(this);
+            Globals.collisionManagerServer.onPortalTick(this);
         }
-        
     }
     
     public boolean isPortalValid() {

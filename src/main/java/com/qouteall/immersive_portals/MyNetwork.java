@@ -15,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
@@ -74,18 +75,21 @@ public class MyNetwork {
         }
     }
     
-    public static CustomPayloadS2CPacket createCtsTeleport(
+    public static CustomPayloadC2SPacket createCtsTeleport(
         int portalEntityId
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(portalEntityId);
-        return new CustomPayloadS2CPacket(id_ctsTeleport, buf);
+        return new CustomPayloadC2SPacket(id_ctsTeleport, buf);
     }
     
     private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         int portalEntityId = buf.readInt();
         
-        assert false;
+        Globals.serverTeleportationManager.onPlayerTeleportedInClient(
+            (ServerPlayerEntity) context.getPlayer(),
+            portalEntityId
+        );
     }
     
     public static CustomPayloadS2CPacket createStcSpawnEntity(
