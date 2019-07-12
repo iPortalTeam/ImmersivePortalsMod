@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.entity.Entity;
@@ -15,7 +16,7 @@ public class ServerTeleportationManager {
         int portalId
     ) {
         Entity entityPortal = player.world.getEntityById(portalId);
-        assert player.dimension==player.world.dimension.getType();
+        assert player.dimension == player.world.dimension.getType();
         if (!(entityPortal instanceof Portal)) {
             Helper.err("Can Not Find Portal " + portalId + " in " + player.dimension + "to teleport");
             return;
@@ -33,7 +34,7 @@ public class ServerTeleportationManager {
         ServerWorld fromWorld = (ServerWorld) player.world;
         ServerWorld toWorld = Helper.getServer().getWorld(portal.dimensionTo);
         Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
-
+    
         if (player.dimension == portal.dimensionTo) {
             player.setPosition(
                 newPos.x,
@@ -42,7 +43,10 @@ public class ServerTeleportationManager {
             );
         }
         else {
-            changePlayerDimension(player, fromWorld, toWorld, newPos);
+            ModMain.serverTaskList.addTask(() -> {
+                changePlayerDimension(player, fromWorld, toWorld, newPos);
+                return true;
+            });
         }
         
     }

@@ -1,12 +1,10 @@
 package com.qouteall.immersive_portals.nether_portal_managing;
 
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.portal_entity.MonitoringNetherPortal;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.dimension.DimensionType;
 
 public class NetherPortalLifeCycleManager {
     
@@ -21,7 +19,7 @@ public class NetherPortalLifeCycleManager {
     }
     
     public static void breakNetherPortal(
-        NetherPortalGuard portalGuard
+        MonitoringNetherPortal portalGuard
     ) {
         ServerWorld world1 = Helper.getServer().getWorld(portalGuard.dimension1);
         ServerWorld world2 = Helper.getServer().getWorld(portalGuard.dimension2);

@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
 import com.qouteall.immersive_portals.client_world_management.ClientWorldLoader;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
+import com.qouteall.immersive_portals.portal_entity.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderManager;
@@ -27,6 +28,7 @@ public class ModMain implements ModInitializer {
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
         Portal.init();
+        MonitoringNetherPortal.init();
         
         MyNetwork.init();
         

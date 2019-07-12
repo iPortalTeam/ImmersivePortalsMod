@@ -3,16 +3,19 @@ package com.qouteall.immersive_portals.portal_entity;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
+import javafx.util.Pair;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -35,14 +38,13 @@ public class Portal extends Entity {
             new Identifier("immersive_portals", "portal"),
             FabricEntityTypeBuilder.create(
                 EntityCategory.MISC,
-                (EntityType<Portal> type, World world1) -> new Portal(
-                    type, world1
-                )
+                (EntityType<Portal> type, World world1) ->
+                    new Portal(type, world1)
             ).size(
-                1, 1
+                new EntityDimensions(1, 1, true)
             ).build()
         );
-        
+
         EntityRendererRegistry.INSTANCE.register(
             Portal.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
@@ -233,5 +235,58 @@ public class Portal extends Entity {
             '}';
     }
     
-    
+    public static void initBiWayBiFacedPortal(
+        Portal[] portals,
+        DimensionType dimension1,
+        Vec3d center1,
+        DimensionType dimension2,
+        Vec3d center2,
+        Direction.Axis normalAxis,
+        Vec3d portalSize
+    ) {
+        Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
+        Direction.Axis wAxis = anotherTwoAxis.getKey();
+        Direction.Axis hAxis = anotherTwoAxis.getValue();
+        
+        float width = (float) Helper.getCoordinate(portalSize, wAxis);
+        float height = (float) Helper.getCoordinate(portalSize, hAxis);
+        
+        Vec3d wAxisVec = new Vec3d(Helper.getUnitFromAxis(wAxis));
+        Vec3d hAxisVec = new Vec3d(Helper.getUnitFromAxis(hAxis));
+        
+        portals[0].setPosition(center1.x, center1.y, center1.z);
+        portals[1].setPosition(center1.x, center1.y, center1.z);
+        portals[2].setPosition(center2.x, center2.y, center2.z);
+        portals[3].setPosition(center2.x, center2.y, center2.z);
+        
+        portals[0].destination = center2;
+        portals[1].destination = center2;
+        portals[2].destination = center1;
+        portals[3].destination = center1;
+        
+        portals[0].dimensionTo = dimension2;
+        portals[1].dimensionTo = dimension2;
+        portals[2].dimensionTo = dimension1;
+        portals[3].dimensionTo = dimension1;
+        
+        portals[0].axisW = wAxisVec;
+        portals[1].axisW = wAxisVec.multiply(-1);
+        portals[2].axisW = wAxisVec;
+        portals[3].axisW = wAxisVec.multiply(-1);
+        
+        portals[0].axisH = hAxisVec;
+        portals[1].axisH = hAxisVec;
+        portals[2].axisH = hAxisVec;
+        portals[3].axisH = hAxisVec;
+        
+        portals[0].width = width;
+        portals[1].width = width;
+        portals[2].width = width;
+        portals[3].width = width;
+        
+        portals[0].height = height;
+        portals[1].height = height;
+        portals[2].height = height;
+        portals[3].height = height;
+    }
 }

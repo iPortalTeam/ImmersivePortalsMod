@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEServerChunkManager;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -125,18 +124,18 @@ public class ChunkTracker {
     }
     
     private void tick() {
-        Helper.getServer().getPlayerManager().getPlayerList().forEach(
-            player -> {
-                Vec3d lastUpdatePos = lastPosUponUpdatingMap.get(player);
-                if (lastUpdatePos == null ||
-                    player.getPos().squaredDistanceTo(lastUpdatePos) > 8 * 8
-                ) {
-                    lastPosUponUpdatingMap.put(player, player.getPos());
-                    updatePlayer(player);
-                }
+        List<ServerPlayerEntity> playerList =
+            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
+        for (ServerPlayerEntity player : playerList) {
+            Vec3d lastUpdatePos = lastPosUponUpdatingMap.get(player);
+            if (lastUpdatePos == null ||
+                player.getPos().squaredDistanceTo(lastUpdatePos) > 8 * 8
+            ) {
+                lastPosUponUpdatingMap.put(player, player.getPos());
+                updatePlayer(player);
             }
-        );
-        
+        }
+    
         if (Helper.getServerGameTime() % 20 == 7) {
             updateChunkTickets();
             
