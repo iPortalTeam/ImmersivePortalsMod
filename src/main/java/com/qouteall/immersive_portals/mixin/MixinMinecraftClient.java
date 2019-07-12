@@ -1,7 +1,9 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,5 +25,15 @@ public class MixinMinecraftClient {
     )
     private void onClientTick(CallbackInfo ci) {
         ModMain.clientTickSignal.emit();
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V",
+        at = @At("TAIL")
+    )
+    private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
+        if (clientWorld_1 == null) {
+            Globals.clientWorldLoader.cleanUp();
+        }
     }
 }

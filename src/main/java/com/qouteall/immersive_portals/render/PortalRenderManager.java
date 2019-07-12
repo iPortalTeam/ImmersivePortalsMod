@@ -301,7 +301,7 @@ public class PortalRenderManager {
         //restore the transformation
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
-        setupCameraTransformation();
+        //setupCameraTransformation();
     }
     
     private void renderPortalContentAndNestedPortals(

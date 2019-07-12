@@ -1,2 +1,3 @@
 fix black when teleported place is in suffocating position
 fix blink upon teleportation
+fix vanilla unloads a chunk that player is watching

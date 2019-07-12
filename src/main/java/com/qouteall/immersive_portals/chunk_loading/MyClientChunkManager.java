@@ -107,7 +107,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
             chunkMap.put(chunkPos, chunk);
             
-            world.unloadBlockEntities(chunk);
+            world.unloadBlockEntities(chunk);//TODO wrong?
         }
         else {
             chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);

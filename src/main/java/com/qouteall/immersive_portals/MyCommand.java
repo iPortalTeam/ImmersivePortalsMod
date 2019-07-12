@@ -15,6 +15,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.List;
@@ -77,6 +81,64 @@ public class MyCommand {
                 .literal("list_all_portals")
                 .executes(context -> listAllPortals(context))
             )
+            .then(CommandManager
+                .literal("is_client_chunk_loaded")
+                .then(CommandManager
+                    .argument(
+                        "chunkX", IntegerArgumentType.integer()
+                    )
+                    .then(CommandManager
+                        .argument(
+                            "chunkZ", IntegerArgumentType.integer()
+                        )
+                        .executes(
+                            context -> {
+                                int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
+                                int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+                                Chunk chunk = MinecraftClient.getInstance().world.getChunk(
+                                    chunkX, chunkZ
+                                );
+                                Helper.serverLog(
+                                    context.getSource().getPlayer(),
+                                    chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
+                                );
+                                return 0;
+                            }
+                        )
+                    )
+                )
+            )
+            .then(CommandManager
+                .literal("is_server_chunk_loaded")
+                .then(CommandManager
+                    .argument(
+                        "chunkX", IntegerArgumentType.integer()
+                    )
+                    .then(CommandManager
+                        .argument(
+                            "chunkZ", IntegerArgumentType.integer()
+                        )
+                        .executes(
+                            context -> {
+                                int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
+                                int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+                                ServerPlayerEntity player = context.getSource().getPlayer();
+                                Chunk chunk = Helper.getServer()
+                                    .getWorld(player.dimension)
+                                    .getChunk(
+                                        chunkX, chunkZ,
+                                        ChunkStatus.FULL, false
+                                    );
+                                Helper.serverLog(
+                                    player,
+                                    chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
+                                );
+                                return 0;
+                            }
+                        )
+                    )
+                )
+            )
 //            .then(CommandManager
 //                .literal("delete_all_portals")
 //                .executes(context -> deleteAllPortals())
@@ -96,10 +158,10 @@ public class MyCommand {
                 .literal("add_portal")
                 .executes(context -> addPortal(context))
             )
-//            .then(CommandManager
-//                .literal("report_player_status")
-//                .executes(context -> reportPlayerStatus(context))
-//            )
+            .then(CommandManager
+                .literal("report_player_status")
+                .executes(context -> reportPlayerStatus(context))
+            )
 //            .then(CommandManager
 //                .literal("client_remote_ticking_enable")
 //                .executes(context -> {
@@ -223,23 +285,23 @@ public class MyCommand {
     private static int listAllPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity playerServer = context.getSource().getPlayer();
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
-    
+        
         Helper.serverLog(playerServer, "Server Portals");
         Helper.serverLog(
             playerServer,
             Helper.myToString(
                 Helper.getEntitiesNearby(
-                    playerServer, Portal.entityType,64
+                    playerServer, Portal.entityType, 64
                 )
             )
         );
-
+        
         Helper.serverLog(playerServer, "Client Portals");
         Helper.serverLog(
             playerServer,
             Helper.myToString(
                 Helper.getEntitiesNearby(
-                    playerClient, Portal.entityType,64
+                    playerClient, Portal.entityType, 64
                 )
             )
         );
@@ -272,7 +334,7 @@ public class MyCommand {
                 
                 portal.width = 4;
                 portal.height = 4;
-    
+                
                 assert portal.isPortalValid();
                 
                 playerEntity.world.spawnEntity(portal);
@@ -297,18 +359,17 @@ public class MyCommand {
     private static int reportPlayerStatus(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         //only invoked on single player
 
-//        EntityPlayerMP playerMP = context.getSource().asPlayer();
-//        EntityPlayerSP playerSP = MinecraftClient.getInstance().player;
-//        
-//        Helper.serverLog(
-//            playerMP,
-//            "On Server " + playerMP.dimension + " " + playerMP.getPosition()
-//        );
-//        Helper.serverLog(
-//            playerMP,
-//            "On Client " + playerSP.dimension + " " + playerSP.getPosition()
-//        );
-        assert false;
+        ServerPlayerEntity playerMP = context.getSource().getPlayer();
+        ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
+
+        Helper.serverLog(
+            playerMP,
+            "On Server " + playerMP.dimension + " " + playerMP.getBlockPos()
+        );
+        Helper.serverLog(
+            playerMP,
+            "On Client " + playerSP.dimension + " " + playerSP.getBlockPos()
+        );
         return 0;
     }
 }

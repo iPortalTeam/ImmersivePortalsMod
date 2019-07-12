@@ -4,6 +4,8 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+//NOTE if the task returns true, it will be deleted
+//if the task returns false, it will be invoked again at next time
 public class MyTaskList {
     public interface MyTask {
         public boolean runAndGetIsSucceeded();

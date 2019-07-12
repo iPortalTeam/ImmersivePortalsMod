@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.my_util;
 
 import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
@@ -393,8 +394,7 @@ public class Helper {
     }
     
     public static ClientWorld loadClientWorld(DimensionType dimension) {
-        assert false;
-        return null;
+        return Globals.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
     
     public static void log(Object str) {

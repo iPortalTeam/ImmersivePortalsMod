@@ -1,12 +1,15 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
 import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ProtoChunk;
@@ -51,14 +54,40 @@ public class ChunkDataSyncManager {
             return;
         }
         
-        player.networkHandler.sendPacket(
-            RedirectedMessageManager.createRedirectedMessage(
-                chunkPos.dimension,
-                new UnloadChunkS2CPacket(
-                    chunkPos.x, chunkPos.z
+        //do not send unload packet instantly
+        //watch for a period of time.
+        //if player still needs the chunk, stop unloading.
+        
+        long startTime = Helper.getServerGameTime();
+        
+        ModMain.serverTaskList.addTask(() -> {
+            if (isChunkManagedByVanilla(player, chunkPos)) {
+                //give up unloading
+                return true;
+            }
+            
+            if (Globals.chunkTracker.isPlayerWatchingChunk(player, chunkPos)) {
+                //give up unloading
+                return true;
+            }
+            
+            //wait for 1 second
+            if (Helper.getServerGameTime() - startTime <= 20) {
+                //retry at the next tick
+                return false;
+            }
+            
+            player.networkHandler.sendPacket(
+                RedirectedMessageManager.createRedirectedMessage(
+                    chunkPos.dimension,
+                    new UnloadChunkS2CPacket(
+                        chunkPos.x, chunkPos.z
+                    )
                 )
-            )
-        );
+            );
+            
+            return true;
+        });
     }
     
     private boolean isChunkManagedByVanilla(
@@ -70,11 +99,14 @@ public class ChunkDataSyncManager {
         }
         
         ChunkManager chunkManager = Helper.getServer().getWorld(chunkPos.dimension).getChunkManager();
-        Stream<ServerPlayerEntity> playersWatchingChunk =
-            ((ServerChunkManager) chunkManager).threadedAnvilChunkStorage.getPlayersWatchingChunk(
-                chunkPos.getChunkPos(), true
-            );
-        return playersWatchingChunk
-            .anyMatch(playerEntity -> playerEntity == player);
+        ThreadedAnvilChunkStorage storage = ((ServerChunkManager) chunkManager).threadedAnvilChunkStorage;
+        int watchDistance = ((IEThreadedAnvilChunkStorage) storage).getWatchDistance();
+        
+        int chebyshevDistance = Math.max(
+            Math.abs(player.chunkX - chunkPos.x),
+            Math.abs(player.chunkZ - chunkPos.z)
+        );
+    
+        return chebyshevDistance <= watchDistance;
     }
 }

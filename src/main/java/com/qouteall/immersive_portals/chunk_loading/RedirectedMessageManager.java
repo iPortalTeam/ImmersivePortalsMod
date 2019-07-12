@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
@@ -8,10 +9,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.packet.ChunkDataS2CPacket;
-import net.minecraft.client.network.packet.ChunkDeltaUpdateS2CPacket;
-import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
-import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
+import net.minecraft.client.network.packet.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -40,7 +38,11 @@ public class RedirectedMessageManager {
         register(ChunkDataS2CPacket.class, ChunkDataS2CPacket::new, 0);
         register(UnloadChunkS2CPacket.class, UnloadChunkS2CPacket::new, 1);
         register(ChunkDeltaUpdateS2CPacket.class, ChunkDeltaUpdateS2CPacket::new, 2);
-        assert false;
+        register(LightUpdateS2CPacket.class, LightUpdateS2CPacket::new, 3);
+        register(BlockEntityUpdateS2CPacket.class, BlockEntityUpdateS2CPacket::new, 4);
+        register(BlockUpdateS2CPacket.class, BlockUpdateS2CPacket::new, 5);
+
+
 //        register(
 //            SPacketMultiBlockChange.class,
 //            SPacketMultiBlockChange::new,
@@ -91,7 +93,7 @@ public class RedirectedMessageManager {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(dimension.getRawId());
         buf.writeInt(messageType);
-    
+        
         try {
             packet.write(buf);
         }
@@ -99,7 +101,7 @@ public class RedirectedMessageManager {
             assert false;
             throw new IllegalArgumentException();
         }
-    
+        
         return new CustomPayloadS2CPacket(MyNetwork.id_stcRedirected, buf);
     }
     
@@ -129,19 +131,24 @@ public class RedirectedMessageManager {
             throw new IllegalArgumentException();
         }
         
-        
-        MinecraftClient.getInstance().execute(() -> {
+        ModMain.clientTaskList.addTask(() -> {
             ClientWorld clientWorld = Helper.loadClientWorld(dimension);
             
             assert clientWorld != null;
             
+            if (!(clientWorld.getChunkManager() instanceof MyClientChunkManager)) {
+                return false;
+            }
+            
             ClientPlayNetworkHandler netHandler = ((IEClientWorld) clientWorld).getNetHandler();
             
             if ((netHandler).getWorld() != clientWorld) {
-                ((IEClientPlayNetworkHandler)netHandler).setWorld(clientWorld);
+                ((IEClientPlayNetworkHandler) netHandler).setWorld(clientWorld);
             }
-
+            
             packet.apply(netHandler);
+            
+            return true;
         });
     }
     

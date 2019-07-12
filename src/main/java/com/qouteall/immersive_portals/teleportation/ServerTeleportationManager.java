@@ -30,21 +30,20 @@ public class ServerTeleportationManager {
     ) {
         assert player.dimension == portal.dimension;
         
-        //TODO release it
-//        ServerWorld fromWorld = (ServerWorld) player.world;
-//        ServerWorld toWorld = Helper.getServer().getWorld(portal.dimensionTo);
-//        Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
-//
-//        if (player.dimension == portal.dimensionTo) {
-//            player.setPosition(
-//                newPos.x,
-//                newPos.y,
-//                newPos.z
-//            );
-//        }
-//        else {
-//            changePlayerDimension(player, fromWorld, toWorld, newPos);
-//        }
+        ServerWorld fromWorld = (ServerWorld) player.world;
+        ServerWorld toWorld = Helper.getServer().getWorld(portal.dimensionTo);
+        Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
+
+        if (player.dimension == portal.dimensionTo) {
+            player.setPosition(
+                newPos.x,
+                newPos.y,
+                newPos.z
+            );
+        }
+        else {
+            changePlayerDimension(player, fromWorld, toWorld, newPos);
+        }
         
     }
     

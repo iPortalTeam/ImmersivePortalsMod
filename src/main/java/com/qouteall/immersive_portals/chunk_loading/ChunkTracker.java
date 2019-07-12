@@ -87,13 +87,10 @@ public class ChunkTracker {
     }
     
     private void updatePlayer(ServerPlayerEntity playerEntity) {
-        //TODO get real render distance
-        int renderDistance = 4;
         HashSet<DimensionalChunkPos> oldPlayerViewingChunks =
             new HashSet<>(playerToWatchedChunks.get(playerEntity));
         Set<DimensionalChunkPos> newPlayerViewingChunks = getPlayerViewingChunks(
-            playerEntity,
-            renderDistance
+            playerEntity
         );
         playerToWatchedChunks.replaceValues(playerEntity, newPlayerViewingChunks);
         
@@ -112,28 +109,17 @@ public class ChunkTracker {
     }
     
     private Set<DimensionalChunkPos> getPlayerViewingChunks(
-        ServerPlayerEntity playerEntity,
-        int renderDistance
+        ServerPlayerEntity playerEntity
     ) {
-        return Streams.concat(
-            //direct visible chunks
-            getNearbyChunkPoses(
-                playerEntity.dimension,
-                playerEntity.getBlockPos(),
-                renderDistance
-            ),
-            
-            //indirect visible chunks
-            Helper.getEntitiesNearby(
-                playerEntity,
-                Portal.entityType,
-                portalLoadingRange
-            ).flatMap(
-                portalEntity -> getNearbyChunkPoses(
-                    portalEntity.dimensionTo,
-                    new BlockPos(portalEntity.destination),
-                    ChunkTracker.portalChunkLoadingRadius
-                )
+        return Helper.getEntitiesNearby(
+            playerEntity,
+            Portal.entityType,
+            portalLoadingRange
+        ).flatMap(
+            portalEntity -> getNearbyChunkPoses(
+                portalEntity.dimensionTo,
+                new BlockPos(portalEntity.destination),
+                ChunkTracker.portalChunkLoadingRadius
             )
         ).collect(Collectors.toSet());
     }
@@ -214,5 +200,12 @@ public class ChunkTracker {
                 chunkPos.z
             )
         );
+    }
+    
+    public boolean isPlayerWatchingChunk(
+        ServerPlayerEntity player,
+        DimensionalChunkPos chunkPos
+    ) {
+        return chunkToWatchingPlayers.containsEntry(chunkPos, player);
     }
 }

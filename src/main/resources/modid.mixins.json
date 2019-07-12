@@ -20,7 +20,8 @@
     "MixinPlayerListEntry",
     "MixinServerChunkManager",
     "MixinThreadedAnvilChunkStorage",
-    "MixinWorld"
+    "MixinWorld",
+    "MixinWorldRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

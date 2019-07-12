@@ -3,9 +3,11 @@ package com.qouteall.immersive_portals.mixin;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEChunkHolder;
+import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
@@ -22,8 +24,6 @@ import java.util.stream.Stream;
 
 @Mixin(ChunkHolder.class)
 public class MixinChunkHolder implements IEChunkHolder {
-    //not shadow
-    private DimensionType dimension;
     
     @Shadow
     @Final
@@ -42,9 +42,9 @@ public class MixinChunkHolder implements IEChunkHolder {
         boolean boolean_1,
         CallbackInfo ci
     ) {
-        //TODO release this
-        //assert dimension != null;
-        
+        DimensionType dimension =
+            ((IEThreadedAnvilChunkStorage) playersWatchingChunkProvider).getWorld().dimension.getType();
+    
         Set<ServerPlayerEntity> vanillaWatchers =
             this.playersWatchingChunkProvider.getPlayersWatchingChunk(
                 this.pos, boolean_1
@@ -64,13 +64,4 @@ public class MixinChunkHolder implements IEChunkHolder {
         );
     }
     
-    @Override
-    public DimensionType getDimension() {
-        return dimension;
-    }
-    
-    @Override
-    public void setDimension(DimensionType dimension_) {
-        dimension = dimension_;
-    }
 }

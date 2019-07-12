@@ -77,6 +77,12 @@ public class ClientWorldLoader {
         worldRendererMap.values().forEach(
             worldRenderer -> worldRenderer.setWorld(null)
         );
+        
+        clientWorldMap.clear();
+        worldRendererMap.clear();
+        renderHelperMap.clear();
+        
+        isInitialized = false;
     }
     
     @Nullable

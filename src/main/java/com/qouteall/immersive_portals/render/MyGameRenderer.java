@@ -4,9 +4,11 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
+import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.ChunkRenderDispatcher;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -27,6 +29,12 @@ public class MyGameRenderer {
         WorldRenderer newWorldRenderer,
         ClientWorld newWorld
     ) {
+        ChunkRenderDispatcher chunkRenderDispatcher =
+            ((IEWorldRenderer) newWorldRenderer).getChunkRenderDispatcher();
+        chunkRenderDispatcher.updateCameraPosition(
+            mc.player.x, mc.player.z
+        );
+        
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper dimensionRenderHelper =
             Globals.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
@@ -39,9 +47,9 @@ public class MyGameRenderer {
         ClientWorld oldWorld = mc.world;
         LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
         BackgroundRenderer oldFogRenderer = ieGameRenderer.getBackgroundRenderer();
-        assert BlockEntityRenderDispatcher.INSTANCE.world == oldWorld;
+        //assert BlockEntityRenderDispatcher.INSTANCE.world == oldWorld;
         GameMode oldGameMode = playerListEntry.getGameMode();
-    
+        
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
         ieGameRenderer.setBackgroundRenderer(dimensionRenderHelper.fogRenderer);
@@ -50,13 +58,17 @@ public class MyGameRenderer {
         dimensionRenderHelper.lightmapTexture.enable();
         BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
-    
+        
         mc.getProfiler().push("render_portal_content");
+        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+        GlStateManager.pushMatrix();
         
         //invoke it!
         mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());
         
         mc.getProfiler().pop();
+        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+        GlStateManager.popMatrix();
         
         mc.worldRenderer = oldWorldRenderer;
         mc.world = oldWorld;
