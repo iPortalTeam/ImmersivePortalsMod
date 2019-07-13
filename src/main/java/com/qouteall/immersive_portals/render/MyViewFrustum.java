@@ -1,19 +1,14 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.ChunkRenderDispatcher;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
@@ -55,6 +50,11 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
         });
         
         takeOverRenderChunksFrom(oldViewFrustum);
+    }
+    
+    @Override
+    protected void createChunks(ChunkRendererFactory chunkRendererFactory_1) {
+        //do nothing
     }
     
     private void takeOverRenderChunksFrom(ChunkRenderDispatcher oldViewFrustum) {

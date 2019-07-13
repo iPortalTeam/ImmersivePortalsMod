@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.portal_entity;
 
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.my_util.SignalArged;
 import javafx.util.Pair;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
@@ -32,6 +32,9 @@ public class Portal extends Entity {
     public DimensionType dimensionTo;
     public Vec3d destination;
     
+    public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
+    public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
+    
     public static void init() {
         entityType = Registry.register(
             Registry.ENTITY_TYPE,
@@ -44,7 +47,7 @@ public class Portal extends Entity {
                 new EntityDimensions(1, 1, true)
             ).build()
         );
-
+    
         EntityRendererRegistry.INSTANCE.register(
             Portal.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
@@ -126,7 +129,7 @@ public class Portal extends Entity {
     @Override
     public void tick() {
         if (world.isClient) {
-            Globals.collisionManagerClient.onPortalTick(this);
+            clientPortalTickSignal.emit(this);
         }
         else {
             if (!isPortalValid()) {
@@ -134,7 +137,7 @@ public class Portal extends Entity {
                 removed = true;
                 return;
             }
-            Globals.collisionManagerServer.onPortalTick(this);
+            serverPortalTickSignal.emit(this);
         }
     }
     
@@ -220,8 +223,8 @@ public class Portal extends Entity {
     
     public Box getPortalCollisionBox() {
         return new Box(
-            getPointInPlane(width, height),
-            getPointInPlane(-width, -height)
+            getPointInPlane(width / 2, height / 2),
+            getPointInPlane(-width / 2, -height / 2)
         ).expand(0.1);
     }
     
@@ -289,4 +292,44 @@ public class Portal extends Entity {
         portals[2].height = height;
         portals[3].height = height;
     }
+    
+    public boolean shouldEntityTeleport(Entity player) {
+        return player.dimension == this.dimension &&
+            isMovedThroughPortal(
+                Helper.lastTickPosOf(player),
+                player.getPos()
+            );
+    }
+    
+    public boolean isPointInPortalProjection(Vec3d pos) {
+        Vec3d offset = pos.subtract(getPos());
+        
+        double yInPlane = offset.dotProduct(axisH);
+        double xInPlane = offset.dotProduct(axisW);
+        
+        return Math.abs(xInPlane) < (width / 2 + 0.1) &&
+            Math.abs(yInPlane) < (height / 2 + 0.1);
+        
+    }
+    
+    public boolean isMovedThroughPortal(
+        Vec3d lastTickPos,
+        Vec3d pos
+    ) {
+        double lastDistance = getDistanceToPlane(lastTickPos);
+        double nowDistance = getDistanceToPlane(pos);
+        
+        if (!(lastDistance > 0 && nowDistance < 0)) {
+            return false;
+        }
+        
+        Vec3d lineOrigin = lastTickPos;
+        Vec3d lineDirection = pos.subtract(lastTickPos).normalize();
+        
+        double collidingT = Helper.getCollidingT(getPos(), normal, lineOrigin, lineDirection);
+        Vec3d collidingPoint = lineOrigin.add(lineDirection.multiply(collidingT));
+        
+        return isPointInPortalProjection(collidingPoint);
+    }
+    
 }

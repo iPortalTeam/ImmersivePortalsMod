@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import org.spongepowered.asm.mixin.Final;
@@ -26,6 +25,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Final
     @Mutable
     private BackgroundRenderer backgroundRenderer;
+    @Shadow
+    private boolean renderHand;
     
     @Inject(
         method = "Lnet/minecraft/client/render/GameRenderer;renderCenter(FJ)V",
@@ -84,4 +85,13 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         backgroundRenderer = renderer;
     }
     
+    @Override
+    public boolean getDoRenderHand() {
+        return renderHand;
+    }
+    
+    @Override
+    public void setDoRenderHand(boolean e) {
+        renderHand = e;
+    }
 }

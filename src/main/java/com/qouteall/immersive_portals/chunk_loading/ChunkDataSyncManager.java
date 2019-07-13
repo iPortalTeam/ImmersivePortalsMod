@@ -2,20 +2,12 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
 import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
-import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkManager;
-import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.chunk.WorldChunk;
-
-import java.util.stream.Stream;
 
 //the chunks near player are managed by vanilla
 //we only manage the chunks that's seen by portal and not near player
@@ -97,10 +89,8 @@ public class ChunkDataSyncManager {
         if (player.dimension != chunkPos.dimension) {
             return false;
         }
-        
-        ChunkManager chunkManager = Helper.getServer().getWorld(chunkPos.dimension).getChunkManager();
-        ThreadedAnvilChunkStorage storage = ((ServerChunkManager) chunkManager).threadedAnvilChunkStorage;
-        int watchDistance = ((IEThreadedAnvilChunkStorage) storage).getWatchDistance();
+    
+        int watchDistance = ChunkTracker.getRenderDistanceOnServer();
         
         int chebyshevDistance = Math.max(
             Math.abs(player.chunkX - chunkPos.x),

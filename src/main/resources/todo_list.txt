@@ -1,3 +1,7 @@
-fix black when teleported place is in suffocating position
+
 fix blink upon teleportation
-fix vanilla unloads a chunk that player is watching
+fix break portal functionality
+fix overworld sky blinking
+fix nether too dark
+fix weather rendering
+fix other dimension is dark initially

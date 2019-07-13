@@ -18,11 +18,15 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.FloatBuffer;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Stack;
 import java.util.function.Supplier;
 
 import static org.lwjgl.opengl.GL11.*;
 
+//NOTE do not use glDisable(GL_DEPTH_TEST), use GlStateManager.disableDepthTest() instead
+//because GlStateManager will cache its state. Do not make its cache not synchronized
 public class PortalRenderManager {
     private MinecraftClient mc = MinecraftClient.getInstance();
     private Stack<Portal> portalLayers = new Stack<>();
@@ -285,9 +289,6 @@ public class PortalRenderManager {
         player.world = newWorld;
         mc.world = newWorld;
         
-        //TODO release this
-        //MyViewFrustum.updateViewFrustum();
-        
         renderPortalContentAndNestedPortals(
             portal
         );
@@ -453,7 +454,7 @@ public class PortalRenderManager {
         //do not manipulate the color packetBuffer
         GL11.glColorMask(false, false, false, false);
         
-        GL11.glDisable(GL_DEPTH_TEST);
+        GlStateManager.disableDepthTest();
         
         renderScreenTriangle();
         

@@ -24,8 +24,18 @@ public class ClientTeleportationManager {
     public BooleanSupplier shouldIgnorePositionPacket = () -> false;
     
     public ClientTeleportationManager() {
-        Globals.collisionManagerClient.goInsidePortalSignal
-            .connectWithWeakRef(this, ClientTeleportationManager::onEntityGoInsidePortal);
+        Portal.clientPortalTickSignal.connect(portal -> {
+            portal.world.getEntities(
+                Entity.class,
+                portal.getPortalCollisionBox()
+            ).stream().filter(
+                e -> !(e instanceof Portal)
+            ).filter(
+                portal::shouldEntityTeleport
+            ).forEach(
+                e -> onEntityGoInsidePortal(e, portal)
+            );
+        });
     }
     
     public void acceptSynchronizationDataFromServer(DimensionType dimension, Vec3d pos) {
@@ -75,6 +85,7 @@ public class ClientTeleportationManager {
         shouldIgnorePositionPacket = () -> System.nanoTime() - teleportTime < 5000000000L;
         
         player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(portal.getEntityId()));
+    
     }
     
     private void forceTeleportPlayer(DimensionType toDimension, Vec3d destination) {
@@ -107,6 +118,8 @@ public class ClientTeleportationManager {
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
         ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
         ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
+        ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
+        ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
         
         fromWorld.removeEntity(player.getEntityId());
         player.removed = false;
@@ -127,5 +140,11 @@ public class ClientTeleportationManager {
             mc.particleManager.setWorld(toWorld);
         
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
+    
+        Helper.log(String.format(
+            "Client Changed Dimension from %s to %s",
+            fromWorld.dimension.getType(),
+            toWorld.dimension.getType()
+        ));
     }
 }

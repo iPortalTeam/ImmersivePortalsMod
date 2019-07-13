@@ -1,17 +1,20 @@
 package com.qouteall.immersive_portals.portal_entity;
 
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.nether_portal_managing.NetherPortalLifeCycleManager;
+import com.qouteall.immersive_portals.nether_portal_managing.BlockMyNetherPortal;
 import com.qouteall.immersive_portals.nether_portal_managing.NetherPortalMatcher;
 import com.qouteall.immersive_portals.nether_portal_managing.ObsidianFrame;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -34,8 +37,7 @@ public class MonitoringNetherPortal extends Portal {
             new Identifier("immersive_portals", "monitoring_nether_portal"),
             FabricEntityTypeBuilder.create(
                 EntityCategory.MISC,
-                (EntityType<MonitoringNetherPortal> type, World world1) ->
-                    new MonitoringNetherPortal(type, world1)
+                (EntityType.EntityFactory<MonitoringNetherPortal>) MonitoringNetherPortal::new
             ).size(
                 new EntityDimensions(1, 1, true)
             ).build()
@@ -60,8 +62,29 @@ public class MonitoringNetherPortal extends Portal {
         super(entityType, world);
     }
     
+    public void notifyCheckPortalIntegrity() {
+        if (!world.isClient) {
+            if (!checkNetherPortalIfLoaded()) {
+                breakNetherPortal(this);
+                this.removed = true;
+                Entity entity2 = ((ServerWorld) world).getEntity(otherPortalId1);
+                if (entity2 != null) {
+                    entity2.removed = true;
+                }
+                Entity entity1 = Helper.getServer().getWorld(dimension2).getEntity(otherPortalId2);
+                if (entity1 != null) {
+                    entity1.removed = true;
+                }
+                Entity entity = Helper.getServer().getWorld(dimension2).getEntity(otherPortalId3);
+                if (entity != null) {
+                    entity.removed = true;
+                }
+            }
+        }
+    }
+    
     //if the region is not loaded, it will return true
-    public boolean checkNetherPortalIfLoaded() {
+    private boolean checkNetherPortalIfLoaded() {
         assert Helper.getServer() != null;
         
         return checkObsidianFrameIfLoaded(dimension1, obsidianFrame1) &&
@@ -90,7 +113,40 @@ public class MonitoringNetherPortal extends Portal {
         )) {
             return false;
         }
+    
+        return checkInnerPortalBlocks(world, obsidianFrame);
+    }
+    
+    private static boolean checkInnerPortalBlocks(
+        IWorld world,
+        ObsidianFrame obsidianFrame
+    ) {
+        return obsidianFrame.boxWithoutObsidian.stream().allMatch(
+            blockPos -> world.getBlockState(blockPos).getBlock()
+                == BlockMyNetherPortal.instance
+        );
+    }
+    
+    private static void breakNetherPortal(
+        MonitoringNetherPortal portalGuard
+    ) {
+        ServerWorld world1 = Helper.getServer().getWorld(portalGuard.dimension1);
+        ServerWorld world2 = Helper.getServer().getWorld(portalGuard.dimension2);
         
-        return NetherPortalLifeCycleManager.checkInnerPortalBlocks(world, obsidianFrame);
+        portalGuard.obsidianFrame1.boxWithoutObsidian.stream().forEach(
+            blockPos -> world1.setBlockState(
+                blockPos,
+                Blocks.AIR.getDefaultState()
+            )
+        );
+        
+        portalGuard.obsidianFrame2.boxWithoutObsidian.stream().forEach(
+            blockPos -> world2.setBlockState(
+                blockPos,
+                Blocks.AIR.getDefaultState()
+            )
+        );
+        
+        assert false;
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEServerChunkManager;
+import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal_entity.Portal;
@@ -46,7 +47,6 @@ public class ChunkTracker {
         );
     
     public static final int portalLoadingRange = 48;
-    public static final int portalChunkLoadingRadius = 1;
     
     public SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
@@ -110,6 +110,7 @@ public class ChunkTracker {
     private Set<DimensionalChunkPos> getPlayerViewingChunks(
         ServerPlayerEntity playerEntity
     ) {
+        int portalChunkLoadingRadius = getRenderDistanceOnServer() / 3 + 1;
         return Helper.getEntitiesNearby(
             playerEntity,
             Portal.entityType,
@@ -118,7 +119,7 @@ public class ChunkTracker {
             portalEntity -> getNearbyChunkPoses(
                 portalEntity.dimensionTo,
                 new BlockPos(portalEntity.destination),
-                ChunkTracker.portalChunkLoadingRadius
+                portalChunkLoadingRadius
             )
         ).collect(Collectors.toSet());
     }
@@ -206,5 +207,13 @@ public class ChunkTracker {
         DimensionalChunkPos chunkPos
     ) {
         return chunkToWatchingPlayers.containsEntry(chunkPos, player);
+    }
+    
+    public static int getRenderDistanceOnServer() {
+        return (
+            (IEThreadedAnvilChunkStorage) (
+                (ServerChunkManager) Helper.getOverWorldOnServer().getChunkManager()
+            ).threadedAnvilChunkStorage
+        ).getWatchDistance();
     }
 }

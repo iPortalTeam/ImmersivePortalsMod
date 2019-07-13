@@ -49,6 +49,8 @@ public class MyGameRenderer {
         BackgroundRenderer oldFogRenderer = ieGameRenderer.getBackgroundRenderer();
         //assert BlockEntityRenderDispatcher.INSTANCE.world == oldWorld;
         GameMode oldGameMode = playerListEntry.getGameMode();
+        boolean oldNoClip = mc.player.noClip;
+        boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
@@ -58,6 +60,8 @@ public class MyGameRenderer {
         dimensionRenderHelper.lightmapTexture.enable();
         BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
+        mc.player.noClip = true;
+        ieGameRenderer.setDoRenderHand(false);
         
         mc.getProfiler().push("render_portal_content");
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
@@ -76,6 +80,8 @@ public class MyGameRenderer {
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
         BlockEntityRenderDispatcher.INSTANCE.world = oldWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
+        mc.player.noClip = oldNoClip;
+        ieGameRenderer.setDoRenderHand(oldDoRenderHand);
     }
     
     private long getChunkUpdateFinishTime() {

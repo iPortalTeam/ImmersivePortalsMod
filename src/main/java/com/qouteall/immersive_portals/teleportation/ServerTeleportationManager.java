@@ -78,6 +78,13 @@ public class ServerTeleportationManager {
         );
         
         player.interactionManager.setWorld(toWorld);
+    
+        Helper.log(String.format(
+            "%s changed dimension on server from %s to %s",
+            player,
+            fromWorld.dimension.getType(),
+            toWorld.dimension.getType()
+        ));
     }
     
 }

@@ -42,8 +42,8 @@ public class ModMain implements ModInitializer {
             Globals.chunkTracker = new ChunkTracker();
             Globals.chunkDataSyncManager = new ChunkDataSyncManager();
             Globals.myGameRenderer = new MyGameRenderer();
-            Globals.collisionManagerClient = new PortalCollisionManager();
-            Globals.collisionManagerServer = new PortalCollisionManager();
+            Globals.collisionManagerClient = new PortalCollisionManager(clientTickSignal);
+            Globals.collisionManagerServer = new PortalCollisionManager(serverTickSignal);
             Globals.serverTeleportationManager = new ServerTeleportationManager();
             Globals.clientTeleportationManager = new ClientTeleportationManager();
         });

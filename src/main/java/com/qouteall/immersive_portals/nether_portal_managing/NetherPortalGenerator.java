@@ -3,25 +3,17 @@ package com.qouteall.immersive_portals.nether_portal_managing;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import com.qouteall.immersive_portals.my_utils.Helper;
-import com.qouteall.immersive_portals.my_utils.IntegerAABBInclusive;
-import com.qouteall.immersive_portals.my_utils.SignalArged;
-import com.qouteall.immersive_portals.portals.loading_indicator.LoadingIndicatorsManager;
-import com.qouteall.immersive_portals.portals.portal_data.PortalDataManager;
+import com.qouteall.immersive_portals.portal_entity.MonitoringNetherPortal;
+import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import net.minecraft.block.Blocks;
-import net.minecraft.init.Blocks;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.DimensionManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
@@ -34,20 +26,17 @@ public class NetherPortalGenerator {
         public DimensionType toDimension;
         public ObsidianFrame fromObsidianFrame;
         public ObsidianFrame toObsidianFrame;
-        public int primaryPortalId;
         
         public NetherPortalGeneratedInformation(
             DimensionType fromDimension,
             DimensionType toDimension,
             ObsidianFrame fromObsidianFrame,
-            ObsidianFrame toObsidianFrame,
-            int primaryPortalId
+            ObsidianFrame toObsidianFrame
         ) {
             this.fromDimension = fromDimension;
             this.toDimension = toDimension;
             this.fromObsidianFrame = fromObsidianFrame;
             this.toObsidianFrame = toObsidianFrame;
-            this.primaryPortalId = primaryPortalId;
         }
     }
     
@@ -98,16 +87,15 @@ public class NetherPortalGenerator {
                 heightLimitInOtherDimension
             );
         }
-        
-        int primaryPortalId = registerPortalAndGenerateContentBlocks(
+    
+        registerPortalAndGenerateContentBlocks(
             fromWorld, fromObsidianFrame,
             toWorld, toObsidianFrame
         );
         
         NetherPortalGeneratedInformation information = new NetherPortalGeneratedInformation(
             fromDimension, toDimension,
-            fromObsidianFrame, toObsidianFrame,
-            primaryPortalId
+            fromObsidianFrame, toObsidianFrame
         );
         signalNetherPortalLit.emit(
             information
@@ -116,31 +104,27 @@ public class NetherPortalGenerator {
         return information;
     }
     
-    private static int registerPortalAndGenerateContentBlocks(
+    private static void registerPortalAndGenerateContentBlocks(
         ServerWorld fromWorld,
         ObsidianFrame fromObsidianFrame,
         ServerWorld toWorld,
         ObsidianFrame toObsidianFrame
     ) {
-        int primaryPortalId = registerPortalAndAllocateId(
+        registerPortalAndAllocateId(
             fromWorld, fromObsidianFrame,
             toWorld, toObsidianFrame
         );
         
         generatePortalContentBlocks(
-            fromWorld, fromObsidianFrame,
-            primaryPortalId
+            fromWorld, fromObsidianFrame
         );
         
         generatePortalContentBlocks(
-            toWorld, toObsidianFrame,
-            primaryPortalId
+            toWorld, toObsidianFrame
         );
-        
-        return primaryPortalId;
     }
     
-    @Nonnull
+    @NotNull
     private static ObsidianFrame createObsidianFrameInOtherDimension(
         ObsidianFrame fromObsidianFrame,
         ServerWorld toWorld,
@@ -274,10 +258,10 @@ public class NetherPortalGenerator {
     }
     
     //it returns the primary id
-    private static int registerPortalAndAllocateId(
-        IWorld fromWorld,
+    private static void registerPortalAndAllocateId(
+        ServerWorld fromWorld,
         ObsidianFrame fromObsidianFrame,
-        IWorld toWorld,
+        ServerWorld toWorld,
         ObsidianFrame toObsidianFrame
     ) {
         assert fromObsidianFrame.boxWithoutObsidian.getSize().equals(
@@ -288,10 +272,18 @@ public class NetherPortalGenerator {
         
         BlockPos innerAreaSize = fromObsidianFrame.boxWithoutObsidian.getSize();
         Direction.Axis normalAxis = fromObsidianFrame.normalAxis;
-        
-        Vec3d centerOffset = new Vec3d(innerAreaSize).scale(0.5);
-        
-        return PortalDataManager.getDataManagerOnServer().addFourPortals(
+    
+        Vec3d centerOffset = new Vec3d(innerAreaSize).multiply(0.5);
+    
+        Portal[] portalArray = new Portal[]{
+            new MonitoringNetherPortal(fromWorld),
+            new Portal(fromWorld),
+            new Portal(toWorld),
+            new Portal(toWorld)
+        };
+    
+        Portal.initBiWayBiFacedPortal(
+            portalArray,
             fromWorld.getDimension().getType(),
             new Vec3d(fromObsidianFrame.boxWithoutObsidian.l)
                 .add(centerOffset),
@@ -301,10 +293,25 @@ public class NetherPortalGenerator {
             normalAxis,
             new Vec3d(innerAreaSize)
         );
+    
+        fromWorld.spawnEntity(portalArray[0]);
+        fromWorld.spawnEntity(portalArray[1]);
+        toWorld.spawnEntity(portalArray[2]);
+        toWorld.spawnEntity(portalArray[3]);
+    
+        MonitoringNetherPortal monitor = (MonitoringNetherPortal) portalArray[0];
+        monitor.obsidianFrame1 = fromObsidianFrame;
+        monitor.dimension1 = fromWorld.dimension.getType();
+        monitor.obsidianFrame2 = toObsidianFrame;
+        monitor.dimension2 = toWorld.dimension.getType();
+        monitor.otherPortalId1 = portalArray[1].getUuid();
+        monitor.otherPortalId2 = portalArray[2].getUuid();
+        monitor.otherPortalId3 = portalArray[3].getUuid();
+        
     }
     
     private static void generateObsidianFrame(
-        IWorld world,
+        ServerWorld world,
         ObsidianFrame obsidianFrame
     ) {
         Direction.Axis axisOfNormal = obsidianFrame.normalAxis;
@@ -327,9 +334,8 @@ public class NetherPortalGenerator {
     }
     
     private static void generatePortalContentBlocks(
-        IWorld world,
-        ObsidianFrame obsidianFrame,
-        int primaryPortalId
+        ServerWorld world,
+        ObsidianFrame obsidianFrame
     ) {
         IntegerAABBInclusive contentBlockArea =
             obsidianFrame.boxWithoutObsidian;
@@ -338,23 +344,21 @@ public class NetherPortalGenerator {
             blockPos -> setPortalContentBlock(
                 world,
                 blockPos,
-                primaryPortalId,
                 obsidianFrame.normalAxis
             )
         );
     }
     
     private static void setObsidian(
-        IWorld world,
+        ServerWorld world,
         BlockPos pos
     ) {
         boolean result = world.setBlockState(pos, Blocks.OBSIDIAN.getDefaultState(), 1 | 2);
     }
     
     private static void setPortalContentBlock(
-        IWorld world,
+        ServerWorld world,
         BlockPos pos,
-        int primaryPortalId,
         Direction.Axis normalAxis
     ) {
         world.setBlockState(

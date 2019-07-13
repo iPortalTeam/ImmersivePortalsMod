@@ -21,6 +21,7 @@
     "MixinPlayerListEntry",
     "MixinPortalBlock",
     "MixinServerChunkManager",
+    "MixinServerPlayerEntity",
     "MixinThreadedAnvilChunkStorage",
     "MixinWorld",
     "MixinWorldRenderer"
