@@ -2,18 +2,17 @@ package com.qouteall.immersive_portals.my_util;
 
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Globals;
-import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import javafx.util.Pair;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.*;
@@ -24,7 +23,9 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -199,6 +200,11 @@ public class Helper {
         };
     }
     
+    public static IEThreadedAnvilChunkStorage getIEStorage(DimensionType dimension) {
+        return (IEThreadedAnvilChunkStorage) (
+            (ServerChunkManager) Helper.getServer().getWorld(dimension).getChunkManager()
+        ).threadedAnvilChunkStorage;
+    }
     
     public static class SimpleBox<T> {
         public T obj;

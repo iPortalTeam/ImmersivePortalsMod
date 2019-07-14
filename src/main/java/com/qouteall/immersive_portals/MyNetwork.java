@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
-import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -85,11 +85,15 @@ public class MyNetwork {
     
     private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         int portalEntityId = buf.readInt();
+    
+        ModMain.serverTaskList.addTask(() -> {
+            Globals.serverTeleportationManager.onPlayerTeleportedInClient(
+                (ServerPlayerEntity) context.getPlayer(),
+                portalEntityId
+            );
         
-        Globals.serverTeleportationManager.onPlayerTeleportedInClient(
-            (ServerPlayerEntity) context.getPlayer(),
-            portalEntityId
-        );
+            return true;
+        });
     }
     
     public static CustomPayloadS2CPacket createStcSpawnEntity(
@@ -115,10 +119,10 @@ public class MyNetwork {
             Helper.err("unknown entity type " + entityTypeString);
             return;
         }
-        
-        ModMain.clientTaskList.addTask(()->{
-            ClientWorld world = MinecraftClient.getInstance().world;
     
+        ModMain.clientTaskList.addTask(() -> {
+            ClientWorld world = MinecraftClient.getInstance().world;
+        
             if (world == null) {
                 return false;
             }

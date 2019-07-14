@@ -47,4 +47,34 @@ public class ObsidianFrame {
             .getExpanded(anotherTwoAxis.getKey(), -1)
             .getExpanded(anotherTwoAxis.getValue(), -1);
     }
+    
+    public CompoundTag toTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("normalAxis", normalAxis.ordinal());
+        tag.putInt("boxXL", boxWithoutObsidian.l.getX());
+        tag.putInt("boxYL", boxWithoutObsidian.l.getY());
+        tag.putInt("boxZL", boxWithoutObsidian.l.getZ());
+        tag.putInt("boxXH", boxWithoutObsidian.h.getX());
+        tag.putInt("boxYH", boxWithoutObsidian.h.getY());
+        tag.putInt("boxZH", boxWithoutObsidian.h.getZ());
+        return tag;
+    }
+    
+    public static ObsidianFrame fromTag(CompoundTag tag) {
+        return new ObsidianFrame(
+            Direction.Axis.values()[tag.getInt("normalAxis")],
+            new IntegerAABBInclusive(
+                new BlockPos(
+                    tag.getInt("boxXL"),
+                    tag.getInt("boxYL"),
+                    tag.getInt("boxZL")
+                ),
+                new BlockPos(
+                    tag.getInt("boxXH"),
+                    tag.getInt("boxYH"),
+                    tag.getInt("boxZH")
+                )
+            )
+        );
+    }
 }

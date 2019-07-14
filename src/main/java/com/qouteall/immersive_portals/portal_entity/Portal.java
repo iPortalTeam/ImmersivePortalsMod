@@ -52,6 +52,8 @@ public class Portal extends Entity {
             Portal.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
         );
+    
+    
     }
     
     public Portal(

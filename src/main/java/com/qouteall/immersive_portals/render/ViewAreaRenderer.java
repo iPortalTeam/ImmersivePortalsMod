@@ -1,8 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.portal_entity.Portal;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Vec3d;
@@ -19,8 +17,8 @@ public class ViewAreaRenderer {
         //if layerWidth is small, the teleportation will not be seamless
         
         //counter-clockwise triangles are front-faced in default
-        
-        float layerWidth = 0.5F;
+    
+        float layerWidth = 0.4F;
         
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         

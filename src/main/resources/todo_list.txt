@@ -5,3 +5,13 @@ fix overworld sky blinking
 fix nether too dark
 fix weather rendering
 fix other dimension is dark initially
+fix mis-teleport
+fix dimension position sync
+fix sometimes client chunk unloads near player
+
+implement adding portal make chunk tracker update
+
+implement reduce lag on teleporting
+
+implement culling shader
+implement frustum culling

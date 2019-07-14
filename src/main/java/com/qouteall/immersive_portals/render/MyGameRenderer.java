@@ -42,7 +42,8 @@ public class MyGameRenderer {
             MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
                 mc.player.getGameProfile().getId()
             );
-        
+    
+        //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
         ClientWorld oldWorld = mc.world;
         LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
@@ -51,7 +52,8 @@ public class MyGameRenderer {
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        
+    
+        //switch
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
         ieGameRenderer.setBackgroundRenderer(dimensionRenderHelper.fogRenderer);
@@ -62,17 +64,19 @@ public class MyGameRenderer {
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         mc.player.noClip = true;
         ieGameRenderer.setDoRenderHand(false);
-        
-        mc.getProfiler().push("render_portal_content");
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
+        //this is important
+        GlStateManager.disableBlend();
+        
+        mc.getProfiler().push("render_portal_content");
         
         //invoke it!
         mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());
         
         mc.getProfiler().pop();
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.popMatrix();
+    
+        //recover
         
         mc.worldRenderer = oldWorldRenderer;
         mc.world = oldWorld;
@@ -82,6 +86,9 @@ public class MyGameRenderer {
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
         mc.player.noClip = oldNoClip;
         ieGameRenderer.setDoRenderHand(oldDoRenderHand);
+        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+        GlStateManager.popMatrix();
+        GlStateManager.enableBlend();
     }
     
     private long getChunkUpdateFinishTime() {

@@ -1,9 +1,12 @@
 package com.qouteall.immersive_portals.exposer;
 
+import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 
 public interface IEThreadedAnvilChunkStorage {
-    public int getWatchDistance();
+    int getWatchDistance();
     
-    public ServerWorld getWorld();
+    ServerWorld getWorld();
+    
+    ServerLightingProvider getLightingProvider();
 }

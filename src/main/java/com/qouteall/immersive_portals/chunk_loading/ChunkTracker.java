@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEServerChunkManager;
-import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal_entity.Portal;
@@ -107,19 +107,34 @@ public class ChunkTracker {
         );
     }
     
+    //TODO invoke this upon creating portal
+    public void notifyToUpdatePlayer(ServerPlayerEntity playerEntity) {
+        lastPosUponUpdatingMap.remove(playerEntity);
+    }
+    
     private Set<DimensionalChunkPos> getPlayerViewingChunks(
-        ServerPlayerEntity playerEntity
+        ServerPlayerEntity player
     ) {
         int portalChunkLoadingRadius = getRenderDistanceOnServer() / 3 + 1;
-        return Helper.getEntitiesNearby(
-            playerEntity,
-            Portal.entityType,
-            portalLoadingRange
-        ).flatMap(
-            portalEntity -> getNearbyChunkPoses(
-                portalEntity.dimensionTo,
-                new BlockPos(portalEntity.destination),
-                portalChunkLoadingRadius
+        return Streams.concat(
+            //directly watching chunks
+            getNearbyChunkPoses(
+                player.dimension,
+                player.getBlockPos(),
+                getRenderDistanceOnServer()
+            ),
+        
+            //indirectly watching chunks
+            Helper.getEntitiesNearby(
+                player,
+                Portal.entityType,
+                portalLoadingRange
+            ).flatMap(
+                portalEntity -> getNearbyChunkPoses(
+                    portalEntity.dimensionTo,
+                    new BlockPos(portalEntity.destination),
+                    portalChunkLoadingRadius
+                )
             )
         ).collect(Collectors.toSet());
     }
@@ -167,7 +182,15 @@ public class ChunkTracker {
     }
     
     private void purge() {
-        //TODO delete entries about removed players
+        lastPosUponUpdatingMap.entrySet().removeIf(
+            entry -> entry.getKey().removed
+        );
+        chunkToWatchingPlayers.entries().removeIf(
+            entry -> entry.getValue().removed
+        );
+        playerToWatchedChunks.entries().removeIf(
+            entry -> entry.getKey().removed
+        );
     }
     
     private Stream<DimensionalChunkPos> getNearbyChunkPoses(
@@ -210,10 +233,6 @@ public class ChunkTracker {
     }
     
     public static int getRenderDistanceOnServer() {
-        return (
-            (IEThreadedAnvilChunkStorage) (
-                (ServerChunkManager) Helper.getOverWorldOnServer().getChunkManager()
-            ).threadedAnvilChunkStorage
-        ).getWatchDistance();
+        return Helper.getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
     }
 }

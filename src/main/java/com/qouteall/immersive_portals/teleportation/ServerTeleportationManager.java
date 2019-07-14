@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.teleportation;
 
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.entity.Entity;
@@ -18,7 +17,7 @@ public class ServerTeleportationManager {
         Entity entityPortal = player.world.getEntityById(portalId);
         assert player.dimension == player.world.dimension.getType();
         if (!(entityPortal instanceof Portal)) {
-            Helper.err("Can Not Find Portal " + portalId + " in " + player.dimension + "to teleport");
+            Helper.err("Can Not Find Portal " + portalId + " in " + player.dimension + " to teleport");
             return;
         }
         
@@ -43,10 +42,7 @@ public class ServerTeleportationManager {
             );
         }
         else {
-            ModMain.serverTaskList.addTask(() -> {
-                changePlayerDimension(player, fromWorld, toWorld, newPos);
-                return true;
-            });
+            changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
         
     }

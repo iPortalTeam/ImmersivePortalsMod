@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.nether_portal_managing;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import com.qouteall.immersive_portals.portal_entity.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
@@ -294,11 +293,6 @@ public class NetherPortalGenerator {
             new Vec3d(innerAreaSize)
         );
     
-        fromWorld.spawnEntity(portalArray[0]);
-        fromWorld.spawnEntity(portalArray[1]);
-        toWorld.spawnEntity(portalArray[2]);
-        toWorld.spawnEntity(portalArray[3]);
-    
         MonitoringNetherPortal monitor = (MonitoringNetherPortal) portalArray[0];
         monitor.obsidianFrame1 = fromObsidianFrame;
         monitor.dimension1 = fromWorld.dimension.getType();
@@ -307,6 +301,11 @@ public class NetherPortalGenerator {
         monitor.otherPortalId1 = portalArray[1].getUuid();
         monitor.otherPortalId2 = portalArray[2].getUuid();
         monitor.otherPortalId3 = portalArray[3].getUuid();
+    
+        fromWorld.spawnEntity(portalArray[0]);
+        fromWorld.spawnEntity(portalArray[1]);
+        toWorld.spawnEntity(portalArray[2]);
+        toWorld.spawnEntity(portalArray[3]);
         
     }
     

@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
+import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import org.spongepowered.asm.mixin.Final;
@@ -14,6 +15,10 @@ public class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilChunkStora
     
     @Shadow
     @Final
+    private ServerLightingProvider serverLightingProvider;
+    
+    @Shadow
+    @Final
     private ServerWorld world;
     
     @Override
@@ -24,5 +29,10 @@ public class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilChunkStora
     @Override
     public ServerWorld getWorld() {
         return world;
+    }
+    
+    @Override
+    public ServerLightingProvider getLightingProvider() {
+        return serverLightingProvider;
     }
 }

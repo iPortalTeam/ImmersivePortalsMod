@@ -1,9 +1,9 @@
-package com.qouteall.immersive_portals.portal_entity;
+package com.qouteall.immersive_portals.nether_portal_managing;
 
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.nether_portal_managing.BlockMyNetherPortal;
-import com.qouteall.immersive_portals.nether_portal_managing.NetherPortalMatcher;
-import com.qouteall.immersive_portals.nether_portal_managing.ObsidianFrame;
+import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal_entity.PortalDummyRenderer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
@@ -11,8 +11,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.Packet;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -22,6 +26,8 @@ import java.util.UUID;
 
 public class MonitoringNetherPortal extends Portal {
     public static EntityType<MonitoringNetherPortal> entityType;
+    
+    private boolean isNotified = false;
     
     public DimensionType dimension1;
     public ObsidianFrame obsidianFrame1;
@@ -47,6 +53,17 @@ public class MonitoringNetherPortal extends Portal {
             MonitoringNetherPortal.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
         );
+    
+        BlockMyNetherPortal.portalBlockUpdateSignal.connect((world, pos) -> {
+            Helper.getEntitiesNearby(
+                world,
+                new Vec3d(pos),
+                entityType,
+                20
+            ).forEach(
+                MonitoringNetherPortal::notifyToCheckIntegrity
+            );
+        });
     }
     
     public MonitoringNetherPortal(
@@ -62,7 +79,36 @@ public class MonitoringNetherPortal extends Portal {
         super(entityType, world);
     }
     
-    public void notifyCheckPortalIntegrity() {
+    @Override
+    public boolean isPortalValid() {
+        return super.isPortalValid() &&
+            dimension1 != null &&
+            dimension2 != null &&
+            obsidianFrame1 != null &&
+            obsidianFrame2 != null;
+    }
+    
+    public void notifyToCheckIntegrity() {
+        isNotified = true;
+    }
+    
+    @Override
+    public void tick() {
+        super.tick();
+        
+        if (!world.isClient) {
+            if (isNotified) {
+                isNotified = false;
+                checkNetherPortalIfLoaded();
+            }
+        }
+    }
+    
+    private void checkPortalIntegrity() {
+        if (!isPortalValid()) {
+            return;
+        }
+        
         if (!world.isClient) {
             if (!checkNetherPortalIfLoaded()) {
                 breakNetherPortal(this);
@@ -148,5 +194,43 @@ public class MonitoringNetherPortal extends Portal {
         );
         
         assert false;
+    }
+    
+    @Override
+    protected void readCustomDataFromTag(CompoundTag compoundTag) {
+        super.readCustomDataFromTag(compoundTag);
+        
+        dimension1 = DimensionType.byRawId(compoundTag.getInt("dimension1"));
+        dimension2 = DimensionType.byRawId(compoundTag.getInt("dimension2"));
+        Tag frame1 = compoundTag.getTag("frame1");
+        if (!(frame1 instanceof CompoundTag)) {
+            Helper.err("bad nether portal data " + compoundTag);
+            return;
+        }
+        obsidianFrame1 = ObsidianFrame.fromTag((CompoundTag) frame1);
+        Tag frame2 = compoundTag.getTag("frame2");
+        if (!(frame2 instanceof CompoundTag)) {
+            Helper.err("bad nether portal data " + compoundTag);
+            return;
+        }
+        obsidianFrame2 = ObsidianFrame.fromTag((CompoundTag) frame2);
+    }
+    
+    @Override
+    protected void writeCustomDataToTag(CompoundTag compoundTag) {
+        super.writeCustomDataToTag(compoundTag);
+        
+        compoundTag.putInt("dimension1", dimension1.getRawId());
+        compoundTag.putInt("dimension2", dimension2.getRawId());
+        compoundTag.put("frame1", obsidianFrame1.toTag());
+        compoundTag.put("frame2", obsidianFrame2.toTag());
+    }
+    
+    @Override
+    public Packet<?> createSpawnPacket() {
+        return MyNetwork.createStcSpawnEntity(
+            entityType,
+            this
+        );
     }
 }
