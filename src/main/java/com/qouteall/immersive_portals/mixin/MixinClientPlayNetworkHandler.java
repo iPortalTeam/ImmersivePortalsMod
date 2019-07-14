@@ -1,8 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
-import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.client.world.ClientWorld;
@@ -31,9 +29,10 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
         PlayerPositionLookS2CPacket playerPositionLookS2CPacket_1,
         CallbackInfo ci
     ) {
-        if (Globals.clientTeleportationManager.shouldIgnorePositionPacket.getAsBoolean()) {
-            Helper.log("Position Packet Ignored");
-            ci.cancel();
-        }
+        //TODO cleanup this
+//        if (Globals.clientTeleportationManager.shouldIgnorePositionPacket.getAsBoolean()) {
+//            Helper.log("Position Packet Ignored");
+//            ci.cancel();
+//        }
     }
 }

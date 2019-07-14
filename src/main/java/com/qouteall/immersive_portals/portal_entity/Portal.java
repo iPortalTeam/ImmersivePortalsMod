@@ -164,8 +164,16 @@ public class Portal extends Entity {
         return getDistanceToPlane(playerPos) > 0;
     }
     
+    public boolean isInFrontOfPortalRoughly(
+        Vec3d playerPos
+    ) {
+        return getDistanceToPlane(playerPos) > -0.3;
+    }
+    
     public boolean canRenderPortalInsideMe(Portal anotherPortal) {
-        assert anotherPortal.dimension == dimensionTo;
+        if (anotherPortal.dimension != dimensionTo) {
+            return false;
+        }
         double v = anotherPortal.getPos().subtract(destination).dotProduct(getNormal());
         return v < -0.5;
     }

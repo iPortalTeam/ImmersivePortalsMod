@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
@@ -17,45 +18,70 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.ArrayDeque;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
     public BooleanSupplier shouldIgnorePositionPacket = () -> false;
+    private long lastTeleportGameTime = 0;
     
     public ClientTeleportationManager() {
-        Portal.clientPortalTickSignal.connect(portal -> {
-            portal.world.getEntities(
-                Entity.class,
-                portal.getPortalCollisionBox()
-            ).stream().filter(
-                e -> !(e instanceof Portal)
-            ).filter(
-                portal::shouldEntityTeleport
-            ).forEach(
-                e -> onEntityGoInsidePortal(e, portal)
-            );
-        });
+        ModMain.preRenderSignal.connectWithWeakRef(
+            this, ClientTeleportationManager::manageTeleportation
+        );
     }
     
     public void acceptSynchronizationDataFromServer(DimensionType dimension, Vec3d pos) {
-        //TODO server send data to sync
         if (mc.player.dimension != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
     }
     
+    private void manageTeleportation() {
+        if (mc.world != null) {
+            Streams.stream(mc.world.getEntities())
+                .filter(e -> e instanceof Portal)
+                .flatMap(
+                    entityPortal -> getEntitiesToTeleport(
+                        ((Portal) entityPortal)
+                    ).map(
+                        entity -> ((Runnable) () -> {
+                            onEntityGoInsidePortal(entity, ((Portal) entityPortal));
+                        })
+                    )
+                )
+                .collect(Collectors.toCollection(ArrayDeque::new))
+                .forEach(Runnable::run);
+        }
+    }
+    
+    private Stream<Entity> getEntitiesToTeleport(Portal portal) {
+        return portal.world.getEntities(
+            Entity.class,
+            portal.getPortalCollisionBox()
+        ).stream().filter(
+            e -> !(e instanceof Portal)
+        ).filter(
+            portal::shouldEntityTeleport
+        );
+    }
+    
     private void onEntityGoInsidePortal(Entity entity, Portal portal) {
-        ModMain.clientTaskList.addTask(() -> {
-            if (entity instanceof ClientPlayerEntity) {
-                teleportPlayer(portal.getEntityId());
-            }
-            return true;
-        });
-        
+        if (entity instanceof ClientPlayerEntity) {
+            teleportPlayer(portal.getEntityId());
+        }
     }
     
     private void teleportPlayer(int portalId) {
+        long currTime = System.nanoTime();
+        if (currTime - lastTeleportGameTime < 1000000000L / 10) {
+            Helper.err("teleport frequency so high");
+            return;
+        }
+        
         ClientPlayerEntity player = mc.player;
         
         Entity portalEntity = mc.world.getEntityById(portalId);
@@ -74,15 +100,20 @@ public class ClientTeleportationManager {
         
         if (fromDimension != toDimension) {
             ClientWorld toWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(toDimension);
-            
-            changePlayerDimension(player, fromWorld, toWorld, newPos);
+    
+            try {
+                changePlayerDimension(player, fromWorld, toWorld, newPos);
+            }
+            catch (Throwable e) {
+                throw new IllegalStateException(e);
+            }
         }
         
         player.setPosition(newPos.x, newPos.y, newPos.z);
         Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
-        
-        long teleportTime = System.nanoTime();
-        shouldIgnorePositionPacket = () -> System.nanoTime() - teleportTime < 5000000000L;
+    
+        shouldIgnorePositionPacket = () -> System.nanoTime() - currTime < 5000000000L;
+        lastTeleportGameTime = currTime;
         
         player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(portal.getEntityId()));
     
@@ -114,6 +145,7 @@ public class ClientTeleportationManager {
     private void changePlayerDimension(
         ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d destination
     ) {
+    
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
         ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
@@ -146,5 +178,6 @@ public class ClientTeleportationManager {
             fromWorld.dimension.getType(),
             toWorld.dimension.getType()
         ));
+    
     }
 }

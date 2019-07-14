@@ -44,9 +44,9 @@ public class MixinMinecraftServer {
     
     @Inject(
         method = "Lnet/minecraft/server/MinecraftServer;tickWorlds(Ljava/util/function/BooleanSupplier;)V",
-        at = @At("HEAD")
+        at = @At("TAIL")
     )
     private void onServerTick(BooleanSupplier booleanSupplier_1, CallbackInfo ci) {
-        ModMain.serverTickSignal.emit();
+        ModMain.postServerTickSignal.emit();
     }
 }

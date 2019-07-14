@@ -19,12 +19,13 @@ public class MixinMinecraftClient {
     @Inject(
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V"
+            target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V",
+            shift = At.Shift.AFTER
         ),
         method = "Lnet/minecraft/client/MinecraftClient;tick()V"
     )
     private void onClientTick(CallbackInfo ci) {
-        ModMain.clientTickSignal.emit();
+        ModMain.postClientTickSignal.emit();
     }
     
     @Inject(

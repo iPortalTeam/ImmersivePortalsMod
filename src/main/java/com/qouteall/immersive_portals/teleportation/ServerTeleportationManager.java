@@ -1,27 +1,51 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
+import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.ArrayList;
+
 public class ServerTeleportationManager {
+    
+    public ServerTeleportationManager() {
+        ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
+    }
     
     public void onPlayerTeleportedInClient(
         ServerPlayerEntity player,
         int portalId
     ) {
-        Entity entityPortal = player.world.getEntityById(portalId);
+        Entity portalEntity = player.world.getEntityById(portalId);
         assert player.dimension == player.world.dimension.getType();
-        if (!(entityPortal instanceof Portal)) {
+        if (!(portalEntity instanceof Portal)) {
             Helper.err("Can Not Find Portal " + portalId + " in " + player.dimension + " to teleport");
             return;
         }
+    
+        if (canPlayerTeleportThrough(player, ((Portal) portalEntity))) {
+            teleportPlayer(player, ((Portal) portalEntity));
+        }
+        else {
+            Helper.err("Player cannot teleport through portal");
+            sendPositionConfirmMessage(player);
+        }
+    }
+    
+    private boolean canPlayerTeleportThrough(
+        ServerPlayerEntity player,
+        Portal portal
+    ) {
+        return player.dimension == portal.dimension &&
+            (player.getPos().squaredDistanceTo(portal.getPos()) < 10 * 10);
         
-        teleportPlayer(player, ((Portal) entityPortal));
     }
     
     private void teleportPlayer(
@@ -44,7 +68,8 @@ public class ServerTeleportationManager {
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
-        
+    
+        sendConfirmMessageTwice(player);
     }
     
     /**
@@ -81,6 +106,41 @@ public class ServerTeleportationManager {
             fromWorld.dimension.getType(),
             toWorld.dimension.getType()
         ));
+    }
+    
+    private void sendConfirmMessageTwice(ServerPlayerEntity player) {
+        //send a confirm message now
+        //and send one again after 1 second
+        
+        sendPositionConfirmMessage(player);
+        
+        long startTickTime = Helper.getServerGameTime();
+        ModMain.serverTaskList.addTask(() -> {
+            if (Helper.getServerGameTime() - startTickTime > 20) {
+                sendPositionConfirmMessage(player);
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+    
+    private void sendPositionConfirmMessage(ServerPlayerEntity player) {
+        CustomPayloadS2CPacket packet = MyNetwork.createStcDimensionConfirm(
+            player.dimension,
+            player.getPos()
+        );
+        
+        player.networkHandler.sendPacket(packet);
+    }
+    
+    private void tick() {
+        if (Helper.getServerGameTime() % 100 == 42) {
+            ArrayList<ServerPlayerEntity> copyPlayerList =
+                new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
+            copyPlayerList.forEach(this::sendPositionConfirmMessage);
+        }
     }
     
 }

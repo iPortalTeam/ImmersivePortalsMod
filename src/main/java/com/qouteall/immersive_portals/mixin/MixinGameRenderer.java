@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.GameRenderer;
@@ -55,6 +56,14 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (!Globals.portalRenderManager.shouldSkipClearing()) {
             GlStateManager.clear(int_1, boolean_1);
         }
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V",
+        at = @At("HEAD")
+    )
+    private void onPreRender(float float_1, long long_1, boolean boolean_1, CallbackInfo ci) {
+        ModMain.preRenderSignal.emit();
     }
     
     @Shadow

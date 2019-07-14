@@ -18,6 +18,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -35,8 +37,9 @@ public class MyNetwork {
     public static final Identifier id_stcRedirected =
         new Identifier("immersive_portals", "redirected");
     
-    //NOTE you must assign pid to its class
-    //or it will only work in single player mode
+    //you can input a lambda expression and it will be invoked remotely
+    //but java serialization is not stable
+    @Deprecated
     public static CustomPayloadS2CPacket createCustomPacketStc(
         ICustomStcPacket serializable
     ) {
@@ -60,6 +63,7 @@ public class MyNetwork {
         return new CustomPayloadS2CPacket(id_stcCustom, buf);
     }
     
+    @Deprecated
     private static void handleCustomPacketStc(PacketContext context, PacketByteBuf buf) {
         ByteBuffer byteBuffer = buf.nioBuffer();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteBuffer.array());
@@ -140,15 +144,30 @@ public class MyNetwork {
     }
     
     public static CustomPayloadS2CPacket createStcDimensionConfirm(
-        ServerPlayerEntity playerEntity
+        DimensionType dimensionType,
+        Vec3d pos
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        
+        buf.writeInt(dimensionType.getRawId());
+        buf.writeDouble(pos.x);
+        buf.writeDouble(pos.y);
+        buf.writeDouble(pos.z);
         return new CustomPayloadS2CPacket(id_stcDimensionConfirm, buf);
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
-        assert false;
+        DimensionType dimension = DimensionType.byRawId(buf.readInt());
+        Vec3d pos = new Vec3d(
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble()
+        );
+    
+        MinecraftClient.getInstance().execute(() -> {
+            Globals.clientTeleportationManager.acceptSynchronizationDataFromServer(
+                dimension, pos
+            );
+        });
     }
     
     public static void init() {

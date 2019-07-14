@@ -35,9 +35,10 @@ public class PortalRenderManager {
     private Runnable behavior;
     
     private float partialTicks = 0;
-    private long finishTimeNano = 0;
     private int idQueryObject = -1;
     private Entity cameraEntity;
+    
+    private int renderedPortalNum = 0;
     
     public PortalRenderManager() {
         behavior = this::renderPortals;
@@ -96,7 +97,6 @@ public class PortalRenderManager {
     
     private void prepareRendering(float partialTicks_, long finishTimeNano_) {
         partialTicks = partialTicks_;
-        finishTimeNano = finishTimeNano_;
         cameraEntity = mc.cameraEntity;
         
         //NOTE calling glClearStencil will not clear it, it just assigns the value for clearing
@@ -105,6 +105,8 @@ public class PortalRenderManager {
         
         GlStateManager.enableDepthTest();
         GL11.glEnable(GL_STENCIL_TEST);
+    
+        renderedPortalNum = 0;
     }
     
     private void finishRendering() {
@@ -149,7 +151,8 @@ public class PortalRenderManager {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
-        
+    
+        //do not use last tick pos
         if (!portal.isInFrontOfPortal(cameraEntity.getPos())) {
             return;
         }
@@ -172,6 +175,8 @@ public class PortalRenderManager {
         if (!anySamplePassed) {
             return;
         }
+    
+        renderedPortalNum += 1;
         
         //PUSH
         portalLayers.push(portal);

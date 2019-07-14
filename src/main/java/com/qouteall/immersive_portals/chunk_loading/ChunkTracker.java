@@ -52,7 +52,7 @@ public class ChunkTracker {
     public SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
     public ChunkTracker() {
-        ModMain.clientTickSignal.connectWithWeakRef(this, ChunkTracker::tick);
+        ModMain.postClientTickSignal.connectWithWeakRef(this, ChunkTracker::tick);
     }
     
     /**

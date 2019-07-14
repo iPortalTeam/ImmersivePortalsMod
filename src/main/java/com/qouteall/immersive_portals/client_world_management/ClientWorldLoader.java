@@ -5,7 +5,6 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
@@ -38,7 +37,7 @@ public class ClientWorldLoader {
     public boolean isClientRemoteTickingEnabled = false;
     
     public ClientWorldLoader() {
-        ModMain.clientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
+        ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
     
     public boolean getIsLoadingFakedWorld() {

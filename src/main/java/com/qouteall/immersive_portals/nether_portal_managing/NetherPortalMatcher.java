@@ -55,8 +55,8 @@ public class NetherPortalMatcher {
         Iterator<BlockPos> iterator = stream.iterator();
         
         ServerWorld overWorldOnServer = Helper.getOverWorldOnServer();
-        
-        ModMain.serverTickSignal.connect(() -> {
+    
+        ModMain.postServerTickSignal.connect(() -> {
             if (overWorldOnServer.getTime() % 20 == 0) {
                 if (iterator.hasNext()) {
                     BlockPos blockPos = iterator.next();

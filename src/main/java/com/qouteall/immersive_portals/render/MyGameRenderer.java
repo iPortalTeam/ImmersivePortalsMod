@@ -77,7 +77,6 @@ public class MyGameRenderer {
         mc.getProfiler().pop();
     
         //recover
-        
         mc.worldRenderer = oldWorldRenderer;
         mc.world = oldWorld;
         ieGameRenderer.setBackgroundRenderer(oldFogRenderer);

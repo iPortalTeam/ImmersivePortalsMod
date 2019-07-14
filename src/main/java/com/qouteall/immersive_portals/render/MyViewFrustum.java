@@ -39,8 +39,8 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
         this.renderDistance = renderDistanceChunks;
         this.chunkRendererFactory = chunkRendererFactory;
         this.renderers = new ChunkRenderer[this.sizeX * this.sizeY * this.sizeZ];
-        
-        ModMain.clientTickSignal.connectWithWeakRef(this, (this_) -> {
+    
+        ModMain.postClientTickSignal.connectWithWeakRef(this, (this_) -> {
             ClientWorld worldClient = MinecraftClient.getInstance().world;
             if (worldClient != null) {
                 if (worldClient.getTime() % 147 == 0) {

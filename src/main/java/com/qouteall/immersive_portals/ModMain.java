@@ -16,10 +16,13 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.MinecraftClient;
 
 public class ModMain implements ModInitializer {
-    public static Signal clientTickSignal = new Signal();
-    public static Signal serverTickSignal = new Signal();
-    public static MyTaskList clientTaskList = new MyTaskList();
-    public static MyTaskList serverTaskList = new MyTaskList();
+    //after world ticking
+    public static final Signal postClientTickSignal = new Signal();
+    public static final Signal postServerTickSignal = new Signal();
+    public static final Signal preRenderSignal = new Signal();
+    public static final MyTaskList clientTaskList = new MyTaskList();
+    public static final MyTaskList serverTaskList = new MyTaskList();
+    public static final MyTaskList preRenderTaskList = new MyTaskList();
     
     @Override
     public void onInitialize() {
@@ -30,9 +33,10 @@ public class ModMain implements ModInitializer {
         MonitoringNetherPortal.init();
         
         MyNetwork.init();
-        
-        clientTickSignal.connect(() -> clientTaskList.processTasks());
-        serverTickSignal.connect(() -> serverTaskList.processTasks());
+    
+        postClientTickSignal.connect(clientTaskList::processTasks);
+        postServerTickSignal.connect(serverTaskList::processTasks);
+        preRenderSignal.connect(preRenderTaskList::processTasks);
         
         MinecraftClient.getInstance().execute(() -> {
             Globals.portalRenderManager = new PortalRenderManager();

@@ -8,6 +8,9 @@ fix other dimension is dark initially
 fix mis-teleport
 fix dimension position sync
 fix sometimes client chunk unloads near player
+fix teleport upon entering game causes un-synchronization
+fix sometimes dimension changed but position remains same
+fix check can client teleport
 
 implement adding portal make chunk tracker update
 
