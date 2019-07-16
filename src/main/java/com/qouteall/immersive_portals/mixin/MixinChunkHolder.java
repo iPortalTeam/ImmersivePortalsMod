@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
@@ -17,10 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Mixin(ChunkHolder.class)
 public class MixinChunkHolder implements IEChunkHolder {
@@ -49,19 +46,18 @@ public class MixinChunkHolder implements IEChunkHolder {
             this.playersWatchingChunkProvider.getPlayersWatchingChunk(
                 this.pos, boolean_1
             ).collect(Collectors.toSet());
-        Collection<ServerPlayerEntity> myWatchers = Globals.chunkTracker
-            .getPlayersViewingChunk(dimension, pos);
-        myWatchers.stream().filter(
-            player -> !vanillaWatchers.contains(player)
-        ).forEach(
-            playerEntity -> {
+        Globals.chunkTracker.
+            getPlayersViewingChunk(dimension, pos)
+            .filter(
+                player -> !vanillaWatchers.contains(player)
+            )
+            .forEach(playerEntity ->
                 playerEntity.networkHandler.sendPacket(
                     RedirectedMessageManager.createRedirectedMessage(
                         dimension, packet_1
                     )
-                );
-            }
-        );
+                )
+            );
     }
     
 }

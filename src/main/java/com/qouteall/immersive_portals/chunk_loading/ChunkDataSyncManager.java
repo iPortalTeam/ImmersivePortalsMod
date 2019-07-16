@@ -74,6 +74,8 @@ public class ChunkDataSyncManager {
     
     public void manageToSendUnloadPacket(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
         long startTime = Helper.getServerGameTime();
+    
+        //TODO no need to wait
         
         ModMain.serverTaskList.addTask(() -> {
             if (isChunkManagedByVanilla(player, chunkPos)) {

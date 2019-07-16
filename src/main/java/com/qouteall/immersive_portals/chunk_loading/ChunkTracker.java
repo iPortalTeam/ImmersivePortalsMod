@@ -24,21 +24,31 @@ import java.util.stream.Stream;
 public class ChunkTracker {
     
     /**
-     * see{@link net.minecraft.server.world.ChunkTicketManager.DistanceFromNearestPlayerTracker#getInitialLevel(long)}
-     * see{@link net.minecraft.server.world.ChunkTicketManager#handleChunkEnter(ChunkSectionPos, ServerPlayerEntity)}
-     * see{@link net.minecraft.server.world.ChunkTicketManager#handleChunkLeave(ChunkSectionPos, ServerPlayerEntity)}}
-     * see{@link net.minecraft.server.world.ThreadedAnvilChunkStorage#getPlayersWatchingChunk(ChunkPos, boolean)}
+     * {@link net.minecraft.server.world.ChunkTicketManager.DistanceFromNearestPlayerTracker#getInitialLevel(long)}
+     * {@link net.minecraft.server.world.ChunkTicketManager#handleChunkEnter(ChunkSectionPos, ServerPlayerEntity)}
+     * {@link net.minecraft.server.world.ChunkTicketManager#handleChunkLeave(ChunkSectionPos, ServerPlayerEntity)}}
+     * {@link net.minecraft.server.world.ThreadedAnvilChunkStorage#getPlayersWatchingChunk(ChunkPos, boolean)}
      * {@link ChunkHolder#sendPacketToPlayersWatching(Packet, boolean)}
-     */
-    
-    /**
      * {@link ThreadedAnvilChunkStorage#updateCameraPosition(ServerPlayerEntity)}
      */
+
+    //it's a graph
+
+    public static class Edge {
+        public DimensionalChunkPos chunkPos;
+        public ServerPlayerEntity player;
+        public long lastActiveGameTime;
     
-    private Map<ServerPlayerEntity, Vec3d> lastPosUponUpdatingMap = new HashMap<>();
-    private Set<DimensionalChunkPos> portalLoadedChunks = new HashSet<>();
-    private Multimap<DimensionalChunkPos, ServerPlayerEntity> chunkToWatchingPlayers = HashMultimap.create();
-    private Multimap<ServerPlayerEntity, DimensionalChunkPos> playerToWatchedChunks = HashMultimap.create();
+        public Edge(
+            DimensionalChunkPos chunkPos,
+            ServerPlayerEntity player,
+            long lastActiveGameTime
+        ) {
+            this.chunkPos = chunkPos;
+            this.player = player;
+            this.lastActiveGameTime = lastActiveGameTime;
+        }
+    }
     
     private static final ChunkTicketType<ChunkPos> immersiveTicketType =
         ChunkTicketType.create(
@@ -48,8 +58,13 @@ public class ChunkTracker {
     
     public static final int portalLoadingRange = 48;
     
-    public SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
-    public SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
+    public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
+    public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
+    
+    private Map<ServerPlayerEntity, Vec3d> lastPosUponUpdatingMap = new HashMap<>();
+    private Set<DimensionalChunkPos> portalLoadedChunks = new HashSet<>();
+    private Multimap<DimensionalChunkPos, Edge> chunkPosToEdges = HashMultimap.create();
+    private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
     
     public ChunkTracker() {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ChunkTracker::tick);
@@ -85,26 +100,45 @@ public class ChunkTracker {
         }
     }
     
+    private Edge getOrAddEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity playerEntity) {
+        return chunkPosToEdges.get(chunkPos)
+            .stream()
+            .filter(edge -> edge.player == playerEntity)
+            .findAny()
+            .orElseGet(() -> addEdge(chunkPos, playerEntity));
+    }
+    
+    private Edge addEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity player) {
+        Edge edge = new Edge(chunkPos, player, Helper.getServerGameTime());
+        chunkPosToEdges.put(chunkPos, edge);
+        playerToEdges.put(player, edge);
+        
+        beginWatchChunkSignal.emit(player, chunkPos);
+        
+        return edge;
+    }
+    
+    private void removeEdge(Edge edge) {
+        chunkPosToEdges.entries().removeIf(
+            entry -> entry.getValue() == edge
+        );
+        playerToEdges.entries().removeIf(
+            entry -> entry.getValue() == edge
+        );
+        
+        if (!edge.player.removed) {
+            endWatchChunkSignal.emit(edge.player, edge.chunkPos);
+        }
+    }
+    
     private void updatePlayer(ServerPlayerEntity playerEntity) {
-        HashSet<DimensionalChunkPos> oldPlayerViewingChunks =
-            new HashSet<>(playerToWatchedChunks.get(playerEntity));
         Set<DimensionalChunkPos> newPlayerViewingChunks = getPlayerViewingChunks(
             playerEntity
         );
-        playerToWatchedChunks.replaceValues(playerEntity, newPlayerViewingChunks);
-        
-        Helper.compareOldAndNew(
-            oldPlayerViewingChunks,
-            newPlayerViewingChunks,
-            chunkPos -> {
-                chunkToWatchingPlayers.remove(chunkPos, playerEntity);
-                endWatchChunkSignal.emit(playerEntity, chunkPos);
-            },
-            chunkPos -> {
-                chunkToWatchingPlayers.put(chunkPos, playerEntity);
-                beginWatchChunkSignal.emit(playerEntity, chunkPos);
-            }
-        );
+        newPlayerViewingChunks.forEach(chunkPos -> {
+            Edge edge = getOrAddEdge(chunkPos, playerEntity);
+            edge.lastActiveGameTime = Helper.getServerGameTime();
+        });
     }
     
     //TODO invoke this upon creating portal
@@ -123,7 +157,7 @@ public class ChunkTracker {
                 player.getBlockPos(),
                 getRenderDistanceOnServer()
             ),
-        
+    
             //indirectly watching chunks
             Helper.getEntitiesNearby(
                 player,
@@ -153,21 +187,29 @@ public class ChunkTracker {
         }
     
         if (Helper.getServerGameTime() % 20 == 7) {
-            updateChunkTickets();
+            removeInactiveEdges();
+        
+            cleanupForRemovedPlayers();
             
-            purge();
+            updateChunkTickets();
         }
+    }
+    
+    private void removeInactiveEdges() {
+        long serverGameTime = Helper.getServerGameTime();
+        playerToEdges.values().stream()
+            .filter(
+                edge -> serverGameTime - edge.lastActiveGameTime > 20 * 10
+            )
+            .collect(Collectors.toCollection(ArrayDeque::new))
+            .forEach(this::removeEdge);
     }
     
     private void updateChunkTickets() {
         Set<DimensionalChunkPos> oldPortalLoadedChunks = this.portalLoadedChunks;
-        Set<DimensionalChunkPos> newPortalLoadedChunks = chunkToWatchingPlayers.keySet();
+        Set<DimensionalChunkPos> newPortalLoadedChunks = chunkPosToEdges.keySet();
         
         portalLoadedChunks = newPortalLoadedChunks;
-        
-        assert newPortalLoadedChunks.stream().noneMatch(
-            dimensionalChunkPos -> chunkToWatchingPlayers.get(dimensionalChunkPos).isEmpty()
-        );
         
         Helper.compareOldAndNew(
             oldPortalLoadedChunks,
@@ -181,23 +223,22 @@ public class ChunkTracker {
         );
     }
     
-    private void purge() {
+    private void cleanupForRemovedPlayers() {
         lastPosUponUpdatingMap.entrySet().removeIf(
             entry -> entry.getKey().removed
         );
-        chunkToWatchingPlayers.entries().removeIf(
-            entry -> entry.getValue().removed
-        );
-        playerToWatchedChunks.entries().removeIf(
-            entry -> entry.getKey().removed
-        );
+        playerToEdges.entries().stream()
+            .filter(entry -> entry.getKey().removed)
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toCollection(ArrayDeque::new))
+            .forEach(this::removeEdge);
     }
     
     private Stream<DimensionalChunkPos> getNearbyChunkPoses(
         DimensionType dimension,
         BlockPos pos, int radius
     ) {
-        List<DimensionalChunkPos> chunkPoses = new ArrayList<>();
+        ArrayDeque<DimensionalChunkPos> chunkPoses = new ArrayDeque<>();
         ChunkPos portalChunkPos = new ChunkPos(pos);
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
@@ -211,25 +252,23 @@ public class ChunkTracker {
         return chunkPoses.stream();
     }
     
-    public Collection<ServerPlayerEntity> getPlayersViewingChunk(
+    public Stream<ServerPlayerEntity> getPlayersViewingChunk(
         DimensionType dimensionType,
         ChunkPos chunkPos
     ) {
         assert dimensionType != null;
-        return chunkToWatchingPlayers.get(
-            new DimensionalChunkPos(
-                dimensionType,
-                chunkPos.x,
-                chunkPos.z
-            )
-        );
+        return chunkPosToEdges
+            .get(new DimensionalChunkPos(dimensionType, chunkPos))
+            .stream()
+            .map(edge -> edge.player);
     }
     
     public boolean isPlayerWatchingChunk(
         ServerPlayerEntity player,
         DimensionalChunkPos chunkPos
     ) {
-        return chunkToWatchingPlayers.containsEntry(chunkPos, player);
+        return chunkPosToEdges.get(chunkPos).stream()
+            .anyMatch(edge -> edge.player == player);
     }
     
     public static int getRenderDistanceOnServer() {
