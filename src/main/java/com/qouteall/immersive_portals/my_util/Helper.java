@@ -452,6 +452,7 @@ public class Helper {
         );
     }
     
+    @Deprecated
     public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
         World world,
         Vec3d center,
@@ -462,6 +463,7 @@ public class Helper {
         return (Stream) world.getEntities(entityType, box, e -> true).stream();
     }
     
+    @Deprecated
     public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
         Entity center,
         EntityType<ENTITY> entityType,
@@ -471,6 +473,29 @@ public class Helper {
             center.world,
             center.getPos(),
             entityType,
+            range
+        );
+    }
+    
+    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
+        World world,
+        Vec3d center,
+        Class<ENTITY> entityClass,
+        double range
+    ) {
+        Box box = new Box(center, center).expand(range);
+        return (Stream) world.getEntities(entityClass, box).stream();
+    }
+    
+    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
+        Entity center,
+        Class<ENTITY> entityClass,
+        double range
+    ) {
+        return getEntitiesNearby(
+            center.world,
+            center.getPos(),
+            entityClass,
             range
         );
     }
@@ -500,7 +525,11 @@ public class Helper {
         );
     }
     
-    public static long getServerGameTime(){
+    public static long getServerGameTime() {
         return getOverWorldOnServer().getTime();
+    }
+    
+    public static long secondToNano(double second) {
+        return (long) (second * 1000000000L);
     }
 }

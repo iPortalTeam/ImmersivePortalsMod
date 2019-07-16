@@ -130,6 +130,16 @@ public class MyNetwork {
             if (world == null) {
                 return false;
             }
+        
+            if (world.getEntityById(entityId) != null) {
+                Helper.err(String.format(
+                    "duplicate entity %s %s %s",
+                    ((Integer) entityId).toString(),
+                    entityType.get(),
+                    compoundTag
+                ));
+                return true;
+            }
             
             Entity entity = entityType.get().create(
                 world

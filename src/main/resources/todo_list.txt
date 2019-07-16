@@ -11,6 +11,10 @@ fix sometimes client chunk unloads near player
 fix teleport upon entering game causes un-synchronization
 fix sometimes dimension changed but position remains same
 fix check can client teleport
+fix sometimes teleportation failed
+fix from side blinking
+
+add nether portal sound and particle
 
 implement adding portal make chunk tracker update
 

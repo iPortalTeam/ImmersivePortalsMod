@@ -274,11 +274,11 @@ public class NetherPortalGenerator {
     
         Vec3d centerOffset = new Vec3d(innerAreaSize).multiply(0.5);
     
-        Portal[] portalArray = new Portal[]{
+        MonitoringNetherPortal[] portalArray = new MonitoringNetherPortal[]{
             new MonitoringNetherPortal(fromWorld),
-            new Portal(fromWorld),
-            new Portal(toWorld),
-            new Portal(toWorld)
+            new MonitoringNetherPortal(fromWorld),
+            new MonitoringNetherPortal(toWorld),
+            new MonitoringNetherPortal(toWorld)
         };
     
         Portal.initBiWayBiFacedPortal(
@@ -293,15 +293,18 @@ public class NetherPortalGenerator {
             new Vec3d(innerAreaSize)
         );
     
-        MonitoringNetherPortal monitor = (MonitoringNetherPortal) portalArray[0];
-        monitor.obsidianFrame1 = fromObsidianFrame;
-        monitor.dimension1 = fromWorld.dimension.getType();
-        monitor.obsidianFrame2 = toObsidianFrame;
-        monitor.dimension2 = toWorld.dimension.getType();
-        monitor.otherPortalId1 = portalArray[1].getUuid();
-        monitor.otherPortalId2 = portalArray[2].getUuid();
-        monitor.otherPortalId3 = portalArray[3].getUuid();
+        portalArray[0].obsidianFrame = fromObsidianFrame;
+        portalArray[1].obsidianFrame = fromObsidianFrame;
     
+        portalArray[2].obsidianFrame = toObsidianFrame;
+        portalArray[3].obsidianFrame = toObsidianFrame;
+    
+        portalArray[0].reversePortalId = portalArray[3].getUuid();
+        portalArray[3].reversePortalId = portalArray[0].getUuid();
+    
+        portalArray[1].reversePortalId = portalArray[2].getUuid();
+        portalArray[2].reversePortalId = portalArray[1].getUuid();
+        
         fromWorld.spawnEntity(portalArray[0]);
         fromWorld.spawnEntity(portalArray[1]);
         toWorld.spawnEntity(portalArray[2]);

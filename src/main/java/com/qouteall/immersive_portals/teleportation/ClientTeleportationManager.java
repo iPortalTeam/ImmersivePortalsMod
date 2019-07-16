@@ -19,13 +19,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayDeque;
-import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
-    public BooleanSupplier shouldIgnorePositionPacket = () -> false;
     private long lastTeleportGameTime = 0;
     
     public ClientTeleportationManager() {
@@ -77,10 +75,11 @@ public class ClientTeleportationManager {
     
     private void teleportPlayer(int portalId) {
         long currTime = System.nanoTime();
-        if (currTime - lastTeleportGameTime < 1000000000L / 10) {
+        if (currTime - lastTeleportGameTime < Helper.secondToNano(0.1)) {
             Helper.err("teleport frequency so high");
             return;
         }
+        lastTeleportGameTime = currTime;
         
         ClientPlayerEntity player = mc.player;
         
@@ -89,8 +88,13 @@ public class ClientTeleportationManager {
             Helper.err("client cannot find portal " + portalId);
             return;
         }
+    
         Portal portal = (Portal) portalEntity;
         DimensionType toDimension = portal.dimensionTo;
+    
+        if (!portal.shouldEntityTeleport(mc.player)) {
+            return;
+        }
         
         Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
         Vec3d newLastTickPos = portal.applyTransformationToPoint(Helper.lastTickPosOf(player));
@@ -101,19 +105,11 @@ public class ClientTeleportationManager {
         if (fromDimension != toDimension) {
             ClientWorld toWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(toDimension);
     
-            try {
-                changePlayerDimension(player, fromWorld, toWorld, newPos);
-            }
-            catch (Throwable e) {
-                throw new IllegalStateException(e);
-            }
+            changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
         
         player.setPosition(newPos.x, newPos.y, newPos.z);
         Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
-    
-        shouldIgnorePositionPacket = () -> System.nanoTime() - currTime < 5000000000L;
-        lastTeleportGameTime = currTime;
         
         player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(portal.getEntityId()));
     
@@ -179,5 +175,9 @@ public class ClientTeleportationManager {
             toWorld.dimension.getType()
         ));
     
+        Helper.log("Portal Number Near Player Now" +
+            Helper.getEntitiesNearby(mc.player, Portal.class, 10).count()
+        );
+        
     }
 }

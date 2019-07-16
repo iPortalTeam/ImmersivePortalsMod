@@ -124,6 +124,7 @@ public class ClientWorldLoader {
     }
     
     private ClientWorld createFakedClientWorld(DimensionType dimension) {
+        assert mc.world.dimension.getType() == mc.player.dimension;
         assert (mc.player.dimension != dimension);
         
         isLoadingFakedWorld = true;

@@ -15,8 +15,10 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateFactory;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.IWorld;
@@ -50,12 +52,6 @@ public class BlockMyNetherPortal extends Block {
     
     public static final SignalBiArged<ServerWorld, BlockPos> portalBlockUpdateSignal = new SignalBiArged<>();
     
-    public BlockMyNetherPortal(Settings properties) {
-        super(properties);
-        
-        //this.setDefaultState(this.stateContainer.getBaseState().with(NEW_AXIS, EnumFacing.Axis.X));
-    }
-    
     public static final BlockMyNetherPortal instance =
         new BlockMyNetherPortal(
             FabricBlockSettings.of(Material.PORTAL)
@@ -65,6 +61,23 @@ public class BlockMyNetherPortal extends Block {
                 .lightLevel(11)
                 .build()
         );
+    
+    public static void init() {
+        Registry.register(
+            Registry.BLOCK,
+            new Identifier("immersive_portals", "nether_portal_block"),
+            instance
+        );
+    }
+    
+    public BlockMyNetherPortal(Settings properties) {
+        super(properties);
+        this.setDefaultState(
+            (BlockState) ((BlockState) this.stateFactory.getDefaultState()).with(
+                AXIS, Direction.Axis.X
+            )
+        );
+    }
     
     @Override
     public VoxelShape getOutlineShape(

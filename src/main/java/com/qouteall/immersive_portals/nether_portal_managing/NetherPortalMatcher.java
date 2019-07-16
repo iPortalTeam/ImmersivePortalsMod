@@ -116,8 +116,8 @@ public class NetherPortalMatcher {
         if (!innerAreaFilter.test(innerArea)) {
             return null;
         }
-        
-        if (!checkObsidianFrame(world, normalAxis, innerArea)) {
+    
+        if (!isObsidianFrameIntact(world, normalAxis, innerArea)) {
             return null;
         }
         
@@ -134,7 +134,7 @@ public class NetherPortalMatcher {
         );
     }
     
-    public static boolean checkObsidianFrame(
+    public static boolean isObsidianFrameIntact(
         IWorld world,
         Direction.Axis normalAxis,
         IntegerAABBInclusive innerArea

@@ -18,7 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.List;
@@ -291,7 +290,7 @@ public class MyCommand {
             playerServer,
             Helper.myToString(
                 Helper.getEntitiesNearby(
-                    playerServer, Portal.entityType, 64
+                    playerServer, Portal.class, 64
                 )
             )
         );
@@ -301,7 +300,7 @@ public class MyCommand {
             playerServer,
             Helper.myToString(
                 Helper.getEntitiesNearby(
-                    playerClient, Portal.entityType, 64
+                    playerClient, Portal.class, 64
                 )
             )
         );
@@ -358,10 +357,10 @@ public class MyCommand {
     
     private static int reportPlayerStatus(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         //only invoked on single player
-
+    
         ServerPlayerEntity playerMP = context.getSource().getPlayer();
         ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
-
+    
         Helper.serverLog(
             playerMP,
             "On Server " + playerMP.dimension + " " + playerMP.getBlockPos()

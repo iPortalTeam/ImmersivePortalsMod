@@ -7,12 +7,10 @@ import com.qouteall.immersive_portals.portal_entity.PortalDummyRenderer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -27,15 +25,12 @@ import java.util.UUID;
 public class MonitoringNetherPortal extends Portal {
     public static EntityType<MonitoringNetherPortal> entityType;
     
-    private boolean isNotified = false;
+    //the reversed portal is in another dimension and face the opposite direction
+    public UUID reversePortalId;
+    public ObsidianFrame obsidianFrame;
     
-    public DimensionType dimension1;
-    public ObsidianFrame obsidianFrame1;
-    public DimensionType dimension2;
-    public ObsidianFrame obsidianFrame2;
-    public UUID otherPortalId1;
-    public UUID otherPortalId2;
-    public UUID otherPortalId3;
+    private boolean isNotified = true;
+    private boolean shouldBreakNetherPortal = false;
     
     public static void init() {
         entityType = Registry.register(
@@ -79,17 +74,42 @@ public class MonitoringNetherPortal extends Portal {
         super(entityType, world);
     }
     
+    private void breakPortalOnThisSide() {
+        assert shouldBreakNetherPortal;
+        assert !removed;
+        
+        breakNetherPortalBlocks();
+        this.remove();
+    }
+    
+    private void breakNetherPortalBlocks() {
+        ServerWorld world1 = Helper.getServer().getWorld(dimension);
+        
+        obsidianFrame.boxWithoutObsidian.stream().forEach(
+            blockPos -> world1.setBlockState(
+                blockPos,
+                Blocks.AIR.getDefaultState()
+            )
+        );
+    }
+    
     @Override
     public boolean isPortalValid() {
         return super.isPortalValid() &&
-            dimension1 != null &&
-            dimension2 != null &&
-            obsidianFrame1 != null &&
-            obsidianFrame2 != null;
+            reversePortalId != null &&
+            obsidianFrame != null;
     }
     
-    public void notifyToCheckIntegrity() {
+    private void notifyToCheckIntegrity() {
         isNotified = true;
+    }
+    
+    private MonitoringNetherPortal getReversePortal() {
+        assert !world.isClient;
+        
+        ServerWorld world = getServer().getWorld(dimensionTo);
+        return world == null ?
+            null : (MonitoringNetherPortal) world.getEntity(reversePortalId);
     }
     
     @Override
@@ -99,46 +119,49 @@ public class MonitoringNetherPortal extends Portal {
         if (!world.isClient) {
             if (isNotified) {
                 isNotified = false;
-                checkNetherPortalIfLoaded();
+                checkPortalIntegrity();
+            }
+            if (shouldBreakNetherPortal) {
+                breakPortalOnThisSide();
             }
         }
     }
     
     private void checkPortalIntegrity() {
+        assert !world.isClient;
+        
         if (!isPortalValid()) {
+            remove();
             return;
         }
-        
-        if (!world.isClient) {
-            if (!checkNetherPortalIfLoaded()) {
-                breakNetherPortal(this);
-                this.removed = true;
-                Entity entity2 = ((ServerWorld) world).getEntity(otherPortalId1);
-                if (entity2 != null) {
-                    entity2.removed = true;
-                }
-                Entity entity1 = Helper.getServer().getWorld(dimension2).getEntity(otherPortalId2);
-                if (entity1 != null) {
-                    entity1.removed = true;
-                }
-                Entity entity = Helper.getServer().getWorld(dimension2).getEntity(otherPortalId3);
-                if (entity != null) {
-                    entity.removed = true;
-                }
+    
+        if (!isPortalIntactOnThisSide()) {
+            shouldBreakNetherPortal = true;
+            MonitoringNetherPortal reversePortal = getReversePortal();
+            if (reversePortal != null) {
+                reversePortal.shouldBreakNetherPortal = true;
+            }
+            else {
+                Helper.err(
+                    "Cannot find the reverse portal. Nether portal may not be removed normally."
+                );
             }
         }
     }
     
-    //if the region is not loaded, it will return true
-    private boolean checkNetherPortalIfLoaded() {
+    private boolean isPortalIntactOnThisSide() {
         assert Helper.getServer() != null;
         
-        return checkObsidianFrameIfLoaded(dimension1, obsidianFrame1) &&
-            checkObsidianFrameIfLoaded(dimension2, obsidianFrame2);
+        return NetherPortalMatcher.isObsidianFrameIntact(
+            world,
+            obsidianFrame.normalAxis,
+            obsidianFrame.boxWithoutObsidian
+        )
+            && isInnerPortalBlocksIntact(world, obsidianFrame);
     }
     
     //if the region is not loaded, it will return true
-    private boolean checkObsidianFrameIfLoaded(
+    private static boolean isObsidianFrameIntact(
         DimensionType dimension,
         ObsidianFrame obsidianFrame
     ) {
@@ -151,8 +174,8 @@ public class MonitoringNetherPortal extends Portal {
         if (!world.isBlockLoaded(obsidianFrame.boxWithoutObsidian.l)) {
             return true;
         }
-        
-        if (!NetherPortalMatcher.checkObsidianFrame(
+    
+        if (!NetherPortalMatcher.isObsidianFrameIntact(
             world,
             obsidianFrame.normalAxis,
             obsidianFrame.boxWithoutObsidian
@@ -160,10 +183,10 @@ public class MonitoringNetherPortal extends Portal {
             return false;
         }
     
-        return checkInnerPortalBlocks(world, obsidianFrame);
+        return isInnerPortalBlocksIntact(world, obsidianFrame);
     }
     
-    private static boolean checkInnerPortalBlocks(
+    private static boolean isInnerPortalBlocksIntact(
         IWorld world,
         ObsidianFrame obsidianFrame
     ) {
@@ -173,57 +196,21 @@ public class MonitoringNetherPortal extends Portal {
         );
     }
     
-    private static void breakNetherPortal(
-        MonitoringNetherPortal portalGuard
-    ) {
-        ServerWorld world1 = Helper.getServer().getWorld(portalGuard.dimension1);
-        ServerWorld world2 = Helper.getServer().getWorld(portalGuard.dimension2);
-        
-        portalGuard.obsidianFrame1.boxWithoutObsidian.stream().forEach(
-            blockPos -> world1.setBlockState(
-                blockPos,
-                Blocks.AIR.getDefaultState()
-            )
-        );
-        
-        portalGuard.obsidianFrame2.boxWithoutObsidian.stream().forEach(
-            blockPos -> world2.setBlockState(
-                blockPos,
-                Blocks.AIR.getDefaultState()
-            )
-        );
-        
-        assert false;
-    }
     
     @Override
     protected void readCustomDataFromTag(CompoundTag compoundTag) {
         super.readCustomDataFromTag(compoundTag);
-        
-        dimension1 = DimensionType.byRawId(compoundTag.getInt("dimension1"));
-        dimension2 = DimensionType.byRawId(compoundTag.getInt("dimension2"));
-        Tag frame1 = compoundTag.getTag("frame1");
-        if (!(frame1 instanceof CompoundTag)) {
-            Helper.err("bad nether portal data " + compoundTag);
-            return;
-        }
-        obsidianFrame1 = ObsidianFrame.fromTag((CompoundTag) frame1);
-        Tag frame2 = compoundTag.getTag("frame2");
-        if (!(frame2 instanceof CompoundTag)) {
-            Helper.err("bad nether portal data " + compoundTag);
-            return;
-        }
-        obsidianFrame2 = ObsidianFrame.fromTag((CompoundTag) frame2);
+    
+        reversePortalId = compoundTag.getUuid("reversePortalId");
+        obsidianFrame = ObsidianFrame.fromTag(compoundTag.getCompound("obsidianFrame"));
     }
     
     @Override
     protected void writeCustomDataToTag(CompoundTag compoundTag) {
         super.writeCustomDataToTag(compoundTag);
-        
-        compoundTag.putInt("dimension1", dimension1.getRawId());
-        compoundTag.putInt("dimension2", dimension2.getRawId());
-        compoundTag.put("frame1", obsidianFrame1.toTag());
-        compoundTag.put("frame2", obsidianFrame2.toTag());
+    
+        compoundTag.putUuid("reversePortalId", reversePortalId);
+        compoundTag.put("obsidianFrame", obsidianFrame.toTag());
     }
     
     @Override

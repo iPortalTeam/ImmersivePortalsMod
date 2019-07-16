@@ -241,13 +241,16 @@ public class Portal extends Entity {
     @Override
     public String toString() {
         return "Portal{" +
-            "pos=" + getBlockPos() +
+            "id=" + getEntityId() +
+            ", pos=" + getBlockPos() +
             ", dimensionTo=" + dimensionTo +
             ", destination=" + new BlockPos(destination) +
             ", normal=" + new BlockPos(getNormal()) +
             '}';
     }
     
+    //0 and 3 are opposite
+    //1 and 2 are opposite
     public static void initBiWayBiFacedPortal(
         Portal[] portals,
         DimensionType dimension1,
@@ -276,6 +279,11 @@ public class Portal extends Entity {
         portals[1].destination = center2;
         portals[2].destination = center1;
         portals[3].destination = center1;
+        
+        assert portals[0].dimension == dimension1;
+        assert portals[1].dimension == dimension1;
+        assert portals[2].dimension == dimension2;
+        assert portals[3].dimension == dimension2;
         
         portals[0].dimensionTo = dimension2;
         portals[1].dimensionTo = dimension2;
@@ -326,6 +334,11 @@ public class Portal extends Entity {
         Vec3d lastTickPos,
         Vec3d pos
     ) {
+        if (pos.squaredDistanceTo(lastTickPos) > 5 * 5) {
+            //entity moves to fast
+            return false;
+        }
+        
         double lastDistance = getDistanceToPlane(lastTickPos);
         double nowDistance = getDistanceToPlane(pos);
         

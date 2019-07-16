@@ -12,6 +12,8 @@
     "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
     "MixinCommandManager",
+    "MixinEntityTracker",
+    "MixinEntityTrackerEntry",
     "MixinFireBlock",
     "MixinGameRenderer",
     "MixinGlFrameBuffer",

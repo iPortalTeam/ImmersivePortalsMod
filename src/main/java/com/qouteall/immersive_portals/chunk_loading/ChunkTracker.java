@@ -127,7 +127,7 @@ public class ChunkTracker {
             //indirectly watching chunks
             Helper.getEntitiesNearby(
                 player,
-                Portal.entityType,
+                Portal.class,
                 portalLoadingRange
             ).flatMap(
                 portalEntity -> getNearbyChunkPoses(
