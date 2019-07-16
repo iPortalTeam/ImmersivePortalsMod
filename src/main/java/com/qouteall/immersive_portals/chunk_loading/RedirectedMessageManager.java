@@ -7,89 +7,30 @@ import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.packet.*;
+import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class RedirectedMessageManager {
-    private static final Map<Integer, Supplier<Packet>> constructorMap = new HashMap<>();
-    private static final Map<Class, Integer> idMap = new HashMap<>();
-    
-    private static <PACKET> void register(
-        Class<PACKET> clazz,
-        Supplier<PACKET> constructor,
-        int id
-    ) {
-        constructorMap.put(id, (Supplier<Packet>) constructor);
-        idMap.put(clazz, id);
-    }
-    
-    static {
-        register(ChunkDataS2CPacket.class, ChunkDataS2CPacket::new, 0);
-        register(UnloadChunkS2CPacket.class, UnloadChunkS2CPacket::new, 1);
-        register(ChunkDeltaUpdateS2CPacket.class, ChunkDeltaUpdateS2CPacket::new, 2);
-        register(LightUpdateS2CPacket.class, LightUpdateS2CPacket::new, 3);
-        register(BlockEntityUpdateS2CPacket.class, BlockEntityUpdateS2CPacket::new, 4);
-        register(BlockUpdateS2CPacket.class, BlockUpdateS2CPacket::new, 5);
-
-
-//        register(
-//            SPacketMultiBlockChange.class,
-//            SPacketMultiBlockChange::new,
-//            3
-//        );
-//        register(
-//            SPacketUpdateTileEntity.class,
-//            SPacketUpdateTileEntity::new,
-//            4
-//        );
-//        register(SPacketEntityAttach.class, SPacketEntityAttach::new, 5);
-//        register(SPacketSetPassengers.class, SPacketSetPassengers::new, 6);
-//        register(SPacketTimeUpdate.class, SPacketTimeUpdate::new, 7);
-//        register(SPacketChangeGameState.class, SPacketChangeGameState::new, 8);
-//        register(SPacketSetPassengers.class, SPacketSetPassengers::new, 9);
-//        register(SPacketEntityEffect.class, SPacketEntityEffect::new, 10);
-//        register(SPacketUseBed.class, SPacketUseBed::new, 11);
-//        register(SPacketEntityEquipment.class, SPacketEntityEquipment::new, 12);
-//        register(SPacketEntityVelocity.class, SPacketEntityVelocity::new, 13);
-//        register(SPacketEntityProperties.class, SPacketEntityProperties::new, 14);
-//        register(SPacketEntityMetadata.class, SPacketEntityMetadata::new, 15);
-//        register(SPacketEntity.Look.class, SPacketEntity.Look::new, 16);
-//        register(SPacketEntity.Move.class, SPacketEntity.Move::new, 17);
-//        register(SPacketEntity.RelMove.class, SPacketEntity.RelMove::new, 18);
-//        register(SPacketEntityHeadLook.class, SPacketEntityHeadLook::new, 19);
-//        register(SPacketSpawnMob.class, SPacketSpawnMob::new, 20);
-//        register(SPacketSpawnPlayer.class, SPacketSpawnPlayer::new, 21);
-//        register(SPacketSpawnObject.class, SPacketSpawnObject::new, 22);
-//        register(SPacketSpawnPainting.class, SPacketSpawnPainting::new, 23);
-//        register(SPacketSpawnExperienceOrb.class, SPacketSpawnExperienceOrb::new, 24);
-//        register(SPacketMaps.class, SPacketMaps::new, 25);
-//        register(SPacketEntityTeleport.class, SPacketEntityTeleport::new, 26);
-//        register(SPacketDestroyEntities.class, SPacketDestroyEntities::new, 27);
-//        register(SPacketEntityStatus.class, SPacketEntityStatus::new, 28);
-//        register(SPacketAnimation.class, SPacketAnimation::new, 29);
-//        register(SPacketCollectItem.class, SPacketCollectItem::new, 30);
-    }
-    
     public static CustomPayloadS2CPacket createRedirectedMessage(
         DimensionType dimension,
         Packet packet
     ) {
-        Class<? extends Packet> packetClass = packet.getClass();
-        if (!idMap.containsKey(packetClass)) {
-            throw new IllegalArgumentException("Unregistered Message Type" + packetClass);
+        int messageType = 0;
+        try {
+            messageType = NetworkState.PLAY.getPacketId(NetworkSide.CLIENTBOUND, packet);
         }
-        int messageType = idMap.get(packetClass);
+        catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(dimension.getRawId());
         buf.writeInt(messageType);
@@ -98,8 +39,7 @@ public class RedirectedMessageManager {
             packet.write(buf);
         }
         catch (IOException e) {
-            assert false;
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
         }
         
         return new CustomPayloadS2CPacket(MyNetwork.id_stcRedirected, buf);
@@ -108,11 +48,12 @@ public class RedirectedMessageManager {
     private static Packet createEmptyPacketByType(
         int messageType
     ) {
-        if (!constructorMap.containsKey(messageType)) {
-            throw new IllegalArgumentException("Unregistered Message Type" + messageType);
+        try {
+            return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
         }
-        
-        return constructorMap.get(messageType).get();
+        catch (IllegalAccessException | InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
     
     public static void processRedirectedMessage(

@@ -74,19 +74,21 @@ public class MixinServerPlayerEntity {
         at = @At("TAIL")
     )
     private void onTicking(CallbackInfo ci) {
-        myRemovedEntities.stream()
-            .collect(Collectors.groupingBy(entity -> entity.dimension))
-            .forEach((dimension, list) -> networkHandler.sendPacket(
-                RedirectedMessageManager.createRedirectedMessage(
-                    dimension,
-                    new EntitiesDestroyS2CPacket(
-                        list.stream().mapToInt(
-                            Entity::getEntityId
-                        ).toArray()
+        if (myRemovedEntities != null) {
+            myRemovedEntities.stream()
+                .collect(Collectors.groupingBy(entity -> entity.dimension))
+                .forEach((dimension, list) -> networkHandler.sendPacket(
+                    RedirectedMessageManager.createRedirectedMessage(
+                        dimension,
+                        new EntitiesDestroyS2CPacket(
+                            list.stream().mapToInt(
+                                Entity::getEntityId
+                            ).toArray()
+                        )
                     )
-                )
-            ));
-        myRemovedEntities = null;
+                ));
+            myRemovedEntities = null;
+        }
     }
     
     /**
