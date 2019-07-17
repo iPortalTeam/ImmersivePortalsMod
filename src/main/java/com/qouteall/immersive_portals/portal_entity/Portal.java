@@ -242,9 +242,8 @@ public class Portal extends Entity {
     public String toString() {
         return "Portal{" +
             "id=" + getEntityId() +
-            ", pos=" + getBlockPos() +
-            ", dimensionTo=" + dimensionTo +
-            ", destination=" + new BlockPos(destination) +
+            ", in=" + dimension + getBlockPos() +
+            ", to=" + dimensionTo + new BlockPos(destination) +
             ", normal=" + new BlockPos(getNormal()) +
             '}';
     }

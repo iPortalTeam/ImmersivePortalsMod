@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.google.common.collect.Sets;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
+import com.qouteall.immersive_portals.exposer.IEEntityTracker;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.entity.Entity;
@@ -29,7 +29,7 @@ import java.util.Set;
 
 //NOTE must redirect all packets about entities
 @Mixin(targets = "net.minecraft.server.world.ThreadedAnvilChunkStorage$EntityTracker")
-public class MixinEntityTracker {
+public class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final
     private EntityTrackerEntry entry;
@@ -43,7 +43,7 @@ public class MixinEntityTracker {
     private ChunkSectionPos lastCameraPosition;
     @Shadow
     @Final
-    private Set<ServerPlayerEntity> playersTracking = Sets.newHashSet();
+    private Set<ServerPlayerEntity> playersTracking;
     
     @Redirect(
         method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToOtherNearbyPlayers(Lnet/minecraft/network/Packet;)V",
@@ -116,6 +116,31 @@ public class MixinEntityTracker {
      */
     @Overwrite
     public void updateCameraPosition(ServerPlayerEntity player) {
+        updateCameraPosition_(player);
+    }
+    
+    /**
+     * @author qouteall
+     * performance may be slowed down
+     */
+    @Overwrite
+    public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
+        //ignore the argument
+        
+        ArrayList<ServerPlayerEntity> playerList =
+            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
+        
+        playerList.forEach(this::updateCameraPosition);
+        
+    }
+    
+    @Override
+    public Entity getEntity_() {
+        return entity;
+    }
+    
+    @Override
+    public void updateCameraPosition_(ServerPlayerEntity player) {
         IEThreadedAnvilChunkStorage storage = Helper.getIEStorage(entity.dimension);
         
         if (player != this.entity) {
@@ -166,18 +191,5 @@ public class MixinEntityTracker {
             }
             
         }
-    }
-    
-    /**
-     * @author qouteall
-     * performance may be slowed down
-     */
-    @Overwrite
-    public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
-        ArrayList<ServerPlayerEntity> playerList =
-            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
-        
-        playerList.forEach(this::updateCameraPosition);
-        
     }
 }

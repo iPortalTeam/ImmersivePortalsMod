@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
@@ -38,14 +39,16 @@ public class MixinServerPlayerEntity {
         CallbackInfo ci
     ) {
         ServerPlayerEntity this_ = (ServerPlayerEntity) (Object) this;
-        boolean isWatching = Globals.chunkTracker.isPlayerWatchingChunk(
-            this_,
-            new DimensionalChunkPos(
-                this_.dimension,
-                chunkPos_1
-            )
+        DimensionalChunkPos chunkPos = new DimensionalChunkPos(
+            this_.dimension, chunkPos_1
         );
-        if (isWatching) {
+        boolean isWatching = Globals.chunkTracker.isPlayerWatchingChunk(
+            this_, chunkPos
+        );
+        boolean isManagedByVanilla = ChunkDataSyncManager.isChunkManagedByVanilla(
+            (ServerPlayerEntity) (Object) this, chunkPos
+        );
+        if (!isManagedByVanilla && isWatching) {
             ci.cancel();
         }
     }

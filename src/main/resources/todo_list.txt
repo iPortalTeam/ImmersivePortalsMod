@@ -1,16 +1,11 @@
-
+fix see nether on overworld
 fix blink upon teleportation
 fix break portal functionality
 fix overworld sky blinking
-fix nether too dark
 fix weather rendering
-fix other dimension is dark initially
 fix mis-teleport
-fix dimension position sync
-fix sometimes client chunk unloads near player
 fix teleport upon entering game causes un-synchronization
 fix sometimes dimension changed but position remains same
-fix check can client teleport
 fix sometimes teleportation failed
 fix from side blinking
 

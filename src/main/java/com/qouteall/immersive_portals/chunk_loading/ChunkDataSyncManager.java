@@ -9,6 +9,7 @@ import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -57,7 +58,11 @@ public class ChunkDataSyncManager {
                 )
             )
         );
-        
+    
+        //this is to update the entity trackers
+        //performance may be slowed down
+        ((ThreadedAnvilChunkStorage) Helper.getIEStorage(chunkPos.dimension))
+            .updateCameraPosition(player);
     }
     
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
@@ -106,21 +111,26 @@ public class ChunkDataSyncManager {
         });
     }
     
-    private boolean isChunkManagedByVanilla(
+    public static boolean isChunkManagedByVanilla(
         ServerPlayerEntity player,
         DimensionalChunkPos chunkPos
     ) {
         if (player.dimension != chunkPos.dimension) {
             return false;
         }
-    
+        
         int watchDistance = ChunkTracker.getRenderDistanceOnServer();
         
+        //NOTE do not use entity.chunkX
+        //it's not updated
+        
+        ChunkPos playerChunkPos = new ChunkPos(player.getBlockPos());
+        
         int chebyshevDistance = Math.max(
-            Math.abs(player.chunkX - chunkPos.x),
-            Math.abs(player.chunkZ - chunkPos.z)
+            Math.abs(playerChunkPos.x - chunkPos.x),
+            Math.abs(playerChunkPos.z - chunkPos.z)
         );
-    
+        
         return chebyshevDistance <= watchDistance;
     }
 }

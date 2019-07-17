@@ -14,7 +14,6 @@ import net.minecraft.server.world.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.*;
@@ -61,7 +60,6 @@ public class ChunkTracker {
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
-    private Map<ServerPlayerEntity, Vec3d> lastPosUponUpdatingMap = new HashMap<>();
     private Set<DimensionalChunkPos> portalLoadedChunks = new HashSet<>();
     private Multimap<DimensionalChunkPos, Edge> chunkPosToEdges = HashMultimap.create();
     private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
@@ -139,11 +137,8 @@ public class ChunkTracker {
             Edge edge = getOrAddEdge(chunkPos, playerEntity);
             edge.lastActiveGameTime = Helper.getServerGameTime();
         });
-    }
     
-    //TODO invoke this upon creating portal
-    public void notifyToUpdatePlayer(ServerPlayerEntity playerEntity) {
-        lastPosUponUpdatingMap.remove(playerEntity);
+        removeInactiveEdges(playerEntity);
     }
     
     private Set<DimensionalChunkPos> getPlayerViewingChunks(
@@ -176,28 +171,23 @@ public class ChunkTracker {
     private void tick() {
         List<ServerPlayerEntity> playerList =
             new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
+        long currTime = Helper.getServerGameTime();
         for (ServerPlayerEntity player : playerList) {
-            Vec3d lastUpdatePos = lastPosUponUpdatingMap.get(player);
-            if (lastUpdatePos == null ||
-                player.getPos().squaredDistanceTo(lastUpdatePos) > 8 * 8
-            ) {
-                lastPosUponUpdatingMap.put(player, player.getPos());
+            if (currTime % 100 == player.getEntityId() % 100) {
                 updatePlayer(player);
             }
         }
     
-        if (Helper.getServerGameTime() % 20 == 7) {
-            removeInactiveEdges();
-        
+        if (Helper.getServerGameTime() % 100 == 66) {
             cleanupForRemovedPlayers();
             
             updateChunkTickets();
         }
     }
     
-    private void removeInactiveEdges() {
+    private void removeInactiveEdges(ServerPlayerEntity playerEntity) {
         long serverGameTime = Helper.getServerGameTime();
-        playerToEdges.values().stream()
+        playerToEdges.get(playerEntity).stream()
             .filter(
                 edge -> serverGameTime - edge.lastActiveGameTime > 20 * 10
             )
@@ -224,9 +214,6 @@ public class ChunkTracker {
     }
     
     private void cleanupForRemovedPlayers() {
-        lastPosUponUpdatingMap.entrySet().removeIf(
-            entry -> entry.getKey().removed
-        );
         playerToEdges.entries().stream()
             .filter(entry -> entry.getKey().removed)
             .map(Map.Entry::getValue)
