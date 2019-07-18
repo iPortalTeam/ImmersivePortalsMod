@@ -1,10 +1,12 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.google.common.collect.Lists;
+import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEEntityTracker;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
-import com.qouteall.immersive_portals.my_util.Helper;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.client.network.DebugRendererInfoManager;
@@ -25,6 +27,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +37,7 @@ import java.util.List;
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilChunkStorage {
     @Shadow
-    int watchDistance;
+    private int watchDistance;
     
     @Shadow
     @Final
@@ -51,7 +56,6 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
     
     @Override
     public int getWatchDistance() {
-        Helper.log(entityTrackers.size());
         return watchDistance;
     }
     
@@ -75,10 +79,23 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
      */
     @Overwrite
     private void sendChunkDataPackets(
-        ServerPlayerEntity serverPlayerEntity_1,
+        ServerPlayerEntity player,
         Packet<?>[] packets_1,
         WorldChunk worldChunk_1
     ) {
+        DimensionalChunkPos chunkPos = new DimensionalChunkPos(
+            world.dimension.getType(), worldChunk_1.getPos()
+        );
+        boolean isChunkDataSent = Globals.chunkTracker.isChunkDataSent(player, chunkPos);
+        if (isChunkDataSent) {
+            return;
+        }
+    
+        ModMain.serverTaskList.addTask(() -> {
+            Globals.chunkTracker.onChunkDataSent(player, chunkPos);
+            return true;
+        });
+        
         if (packets_1[0] == null) {
             packets_1[0] = RedirectedMessageManager.createRedirectedMessage(
                 world.dimension.getType(),
@@ -92,8 +109,8 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
                 )
             );
         }
-        
-        serverPlayerEntity_1.sendInitialChunkPackets(
+    
+        player.sendInitialChunkPackets(
             worldChunk_1.getPos(),
             packets_1[0],
             packets_1[1]
@@ -107,8 +124,8 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
         while (var6.hasNext()) {
             IEEntityTracker threadedAnvilChunkStorage$EntityTracker_1 = (IEEntityTracker) var6.next();
             Entity entity_1 = threadedAnvilChunkStorage$EntityTracker_1.getEntity_();
-            if (entity_1 != serverPlayerEntity_1 && entity_1.chunkX == worldChunk_1.getPos().x && entity_1.chunkZ == worldChunk_1.getPos().z) {
-                threadedAnvilChunkStorage$EntityTracker_1.updateCameraPosition_(serverPlayerEntity_1);
+            if (entity_1 != player && entity_1.chunkX == worldChunk_1.getPos().x && entity_1.chunkZ == worldChunk_1.getPos().z) {
+                threadedAnvilChunkStorage$EntityTracker_1.updateCameraPosition_(player);
                 if (entity_1 instanceof MobEntity && ((MobEntity) entity_1).getHoldingEntity() != null) {
                     list_1.add(entity_1);
                 }
@@ -126,7 +143,7 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
             
             while (var9.hasNext()) {
                 entity_3 = (Entity) var9.next();
-                serverPlayerEntity_1.networkHandler.sendPacket(
+                player.networkHandler.sendPacket(
                     RedirectedMessageManager.createRedirectedMessage(
                         world.getDimension().getType(),
                         new EntityAttachS2CPacket(
@@ -143,12 +160,39 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
             
             while (var9.hasNext()) {
                 entity_3 = (Entity) var9.next();
-                serverPlayerEntity_1.networkHandler.sendPacket(
+                player.networkHandler.sendPacket(
                     RedirectedMessageManager.createRedirectedMessage(
                         world.getDimension().getType(),
                         new EntityPassengersSetS2CPacket(entity_3)
                     )
                 );
+            }
+        }
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;loadEntity(Lnet/minecraft/entity/Entity;)V",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onLoadEntity(Entity entity_1, CallbackInfo ci) {
+//        //if the entity is already tracked, return
+//        if (entityTrackers.containsKey(entity_1.getEntityId())) {
+//            ci.cancel();
+//        }
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;unloadEntity(Lnet/minecraft/entity/Entity;)V",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onUnloadEntity(Entity entity_1, CallbackInfo ci) {
+        //when the player leave this dimension, do not stop tracking entities
+        if (entity_1 instanceof ServerPlayerEntity) {
+            if (Globals.serverTeleportationManager.isTeleporting(((ServerPlayerEntity) entity_1))) {
+                entityTrackers.remove(entity_1.getEntityId());
+                ci.cancel();
             }
         }
     }

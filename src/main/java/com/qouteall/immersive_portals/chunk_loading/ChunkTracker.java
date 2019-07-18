@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.exposer.IEServerChunkManager;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.sun.istack.internal.Nullable;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.*;
@@ -37,7 +38,8 @@ public class ChunkTracker {
         public DimensionalChunkPos chunkPos;
         public ServerPlayerEntity player;
         public long lastActiveGameTime;
-    
+        public boolean isSent = false;
+        
         public Edge(
             DimensionalChunkPos chunkPos,
             ServerPlayerEntity player,
@@ -98,6 +100,15 @@ public class ChunkTracker {
         }
     }
     
+    @Nullable
+    private Edge getEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity playerEntity) {
+        return chunkPosToEdges.get(chunkPos)
+            .stream()
+            .filter(edge -> edge.player == playerEntity)
+            .findAny()
+            .orElse(null);
+    }
+    
     private Edge getOrAddEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity playerEntity) {
         return chunkPosToEdges.get(chunkPos)
             .stream()
@@ -110,8 +121,11 @@ public class ChunkTracker {
         Edge edge = new Edge(chunkPos, player, Helper.getServerGameTime());
         chunkPosToEdges.put(chunkPos, edge);
         playerToEdges.put(player, edge);
-        
-        beginWatchChunkSignal.emit(player, chunkPos);
+    
+        ModMain.serverTaskList.addTask(() -> {
+            beginWatchChunkSignal.emit(player, chunkPos);
+            return true;
+        });
         
         return edge;
     }
@@ -123,10 +137,13 @@ public class ChunkTracker {
         playerToEdges.entries().removeIf(
             entry -> entry.getValue() == edge
         );
-        
-        if (!edge.player.removed) {
-            endWatchChunkSignal.emit(edge.player, edge.chunkPos);
-        }
+    
+        ModMain.serverTaskList.addTask(() -> {
+            if (!edge.player.removed) {
+                endWatchChunkSignal.emit(edge.player, edge.chunkPos);
+            }
+            return true;
+        });
     }
     
     private void updatePlayer(ServerPlayerEntity playerEntity) {
@@ -258,7 +275,23 @@ public class ChunkTracker {
             .anyMatch(edge -> edge.player == player);
     }
     
+    public void onChunkDataSent(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
+        Edge edge = getOrAddEdge(chunkPos, player);
+        if (edge.isSent) {
+            Helper.err(String.format("chunk data sent twice! %s %s",
+                player, chunkPos
+            ));
+        }
+        edge.isSent = true;
+    }
+    
+    public boolean isChunkDataSent(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
+        Edge edge = getEdge(chunkPos, player);
+        return edge != null && edge.isSent;
+    }
+    
     public static int getRenderDistanceOnServer() {
         return Helper.getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
     }
+    
 }

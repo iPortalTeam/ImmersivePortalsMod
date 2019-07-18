@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.immersive_portals.my_util.Helper;
 import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientChunkManager;
@@ -80,47 +81,54 @@ public class MyClientChunkManager extends ClientChunkManager {
     @Nullable
     public WorldChunk loadChunkFromPacket(
         World world_1,
-        int int_1,
-        int int_2,
+        int x,
+        int z,
         PacketByteBuf packetByteBuf_1,
         CompoundTag compoundTag_1,
-        int int_3,
-        boolean boolean_1
+        int mask,
+        boolean isFullChunk
     ) {
-        ChunkPos chunkPos = new ChunkPos(int_1, int_2);
+        ChunkPos chunkPos = new ChunkPos(x, z);
         WorldChunk chunk = chunkMap.get(chunkPos);
-        if (!isChunkValid(chunk, int_1, int_2)) {
-            if (!boolean_1) {
+        if (!isChunkValid(chunk, x, z)) {
+            if (!isFullChunk) {
                 LOGGER.warn(
                     "Ignoring chunk since we don't have complete data: {}, {}",
-                    int_1,
-                    int_2
+                    x,
+                    z
                 );
                 return null;
             }
             
             chunk = new WorldChunk(
                 world_1,
-                new ChunkPos(int_1, int_2),
+                new ChunkPos(x, z),
                 new Biome[256]
             );
-            chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
+            chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, mask, isFullChunk);
             chunkMap.put(chunkPos, chunk);
             
             world.unloadBlockEntities(chunk);//TODO wrong?
         }
         else {
-            chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, int_3, boolean_1);
+            if (isFullChunk) {
+                Helper.err(String.format(
+                    "received full chunk while chunk is present. entity may duplicate %s %s",
+                    chunk.getWorld().dimension.getType(),
+                    chunk.getPos()
+                ));
+            }
+            chunk.loadFromPacket(packetByteBuf_1, compoundTag_1, mask, isFullChunk);
         }
         
         ChunkSection[] chunkSections_1 = chunk.getSectionArray();
         LightingProvider lightingProvider_1 = this.getLightingProvider();
-        lightingProvider_1.suppressLight(new ChunkPos(int_1, int_2), true);
+        lightingProvider_1.suppressLight(new ChunkPos(x, z), true);
         
         for (int int_5 = 0; int_5 < chunkSections_1.length; ++int_5) {
             ChunkSection chunkSection_1 = chunkSections_1[int_5];
             lightingProvider_1.updateSectionStatus(
-                ChunkSectionPos.from(int_1, int_5, int_2),
+                ChunkSectionPos.from(x, int_5, z),
                 ChunkSection.isEmpty(chunkSection_1)
             );
         }

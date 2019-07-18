@@ -30,11 +30,9 @@ public class MixinMinecraftClient {
     
     @Inject(
         method = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V",
-        at = @At("TAIL")
+        at = @At("HEAD")
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
-        if (clientWorld_1 == null) {
-            Globals.clientWorldLoader.cleanUp();
-        }
+        Globals.clientWorldLoader.cleanUp();
     }
 }

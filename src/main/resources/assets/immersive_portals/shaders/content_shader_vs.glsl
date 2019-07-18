@@ -4,7 +4,7 @@ uniform mat4 modelView;
 uniform mat4 projection;
 uniform mat4 textureMatrix;
 
-uniform vec3 posBase;
+//uniform vec3 posBase;
 
 varying vec2 uv;
 varying vec2 uv2;
@@ -13,7 +13,7 @@ varying vec4 color;
 varying float fogDistance;
 
 void main(){
-    pos = gl_Vertex.xyz + posBase;
+    pos = gl_Vertex.xyz;
     vec4 modelViewed=(modelView * gl_Vertex);
     gl_Position = projection * modelViewed;
     uv = gl_MultiTexCoord0.xy;

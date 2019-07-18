@@ -35,6 +35,12 @@ public class ChunkDataSyncManager {
         if (isChunkManagedByVanilla(player, chunkPos)) {
             return;
         }
+    
+        if (Globals.chunkTracker.isChunkDataSent(player, chunkPos)) {
+            return;
+        }
+    
+        Globals.chunkTracker.onChunkDataSent(player, chunkPos);
         
         Chunk chunk = Helper.getServer()
             .getWorld(chunkPos.dimension)

@@ -12,8 +12,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ServerTeleportationManager {
+    private Set<ServerPlayerEntity> teleportingEntities = new HashSet<>();
     
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
@@ -53,17 +56,18 @@ public class ServerTeleportationManager {
         Portal portal
     ) {
         assert player.dimension == portal.dimension;
+    
+        if (isTeleporting(player)) {
+            Helper.log(player.toString() + "tried to teleport for multiple times. rejected.");
+            return;
+        }
         
         ServerWorld fromWorld = (ServerWorld) player.world;
         ServerWorld toWorld = Helper.getServer().getWorld(portal.dimensionTo);
         Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
     
         if (player.dimension == portal.dimensionTo) {
-            player.setPosition(
-                newPos.x,
-                newPos.y,
-                newPos.z
-            );
+            player.setPosition(newPos.x, newPos.y, newPos.z);
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
@@ -81,6 +85,8 @@ public class ServerTeleportationManager {
         ServerWorld toWorld,
         Vec3d newPos
     ) {
+        teleportingEntities.add(player);
+        
         fromWorld.removeEntity(player);
         player.removed = false;
         
@@ -136,11 +142,16 @@ public class ServerTeleportationManager {
     }
     
     private void tick() {
+        teleportingEntities = new HashSet<>();
         if (Helper.getServerGameTime() % 100 == 42) {
             ArrayList<ServerPlayerEntity> copyPlayerList =
                 new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
             copyPlayerList.forEach(this::sendPositionConfirmMessage);
         }
+    }
+    
+    public boolean isTeleporting(ServerPlayerEntity entity) {
+        return teleportingEntities.contains(entity);
     }
     
 }

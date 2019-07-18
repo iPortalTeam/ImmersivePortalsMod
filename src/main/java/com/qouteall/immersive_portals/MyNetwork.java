@@ -100,6 +100,7 @@ public class MyNetwork {
         });
     }
     
+    //NOTE my packet is redirected but I cannot get the packet handler info here
     public static CustomPayloadS2CPacket createStcSpawnEntity(
         EntityType entityType,
         Entity entity
@@ -107,6 +108,7 @@ public class MyNetwork {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeString(EntityType.getId(entityType).toString());
         buf.writeInt(entity.getEntityId());
+        buf.writeInt(entity.dimension.getRawId());
         CompoundTag tag = new CompoundTag();
         entity.toTag(tag);
         buf.writeCompoundTag(tag);
@@ -116,6 +118,7 @@ public class MyNetwork {
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
         String entityTypeString = buf.readString();
         int entityId = buf.readInt();
+        DimensionType dimensionType = DimensionType.byRawId(buf.readInt());
         CompoundTag compoundTag = buf.readCompoundTag();
     
         Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
@@ -125,12 +128,8 @@ public class MyNetwork {
         }
     
         ModMain.clientTaskList.addTask(() -> {
-            ClientWorld world = MinecraftClient.getInstance().world;
-        
-            if (world == null) {
-                return false;
-            }
-        
+            ClientWorld world = Globals.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
+            
             if (world.getEntityById(entityId) != null) {
                 Helper.err(String.format(
                     "duplicate entity %s %s %s",

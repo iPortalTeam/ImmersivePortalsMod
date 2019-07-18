@@ -2,11 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.my_util.Helper;
-
 import com.qouteall.immersive_portals.portal_entity.Portal;
-
 import net.minecraft.client.MinecraftClient;
-
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.io.IOUtils;
@@ -19,7 +16,7 @@ import java.nio.charset.Charset;
 
 public class ShaderManager {
     private int idContentShaderProgram = -1;
-    public static boolean isShaderEnabled = false;
+    public static boolean isShaderEnabled = true;
     
     public ShaderManager() {
     
@@ -95,8 +92,12 @@ public class ShaderManager {
         return idProgram;
     }
     
-    public void loadContentShaderAndShaderVars(Vec3d basePos) {
+    public void loadShaderIfRenderingPortal(Vec3d basePos) {
         if (!isShaderEnabled) {
+            return;
+        }
+        
+        if (!Globals.portalRenderManager.isRendering()) {
             return;
         }
         
@@ -122,7 +123,7 @@ public class ShaderManager {
         
         Portal portal = Globals.portalRenderManager.getRenderingPortalData();
         if (portal != null) {
-            Vec3d cullingPoint = portal.getCullingPoint();
+            Vec3d cullingPoint = portal.getCullingPoint().subtract(basePos);
             GL20.glUniform3f(
                 uniPortalCenter,
                 (float) cullingPoint.x,
@@ -139,13 +140,13 @@ public class ShaderManager {
         else {
             Helper.err("NULL PORTAL");
         }
-        
-        GL20.glUniform3f(
-            uniPosBase,
-            (float) basePos.x,
-            (float) basePos.y,
-            (float) basePos.z
-        );
+
+//        GL20.glUniform3f(
+//            uniPosBase,
+//            (float) basePos.x,
+//            (float) basePos.y,
+//            (float) basePos.z
+//        );
         
         GL20.glUniform1i(uniSampler, 0);
         GL20.glUniform1i(uniSampler2, 1);

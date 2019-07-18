@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -77,8 +78,8 @@ public class MyCommand {
                 )
             )
             .then(CommandManager
-                .literal("list_all_portals")
-                .executes(context -> listAllPortals(context))
+                .literal("list_nearby_portals")
+                .executes(context -> listNearbyPortals(context))
             )
             .then(CommandManager
                 .literal("is_client_chunk_loaded")
@@ -138,21 +139,6 @@ public class MyCommand {
                     )
                 )
             )
-//            .then(CommandManager
-//                .literal("delete_all_portals")
-//                .executes(context -> deleteAllPortals())
-//            )
-//            .then(CommandManager
-//                .literal("delete_portal")
-//                .then(CommandManager
-//                    .argument(
-//                        "argPortalId", IntegerArgumentType.integer()
-//                    )
-//                    .executes(context -> deletePortal(
-//                        IntegerArgumentType.getInteger(context, "argPortalId")
-//                    ))
-//                )
-//            )
             .then(CommandManager
                 .literal("add_portal")
                 .executes(context -> addPortal(context))
@@ -161,48 +147,34 @@ public class MyCommand {
                 .literal("report_player_status")
                 .executes(context -> reportPlayerStatus(context))
             )
-//            .then(CommandManager
-//                .literal("client_remote_ticking_enable")
-//                .executes(context -> {
-//                    Globals.portalManagerClient.worldLoader.isClientRemoteTickingEnabled = true;
-//                    return 0;
-//                })
-//            )
-//            .then(CommandManager
-//                .literal("client_remote_ticking_disable")
-//                .executes(context -> {
-//                    Globals.portalManagerClient.worldLoader.isClientRemoteTickingEnabled = false;
-//                    return 0;
-//                })
-//            )
-//            .then(CommandManager
-//                .literal("frustum_substitution_enable")
-//                .executes(context -> {
-//                    MyViewFrustum.enableFrustumSubstitution = true;
-//                    return 0;
-//                })
-//            )
-//            .then(CommandManager
-//                .literal("frustum_substitution_disable")
-//                .executes(context -> {
-//                    MyViewFrustum.enableFrustumSubstitution = false;
-//                    return 0;
-//                })
-//            )
-//            .then(CommandManager
-//                .literal("custom_shader_enable")
-//                .executes(context -> {
-//                    ShaderManager.isShaderEnabled = true;
-//                    return 0;
-//                })
-//            )
-//            .then(CommandManager
-//                .literal("custom_shader_disable")
-//                .executes(context -> {
-//                    ShaderManager.isShaderEnabled = false;
-//                    return 0;
-//                })
-//            )
+            .then(CommandManager
+                .literal("client_remote_ticking_enable")
+                .executes(context -> {
+                    Globals.clientWorldLoader.isClientRemoteTickingEnabled = true;
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("client_remote_ticking_disable")
+                .executes(context -> {
+                    Globals.clientWorldLoader.isClientRemoteTickingEnabled = false;
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("culling_shader_enable")
+                .executes(context -> {
+                    ShaderManager.isShaderEnabled = true;
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("culling_shader_disable")
+                .executes(context -> {
+                    ShaderManager.isShaderEnabled = false;
+                    return 0;
+                })
+            )
 //            .then(CommandManager
 //                .literal("advanced_frustum_culling_enable")
 //                .executes(context -> {
@@ -281,7 +253,7 @@ public class MyCommand {
         return 0;
     }
     
-    private static int listAllPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int listNearbyPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity playerServer = context.getSource().getPlayer();
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
         

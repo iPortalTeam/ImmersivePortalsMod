@@ -12,6 +12,7 @@
     "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
     "MixinCommandManager",
+    "MixinDisplayListChunkRenderList",
     "MixinEntityTracker",
     "MixinEntityTrackerEntry",
     "MixinFireBlock",
@@ -25,6 +26,7 @@
     "MixinServerChunkManager",
     "MixinServerPlayerEntity",
     "MixinThreadedAnvilChunkStorage",
+    "MixinVboChunkRenderList",
     "MixinWorld",
     "MixinWorldRenderer"
   ],

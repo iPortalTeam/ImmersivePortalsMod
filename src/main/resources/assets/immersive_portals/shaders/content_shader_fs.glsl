@@ -9,7 +9,6 @@ varying float fogDistance;
 uniform sampler2D sampler;
 uniform sampler2D sampler2;
 
-uniform vec3 posBase;
 uniform vec3 portalCenter;
 uniform vec3 portalNormal;
 uniform vec3 fogColor;

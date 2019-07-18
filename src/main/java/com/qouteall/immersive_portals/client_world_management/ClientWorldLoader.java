@@ -33,8 +33,7 @@ public class ClientWorldLoader {
     
     private boolean isLoadingFakedWorld = false;
     
-    //TODO release it
-    public boolean isClientRemoteTickingEnabled = false;
+    public boolean isClientRemoteTickingEnabled = true;
     
     public ClientWorldLoader() {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
@@ -44,27 +43,13 @@ public class ClientWorldLoader {
         return isLoadingFakedWorld;
     }
     
-    public DimensionType getPlayerDimension() {
-        return mc.world.getDimension().getType();
-    }
-    
-    private void initialize() {
-        assert (mc.world != null);
-        assert (mc.worldRenderer != null);
-        
-        clientWorldMap.put(getPlayerDimension(), mc.world);
-        worldRendererMap.put(getPlayerDimension(), mc.worldRenderer);
-        
-        isInitialized = true;
-    }
-    
     private void tick() {
         if (isClientRemoteTickingEnabled) {
-            clientWorldMap.values().forEach(ClientWorld -> {
-                if (mc.world != ClientWorld) {
+            clientWorldMap.values().forEach(world -> {
+                if (mc.world != world) {
                     //NOTE tick() does not include ticking entities
-                    ClientWorld.tickEntities();
-                    ClientWorld.tick(() -> true);
+                    world.tickEntities();
+                    world.tick(() -> true);
                 }
             });
         }
@@ -118,8 +103,15 @@ public class ClientWorldLoader {
     }
     
     private void initializeIfNeeded() {
-        if (isInitialized == false) {
-            initialize();
+        if (!isInitialized) {
+            assert (mc.world != null);
+            assert (mc.worldRenderer != null);
+        
+            DimensionType playerDimension = mc.world.getDimension().getType();
+            clientWorldMap.put(playerDimension, mc.world);
+            worldRendererMap.put(playerDimension, mc.worldRenderer);
+        
+            isInitialized = true;
         }
     }
     

@@ -29,6 +29,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     private boolean renderHand;
     
+    //TODO should replace it with INVOKE_ASSIGN
+    
     @Inject(
         method = "Lnet/minecraft/client/render/GameRenderer;renderCenter(FJ)V",
         at = @At(
