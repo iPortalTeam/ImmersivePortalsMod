@@ -7,6 +7,7 @@
   "client": [
     "MixinAbstractClientPlayerEntity",
     "MixinBackgroundRenderer",
+    "MixinCamera",
     "MixinChunkHolder",
     "MixinChunkTicketManager",
     "MixinClientPlayNetworkHandler",

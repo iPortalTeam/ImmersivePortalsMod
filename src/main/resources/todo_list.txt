@@ -8,6 +8,9 @@ fix teleport upon entering game causes un-synchronization
 fix sometimes dimension changed but position remains same
 fix sometimes teleportation failed
 fix from side blinking
+fix force teleport position wrong
+fix pointing block render issue
+fix new obsidian frame in other dimension is not synced
 
 add nether portal sound and particle
 

@@ -64,8 +64,8 @@ public class MixinServerPlayerEntity {
             this_.dimension,
             chunkPos_1
         );
-        
-        Globals.chunkDataSyncManager.manageToSendUnloadPacket(
+    
+        Globals.chunkDataSyncManager.sendUnloadPacket(
             this_, dimensionalChunkPos
         );
         

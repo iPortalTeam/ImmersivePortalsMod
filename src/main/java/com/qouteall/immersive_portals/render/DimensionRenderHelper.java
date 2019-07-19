@@ -31,7 +31,7 @@ public class DimensionRenderHelper {
     
     public void tick() {
         lightmapTexture.tick();
-        fogRenderer.renderBackground(mc.gameRenderer.getCamera(), 0);
+        //fogRenderer.renderBackground(mc.gameRenderer.getCamera(), 0);
     }
     
     public void cleanUp() {

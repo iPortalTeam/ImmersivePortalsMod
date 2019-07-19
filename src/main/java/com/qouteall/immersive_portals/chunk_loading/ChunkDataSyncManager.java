@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.Globals;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
 import net.minecraft.client.network.packet.LightUpdateS2CPacket;
@@ -80,41 +79,28 @@ public class ChunkDataSyncManager {
         //watch for a period of time.
         //if player still needs the chunk, stop unloading.
     
-        manageToSendUnloadPacket(player, chunkPos);
+        sendUnloadPacket(player, chunkPos);
     }
     
-    public void manageToSendUnloadPacket(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
-        long startTime = Helper.getServerGameTime();
-    
-        //TODO no need to wait
+    public void sendUnloadPacket(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
+        if (isChunkManagedByVanilla(player, chunkPos)) {
+            //give up unloading
+            return;
+        }
         
-        ModMain.serverTaskList.addTask(() -> {
-            if (isChunkManagedByVanilla(player, chunkPos)) {
-                //give up unloading
-                return true;
-            }
-            
-            if (Globals.chunkTracker.isPlayerWatchingChunk(player, chunkPos)) {
-                //give up unloading
-                return true;
-            }
-    
-            if (Helper.getServerGameTime() - startTime < unloadWaitingTickTime) {
-                //retry at the next tick
-                return false;
-            }
-            
-            player.networkHandler.sendPacket(
-                RedirectedMessageManager.createRedirectedMessage(
-                    chunkPos.dimension,
-                    new UnloadChunkS2CPacket(
-                        chunkPos.x, chunkPos.z
-                    )
+        if (Globals.chunkTracker.isPlayerWatchingChunk(player, chunkPos)) {
+            //give up unloading
+            return;
+        }
+        
+        player.networkHandler.sendPacket(
+            RedirectedMessageManager.createRedirectedMessage(
+                chunkPos.dimension,
+                new UnloadChunkS2CPacket(
+                    chunkPos.x, chunkPos.z
                 )
-            );
-            
-            return true;
-        });
+            )
+        );
     }
     
     public static boolean isChunkManagedByVanilla(

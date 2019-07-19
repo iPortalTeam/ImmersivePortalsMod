@@ -7,10 +7,7 @@ import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.ChunkRenderDispatcher;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.SystemUtil;
@@ -36,7 +33,7 @@ public class MyGameRenderer {
         );
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
-        DimensionRenderHelper dimensionRenderHelper =
+        DimensionRenderHelper helper =
             Globals.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
         PlayerListEntry playerListEntry =
             MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
@@ -56,20 +53,28 @@ public class MyGameRenderer {
         //switch
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
-        ieGameRenderer.setBackgroundRenderer(dimensionRenderHelper.fogRenderer);
-        ieGameRenderer.setLightmapTextureManager(dimensionRenderHelper.lightmapTexture);
-        dimensionRenderHelper.lightmapTexture.update(0);
-        dimensionRenderHelper.lightmapTexture.enable();
+        ieGameRenderer.setBackgroundRenderer(helper.fogRenderer);
+        ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
+        helper.lightmapTexture.update(0);
+        helper.lightmapTexture.enable();
         BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         mc.player.noClip = true;
         ieGameRenderer.setDoRenderHand(false);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
+    
         //this is important
         GlStateManager.disableBlend();
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        GuiLighting.disable();
+        ((GameRenderer) ieGameRenderer).disableLightmap();
+        //GlStateManager.disableAlphaTest();
         
         mc.getProfiler().push("render_portal_content");
+    
+        //update fog
+        //helper.fogRenderer.renderBackground(mc.gameRenderer.getCamera(), partialTicks);
         
         //invoke it!
         mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());

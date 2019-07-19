@@ -67,7 +67,7 @@ public class ChunkTracker {
     private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
     
     public ChunkTracker() {
-        ModMain.postClientTickSignal.connectWithWeakRef(this, ChunkTracker::tick);
+        ModMain.postServerTickSignal.connectWithWeakRef(this, ChunkTracker::tick);
     }
     
     /**

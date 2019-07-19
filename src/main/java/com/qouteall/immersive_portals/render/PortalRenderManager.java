@@ -243,6 +243,7 @@ public class PortalRenderManager {
         
         DimensionRenderHelper helper =
             Globals.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
+    
         Vec3d fogColor = helper.getFogColor();
         
         GlStateManager.disableCull();
@@ -250,6 +251,7 @@ public class PortalRenderManager {
         GlStateManager.disableTexture();
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.disableBlend();
+        GlStateManager.disableLighting();
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
@@ -266,6 +268,7 @@ public class PortalRenderManager {
         GlStateManager.enableCull();
         GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture();
+        GlStateManager.enableLighting();
     }
     
     //it will overwrite the matrix
