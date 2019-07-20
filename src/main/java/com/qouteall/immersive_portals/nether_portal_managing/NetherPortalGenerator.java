@@ -67,14 +67,16 @@ public class NetherPortalGenerator {
 //        LoadingIndicatorsManager.onNetherPortalAboutToGenerate(
 //            fromObsidianFrame, fromDimension, toDimension
 //        );
-        
-        BlockPos posInOtherDimension = getPosInOtherDimensionWithRandomShift(
+    
+        BlockPos posInOtherDimension = getPosInOtherDimension(
             firePos, fromDimension, toDimension
         );
-        
+    
+        BlockPos randomShift = getRandomShift(fromDimension);
+    
         ObsidianFrame toObsidianFrame = findExistingEmptyObsidianFrameWithSameSizeInDestDimension(
             fromObsidianFrame, toWorld, posInOtherDimension,
-            NetherPortalMatcher.findingRadius + randomShiftFactor
+            NetherPortalMatcher.findingRadius
         );
         
         IntegerAABBInclusive heightLimitInOtherDimension =
@@ -82,7 +84,7 @@ public class NetherPortalGenerator {
         
         if (toObsidianFrame == null) {
             toObsidianFrame = createObsidianFrameInOtherDimension(
-                fromObsidianFrame, toWorld, posInOtherDimension,
+                fromObsidianFrame, toWorld, posInOtherDimension.add(randomShift),
                 heightLimitInOtherDimension
             );
         }
@@ -101,6 +103,15 @@ public class NetherPortalGenerator {
         );
         
         return information;
+    }
+    
+    private static BlockPos getRandomShift(DimensionType fromDimension) {
+        Random rand = Helper.getServer().getWorld(fromDimension).random;
+        return new BlockPos(
+            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
+            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
+            (rand.nextDouble() * 2 - 1) * randomShiftFactor
+        );
     }
     
     private static void registerPortalAndGenerateContentBlocks(
@@ -150,7 +161,7 @@ public class NetherPortalGenerator {
         }
         
         if (foundAirCube == null) {
-            Helper.err("No place to put portal in 128 range? " +
+            Helper.err("No place to put portal in 80 range? " +
                 "Force placed portal. It will occupy normal blocks.");
             
             foundAirCube = IntegerAABBInclusive.getBoxByBasePointAndSize(
@@ -224,35 +235,27 @@ public class NetherPortalGenerator {
         }
     }
     
-    private static BlockPos getPosInOtherDimensionWithRandomShift(
+    private static BlockPos getPosInOtherDimension(
         BlockPos pos,
         DimensionType dimensionFrom,
         DimensionType dimensionTo
     ) {
-        
-        Random rand = Helper.getServer().getWorld(dimensionFrom).random;
-        BlockPos randomShift = new BlockPos(
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor
-        );
-        
         if (dimensionFrom == DimensionType.OVERWORLD && dimensionTo == DimensionType.THE_NETHER) {
             return new BlockPos(
                 pos.getX() / 8,
                 pos.getY() / 2,
                 pos.getZ() / 8
-            ).add(randomShift);
+            );
         }
         else if (dimensionFrom == DimensionType.THE_NETHER && dimensionTo == DimensionType.OVERWORLD) {
             return new BlockPos(
                 pos.getX() * 8,
                 pos.getY() * 2,
                 pos.getZ() * 8
-            ).add(randomShift);
+            );
         }
         else {
-            return pos.add(randomShift);
+            return pos;
         }
     }
     

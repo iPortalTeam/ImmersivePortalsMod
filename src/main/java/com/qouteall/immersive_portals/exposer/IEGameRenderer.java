@@ -17,4 +17,6 @@ public interface IEGameRenderer {
     boolean getDoRenderHand();
     
     void setDoRenderHand(boolean e);
+    
+    void renderCenter_(float partialTicks, long finishTimeNano);
 }

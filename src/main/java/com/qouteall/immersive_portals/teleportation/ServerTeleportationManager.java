@@ -37,7 +37,13 @@ public class ServerTeleportationManager {
             teleportPlayer(player, ((Portal) portalEntity));
         }
         else {
-            Helper.err("Player cannot teleport through portal");
+            Helper.err(String.format(
+                "Player cannot teleport through portal %s %s %s %s",
+                player.getName().asString(),
+                player.dimension,
+                player.getPos(),
+                portalId
+            ));
             sendPositionConfirmMessage(player);
         }
     }

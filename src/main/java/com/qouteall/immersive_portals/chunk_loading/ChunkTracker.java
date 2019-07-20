@@ -63,6 +63,7 @@ public class ChunkTracker {
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
     private Set<DimensionalChunkPos> portalLoadedChunks = new HashSet<>();
+    //TODO optimize using nested map
     private Multimap<DimensionalChunkPos, Edge> chunkPosToEdges = HashMultimap.create();
     private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
     
@@ -190,7 +191,7 @@ public class ChunkTracker {
             new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
         long currTime = Helper.getServerGameTime();
         for (ServerPlayerEntity player : playerList) {
-            if (currTime % 100 == player.getEntityId() % 100) {
+            if (currTime % 50 == player.getEntityId() % 50) {
                 updatePlayer(player);
             }
         }

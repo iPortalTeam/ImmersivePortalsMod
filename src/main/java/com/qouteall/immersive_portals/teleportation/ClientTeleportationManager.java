@@ -15,16 +15,20 @@ import net.minecraft.client.network.packet.PlayerRespawnS2CPacket;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.TypeFilterableList;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayDeque;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
     private long lastTeleportGameTime = 0;
+    public BooleanSupplier shouldSendPositionPacket = () -> true;
     
     public ClientTeleportationManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
@@ -80,15 +84,13 @@ public class ClientTeleportationManager {
             return;
         }
         lastTeleportGameTime = currTime;
+    
+        shouldSendPositionPacket = () -> System.nanoTime() - currTime > Helper.secondToNano(2);
         
         ClientPlayerEntity player = mc.player;
         
         Entity portalEntity = mc.world.getEntityById(portalId);
-        if (!(portalEntity instanceof Portal)) {
-            Helper.err("client cannot find portal " + portalId);
-            return;
-        }
-    
+        assert (portalEntity instanceof Portal);
         Portal portal = (Portal) portalEntity;
         DimensionType toDimension = portal.dimensionTo;
     
@@ -113,6 +115,8 @@ public class ClientTeleportationManager {
         
         player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(portal.getEntityId()));
     
+        amendChunkEntityStatus(player);
+        
     }
     
     private void forceTeleportPlayer(DimensionType toDimension, Vec3d destination) {
@@ -148,7 +152,7 @@ public class ClientTeleportationManager {
         ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
         ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
         ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
-        
+    
         fromWorld.removeEntity(player.getEntityId());
         player.removed = false;
         player.world = toWorld;
@@ -156,17 +160,17 @@ public class ClientTeleportationManager {
         player.x = destination.x;
         player.y = destination.y;
         player.z = destination.z;
-        
+    
         toWorld.addPlayer(player.getEntityId(), player);
-        
+    
         mc.world = toWorld;
         mc.worldRenderer = Globals.clientWorldLoader.getWorldRenderer(toWorld.dimension.getType());
-        
+    
         toWorld.setScoreboard(fromWorld.getScoreboard());
-        
+    
         if (mc.particleManager != null)
             mc.particleManager.setWorld(toWorld);
-        
+    
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
     
         Helper.log(String.format(
@@ -178,6 +182,14 @@ public class ClientTeleportationManager {
         Helper.log("Portal Number Near Player Now" +
             Helper.getEntitiesNearby(mc.player, Portal.class, 10).count()
         );
-        
+    
+    }
+    
+    private void amendChunkEntityStatus(Entity entity) {
+        WorldChunk worldChunk = entity.world.getWorldChunk(entity.getBlockPos());
+        for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
+            section.remove(entity);
+        }
+        worldChunk.addEntity(entity);
     }
 }

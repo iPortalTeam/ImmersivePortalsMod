@@ -83,6 +83,11 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
         Packet<?>[] packets_1,
         WorldChunk worldChunk_1
     ) {
+        //vanilla will not manage interdimensional chunk loading
+        if (player.dimension != world.dimension.getType()) {
+            return;
+        }
+        
         DimensionalChunkPos chunkPos = new DimensionalChunkPos(
             world.dimension.getType(), worldChunk_1.getPos()
         );

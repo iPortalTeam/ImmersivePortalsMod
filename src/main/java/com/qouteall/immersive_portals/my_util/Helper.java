@@ -252,7 +252,7 @@ public class Helper {
     }
     
     public static Vec3d lastTickPosOf(Entity entity) {
-        return new Vec3d(entity.prevRenderX, entity.prevRenderY, entity.prevRenderZ);
+        return new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
     }
     
     public static Vec3d interpolatePos(Entity entity, float partialTicks) {

@@ -1,22 +1,16 @@
-fix see nether on overworld
-fix blink upon teleportation
-fix break portal functionality
-fix overworld sky blinking
-fix weather rendering
-fix mis-teleport
-fix teleport upon entering game causes un-synchronization
-fix sometimes dimension changed but position remains same
-fix sometimes teleportation failed
-fix from side blinking
-fix force teleport position wrong
-fix pointing block render issue
+
+fix sometimes teleportation failed(sometimes occur)
+fix force teleport position wrong(sometimes auto fixable?)
 fix new obsidian frame in other dimension is not synced
+fix entity culling
+fix can not break inner portal block on the other side
 
 add nether portal sound and particle
 
-implement adding portal make chunk tracker update
-
-implement reduce lag on teleporting
-
-implement culling shader
 implement frustum culling
+
+implement entity go through portal
+
+postponed fix third-person view rendering
+
+(finish time nano set to 0 to reduce lag?)

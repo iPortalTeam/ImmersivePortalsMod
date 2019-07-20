@@ -29,6 +29,14 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     private boolean renderHand;
     
+    @Shadow
+    public abstract void renderCenter(float float_1, long long_1);
+    
+    @Override
+    public void renderCenter_(float partialTicks, long finishTimeNano) {
+        renderCenter(partialTicks, finishTimeNano);
+    }
+    
     //TODO should replace it with INVOKE_ASSIGN
     
     @Inject(

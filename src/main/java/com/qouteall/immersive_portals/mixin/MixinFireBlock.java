@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.nether_portal_managing.NetherPortalGenerator;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.FireBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +27,7 @@ public class MixinFireBlock {
     ) {
         if (blockState_2.getBlock() != blockState_1.getBlock()) {
             if (!world_1.isClient) {
-                world_1.setBlockState(blockPos_1, Blocks.AIR.getDefaultState());
+                //world_1.setBlockState(blockPos_1, Blocks.AIR.getDefaultState());
                 NetherPortalGenerator.onFireLit(
                     ((ServerWorld) world_1),
                     blockPos_1

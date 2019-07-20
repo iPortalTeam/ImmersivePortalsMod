@@ -14,6 +14,7 @@ import net.minecraft.world.chunk.WorldChunk;
 
 //the chunks near player are managed by vanilla
 //we only manage the chunks that's seen by portal and not near player
+//it is not multi-threaded like vanilla
 public class ChunkDataSyncManager {
     
     private static final int unloadWaitingTickTime = 20 * 10;

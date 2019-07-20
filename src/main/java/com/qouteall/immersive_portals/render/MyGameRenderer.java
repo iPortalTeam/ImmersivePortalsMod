@@ -10,7 +10,6 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.SystemUtil;
 import net.minecraft.world.GameMode;
 import org.lwjgl.opengl.GL11;
 
@@ -72,12 +71,10 @@ public class MyGameRenderer {
         //GlStateManager.disableAlphaTest();
         
         mc.getProfiler().push("render_portal_content");
-    
-        //update fog
-        //helper.fogRenderer.renderBackground(mc.gameRenderer.getCamera(), partialTicks);
         
         //invoke it!
-        mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());
+        ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
+        //mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());
         
         mc.getProfiler().pop();
     
@@ -96,9 +93,6 @@ public class MyGameRenderer {
     }
     
     private long getChunkUpdateFinishTime() {
-        int idealFps = Math.min(MinecraftClient.getCurrentFps(), this.mc.options.maxFps);
-        idealFps = Math.max(idealFps, 60);
-        long idealPassTime = (1000000000 / idealFps / 4);
-        return SystemUtil.getMeasuringTimeNano() + Math.max(idealPassTime, 0L);
+        return 0;
     }
 }

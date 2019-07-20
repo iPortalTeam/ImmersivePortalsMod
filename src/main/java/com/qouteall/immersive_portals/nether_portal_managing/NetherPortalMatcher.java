@@ -74,8 +74,8 @@ public class NetherPortalMatcher {
     //------------------------------------------------------------
     //detect frame from inner pos
     
-    public static final int maxFrameSize = 128;
-    public static final int findingRadius = 128;
+    public static final int maxFrameSize = 40;
+    public static final int findingRadius = 80;
     public static final IntegerAABBInclusive heightLimitOverworld = new IntegerAABBInclusive(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 254, Integer.MAX_VALUE)
@@ -98,7 +98,7 @@ public class NetherPortalMatcher {
         Direction.Axis normalAxis,
         Predicate<IntegerAABBInclusive> innerAreaFilter
     ) {
-        assert isAir(world, innerPos);
+        assert isAirOrFire(world, innerPos);
         
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         
@@ -163,13 +163,13 @@ public class NetherPortalMatcher {
     ) {
         IntegerAABBInclusive stick1 = detectStick(
             world, innerPos, anotherTwoAxis.getKey(),
-            blockPos -> isAir(world, blockPos), 1
+            blockPos -> isAirOrFire(world, blockPos), 1
         );
         if (stick1 == null) return null;
         
         IntegerAABBInclusive stick2 = detectStick(
             world, innerPos, anotherTwoAxis.getValue(),
-            blockPos -> isAir(world, blockPos), 1
+            blockPos -> isAirOrFire(world, blockPos), 1
         );
         if (stick2 == null) return null;
         
@@ -178,7 +178,7 @@ public class NetherPortalMatcher {
         assert Math.abs(Helper.getCoordinate(innerArea.getSize(), normalAxis)) == 1;
         
         //check inner air
-        if (!innerArea.stream().allMatch(blockPos -> isAir(world, blockPos))) {
+        if (!innerArea.stream().allMatch(blockPos -> isAirOrFire(world, blockPos))) {
             return null;
         }
         
@@ -259,6 +259,10 @@ public class NetherPortalMatcher {
     
     private static boolean isAir(IWorld world, BlockPos pos) {
         return world.isAir(pos);
+    }
+    
+    private static boolean isAirOrFire(IWorld world, BlockPos pos) {
+        return world.isAir(pos) || world.getBlockState(pos).getBlock() == Blocks.FIRE;
     }
     
     //------------------------------------------------------------
