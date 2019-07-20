@@ -17,18 +17,18 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.TypeFilterableList;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayDeque;
-import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
     private long lastTeleportGameTime = 0;
-    public BooleanSupplier shouldSendPositionPacket = () -> true;
+    //public BooleanSupplier shouldSendPositionPacket = () -> true;
     
     public ClientTeleportationManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
@@ -73,32 +73,29 @@ public class ClientTeleportationManager {
     
     private void onEntityGoInsidePortal(Entity entity, Portal portal) {
         if (entity instanceof ClientPlayerEntity) {
-            teleportPlayer(portal.getEntityId());
+            assert entity.dimension == portal.dimension;
+            teleportPlayer(portal);
         }
     }
     
-    private void teleportPlayer(int portalId) {
-        long currTime = System.nanoTime();
-        if (currTime - lastTeleportGameTime < Helper.secondToNano(0.1)) {
-            Helper.err("teleport frequency so high");
+    private void teleportPlayer(Portal portal) {
+        long currGameTime = mc.world.getTime();
+        if (currGameTime - lastTeleportGameTime < 3) {
             return;
         }
-        lastTeleportGameTime = currTime;
-    
-        shouldSendPositionPacket = () -> System.nanoTime() - currTime > Helper.secondToNano(2);
+        lastTeleportGameTime = currGameTime;
         
         ClientPlayerEntity player = mc.player;
         
-        Entity portalEntity = mc.world.getEntityById(portalId);
-        assert (portalEntity instanceof Portal);
-        Portal portal = (Portal) portalEntity;
         DimensionType toDimension = portal.dimensionTo;
-    
+        
         if (!portal.shouldEntityTeleport(mc.player)) {
             return;
         }
         
-        Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
+        Vec3d oldPos = player.getPos();
+        
+        Vec3d newPos = portal.applyTransformationToPoint(oldPos);
         Vec3d newLastTickPos = portal.applyTransformationToPoint(Helper.lastTickPosOf(player));
         
         ClientWorld fromWorld = mc.world;
@@ -113,8 +110,12 @@ public class ClientTeleportationManager {
         player.setPosition(newPos.x, newPos.y, newPos.z);
         Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
         
-        player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(portal.getEntityId()));
-    
+        player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(
+            fromDimension,
+            oldPos,
+            portal.getEntityId()
+        ));
+        
         amendChunkEntityStatus(player);
         
     }
@@ -186,10 +187,18 @@ public class ClientTeleportationManager {
     }
     
     private void amendChunkEntityStatus(Entity entity) {
-        WorldChunk worldChunk = entity.world.getWorldChunk(entity.getBlockPos());
+        WorldChunk worldChunk1 = entity.world.getWorldChunk(entity.getBlockPos());
+        Chunk chunk2 = entity.world.getChunk(entity.chunkX, entity.chunkZ);
+        removeEntityFromChunk(entity, worldChunk1);
+        if (chunk2 instanceof WorldChunk) {
+            removeEntityFromChunk(entity, ((WorldChunk) chunk2));
+        }
+        worldChunk1.addEntity(entity);
+    }
+    
+    private void removeEntityFromChunk(Entity entity, WorldChunk worldChunk) {
         for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
             section.remove(entity);
         }
-        worldChunk.addEntity(entity);
     }
 }

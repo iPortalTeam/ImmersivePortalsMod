@@ -80,19 +80,33 @@ public class MyNetwork {
     }
     
     public static CustomPayloadC2SPacket createCtsTeleport(
+        DimensionType dimensionBefore,
+        Vec3d posBefore,
         int portalEntityId
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(dimensionBefore.getRawId());
+        buf.writeDouble(posBefore.x);
+        buf.writeDouble(posBefore.y);
+        buf.writeDouble(posBefore.z);
         buf.writeInt(portalEntityId);
         return new CustomPayloadC2SPacket(id_ctsTeleport, buf);
     }
     
     private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
+        DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
+        Vec3d posBefore = new Vec3d(
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble()
+        );
         int portalEntityId = buf.readInt();
     
         ModMain.serverTaskList.addTask(() -> {
             Globals.serverTeleportationManager.onPlayerTeleportedInClient(
                 (ServerPlayerEntity) context.getPlayer(),
+                dimensionBefore,
+                posBefore,
                 portalEntityId
             );
         

@@ -4,6 +4,9 @@ fix force teleport position wrong(sometimes auto fixable?)
 fix new obsidian frame in other dimension is not synced
 fix entity culling
 fix can not break inner portal block on the other side
+fix entity tracking problem after player respawn to a different dimension
+
+let server trust client. this would fix mis-teleportation bug
 
 add nether portal sound and particle
 

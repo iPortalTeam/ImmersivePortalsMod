@@ -24,17 +24,23 @@ public class ServerTeleportationManager {
     
     public void onPlayerTeleportedInClient(
         ServerPlayerEntity player,
+        DimensionType dimensionBefore,
+        Vec3d posBefore,
         int portalId
     ) {
-        Entity portalEntity = player.world.getEntityById(portalId);
-        assert player.dimension == player.world.dimension.getType();
-        if (!(portalEntity instanceof Portal)) {
-            Helper.err("Can Not Find Portal " + portalId + " in " + player.dimension + " to teleport");
-            return;
-        }
+        Entity portalEntity = Helper.getServer()
+            .getWorld(dimensionBefore).getEntityById(portalId);
     
-        if (canPlayerTeleportThrough(player, ((Portal) portalEntity))) {
-            teleportPlayer(player, ((Portal) portalEntity));
+        if (canPlayerTeleport(player, dimensionBefore, posBefore, portalEntity)) {
+            if (isTeleporting(player)) {
+                Helper.log(player.toString() + "tried to teleport for multiple times. rejected.");
+                return;
+            }
+        
+            DimensionType dimensionTo = ((Portal) portalEntity).dimensionTo;
+            Vec3d newPos = ((Portal) portalEntity).applyTransformationToPoint(posBefore);
+        
+            teleportPlayer(player, dimensionTo, newPos);
         }
         else {
             Helper.err(String.format(
@@ -48,31 +54,45 @@ public class ServerTeleportationManager {
         }
     }
     
-    private boolean canPlayerTeleportThrough(
+    private boolean canPlayerTeleport(
         ServerPlayerEntity player,
-        Portal portal
+        DimensionType dimensionBefore,
+        Vec3d posBefore,
+        Entity portalEntity
     ) {
-        return player.dimension == portal.dimension &&
-            (player.getPos().squaredDistanceTo(portal.getPos()) < 10 * 10);
-        
+        return canPlayerReachPos(player, dimensionBefore, posBefore) &&
+            portalEntity instanceof Portal &&
+            isClose(posBefore, portalEntity.getPos());
+    }
+    
+    private boolean canPlayerReachPos(
+        ServerPlayerEntity player,
+        DimensionType dimension,
+        Vec3d pos
+    ) {
+        return player.dimension == dimension ?
+            isClose(pos, player.getPos())
+            :
+            Helper.getEntitiesNearby(player, Portal.class, 10)
+                .anyMatch(
+                    portal -> portal.dimensionTo == dimension &&
+                        isClose(pos, portal.destination)
+                );
+    }
+    
+    private static boolean isClose(Vec3d a, Vec3d b) {
+        return a.squaredDistanceTo(b) < 10 * 10;
     }
     
     private void teleportPlayer(
         ServerPlayerEntity player,
-        Portal portal
+        DimensionType dimensionTo,
+        Vec3d newPos
     ) {
-        assert player.dimension == portal.dimension;
-    
-        if (isTeleporting(player)) {
-            Helper.log(player.toString() + "tried to teleport for multiple times. rejected.");
-            return;
-        }
-        
         ServerWorld fromWorld = (ServerWorld) player.world;
-        ServerWorld toWorld = Helper.getServer().getWorld(portal.dimensionTo);
-        Vec3d newPos = portal.applyTransformationToPoint(player.getPos());
+        ServerWorld toWorld = Helper.getServer().getWorld(dimensionTo);
     
-        if (player.dimension == portal.dimensionTo) {
+        if (player.dimension == dimensionTo) {
             player.setPosition(newPos.x, newPos.y, newPos.z);
         }
         else {

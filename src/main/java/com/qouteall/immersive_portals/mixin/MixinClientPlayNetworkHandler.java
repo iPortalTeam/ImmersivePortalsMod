@@ -1,9 +1,12 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
+import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,13 +29,13 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
         cancellable = true
     )
     private void onProcessingPosistionPacket(
-        PlayerPositionLookS2CPacket playerPositionLookS2CPacket_1,
+        PlayerPositionLookS2CPacket packet,
         CallbackInfo ci
     ) {
-        //TODO cleanup this
-//        if (Globals.clientTeleportationManager.shouldIgnorePositionPacket.getAsBoolean()) {
-//            Helper.log("Position Packet Ignored");
-//            ci.cancel();
-//        }
+        DimensionType playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
+        assert playerDimension != null;
+        if (MinecraftClient.getInstance().world.dimension.getType() != playerDimension) {
+            ci.cancel();
+        }
     }
 }
