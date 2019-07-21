@@ -8,7 +8,6 @@ import com.sun.istack.internal.Nullable;
 import javafx.util.Pair;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -449,31 +448,6 @@ public class Helper {
             compoundTag.getInt(name + "X"),
             compoundTag.getInt(name + "Y"),
             compoundTag.getInt(name + "Z")
-        );
-    }
-    
-    @Deprecated
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
-        World world,
-        Vec3d center,
-        EntityType<ENTITY> entityType,
-        double range
-    ) {
-        Box box = new Box(center, center).expand(range);
-        return (Stream) world.getEntities(entityType, box, e -> true).stream();
-    }
-    
-    @Deprecated
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
-        Entity center,
-        EntityType<ENTITY> entityType,
-        double range
-    ) {
-        return getEntitiesNearby(
-            center.world,
-            center.getPos(),
-            entityType,
-            range
         );
     }
     

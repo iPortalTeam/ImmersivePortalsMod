@@ -2,9 +2,11 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
+import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -14,12 +16,24 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class ServerTeleportationManager {
     private Set<ServerPlayerEntity> teleportingEntities = new HashSet<>();
     
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
+        Portal.serverPortalTickSignal.connectWithWeakRef(
+            this, (this_, portal) ->
+                portal.getEntitiesToTeleport().forEach(entity -> {
+                    if (!(entity instanceof ServerPlayerEntity)) {
+                        ModMain.serverTaskList.addTask(() -> {
+                            teleportRegularEntity(entity, portal);
+                            return true;
+                        });
+                    }
+                })
+        );
     }
     
     public void onPlayerTeleportedInClient(
@@ -109,16 +123,19 @@ public class ServerTeleportationManager {
         ServerPlayerEntity player,
         ServerWorld fromWorld,
         ServerWorld toWorld,
-        Vec3d newPos
+        Vec3d destination
     ) {
         teleportingEntities.add(player);
-        
-        fromWorld.removeEntity(player);
+    
+        //TODO fix travel when riding entity
+        player.detach();
+    
+        fromWorld.removePlayer(player);
         player.removed = false;
-        
-        player.x = newPos.x;
-        player.y = newPos.y;
-        player.z = newPos.z;
+    
+        player.x = destination.x;
+        player.y = destination.y;
+        player.z = destination.z;
         
         player.world = toWorld;
         player.dimension = toWorld.dimension.getType();
@@ -170,9 +187,8 @@ public class ServerTeleportationManager {
     private void tick() {
         teleportingEntities = new HashSet<>();
         if (Helper.getServerGameTime() % 100 == 42) {
-            ArrayList<ServerPlayerEntity> copyPlayerList =
-                new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
-            copyPlayerList.forEach(this::sendPositionConfirmMessage);
+            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList())
+                .forEach(this::sendPositionConfirmMessage);
         }
     }
     
@@ -180,4 +196,61 @@ public class ServerTeleportationManager {
         return teleportingEntities.contains(entity);
     }
     
+    private void teleportRegularEntity(Entity entity, Portal portal) {
+        assert entity.dimension == portal.dimension;
+        assert !(entity instanceof ServerPlayerEntity);
+        
+        Vec3d newPos = portal.applyTransformationToPoint(entity.getPos());
+        
+        if (portal.dimensionTo != entity.dimension) {
+            changeEntityDimension(entity, portal.dimensionTo, newPos);
+        }
+        
+        entity.setPosition(
+            newPos.x, newPos.y, newPos.z
+        );
+    }
+    
+    /**
+     * {@link Entity#changeDimension(DimensionType)}
+     */
+    private void changeEntityDimension(
+        Entity entity,
+        DimensionType toDimension,
+        Vec3d destination
+    ) {
+        ServerWorld fromWorld = (ServerWorld) entity.world;
+        ServerWorld toWorld = Helper.getServer().getWorld(toDimension);
+        entity.detach();
+        
+        Stream<ServerPlayerEntity> watchingPlayers = Helper.getEntitiesNearby(
+            entity,
+            ServerPlayerEntity.class,
+            128
+        );
+        
+        fromWorld.removeEntity(entity);
+        entity.removed = false;
+        
+        entity.x = destination.x;
+        entity.y = destination.y;
+        entity.z = destination.z;
+        
+        entity.world = toWorld;
+        entity.dimension = toDimension;
+        toWorld.method_18769(entity);
+        
+        //this entity was untracked and retracked.
+        //so it will not be in the player's unloading entity list
+        //manually send destroy packet to avoid duplicate
+        
+        CustomPayloadS2CPacket removeEntityPacket = RedirectedMessageManager.createRedirectedMessage(
+            fromWorld.dimension.getType(),
+            new EntitiesDestroyS2CPacket(entity.getEntityId())
+        );
+        
+        watchingPlayers.forEach(
+            player -> player.networkHandler.sendPacket(removeEntityPacket)
+        );
+    }
 }

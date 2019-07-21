@@ -116,9 +116,9 @@ public class MyNetwork {
     
     //NOTE my packet is redirected but I cannot get the packet handler info here
     public static CustomPayloadS2CPacket createStcSpawnEntity(
-        EntityType entityType,
         Entity entity
     ) {
+        EntityType entityType = entity.getType();
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeString(EntityType.getId(entityType).toString());
         buf.writeInt(entity.getEntityId());

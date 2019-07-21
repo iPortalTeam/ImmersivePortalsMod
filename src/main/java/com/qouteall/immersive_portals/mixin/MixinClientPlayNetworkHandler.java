@@ -34,8 +34,14 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
     ) {
         DimensionType playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         assert playerDimension != null;
-        if (MinecraftClient.getInstance().world.dimension.getType() != playerDimension) {
-            ci.cancel();
+        ClientWorld world = MinecraftClient.getInstance().world;
+        if (world != null) {
+            if (world.dimension != null) {
+                if (world.dimension.getType() != playerDimension) {
+                    ci.cancel();
+                }
+            }
         }
+        
     }
 }

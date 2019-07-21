@@ -21,6 +21,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.stream.Stream;
+
 public class Portal extends Entity {
     public static EntityType<Portal> entityType;
     
@@ -89,6 +91,17 @@ public class Portal extends Entity {
         normal = axisW.crossProduct(axisH).normalize();
     }
     
+    public Stream<Entity> getEntitiesToTeleport() {
+        return world.getEntities(
+            Entity.class,
+            getPortalCollisionBox()
+        ).stream().filter(
+            e -> !(e instanceof Portal)
+        ).filter(
+            this::shouldEntityTeleport
+        );
+    }
+    
     @Override
     protected void initDataTracker() {
         //do nothing
@@ -122,10 +135,7 @@ public class Portal extends Entity {
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return MyNetwork.createStcSpawnEntity(
-            entityType,
-            this
-        );
+        return MyNetwork.createStcSpawnEntity(this);
     }
     
     @Override

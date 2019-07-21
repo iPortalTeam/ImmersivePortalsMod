@@ -23,12 +23,10 @@ import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayDeque;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
     private long lastTeleportGameTime = 0;
-    //public BooleanSupplier shouldSendPositionPacket = () -> true;
     
     public ClientTeleportationManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
@@ -47,8 +45,7 @@ public class ClientTeleportationManager {
             Streams.stream(mc.world.getEntities())
                 .filter(e -> e instanceof Portal)
                 .flatMap(
-                    entityPortal -> getEntitiesToTeleport(
-                        ((Portal) entityPortal)
+                    entityPortal -> ((Portal) entityPortal).getEntitiesToTeleport(
                     ).map(
                         entity -> ((Runnable) () -> {
                             onEntityGoInsidePortal(entity, ((Portal) entityPortal));
@@ -58,17 +55,6 @@ public class ClientTeleportationManager {
                 .collect(Collectors.toCollection(ArrayDeque::new))
                 .forEach(Runnable::run);
         }
-    }
-    
-    private Stream<Entity> getEntitiesToTeleport(Portal portal) {
-        return portal.world.getEntities(
-            Entity.class,
-            portal.getPortalCollisionBox()
-        ).stream().filter(
-            e -> !(e instanceof Portal)
-        ).filter(
-            portal::shouldEntityTeleport
-        );
     }
     
     private void onEntityGoInsidePortal(Entity entity, Portal portal) {

@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.nether_portal_managing;
 
-import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import com.qouteall.immersive_portals.portal_entity.PortalDummyRenderer;
@@ -11,7 +10,6 @@ import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Packet;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -53,7 +51,7 @@ public class MonitoringNetherPortal extends Portal {
             Helper.getEntitiesNearby(
                 world,
                 new Vec3d(pos),
-                entityType,
+                MonitoringNetherPortal.class,
                 20
             ).forEach(
                 MonitoringNetherPortal::notifyToCheckIntegrity
@@ -213,11 +211,4 @@ public class MonitoringNetherPortal extends Portal {
         compoundTag.put("obsidianFrame", obsidianFrame.toTag());
     }
     
-    @Override
-    public Packet<?> createSpawnPacket() {
-        return MyNetwork.createStcSpawnEntity(
-            entityType,
-            this
-        );
-    }
 }
