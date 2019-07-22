@@ -1,16 +1,23 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.mojang.datafixers.util.Either;
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
 import net.minecraft.client.network.packet.LightUpdateS2CPacket;
 import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
+
+import java.util.concurrent.CompletableFuture;
 
 //the chunks near player are managed by vanilla
 //we only manage the chunks that's seen by portal and not near player
@@ -41,7 +48,43 @@ public class ChunkDataSyncManager {
         }
     
         Globals.chunkTracker.onChunkDataSent(player, chunkPos);
+        IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
+    
+        ModMain.serverTaskList.addTask(() -> {
+            ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
+            if (chunkHolder == null) {
+                //TODO cleanup it
+                Globals.chunkTracker.setIsLoadedByPortal(
+                    chunkPos.dimension,
+                    chunkPos.getChunkPos(),
+                    true
+                );
+                return false;
+            }
         
+            CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> future = chunkHolder.createFuture(
+                ChunkStatus.FULL,
+                ((ThreadedAnvilChunkStorage) ieStorage)
+            );
+        
+            future.thenAcceptAsync(either -> {
+                ModMain.serverTaskList.addTask(() -> {
+                    sendWatchPackets(player, chunkPos, ieStorage);
+                    return true;
+                });
+            });
+        
+            return true;
+        });
+    
+    
+    }
+    
+    private void sendWatchPackets(
+        ServerPlayerEntity player,
+        DimensionalChunkPos chunkPos,
+        IEThreadedAnvilChunkStorage ieStorage
+    ) {
         Chunk chunk = Helper.getServer()
             .getWorld(chunkPos.dimension)
             .getChunk(chunkPos.x, chunkPos.z);
@@ -60,15 +103,14 @@ public class ChunkDataSyncManager {
                 chunkPos.dimension,
                 new LightUpdateS2CPacket(
                     chunkPos.getChunkPos(),
-                    Helper.getIEStorage(chunkPos.dimension).getLightingProvider()
+                    ieStorage.getLightingProvider()
                 )
             )
         );
-    
+        
         //this is to update the entity trackers
         //performance may be slowed down
-        ((ThreadedAnvilChunkStorage) Helper.getIEStorage(chunkPos.dimension))
-            .updateCameraPosition(player);
+        ((ThreadedAnvilChunkStorage) ieStorage).updateCameraPosition(player);
     }
     
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {

@@ -16,10 +16,12 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
 public class ServerTeleportationManager {
     private Set<ServerPlayerEntity> teleportingEntities = new HashSet<>();
+    private WeakHashMap<ServerPlayerEntity, Long> lastTeleportGameTime = new WeakHashMap<>();
     
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
@@ -44,16 +46,17 @@ public class ServerTeleportationManager {
     ) {
         Entity portalEntity = Helper.getServer()
             .getWorld(dimensionBefore).getEntityById(portalId);
-    
+        lastTeleportGameTime.put(player, Helper.getServerGameTime());
+        
         if (canPlayerTeleport(player, dimensionBefore, posBefore, portalEntity)) {
             if (isTeleporting(player)) {
                 Helper.log(player.toString() + "tried to teleport for multiple times. rejected.");
                 return;
             }
-        
+    
             DimensionType dimensionTo = ((Portal) portalEntity).dimensionTo;
             Vec3d newPos = ((Portal) portalEntity).applyTransformationToPoint(posBefore);
-        
+    
             teleportPlayer(player, dimensionTo, newPos);
         }
         else {
@@ -64,7 +67,6 @@ public class ServerTeleportationManager {
                 player.getPos(),
                 portalId
             ));
-            sendPositionConfirmMessage(player);
         }
     }
     
@@ -113,7 +115,6 @@ public class ServerTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
     
-        sendConfirmMessageTwice(player);
     }
     
     /**
@@ -157,24 +158,6 @@ public class ServerTeleportationManager {
         ));
     }
     
-    private void sendConfirmMessageTwice(ServerPlayerEntity player) {
-        //send a confirm message now
-        //and send one again after 1 second
-        
-        sendPositionConfirmMessage(player);
-        
-        long startTickTime = Helper.getServerGameTime();
-        ModMain.serverTaskList.addTask(() -> {
-            if (Helper.getServerGameTime() - startTickTime > 20) {
-                sendPositionConfirmMessage(player);
-                return true;
-            }
-            else {
-                return false;
-            }
-        });
-    }
-    
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {
         CustomPayloadS2CPacket packet = MyNetwork.createStcDimensionConfirm(
             player.dimension,
@@ -186,9 +169,17 @@ public class ServerTeleportationManager {
     
     private void tick() {
         teleportingEntities = new HashSet<>();
-        if (Helper.getServerGameTime() % 100 == 42) {
-            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList())
-                .forEach(this::sendPositionConfirmMessage);
+        long tickTimeNow = Helper.getServerGameTime();
+        if (tickTimeNow % 20 == 17) {
+            ArrayList<ServerPlayerEntity> copiedPlayerList =
+                new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
+            for (ServerPlayerEntity player : copiedPlayerList) {
+                Long lastTeleportGameTime =
+                    this.lastTeleportGameTime.getOrDefault(player, 0L);
+                if (tickTimeNow - lastTeleportGameTime > 60) {
+                    sendPositionConfirmMessage(player);
+                }
+            }
         }
     }
     

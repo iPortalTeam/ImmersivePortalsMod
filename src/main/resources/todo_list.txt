@@ -1,13 +1,12 @@
-
+fix mis-teleport sometimes still occur
 fix new obsidian frame in other dimension is not synced
-fix entity culling
 fix can not break inner portal block on the other side
 fix entity tracking problem after player respawn to a different dimension
 fix entities go through portal sometimes frozen or duplicate
-
-add nether portal sound and particle
+fix entity brightness issue
+fix dedicated server
+fix manage force loaded chunks
 
 postponed implement frustum culling
-
 
 postponed fix third-person view rendering

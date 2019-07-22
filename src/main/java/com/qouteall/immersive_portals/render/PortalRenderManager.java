@@ -95,6 +95,13 @@ public class PortalRenderManager {
         }
     }
     
+    public boolean shouldRenderEntityNow(Entity entity) {
+        if (isRendering()) {
+            return getRenderingPortalData().canRenderEntityInsideMe(entity.getPos());
+        }
+        return true;
+    }
+    
     private void prepareRendering(float partialTicks_, long finishTimeNano_) {
         partialTicks = partialTicks_;
         cameraEntity = mc.cameraEntity;
@@ -117,6 +124,8 @@ public class PortalRenderManager {
         
         GL11.glDisable(GL_STENCIL_TEST);
         GlStateManager.enableDepthTest();
+    
+        cameraEntity = null;
     }
     
     private void renderPortals() {

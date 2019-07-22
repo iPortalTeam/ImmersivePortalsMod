@@ -10,8 +10,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.EntityType;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateFactory;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -22,6 +25,9 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+
+import java.util.Random;
 
 public class BlockMyNetherPortal extends Block {
     public static final EnumProperty<Direction.Axis> AXIS = Properties.AXIS;
@@ -123,6 +129,58 @@ public class BlockMyNetherPortal extends Block {
             blockPos_1,
             blockPos_2
         );
+    }
+    
+    //copied from PortalBlock
+    @Override
+    public void randomDisplayTick(
+        BlockState blockState_1,
+        World world_1,
+        BlockPos blockPos_1,
+        Random random_1
+    ) {
+        if (random_1.nextInt(100) == 0) {
+            world_1.playSound(
+                (double) blockPos_1.getX() + 0.5D,
+                (double) blockPos_1.getY() + 0.5D,
+                (double) blockPos_1.getZ() + 0.5D,
+                SoundEvents.BLOCK_PORTAL_AMBIENT,
+                SoundCategory.BLOCKS,
+                0.5F,
+                random_1.nextFloat() * 0.4F + 0.8F,
+                false
+            );
+        }
+        
+        for (int int_1 = 0; int_1 < 4; ++int_1) {
+            double double_1 = (double) ((float) blockPos_1.getX() + random_1.nextFloat());
+            double double_2 = (double) ((float) blockPos_1.getY() + random_1.nextFloat());
+            double double_3 = (double) ((float) blockPos_1.getZ() + random_1.nextFloat());
+            double double_4 = ((double) random_1.nextFloat() - 0.5D) * 0.5D;
+            double double_5 = ((double) random_1.nextFloat() - 0.5D) * 0.5D;
+            double double_6 = ((double) random_1.nextFloat() - 0.5D) * 0.5D;
+            int int_2 = random_1.nextInt(2) * 2 - 1;
+            if (world_1.getBlockState(blockPos_1.west()).getBlock() != this && world_1.getBlockState(
+                blockPos_1.east()).getBlock() != this) {
+                double_1 = (double) blockPos_1.getX() + 0.5D + 0.25D * (double) int_2;
+                double_4 = (double) (random_1.nextFloat() * 2.0F * (float) int_2);
+            }
+            else {
+                double_3 = (double) blockPos_1.getZ() + 0.5D + 0.25D * (double) int_2;
+                double_6 = (double) (random_1.nextFloat() * 2.0F * (float) int_2);
+            }
+            
+            world_1.addParticle(
+                ParticleTypes.PORTAL,
+                double_1,
+                double_2,
+                double_3,
+                double_4,
+                double_5,
+                double_6
+            );
+        }
+        
     }
     
     //---------These are copied from BlockBarrier

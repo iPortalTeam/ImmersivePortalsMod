@@ -4,14 +4,18 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.exposer.IEServerChunkManager;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal_entity.Portal;
 import com.sun.istack.internal.Nullable;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.*;
+import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -62,7 +66,6 @@ public class ChunkTracker {
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
-    private Set<DimensionalChunkPos> portalLoadedChunks = new HashSet<>();
     //TODO optimize using nested map
     private Multimap<DimensionalChunkPos, Edge> chunkPosToEdges = HashMultimap.create();
     private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
@@ -71,34 +74,20 @@ public class ChunkTracker {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ChunkTracker::tick);
     }
     
-    /**
-     * {@link ChunkTicketManager#setChunkForced(ChunkPos, boolean)}
-     */
-    private void setIsLoadedByPortal(
+    public void cleanUp() {
+        chunkPosToEdges.clear();
+        playerToEdges.clear();
+    }
+    
+    public void setIsLoadedByPortal(
         DimensionType dimension,
         ChunkPos chunkPos,
         boolean isLoadedNow
     ) {
         ServerWorld world = Helper.getServer().getWorld(dimension);
-        ServerChunkManager chunkManager = world.method_14178();
-        ChunkTicketManager ticketManager = ((IEServerChunkManager) chunkManager).getTicketManager();
         
-        if (isLoadedNow) {
-            ticketManager.addTicket(
-                immersiveTicketType,
-                chunkPos,
-                1,
-                chunkPos
-            );
-        }
-        else {
-            ticketManager.removeTicket(
-                immersiveTicketType,
-                chunkPos,
-                1,
-                chunkPos
-            );
-        }
+        world.setChunkForced(chunkPos.x, chunkPos.z, isLoadedNow);
+        //world.method_14178().setChunkForced(chunkPos, isLoadedNow);
     }
     
     @Nullable
@@ -162,7 +151,7 @@ public class ChunkTracker {
     private Set<DimensionalChunkPos> getPlayerViewingChunks(
         ServerPlayerEntity player
     ) {
-        int portalChunkLoadingRadius = getRenderDistanceOnServer() / 3 + 1;
+        int portalChunkLoadingRadius = getRenderDistanceOnServer() / 3;
         return Streams.concat(
             //directly watching chunks
             getNearbyChunkPoses(
@@ -193,13 +182,13 @@ public class ChunkTracker {
         for (ServerPlayerEntity player : playerList) {
             if (currTime % 50 == player.getEntityId() % 50) {
                 updatePlayer(player);
+    
+                updateForcedChunks();
             }
         }
     
-        if (Helper.getServerGameTime() % 100 == 66) {
+        if (currTime % 100 == 66) {
             cleanupForRemovedPlayers();
-            
-            updateChunkTickets();
         }
     }
     
@@ -213,22 +202,35 @@ public class ChunkTracker {
             .forEach(this::removeEdge);
     }
     
-    private void updateChunkTickets() {
-        Set<DimensionalChunkPos> oldPortalLoadedChunks = this.portalLoadedChunks;
-        Set<DimensionalChunkPos> newPortalLoadedChunks = chunkPosToEdges.keySet();
-        
-        portalLoadedChunks = newPortalLoadedChunks;
-        
-        Helper.compareOldAndNew(
-            oldPortalLoadedChunks,
-            newPortalLoadedChunks,
-            chunkPos -> setIsLoadedByPortal(
-                chunkPos.dimension, chunkPos.getChunkPos(), false
-            ),
-            chunkPos -> setIsLoadedByPortal(
-                chunkPos.dimension, chunkPos.getChunkPos(), true
-            )
-        );
+    private void updateForcedChunks() {
+        Map<DimensionType, List<DimensionalChunkPos>> newForcedChunkMap =
+            chunkPosToEdges.keySet().stream().collect(
+                Collectors.groupingBy(chunkPos -> chunkPos.dimension)
+            );
+        Helper.getServer().getWorlds().forEach(world -> {
+            List<DimensionalChunkPos> newForcedChunks =
+                newForcedChunkMap.computeIfAbsent(
+                    world.dimension.getType(),
+                    k -> new ArrayList<>()
+                );
+            LongSet oldForcedChunks = new LongOpenHashSet(world.getForcedChunks());
+            Helper.compareOldAndNew(
+                oldForcedChunks,
+                newForcedChunks.stream()
+                    .map(chunkPos -> chunkPos.getChunkPos().toLong())
+                    .collect(Collectors.toSet()),
+                longChunkPos -> setIsLoadedByPortal(
+                    world.dimension.getType(),
+                    new ChunkPos(longChunkPos),
+                    false
+                ),
+                longChunkPos -> setIsLoadedByPortal(
+                    world.dimension.getType(),
+                    new ChunkPos(longChunkPos),
+                    true
+                )
+            );
+        });
     }
     
     private void cleanupForRemovedPlayers() {

@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.server.MinecraftServer;
@@ -48,5 +49,13 @@ public class MixinMinecraftServer {
     )
     private void onServerTick(BooleanSupplier booleanSupplier_1, CallbackInfo ci) {
         ModMain.postServerTickSignal.emit();
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/server/MinecraftServer;run()V",
+        at = @At("RETURN")
+    )
+    private void onServerClose(CallbackInfo ci) {
+        Globals.chunkTracker.cleanUp();
     }
 }

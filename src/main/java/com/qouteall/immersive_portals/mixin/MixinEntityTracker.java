@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEEntityTracker;
@@ -169,20 +170,23 @@ public class MixinEntityTracker implements IEEntityTracker {
                     )
                 );
             if (isWatchedNow) {
-                boolean boolean_2 = this.entity.teleporting;
-                if (!boolean_2) {
+                boolean shouldTrack = this.entity.teleporting;
+                if (!shouldTrack) {
                     ChunkPos chunkPos_1 = new ChunkPos(this.entity.chunkX, this.entity.chunkZ);
                     ChunkHolder chunkHolder_1 = storage.getChunkHolder_(chunkPos_1.toLong());
                     if (chunkHolder_1 != null && chunkHolder_1.getWorldChunk() != null) {
-                        boolean_2 = getChebyshevDistance(
-                            chunkPos_1,
-                            player,
-                            false
-                        ) <= storage.getWatchDistance();
+                        shouldTrack = true;
+                    }
+                    else {
+                        //retry it next tick
+                        ModMain.serverTaskList.addTask(() -> {
+                            updateCameraPosition_(player);
+                            return true;
+                        });
                     }
                 }
-                
-                if (boolean_2 && this.playersTracking.add(player)) {
+    
+                if (shouldTrack && this.playersTracking.add(player)) {
                     this.entry.startTracking(player);
                 }
             }

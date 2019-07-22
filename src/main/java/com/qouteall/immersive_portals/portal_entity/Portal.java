@@ -188,6 +188,11 @@ public class Portal extends Entity {
         return v < -0.5;
     }
     
+    public boolean canRenderEntityInsideMe(Vec3d entityPos) {
+        double v = entityPos.subtract(destination).dotProduct(getNormal());
+        return v < 0;
+    }
+    
     public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
         return getPos().add(axisW.multiply(xInPlane)).add(axisH.multiply(yInPlane));
     }
