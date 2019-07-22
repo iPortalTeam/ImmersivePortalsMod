@@ -159,7 +159,7 @@ public class MyNetwork {
             );
             entity.fromTag(compoundTag);
             entity.setEntityId(entityId);
-            entity.method_18003(entity.x, entity.y, entity.z);
+            entity.updateTrackedPosition(entity.x, entity.y, entity.z);
             world.addEntity(entityId, entity);
             
             return true;
