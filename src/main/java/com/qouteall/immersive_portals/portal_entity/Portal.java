@@ -197,7 +197,7 @@ public class Portal extends Entity {
         return getPos().add(axisW.multiply(xInPlane)).add(axisH.multiply(yInPlane));
     }
     
-    public Vec3d getPointInPlaneInLocalCoordinate(double xInPlane, double yInPlane) {
+    public Vec3d getPointInPlaneRelativeToCenter(double xInPlane, double yInPlane) {
         return axisW.multiply(xInPlane).add(axisH.multiply(yInPlane));
     }
     
@@ -215,21 +215,21 @@ public class Portal extends Entity {
     
     //3  2
     //1  0
-    public Vec3d[] getFourVerticesInLocalCoordinate(double shrinkFactor) {
+    public Vec3d[] getFourVerticesRelativeToCenter(double shrinkFactor) {
         Vec3d[] vertices = new Vec3d[4];
-        vertices[0] = getPointInPlaneInLocalCoordinate(
+        vertices[0] = getPointInPlaneRelativeToCenter(
             width / 2 - shrinkFactor,
             -height / 2 + shrinkFactor
         );
-        vertices[1] = getPointInPlaneInLocalCoordinate(
+        vertices[1] = getPointInPlaneRelativeToCenter(
             -width / 2 + shrinkFactor,
             -height / 2 + shrinkFactor
         );
-        vertices[2] = getPointInPlaneInLocalCoordinate(
+        vertices[2] = getPointInPlaneRelativeToCenter(
             width / 2 - shrinkFactor,
             height / 2 - shrinkFactor
         );
-        vertices[3] = getPointInPlaneInLocalCoordinate(
+        vertices[3] = getPointInPlaneRelativeToCenter(
             -width / 2 + shrinkFactor,
             height / 2 - shrinkFactor
         );

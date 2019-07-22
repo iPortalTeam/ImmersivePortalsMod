@@ -69,7 +69,7 @@ public class PortalRenderManager {
         return getPortalLayer() != 0;
     }
     
-    public Portal getRenderingPortalData() {
+    public Portal getRenderingPortal() {
         return portalLayers.peek();
     }
     
@@ -97,7 +97,7 @@ public class PortalRenderManager {
     
     public boolean shouldRenderEntityNow(Entity entity) {
         if (isRendering()) {
-            return getRenderingPortalData().canRenderEntityInsideMe(entity.getPos());
+            return getRenderingPortal().canRenderEntityInsideMe(entity.getPos());
         }
         return true;
     }

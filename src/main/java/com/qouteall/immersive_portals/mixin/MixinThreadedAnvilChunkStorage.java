@@ -201,4 +201,11 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
             }
         }
     }
+    
+    @Override
+    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
+        entityTrackers.values().forEach(obj -> {
+            ((IEEntityTracker) obj).onPlayerRespawn(oldPlayer);
+        });
+    }
 }

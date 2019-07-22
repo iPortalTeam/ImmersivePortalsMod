@@ -196,4 +196,9 @@ public class MixinEntityTracker implements IEEntityTracker {
             
         }
     }
+    
+    @Override
+    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
+        playersTracking.remove(oldPlayer);
+    }
 }

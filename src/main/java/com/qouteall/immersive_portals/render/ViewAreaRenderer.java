@@ -26,12 +26,12 @@ public class ViewAreaRenderer {
             cameraPos
         );
         Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
-        
-        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesInLocalCoordinate(0))
+    
+        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
             .map(pos -> pos.add(posInPlayerCoordinate))
             .toArray(Vec3d[]::new);
-        
-        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesInLocalCoordinate(0.01))
+    
+        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0.01))
             .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
             .toArray(Vec3d[]::new);
         

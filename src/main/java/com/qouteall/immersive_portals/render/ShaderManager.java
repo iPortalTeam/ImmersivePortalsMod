@@ -120,8 +120,8 @@ public class ShaderManager {
         GL20.glUniformMatrix4fv(uniModelView, false, Helper.getModelViewMatrix());
         GL20.glUniformMatrix4fv(uniProjection, false, Helper.getProjectionMatrix());
         GL20.glUniformMatrix4fv(uniTextureMatrix, true, Helper.getTextureMatrix());
-        
-        Portal portal = Globals.portalRenderManager.getRenderingPortalData();
+    
+        Portal portal = Globals.portalRenderManager.getRenderingPortal();
         if (portal != null) {
             Vec3d cullingPoint = portal.getCullingPoint().subtract(basePos);
             GL20.glUniform3f(

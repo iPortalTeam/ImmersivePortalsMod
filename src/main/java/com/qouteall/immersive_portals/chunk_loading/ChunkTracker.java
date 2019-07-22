@@ -293,6 +293,13 @@ public class ChunkTracker {
         return edge != null && edge.isSent;
     }
     
+    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
+        playerToEdges.removeAll(oldPlayer);
+        chunkPosToEdges.entries().removeIf(entry ->
+            entry.getValue().player == oldPlayer
+        );
+    }
+    
     public static int getRenderDistanceOnServer() {
         return Helper.getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
     }

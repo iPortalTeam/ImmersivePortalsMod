@@ -1,11 +1,10 @@
 fix mis-teleport sometimes still occur
-fix new obsidian frame in other dimension is not synced
-fix can not break inner portal block on the other side
-fix entity tracking problem after player respawn to a different dimension
-fix entities go through portal sometimes frozen or duplicate
+fix entity tracking and chunk tracking problem after player respawn to a different dimension
+fix entities go through portal sometimes  duplicate
 fix entity brightness issue
 fix dedicated server
-fix manage force loaded chunks
+
+make chunk tracker remove removed players
 
 postponed implement frustum culling
 

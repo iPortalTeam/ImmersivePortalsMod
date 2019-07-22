@@ -11,6 +11,7 @@ import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
@@ -144,6 +145,18 @@ public class ChunkDataSyncManager {
                 )
             )
         );
+    }
+    
+    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
+        Globals.chunkTracker.onPlayerRespawn(oldPlayer);
+        
+        Helper.getServer().getWorlds()
+            .forEach(world -> {
+                ServerChunkManager chunkManager = (ServerChunkManager) world.getChunkManager();
+                IEThreadedAnvilChunkStorage storage =
+                    (IEThreadedAnvilChunkStorage) chunkManager.threadedAnvilChunkStorage;
+                storage.onPlayerRespawn(oldPlayer);
+            });
     }
     
     public static boolean isChunkManagedByVanilla(

@@ -4,13 +4,13 @@
   "version": "${version}",
 
   "name": "Immersive Portals",
-  "description": "See through nether portals. Go inside portal seamlessly. Use portal to distort the space.",
+  "description": "See through nether portals. Go inside portal seamlessly. Use portals to distort the space.",
   "authors": [
     "qouteall"
   ],
   "contact": {
     "homepage": "",
-    "sources": ""
+    "sources": "https://github.com/qouteall/ImmersivePortalsMod"
   },
 
   "license": "CC0-1.0",

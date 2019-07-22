@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class MyCommand {
+    public static boolean doUseAdvancedFrustumCulling = true;
+    
     public static void init(CommandDispatcher<ServerCommandSource> dispatcher) {
         assert dispatcher != null;
         register(dispatcher);
@@ -175,20 +177,20 @@ public class MyCommand {
                     return 0;
                 })
             )
-//            .then(CommandManager
-//                .literal("advanced_frustum_culling_enable")
-//                .executes(context -> {
-//                    Globals.gameRenderer.doUseAdvancedFrustumCulling = true;
-//                    return 0;
-//                })
-//            )
-//            .then(CommandManager
-//                .literal("advanced_frustum_culling_disable")
-//                .executes(context -> {
-//                    Globals.gameRenderer.doUseAdvancedFrustumCulling = false;
-//                    return 0;
-//                })
-//            )
+            .then(CommandManager
+                .literal("advanced_frustum_culling_enable")
+                .executes(context -> {
+                    doUseAdvancedFrustumCulling = true;
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("advanced_frustum_culling_disable")
+                .executes(context -> {
+                    doUseAdvancedFrustumCulling = false;
+                    return 0;
+                })
+            )
             .then(CommandManager
                 .literal("report_server_entities")
                 .executes(context -> {
