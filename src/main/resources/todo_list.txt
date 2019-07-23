@@ -1,8 +1,9 @@
 fix mis-teleport sometimes still occur
-fix entity tracking and chunk tracking problem after player respawn to a different dimension
 fix entities go through portal sometimes  duplicate
 fix entity brightness issue
 fix dedicated server
+
+check client chunk loading leak and server chunk loading leak
 
 make chunk tracker remove removed players
 

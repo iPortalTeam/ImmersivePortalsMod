@@ -51,6 +51,12 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
     protected abstract ChunkHolder getChunkHolder(long long_1);
     
     @Shadow
+    abstract void handlePlayerAddedOrRemoved(
+        ServerPlayerEntity serverPlayerEntity_1,
+        boolean boolean_1
+    );
+    
+    @Shadow
     @Final
     private Int2ObjectMap entityTrackers;
     
@@ -176,27 +182,17 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
     }
     
     @Inject(
-        method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;loadEntity(Lnet/minecraft/entity/Entity;)V",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onLoadEntity(Entity entity_1, CallbackInfo ci) {
-//        //if the entity is already tracked, return
-//        if (entityTrackers.containsKey(entity_1.getEntityId())) {
-//            ci.cancel();
-//        }
-    }
-    
-    @Inject(
         method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;unloadEntity(Lnet/minecraft/entity/Entity;)V",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onUnloadEntity(Entity entity_1, CallbackInfo ci) {
+    private void onUnloadEntity(Entity entity, CallbackInfo ci) {
         //when the player leave this dimension, do not stop tracking entities
-        if (entity_1 instanceof ServerPlayerEntity) {
-            if (Globals.serverTeleportationManager.isTeleporting(((ServerPlayerEntity) entity_1))) {
-                entityTrackers.remove(entity_1.getEntityId());
+        if (entity instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) entity;
+            if (Globals.serverTeleportationManager.isTeleporting(player)) {
+                entityTrackers.remove(entity.getEntityId());
+                handlePlayerAddedOrRemoved(player, false);
                 ci.cancel();
             }
         }

@@ -5,8 +5,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
+import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.render.MyViewFrustum;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -14,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
@@ -200,6 +204,59 @@ public class MyCommand {
                         new Box(player.getBlockPos()).expand(32)
                     );
                     Helper.serverLog(player, entities.toString());
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("report_resource_consumption")
+                .executes(context -> {
+                    StringBuilder str = new StringBuilder();
+            
+                    str.append("Client Chunk:\n");
+                    Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
+                        str.append(String.format(
+                            "%s %s\n",
+                            world.dimension.getType(),
+                            ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
+                        ));
+                    });
+            
+                    str.append("Chunk Renderers:\n");
+                    Globals.clientWorldLoader.worldRendererMap.forEach(
+                        (dimension, worldRenderer) -> {
+                            str.append(String.format(
+                                "%s %s\n",
+                                dimension,
+                                ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
+                                    .getChunkRenderDispatcher()
+                                ).getChunkRenderers().size()
+                            ));
+                        }
+                    );
+            
+                    //TODO add server forced chunk num
+            
+                    String result = str.toString();
+            
+                    Helper.log(str);
+            
+                    context.getSource().getPlayer().sendMessage(new LiteralText(result));
+            
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("rebuild_all")
+                .executes(context -> {
+                    Globals.clientWorldLoader.worldRendererMap.forEach(
+                        (dimension, worldRenderer) -> {
+                            ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
+                                .getChunkRenderDispatcher()
+                            ).getChunkRenderers().forEach(
+                                chunkRenderer -> chunkRenderer.scheduleRebuild(false)
+                            );
+                        }
+                    );
                     return 0;
                 })
             );

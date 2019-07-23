@@ -203,4 +203,8 @@ public class MyClientChunkManager extends ClientChunkManager {
         return var4 ? this.emptyChunk : null;
     }
     
+    public int getChunkNum() {
+        return chunkMap.size();
+    }
+    
 }

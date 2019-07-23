@@ -124,6 +124,8 @@ public class ClientTeleportationManager {
             
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }
+    
+        amendChunkEntityStatus(player);
     }
     
     /**

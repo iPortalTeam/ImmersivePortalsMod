@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 public class ChunkDataSyncManager {
     
     private static final int unloadWaitingTickTime = 20 * 10;
+    public static boolean isMultiThreaded = false;
     
     public ChunkDataSyncManager() {
         Globals.chunkTracker.beginWatchChunkSignal.connectWithWeakRef(
@@ -51,6 +52,19 @@ public class ChunkDataSyncManager {
         Globals.chunkTracker.onChunkDataSent(player, chunkPos);
         IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
     
+        if (isMultiThreaded) {
+            sendPacketMultiThreaded(player, chunkPos, ieStorage);
+        }
+        else {
+            sendPacketNormally(player, chunkPos, ieStorage);
+        }
+    }
+    
+    private void sendPacketMultiThreaded(
+        ServerPlayerEntity player,
+        DimensionalChunkPos chunkPos,
+        IEThreadedAnvilChunkStorage ieStorage
+    ) {
         ModMain.serverTaskList.addTask(() -> {
             ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
             if (chunkHolder == null) {
@@ -62,23 +76,29 @@ public class ChunkDataSyncManager {
                 );
                 return false;
             }
-        
+            
             CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> future = chunkHolder.createFuture(
                 ChunkStatus.FULL,
                 ((ThreadedAnvilChunkStorage) ieStorage)
             );
-        
+            
             future.thenAcceptAsync(either -> {
                 ModMain.serverTaskList.addTask(() -> {
                     sendWatchPackets(player, chunkPos, ieStorage);
                     return true;
                 });
             });
-        
+            
             return true;
         });
+    }
     
-    
+    private void sendPacketNormally(
+        ServerPlayerEntity player,
+        DimensionalChunkPos chunkPos,
+        IEThreadedAnvilChunkStorage ieStorage
+    ) {
+        sendWatchPackets(player, chunkPos, ieStorage);
     }
     
     private void sendWatchPackets(
