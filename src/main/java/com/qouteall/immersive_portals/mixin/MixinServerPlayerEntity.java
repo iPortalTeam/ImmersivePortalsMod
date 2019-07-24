@@ -3,12 +3,15 @@ package com.qouteall.immersive_portals.mixin;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
+import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,38 +23,26 @@ import java.util.ArrayDeque;
 import java.util.stream.Collectors;
 
 @Mixin(ServerPlayerEntity.class)
-public class MixinServerPlayerEntity {
+public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
-    ArrayDeque<Entity> myRemovedEntities;
-
-//    @Inject(
-//        method = "Lnet/minecraft/server/network/ServerPlayerEntity;sendInitialChunkPackets(Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/network/Packet;Lnet/minecraft/network/Packet;)V",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void onSendChunkDataPackets(
-//        ChunkPos chunkPos_1,
-//        Packet<?> packet_1,
-//        Packet<?> packet_2,
-//        CallbackInfo ci
-//    ) {
-//        ServerPlayerEntity this_ = (ServerPlayerEntity) (Object) this;
-//        DimensionalChunkPos chunkPos = new DimensionalChunkPos(
-//            this_.dimension, chunkPos_1
-//        );
-//        boolean isWatching = Globals.chunkTracker.isPlayerWatchingChunk(
-//            this_, chunkPos
-//        );
-//        boolean isManagedByVanilla = ChunkDataSyncManager.isChunkManagedByVanilla(
-//            (ServerPlayerEntity) (Object) this, chunkPos
-//        );
-//        if (!isManagedByVanilla && isWatching) {
-//            ci.cancel();
-//        }
-//
-//        Globals.chunkTracker.onChunkDataSent(this_, chunkPos);
-//    }
+    @Shadow
+    private Vec3d enteredNetherPos;
+    
+    private ArrayDeque<Entity> myRemovedEntities;
+    
+    @Shadow
+    public abstract void method_18783(ServerWorld serverWorld_1);
+    
+    @Override
+    public void setEnteredNetherPos(Vec3d pos) {
+        enteredNetherPos = pos;
+    }
+    
+    @Override
+    public void updateDimensionTravelAdvancements(ServerWorld fromWorld) {
+        method_18783(fromWorld);
+    }
     
     @Inject(
         method = "Lnet/minecraft/server/network/ServerPlayerEntity;sendUnloadChunkPacket(Lnet/minecraft/util/math/ChunkPos;)V",

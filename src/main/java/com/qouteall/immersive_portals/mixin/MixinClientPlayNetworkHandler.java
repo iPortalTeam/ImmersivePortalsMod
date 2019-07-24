@@ -38,7 +38,9 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
         if (world != null) {
             if (world.dimension != null) {
                 if (world.dimension.getType() != playerDimension) {
-                    ci.cancel();
+                    if (!MinecraftClient.getInstance().player.removed) {
+                        ci.cancel();
+                    }
                 }
             }
         }

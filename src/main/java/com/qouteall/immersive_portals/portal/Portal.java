@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.portal_entity;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;

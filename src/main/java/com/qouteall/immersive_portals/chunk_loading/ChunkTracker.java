@@ -6,7 +6,7 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.sun.istack.internal.Nullable;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;

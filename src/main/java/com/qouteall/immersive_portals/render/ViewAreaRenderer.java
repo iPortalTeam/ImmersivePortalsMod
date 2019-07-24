@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Vec3d;

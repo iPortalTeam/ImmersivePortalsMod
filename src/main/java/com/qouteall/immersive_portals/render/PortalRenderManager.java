@@ -2,9 +2,10 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.world.ClientWorld;
@@ -30,7 +31,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class PortalRenderManager {
     private MinecraftClient mc = MinecraftClient.getInstance();
     private Stack<Portal> portalLayers = new Stack<>();
-    public Supplier<Integer> maxPortalLayer = () -> 2;
+    public Supplier<Integer> maxPortalLayer = () -> MyCommand.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     private Runnable behavior;
     

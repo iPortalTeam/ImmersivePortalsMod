@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.nether_portal_managing;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import net.fabricmc.api.EnvType;

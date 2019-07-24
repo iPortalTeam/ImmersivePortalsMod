@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.nether_portal_managing;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -273,7 +273,7 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit
+        IntegerAABBInclusive heightLimit, int findingRadius
     ) {
         return fromNearToFarWithinHeightLimit(
             searchingCenter,

@@ -1,13 +1,12 @@
 package com.qouteall.immersive_portals.teleportation;
 
-import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -20,9 +19,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
-
-import java.util.ArrayDeque;
-import java.util.stream.Collectors;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
@@ -41,19 +37,15 @@ public class ClientTeleportationManager {
     }
     
     private void manageTeleportation() {
-        if (mc.world != null) {
-            Streams.stream(mc.world.getEntities())
-                .filter(e -> e instanceof Portal)
-                .flatMap(
-                    entityPortal -> ((Portal) entityPortal).getEntitiesToTeleport(
-                    ).map(
-                        entity -> ((Runnable) () -> {
-                            onEntityGoInsidePortal(entity, ((Portal) entityPortal));
-                        })
-                    )
-                )
-                .collect(Collectors.toCollection(ArrayDeque::new))
-                .forEach(Runnable::run);
+        if (mc.world != null && mc.player != null) {
+            Helper.getEntitiesNearby(
+                mc.player,
+                Portal.class,
+                10
+            )
+                .filter(portal -> portal.shouldEntityTeleport(mc.player))
+                .findFirst()
+                .ifPresent(portal -> onEntityGoInsidePortal(mc.player, portal));
         }
     }
     
@@ -65,11 +57,9 @@ public class ClientTeleportationManager {
     }
     
     private void teleportPlayer(Portal portal) {
-        long currGameTime = mc.world.getTime();
-        if (currGameTime - lastTeleportGameTime < 3) {
+        if (isTeleportingFrequently()) {
             return;
         }
-        lastTeleportGameTime = currGameTime;
         
         ClientPlayerEntity player = mc.player;
         
@@ -104,6 +94,21 @@ public class ClientTeleportationManager {
         
         amendChunkEntityStatus(player);
         
+    }
+    
+    private boolean isTeleportingFrequently() {
+        long currGameTime =
+            Globals.clientWorldLoader.getDimension(DimensionType.OVERWORLD).getTime();
+        if (lastTeleportGameTime > currGameTime) {
+            //player logged out and logged in to another world
+            lastTeleportGameTime = currGameTime;
+            return false;
+        }
+        if (currGameTime - lastTeleportGameTime < 5) {
+            return true;
+        }
+        lastTeleportGameTime = currGameTime;
+        return false;
     }
     
     private void forceTeleportPlayer(DimensionType toDimension, Vec3d destination) {

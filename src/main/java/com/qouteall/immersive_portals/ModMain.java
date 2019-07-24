@@ -2,12 +2,12 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
-import com.qouteall.immersive_portals.client_world_management.ClientWorldLoader;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.nether_portal_managing.BlockMyNetherPortal;
-import com.qouteall.immersive_portals.nether_portal_managing.MonitoringNetherPortal;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.BlockMyNetherPortal;
+import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderManager;
 import com.qouteall.immersive_portals.render.ShaderManager;
@@ -32,6 +32,7 @@ public class ModMain implements ModInitializer {
         // Proceed with mild caution.
         Portal.init();
         MonitoringNetherPortal.init();
+        LoadingIndicatorEntity.init();
     
         BlockMyNetherPortal.init();
         

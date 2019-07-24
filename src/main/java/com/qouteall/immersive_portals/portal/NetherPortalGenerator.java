@@ -1,9 +1,8 @@
-package com.qouteall.immersive_portals.nether_portal_managing;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import com.qouteall.immersive_portals.portal_entity.Portal;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import net.minecraft.block.Blocks;
@@ -47,8 +46,6 @@ public class NetherPortalGenerator {
         ServerWorld fromWorld,
         BlockPos firePos
     ) {
-        //TODO optimize it. avoid test for 128 range
-        
         DimensionType fromDimension = fromWorld.dimension.getType();
         
         DimensionType toDimension = getDestinationDimension(fromDimension);
@@ -62,12 +59,9 @@ public class NetherPortalGenerator {
         ServerWorld toWorld = Helper.getServer().getWorld(toDimension);
     
         assert toWorld != null;
-        
-        //TODO add loading indicator
-//        LoadingIndicatorsManager.onNetherPortalAboutToGenerate(
-//            fromObsidianFrame, fromDimension, toDimension
-//        );
     
+        LoadingIndicatorEntity.spawnLoadingIndicator(fromWorld, fromObsidianFrame);
+        
         BlockPos posInOtherDimension = getPosInOtherDimension(
             firePos, fromDimension, toDimension
         );
@@ -149,7 +143,9 @@ public class NetherPortalGenerator {
         IntegerAABBInclusive foundAirCube = NetherPortalMatcher.findCubeAirAreaOnGround(
             needsAreaSize,
             toWorld,
-            mappedPosInOtherDimension, heightLimit
+            mappedPosInOtherDimension,
+            heightLimit,
+            NetherPortalMatcher.findingRadius / 3
         );
         
         if (foundAirCube == null) {

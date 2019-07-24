@@ -1,8 +1,6 @@
-package com.qouteall.immersive_portals.nether_portal_managing;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
-import com.qouteall.immersive_portals.portal_entity.PortalDummyRenderer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;

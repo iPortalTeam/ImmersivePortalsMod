@@ -3,8 +3,9 @@ package com.qouteall.immersive_portals.teleportation;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
+import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
@@ -156,6 +157,14 @@ public class ServerTeleportationManager {
             fromWorld.dimension.getType(),
             toWorld.dimension.getType()
         ));
+    
+        //this is used for the advancement of "we need to go deeper"
+        //and the advancement of travelling for long distance through nether
+        if (toWorld.dimension.getType() == DimensionType.THE_NETHER) {
+            //this is used for
+            ((IEServerPlayerEntity) player).setEnteredNetherPos(player.getPos());
+        }
+        ((IEServerPlayerEntity) player).updateDimensionTravelAdvancements(fromWorld);
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {

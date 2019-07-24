@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyViewFrustum;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 
 public class MyCommand {
     public static boolean doUseAdvancedFrustumCulling = true;
+    public static int maxPortalLayer = 2;
     
     public static void init(CommandDispatcher<ServerCommandSource> dispatcher) {
         assert dispatcher != null;
@@ -211,7 +213,7 @@ public class MyCommand {
                 .literal("report_resource_consumption")
                 .executes(context -> {
                     StringBuilder str = new StringBuilder();
-            
+    
                     str.append("Client Chunk:\n");
                     Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
                         str.append(String.format(
@@ -220,7 +222,7 @@ public class MyCommand {
                             ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
                         ));
                     });
-            
+    
                     str.append("Chunk Renderers:\n");
                     Globals.clientWorldLoader.worldRendererMap.forEach(
                         (dimension, worldRenderer) -> {
@@ -233,15 +235,15 @@ public class MyCommand {
                             ));
                         }
                     );
-            
+    
                     //TODO add server forced chunk num
-            
+    
                     String result = str.toString();
-            
+    
                     Helper.log(str);
-            
+    
                     context.getSource().getPlayer().sendMessage(new LiteralText(result));
-            
+    
                     return 0;
                 })
             )
@@ -305,10 +307,7 @@ public class MyCommand {
     }
     
     private static int setMaxPortalLayer(int m) {
-//        MinecraftClient.getInstance().execute(() ->
-//            Globals.portalRenderManager.setBehaviorMaxPortalLayer(m)
-//        );
-        assert false;
+        maxPortalLayer = m;
         return 0;
     }
     
@@ -346,12 +345,13 @@ public class MyCommand {
         originalAddPortalFunctionality = (player) -> {
             Vec3d fromPos = player.getPos();
             Vec3d fromNormal = player.getRotationVector().multiply(-1);
+            ServerWorld fromWorld = ((ServerWorld) player.world);
             
             addPortalFunctionality = (playerEntity) -> {
                 Vec3d toPos = playerEntity.getPos();
                 DimensionType toDimension = player.dimension;
-                
-                Portal portal = new Portal(player.world);
+    
+                Portal portal = new Portal(fromWorld);
                 portal.x = fromPos.x;
                 portal.y = fromPos.y;
                 portal.z = fromPos.z;
@@ -366,8 +366,8 @@ public class MyCommand {
                 portal.height = 4;
                 
                 assert portal.isPortalValid();
-                
-                playerEntity.world.spawnEntity(portal);
+    
+                fromWorld.spawnEntity(portal);
                 
                 addPortalFunctionality = originalAddPortalFunctionality;
             };

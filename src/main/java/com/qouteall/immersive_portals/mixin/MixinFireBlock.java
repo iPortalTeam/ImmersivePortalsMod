@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.nether_portal_managing.NetherPortalGenerator;
+import com.qouteall.immersive_portals.portal.NetherPortalGenerator;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FireBlock;
 import net.minecraft.server.world.ServerWorld;

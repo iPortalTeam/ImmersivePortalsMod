@@ -1,7 +1,6 @@
-package com.qouteall.immersive_portals.client_world_management;
+package com.qouteall.immersive_portals;
 
 import com.mojang.authlib.GameProfile;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;

@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;

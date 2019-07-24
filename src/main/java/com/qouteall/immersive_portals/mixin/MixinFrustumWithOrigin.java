@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.portal_entity.Portal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.FrustumWithOrigin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;

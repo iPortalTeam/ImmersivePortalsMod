@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
+import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -36,6 +37,8 @@ public class MyNetwork {
         new Identifier("immersive_portals", "dimension_confirm");
     public static final Identifier id_stcRedirected =
         new Identifier("immersive_portals", "redirected");
+    public static final Identifier id_stcSpawnLoadingIndicator =
+        new Identifier("immersive_portals", "spawn_loading_indicator");
     
     //you can input a lambda expression and it will be invoked remotely
     //but java serialization is not stable
@@ -193,6 +196,39 @@ public class MyNetwork {
         });
     }
     
+    public static CustomPayloadS2CPacket createSpawnLoadingIndicator(
+        DimensionType dimensionType,
+        Vec3d pos
+    ) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(dimensionType.getRawId());
+        buf.writeDouble(pos.x);
+        buf.writeDouble(pos.y);
+        buf.writeDouble(pos.z);
+        return new CustomPayloadS2CPacket(id_stcSpawnLoadingIndicator, buf);
+    }
+    
+    private static void processSpawnLoadingIndicator(PacketContext context, PacketByteBuf buf) {
+        DimensionType dimension = DimensionType.byRawId(buf.readInt());
+        Vec3d pos = new Vec3d(
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble()
+        );
+        
+        MinecraftClient.getInstance().execute(() -> {
+            ClientWorld world = Globals.clientWorldLoader.getDimension(dimension);
+            if (world == null) {
+                return;
+            }
+            
+            LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(world);
+            indicator.setPosition(pos.x, pos.y, pos.z);
+            
+            world.addEntity(233333333, indicator);
+        });
+    }
+    
     public static void init() {
         ServerSidePacketRegistry.INSTANCE.register(
             id_ctsTeleport,
@@ -217,6 +253,11 @@ public class MyNetwork {
         ClientSidePacketRegistry.INSTANCE.register(
             id_stcRedirected,
             RedirectedMessageManager::processRedirectedMessage
+        );
+    
+        ClientSidePacketRegistry.INSTANCE.register(
+            id_stcSpawnLoadingIndicator,
+            MyNetwork::processSpawnLoadingIndicator
         );
     }
 }

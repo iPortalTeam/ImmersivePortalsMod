@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.portal_entity;
+package com.qouteall.immersive_portals.portal;
 
 import net.minecraft.client.render.VisibleRegion;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
