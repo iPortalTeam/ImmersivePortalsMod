@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import javafx.util.Pair;
+import net.minecraft.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -31,8 +31,8 @@ public class ObsidianFrame {
         );
         
         return boxInsideObsidianFrame
-            .getExpanded(anotherTwoAxis.getKey(), 1)
-            .getExpanded(anotherTwoAxis.getValue(), 1);
+            .getExpanded(anotherTwoAxis.getLeft(), 1)
+            .getExpanded(anotherTwoAxis.getRight(), 1);
     }
     
     public static IntegerAABBInclusive shrinkToExcludeObsidianBlocks(
@@ -44,8 +44,8 @@ public class ObsidianFrame {
         );
         
         return boxInsideObsidianFrame
-            .getExpanded(anotherTwoAxis.getKey(), -1)
-            .getExpanded(anotherTwoAxis.getValue(), -1);
+            .getExpanded(anotherTwoAxis.getLeft(), -1)
+            .getExpanded(anotherTwoAxis.getRight(), -1);
     }
     
     public CompoundTag toTag() {
