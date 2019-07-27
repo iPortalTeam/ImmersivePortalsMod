@@ -5,14 +5,19 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
+import com.qouteall.immersive_portals.exposer.IEBackgroundRenderer;
+import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.MyViewFrustum;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -31,7 +36,8 @@ import java.util.function.Consumer;
 
 public class MyCommand {
     public static boolean doUseAdvancedFrustumCulling = true;
-    public static int maxPortalLayer = 2;
+    public static int maxPortalLayer = 3;
+    public static BackgroundRenderer switchedFogRenderer;
     
     public static void init(CommandDispatcher<ServerCommandSource> dispatcher) {
         assert dispatcher != null;
@@ -45,35 +51,6 @@ public class MyCommand {
         LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("immersive_portals_debug")
             .requires(commandSource -> true)
-            .then(CommandManager
-                .literal("enable").executes(context -> enable())
-            )
-            .then(CommandManager
-                .literal("disable").executes(context -> disable())
-            )
-            .then(CommandManager
-                .literal("see_portal_content")
-                .then(
-                    CommandManager.argument("argPortalId", IntegerArgumentType.integer())
-                        .executes(context -> seePortalContent(
-                            IntegerArgumentType.getInteger(context, "argPortalId")
-                        ))
-                )
-            )
-            .then(CommandManager
-                .literal("only_view_area")
-                .executes(context -> onlyViewArea())
-                .then(CommandManager
-                    .argument("argPortalId_", IntegerArgumentType.integer())
-                    .executes(context -> onlyViewAreaForSpecificPortal(
-                        IntegerArgumentType.getInteger(context, "argPortalId_")
-                    ))
-                )
-            )
-            .then(CommandManager
-                .literal("step_by_step")
-                .executes(context -> stepByStep())
-            )
             .then(CommandManager
                 .literal("set_max_portal_layer")
                 .then(CommandManager
@@ -198,6 +175,20 @@ public class MyCommand {
                 })
             )
             .then(CommandManager
+                .literal("multithreaded_chunk_loading_enable")
+                .executes(context -> {
+                    ChunkDataSyncManager.isMultiThreaded = true;
+                    return 0;
+                })
+            )
+            .then(CommandManager
+                .literal("multithreaded_chunk_loading_disable")
+                .executes(context -> {
+                    ChunkDataSyncManager.isMultiThreaded = false;
+                    return 0;
+                })
+            )
+            .then(CommandManager
                 .literal("report_server_entities")
                 .executes(context -> {
                     ServerPlayerEntity player = context.getSource().getPlayer();
@@ -248,6 +239,44 @@ public class MyCommand {
                 })
             )
             .then(CommandManager
+                .literal("report_fog_color")
+                .executes(context -> {
+                    StringBuilder str = new StringBuilder();
+            
+                    Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
+                        DimensionRenderHelper helper =
+                            Globals.clientWorldLoader.getDimensionRenderHelper(
+                                world.dimension.getType()
+                            );
+                        str.append(String.format(
+                            "%s %s %s %s\n",
+                            world.dimension.getType(),
+                            helper.fogRenderer,
+                            helper.getFogColor(),
+                            ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
+                        ));
+                    });
+            
+                    BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
+                        .gameRenderer
+                    ).getBackgroundRenderer();
+                    str.append(String.format(
+                        "current: %s %s \n switched %s \n",
+                        currentFogRenderer,
+                        ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
+                        switchedFogRenderer
+                    ));
+            
+                    String result = str.toString();
+            
+                    Helper.log(str);
+            
+                    context.getSource().getPlayer().sendMessage(new LiteralText(result));
+                    
+                    return 0;
+                })
+            )
+            .then(CommandManager
                 .literal("rebuild_all")
                 .executes(context -> {
                     Globals.clientWorldLoader.worldRendererMap.forEach(
@@ -266,44 +295,6 @@ public class MyCommand {
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");
-    }
-    
-    private static int enable() {
-        //MinecraftClient.getInstance().execute(() -> Globals.portalRenderManager.setBehaviorEnabled());
-        assert false;
-        return 0;
-    }
-    
-    private static int disable() {
-        //MinecraftClient.getInstance().execute(() -> Globals.portalRenderManager.setBehaviorDisabled());
-        assert false;
-        return 0;
-    }
-    
-    private static int seePortalContent(int portalId) {
-//        MinecraftClient.getInstance().execute(
-//            () -> Globals.portalRenderManager.setBehaviorSeePortalContent(portalId));
-        assert false;
-        return 0;
-    }
-    
-    private static int onlyViewArea() {
-        //MinecraftClient.getInstance().execute(() -> Globals.portalRenderManager.setBehaviorOnlyViewArea());
-        assert false;
-        return 0;
-    }
-    
-    private static int onlyViewAreaForSpecificPortal(int portalId) {
-//        MinecraftClient.getInstance().execute(
-//            () -> Globals.portalRenderManager.setBehaviorOnlyViewAreaForSpecificPortal(portalId));
-        assert false;
-        return 0;
-    }
-    
-    private static int stepByStep() {
-        //MinecraftClient.getInstance().execute(() -> Globals.portalRenderManager.setBehaviorStepByStep());
-        assert false;
-        return 0;
     }
     
     private static int setMaxPortalLayer(int m) {

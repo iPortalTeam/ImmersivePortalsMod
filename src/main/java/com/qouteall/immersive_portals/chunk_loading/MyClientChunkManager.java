@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
@@ -24,6 +23,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
+
+//import com.sun.istack.internal.Nullable;
 
 //this class is modified based on ClientChunkManager
 //re-write this class upon updating mod
@@ -53,7 +54,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         return this.lightingProvider;
     }
     
-    private static boolean isChunkValid(@Nullable WorldChunk worldChunk_1, int int_1, int int_2) {
+    private static boolean isChunkValid(WorldChunk worldChunk_1, int int_1, int int_2) {
         if (worldChunk_1 == null) {
             return false;
         }
@@ -78,7 +79,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         return this.world;
     }
     
-    @Nullable
+    //@Nullable
     public WorldChunk loadChunkFromPacket(
         World world_1,
         int x,
@@ -192,7 +193,7 @@ public class MyClientChunkManager extends ClientChunkManager {
     }
     
     // $FF: synthetic method
-    @Nullable
+    //@Nullable
     @Override
     public Chunk getChunk(int var1, int var2, ChunkStatus var3, boolean var4) {
         WorldChunk worldChunk_1 = chunkMap.get(new ChunkPos(var1, var2));

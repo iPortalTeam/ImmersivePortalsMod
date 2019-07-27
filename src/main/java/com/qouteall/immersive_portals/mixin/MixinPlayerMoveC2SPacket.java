@@ -15,6 +15,15 @@ public class MixinPlayerMoveC2SPacket implements IEPlayerMoveC2SPacket {
     private DimensionType playerDimension;
     
     @Inject(
+        method = "Lnet/minecraft/server/network/packet/PlayerMoveC2SPacket;<init>(Z)V",
+        at = @At("RETURN")
+    )
+    private void onConstruct(boolean boolean_1, CallbackInfo ci) {
+        playerDimension = MinecraftClient.getInstance().player.dimension;
+        assert playerDimension == MinecraftClient.getInstance().world.dimension.getType();
+    }
+    
+    @Inject(
         method = "Lnet/minecraft/server/network/packet/PlayerMoveC2SPacket;read(Lnet/minecraft/util/PacketByteBuf;)V",
         at = @At("HEAD")
     )
@@ -27,9 +36,6 @@ public class MixinPlayerMoveC2SPacket implements IEPlayerMoveC2SPacket {
         at = @At("HEAD")
     )
     private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
-        //this must be invoke on client
-        playerDimension = MinecraftClient.getInstance().player.dimension;
-        
         packetByteBuf_1.writeInt(playerDimension.getRawId());
     }
     
@@ -37,4 +43,11 @@ public class MixinPlayerMoveC2SPacket implements IEPlayerMoveC2SPacket {
     public DimensionType getPlayerDimension() {
         return playerDimension;
     }
+    
+    @Override
+    public void setPlayerDimension(DimensionType dim) {
+        playerDimension = dim;
+    }
+    
+    
 }

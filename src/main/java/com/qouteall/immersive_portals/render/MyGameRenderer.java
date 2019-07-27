@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.MyCommand;
+import com.qouteall.immersive_portals.exposer.IEChunkRenderList;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
@@ -10,8 +12,11 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public class MyGameRenderer {
     private MinecraftClient mc = MinecraftClient.getInstance();
@@ -23,7 +28,8 @@ public class MyGameRenderer {
     public void renderWorld(
         float partialTicks,
         WorldRenderer newWorldRenderer,
-        ClientWorld newWorld
+        ClientWorld newWorld,
+        Vec3d oldCameraPos
     ) {
         ChunkRenderDispatcher chunkRenderDispatcher =
             ((IEWorldRenderer) newWorldRenderer).getChunkRenderDispatcher();
@@ -48,7 +54,8 @@ public class MyGameRenderer {
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-    
+        List oldChunkInfos = ((IEWorldRenderer) mc.worldRenderer).getChunkInfos();
+        
         //switch
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
@@ -71,6 +78,8 @@ public class MyGameRenderer {
         //GlStateManager.disableAlphaTest();
         
         mc.getProfiler().push("render_portal_content");
+    
+        MyCommand.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
@@ -90,9 +99,18 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
+        ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
+    
+        restoreCameraPosOfRenderList(oldCameraPos);
     }
     
     private long getChunkUpdateFinishTime() {
         return 0;
+    }
+    
+    public void restoreCameraPosOfRenderList(Vec3d oldCameraPos) {
+        IEWorldRenderer worldRenderer = (IEWorldRenderer) mc.worldRenderer;
+        IEChunkRenderList chunkRenderList = (IEChunkRenderList) worldRenderer.getChunkRenderList();
+        chunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
     }
 }

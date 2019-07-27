@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class MyViewFrustum extends ChunkRenderDispatcher {
-    public static final int maxIdleChunkNum = 500;
+    public static final int maxIdleChunkNum = 1000;
     
     public static boolean enableFrustumSubstitution = true;
     
@@ -72,16 +72,16 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
     
     private ChunkRenderer findAndEmployChunkRenderer(BlockPos basePos) {
         assert !chunkRendererMap.containsKey(basePos);
-        
-        ChunkRenderer ChunkRenderer = idleChunks.pollLast();
-        
-        if (ChunkRenderer == null) {
-            ChunkRenderer = chunkRendererFactory.create(world, renderer);
+    
+        ChunkRenderer chunkRenderer = idleChunks.pollLast();
+    
+        if (chunkRenderer == null) {
+            chunkRenderer = chunkRendererFactory.create(world, renderer);
         }
-        
-        employChunkRenderer(ChunkRenderer, basePos);
-        
-        return ChunkRenderer;
+    
+        employChunkRenderer(chunkRenderer, basePos);
+    
+        return chunkRenderer;
     }
     
     private void employChunkRenderer(ChunkRenderer chunkRenderer, BlockPos basePos) {
@@ -92,14 +92,14 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
     
     private void dismissChunkRenderer(BlockPos basePos) {
         assert chunkRendererMap.containsKey(basePos);
-        
-        ChunkRenderer ChunkRenderer = chunkRendererMap.remove(basePos);
-        
-        assert lastActiveNanoTime.containsKey(ChunkRenderer);
-        
-        lastActiveNanoTime.remove(ChunkRenderer);
-        
-        idleChunks.addLast(ChunkRenderer);
+    
+        ChunkRenderer chunkRenderer = chunkRendererMap.remove(basePos);
+    
+        assert lastActiveNanoTime.containsKey(chunkRenderer);
+    
+        lastActiveNanoTime.remove(chunkRenderer);
+    
+        idleChunks.addLast(chunkRenderer);
         
         destructAbundantIdleChunks();
     }
@@ -124,8 +124,8 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
             //make sure none of render chunk get dismissed
             updateLastUsedTime(ChunkRenderer);
         }
-        
-        ArrayDeque<ChunkRenderer> ChunkRenderersToDismiss = lastActiveNanoTime.entrySet().stream()
+    
+        ArrayDeque<ChunkRenderer> chunkRenderersToDismiss = lastActiveNanoTime.entrySet().stream()
             .filter(
                 entry -> currentTime - entry.getValue() > deletingValve
             )
@@ -133,15 +133,15 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
                 Map.Entry::getKey
             )
             .collect(Collectors.toCollection(ArrayDeque::new));
-        
-        if (!ChunkRenderersToDismiss.isEmpty()) {
+    
+        if (!chunkRenderersToDismiss.isEmpty()) {
             Helper.log(String.format(
                 "dismissed %d render chunks",
-                ChunkRenderersToDismiss.size()
+                chunkRenderersToDismiss.size()
             ));
         }
-        
-        ChunkRenderersToDismiss.forEach(
+    
+        chunkRenderersToDismiss.forEach(
             ChunkRenderer -> dismissChunkRenderer(ChunkRenderer.getOrigin())
         );
     }
@@ -190,10 +190,10 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
         BlockPos pos
     ) {
         BlockPos basePos = getBasePos(pos);
-        ChunkRenderer ChunkRenderer = chunkRendererMap.get(basePos);
-        if (ChunkRenderer == null) return;
+        ChunkRenderer chunkRenderer = chunkRendererMap.get(basePos);
+        if (chunkRenderer == null) return;
         for (int i = 0; i < renderers.length; i++) {
-            if (renderers[i] == ChunkRenderer) {
+            if (renderers[i] == chunkRenderer) {
                 renderers[i] = null;
             }
         }

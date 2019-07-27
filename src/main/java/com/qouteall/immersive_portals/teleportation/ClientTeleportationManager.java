@@ -22,12 +22,21 @@ import net.minecraft.world.dimension.DimensionType;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
+    private long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     
     public ClientTeleportationManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
             this, ClientTeleportationManager::manageTeleportation
         );
+        ModMain.postClientTickSignal.connectWithWeakRef(
+            this, ClientTeleportationManager::tick
+        );
+    }
+    
+    private static void tick(ClientTeleportationManager this_) {
+        this_.manageTeleportation();
+        this_.tickTimeForTeleportation++;
     }
     
     public void acceptSynchronizationDataFromServer(DimensionType dimension, Vec3d pos) {
@@ -58,6 +67,7 @@ public class ClientTeleportationManager {
     
     private void teleportPlayer(Portal portal) {
         if (isTeleportingFrequently()) {
+            Helper.log("Rejected teleportation because too frequent");
             return;
         }
         
@@ -97,18 +107,14 @@ public class ClientTeleportationManager {
     }
     
     private boolean isTeleportingFrequently() {
-        long currGameTime =
-            Globals.clientWorldLoader.getDimension(DimensionType.OVERWORLD).getTime();
-        if (lastTeleportGameTime > currGameTime) {
-            //player logged out and logged in to another world
-            lastTeleportGameTime = currGameTime;
-            return false;
-        }
+        long currGameTime = tickTimeForTeleportation;
         if (currGameTime - lastTeleportGameTime < 5) {
             return true;
         }
-        lastTeleportGameTime = currGameTime;
-        return false;
+        else {
+            lastTeleportGameTime = currGameTime;
+            return false;
+        }
     }
     
     private void forceTeleportPlayer(DimensionType toDimension, Vec3d destination) {
@@ -167,10 +173,15 @@ public class ClientTeleportationManager {
     
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
     
+        Globals.clientWorldLoader
+            .getDimensionRenderHelper(toWorld.dimension.getType())
+            .switchToMe();
+        
         Helper.log(String.format(
-            "Client Changed Dimension from %s to %s",
+            "Client Changed Dimension from %s to %s time: %s",
             fromWorld.dimension.getType(),
-            toWorld.dimension.getType()
+            toWorld.dimension.getType(),
+            tickTimeForTeleportation
         ));
     
         Helper.log("Portal Number Near Player Now" +

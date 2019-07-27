@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.util.Pair;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -20,6 +19,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+//import com.sun.istack.internal.Nullable;
 
 public class NetherPortalMatcher {
     public static Stream<BlockPos> fromNearToFarWithinHeightLimit(
@@ -75,7 +76,7 @@ public class NetherPortalMatcher {
     //detect frame from inner pos
     
     public static final int maxFrameSize = 40;
-    public static final int findingRadius = 80;
+    public static final int findingRadius = 128;
     public static final IntegerAABBInclusive heightLimitOverworld = new IntegerAABBInclusive(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 254, Integer.MAX_VALUE)
@@ -196,7 +197,7 @@ public class NetherPortalMatcher {
         ).mapToObj(num -> startPos.add(Helper.scale(facing.getVector(), num)));
     }
     
-    @Nullable
+    //@Nullable
     private static IntegerAABBInclusive detectStick(
         IWorld world,
         BlockPos center,
@@ -237,7 +238,7 @@ public class NetherPortalMatcher {
         return new IntegerAABBInclusive(lowExtremity, highExtremity);
     }
     
-    @Nullable
+    //@Nullable
     private static BlockPos detectStickForOneDirection(
         BlockPos startPos,
         Direction facing,
@@ -268,7 +269,7 @@ public class NetherPortalMatcher {
     //------------------------------------------------------------
     //detect air cube on ground
     
-    @Nullable
+    //@Nullable
     static IntegerAABBInclusive findCubeAirAreaOnGround(
         BlockPos areaSize,
         IWorld world,
@@ -330,7 +331,7 @@ public class NetherPortalMatcher {
     //------------------------------------------------------------
     //detect existing obsidian frame
     
-    @Nullable
+    //@Nullable
     public static ObsidianFrame findEmptyObsidianFrame(
         IWorld world,
         BlockPos searchingCenter,

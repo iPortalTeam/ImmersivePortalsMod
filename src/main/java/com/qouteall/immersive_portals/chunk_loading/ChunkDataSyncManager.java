@@ -16,6 +16,7 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 public class ChunkDataSyncManager {
     
     private static final int unloadWaitingTickTime = 20 * 10;
-    public static boolean isMultiThreaded = false;
+    public static boolean isMultiThreaded = true;
     
     public ChunkDataSyncManager() {
         Globals.chunkTracker.beginWatchChunkSignal.connectWithWeakRef(
@@ -109,6 +110,8 @@ public class ChunkDataSyncManager {
         Chunk chunk = Helper.getServer()
             .getWorld(chunkPos.dimension)
             .getChunk(chunkPos.x, chunkPos.z);
+        assert chunk != null;
+        assert !(chunk instanceof EmptyChunk);
         player.networkHandler.sendPacket(
             RedirectedMessageManager.createRedirectedMessage(
                 chunkPos.dimension,

@@ -3,8 +3,6 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -15,6 +13,9 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+
+//import com.sun.istack.internal.NotNull;
+//import com.sun.istack.internal.Nullable;
 
 public class NetherPortalGenerator {
     public final static int randomShiftFactor = 20;
@@ -41,7 +42,7 @@ public class NetherPortalGenerator {
     public static final SignalArged<NetherPortalGeneratedInformation> signalNetherPortalLit =
         new SignalArged<>();
     
-    @Nullable
+    //@Nullable
     public static NetherPortalGeneratedInformation onFireLit(
         ServerWorld fromWorld,
         BlockPos firePos
@@ -128,7 +129,7 @@ public class NetherPortalGenerator {
         );
     }
     
-    @NotNull
+    //@NotNull
     private static ObsidianFrame createObsidianFrameInOtherDimension(
         ObsidianFrame fromObsidianFrame,
         ServerWorld toWorld,
@@ -145,7 +146,7 @@ public class NetherPortalGenerator {
             toWorld,
             mappedPosInOtherDimension,
             heightLimit,
-            NetherPortalMatcher.findingRadius / 3
+            NetherPortalMatcher.findingRadius
         );
         
         if (foundAirCube == null) {
@@ -239,14 +240,14 @@ public class NetherPortalGenerator {
         if (dimensionFrom == DimensionType.OVERWORLD && dimensionTo == DimensionType.THE_NETHER) {
             return new BlockPos(
                 pos.getX() / 8,
-                pos.getY() / 2,
+                pos.getY(),
                 pos.getZ() / 8
             );
         }
         else if (dimensionFrom == DimensionType.THE_NETHER && dimensionTo == DimensionType.OVERWORLD) {
             return new BlockPos(
                 pos.getX() * 8,
-                pos.getY() * 2,
+                pos.getY(),
                 pos.getZ() * 8
             );
         }
