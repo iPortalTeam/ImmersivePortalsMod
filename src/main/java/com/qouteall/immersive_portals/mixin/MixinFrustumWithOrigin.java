@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.PlaneTestResult;
 import net.minecraft.client.render.FrustumWithOrigin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -26,6 +27,8 @@ public class MixinFrustumWithOrigin {
     private double originZ;
     
     private Portal portal;
+    
+    //respectively down left up right
     private Vec3d[] normalOf4Planes;
     private Vec3d portalDestInLocalCoordinate;
     
@@ -58,6 +61,38 @@ public class MixinFrustumWithOrigin {
         }
     }
     
+    private Vec3d getDownPlane() {
+        return normalOf4Planes[0];
+    }
+    
+    private Vec3d getLeftPlane() {
+        return normalOf4Planes[1];
+    }
+    
+    private Vec3d getUpPlane() {
+        return normalOf4Planes[2];
+    }
+    
+    private Vec3d getRightPlane() {
+        return normalOf4Planes[3];
+    }
+    
+    private PlaneTestResult testFor8Points(Vec3d planeNormal, Vec3d[] points) {
+        assert points.length == 8;
+        boolean firstResult = isInFrontOf(points[0], planeNormal);
+        for (int i = 1; i < 8; i++) {
+            boolean thisResult = isInFrontOf(points[i], planeNormal);
+            if (thisResult != firstResult) {
+                return PlaneTestResult.front_and_back;
+            }
+        }
+        return firstResult ? PlaneTestResult.all_front : PlaneTestResult.all_back;
+    }
+    
+    private boolean isInFrontOf(Vec3d pos, Vec3d planeNormal) {
+        return pos.dotProduct(planeNormal) > 0;
+    }
+    
     private boolean isPosInPortalViewFrustum(Vec3d pos) {
         if (pos.subtract(portalDestInLocalCoordinate).dotProduct(portal.getNormal()) > 0) {
             return false;
@@ -65,6 +100,32 @@ public class MixinFrustumWithOrigin {
         return Arrays.stream(normalOf4Planes).allMatch(
             normal -> normal.dotProduct(pos) > 0
         );
+    }
+    
+    //this frustum culling algorithm will not fail when frustum is very small
+    //I invented this algorithm(maybe re-invent)
+    private boolean isOutsidePortalFrustum(Box box) {
+        Vec3d[] eightVertices = Helper.eightVerticesOf(box);
+        
+        PlaneTestResult left = testFor8Points(getLeftPlane(), eightVertices);
+        PlaneTestResult right = testFor8Points(getRightPlane(), eightVertices);
+        if (left == PlaneTestResult.all_back && right == PlaneTestResult.all_front) {
+            return true;
+        }
+        if (left == PlaneTestResult.all_front && right == PlaneTestResult.all_back) {
+            return true;
+        }
+        
+        PlaneTestResult up = testFor8Points(getUpPlane(), eightVertices);
+        PlaneTestResult down = testFor8Points(getDownPlane(), eightVertices);
+        if (up == PlaneTestResult.all_back && down == PlaneTestResult.all_front) {
+            return true;
+        }
+        if (up == PlaneTestResult.all_front && down == PlaneTestResult.all_back) {
+            return true;
+        }
+        
+        return false;
     }
     
     @Inject(
@@ -95,23 +156,8 @@ public class MixinFrustumWithOrigin {
                     -originY,
                     -originZ
                 );
-                
-                if (boxInLocalCoordinate.maxX - boxInLocalCoordinate.minX > 10) {
-                    if (boxInLocalCoordinate.getCenter().lengthSquared() < 32 * 32) {
-                        //skip portal frustum test
-                        return;
-                    }
-                }
     
-                //NOTE this method is incorrect
-                //when player is faraway from portal it will cull visible boxes
-                
-                boolean portalTestResult = Arrays
-                    .stream(Helper.eightVerticesOf(boxInLocalCoordinate))
-                    .anyMatch(this::isPosInPortalViewFrustum) ||
-                    isPosInPortalViewFrustum(boxInLocalCoordinate.getCenter());
-                
-                if (!portalTestResult) {
+                if (isOutsidePortalFrustum(boxInLocalCoordinate)) {
                     cir.setReturnValue(false);
                     cir.cancel();
                 }
