@@ -1,15 +1,14 @@
 fix mis-teleport sometimes still occur
-fix entities go through portal sometimes  duplicate
-fix sometimes go through portal but do not teleport
+fix entities go through portal sometimes duplicate
 fix entity brightness issue
 fix dedicated server
 fix respawn cause entity to duplicate?
-fix we need to go deeper advancement
+fix respawn crash
+fix blink when firstly go from overworld to nether
 
-implement loading indicator
+make nether portal possibly generate above lava lake
 
 check client chunk loading leak and server chunk loading leak
 
-postponed implement frustum culling
-
 postponed fix third-person view rendering
+postponed fix frustum culling issue

@@ -7,35 +7,26 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.sun.istack.internal.Nullable;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+//import com.sun.istack.internal.Nullable;
+
 public class ChunkTracker {
     
-    /**
-     * {@link net.minecraft.server.world.ChunkTicketManager.DistanceFromNearestPlayerTracker#getInitialLevel(long)}
-     * {@link net.minecraft.server.world.ChunkTicketManager#handleChunkEnter(ChunkSectionPos, ServerPlayerEntity)}
-     * {@link net.minecraft.server.world.ChunkTicketManager#handleChunkLeave(ChunkSectionPos, ServerPlayerEntity)}}
-     * {@link net.minecraft.server.world.ThreadedAnvilChunkStorage#getPlayersWatchingChunk(ChunkPos, boolean)}
-     * {@link ChunkHolder#sendPacketToPlayersWatching(Packet, boolean)}
-     * {@link ThreadedAnvilChunkStorage#updateCameraPosition(ServerPlayerEntity)}
-     */
-
+    //if a chunk is not watched for 15 seconds, it will be unloaded
+    private static final int unloadIdleTickTime = 20 * 15;
+    
     //it's a graph
 
     public static class Edge {
@@ -90,7 +81,7 @@ public class ChunkTracker {
         //world.method_14178().setChunkForced(chunkPos, isLoadedNow);
     }
     
-    @Nullable
+    //@Nullable
     private Edge getEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity playerEntity) {
         return chunkPosToEdges.get(chunkPos)
             .stream()
@@ -196,7 +187,7 @@ public class ChunkTracker {
         long serverGameTime = Helper.getServerGameTime();
         playerToEdges.get(playerEntity).stream()
             .filter(
-                edge -> serverGameTime - edge.lastActiveGameTime > 20 * 10
+                edge -> serverGameTime - edge.lastActiveGameTime > unloadIdleTickTime
             )
             .collect(Collectors.toCollection(ArrayDeque::new))
             .forEach(this::removeEdge);

@@ -5,7 +5,6 @@ import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -68,14 +67,14 @@ public class ClientWorldLoader {
         isInitialized = false;
     }
     
-    @Nullable
+    //@Nullable
     public ClientWorld getDimension(DimensionType dimension) {
         initializeIfNeeded();
         
         return clientWorldMap.get(dimension);
     }
     
-    @Nullable
+    //@Nullable
     public WorldRenderer getWorldRenderer(DimensionType dimension) {
         initializeIfNeeded();
         
@@ -93,23 +92,33 @@ public class ClientWorldLoader {
     }
     
     public DimensionRenderHelper getDimensionRenderHelper(DimensionType dimension) {
-        return renderHelperMap.computeIfAbsent(
+        initializeIfNeeded();
+    
+        DimensionRenderHelper result = renderHelperMap.computeIfAbsent(
             dimension,
-            dimensionType -> new DimensionRenderHelper(
-                getOrCreateFakedWorld(dimension)
-            )
+            dimensionType -> {
+                return new DimensionRenderHelper(
+                    getOrCreateFakedWorld(dimension)
+                );
+            }
         );
+        assert result.world.dimension.getType() == dimension;
+        return result;
     }
     
     private void initializeIfNeeded() {
         if (!isInitialized) {
             assert (mc.world != null);
             assert (mc.worldRenderer != null);
-        
+    
             DimensionType playerDimension = mc.world.getDimension().getType();
             clientWorldMap.put(playerDimension, mc.world);
             worldRendererMap.put(playerDimension, mc.worldRenderer);
-        
+            renderHelperMap.put(
+                mc.world.dimension.getType(),
+                new DimensionRenderHelper(mc.world)
+            );
+            
             isInitialized = true;
         }
     }

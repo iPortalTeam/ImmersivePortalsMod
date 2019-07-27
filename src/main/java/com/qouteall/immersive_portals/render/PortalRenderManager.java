@@ -127,6 +127,10 @@ public class PortalRenderManager {
         GlStateManager.enableDepthTest();
     
         cameraEntity = null;
+    
+        Globals.clientWorldLoader
+            .getDimensionRenderHelper(mc.world.dimension.getType())
+            .switchToMe();
     }
     
     private void renderPortals() {
@@ -288,6 +292,7 @@ public class PortalRenderManager {
     ) {
         Entity player = mc.cameraEntity;
         int allowedStencilValue = getPortalLayer();
+        Vec3d oldCameraPos = mc.gameRenderer.getCamera().getPos();
         
         assert player.world == mc.world;
         
@@ -308,7 +313,7 @@ public class PortalRenderManager {
         mc.world = newWorld;
         
         renderPortalContentAndNestedPortals(
-            portal
+            portal, oldCameraPos
         );
         
         //restore the position
@@ -324,7 +329,7 @@ public class PortalRenderManager {
     }
     
     private void renderPortalContentAndNestedPortals(
-        Portal portal
+        Portal portal, Vec3d oldCameraPos
     ) {
         int thisPortalStencilValue = getPortalLayer();
         
@@ -341,7 +346,7 @@ public class PortalRenderManager {
         ClientWorld destClientWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
         
         Globals.myGameRenderer.renderWorld(
-            partialTicks, worldRenderer, destClientWorld
+            partialTicks, worldRenderer, destClientWorld, oldCameraPos
         );
         
         Helper.checkGlError();

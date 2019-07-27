@@ -102,10 +102,14 @@ public class MixinFrustumWithOrigin {
                         return;
                     }
                 }
+    
+                //NOTE this method is incorrect
+                //when player is faraway from portal it will cull visible boxes
                 
                 boolean portalTestResult = Arrays
                     .stream(Helper.eightVerticesOf(boxInLocalCoordinate))
-                    .anyMatch(this::isPosInPortalViewFrustum);
+                    .anyMatch(this::isPosInPortalViewFrustum) ||
+                    isPosInPortalViewFrustum(boxInLocalCoordinate.getCenter());
                 
                 if (!portalTestResult) {
                     cir.setReturnValue(false);

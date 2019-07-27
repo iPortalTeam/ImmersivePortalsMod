@@ -37,8 +37,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         renderCenter(partialTicks, finishTimeNano);
     }
     
-    //TODO should replace it with INVOKE_ASSIGN
-    
     @Inject(
         method = "Lnet/minecraft/client/render/GameRenderer;renderCenter(FJ)V",
         at = @At(

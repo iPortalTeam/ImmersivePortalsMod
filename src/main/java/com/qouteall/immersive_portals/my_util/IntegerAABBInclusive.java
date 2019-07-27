@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.my_util;
 
-import com.sun.istack.internal.Nullable;
+//import com.sun.istack.internal.Nullable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
@@ -124,7 +124,7 @@ public class IntegerAABBInclusive {
         );
     }
     
-    @Nullable
+    //@Nullable
     public static IntegerAABBInclusive getIntersect(
         IntegerAABBInclusive a,
         IntegerAABBInclusive b

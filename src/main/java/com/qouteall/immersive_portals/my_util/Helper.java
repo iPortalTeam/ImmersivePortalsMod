@@ -3,8 +3,6 @@ package com.qouteall.immersive_portals.my_util;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import javafx.util.Pair;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -23,7 +21,6 @@ import org.lwjgl.opengl.GL11;
 import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -32,6 +29,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+
+//import com.sun.istack.internal.NotNull;
+//import com.sun.istack.internal.Nullable;
 
 
 public class Helper {
@@ -213,7 +213,7 @@ public class Helper {
         }
     }
     
-    @Nullable
+    //@Nullable
     public static <T> T getLastSatisfying(Stream<T> stream, Predicate<T> predicate) {
         SimpleBox<T> box = new SimpleBox<T>(null);
         stream.filter(curr -> {
@@ -230,24 +230,6 @@ public class Helper {
     
     public interface CallableWithoutException<T> {
         public T run();
-    }
-    
-    //return null if generator throws exception
-    @NotNull
-    public static <K, V> V getOrCreate(
-        Map<K, V> map,
-        K key,
-        CallableWithoutException<V> generator
-    ) {
-        V value = map.get(key);
-        if (value != null) {
-            return value;
-        }
-        else {
-            V generatedValue = generator.run();
-            map.put(key, generatedValue);
-            return generatedValue;
-        }
     }
     
     public static Vec3d lastTickPosOf(Entity entity) {

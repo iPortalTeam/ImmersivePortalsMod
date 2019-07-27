@@ -23,7 +23,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "immersive_portals.mixins.json"
   ],
 
   "depends": {
