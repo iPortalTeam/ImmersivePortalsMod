@@ -17,6 +17,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBOcclusionQuery2;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.util.Comparator;
@@ -253,8 +254,6 @@ public class PortalRenderManager {
     
     //it will render a box instead of a quad
     private void drawPortalViewTriangle(Portal portal) {
-        Globals.shaderManager.unloadShader();
-        
         DimensionRenderHelper helper =
             Globals.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
     
@@ -266,6 +265,9 @@ public class PortalRenderManager {
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.disableBlend();
         GlStateManager.disableLighting();
+    
+        GL20.glUseProgram(0);
+        GL11.glDisable(GL_CLIP_PLANE0);
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
@@ -366,8 +368,9 @@ public class PortalRenderManager {
         GlStateManager.disableTexture();
         
         GlStateManager.shadeModel(GL_SMOOTH);
-        
-        Globals.shaderManager.unloadShader();
+    
+        GL20.glUseProgram(0);
+        GL11.glDisable(GL_CLIP_PLANE0);
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBufferBuilder();

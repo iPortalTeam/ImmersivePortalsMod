@@ -10,7 +10,6 @@ import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderManager;
-import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
@@ -45,7 +44,6 @@ public class ModMain implements ModInitializer {
         //TODO make it compatible with dedicated server
         MinecraftClient.getInstance().execute(() -> {
             Globals.portalRenderManager = new PortalRenderManager();
-            Globals.shaderManager = new ShaderManager();
             Globals.clientWorldLoader = new ClientWorldLoader();
             Globals.chunkTracker = new ChunkTracker();
             Globals.chunkDataSyncManager = new ChunkDataSyncManager();

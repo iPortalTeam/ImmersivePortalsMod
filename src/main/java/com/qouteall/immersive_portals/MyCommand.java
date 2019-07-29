@@ -14,7 +14,6 @@ import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.MyViewFrustum;
-import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -143,20 +142,6 @@ public class MyCommand {
                 .literal("client_remote_ticking_disable")
                 .executes(context -> {
                     Globals.clientWorldLoader.isClientRemoteTickingEnabled = false;
-                    return 0;
-                })
-            )
-            .then(CommandManager
-                .literal("culling_shader_enable")
-                .executes(context -> {
-                    ShaderManager.isShaderEnabled = true;
-                    return 0;
-                })
-            )
-            .then(CommandManager
-                .literal("culling_shader_disable")
-                .executes(context -> {
-                    ShaderManager.isShaderEnabled = false;
                     return 0;
                 })
             )
