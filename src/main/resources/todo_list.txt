@@ -3,10 +3,16 @@ fix entities go through portal sometimes duplicate
 fix entity brightness issue
 fix dedicated server
 fix respawn cause entity to duplicate?
-fix respawn crash
-fix blink when firstly go from overworld to nether
+fix respawn crash?
+fix can not render player in portals
+fix go through portal while riding entity
+fix day time sync
+
+use glClipPlane
 
 make nether portal possibly generate above lava lake
+
+enhance frustum culling
 
 check client chunk loading leak and server chunk loading leak
 

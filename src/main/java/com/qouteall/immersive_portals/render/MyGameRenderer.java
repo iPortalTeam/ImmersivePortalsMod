@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.exposer.IEChunkRenderList;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.*;
@@ -80,10 +81,14 @@ public class MyGameRenderer {
         mc.getProfiler().push("render_portal_content");
     
         MyCommand.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
+    
+        GL11.glEnable(GL11.GL_CLIP_PLANE0);
+        GL11.glClipPlane(GL11.GL_CLIP_PLANE0, getClipPlaneEquation());
         
         //invoke it!
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
-        //mc.gameRenderer.renderWorld(partialTicks, getChunkUpdateFinishTime());
+    
+        GL11.glDisable(GL11.GL_CLIP_PLANE0);
         
         mc.getProfiler().pop();
     
@@ -112,5 +117,26 @@ public class MyGameRenderer {
         IEWorldRenderer worldRenderer = (IEWorldRenderer) mc.worldRenderer;
         IEChunkRenderList chunkRenderList = (IEChunkRenderList) worldRenderer.getChunkRenderList();
         chunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
+    }
+    
+    private double[] getClipPlaneEquation() {
+        Portal portal = Globals.portalRenderManager.getRenderingPortal();
+        
+        Vec3d planeNormal = portal.getNormal().multiply(-1);
+        
+        Vec3d portalPos = portal.getPos().subtract(
+            mc.gameRenderer.getCamera().getPos()
+        );
+        
+        //equation: normal * p + c > 0
+        //-normal * portalCenter = c
+        double c = portal.getNormal().dotProduct(portalPos);
+        
+        return new double[]{
+            planeNormal.x,
+            planeNormal.y,
+            planeNormal.z,
+            c
+        };
     }
 }
