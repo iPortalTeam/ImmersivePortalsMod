@@ -9,11 +9,9 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.exposer.IEBackgroundRenderer;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
-import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
-import com.qouteall.immersive_portals.render.MyViewFrustum;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -36,6 +34,7 @@ import java.util.function.Consumer;
 public class MyCommand {
     public static boolean doUseAdvancedFrustumCulling = true;
     public static int maxPortalLayer = 3;
+    public static int maxIdleChunkRendererNum = 1000;
     public static BackgroundRenderer switchedFogRenderer;
     
     public static void init(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -186,48 +185,50 @@ public class MyCommand {
                 })
             )
             .then(CommandManager
-                .literal("report_resource_consumption")
-                .executes(context -> {
-                    StringBuilder str = new StringBuilder();
-    
-                    str.append("Client Chunk:\n");
-                    Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
-                        str.append(String.format(
-                            "%s %s\n",
-                            world.dimension.getType(),
-                            ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
-                        ));
-                    });
-    
-                    str.append("Chunk Renderers:\n");
-                    Globals.clientWorldLoader.worldRendererMap.forEach(
-                        (dimension, worldRenderer) -> {
+                    .literal("report_resource_consumption")
+                    .executes(context -> {
+                        StringBuilder str = new StringBuilder();
+            
+                        str.append("Client Chunk:\n");
+                        Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
                             str.append(String.format(
                                 "%s %s\n",
-                                dimension,
-                                ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
-                                    .getChunkRenderDispatcher()
-                                ).getChunkRenderers().size()
+                                world.dimension.getType(),
+                                ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
                             ));
-                        }
-                    );
-    
-                    //TODO add server forced chunk num
-    
-                    String result = str.toString();
-    
-                    Helper.log(str);
-    
-                    context.getSource().getPlayer().sendMessage(new LiteralText(result));
-    
-                    return 0;
-                })
+                        });
+            
+                        //TODO recover this
+
+//                    str.append("Chunk Renderers:\n");
+//                    Globals.clientWorldLoader.worldRendererMap.forEach(
+//                        (dimension, worldRenderer) -> {
+//                            str.append(String.format(
+//                                "%s %s\n",
+//                                dimension,
+//                                ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
+//                                    .getChunkRenderDispatcher()
+//                                ).getChunkRenderers().size()
+//                            ));
+//                        }
+//                    );
+            
+                        //TODO add server forced chunk num
+            
+                        String result = str.toString();
+            
+                        Helper.log(str);
+            
+                        context.getSource().getPlayer().sendMessage(new LiteralText(result));
+            
+                        return 0;
+                    })
             )
             .then(CommandManager
                 .literal("report_fog_color")
                 .executes(context -> {
                     StringBuilder str = new StringBuilder();
-            
+    
                     Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
                         DimensionRenderHelper helper =
                             Globals.clientWorldLoader.getDimensionRenderHelper(
@@ -241,7 +242,7 @@ public class MyCommand {
                             ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
                         ));
                     });
-            
+    
                     BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
                         .gameRenderer
                     ).getBackgroundRenderer();
@@ -251,31 +252,32 @@ public class MyCommand {
                         ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
                         switchedFogRenderer
                     ));
-            
+    
                     String result = str.toString();
-            
+    
                     Helper.log(str);
-            
+    
                     context.getSource().getPlayer().sendMessage(new LiteralText(result));
                     
                     return 0;
                 })
             )
-            .then(CommandManager
-                .literal("rebuild_all")
-                .executes(context -> {
-                    Globals.clientWorldLoader.worldRendererMap.forEach(
-                        (dimension, worldRenderer) -> {
-                            ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
-                                .getChunkRenderDispatcher()
-                            ).getChunkRenderers().forEach(
-                                chunkRenderer -> chunkRenderer.scheduleRebuild(false)
-                            );
-                        }
-                    );
-                    return 0;
-                })
-            );
+//            .then(CommandManager
+//                .literal("rebuild_all")
+//                .executes(context -> {
+//                    Globals.clientWorldLoader.worldRendererMap.forEach(
+//                        (dimension, worldRenderer) -> {
+//                            ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
+//                                .getChunkRenderDispatcher()
+//                            ).getChunkRenderers().forEach(
+//                                chunkRenderer -> chunkRenderer.scheduleRebuild(false)
+//                            );
+//                        }
+//                    );
+//                    return 0;
+//                })
+//            )
+            ;
         
         dispatcher.register(builder);
         

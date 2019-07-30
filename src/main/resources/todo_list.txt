@@ -8,8 +8,6 @@ fix can not render player in portals
 fix go through portal while riding entity
 fix day time sync
 
-use glClipPlane
-
 make nether portal possibly generate above lava lake
 
 enhance frustum culling

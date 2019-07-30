@@ -71,6 +71,8 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
     
+        setupCullingPlane();
+        
         //this is important
         GlStateManager.disableBlend();
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
@@ -81,14 +83,9 @@ public class MyGameRenderer {
         mc.getProfiler().push("render_portal_content");
     
         MyCommand.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
-    
-        GL11.glEnable(GL11.GL_CLIP_PLANE0);
-        GL11.glClipPlane(GL11.GL_CLIP_PLANE0, getClipPlaneEquation());
         
         //invoke it!
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
-    
-        GL11.glDisable(GL11.GL_CLIP_PLANE0);
         
         mc.getProfiler().pop();
     
@@ -106,7 +103,22 @@ public class MyGameRenderer {
         GlStateManager.enableBlend();
         ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
     
+        setupCullingPlane();
+        
         restoreCameraPosOfRenderList(oldCameraPos);
+    }
+    
+    public void endCulling() {
+        GL11.glDisable(GL11.GL_CLIP_PLANE0);
+    }
+    
+    public void startCulling() {
+        GL11.glEnable(GL11.GL_CLIP_PLANE0);
+    }
+    
+    //NOTE the actual culling plane is related to current model view matrix
+    public void setupCullingPlane() {
+        GL11.glClipPlane(GL11.GL_CLIP_PLANE0, getClipPlaneEquation());
     }
     
     private long getChunkUpdateFinishTime() {

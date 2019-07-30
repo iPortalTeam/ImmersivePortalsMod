@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
-import com.qouteall.immersive_portals.render.MyViewFrustum;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.client.render.ChunkRenderDispatcher;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
@@ -33,24 +33,6 @@ public class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private List chunkInfos;
     
-    @Inject(
-        method = "Lnet/minecraft/client/render/WorldRenderer;reload()V",
-        at = @At("TAIL")
-    )
-    private void onReloaded(CallbackInfo ci) {
-        if (chunkRenderDispatcher != null) {
-            if (!(chunkRenderDispatcher instanceof MyViewFrustum)) {
-                chunkRenderDispatcher = new MyViewFrustum(
-                    this.world,
-                    MinecraftClient.getInstance().options.viewDistance,
-                    (WorldRenderer) (Object) this,
-                    this.chunkRendererFactory,
-                    chunkRenderDispatcher
-                );
-            }
-        }
-    }
-    
     @Override
     public ChunkRenderDispatcher getChunkRenderDispatcher() {
         return chunkRenderDispatcher;
@@ -69,5 +51,25 @@ public class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void setChunkInfos(List list) {
         chunkInfos = list;
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/block/BlockRenderLayer;)V",
+        at = @At("HEAD")
+    )
+    private void onStartRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
+        if (Globals.portalRenderManager.isRendering()) {
+            Globals.myGameRenderer.startCulling();
+        }
+    }
+    
+    @Inject(
+        method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/block/BlockRenderLayer;)V",
+        at = @At("TAIL")
+    )
+    private void onStopRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
+        if (Globals.portalRenderManager.isRendering()) {
+            Globals.myGameRenderer.endCulling();
+        }
     }
 }

@@ -4,7 +4,7 @@ import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.PlaneTestResult;
+import com.qouteall.immersive_portals.render.BatchTestResult;
 import net.minecraft.client.render.FrustumWithOrigin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -77,18 +77,6 @@ public class MixinFrustumWithOrigin {
         return normalOf4Planes[3];
     }
     
-    private PlaneTestResult testFor8Points(Vec3d planeNormal, Vec3d[] points) {
-        assert points.length == 8;
-        boolean firstResult = isInFrontOf(points[0], planeNormal);
-        for (int i = 1; i < 8; i++) {
-            boolean thisResult = isInFrontOf(points[i], planeNormal);
-            if (thisResult != firstResult) {
-                return PlaneTestResult.front_and_back;
-            }
-        }
-        return firstResult ? PlaneTestResult.all_front : PlaneTestResult.all_back;
-    }
-    
     private boolean isInFrontOf(Vec3d pos, Vec3d planeNormal) {
         return pos.dotProduct(planeNormal) > 0;
     }
@@ -106,25 +94,47 @@ public class MixinFrustumWithOrigin {
     //I invented this algorithm(maybe re-invent)
     private boolean isOutsidePortalFrustum(Box box) {
         Vec3d[] eightVertices = Helper.eightVerticesOf(box);
-        
-        PlaneTestResult left = testFor8Points(getLeftPlane(), eightVertices);
-        PlaneTestResult right = testFor8Points(getRightPlane(), eightVertices);
-        if (left == PlaneTestResult.all_back && right == PlaneTestResult.all_front) {
+    
+        BatchTestResult left = Helper.batchTest(
+            eightVertices,
+            point -> isInFrontOf(point, getLeftPlane())
+        );
+        BatchTestResult right = Helper.batchTest(
+            eightVertices,
+            point -> isInFrontOf(point, getRightPlane())
+        );
+        if (left == BatchTestResult.all_false && right == BatchTestResult.all_true) {
             return true;
         }
-        if (left == PlaneTestResult.all_front && right == PlaneTestResult.all_back) {
+        if (left == BatchTestResult.all_true && right == BatchTestResult.all_false) {
             return true;
         }
-        
-        PlaneTestResult up = testFor8Points(getUpPlane(), eightVertices);
-        PlaneTestResult down = testFor8Points(getDownPlane(), eightVertices);
-        if (up == PlaneTestResult.all_back && down == PlaneTestResult.all_front) {
+    
+        BatchTestResult up = Helper.batchTest(
+            eightVertices,
+            point -> isInFrontOf(point, getUpPlane())
+        );
+        BatchTestResult down = Helper.batchTest(
+            eightVertices,
+            point -> isInFrontOf(point, getDownPlane())
+        );
+        if (up == BatchTestResult.all_false && down == BatchTestResult.all_true) {
             return true;
         }
-        if (up == PlaneTestResult.all_front && down == PlaneTestResult.all_back) {
+        if (up == BatchTestResult.all_true && down == BatchTestResult.all_false) {
             return true;
         }
-        
+    
+        BatchTestResult portalPlane = Helper.batchTest(
+            eightVertices,
+            point -> point
+                .subtract(portalDestInLocalCoordinate)
+                .dotProduct(portal.getNormal()) < 0 //true for inside portal area
+        );
+        if (portalPlane == BatchTestResult.all_false) {
+            return true;
+        }
+    
         return false;
     }
     

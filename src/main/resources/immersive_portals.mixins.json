@@ -8,6 +8,7 @@
     "MixinBackgroundRenderer",
     "MixinCamera",
     "MixinChunkHolder",
+    "MixinChunkRenderDispatcherWhat",
     "MixinChunkRenderList",
     "MixinChunkTicketManager",
     "MixinClientPlayerEntity",

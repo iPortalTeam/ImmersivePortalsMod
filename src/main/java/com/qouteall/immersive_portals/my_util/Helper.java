@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.my_util;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
+import com.qouteall.immersive_portals.render.BatchTestResult;
 import javafx.util.Pair;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -203,6 +204,21 @@ public class Helper {
         return (IEThreadedAnvilChunkStorage) (
             (ServerChunkManager) Helper.getServer().getWorld(dimension).getChunkManager()
         ).threadedAnvilChunkStorage;
+    }
+    
+    public static BatchTestResult batchTest(
+        Vec3d[] testObjs,
+        Predicate<Vec3d> predicate
+    ) {
+        assert testObjs.length == 8;
+        boolean firstResult = predicate.test(testObjs[0]);
+        for (int i = 1; i < testObjs.length; i++) {
+            boolean thisResult = predicate.test(testObjs[i]);
+            if (thisResult != firstResult) {
+                return BatchTestResult.both;
+            }
+        }
+        return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
     }
     
     public static class SimpleBox<T> {

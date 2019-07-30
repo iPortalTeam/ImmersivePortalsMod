@@ -1,6 +1,8 @@
-package com.qouteall.immersive_portals.render;
+package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.MyCommand;
+import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.ChunkRenderDispatcher;
@@ -11,63 +13,90 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class MyViewFrustum extends ChunkRenderDispatcher {
-    public static final int maxIdleChunkNum = 1000;
+@Mixin(ChunkRenderDispatcher.class)
+public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDispatcher {
+    @Shadow
+    @Final
+    protected WorldRenderer renderer;
+    @Shadow
+    @Final
+    protected World world;
+    @Shadow
+    protected int sizeY;
+    @Shadow
+    protected int sizeX;
+    @Shadow
+    protected int sizeZ;
+    @Shadow
+    public ChunkRenderer[] renderers;
     
-    public static boolean enableFrustumSubstitution = true;
+    private ChunkRendererFactory factory;
+    private Map<BlockPos, ChunkRenderer> chunkRendererMap;
+    private Map<ChunkRenderer, Long> lastActiveNanoTime;
+    private Deque<ChunkRenderer> idleChunks;
     
-    protected ChunkRendererFactory chunkRendererFactory;
-    protected Map<BlockPos, ChunkRenderer> chunkRendererMap = new HashMap<>();
-    protected Map<ChunkRenderer, Long> lastActiveNanoTime = new HashMap<>();
-    protected Deque<ChunkRenderer> idleChunks = new ArrayDeque<>();
-    protected int renderDistance;
-    
-    public MyViewFrustum(
-        World world,
+    @Inject(
+        method = "Lnet/minecraft/client/render/ChunkRenderDispatcher;<init>(Lnet/minecraft/world/World;ILnet/minecraft/client/render/WorldRenderer;Lnet/minecraft/client/render/chunk/ChunkRendererFactory;)V",
+        at = @At("RETURN")
+    )
+    private void onConstruct(
+        World world_1,
         int renderDistanceChunks,
-        WorldRenderer worldRenderer,
+        WorldRenderer worldRenderer_1,
         ChunkRendererFactory chunkRendererFactory,
-        ChunkRenderDispatcher oldViewFrustum
+        CallbackInfo ci
     ) {
-        super(world, renderDistanceChunks, worldRenderer, chunkRendererFactory);
+        this.factory = chunkRendererFactory;
         
-        this.renderDistance = renderDistanceChunks;
-        this.chunkRendererFactory = chunkRendererFactory;
-        this.renderers = new ChunkRenderer[this.sizeX * this.sizeY * this.sizeZ];
+        chunkRendererMap = new HashMap<>();
+        lastActiveNanoTime = new HashMap<>();
+        idleChunks = new ArrayDeque<>();
+        
+        ModMain.postClientTickSignal.connectWithWeakRef(
+            ((IEChunkRenderDispatcher) this),
+            IEChunkRenderDispatcher::tick
+        );
+        
+        //it will run createChunks() before this
+        for (ChunkRenderer renderChunk : renderers) {
+            chunkRendererMap.put(renderChunk.getOrigin(), renderChunk);
+            updateLastUsedTime(renderChunk);
+        }
+    }
     
-        ModMain.postClientTickSignal.connectWithWeakRef(this, (this_) -> {
-            ClientWorld worldClient = MinecraftClient.getInstance().world;
-            if (worldClient != null) {
-                if (worldClient.getTime() % 147 == 0) {
-                    this_.dismissInactiveChunkRenderers();
-                }
-            }
-        });
+    /**
+     * @author qouteall
+     */
+    @Overwrite
+    public void delete() {
+        chunkRendererMap.values().forEach(ChunkRenderer::delete);
+        idleChunks.forEach(ChunkRenderer::delete);
         
-        takeOverRenderChunksFrom(oldViewFrustum);
+        chunkRendererMap.clear();
+        lastActiveNanoTime.clear();
+        idleChunks.clear();
     }
     
     @Override
-    protected void createChunks(ChunkRendererFactory chunkRendererFactory_1) {
-        //do nothing
-    }
-    
-    private void takeOverRenderChunksFrom(ChunkRenderDispatcher oldViewFrustum) {
-        Arrays.stream(oldViewFrustum.renderers).forEach(
-            renderChunk -> {
-                chunkRendererMap.put(renderChunk.getOrigin(), renderChunk);
-                updateLastUsedTime(renderChunk);
+    public void tick() {
+        ClientWorld worldClient = MinecraftClient.getInstance().world;
+        if (worldClient != null) {
+            if (worldClient.getTime() % 147 == 0) {
+                dismissInactiveChunkRenderers();
             }
-        );
-        this.renderers = oldViewFrustum.renderers;
-        
-        oldViewFrustum.renderers = new ChunkRenderer[0];
-        oldViewFrustum.delete();
+        }
     }
     
     private ChunkRenderer findAndEmployChunkRenderer(BlockPos basePos) {
@@ -76,7 +105,7 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
         ChunkRenderer chunkRenderer = idleChunks.pollLast();
     
         if (chunkRenderer == null) {
-            chunkRenderer = chunkRendererFactory.create(world, renderer);
+            chunkRenderer = factory.create(world, renderer);
         }
     
         employChunkRenderer(chunkRenderer, basePos);
@@ -105,8 +134,8 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
     }
     
     private void destructAbundantIdleChunks() {
-        if (idleChunks.size() > maxIdleChunkNum) {
-            int toDestructChunkRenderersNum = idleChunks.size() - maxIdleChunkNum;
+        if (idleChunks.size() > MyCommand.maxIdleChunkRendererNum) {
+            int toDestructChunkRenderersNum = idleChunks.size() - MyCommand.maxIdleChunkRendererNum;
             IntStream.range(0, toDestructChunkRenderersNum).forEach(n -> {
                 ChunkRenderer chunkRendererToDestruct = idleChunks.pollFirst();
                 assert chunkRendererToDestruct != null;
@@ -150,7 +179,10 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
         return chunkRendererMap.values();
     }
     
-    @Override
+    /**
+     * @author qouteall
+     */
+    @Overwrite
     public void updateCameraPosition(double viewEntityX, double viewEntityZ) {
         
         int px = MathHelper.floor(viewEntityX) - 8;
@@ -174,16 +206,6 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
                 }
             }
         }
-    }
-    
-    @Override
-    public void delete() {
-        chunkRendererMap.values().forEach(ChunkRenderer::delete);
-        idleChunks.forEach(ChunkRenderer::delete);
-        
-        chunkRendererMap.clear();
-        lastActiveNanoTime.clear();
-        idleChunks.clear();
     }
     
     public void forceDismissChunkRenderer(
@@ -229,28 +251,9 @@ public class MyViewFrustum extends ChunkRenderDispatcher {
         lastActiveNanoTime.put(ChunkRenderer, System.nanoTime());
     }
     
-    @Override
-    public void scheduleChunkRender(int chunkX, int chunkY, int chunkZ, boolean boolean_1) {
-        ChunkRenderer chunkRenderer = myGetChunkRenderer(new BlockPos(
-            chunkX * 16, chunkY * 16, chunkZ * 16
-        ));
-        
-        chunkRenderer.scheduleRebuild(boolean_1);
-    }
+    @Shadow
+    public abstract int method_3328(int int_1, int int_2, int int_3);
     
-    //copied
-    private int method_3328(int int_1, int int_2, int int_3) {
-        int int_4 = int_3 * 16;
-        int int_5 = int_4 - int_1 + int_2 / 2;
-        if (int_5 < 0) {
-            int_5 -= int_2 - 1;
-        }
-        
-        return int_4 - int_5 / int_2 * int_2;
-    }
-    
-    //copied
-    private int getChunkIndex(int int_1, int int_2, int int_3) {
-        return (int_3 * this.sizeY + int_2) * this.sizeX + int_1;
-    }
+    @Shadow
+    public abstract int getChunkIndex(int int_1, int int_2, int int_3);
 }
