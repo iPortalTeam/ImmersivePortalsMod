@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import javafx.util.Pair;
+import net.minecraft.util.Pair;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
@@ -275,8 +275,8 @@ public class Portal extends Entity {
         Vec3d portalSize
     ) {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
-        Direction.Axis wAxis = anotherTwoAxis.getKey();
-        Direction.Axis hAxis = anotherTwoAxis.getValue();
+        Direction.Axis wAxis = anotherTwoAxis.getLeft();
+        Direction.Axis hAxis = anotherTwoAxis.getRight();
         
         float width = (float) Helper.getCoordinate(portalSize, wAxis);
         float height = (float) Helper.getCoordinate(portalSize, hAxis);
