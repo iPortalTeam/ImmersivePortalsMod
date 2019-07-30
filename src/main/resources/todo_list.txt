@@ -10,9 +10,6 @@ fix day time sync
 
 make nether portal possibly generate above lava lake
 
-enhance frustum culling
-
 check client chunk loading leak and server chunk loading leak
 
 postponed fix third-person view rendering
-postponed fix frustum culling issue
