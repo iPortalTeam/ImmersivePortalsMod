@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
@@ -23,7 +23,7 @@ import net.minecraft.world.World;
 public class LoadingIndicatorEntity extends Entity {
     public static EntityType<LoadingIndicatorEntity> entityType;
     
-    public static void init() {
+    public static void initClient() {
         entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "loading_indicator"),
@@ -52,7 +52,7 @@ public class LoadingIndicatorEntity extends Entity {
             (double) (box.h.getZ() + box.l.getZ() + 1) / 2
         );
         CustomPayloadS2CPacket packet =
-            MyNetwork.createSpawnLoadingIndicator(world.dimension.getType(), center);
+            MyNetworkClient.createSpawnLoadingIndicator(world.dimension.getType(), center);
         Helper.getEntitiesNearby(
             world, center, ServerPlayerEntity.class, 64
         ).forEach(

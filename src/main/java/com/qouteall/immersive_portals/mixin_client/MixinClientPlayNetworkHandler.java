@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;

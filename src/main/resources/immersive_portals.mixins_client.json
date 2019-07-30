@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "package": "com.qouteall.immersive_portals.mixin_client",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinBackgroundRenderer",
+    "MixinCamera",
+    "MixinChunkRenderDispatcher",
+    "MixinChunkRenderList",
+    "MixinClientPlayerEntity",
+    "MixinClientPlayNetworkHandler",
+    "MixinClientWorld",
+    "MixinEntityRenderDispatcher",
+    "MixinFrustumWithOrigin",
+    "MixinGameRenderer",
+    "MixinGlFrameBuffer",
+    "MixinGlStateManager",
+    "MixinMinecraftClient",
+    "MixinWorldRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

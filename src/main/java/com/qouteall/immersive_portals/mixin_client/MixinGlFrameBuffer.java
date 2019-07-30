@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GLX;
 import net.minecraft.client.gl.GlFramebuffer;

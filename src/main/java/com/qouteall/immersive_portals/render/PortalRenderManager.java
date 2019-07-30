@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
-import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -32,9 +31,10 @@ import static org.lwjgl.opengl.GL11.*;
 public class PortalRenderManager {
     private MinecraftClient mc = MinecraftClient.getInstance();
     private Stack<Portal> portalLayers = new Stack<>();
-    public Supplier<Integer> maxPortalLayer = () -> MyCommand.maxPortalLayer;
+    public Supplier<Integer> maxPortalLayer = () -> Globals.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     private Runnable behavior;
+    private DimensionType originalPlayerDimension;
     
     private float partialTicks = 0;
     private int idQueryObject = -1;
@@ -79,6 +79,10 @@ public class PortalRenderManager {
         return isRendering();
     }
     
+    public DimensionType getOriginalPlayerDimension() {
+        return originalPlayerDimension;
+    }
+    
     public void doRendering(float partialTicks_, long finishTimeNano_) {
         initIfNeeded();
         
@@ -116,6 +120,8 @@ public class PortalRenderManager {
         GL11.glEnable(GL_STENCIL_TEST);
     
         renderedPortalNum = 0;
+    
+        originalPlayerDimension = cameraEntity.dimension;
     }
     
     private void finishRendering() {

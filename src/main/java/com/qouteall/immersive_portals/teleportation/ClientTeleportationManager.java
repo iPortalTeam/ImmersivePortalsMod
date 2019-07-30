@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -95,8 +95,8 @@ public class ClientTeleportationManager {
         
         player.setPosition(newPos.x, newPos.y, newPos.z);
         Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
-        
-        player.networkHandler.sendPacket(MyNetwork.createCtsTeleport(
+    
+        player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldPos,
             portal.getEntityId()

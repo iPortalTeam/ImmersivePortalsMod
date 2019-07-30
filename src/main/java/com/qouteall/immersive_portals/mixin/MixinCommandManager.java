@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.qouteall.immersive_portals.MyCommand;
+import com.qouteall.immersive_portals.MyCommandClient;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Final;
@@ -22,7 +22,9 @@ public class MixinCommandManager {
         at = @At("RETURN")
     )
     private void initCommands(boolean isOnServer, CallbackInfo ci) {
-        MyCommand.init(dispatcher);
+        if (!isOnServer) {
+            MyCommandClient.register(dispatcher);
+        }
     }
     
 }

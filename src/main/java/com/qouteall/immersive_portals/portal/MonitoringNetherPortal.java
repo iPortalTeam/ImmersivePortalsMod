@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
-import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityCategory;
@@ -39,11 +38,7 @@ public class MonitoringNetherPortal extends Portal {
                 new EntityDimensions(1, 1, true)
             ).build()
         );
-        
-        EntityRendererRegistry.INSTANCE.register(
-            MonitoringNetherPortal.class,
-            (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
-        );
+    
     
         BlockMyNetherPortal.portalBlockUpdateSignal.connect((world, pos) -> {
             Helper.getEntitiesNearby(

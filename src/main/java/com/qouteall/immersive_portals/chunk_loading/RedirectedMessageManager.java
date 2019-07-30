@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -41,8 +41,8 @@ public class RedirectedMessageManager {
         catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-        
-        return new CustomPayloadS2CPacket(MyNetwork.id_stcRedirected, buf);
+    
+        return new CustomPayloadS2CPacket(MyNetworkClient.id_stcRedirected, buf);
     }
     
     private static Packet createEmptyPacketByType(

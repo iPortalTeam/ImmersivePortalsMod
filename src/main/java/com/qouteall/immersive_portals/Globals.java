@@ -23,4 +23,11 @@ public class Globals {
     
     public static ClientTeleportationManager clientTeleportationManager;
     
+    public static boolean doUseAdvancedFrustumCulling = true;
+    public static int maxPortalLayer = 3;
+    public static int maxIdleChunkRendererNum = 1000;
+    public static Object switchedFogRenderer;
+    public static boolean useHackedChunkRenderDispatcher = true;
+    public static boolean isClientRemoteTickingEnabled = true;
+    public static boolean isChunkLoadingMultiThreaded = true;
 }

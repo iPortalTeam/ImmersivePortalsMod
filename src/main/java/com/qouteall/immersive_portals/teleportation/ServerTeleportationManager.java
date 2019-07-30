@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -51,8 +51,7 @@ public class ServerTeleportationManager {
         
         if (canPlayerTeleport(player, dimensionBefore, posBefore, portalEntity)) {
             if (isTeleporting(player)) {
-                Helper.log(player.toString() + "tried to teleport for multiple times. rejected.");
-                return;
+                Helper.err(player.toString() + "is teleporting frequently");
             }
     
             DimensionType dimensionTo = ((Portal) portalEntity).dimensionTo;
@@ -168,7 +167,7 @@ public class ServerTeleportationManager {
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {
-        CustomPayloadS2CPacket packet = MyNetwork.createStcDimensionConfirm(
+        CustomPayloadS2CPacket packet = MyNetworkClient.createStcDimensionConfirm(
             player.dimension,
             player.getPos()
         );

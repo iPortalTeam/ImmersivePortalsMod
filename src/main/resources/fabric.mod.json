@@ -20,10 +20,20 @@
   "entrypoints": {
     "main": [
       "com.qouteall.immersive_portals.ModMain"
+    ],
+    "client": [
+      "com.qouteall.immersive_portals.ModMainClient"
+    ],
+    "server": [
+      "com.qouteall.immersive_portals.ModMainDedicatedServer"
     ]
   },
   "mixins": [
-    "immersive_portals.mixins.json"
+    "immersive_portals.mixins.json",
+    {
+      "config": "immersive_portals.mixins_client.json",
+      "environment": "client"
+    }
   ],
 
   "depends": {

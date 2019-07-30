@@ -1,10 +1,8 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import net.minecraft.util.Pair;
-import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
@@ -13,6 +11,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -49,13 +48,6 @@ public class Portal extends Entity {
                 new EntityDimensions(1, 1, true)
             ).build()
         );
-    
-        EntityRendererRegistry.INSTANCE.register(
-            Portal.class,
-            (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
-        );
-    
-    
     }
     
     public Portal(
@@ -135,7 +127,7 @@ public class Portal extends Entity {
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return MyNetwork.createStcSpawnEntity(this);
+        return MyNetworkClient.createStcSpawnEntity(this);
     }
     
     @Override

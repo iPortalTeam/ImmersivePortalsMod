@@ -1,7 +1,6 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.Globals;
-import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.BatchTestResult;
@@ -90,9 +89,11 @@ public class MixinFrustumWithOrigin {
         );
     }
     
-    //this frustum culling algorithm will not fail when frustum is very small
-    //I invented this algorithm(maybe re-invent)
     private boolean isOutsidePortalFrustum(Box box) {
+        if (!Globals.doUseAdvancedFrustumCulling) {
+            return false;
+        }
+        
         Vec3d[] eightVertices = Helper.eightVerticesOf(box);
     
         BatchTestResult left = Helper.batchTest(
@@ -125,15 +126,16 @@ public class MixinFrustumWithOrigin {
             return true;
         }
     
-        BatchTestResult portalPlane = Helper.batchTest(
-            eightVertices,
-            point -> point
-                .subtract(portalDestInLocalCoordinate)
-                .dotProduct(portal.getNormal()) < 0 //true for inside portal area
-        );
-        if (portalPlane == BatchTestResult.all_false) {
-            return true;
-        }
+        //this is problematic
+//        BatchTestResult portalPlane = Helper.batchTest(
+//            eightVertices,
+//            point -> point
+//                .subtract(portalDestInLocalCoordinate)
+//                .dotProduct(portal.getNormal()) < 0 //true for inside portal area
+//        );
+//        if (portalPlane == BatchTestResult.all_false) {
+//            return true;
+//        }
     
         return false;
     }
@@ -152,7 +154,7 @@ public class MixinFrustumWithOrigin {
         double double_6,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (MyCommand.doUseAdvancedFrustumCulling) {
+        if (Globals.doUseAdvancedFrustumCulling) {
             if (Globals.portalRenderManager.isRendering()) {
                 Box boxInLocalCoordinate = new Box(
                     double_1,

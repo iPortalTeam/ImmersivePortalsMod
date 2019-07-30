@@ -31,8 +31,6 @@ public class ClientWorldLoader {
     
     private boolean isLoadingFakedWorld = false;
     
-    public boolean isClientRemoteTickingEnabled = true;
-    
     public ClientWorldLoader() {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
@@ -42,7 +40,7 @@ public class ClientWorldLoader {
     }
     
     private void tick() {
-        if (isClientRemoteTickingEnabled) {
+        if (Globals.isClientRemoteTickingEnabled) {
             clientWorldMap.values().forEach(world -> {
                 if (mc.world != world) {
                     //NOTE tick() does not include ticking entities

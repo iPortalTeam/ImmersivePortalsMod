@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin_client;
 
 import net.minecraft.client.render.Camera;
 import net.minecraft.fluid.FluidState;

@@ -27,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
 public class ChunkDataSyncManager {
     
     private static final int unloadWaitingTickTime = 20 * 10;
-    public static boolean isMultiThreaded = true;
     
     public ChunkDataSyncManager() {
         Globals.chunkTracker.beginWatchChunkSignal.connectWithWeakRef(
@@ -53,7 +52,7 @@ public class ChunkDataSyncManager {
         Globals.chunkTracker.onChunkDataSent(player, chunkPos);
         IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
     
-        if (isMultiThreaded) {
+        if (Globals.isChunkLoadingMultiThreaded) {
             sendPacketMultiThreaded(player, chunkPos, ieStorage);
         }
         else {

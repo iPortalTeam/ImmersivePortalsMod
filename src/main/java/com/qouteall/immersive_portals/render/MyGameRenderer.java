@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Globals;
-import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.exposer.IEChunkRenderList;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
@@ -82,7 +81,7 @@ public class MyGameRenderer {
         
         mc.getProfiler().push("render_portal_content");
     
-        MyCommand.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
+        Globals.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());

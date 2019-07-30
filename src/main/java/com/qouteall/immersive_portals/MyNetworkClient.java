@@ -8,14 +8,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
@@ -26,11 +24,9 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-public class MyNetwork {
+public class MyNetworkClient {
     public static final Identifier id_stcCustom =
         new Identifier("immersive_portals", "stc_custom");
-    public static final Identifier id_ctsTeleport =
-        new Identifier("immersive_portals", "teleport");
     public static final Identifier id_stcSpawnEntity =
         new Identifier("immersive_portals", "spawn_entity");
     public static final Identifier id_stcDimensionConfirm =
@@ -93,28 +89,7 @@ public class MyNetwork {
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);
         buf.writeInt(portalEntityId);
-        return new CustomPayloadC2SPacket(id_ctsTeleport, buf);
-    }
-    
-    private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
-        DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
-        Vec3d posBefore = new Vec3d(
-            buf.readDouble(),
-            buf.readDouble(),
-            buf.readDouble()
-        );
-        int portalEntityId = buf.readInt();
-    
-        ModMain.serverTaskList.addTask(() -> {
-            Globals.serverTeleportationManager.onPlayerTeleportedInClient(
-                (ServerPlayerEntity) context.getPlayer(),
-                dimensionBefore,
-                posBefore,
-                portalEntityId
-            );
-        
-            return true;
-        });
+        return new CustomPayloadC2SPacket(MyNetworkServer.id_ctsTeleport, buf);
     }
     
     //NOTE my packet is redirected but I cannot get the packet handler info here
@@ -230,24 +205,21 @@ public class MyNetwork {
     }
     
     public static void init() {
-        ServerSidePacketRegistry.INSTANCE.register(
-            id_ctsTeleport,
-            MyNetwork::processCtsTeleport
-        );
-        
+    
+    
         ClientSidePacketRegistry.INSTANCE.register(
             id_stcCustom,
-            MyNetwork::handleCustomPacketStc
+            MyNetworkClient::handleCustomPacketStc
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
             id_stcSpawnEntity,
-            MyNetwork::processStcSpawnEntity
+            MyNetworkClient::processStcSpawnEntity
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
             id_stcDimensionConfirm,
-            MyNetwork::processStcDimensionConfirm
+            MyNetworkClient::processStcDimensionConfirm
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
@@ -257,7 +229,7 @@ public class MyNetwork {
     
         ClientSidePacketRegistry.INSTANCE.register(
             id_stcSpawnLoadingIndicator,
-            MyNetwork::processSpawnLoadingIndicator
+            MyNetworkClient::processSpawnLoadingIndicator
         );
     }
 }

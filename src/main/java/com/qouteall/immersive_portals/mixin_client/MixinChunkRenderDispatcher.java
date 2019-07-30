@@ -1,7 +1,7 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin_client;
 
+import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyCommand;
 import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
@@ -15,18 +15,20 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Mixin(ChunkRenderDispatcher.class)
-public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDispatcher {
+public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatcher {
     @Shadow
     @Final
     protected WorldRenderer renderer;
@@ -68,40 +70,50 @@ public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDis
             ((IEChunkRenderDispatcher) this),
             IEChunkRenderDispatcher::tick
         );
-        
-        //it will run createChunks() before this
-        for (ChunkRenderer renderChunk : renderers) {
-            chunkRendererMap.put(renderChunk.getOrigin(), renderChunk);
-            updateLastUsedTime(renderChunk);
+    
+        if (Globals.useHackedChunkRenderDispatcher) {
+            //it will run createChunks() before this
+            for (ChunkRenderer renderChunk : renderers) {
+                chunkRendererMap.put(renderChunk.getOrigin(), renderChunk);
+                updateLastUsedTime(renderChunk);
+            }
         }
     }
     
-    /**
-     * @author qouteall
-     */
-    @Overwrite
-    public void delete() {
-        chunkRendererMap.values().forEach(ChunkRenderer::delete);
-        idleChunks.forEach(ChunkRenderer::delete);
-        
-        chunkRendererMap.clear();
-        lastActiveNanoTime.clear();
-        idleChunks.clear();
+    @Inject(
+        method = "delete",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void delete(CallbackInfo ci) {
+        if (Globals.useHackedChunkRenderDispatcher) {
+            chunkRendererMap.values().forEach(ChunkRenderer::delete);
+            idleChunks.forEach(ChunkRenderer::delete);
+            
+            chunkRendererMap.clear();
+            lastActiveNanoTime.clear();
+            idleChunks.clear();
+            
+            ci.cancel();
+        }
     }
     
     @Override
     public void tick() {
-        ClientWorld worldClient = MinecraftClient.getInstance().world;
-        if (worldClient != null) {
-            if (worldClient.getTime() % 147 == 0) {
-                dismissInactiveChunkRenderers();
+        if (Globals.useHackedChunkRenderDispatcher) {
+            ClientWorld worldClient = MinecraftClient.getInstance().world;
+            if (worldClient != null) {
+                if (worldClient.getTime() % 147 == 0) {
+                    dismissInactiveChunkRenderers();
+                }
             }
         }
     }
     
     private ChunkRenderer findAndEmployChunkRenderer(BlockPos basePos) {
         assert !chunkRendererMap.containsKey(basePos);
-    
+        assert Globals.useHackedChunkRenderDispatcher;
+        
         ChunkRenderer chunkRenderer = idleChunks.pollLast();
     
         if (chunkRenderer == null) {
@@ -114,12 +126,15 @@ public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDis
     }
     
     private void employChunkRenderer(ChunkRenderer chunkRenderer, BlockPos basePos) {
+        assert Globals.useHackedChunkRenderDispatcher;
+        
         chunkRenderer.setOrigin(basePos.getX(), basePos.getY(), basePos.getZ());
         chunkRendererMap.put(chunkRenderer.getOrigin(), chunkRenderer);
         updateLastUsedTime(chunkRenderer);
     }
     
     private void dismissChunkRenderer(BlockPos basePos) {
+        assert Globals.useHackedChunkRenderDispatcher;
         assert chunkRendererMap.containsKey(basePos);
     
         ChunkRenderer chunkRenderer = chunkRendererMap.remove(basePos);
@@ -134,8 +149,9 @@ public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDis
     }
     
     private void destructAbundantIdleChunks() {
-        if (idleChunks.size() > MyCommand.maxIdleChunkRendererNum) {
-            int toDestructChunkRenderersNum = idleChunks.size() - MyCommand.maxIdleChunkRendererNum;
+        assert Globals.useHackedChunkRenderDispatcher;
+        if (idleChunks.size() > Globals.maxIdleChunkRendererNum) {
+            int toDestructChunkRenderersNum = idleChunks.size() - Globals.maxIdleChunkRendererNum;
             IntStream.range(0, toDestructChunkRenderersNum).forEach(n -> {
                 ChunkRenderer chunkRendererToDestruct = idleChunks.pollFirst();
                 assert chunkRendererToDestruct != null;
@@ -145,6 +161,8 @@ public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDis
     }
     
     private void dismissInactiveChunkRenderers() {
+        assert Globals.useHackedChunkRenderDispatcher;
+        
         long currentTime = System.nanoTime();
         final long deletingValve = 1000000000L * 30;//30 seconds
         //NOTE if you miss 'L' then it will overflow
@@ -175,55 +193,53 @@ public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDis
         );
     }
     
-    public Collection<ChunkRenderer> getChunkRenderers() {
-        return chunkRendererMap.values();
-    }
-    
-    /**
-     * @author qouteall
-     */
-    @Overwrite
-    public void updateCameraPosition(double viewEntityX, double viewEntityZ) {
-        
-        int px = MathHelper.floor(viewEntityX) - 8;
-        int pz = MathHelper.floor(viewEntityZ) - 8;
-        
-        int maxLen = this.sizeX * 16;
-        
-        for (int cx = 0; cx < this.sizeX; ++cx) {
-            int posX = this.method_3328(px, maxLen, cx);
+    @Inject(
+        method = "updateCameraPosition",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void updateCameraPosition(double viewEntityX, double viewEntityZ, CallbackInfo ci) {
+        if (Globals.useHackedChunkRenderDispatcher) {
+            int px = MathHelper.floor(viewEntityX) - 8;
+            int pz = MathHelper.floor(viewEntityZ) - 8;
             
-            for (int cz = 0; cz < this.sizeZ; ++cz) {
-                int posZ = this.method_3328(pz, maxLen, cz);
+            int maxLen = this.sizeX * 16;
+            
+            for (int cx = 0; cx < this.sizeX; ++cx) {
+                int posX = this.method_3328(px, maxLen, cx);
                 
-                for (int cy = 0; cy < this.sizeY; ++cy) {
-                    int posY = cy * 16;
+                for (int cz = 0; cz < this.sizeZ; ++cz) {
+                    int posZ = this.method_3328(pz, maxLen, cz);
                     
-                    renderers[this.getChunkIndex(cx, cy, cz)] =
-                        myGetChunkRenderer(
-                            new BlockPos(posX, posY, posZ)
-                        );
+                    for (int cy = 0; cy < this.sizeY; ++cy) {
+                        int posY = cy * 16;
+                        
+                        renderers[this.getChunkIndex(cx, cy, cz)] =
+                            myGetChunkRenderer(
+                                new BlockPos(posX, posY, posZ)
+                            );
+                    }
+                }
+            }
+            
+            ci.cancel();
+        }
+        else {
+            if (Globals.portalRenderManager.isRendering()) {
+                if (
+                    MinecraftClient.getInstance().cameraEntity.dimension ==
+                        Globals.portalRenderManager.getOriginalPlayerDimension()
+                ) {
+                    ci.cancel();
                 }
             }
         }
     }
     
-    public void forceDismissChunkRenderer(
-        BlockPos pos
-    ) {
-        BlockPos basePos = getBasePos(pos);
-        ChunkRenderer chunkRenderer = chunkRendererMap.get(basePos);
-        if (chunkRenderer == null) return;
-        for (int i = 0; i < renderers.length; i++) {
-            if (renderers[i] == chunkRenderer) {
-                renderers[i] = null;
-            }
-        }
-        dismissChunkRenderer(basePos);
-    }
-    
     //NOTE input block pos instead of chunk pos
     private ChunkRenderer myGetChunkRenderer(BlockPos blockPos) {
+        assert Globals.useHackedChunkRenderDispatcher;
+        
         BlockPos basePos = getBasePos(blockPos);
         
         if (!chunkRendererMap.containsKey(basePos)) {
@@ -244,11 +260,12 @@ public abstract class MixinChunkRenderDispatcherWhat implements IEChunkRenderDis
         );
     }
     
-    private void updateLastUsedTime(ChunkRenderer ChunkRenderer) {
-        if (ChunkRenderer == null) {
+    private void updateLastUsedTime(ChunkRenderer chunkRenderer) {
+        assert Globals.useHackedChunkRenderDispatcher;
+        if (chunkRenderer == null) {
             return;
         }
-        lastActiveNanoTime.put(ChunkRenderer, System.nanoTime());
+        lastActiveNanoTime.put(chunkRenderer, System.nanoTime());
     }
     
     @Shadow
