@@ -3,8 +3,7 @@ package com.qouteall.immersive_portals.my_util;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
-import com.qouteall.immersive_portals.render.BatchTestResult;
-import javafx.util.Pair;
+import net.minecraft.util.Pair;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -128,7 +127,7 @@ public class Helper {
     }
     
     public static <A, B> Pair<B, A> swaped(Pair<A, B> p) {
-        return new Pair<>(p.getValue(), p.getKey());
+        return new Pair<>(p.getRight(), p.getLeft());
     }
     
     public static <T> T uniqueOfThree(T a, T b, T c) {
@@ -186,16 +185,16 @@ public class Helper {
         );
         return new Direction[]{
             Direction.get(
-                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getKey()
+                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getLeft()
             ),
             Direction.get(
-                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getKey()
+                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getLeft()
             ),
             Direction.get(
-                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getValue()
+                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getRight()
             ),
             Direction.get(
-                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getValue()
+                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getRight()
             )
         };
     }

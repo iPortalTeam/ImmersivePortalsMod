@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import javafx.util.Pair;
+import net.minecraft.util.Pair;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.world.ServerWorld;
@@ -163,13 +163,13 @@ public class NetherPortalMatcher {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis
     ) {
         IntegerAABBInclusive stick1 = detectStick(
-            world, innerPos, anotherTwoAxis.getKey(),
+            world, innerPos, anotherTwoAxis.getLeft(),
             blockPos -> isAirOrFire(world, blockPos), 1
         );
         if (stick1 == null) return null;
         
         IntegerAABBInclusive stick2 = detectStick(
-            world, innerPos, anotherTwoAxis.getValue(),
+            world, innerPos, anotherTwoAxis.getRight(),
             blockPos -> isAirOrFire(world, blockPos), 1
         );
         if (stick2 == null) return null;
@@ -342,11 +342,11 @@ public class NetherPortalMatcher {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         Direction roughTestObsidianFace1 = Direction.get(
             Direction.AxisDirection.POSITIVE,
-            anotherTwoAxis.getKey()
+            anotherTwoAxis.getLeft()
         );
         Direction roughTestObsidianFace2 = Direction.get(
             Direction.AxisDirection.POSITIVE,
-            anotherTwoAxis.getValue()
+            anotherTwoAxis.getRight()
         );
         
         Optional<ObsidianFrame> result =
