@@ -7,7 +7,9 @@ import net.minecraft.client.render.ChunkRenderDispatcher;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.render.chunk.ChunkRendererList;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,6 +34,10 @@ public class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private List chunkInfos;
+    
+    @Shadow
+    @Final
+    private EntityRenderDispatcher entityRenderDispatcher;
     
     @Override
     public ChunkRenderDispatcher getChunkRenderDispatcher() {
@@ -71,5 +77,10 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         if (Globals.portalRenderManager.isRendering()) {
             Globals.myGameRenderer.endCulling();
         }
+    }
+    
+    @Override
+    public EntityRenderDispatcher getEntityRenderDispatcher() {
+        return entityRenderDispatcher;
     }
 }

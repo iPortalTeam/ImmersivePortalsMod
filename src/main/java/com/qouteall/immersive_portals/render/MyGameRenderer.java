@@ -6,12 +6,15 @@ import com.qouteall.immersive_portals.exposer.IEChunkRenderList;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
+import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.lwjgl.opengl.GL11;
@@ -40,10 +43,7 @@ public class MyGameRenderer {
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper helper =
             Globals.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
-        PlayerListEntry playerListEntry =
-            MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
-                mc.player.getGameProfile().getId()
-            );
+        PlayerListEntry playerListEntry = Helper.getClientPlayerListEntry();
     
         //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
@@ -149,5 +149,41 @@ public class MyGameRenderer {
             planeNormal.z,
             c
         };
+    }
+    
+    public void renderPlayerItselfIfNecessary() {
+        if (Globals.portalRenderManager.shouldRenderPlayerItself()) {
+            renderPlayerItself(
+                Globals.portalRenderManager.getOrignialPlayerPos(),
+                Globals.portalRenderManager.getOriginalPlayerLastTickPos(),
+                Globals.portalRenderManager.getPartialTicks()
+            );
+        }
+    }
+    
+    private void renderPlayerItself(Vec3d playerPos, Vec3d playerLastTickPos, float patialTicks) {
+        EntityRenderDispatcher entityRenderDispatcher =
+            ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();
+        PlayerListEntry playerListEntry = Helper.getClientPlayerListEntry();
+        GameMode originalGameMode = Globals.portalRenderManager.getOriginalGameMode();
+        
+        Entity player = mc.cameraEntity;
+        assert player != null;
+        
+        Vec3d oldPos = player.getPos();
+        Vec3d oldLastTickPos = Helper.lastTickPosOf(player);
+        GameMode oldGameMode = playerListEntry.getGameMode();
+        
+        Helper.setPosAndLastTickPos(
+            player, playerPos, playerLastTickPos
+        );
+        ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
+        
+        entityRenderDispatcher.render(player, patialTicks, false);
+        
+        Helper.setPosAndLastTickPos(
+            player, oldPos, oldLastTickPos
+        );
+        ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
     }
 }

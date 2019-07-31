@@ -190,15 +190,15 @@ public class MyCommandClient {
             })
         )
         ;
-        
+    
         dispatcher.register(builder);
-        
+    
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
     private static int reportFogColor(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         StringBuilder str = new StringBuilder();
-        
+    
         Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
             DimensionRenderHelper helper =
                 Globals.clientWorldLoader.getDimensionRenderHelper(
@@ -212,7 +212,7 @@ public class MyCommandClient {
                 ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
             ));
         });
-        
+    
         BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
             .gameRenderer
         ).getBackgroundRenderer();
@@ -222,13 +222,13 @@ public class MyCommandClient {
             ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
             Globals.switchedFogRenderer
         ));
-        
+    
         String result = str.toString();
-        
+    
         Helper.log(str);
-        
+    
         context.getSource().getPlayer().sendMessage(new LiteralText(result));
-        
+    
         return 0;
     }
     
@@ -323,29 +323,29 @@ public class MyCommandClient {
             Vec3d fromPos = player.getPos();
             Vec3d fromNormal = player.getRotationVector().multiply(-1);
             ServerWorld fromWorld = ((ServerWorld) player.world);
-            
+    
             addPortalFunctionality = (playerEntity) -> {
                 Vec3d toPos = playerEntity.getPos();
                 DimensionType toDimension = player.dimension;
-                
+        
                 Portal portal = new Portal(fromWorld);
                 portal.x = fromPos.x;
                 portal.y = fromPos.y;
                 portal.z = fromPos.z;
-                
+        
                 portal.axisH = new Vec3d(0, 1, 0);
                 portal.axisW = portal.axisH.crossProduct(fromNormal).normalize();
-                
+        
                 portal.dimensionTo = toDimension;
                 portal.destination = toPos;
-                
+        
                 portal.width = 4;
                 portal.height = 4;
-                
+        
                 assert portal.isPortalValid();
-                
+        
                 fromWorld.spawnEntity(portal);
-                
+        
                 addPortalFunctionality = originalAddPortalFunctionality;
             };
         };

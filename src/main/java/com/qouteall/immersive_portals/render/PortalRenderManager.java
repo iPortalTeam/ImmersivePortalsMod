@@ -11,6 +11,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBOcclusionQuery2;
@@ -34,7 +35,11 @@ public class PortalRenderManager {
     public Supplier<Integer> maxPortalLayer = () -> Globals.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     private Runnable behavior;
+    
     private DimensionType originalPlayerDimension;
+    private Vec3d originalPlayerPos;
+    private Vec3d originalPlayerLastTickPos;
+    private GameMode originalGameMode;
     
     private float partialTicks = 0;
     private int idQueryObject = -1;
@@ -75,24 +80,42 @@ public class PortalRenderManager {
         return portalLayers.peek();
     }
     
-    public boolean shouldSkipClearing() {
-        return isRendering();
-    }
-    
     public DimensionType getOriginalPlayerDimension() {
         return originalPlayerDimension;
     }
     
+    public Vec3d getOrignialPlayerPos() {
+        return originalPlayerPos;
+    }
+    
+    public Vec3d getOriginalPlayerLastTickPos() {
+        return originalPlayerLastTickPos;
+    }
+    
+    public GameMode getOriginalGameMode() {
+        return originalGameMode;
+    }
+    
+    public float getPartialTicks() {
+        return partialTicks;
+    }
+    
+    public boolean shouldRenderPlayerItself() {
+        return isRendering() && cameraEntity.dimension == originalPlayerDimension;
+    }
+    
     public void doRendering(float partialTicks_, long finishTimeNano_) {
         initIfNeeded();
+    
+        if (mc.cameraEntity == null) {
+            return;
+        }
         
         if (!isRendering()) {
             prepareRendering(partialTicks_, finishTimeNano_);
         }
-        
-        if (mc.cameraEntity == null) {
-            return;
-        }
+    
+        Globals.myGameRenderer.renderPlayerItselfIfNecessary();
         
         behavior.run();
         
@@ -122,6 +145,9 @@ public class PortalRenderManager {
         renderedPortalNum = 0;
     
         originalPlayerDimension = cameraEntity.dimension;
+        originalPlayerPos = cameraEntity.getPos();
+        originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
+        originalGameMode = Helper.getClientPlayerListEntry().getGameMode();
     }
     
     private void finishRendering() {

@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.BatchTestResult;
 import net.minecraft.client.render.FrustumWithOrigin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -96,33 +95,33 @@ public class MixinFrustumWithOrigin {
         
         Vec3d[] eightVertices = Helper.eightVerticesOf(box);
     
-        BatchTestResult left = Helper.batchTest(
+        Helper.BatchTestResult left = Helper.batchTest(
             eightVertices,
             point -> isInFrontOf(point, getLeftPlane())
         );
-        BatchTestResult right = Helper.batchTest(
+        Helper.BatchTestResult right = Helper.batchTest(
             eightVertices,
             point -> isInFrontOf(point, getRightPlane())
         );
-        if (left == BatchTestResult.all_false && right == BatchTestResult.all_true) {
+        if (left == Helper.BatchTestResult.all_false && right == Helper.BatchTestResult.all_true) {
             return true;
         }
-        if (left == BatchTestResult.all_true && right == BatchTestResult.all_false) {
+        if (left == Helper.BatchTestResult.all_true && right == Helper.BatchTestResult.all_false) {
             return true;
         }
     
-        BatchTestResult up = Helper.batchTest(
+        Helper.BatchTestResult up = Helper.batchTest(
             eightVertices,
             point -> isInFrontOf(point, getUpPlane())
         );
-        BatchTestResult down = Helper.batchTest(
+        Helper.BatchTestResult down = Helper.batchTest(
             eightVertices,
             point -> isInFrontOf(point, getDownPlane())
         );
-        if (up == BatchTestResult.all_false && down == BatchTestResult.all_true) {
+        if (up == Helper.BatchTestResult.all_false && down == Helper.BatchTestResult.all_true) {
             return true;
         }
-        if (up == BatchTestResult.all_true && down == BatchTestResult.all_false) {
+        if (up == Helper.BatchTestResult.all_true && down == Helper.BatchTestResult.all_false) {
             return true;
         }
     

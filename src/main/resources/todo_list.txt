@@ -1,10 +1,8 @@
 fix mis-teleport sometimes still occur
 fix entities go through portal sometimes duplicate
 fix entity brightness issue
-fix dedicated server
-fix respawn cause entity to duplicate?
-fix respawn crash?
 fix can not render player in portals
+fix third-person view
 fix go through portal while riding entity
 fix day time sync
 
