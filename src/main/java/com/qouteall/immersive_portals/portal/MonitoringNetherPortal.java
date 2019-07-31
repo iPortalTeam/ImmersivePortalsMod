@@ -40,7 +40,7 @@ public class MonitoringNetherPortal extends Portal {
         );
     
     
-        BlockMyNetherPortal.portalBlockUpdateSignal.connect((world, pos) -> {
+        MyNetherPortalBlock.portalBlockUpdateSignal.connect((world, pos) -> {
             Helper.getEntitiesNearby(
                 world,
                 new Vec3d(pos),
@@ -183,7 +183,7 @@ public class MonitoringNetherPortal extends Portal {
     ) {
         return obsidianFrame.boxWithoutObsidian.stream().allMatch(
             blockPos -> world.getBlockState(blockPos).getBlock()
-                == BlockMyNetherPortal.instance
+                == MyNetherPortalBlock.instance
         );
     }
     

@@ -365,8 +365,8 @@ public class NetherPortalGenerator {
     ) {
         world.setBlockState(
             pos,
-            BlockMyNetherPortal.instance.getDefaultState().with(
-                BlockMyNetherPortal.AXIS, normalAxis
+            MyNetherPortalBlock.instance.getDefaultState().with(
+                MyNetherPortalBlock.AXIS, normalAxis
             ),
             3
         );

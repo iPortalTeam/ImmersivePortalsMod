@@ -5,8 +5,8 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.portal.BlockMyNetherPortal;
 import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
+import com.qouteall.immersive_portals.portal.MyNetherPortalBlock;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
@@ -27,7 +27,7 @@ public class ModMain implements ModInitializer {
         Portal.init();
         MonitoringNetherPortal.init();
     
-        BlockMyNetherPortal.init();
+        MyNetherPortalBlock.init();
     
         MyNetworkServer.init();
     

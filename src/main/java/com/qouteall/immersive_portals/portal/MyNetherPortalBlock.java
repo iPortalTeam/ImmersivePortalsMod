@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-public class BlockMyNetherPortal extends Block {
+public class MyNetherPortalBlock extends Block {
     public static final EnumProperty<Direction.Axis> AXIS = Properties.AXIS;
     public static final VoxelShape X_AABB = Block.createCuboidShape(
         6.0D,
@@ -58,8 +58,8 @@ public class BlockMyNetherPortal extends Block {
     
     public static final SignalBiArged<ServerWorld, BlockPos> portalBlockUpdateSignal = new SignalBiArged<>();
     
-    public static final BlockMyNetherPortal instance =
-        new BlockMyNetherPortal(
+    public static final MyNetherPortalBlock instance =
+        new MyNetherPortalBlock(
             FabricBlockSettings.of(Material.PORTAL)
                 .noCollision()
                 .sounds(BlockSoundGroup.GLASS)
@@ -76,7 +76,7 @@ public class BlockMyNetherPortal extends Block {
         );
     }
     
-    public BlockMyNetherPortal(Settings properties) {
+    public MyNetherPortalBlock(Settings properties) {
         super(properties);
         this.setDefaultState(
             (BlockState) ((BlockState) this.stateFactory.getDefaultState()).with(

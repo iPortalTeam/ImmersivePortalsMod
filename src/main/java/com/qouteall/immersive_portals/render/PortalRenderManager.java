@@ -231,8 +231,8 @@ public class PortalRenderManager {
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
         clearDepthOfThePortalViewArea(portal);
-        
-        managePlayerStateAndRenderPortalContent(portal);
+    
+        manageCameraAndRenderPortalContent(portal);
         
         //the world rendering will modify the transformation
         setupCameraTransformation();
@@ -321,40 +321,43 @@ public class PortalRenderManager {
     
     //it will overwrite the matrix
     //do not push matrix before calling this
-    private void managePlayerStateAndRenderPortalContent(
+    private void manageCameraAndRenderPortalContent(
         Portal portal
     ) {
-        Entity player = mc.cameraEntity;
+        Entity cameraEntity = mc.cameraEntity;
         int allowedStencilValue = getPortalLayer();
-        Vec3d oldCameraPos = mc.gameRenderer.getCamera().getPos();
-        
-        assert player.world == mc.world;
-        
-        Vec3d originalPos = player.getPos();
-        Vec3d originalLastTickPos = Helper.lastTickPosOf(player);
-        DimensionType originalDimension = player.dimension;
-        ClientWorld originalWorld = ((ClientWorld) player.world);
-        
-        Vec3d newPos = portal.applyTransformationToPoint(originalPos);
-        Vec3d newLastTickPos = portal.applyTransformationToPoint(originalLastTickPos);
+        Camera camera = mc.gameRenderer.getCamera();
+    
+        assert cameraEntity.world == mc.world;
+    
+        Vec3d oldPos = cameraEntity.getPos();
+        Vec3d oldLastTickPos = Helper.lastTickPosOf(cameraEntity);
+        DimensionType oldDimension = cameraEntity.dimension;
+        ClientWorld oldWorld = ((ClientWorld) cameraEntity.world);
+    
+        Vec3d oldCameraPos = camera.getPos();
+    
+        Vec3d newPos = portal.applyTransformationToPoint(oldPos);
+        Vec3d newLastTickPos = portal.applyTransformationToPoint(oldLastTickPos);
         DimensionType newDimension = portal.dimensionTo;
         ClientWorld newWorld =
             Globals.clientWorldLoader.getOrCreateFakedWorld(newDimension);
-        
-        Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
-        player.dimension = newDimension;
-        player.world = newWorld;
+        //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
+    
+        Helper.setPosAndLastTickPos(cameraEntity, newPos, newLastTickPos);
+        cameraEntity.dimension = newDimension;
+        cameraEntity.world = newWorld;
         mc.world = newWorld;
-        
+    
         renderPortalContentAndNestedPortals(
             portal, oldCameraPos
         );
         
         //restore the position
-        player.dimension = originalDimension;
-        player.world = originalWorld;
-        mc.world = originalWorld;
-        Helper.setPosAndLastTickPos(player, originalPos, originalLastTickPos);
+        cameraEntity.dimension = oldDimension;
+        cameraEntity.world = oldWorld;
+        mc.world = oldWorld;
+        Helper.setPosAndLastTickPos(cameraEntity, oldPos, oldLastTickPos);
         
         //restore the transformation
         GlStateManager.enableDepthTest();
@@ -574,7 +577,7 @@ public class PortalRenderManager {
         
         //NOTE in state_portalViewOfTheFirstPortal, max PortalEntity layer is 1
         //so that it will not render nested portals
-        managePlayerStateAndRenderPortalContent(
+        manageCameraAndRenderPortalContent(
             portal
         );
     }
