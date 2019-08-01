@@ -67,7 +67,6 @@ public class ClientTeleportationManager {
     
     private void teleportPlayer(Portal portal) {
         if (isTeleportingFrequently()) {
-            Helper.log("Rejected teleportation because too frequent");
             return;
         }
         

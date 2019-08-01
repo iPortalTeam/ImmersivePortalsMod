@@ -3,7 +3,9 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import net.minecraft.block.BlockRenderLayer;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.ChunkRenderDispatcher;
+import net.minecraft.client.render.VisibleRegion;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.render.chunk.ChunkRendererList;
@@ -38,6 +40,9 @@ public class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     @Final
     private EntityRenderDispatcher entityRenderDispatcher;
+    
+    @Shadow
+    private int field_4076;
     
     @Override
     public ChunkRenderDispatcher getChunkRenderDispatcher() {
@@ -77,6 +82,23 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         if (Globals.portalRenderManager.isRendering()) {
             Globals.myGameRenderer.endCulling();
         }
+    }
+    
+    @Inject(
+        method = "renderEntities",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/GameRenderer;enableLightmap()V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onEndRenderEntities(
+        Camera camera_1,
+        VisibleRegion visibleRegion_1,
+        float float_1,
+        CallbackInfo ci
+    ) {
+        Globals.myGameRenderer.renderPlayerItselfIfNecessary();
     }
     
     @Override

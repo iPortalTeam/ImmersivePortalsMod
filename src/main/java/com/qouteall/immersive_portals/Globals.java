@@ -10,7 +10,6 @@ import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 public class Globals {
     public static PortalRenderManager portalRenderManager;
     
-    //TODO unload it at appropriate time
     public static ClientWorldLoader clientWorldLoader;
     
     public static ChunkTracker chunkTracker;
@@ -30,4 +29,6 @@ public class Globals {
     public static boolean useHackedChunkRenderDispatcher = true;
     public static boolean isClientRemoteTickingEnabled = true;
     public static boolean isChunkLoadingMultiThreaded = true;
+    public static boolean isOptifinePresent = false;
+    public static boolean renderPortalBeforeTranslucentBlocks = true;
 }

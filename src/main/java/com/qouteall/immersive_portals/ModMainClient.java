@@ -10,9 +10,11 @@ import com.qouteall.immersive_portals.render.PortalRenderManager;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
+import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 
 public class ModMainClient implements ClientModInitializer {
+    
     public static void portal_initClient() {
         EntityRendererRegistry.INSTANCE.register(
             Portal.class,
@@ -43,5 +45,14 @@ public class ModMainClient implements ClientModInitializer {
             Globals.myGameRenderer = new MyGameRenderer();
             Globals.clientTeleportationManager = new ClientTeleportationManager();
         });
+    
+        Globals.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+    
+        Helper.log(Globals.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
+    
+        if (Globals.isOptifinePresent) {
+            Globals.useHackedChunkRenderDispatcher = false;
+            Globals.renderPortalBeforeTranslucentBlocks = false;
+        }
     }
 }

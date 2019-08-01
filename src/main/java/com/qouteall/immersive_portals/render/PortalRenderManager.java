@@ -101,7 +101,9 @@ public class PortalRenderManager {
     }
     
     public boolean shouldRenderPlayerItself() {
-        return isRendering() && cameraEntity.dimension == originalPlayerDimension;
+        return isRendering() &&
+            cameraEntity.dimension == originalPlayerDimension &&
+            getRenderingPortal().canRenderEntityInsideMe(originalPlayerPos);
     }
     
     public void doRendering(float partialTicks_, long finishTimeNano_) {
@@ -114,8 +116,6 @@ public class PortalRenderManager {
         if (!isRendering()) {
             prepareRendering(partialTicks_, finishTimeNano_);
         }
-    
-        Globals.myGameRenderer.renderPlayerItselfIfNecessary();
         
         behavior.run();
         

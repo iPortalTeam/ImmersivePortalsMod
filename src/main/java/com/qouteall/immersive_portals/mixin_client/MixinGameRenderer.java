@@ -50,7 +50,23 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         long finishTimeNano,
         CallbackInfo ci
     ) {
-        Globals.portalRenderManager.doRendering(partialTicks, finishTimeNano);
+        if (Globals.renderPortalBeforeTranslucentBlocks) {
+            Globals.portalRenderManager.doRendering(partialTicks, finishTimeNano);
+        }
+    }
+    
+    @Inject(
+        method = "renderCenter",
+        at = @At(
+            value = "INVOKE_STRING",
+            target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+            args = {"ldc=hand"}
+        )
+    )
+    private void beforeRenderingHand(float float_1, long long_1, CallbackInfo ci) {
+        if (!Globals.renderPortalBeforeTranslucentBlocks) {
+            Globals.portalRenderManager.doRendering(float_1, long_1);
+        }
     }
     
     @Redirect(
