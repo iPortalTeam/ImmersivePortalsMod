@@ -1,13 +1,10 @@
 fix mis-teleport sometimes still occur
 fix entities go through portal sometimes duplicate
 fix entity brightness issue
-fix can not render player in portals
-fix third-person view
 fix go through portal while riding entity
 fix day time sync
+remove packet handling 1 tick delay
 
 make nether portal possibly generate above lava lake
 
 check client chunk loading leak and server chunk loading leak
-
-postponed fix third-person view rendering

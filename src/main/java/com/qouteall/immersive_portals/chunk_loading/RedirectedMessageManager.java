@@ -1,12 +1,12 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.world.ClientWorld;
@@ -71,15 +71,17 @@ public class RedirectedMessageManager {
             assert false;
             throw new IllegalArgumentException();
         }
-        
-        ModMain.clientTaskList.addTask(() -> {
+    
+        processRedirectedPacket(dimension, packet);
+    }
+    
+    private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
+        MinecraftClient.getInstance().execute(() -> {
             ClientWorld clientWorld = Helper.loadClientWorld(dimension);
             
             assert clientWorld != null;
             
-            if (!(clientWorld.getChunkManager() instanceof MyClientChunkManager)) {
-                return false;
-            }
+            assert clientWorld.getChunkManager() instanceof MyClientChunkManager;
             
             ClientPlayNetworkHandler netHandler = ((IEClientWorld) clientWorld).getNetHandler();
             
@@ -88,8 +90,6 @@ public class RedirectedMessageManager {
             }
             
             packet.apply(netHandler);
-            
-            return true;
         });
     }
     

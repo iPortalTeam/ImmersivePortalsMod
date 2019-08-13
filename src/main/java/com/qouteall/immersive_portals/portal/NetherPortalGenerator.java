@@ -205,7 +205,7 @@ public class NetherPortalGenerator {
         BlockPos firePos
     ) {
         return Arrays.stream(new Direction.Axis[]{
-            Direction.Axis.X, Direction.Axis.Y, Direction.Axis.Z
+            Direction.Axis.X, Direction.Axis.Z
         }).map(
             axis -> NetherPortalMatcher.detectFrameFromInnerPos(
                 fromWorld,
