@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MixinPlayerManager {
     @Inject(
         method = "respawnPlayer(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/dimension/DimensionType;Z)Lnet/minecraft/server/network/ServerPlayerEntity;",
-        at = @At("TAIL")
+        at = @At("HEAD")
     )
     private void onPlayerRespawn(
         ServerPlayerEntity oldPlayer,

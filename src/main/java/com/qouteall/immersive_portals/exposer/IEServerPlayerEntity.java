@@ -7,4 +7,6 @@ public interface IEServerPlayerEntity {
     void setEnteredNetherPos(Vec3d pos);
     
     void updateDimensionTravelAdvancements(ServerWorld fromWorld);
+    
+    void setIsInTeleportationState(boolean arg);
 }

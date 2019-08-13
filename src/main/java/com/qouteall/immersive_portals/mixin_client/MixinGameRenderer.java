@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import org.spongepowered.asm.mixin.Final;
@@ -28,6 +29,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private BackgroundRenderer backgroundRenderer;
     @Shadow
     private boolean renderHand;
+    @Shadow
+    @Final
+    @Mutable
+    private Camera camera;
     
     @Shadow
     public abstract void renderCenter(float float_1, long long_1);
@@ -93,6 +98,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     abstract protected void applyCameraTransformations(float float_1);
     
+    
     @Override
     public void applyCameraTransformations_(float float_1) {
         applyCameraTransformations(float_1);
@@ -126,5 +132,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Override
     public void setDoRenderHand(boolean e) {
         renderHand = e;
+    }
+    
+    @Override
+    public void setCamera(Camera camera_) {
+        camera = camera_;
     }
 }

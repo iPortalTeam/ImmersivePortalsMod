@@ -75,13 +75,18 @@ public class MonitoringNetherPortal extends Portal {
     
     private void breakNetherPortalBlocks() {
         ServerWorld world1 = Helper.getServer().getWorld(dimension);
-        
-        obsidianFrame.boxWithoutObsidian.stream().forEach(
-            blockPos -> world1.setBlockState(
-                blockPos,
-                Blocks.AIR.getDefaultState()
+    
+        obsidianFrame.boxWithoutObsidian.stream()
+            .filter(
+                blockPos -> world1.getBlockState(
+                    blockPos
+                ).getBlock() == MyNetherPortalBlock.instance
             )
-        );
+            .forEach(
+                blockPos -> world1.setBlockState(
+                    blockPos, Blocks.AIR.getDefaultState()
+                )
+            );
     }
     
     @Override

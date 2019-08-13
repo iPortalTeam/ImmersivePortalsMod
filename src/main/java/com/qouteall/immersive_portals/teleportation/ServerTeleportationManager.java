@@ -115,6 +115,7 @@ public class ServerTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
     
+        ((IEServerPlayerEntity) player).setIsInTeleportationState(true);
     }
     
     /**
@@ -186,6 +187,7 @@ public class ServerTeleportationManager {
                     this.lastTeleportGameTime.getOrDefault(player, 0L);
                 if (tickTimeNow - lastTeleportGameTime > 60) {
                     sendPositionConfirmMessage(player);
+                    ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
                 }
             }
         }

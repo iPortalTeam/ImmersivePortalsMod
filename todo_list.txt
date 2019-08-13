@@ -3,7 +3,6 @@ fix entities go through portal sometimes duplicate
 fix entity brightness issue
 fix go through portal while riding entity
 fix day time sync
-remove packet handling 1 tick delay
 
 make nether portal possibly generate above lava lake
 

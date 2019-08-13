@@ -44,6 +44,7 @@ public class MyGameRenderer {
         DimensionRenderHelper helper =
             Globals.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
         PlayerListEntry playerListEntry = Helper.getClientPlayerListEntry();
+        Camera newCamera = new Camera();
     
         //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
@@ -55,7 +56,8 @@ public class MyGameRenderer {
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         List oldChunkInfos = ((IEWorldRenderer) mc.worldRenderer).getChunkInfos();
-        
+        Camera oldCamera = mc.gameRenderer.getCamera();
+    
         //switch
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
@@ -69,6 +71,7 @@ public class MyGameRenderer {
         ieGameRenderer.setDoRenderHand(false);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
+        //ieGameRenderer.setCamera(newCamera);
     
         setupCullingPlane();
         
@@ -77,7 +80,6 @@ public class MyGameRenderer {
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GuiLighting.disable();
         ((GameRenderer) ieGameRenderer).disableLightmap();
-        //GlStateManager.disableAlphaTest();
         
         mc.getProfiler().push("render_portal_content");
     
@@ -101,6 +103,7 @@ public class MyGameRenderer {
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
         ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
+        //ieGameRenderer.setCamera(oldCamera);
     
         setupCullingPlane();
         
