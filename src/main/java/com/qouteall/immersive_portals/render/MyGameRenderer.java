@@ -73,6 +73,11 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         //ieGameRenderer.setCamera(newCamera);
     
+        Globals.renderInfoNumMap.put(
+            newWorld.dimension.getType(),
+            ((IEWorldRenderer) mc.worldRenderer).getChunkInfos().size()
+        );
+        
         setupCullingPlane();
         
         //this is important
@@ -115,7 +120,9 @@ public class MyGameRenderer {
     }
     
     public void startCulling() {
-        GL11.glEnable(GL11.GL_CLIP_PLANE0);
+        if (Globals.useFrontCulling) {
+            GL11.glEnable(GL11.GL_CLIP_PLANE0);
+        }
     }
     
     //NOTE the actual culling plane is related to current model view matrix

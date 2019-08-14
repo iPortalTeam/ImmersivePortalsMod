@@ -82,7 +82,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {
-        if (!Globals.portalRenderManager.isRendering()) {
+        if (!Globals.portalRenderManager.shouldSkipClearing()) {
             GlStateManager.clear(int_1, boolean_1);
         }
     }

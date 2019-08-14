@@ -4,6 +4,8 @@ fix entity brightness issue
 fix go through portal while riding entity
 fix day time sync
 
+render view area when max portal layer is 0
+
 make nether portal possibly generate above lava lake
 
 check client chunk loading leak and server chunk loading leak

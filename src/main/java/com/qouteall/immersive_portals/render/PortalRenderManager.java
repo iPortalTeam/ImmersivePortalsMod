@@ -30,22 +30,22 @@ import static org.lwjgl.opengl.GL11.*;
 //NOTE do not use glDisable(GL_DEPTH_TEST), use GlStateManager.disableDepthTest() instead
 //because GlStateManager will cache its state. Do not make its cache not synchronized
 public class PortalRenderManager {
-    private MinecraftClient mc = MinecraftClient.getInstance();
-    private Stack<Portal> portalLayers = new Stack<>();
+    protected MinecraftClient mc = MinecraftClient.getInstance();
+    protected Stack<Portal> portalLayers = new Stack<>();
     public Supplier<Integer> maxPortalLayer = () -> Globals.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
-    private Runnable behavior;
+    protected Runnable behavior;
     
-    private DimensionType originalPlayerDimension;
-    private Vec3d originalPlayerPos;
-    private Vec3d originalPlayerLastTickPos;
-    private GameMode originalGameMode;
+    protected DimensionType originalPlayerDimension;
+    protected Vec3d originalPlayerPos;
+    protected Vec3d originalPlayerLastTickPos;
+    protected GameMode originalGameMode;
     
-    private float partialTicks = 0;
-    private int idQueryObject = -1;
-    private Entity cameraEntity;
+    protected float partialTicks = 0;
+    protected int idQueryObject = -1;
+    protected Entity cameraEntity;
     
-    private int renderedPortalNum = 0;
+    protected int renderedPortalNum = 0;
     
     public PortalRenderManager() {
         behavior = this::renderPortals;
@@ -55,11 +55,13 @@ public class PortalRenderManager {
         GL11.glDisable(GL_STENCIL_TEST);
         
         setupCameraTransformation();
+    
+        GL20.glUseProgram(0);
         
         getPortalsNearbySorted().forEach(this::drawPortalViewTriangle);
     }
     
-    private void initIfNeeded() {
+    protected void initIfNeeded() {
         if (idQueryObject == -1) {
             idQueryObject = GL15.glGenQueries();
         }
@@ -74,6 +76,10 @@ public class PortalRenderManager {
     
     public boolean isRendering() {
         return getPortalLayer() != 0;
+    }
+    
+    public boolean shouldSkipClearing() {
+        return isRendering();
     }
     
     public Portal getRenderingPortal() {
@@ -135,19 +141,23 @@ public class PortalRenderManager {
         partialTicks = partialTicks_;
         cameraEntity = mc.cameraEntity;
         
+        prepareStates();
+        
+        renderedPortalNum = 0;
+        
+        originalPlayerDimension = cameraEntity.dimension;
+        originalPlayerPos = cameraEntity.getPos();
+        originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
+        originalGameMode = Helper.getClientPlayerListEntry().getGameMode();
+    }
+    
+    protected void prepareStates() {
         //NOTE calling glClearStencil will not clear it, it just assigns the value for clearing
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         
         GlStateManager.enableDepthTest();
         GL11.glEnable(GL_STENCIL_TEST);
-    
-        renderedPortalNum = 0;
-    
-        originalPlayerDimension = cameraEntity.dimension;
-        originalPlayerPos = cameraEntity.getPos();
-        originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
-        originalGameMode = Helper.getClientPlayerListEntry().getGameMode();
     }
     
     private void finishRendering() {
@@ -198,13 +208,11 @@ public class PortalRenderManager {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
-    
+        
         //do not use last tick pos
         if (!portal.isInFrontOfPortal(cameraEntity.getPos())) {
             return;
         }
-        
-        int outerPortalStencilValue = getPortalLayer();
         
         if (isRendering()) {
             Portal outerPortal = portalLayers.peek();
@@ -212,6 +220,12 @@ public class PortalRenderManager {
                 return;
             }
         }
+        
+        doRenderPortal(portal);
+    }
+    
+    protected void doRenderPortal(Portal portal) {
+        int outerPortalStencilValue = getPortalLayer();
         
         setupCameraTransformation();
         
@@ -222,7 +236,7 @@ public class PortalRenderManager {
         if (!anySamplePassed) {
             return;
         }
-    
+        
         renderedPortalNum += 1;
         
         //PUSH
@@ -231,7 +245,7 @@ public class PortalRenderManager {
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
         clearDepthOfThePortalViewArea(portal);
-    
+        
         manageCameraAndRenderPortalContent(portal);
         
         //the world rendering will modify the transformation
@@ -245,7 +259,7 @@ public class PortalRenderManager {
         portalLayers.pop();
     }
     
-    private void setupCameraTransformation() {
+    protected void setupCameraTransformation() {
         ((IEGameRenderer) mc.gameRenderer).applyCameraTransformations_(partialTicks);
         Camera camera_1 = mc.gameRenderer.getCamera();
         camera_1.update(
@@ -276,6 +290,8 @@ public class PortalRenderManager {
         GlStateManager.depthMask(true);
         
         GlStateManager.disableBlend();
+    
+        GL20.glUseProgram(0);
         
         drawPortalViewTriangle(portal);
         
@@ -285,7 +301,7 @@ public class PortalRenderManager {
     }
     
     //it will render a box instead of a quad
-    private void drawPortalViewTriangle(Portal portal) {
+    protected void drawPortalViewTriangle(Portal portal) {
         DimensionRenderHelper helper =
             Globals.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
     
@@ -298,7 +314,7 @@ public class PortalRenderManager {
         GlStateManager.disableBlend();
         GlStateManager.disableLighting();
     
-        GL20.glUseProgram(0);
+    
         GL11.glDisable(GL_CLIP_PLANE0);
         
         Tessellator tessellator = Tessellator.getInstance();
@@ -321,7 +337,7 @@ public class PortalRenderManager {
     
     //it will overwrite the matrix
     //do not push matrix before calling this
-    private void manageCameraAndRenderPortalContent(
+    protected void manageCameraAndRenderPortalContent(
         Portal portal
     ) {
         Entity cameraEntity = mc.cameraEntity;
@@ -381,6 +397,8 @@ public class PortalRenderManager {
         
         WorldRenderer worldRenderer = Globals.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
         ClientWorld destClientWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
+    
+        Helper.checkGlError();
         
         Globals.myGameRenderer.renderWorld(
             partialTicks, worldRenderer, destClientWorld, oldCameraPos
@@ -489,6 +507,8 @@ public class PortalRenderManager {
         
         //do manipulate the depth packetBuffer
         GL11.glDepthMask(true);
+    
+        GL20.glUseProgram(0);
         
         drawPortalViewTriangle(portal);
         
@@ -528,7 +548,7 @@ public class PortalRenderManager {
     
     private boolean isQuerying = false;
     
-    private boolean renderAndGetDoesAnySamplePassed(Runnable renderingFunc) {
+    public boolean renderAndGetDoesAnySamplePassed(Runnable renderingFunc) {
         assert (!isQuerying);
         
         GL15.glBeginQuery(ARBOcclusionQuery2.GL_ANY_SAMPLES_PASSED, idQueryObject);

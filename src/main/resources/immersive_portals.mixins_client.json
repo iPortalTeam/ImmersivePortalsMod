@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinBackgroundRenderer",
+    "MixinBlockEntityRenderDispatcher",
     "MixinCamera",
     "MixinChunkRenderDispatcher",
     "MixinChunkRenderList",

@@ -168,6 +168,20 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
+            .literal("front_culling_enable")
+            .executes(context -> {
+                Globals.useFrontCulling = true;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("front_culling_disable")
+            .executes(context -> {
+                Globals.useFrontCulling = false;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
             .literal("report_server_entities")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
@@ -188,9 +202,16 @@ public class MyCommandClient {
             .executes(context -> {
                 return reportFogColor(context);
             })
-        )
-        ;
-    
+        );
+        builder = builder.then(CommandManager
+            .literal("report_render_info_num")
+            .executes(context -> {
+                String str = Helper.myToString(Globals.renderInfoNumMap.entrySet().stream());
+                context.getSource().getPlayer().sendMessage(new LiteralText(str));
+                return 0;
+            })
+        );
+        
         dispatcher.register(builder);
     
         Helper.log("Successfully initialized command /immersive_portals_debug");

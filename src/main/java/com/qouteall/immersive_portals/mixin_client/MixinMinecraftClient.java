@@ -2,15 +2,21 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftClient.class)
-public class MixinMinecraftClient {
+public class MixinMinecraftClient implements IEMinecraftClient {
+    @Shadow
+    private GlFramebuffer framebuffer;
+    
     @Inject(at = @At("HEAD"), method = "init()V")
     private void init(CallbackInfo info) {
         System.out.println("start initializing");
@@ -34,5 +40,10 @@ public class MixinMinecraftClient {
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
         Globals.clientWorldLoader.cleanUp();
+    }
+    
+    @Override
+    public void setFrameBuffer(GlFramebuffer buffer) {
+        framebuffer = buffer;
     }
 }

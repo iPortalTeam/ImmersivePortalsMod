@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GLX;
+import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.gl.GlFramebuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +15,7 @@ public class MixinGlFrameBuffer {
         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GLX;glBindRenderbuffer(II)V"),
         cancellable = true
     )
-    private void onInitFrameBuffer(int int_1, int int_2, boolean boolean_1, CallbackInfo ci) {
+    private void onInitFrameBuffer(int int_1, int int_2, boolean isMac, CallbackInfo ci) {
         GlFramebuffer this_ = (GlFramebuffer) (Object) this;
     
         GLX.glBindRenderbuffer(GLX.GL_RENDERBUFFER, this_.depthAttachment);
@@ -38,8 +39,10 @@ public class MixinGlFrameBuffer {
         );
         
         this_.checkFramebufferStatus();
-        this_.clear(boolean_1);
+        this_.clear(isMac);
         this_.endRead();
+    
+        Helper.checkGlError();
         
         ci.cancel();
     }
