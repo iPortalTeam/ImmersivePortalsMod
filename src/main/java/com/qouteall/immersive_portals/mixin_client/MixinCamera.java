@@ -56,7 +56,7 @@ public abstract class MixinCamera implements IECamera {
      */
     @Overwrite
     private double clipToSpace(double upperBound) {
-        if (Globals.portalRenderManager.isRendering()) {
+        if (Globals.renderer.isRendering()) {
             return lastClipSpaceResult;
         }
         
@@ -120,7 +120,7 @@ public abstract class MixinCamera implements IECamera {
 //        cancellable = true
 //    )
 //    private void onClipSpaceHead(double double_1, CallbackInfoReturnable<Double> cir) {
-//        if (Globals.portalRenderManager.isRendering()) {
+//        if (Globals.renderer.isRendering()) {
 //            cir.setReturnValue(lastClipSpaceResult);
 //            cir.cancel();
 //        }

@@ -56,7 +56,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         if (Globals.renderPortalBeforeTranslucentBlocks) {
-            Globals.portalRenderManager.doRendering(partialTicks, finishTimeNano);
+            Globals.renderer.doRendering(partialTicks, finishTimeNano);
         }
     }
     
@@ -70,7 +70,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     )
     private void beforeRenderingHand(float float_1, long long_1, CallbackInfo ci) {
         if (!Globals.renderPortalBeforeTranslucentBlocks) {
-            Globals.portalRenderManager.doRendering(float_1, long_1);
+            Globals.renderer.doRendering(float_1, long_1);
         }
     }
     
@@ -82,7 +82,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {
-        if (!Globals.portalRenderManager.shouldSkipClearing()) {
+        if (!Globals.renderer.shouldSkipClearing()) {
             GlStateManager.clear(int_1, boolean_1);
         }
     }

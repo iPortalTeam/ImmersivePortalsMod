@@ -141,7 +141,7 @@ public class MyGameRenderer {
     }
     
     private double[] getClipPlaneEquation() {
-        Portal portal = Globals.portalRenderManager.getRenderingPortal();
+        Portal portal = Globals.renderer.getRenderingPortal();
         
         Vec3d planeNormal = portal.getNormal().multiply(-1);
         
@@ -162,11 +162,11 @@ public class MyGameRenderer {
     }
     
     public void renderPlayerItselfIfNecessary() {
-        if (Globals.portalRenderManager.shouldRenderPlayerItself()) {
+        if (Globals.renderer.shouldRenderPlayerItself()) {
             renderPlayerItself(
-                Globals.portalRenderManager.getOrignialPlayerPos(),
-                Globals.portalRenderManager.getOriginalPlayerLastTickPos(),
-                Globals.portalRenderManager.getPartialTicks()
+                Globals.renderer.getOrignialPlayerPos(),
+                Globals.renderer.getOriginalPlayerLastTickPos(),
+                Globals.renderer.getPartialTicks()
             );
         }
     }
@@ -175,7 +175,7 @@ public class MyGameRenderer {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();
         PlayerListEntry playerListEntry = Helper.getClientPlayerListEntry();
-        GameMode originalGameMode = Globals.portalRenderManager.getOriginalGameMode();
+        GameMode originalGameMode = Globals.renderer.getOriginalGameMode();
         
         Entity player = mc.cameraEntity;
         assert player != null;

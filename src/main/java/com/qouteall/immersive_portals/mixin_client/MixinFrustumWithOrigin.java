@@ -35,8 +35,8 @@ public class MixinFrustumWithOrigin {
         at = @At("TAIL")
     )
     private void onSetOrigin(double double_1, double double_2, double double_3, CallbackInfo ci) {
-        if (Globals.portalRenderManager.isRendering()) {
-            portal = Globals.portalRenderManager.getRenderingPortal();
+        if (Globals.renderer.isRendering()) {
+            portal = Globals.renderer.getRenderingPortal();
             
             portalDestInLocalCoordinate = portal.destination.add(-originX, -originY, -originZ);
             Vec3d[] fourVertices = portal.getFourVerticesRelativeToCenter(0);
@@ -154,7 +154,7 @@ public class MixinFrustumWithOrigin {
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (Globals.doUseAdvancedFrustumCulling) {
-            if (Globals.portalRenderManager.isRendering()) {
+            if (Globals.renderer.isRendering()) {
                 Box boxInLocalCoordinate = new Box(
                     double_1,
                     double_2,

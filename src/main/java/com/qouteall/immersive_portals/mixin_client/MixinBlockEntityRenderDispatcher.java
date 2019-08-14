@@ -19,8 +19,8 @@ public class MixinBlockEntityRenderDispatcher {
         int int_1,
         CallbackInfo ci
     ) {
-        if (Globals.portalRenderManager.isRendering()) {
-            Portal renderingPortal = Globals.portalRenderManager.getRenderingPortal();
+        if (Globals.renderer.isRendering()) {
+            Portal renderingPortal = Globals.renderer.getRenderingPortal();
             if (!renderingPortal.canRenderEntityInsideMe(new Vec3d(blockEntity_1.getPos()))) {
                 ci.cancel();
             }

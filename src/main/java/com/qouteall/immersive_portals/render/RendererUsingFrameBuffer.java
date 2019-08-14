@@ -10,8 +10,8 @@ import net.minecraft.client.gl.GlFramebuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-public class BufferedRenderManager extends PortalRenderManager {
-    GlFramebuffer secondFrameBuffer;
+public class RendererUsingFrameBuffer extends PortalRenderer {
+    private GlFramebuffer secondFrameBuffer;
     private int width;
     private int height;
     private ShaderManager shaderManager;
@@ -116,15 +116,6 @@ public class BufferedRenderManager extends PortalRenderManager {
         GlStateManager.texParameter(3553, 10240, 9729);
         GlStateManager.texParameter(3553, 10242, 10496);
         GlStateManager.texParameter(3553, 10243, 10496);
-        //GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-//        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-//        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-//        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-//        GL11.glTexParameteri(
-//            GL11.GL_TEXTURE_2D,
-//            GL11.GL_TEXTURE_MIN_FILTER,
-//            GL11.GL_LINEAR_MIPMAP_LINEAR
-//        );
         
         drawPortalViewTriangle(portal);
         

@@ -5,8 +5,8 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalDummyRenderer;
-import com.qouteall.immersive_portals.render.BufferedRenderManager;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
+import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
@@ -40,7 +40,7 @@ public class ModMainClient implements ClientModInitializer {
         MyNetworkClient.init();
     
         MinecraftClient.getInstance().execute(() -> {
-            Globals.portalRenderManager = new BufferedRenderManager();
+            Globals.renderer = new RendererUsingFrameBuffer();
             Globals.clientWorldLoader = new ClientWorldLoader();
             Globals.myGameRenderer = new MyGameRenderer();
             Globals.clientTeleportationManager = new ClientTeleportationManager();

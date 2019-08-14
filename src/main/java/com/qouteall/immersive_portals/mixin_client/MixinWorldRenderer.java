@@ -69,7 +69,7 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         at = @At("HEAD")
     )
     private void onStartRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
-        if (Globals.portalRenderManager.isRendering()) {
+        if (Globals.renderer.isRendering()) {
             Globals.myGameRenderer.startCulling();
         }
     }
@@ -79,7 +79,7 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         at = @At("TAIL")
     )
     private void onStopRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
-        if (Globals.portalRenderManager.isRendering()) {
+        if (Globals.renderer.isRendering()) {
             Globals.myGameRenderer.endCulling();
         }
     }

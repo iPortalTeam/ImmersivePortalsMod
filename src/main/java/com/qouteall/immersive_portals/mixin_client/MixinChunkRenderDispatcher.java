@@ -225,10 +225,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             ci.cancel();
         }
         else {
-            if (Globals.portalRenderManager.isRendering()) {
+            if (Globals.renderer.isRendering()) {
                 if (
                     MinecraftClient.getInstance().cameraEntity.dimension ==
-                        Globals.portalRenderManager.getOriginalPlayerDimension()
+                        Globals.renderer.getOriginalPlayerDimension()
                 ) {
                     ci.cancel();
                 }

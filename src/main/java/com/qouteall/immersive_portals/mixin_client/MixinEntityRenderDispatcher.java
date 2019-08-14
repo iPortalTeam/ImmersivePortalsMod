@@ -25,7 +25,7 @@ public class MixinEntityRenderDispatcher {
         double double_3,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (!Globals.portalRenderManager.shouldRenderEntityNow(entity_1)) {
+        if (!Globals.renderer.shouldRenderEntityNow(entity_1)) {
             cir.setReturnValue(false);
             cir.cancel();
         }
