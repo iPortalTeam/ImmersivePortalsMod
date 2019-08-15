@@ -1,7 +1,8 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
@@ -71,7 +72,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             IEChunkRenderDispatcher::tick
         );
     
-        if (Globals.useHackedChunkRenderDispatcher) {
+        if (SGlobal.useHackedChunkRenderDispatcher) {
             //it will run createChunks() before this
             for (ChunkRenderer renderChunk : renderers) {
                 chunkRendererMap.put(renderChunk.getOrigin(), renderChunk);
@@ -86,7 +87,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         cancellable = true
     )
     private void delete(CallbackInfo ci) {
-        if (Globals.useHackedChunkRenderDispatcher) {
+        if (SGlobal.useHackedChunkRenderDispatcher) {
             chunkRendererMap.values().forEach(ChunkRenderer::delete);
             idleChunks.forEach(ChunkRenderer::delete);
             
@@ -100,7 +101,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
     @Override
     public void tick() {
-        if (Globals.useHackedChunkRenderDispatcher) {
+        if (SGlobal.useHackedChunkRenderDispatcher) {
             ClientWorld worldClient = MinecraftClient.getInstance().world;
             if (worldClient != null) {
                 if (worldClient.getTime() % 147 == 0) {
@@ -112,7 +113,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
     private ChunkRenderer findAndEmployChunkRenderer(BlockPos basePos) {
         assert !chunkRendererMap.containsKey(basePos);
-        assert Globals.useHackedChunkRenderDispatcher;
+        assert SGlobal.useHackedChunkRenderDispatcher;
         
         ChunkRenderer chunkRenderer = idleChunks.pollLast();
     
@@ -126,7 +127,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void employChunkRenderer(ChunkRenderer chunkRenderer, BlockPos basePos) {
-        assert Globals.useHackedChunkRenderDispatcher;
+        assert SGlobal.useHackedChunkRenderDispatcher;
         
         chunkRenderer.setOrigin(basePos.getX(), basePos.getY(), basePos.getZ());
         chunkRendererMap.put(chunkRenderer.getOrigin(), chunkRenderer);
@@ -134,7 +135,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void dismissChunkRenderer(BlockPos basePos) {
-        assert Globals.useHackedChunkRenderDispatcher;
+        assert SGlobal.useHackedChunkRenderDispatcher;
         assert chunkRendererMap.containsKey(basePos);
     
         ChunkRenderer chunkRenderer = chunkRendererMap.remove(basePos);
@@ -149,9 +150,9 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void destructAbundantIdleChunks() {
-        assert Globals.useHackedChunkRenderDispatcher;
-        if (idleChunks.size() > Globals.maxIdleChunkRendererNum) {
-            int toDestructChunkRenderersNum = idleChunks.size() - Globals.maxIdleChunkRendererNum;
+        assert SGlobal.useHackedChunkRenderDispatcher;
+        if (idleChunks.size() > SGlobal.maxIdleChunkRendererNum) {
+            int toDestructChunkRenderersNum = idleChunks.size() - SGlobal.maxIdleChunkRendererNum;
             IntStream.range(0, toDestructChunkRenderersNum).forEach(n -> {
                 ChunkRenderer chunkRendererToDestruct = idleChunks.pollFirst();
                 assert chunkRendererToDestruct != null;
@@ -161,7 +162,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void dismissInactiveChunkRenderers() {
-        assert Globals.useHackedChunkRenderDispatcher;
+        assert SGlobal.useHackedChunkRenderDispatcher;
         
         long currentTime = System.nanoTime();
         final long deletingValve = 1000000000L * 30;//30 seconds
@@ -199,7 +200,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         cancellable = true
     )
     private void updateCameraPosition(double viewEntityX, double viewEntityZ, CallbackInfo ci) {
-        if (Globals.useHackedChunkRenderDispatcher) {
+        if (SGlobal.useHackedChunkRenderDispatcher) {
             int px = MathHelper.floor(viewEntityX) - 8;
             int pz = MathHelper.floor(viewEntityZ) - 8;
             
@@ -225,10 +226,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             ci.cancel();
         }
         else {
-            if (Globals.renderer.isRendering()) {
+            if (CGlobal.renderer.isRendering()) {
                 if (
                     MinecraftClient.getInstance().cameraEntity.dimension ==
-                        Globals.renderer.getOriginalPlayerDimension()
+                        CGlobal.renderer.getOriginalPlayerDimension()
                 ) {
                     ci.cancel();
                 }
@@ -238,7 +239,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
     //NOTE input block pos instead of chunk pos
     private ChunkRenderer myGetChunkRenderer(BlockPos blockPos) {
-        assert Globals.useHackedChunkRenderDispatcher;
+        assert SGlobal.useHackedChunkRenderDispatcher;
         
         BlockPos basePos = getBasePos(blockPos);
         
@@ -261,7 +262,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void updateLastUsedTime(ChunkRenderer chunkRenderer) {
-        assert Globals.useHackedChunkRenderDispatcher;
+        assert SGlobal.useHackedChunkRenderDispatcher;
         if (chunkRenderer == null) {
             return;
         }
@@ -273,4 +274,16 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
     @Shadow
     public abstract int getChunkIndex(int int_1, int int_2, int int_3);
+    
+    @Override
+    public int getEmployedRendererNum() {
+        return SGlobal.useHackedChunkRenderDispatcher ? chunkRendererMap.size() : renderers.length;
+    }
+    
+    @Override
+    public void rebuildAll() {
+        for (ChunkRenderer chunkRenderer : renderers) {
+            chunkRenderer.scheduleRebuild(true);
+        }
+    }
 }

@@ -7,7 +7,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.exposer.IEBackgroundRenderer;
+import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
+import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
@@ -114,70 +116,88 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("client_remote_ticking_enable")
             .executes(context -> {
-                Globals.isClientRemoteTickingEnabled = true;
+                SGlobal.isClientRemoteTickingEnabled = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("client_remote_ticking_disable")
             .executes(context -> {
-                Globals.isClientRemoteTickingEnabled = false;
+                SGlobal.isClientRemoteTickingEnabled = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("advanced_frustum_culling_enable")
             .executes(context -> {
-                Globals.doUseAdvancedFrustumCulling = true;
+                SGlobal.doUseAdvancedFrustumCulling = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("advanced_frustum_culling_disable")
             .executes(context -> {
-                Globals.doUseAdvancedFrustumCulling = false;
+                SGlobal.doUseAdvancedFrustumCulling = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_enable")
             .executes(context -> {
-                Globals.isChunkLoadingMultiThreaded = true;
+                SGlobal.isChunkLoadingMultiThreaded = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_disable")
             .executes(context -> {
-                Globals.isChunkLoadingMultiThreaded = false;
+                SGlobal.isChunkLoadingMultiThreaded = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("hacked_chunk_render_dispatcher_enable")
             .executes(context -> {
-                Globals.useHackedChunkRenderDispatcher = true;
+                SGlobal.useHackedChunkRenderDispatcher = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("hacked_chunk_render_dispatcher_disable")
             .executes(context -> {
-                Globals.useHackedChunkRenderDispatcher = false;
+                SGlobal.useHackedChunkRenderDispatcher = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("front_culling_enable")
             .executes(context -> {
-                Globals.useFrontCulling = true;
+                SGlobal.useFrontCulling = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("front_culling_disable")
             .executes(context -> {
-                Globals.useFrontCulling = false;
+                SGlobal.useFrontCulling = false;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("switch_to_normal_renderer")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    CGlobal.renderer = CGlobal.rendererUsingStencil;
+                });
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("switch_to_compatibility_renderer")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    CGlobal.renderer = CGlobal.rendererUsingFrameBuffer;
+                });
                 return 0;
             })
         );
@@ -206,8 +226,20 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("report_render_info_num")
             .executes(context -> {
-                String str = Helper.myToString(Globals.renderInfoNumMap.entrySet().stream());
+                String str = Helper.myToString(SGlobal.renderInfoNumMap.entrySet().stream());
                 context.getSource().getPlayer().sendMessage(new LiteralText(str));
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("rebuild_all")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    ((IEChunkRenderDispatcher)
+                        ((IEWorldRenderer) MinecraftClient.getInstance().worldRenderer)
+                            .getChunkRenderDispatcher()
+                    ).rebuildAll();
+                });
                 return 0;
             })
         );
@@ -220,9 +252,9 @@ public class MyCommandClient {
     private static int reportFogColor(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         StringBuilder str = new StringBuilder();
     
-        Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
+        CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
             DimensionRenderHelper helper =
-                Globals.clientWorldLoader.getDimensionRenderHelper(
+                CGlobal.clientWorldLoader.getDimensionRenderHelper(
                     world.dimension.getType()
                 );
             str.append(String.format(
@@ -241,7 +273,7 @@ public class MyCommandClient {
             "current: %s %s \n switched %s \n",
             currentFogRenderer,
             ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
-            Globals.switchedFogRenderer
+            SGlobal.switchedFogRenderer
         ));
     
         String result = str.toString();
@@ -257,30 +289,27 @@ public class MyCommandClient {
         StringBuilder str = new StringBuilder();
         
         str.append("Client Chunk:\n");
-        Globals.clientWorldLoader.clientWorldMap.values().forEach(world -> {
+        CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
             str.append(String.format(
                 "%s %s\n",
                 world.dimension.getType(),
                 ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
             ));
         });
-        
-        //TODO recover this
-
-//                    str.append("Chunk Renderers:\n");
-//                    Globals.clientWorldLoader.worldRendererMap.forEach(
-//                        (dimension, worldRenderer) -> {
-//                            str.append(String.format(
-//                                "%s %s\n",
-//                                dimension,
-//                                ((MyViewFrustum) ((IEWorldRenderer) worldRenderer)
-//                                    .getChunkRenderDispatcher()
-//                                ).getChunkRenderers().size()
-//                            ));
-//                        }
-//                    );
-        
-        //TODO add server forced chunk num
+    
+    
+        str.append("Chunk Renderers:\n");
+        CGlobal.clientWorldLoader.worldRendererMap.forEach(
+            (dimension, worldRenderer) -> {
+                str.append(String.format(
+                    "%s %s\n",
+                    dimension,
+                    ((IEChunkRenderDispatcher) ((IEWorldRenderer) worldRenderer)
+                        .getChunkRenderDispatcher()
+                    ).getEmployedRendererNum()
+                ));
+            }
+        );
         
         String result = str.toString();
         
@@ -305,7 +334,7 @@ public class MyCommandClient {
     }
     
     private static int setMaxPortalLayer(int m) {
-        Globals.maxPortalLayer = m;
+        SGlobal.maxPortalLayer = m;
         return 0;
     }
     

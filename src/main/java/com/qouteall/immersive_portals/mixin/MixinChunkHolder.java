@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.Globals;
-import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
+import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEChunkHolder;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
@@ -37,10 +37,10 @@ public class MixinChunkHolder implements IEChunkHolder {
             this.playersWatchingChunkProvider.getPlayersWatchingChunk(
                 this.pos, boolean_1
             ),
-            Globals.chunkTracker.getPlayersViewingChunk(dimension, pos)
+            SGlobal.chunkTracker.getPlayersViewingChunk(dimension, pos)
         ).distinct().forEach(player ->
             player.networkHandler.sendPacket(
-                RedirectedMessageManager.createRedirectedMessage(
+                MyNetworkServer.createRedirectedMessage(
                     dimension, packet_1
                 )
             )

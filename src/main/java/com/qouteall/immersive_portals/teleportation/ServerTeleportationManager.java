@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetworkClient;
-import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
+import com.qouteall.immersive_portals.MyNetworkServer;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -97,7 +97,7 @@ public class ServerTeleportationManager {
     }
     
     private static boolean isClose(Vec3d a, Vec3d b) {
-        return a.squaredDistanceTo(b) < 10 * 10;
+        return a.squaredDistanceTo(b) < 15 * 15;
     }
     
     private void teleportPlayer(
@@ -244,8 +244,8 @@ public class ServerTeleportationManager {
         //this entity was untracked and retracked.
         //so it will not be in the player's unloading entity list
         //manually send destroy packet to avoid duplicate
-        
-        CustomPayloadS2CPacket removeEntityPacket = RedirectedMessageManager.createRedirectedMessage(
+    
+        CustomPayloadS2CPacket removeEntityPacket = MyNetworkServer.createRedirectedMessage(
             fromWorld.dimension.getType(),
             new EntitiesDestroyS2CPacket(entity.getEntityId())
         );

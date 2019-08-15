@@ -35,8 +35,8 @@ public class ModMain implements ModInitializer {
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
     
-        Globals.serverTeleportationManager = new ServerTeleportationManager();
-        Globals.chunkTracker = new ChunkTracker();
-        Globals.chunkDataSyncManager = new ChunkDataSyncManager();
+        SGlobal.serverTeleportationManager = new ServerTeleportationManager();
+        SGlobal.chunkTracker = new ChunkTracker();
+        SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
     }
 }

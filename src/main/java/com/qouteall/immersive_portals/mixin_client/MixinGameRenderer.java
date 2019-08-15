@@ -1,8 +1,9 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -55,8 +56,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         long finishTimeNano,
         CallbackInfo ci
     ) {
-        if (Globals.renderPortalBeforeTranslucentBlocks) {
-            Globals.renderer.doRendering(partialTicks, finishTimeNano);
+        if (SGlobal.renderPortalBeforeTranslucentBlocks) {
+            CGlobal.renderer.doRendering(partialTicks, finishTimeNano);
         }
     }
     
@@ -69,8 +70,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void beforeRenderingHand(float float_1, long long_1, CallbackInfo ci) {
-        if (!Globals.renderPortalBeforeTranslucentBlocks) {
-            Globals.renderer.doRendering(float_1, long_1);
+        if (!SGlobal.renderPortalBeforeTranslucentBlocks) {
+            CGlobal.renderer.doRendering(float_1, long_1);
         }
     }
     
@@ -82,7 +83,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {
-        if (!Globals.renderer.shouldSkipClearing()) {
+        if (!CGlobal.renderer.shouldSkipClearing()) {
             GlStateManager.clear(int_1, boolean_1);
         }
     }

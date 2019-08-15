@@ -1,7 +1,9 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -30,7 +32,7 @@ import static org.lwjgl.opengl.GL11.*;
 public abstract class PortalRenderer {
     
     public static final MinecraftClient mc = MinecraftClient.getInstance();
-    public Supplier<Integer> maxPortalLayer = () -> Globals.maxPortalLayer;
+    public Supplier<Integer> maxPortalLayer = () -> SGlobal.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     protected Stack<Portal> portalLayers = new Stack<>();
     protected DimensionType originalPlayerDimension;
@@ -121,7 +123,14 @@ public abstract class PortalRenderer {
         originalPlayerDimension = cameraEntity.dimension;
         originalPlayerPos = cameraEntity.getPos();
         originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
-        originalGameMode = Helper.getClientPlayerListEntry().getGameMode();
+        originalGameMode = CHelper.getClientPlayerListEntry().getGameMode();
+    }
+    
+    public boolean shouldRenderEntityNow(Entity entity) {
+        if (isRendering()) {
+            return getRenderingPortal().canRenderEntityInsideMe(entity.getPos());
+        }
+        return true;
     }
     
     protected abstract void prepareStates();
@@ -136,8 +145,8 @@ public abstract class PortalRenderer {
         GlStateManager.enableDepthTest();
         
         cameraEntity = null;
-        
-        Globals.clientWorldLoader
+    
+        CGlobal.clientWorldLoader
             .getDimensionRenderHelper(mc.world.dimension.getType())
             .switchToMe();
     }
@@ -215,7 +224,7 @@ public abstract class PortalRenderer {
         Vec3d newLastTickPos = portal.applyTransformationToPoint(oldLastTickPos);
         DimensionType newDimension = portal.dimensionTo;
         ClientWorld newWorld =
-            Globals.clientWorldLoader.getOrCreateFakedWorld(newDimension);
+            CGlobal.clientWorldLoader.getOrCreateFakedWorld(newDimension);
         //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
         
         Helper.setPosAndLastTickPos(cameraEntity, newPos, newLastTickPos);
@@ -252,13 +261,13 @@ public abstract class PortalRenderer {
         
         //do not manipulate stencil packetBuffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        
-        WorldRenderer worldRenderer = Globals.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
-        ClientWorld destClientWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
+    
+        WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
+        ClientWorld destClientWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
         
         Helper.checkGlError();
-        
-        Globals.myGameRenderer.renderWorld(
+    
+        CGlobal.myGameRenderer.renderWorld(
             partialTicks, worldRenderer, destClientWorld, oldCameraPos
         );
         
@@ -336,7 +345,7 @@ public abstract class PortalRenderer {
     //it will render a box instead of a quad
     protected void drawPortalViewTriangle(Portal portal) {
         DimensionRenderHelper helper =
-            Globals.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
+            CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
         
         Vec3d fogColor = helper.getFogColor();
         

@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
-import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEEntityTracker;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -58,7 +58,7 @@ public class MixinEntityTracker implements IEEntityTracker {
         Packet<?> packet_1
     ) {
         serverPlayNetworkHandler.sendPacket(
-            RedirectedMessageManager.createRedirectedMessage(
+            MyNetworkServer.createRedirectedMessage(
                 entity.dimension,
                 packet_1
             )
@@ -77,7 +77,7 @@ public class MixinEntityTracker implements IEEntityTracker {
         Packet<?> packet_1
     ) {
         serverPlayNetworkHandler.sendPacket(
-            RedirectedMessageManager.createRedirectedMessage(
+            MyNetworkServer.createRedirectedMessage(
                 entity.dimension,
                 packet_1
             )
@@ -162,7 +162,7 @@ public class MixinEntityTracker implements IEEntityTracker {
                     relativePos.z <= (double) maxWatchDistance &&
                     this.entity.canBeSpectated(player);
             isWatchedNow = isWatchedNow ||
-                Globals.chunkTracker.isPlayerWatchingChunk(
+                SGlobal.chunkTracker.isPlayerWatchingChunk(
                     player,
                     new DimensionalChunkPos(
                         entity.dimension,

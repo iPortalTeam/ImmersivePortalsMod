@@ -2,29 +2,19 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
-import com.qouteall.immersive_portals.render.MyGameRenderer;
-import com.qouteall.immersive_portals.render.PortalRenderer;
-import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Globals {
-    public static PortalRenderer renderer;
-    
-    public static ClientWorldLoader clientWorldLoader;
+public class SGlobal {
     
     public static ChunkTracker chunkTracker;
     
     public static ChunkDataSyncManager chunkDataSyncManager;
     
-    public static MyGameRenderer myGameRenderer;
-    
     public static ServerTeleportationManager serverTeleportationManager;
-    
-    public static ClientTeleportationManager clientTeleportationManager;
     
     public static boolean doUseAdvancedFrustumCulling = true;
     public static int maxPortalLayer = 3;

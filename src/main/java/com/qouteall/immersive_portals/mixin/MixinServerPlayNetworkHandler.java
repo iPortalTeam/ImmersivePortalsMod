@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.exposer.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -42,9 +41,9 @@ public class MixinServerPlayNetworkHandler {
     )
     private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         DimensionType packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
-        if (packetDimension == null) {
-            packetDimension = MinecraftClient.getInstance().world.dimension.getType();
-        }
+    
+        assert packetDimension != null;
+        
         if (player.dimension != packetDimension) {
             ci.cancel();
         }

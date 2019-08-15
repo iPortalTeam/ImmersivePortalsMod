@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.client.render.Camera;
@@ -69,8 +69,8 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         at = @At("HEAD")
     )
     private void onStartRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
-        if (Globals.renderer.isRendering()) {
-            Globals.myGameRenderer.startCulling();
+        if (CGlobal.renderer.isRendering()) {
+            CGlobal.myGameRenderer.startCulling();
         }
     }
     
@@ -79,8 +79,8 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         at = @At("TAIL")
     )
     private void onStopRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
-        if (Globals.renderer.isRendering()) {
-            Globals.myGameRenderer.endCulling();
+        if (CGlobal.renderer.isRendering()) {
+            CGlobal.myGameRenderer.endCulling();
         }
     }
     
@@ -98,7 +98,7 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         float float_1,
         CallbackInfo ci
     ) {
-        Globals.myGameRenderer.renderPlayerItselfIfNecessary();
+        CGlobal.myGameRenderer.renderPlayerItselfIfNecessary();
     }
     
     @Override

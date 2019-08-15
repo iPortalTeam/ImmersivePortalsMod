@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.FrustumWithOrigin;
@@ -35,8 +36,8 @@ public class MixinFrustumWithOrigin {
         at = @At("TAIL")
     )
     private void onSetOrigin(double double_1, double double_2, double double_3, CallbackInfo ci) {
-        if (Globals.renderer.isRendering()) {
-            portal = Globals.renderer.getRenderingPortal();
+        if (CGlobal.renderer.isRendering()) {
+            portal = CGlobal.renderer.getRenderingPortal();
             
             portalDestInLocalCoordinate = portal.destination.add(-originX, -originY, -originZ);
             Vec3d[] fourVertices = portal.getFourVerticesRelativeToCenter(0);
@@ -89,7 +90,7 @@ public class MixinFrustumWithOrigin {
     }
     
     private boolean isOutsidePortalFrustum(Box box) {
-        if (!Globals.doUseAdvancedFrustumCulling) {
+        if (!SGlobal.doUseAdvancedFrustumCulling) {
             return false;
         }
         
@@ -153,8 +154,8 @@ public class MixinFrustumWithOrigin {
         double double_6,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (Globals.doUseAdvancedFrustumCulling) {
-            if (Globals.renderer.isRendering()) {
+        if (SGlobal.doUseAdvancedFrustumCulling) {
+            if (CGlobal.renderer.isRendering()) {
                 Box boxInLocalCoordinate = new Box(
                     double_1,
                     double_2,

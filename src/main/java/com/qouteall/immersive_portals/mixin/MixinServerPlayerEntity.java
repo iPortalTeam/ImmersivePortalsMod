@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
-import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
@@ -61,7 +61,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
             chunkPos_1
         );
     
-        Globals.chunkDataSyncManager.sendUnloadPacket(
+        SGlobal.chunkDataSyncManager.sendUnloadPacket(
             this_, dimensionalChunkPos
         );
         
@@ -77,7 +77,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
             myRemovedEntities.stream()
                 .collect(Collectors.groupingBy(entity -> entity.dimension))
                 .forEach((dimension, list) -> networkHandler.sendPacket(
-                    RedirectedMessageManager.createRedirectedMessage(
+                    MyNetworkServer.createRedirectedMessage(
                         dimension,
                         new EntitiesDestroyS2CPacket(
                             list.stream().mapToInt(
@@ -95,7 +95,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
         DimensionType dimensionType_1,
         CallbackInfoReturnable<Entity> cir
     ) {
-        Globals.chunkDataSyncManager.onPlayerRespawn((ServerPlayerEntity) (Object) this);
+        SGlobal.chunkDataSyncManager.onPlayerRespawn((ServerPlayerEntity) (Object) this);
     }
     
     /**
@@ -105,7 +105,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     public void onStoppedTracking(Entity entity_1) {
         if (entity_1 instanceof PlayerEntity) {
             this.networkHandler.sendPacket(
-                RedirectedMessageManager.createRedirectedMessage(
+                MyNetworkServer.createRedirectedMessage(
                     entity_1.dimension,
                     new EntitiesDestroyS2CPacket(entity_1.getEntityId())
                 )

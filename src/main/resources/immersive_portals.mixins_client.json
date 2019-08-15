@@ -17,6 +17,7 @@
     "MixinGlFrameBuffer",
     "MixinGlStateManager",
     "MixinMinecraftClient",
+    "MixinPlayerListEntry",
     "MixinWorldRenderer"
   ],
   "injectors": {

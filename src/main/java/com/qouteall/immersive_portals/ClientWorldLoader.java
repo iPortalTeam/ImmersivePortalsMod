@@ -31,6 +31,8 @@ public class ClientWorldLoader {
     
     private boolean isLoadingFakedWorld = false;
     
+    private boolean isHardCore = false;
+    
     public ClientWorldLoader() {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
@@ -40,7 +42,7 @@ public class ClientWorldLoader {
     }
     
     private void tick() {
-        if (Globals.isClientRemoteTickingEnabled) {
+        if (SGlobal.isClientRemoteTickingEnabled) {
             clientWorldMap.values().forEach(world -> {
                 if (mc.world != world) {
                     //NOTE tick() does not include ticking entities
@@ -116,6 +118,8 @@ public class ClientWorldLoader {
                 mc.world.dimension.getType(),
                 new DimensionRenderHelper(mc.world)
             );
+    
+            isHardCore = mc.world.getLevelProperties().isHardcore();
             
             isInitialized = true;
         }
@@ -143,7 +147,7 @@ public class ClientWorldLoader {
                 0L,
                 GameMode.CREATIVE,
                 true,
-                false,
+                isHardCore,
                 LevelGeneratorType.FLAT
             ),
             dimension,

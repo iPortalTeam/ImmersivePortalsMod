@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -19,8 +19,8 @@ public class MixinBlockEntityRenderDispatcher {
         int int_1,
         CallbackInfo ci
     ) {
-        if (Globals.renderer.isRendering()) {
-            Portal renderingPortal = Globals.renderer.getRenderingPortal();
+        if (CGlobal.renderer.isRendering()) {
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             if (!renderingPortal.canRenderEntityInsideMe(new Vec3d(blockEntity_1.getPos()))) {
                 ci.cancel();
             }

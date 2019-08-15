@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.chunk_loading.RedirectedMessageManager;
+import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
+import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
+import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
@@ -9,13 +11,14 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
@@ -25,16 +28,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 public class MyNetworkClient {
-    public static final Identifier id_stcCustom =
-        new Identifier("immersive_portals", "stc_custom");
-    public static final Identifier id_stcSpawnEntity =
-        new Identifier("immersive_portals", "spawn_entity");
-    public static final Identifier id_stcDimensionConfirm =
-        new Identifier("immersive_portals", "dimension_confirm");
-    public static final Identifier id_stcRedirected =
-        new Identifier("immersive_portals", "redirected");
-    public static final Identifier id_stcSpawnLoadingIndicator =
-        new Identifier("immersive_portals", "spawn_loading_indicator");
     
     //you can input a lambda expression and it will be invoked remotely
     //but java serialization is not stable
@@ -58,8 +51,8 @@ public class MyNetworkClient {
         buffer.writeBytes(byteArrayOutputStream.toByteArray());
         
         PacketByteBuf buf = new PacketByteBuf(buffer);
-        
-        return new CustomPayloadS2CPacket(id_stcCustom, buf);
+    
+        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcCustom, buf);
     }
     
     @Deprecated
@@ -104,7 +97,7 @@ public class MyNetworkClient {
         CompoundTag tag = new CompoundTag();
         entity.toTag(tag);
         buf.writeCompoundTag(tag);
-        return new CustomPayloadS2CPacket(id_stcSpawnEntity, buf);
+        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcSpawnEntity, buf);
     }
     
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
@@ -120,7 +113,7 @@ public class MyNetworkClient {
         }
     
         ModMain.clientTaskList.addTask(() -> {
-            ClientWorld world = Globals.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
+            ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
             if (world.getEntityById(entityId) != null) {
                 Helper.err(String.format(
@@ -153,7 +146,7 @@ public class MyNetworkClient {
         buf.writeDouble(pos.x);
         buf.writeDouble(pos.y);
         buf.writeDouble(pos.z);
-        return new CustomPayloadS2CPacket(id_stcDimensionConfirm, buf);
+        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcDimensionConfirm, buf);
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
@@ -165,7 +158,7 @@ public class MyNetworkClient {
         );
     
         MinecraftClient.getInstance().execute(() -> {
-            Globals.clientTeleportationManager.acceptSynchronizationDataFromServer(
+            CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos
             );
         });
@@ -180,7 +173,7 @@ public class MyNetworkClient {
         buf.writeDouble(pos.x);
         buf.writeDouble(pos.y);
         buf.writeDouble(pos.z);
-        return new CustomPayloadS2CPacket(id_stcSpawnLoadingIndicator, buf);
+        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcSpawnLoadingIndicator, buf);
     }
     
     private static void processSpawnLoadingIndicator(PacketContext context, PacketByteBuf buf) {
@@ -192,7 +185,7 @@ public class MyNetworkClient {
         );
         
         MinecraftClient.getInstance().execute(() -> {
-            ClientWorld world = Globals.clientWorldLoader.getDimension(dimension);
+            ClientWorld world = CGlobal.clientWorldLoader.getDimension(dimension);
             if (world == null) {
                 return;
             }
@@ -208,28 +201,65 @@ public class MyNetworkClient {
     
     
         ClientSidePacketRegistry.INSTANCE.register(
-            id_stcCustom,
+            MyNetworkServer.id_stcCustom,
             MyNetworkClient::handleCustomPacketStc
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            id_stcSpawnEntity,
+            MyNetworkServer.id_stcSpawnEntity,
             MyNetworkClient::processStcSpawnEntity
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            id_stcDimensionConfirm,
+            MyNetworkServer.id_stcDimensionConfirm,
             MyNetworkClient::processStcDimensionConfirm
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            id_stcRedirected,
-            RedirectedMessageManager::processRedirectedMessage
+            MyNetworkServer.id_stcRedirected,
+            MyNetworkClient::processRedirectedMessage
         );
     
         ClientSidePacketRegistry.INSTANCE.register(
-            id_stcSpawnLoadingIndicator,
+            MyNetworkServer.id_stcSpawnLoadingIndicator,
             MyNetworkClient::processSpawnLoadingIndicator
         );
+    }
+    
+    public static void processRedirectedMessage(
+        PacketContext context,
+        PacketByteBuf buf
+    ) {
+        int dimensionId = buf.readInt();
+        int messageType = buf.readInt();
+        DimensionType dimension = DimensionType.byRawId(dimensionId);
+        Packet packet = MyNetworkServer.createEmptyPacketByType(messageType);
+        try {
+            packet.read(buf);
+        }
+        catch (IOException e) {
+            assert false;
+            throw new IllegalArgumentException();
+        }
+        
+        processRedirectedPacket(dimension, packet);
+    }
+    
+    private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
+        MinecraftClient.getInstance().execute(() -> {
+            ClientWorld clientWorld = Helper.loadClientWorld(dimension);
+            
+            assert clientWorld != null;
+            
+            assert clientWorld.getChunkManager() instanceof MyClientChunkManager;
+            
+            ClientPlayNetworkHandler netHandler = ((IEClientWorld) clientWorld).getNetHandler();
+            
+            if ((netHandler).getWorld() != clientWorld) {
+                ((IEClientPlayNetworkHandler) netHandler).setWorld(clientWorld);
+            }
+            
+            packet.apply(netHandler);
+        });
     }
 }

@@ -1,8 +1,9 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.mojang.datafixers.util.Either;
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
@@ -29,10 +30,10 @@ public class ChunkDataSyncManager {
     private static final int unloadWaitingTickTime = 20 * 10;
     
     public ChunkDataSyncManager() {
-        Globals.chunkTracker.beginWatchChunkSignal.connectWithWeakRef(
+        SGlobal.chunkTracker.beginWatchChunkSignal.connectWithWeakRef(
             this, ChunkDataSyncManager::onBeginWatch
         );
-        Globals.chunkTracker.endWatchChunkSignal.connectWithWeakRef(
+        SGlobal.chunkTracker.endWatchChunkSignal.connectWithWeakRef(
             this, ChunkDataSyncManager::onEndWatch
         );
     }
@@ -45,14 +46,14 @@ public class ChunkDataSyncManager {
             return;
         }
     
-        if (Globals.chunkTracker.isChunkDataSent(player, chunkPos)) {
+        if (SGlobal.chunkTracker.isChunkDataSent(player, chunkPos)) {
             return;
         }
     
-        Globals.chunkTracker.onChunkDataSent(player, chunkPos);
+        SGlobal.chunkTracker.onChunkDataSent(player, chunkPos);
         IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
     
-        if (Globals.isChunkLoadingMultiThreaded) {
+        if (SGlobal.isChunkLoadingMultiThreaded) {
             sendPacketMultiThreaded(player, chunkPos, ieStorage);
         }
         else {
@@ -69,7 +70,7 @@ public class ChunkDataSyncManager {
             ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
             if (chunkHolder == null) {
                 //TODO cleanup it
-                Globals.chunkTracker.setIsLoadedByPortal(
+                SGlobal.chunkTracker.setIsLoadedByPortal(
                     chunkPos.dimension,
                     chunkPos.getChunkPos(),
                     true
@@ -112,7 +113,7 @@ public class ChunkDataSyncManager {
         assert chunk != null;
         assert !(chunk instanceof EmptyChunk);
         player.networkHandler.sendPacket(
-            RedirectedMessageManager.createRedirectedMessage(
+            MyNetworkServer.createRedirectedMessage(
                 chunkPos.dimension,
                 new ChunkDataS2CPacket(
                     ((WorldChunk) chunk),
@@ -122,7 +123,7 @@ public class ChunkDataSyncManager {
         );
         
         player.networkHandler.sendPacket(
-            RedirectedMessageManager.createRedirectedMessage(
+            MyNetworkServer.createRedirectedMessage(
                 chunkPos.dimension,
                 new LightUpdateS2CPacket(
                     chunkPos.getChunkPos(),
@@ -153,14 +154,14 @@ public class ChunkDataSyncManager {
             //give up unloading
             return;
         }
-        
-        if (Globals.chunkTracker.isPlayerWatchingChunk(player, chunkPos)) {
+    
+        if (SGlobal.chunkTracker.isPlayerWatchingChunk(player, chunkPos)) {
             //give up unloading
             return;
         }
         
         player.networkHandler.sendPacket(
-            RedirectedMessageManager.createRedirectedMessage(
+            MyNetworkServer.createRedirectedMessage(
                 chunkPos.dimension,
                 new UnloadChunkS2CPacket(
                     chunkPos.x, chunkPos.z
@@ -170,7 +171,7 @@ public class ChunkDataSyncManager {
     }
     
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        Globals.chunkTracker.onPlayerRespawn(oldPlayer);
+        SGlobal.chunkTracker.onPlayerRespawn(oldPlayer);
         
         Helper.getServer().getWorlds()
             .forEach(world -> {

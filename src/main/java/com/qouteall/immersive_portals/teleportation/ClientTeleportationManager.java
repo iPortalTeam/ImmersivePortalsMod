@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.teleportation;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
@@ -87,7 +87,7 @@ public class ClientTeleportationManager {
         DimensionType fromDimension = fromWorld.dimension.getType();
         
         if (fromDimension != toDimension) {
-            ClientWorld toWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(toDimension);
+            ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
     
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
@@ -130,7 +130,7 @@ public class ClientTeleportationManager {
             );
         }
         else {
-            ClientWorld toWorld = Globals.clientWorldLoader.getOrCreateFakedWorld(toDimension);
+            ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
             
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }
@@ -163,7 +163,7 @@ public class ClientTeleportationManager {
         toWorld.addPlayer(player.getEntityId(), player);
     
         mc.world = toWorld;
-        mc.worldRenderer = Globals.clientWorldLoader.getWorldRenderer(toWorld.dimension.getType());
+        mc.worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(toWorld.dimension.getType());
     
         toWorld.setScoreboard(fromWorld.getScoreboard());
     
@@ -172,7 +172,7 @@ public class ClientTeleportationManager {
     
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
     
-        Globals.clientWorldLoader
+        CGlobal.clientWorldLoader
             .getDimensionRenderHelper(toWorld.dimension.getType())
             .switchToMe();
         

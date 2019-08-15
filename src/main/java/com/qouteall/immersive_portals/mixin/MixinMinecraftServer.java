@@ -4,8 +4,8 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
-import com.qouteall.immersive_portals.Globals;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
@@ -56,6 +56,6 @@ public class MixinMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
-        Globals.chunkTracker.cleanUp();
+        SGlobal.chunkTracker.cleanUp();
     }
 }

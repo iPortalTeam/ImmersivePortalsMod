@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalDummyRenderer;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
+import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
@@ -40,19 +41,21 @@ public class ModMainClient implements ClientModInitializer {
         MyNetworkClient.init();
     
         MinecraftClient.getInstance().execute(() -> {
-            Globals.renderer = new RendererUsingFrameBuffer();
-            Globals.clientWorldLoader = new ClientWorldLoader();
-            Globals.myGameRenderer = new MyGameRenderer();
-            Globals.clientTeleportationManager = new ClientTeleportationManager();
+            CGlobal.rendererUsingStencil = new RendererUsingStencil();
+            CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
+            CGlobal.renderer = CGlobal.rendererUsingStencil;
+            CGlobal.clientWorldLoader = new ClientWorldLoader();
+            CGlobal.myGameRenderer = new MyGameRenderer();
+            CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
     
-        Globals.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+        SGlobal.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
     
-        Helper.log(Globals.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
+        Helper.log(SGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
-        if (Globals.isOptifinePresent) {
-            Globals.useHackedChunkRenderDispatcher = false;
-            Globals.renderPortalBeforeTranslucentBlocks = false;
+        if (SGlobal.isOptifinePresent) {
+            SGlobal.useHackedChunkRenderDispatcher = false;
+            SGlobal.renderPortalBeforeTranslucentBlocks = false;
         }
     }
 }

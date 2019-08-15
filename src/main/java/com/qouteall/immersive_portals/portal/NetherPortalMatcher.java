@@ -1,19 +1,15 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import net.minecraft.util.Pair;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -44,33 +40,33 @@ public class NetherPortalMatcher {
                 )
             );
     }
-    
-    public static void testTheCorrectnessOfThatStream() {
-        Stream<BlockPos> stream = fromNearToFarWithinHeightLimit(
-            new BlockPos(
-                MinecraftClient.getInstance().player
-            ),
-            5, heightLimitOverworld
-        );
-        
-        Iterator<BlockPos> iterator = stream.iterator();
-        
-        ServerWorld overWorldOnServer = Helper.getOverWorldOnServer();
-    
-        ModMain.postServerTickSignal.connect(() -> {
-            if (overWorldOnServer.getTime() % 20 == 0) {
-                if (iterator.hasNext()) {
-                    BlockPos blockPos = iterator.next();
-                    
-                    overWorldOnServer.setBlockState(
-                        blockPos,
-                        Blocks.GLASS.getDefaultState(),
-                        1 | 2
-                    );
-                }
-            }
-        });
-    }
+
+//    public static void testTheCorrectnessOfThatStream() {
+//        Stream<BlockPos> stream = fromNearToFarWithinHeightLimit(
+//            new BlockPos(
+//                MinecraftClient.getInstance().player
+//            ),
+//            5, heightLimitOverworld
+//        );
+//
+//        Iterator<BlockPos> iterator = stream.iterator();
+//
+//        ServerWorld overWorldOnServer = Helper.getOverWorldOnServer();
+//
+//        ModMain.postServerTickSignal.connect(() -> {
+//            if (overWorldOnServer.getTime() % 20 == 0) {
+//                if (iterator.hasNext()) {
+//                    BlockPos blockPos = iterator.next();
+//
+//                    overWorldOnServer.setBlockState(
+//                        blockPos,
+//                        Blocks.GLASS.getDefaultState(),
+//                        1 | 2
+//                    );
+//                }
+//            }
+//        });
+//    }
     
     //------------------------------------------------------------
     //detect frame from inner pos

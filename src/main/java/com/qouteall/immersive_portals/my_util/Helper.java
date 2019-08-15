@@ -1,10 +1,8 @@
 package com.qouteall.immersive_portals.my_util;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -218,12 +216,6 @@ public class Helper {
         return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
     }
     
-    public static PlayerListEntry getClientPlayerListEntry() {
-        return MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
-            MinecraftClient.getInstance().player.getGameProfile().getId()
-        );
-    }
-    
     public static class SimpleBox<T> {
         public T obj;
         
@@ -400,7 +392,7 @@ public class Helper {
     }
     
     public static ClientWorld loadClientWorld(DimensionType dimension) {
-        return Globals.clientWorldLoader.getOrCreateFakedWorld(dimension);
+        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
     
     public static void log(Object str) {

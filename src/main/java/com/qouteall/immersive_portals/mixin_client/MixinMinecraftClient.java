@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
 import net.minecraft.client.MinecraftClient;
@@ -39,7 +39,7 @@ public class MixinMinecraftClient implements IEMinecraftClient {
         at = @At("HEAD")
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
-        Globals.clientWorldLoader.cleanUp();
+        CGlobal.clientWorldLoader.cleanUp();
     }
     
     @Override

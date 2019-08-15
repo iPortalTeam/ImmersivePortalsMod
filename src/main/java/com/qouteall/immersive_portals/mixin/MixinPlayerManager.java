@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.SGlobal;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.dimension.DimensionType;
@@ -21,6 +21,6 @@ public class MixinPlayerManager {
         boolean boolean_1,
         CallbackInfoReturnable<ServerPlayerEntity> cir
     ) {
-        Globals.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
+        SGlobal.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
     }
 }

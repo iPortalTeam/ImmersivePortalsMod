@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IECamera;
 import com.qouteall.immersive_portals.portal.MyNetherPortalBlock;
 import net.minecraft.block.Block;
@@ -56,7 +56,7 @@ public abstract class MixinCamera implements IECamera {
      */
     @Overwrite
     private double clipToSpace(double upperBound) {
-        if (Globals.renderer.isRendering()) {
+        if (CGlobal.renderer.isRendering()) {
             return lastClipSpaceResult;
         }
         

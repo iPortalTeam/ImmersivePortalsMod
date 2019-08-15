@@ -24,13 +24,6 @@ public class RendererUsingStencil extends PortalRenderer {
         return isRendering();
     }
     
-    public boolean shouldRenderEntityNow(Entity entity) {
-        if (isRendering()) {
-            return getRenderingPortal().canRenderEntityInsideMe(entity.getPos());
-        }
-        return true;
-    }
-    
     @Override
     protected void prepareStates() {
         //NOTE calling glClearStencil will not clear it, it just assigns the value for clearing

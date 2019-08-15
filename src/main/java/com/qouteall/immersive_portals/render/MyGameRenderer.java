@@ -1,7 +1,9 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.Globals;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEChunkRenderList;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
@@ -42,8 +44,8 @@ public class MyGameRenderer {
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper helper =
-            Globals.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
-        PlayerListEntry playerListEntry = Helper.getClientPlayerListEntry();
+            CGlobal.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
+        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
         Camera newCamera = new Camera();
     
         //store old state
@@ -73,7 +75,7 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         //ieGameRenderer.setCamera(newCamera);
     
-        Globals.renderInfoNumMap.put(
+        SGlobal.renderInfoNumMap.put(
             newWorld.dimension.getType(),
             ((IEWorldRenderer) mc.worldRenderer).getChunkInfos().size()
         );
@@ -88,7 +90,7 @@ public class MyGameRenderer {
         
         mc.getProfiler().push("render_portal_content");
     
-        Globals.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
+        SGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
@@ -120,7 +122,7 @@ public class MyGameRenderer {
     }
     
     public void startCulling() {
-        if (Globals.useFrontCulling) {
+        if (SGlobal.useFrontCulling) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
     }
@@ -141,7 +143,7 @@ public class MyGameRenderer {
     }
     
     private double[] getClipPlaneEquation() {
-        Portal portal = Globals.renderer.getRenderingPortal();
+        Portal portal = CGlobal.renderer.getRenderingPortal();
         
         Vec3d planeNormal = portal.getNormal().multiply(-1);
         
@@ -162,11 +164,11 @@ public class MyGameRenderer {
     }
     
     public void renderPlayerItselfIfNecessary() {
-        if (Globals.renderer.shouldRenderPlayerItself()) {
+        if (CGlobal.renderer.shouldRenderPlayerItself()) {
             renderPlayerItself(
-                Globals.renderer.getOrignialPlayerPos(),
-                Globals.renderer.getOriginalPlayerLastTickPos(),
-                Globals.renderer.getPartialTicks()
+                CGlobal.renderer.getOrignialPlayerPos(),
+                CGlobal.renderer.getOriginalPlayerLastTickPos(),
+                CGlobal.renderer.getPartialTicks()
             );
         }
     }
@@ -174,8 +176,8 @@ public class MyGameRenderer {
     private void renderPlayerItself(Vec3d playerPos, Vec3d playerLastTickPos, float patialTicks) {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();
-        PlayerListEntry playerListEntry = Helper.getClientPlayerListEntry();
-        GameMode originalGameMode = Globals.renderer.getOriginalGameMode();
+        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
+        GameMode originalGameMode = CGlobal.renderer.getOriginalGameMode();
         
         Entity player = mc.cameraEntity;
         assert player != null;
