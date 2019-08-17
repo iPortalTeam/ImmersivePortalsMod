@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.MyNetworkClient;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
@@ -127,7 +127,7 @@ public class Portal extends Entity {
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return MyNetworkClient.createStcSpawnEntity(this);
+        return MyNetwork.createStcSpawnEntity(this);
     }
     
     @Override
@@ -255,8 +255,10 @@ public class Portal extends Entity {
             '}';
     }
     
-    //0 and 3 are opposite
-    //1 and 2 are opposite
+    //0 and 3 are connected
+    //1 and 2 are connected
+    //0 and 1 are in same dimension but facing opposite
+    //2 and 3 are in same dimension but facing opposite
     public static void initBiWayBiFacedPortal(
         Portal[] portals,
         DimensionType dimension1,
@@ -317,11 +319,12 @@ public class Portal extends Entity {
         portals[3].height = height;
     }
     
-    public boolean shouldEntityTeleport(Entity player) {
-        return player.dimension == this.dimension &&
+    public boolean shouldEntityTeleport(Entity entity) {
+        float eyeHeight = entity.getStandingEyeHeight();
+        return entity.dimension == this.dimension &&
             isMovedThroughPortal(
-                Helper.lastTickPosOf(player),
-                player.getPos()
+                Helper.lastTickPosOf(entity).add(0, eyeHeight, 0),
+                entity.getPos().add(0, eyeHeight, 0)
             );
     }
     

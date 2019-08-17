@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.SGlobal;
+import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -56,7 +56,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         long finishTimeNano,
         CallbackInfo ci
     ) {
-        if (SGlobal.renderPortalBeforeTranslucentBlocks) {
+        ModMainClient.switchToCorrectRenderer();
+        if (CGlobal.renderPortalBeforeTranslucentBlocks) {
             CGlobal.renderer.doRendering(partialTicks, finishTimeNano);
         }
     }
@@ -70,7 +71,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void beforeRenderingHand(float float_1, long long_1, CallbackInfo ci) {
-        if (!SGlobal.renderPortalBeforeTranslucentBlocks) {
+        ModMainClient.switchToCorrectRenderer();
+        if (!CGlobal.renderPortalBeforeTranslucentBlocks) {
             CGlobal.renderer.doRendering(float_1, long_1);
         }
     }
@@ -98,7 +100,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     
     @Shadow
     abstract protected void applyCameraTransformations(float float_1);
-    
     
     @Override
     public void applyCameraTransformations_(float float_1) {

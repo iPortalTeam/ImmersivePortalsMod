@@ -13,6 +13,8 @@ import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -32,6 +34,7 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Environment(EnvType.CLIENT)
 public class MyCommandClient {
     
     public static void register(
@@ -116,70 +119,70 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("client_remote_ticking_enable")
             .executes(context -> {
-                SGlobal.isClientRemoteTickingEnabled = true;
+                CGlobal.isClientRemoteTickingEnabled = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("client_remote_ticking_disable")
             .executes(context -> {
-                SGlobal.isClientRemoteTickingEnabled = false;
+                CGlobal.isClientRemoteTickingEnabled = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("advanced_frustum_culling_enable")
             .executes(context -> {
-                SGlobal.doUseAdvancedFrustumCulling = true;
+                CGlobal.doUseAdvancedFrustumCulling = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("advanced_frustum_culling_disable")
             .executes(context -> {
-                SGlobal.doUseAdvancedFrustumCulling = false;
+                CGlobal.doUseAdvancedFrustumCulling = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_enable")
             .executes(context -> {
-                SGlobal.isChunkLoadingMultiThreaded = true;
+                CGlobal.isChunkLoadingMultiThreaded = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_disable")
             .executes(context -> {
-                SGlobal.isChunkLoadingMultiThreaded = false;
+                CGlobal.isChunkLoadingMultiThreaded = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("hacked_chunk_render_dispatcher_enable")
             .executes(context -> {
-                SGlobal.useHackedChunkRenderDispatcher = true;
+                CGlobal.useHackedChunkRenderDispatcher = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("hacked_chunk_render_dispatcher_disable")
             .executes(context -> {
-                SGlobal.useHackedChunkRenderDispatcher = false;
+                CGlobal.useHackedChunkRenderDispatcher = false;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("front_culling_enable")
             .executes(context -> {
-                SGlobal.useFrontCulling = true;
+                CGlobal.useFrontCulling = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("front_culling_disable")
             .executes(context -> {
-                SGlobal.useFrontCulling = false;
+                CGlobal.useFrontCulling = false;
                 return 0;
             })
         );
@@ -226,7 +229,7 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("report_render_info_num")
             .executes(context -> {
-                String str = Helper.myToString(SGlobal.renderInfoNumMap.entrySet().stream());
+                String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
                 context.getSource().getPlayer().sendMessage(new LiteralText(str));
                 return 0;
             })
@@ -245,13 +248,13 @@ public class MyCommandClient {
         );
         
         dispatcher.register(builder);
-    
+        
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
     private static int reportFogColor(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         StringBuilder str = new StringBuilder();
-    
+        
         CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
             DimensionRenderHelper helper =
                 CGlobal.clientWorldLoader.getDimensionRenderHelper(
@@ -265,7 +268,7 @@ public class MyCommandClient {
                 ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
             ));
         });
-    
+        
         BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
             .gameRenderer
         ).getBackgroundRenderer();
@@ -273,15 +276,15 @@ public class MyCommandClient {
             "current: %s %s \n switched %s \n",
             currentFogRenderer,
             ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
-            SGlobal.switchedFogRenderer
+            CGlobal.switchedFogRenderer
         ));
-    
+        
         String result = str.toString();
-    
+        
         Helper.log(str);
-    
+        
         context.getSource().getPlayer().sendMessage(new LiteralText(result));
-    
+        
         return 0;
     }
     
@@ -296,8 +299,8 @@ public class MyCommandClient {
                 ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
             ));
         });
-    
-    
+        
+        
         str.append("Chunk Renderers:\n");
         CGlobal.clientWorldLoader.worldRendererMap.forEach(
             (dimension, worldRenderer) -> {
@@ -334,7 +337,7 @@ public class MyCommandClient {
     }
     
     private static int setMaxPortalLayer(int m) {
-        SGlobal.maxPortalLayer = m;
+        CGlobal.maxPortalLayer = m;
         return 0;
     }
     
@@ -373,29 +376,29 @@ public class MyCommandClient {
             Vec3d fromPos = player.getPos();
             Vec3d fromNormal = player.getRotationVector().multiply(-1);
             ServerWorld fromWorld = ((ServerWorld) player.world);
-    
+            
             addPortalFunctionality = (playerEntity) -> {
                 Vec3d toPos = playerEntity.getPos();
                 DimensionType toDimension = player.dimension;
-        
+                
                 Portal portal = new Portal(fromWorld);
                 portal.x = fromPos.x;
                 portal.y = fromPos.y;
                 portal.z = fromPos.z;
-        
+                
                 portal.axisH = new Vec3d(0, 1, 0);
                 portal.axisW = portal.axisH.crossProduct(fromNormal).normalize();
-        
+                
                 portal.dimensionTo = toDimension;
                 portal.destination = toPos;
-        
+                
                 portal.width = 4;
                 portal.height = 4;
-        
+                
                 assert portal.isPortalValid();
-        
+                
                 fromWorld.spawnEntity(portal);
-        
+                
                 addPortalFunctionality = originalAddPortalFunctionality;
             };
         };

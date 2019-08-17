@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.exposer.IEEntityTracker;
@@ -58,7 +58,7 @@ public class MixinEntityTracker implements IEEntityTracker {
         Packet<?> packet_1
     ) {
         serverPlayNetworkHandler.sendPacket(
-            MyNetworkServer.createRedirectedMessage(
+            MyNetwork.createRedirectedMessage(
                 entity.dimension,
                 packet_1
             )
@@ -77,7 +77,7 @@ public class MixinEntityTracker implements IEEntityTracker {
         Packet<?> packet_1
     ) {
         serverPlayNetworkHandler.sendPacket(
-            MyNetworkServer.createRedirectedMessage(
+            MyNetwork.createRedirectedMessage(
                 entity.dimension,
                 packet_1
             )

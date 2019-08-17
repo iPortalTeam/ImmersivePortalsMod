@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.google.common.collect.Lists;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.exposer.IEEntityTracker;
@@ -108,11 +108,11 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
         });
         
         if (packets_1[0] == null) {
-            packets_1[0] = MyNetworkServer.createRedirectedMessage(
+            packets_1[0] = MyNetwork.createRedirectedMessage(
                 world.dimension.getType(),
                 new ChunkDataS2CPacket(worldChunk_1, 65535)
             );
-            packets_1[1] = MyNetworkServer.createRedirectedMessage(
+            packets_1[1] = MyNetwork.createRedirectedMessage(
                 world.dimension.getType(),
                 new LightUpdateS2CPacket(
                     worldChunk_1.getPos(),
@@ -155,7 +155,7 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
             while (var9.hasNext()) {
                 entity_3 = (Entity) var9.next();
                 player.networkHandler.sendPacket(
-                    MyNetworkServer.createRedirectedMessage(
+                    MyNetwork.createRedirectedMessage(
                         world.getDimension().getType(),
                         new EntityAttachS2CPacket(
                             entity_3,
@@ -172,7 +172,7 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
             while (var9.hasNext()) {
                 entity_3 = (Entity) var9.next();
                 player.networkHandler.sendPacket(
-                    MyNetworkServer.createRedirectedMessage(
+                    MyNetwork.createRedirectedMessage(
                         world.getDimension().getType(),
                         new EntityPassengersSetS2CPacket(entity_3)
                     )

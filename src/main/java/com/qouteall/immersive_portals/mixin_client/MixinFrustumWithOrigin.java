@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.FrustumWithOrigin;
@@ -90,7 +89,7 @@ public class MixinFrustumWithOrigin {
     }
     
     private boolean isOutsidePortalFrustum(Box box) {
-        if (!SGlobal.doUseAdvancedFrustumCulling) {
+        if (!CGlobal.doUseAdvancedFrustumCulling) {
             return false;
         }
         
@@ -154,7 +153,7 @@ public class MixinFrustumWithOrigin {
         double double_6,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (SGlobal.doUseAdvancedFrustumCulling) {
+        if (CGlobal.doUseAdvancedFrustumCulling) {
             if (CGlobal.renderer.isRendering()) {
                 Box boxInLocalCoordinate = new Box(
                     double_1,

@@ -1,8 +1,9 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.mojang.datafixers.util.Either;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -53,7 +54,7 @@ public class ChunkDataSyncManager {
         SGlobal.chunkTracker.onChunkDataSent(player, chunkPos);
         IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
     
-        if (SGlobal.isChunkLoadingMultiThreaded) {
+        if (CGlobal.isChunkLoadingMultiThreaded) {
             sendPacketMultiThreaded(player, chunkPos, ieStorage);
         }
         else {
@@ -113,7 +114,7 @@ public class ChunkDataSyncManager {
         assert chunk != null;
         assert !(chunk instanceof EmptyChunk);
         player.networkHandler.sendPacket(
-            MyNetworkServer.createRedirectedMessage(
+            MyNetwork.createRedirectedMessage(
                 chunkPos.dimension,
                 new ChunkDataS2CPacket(
                     ((WorldChunk) chunk),
@@ -123,7 +124,7 @@ public class ChunkDataSyncManager {
         );
         
         player.networkHandler.sendPacket(
-            MyNetworkServer.createRedirectedMessage(
+            MyNetwork.createRedirectedMessage(
                 chunkPos.dimension,
                 new LightUpdateS2CPacket(
                     chunkPos.getChunkPos(),
@@ -161,7 +162,7 @@ public class ChunkDataSyncManager {
         }
         
         player.networkHandler.sendPacket(
-            MyNetworkServer.createRedirectedMessage(
+            MyNetwork.createRedirectedMessage(
                 chunkPos.dimension,
                 new UnloadChunkS2CPacket(
                     chunkPos.x, chunkPos.z

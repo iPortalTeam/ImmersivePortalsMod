@@ -5,6 +5,8 @@ import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -20,6 +22,7 @@ import net.minecraft.world.level.LevelInfo;
 import java.util.HashMap;
 import java.util.Map;
 
+@Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
     public Map<DimensionType, ClientWorld> clientWorldMap = new HashMap<>();
     public Map<DimensionType, WorldRenderer> worldRendererMap = new HashMap<>();
@@ -42,7 +45,7 @@ public class ClientWorldLoader {
     }
     
     private void tick() {
-        if (SGlobal.isClientRemoteTickingEnabled) {
+        if (CGlobal.isClientRemoteTickingEnabled) {
             clientWorldMap.values().forEach(world -> {
                 if (mc.world != world) {
                     //NOTE tick() does not include ticking entities
@@ -93,7 +96,7 @@ public class ClientWorldLoader {
     
     public DimensionRenderHelper getDimensionRenderHelper(DimensionType dimension) {
         initializeIfNeeded();
-    
+        
         DimensionRenderHelper result = renderHelperMap.computeIfAbsent(
             dimension,
             dimensionType -> {
@@ -110,7 +113,7 @@ public class ClientWorldLoader {
         if (!isInitialized) {
             assert (mc.world != null);
             assert (mc.worldRenderer != null);
-    
+            
             DimensionType playerDimension = mc.world.getDimension().getType();
             clientWorldMap.put(playerDimension, mc.world);
             worldRendererMap.put(playerDimension, mc.worldRenderer);
@@ -118,7 +121,7 @@ public class ClientWorldLoader {
                 mc.world.dimension.getType(),
                 new DimensionRenderHelper(mc.world)
             );
-    
+            
             isHardCore = mc.world.getLevelProperties().isHardcore();
             
             isInitialized = true;
@@ -130,6 +133,8 @@ public class ClientWorldLoader {
         assert (mc.player.dimension != dimension);
         
         isLoadingFakedWorld = true;
+        
+        OptifineCompatibilityHelper.onBeginCreatingFakedWorld();
         
         //TODO get load distance
         int chunkLoadDistance = 3;
@@ -158,6 +163,8 @@ public class ClientWorldLoader {
         
         worldRenderer.setWorld(newWorld);
         
+        worldRenderer.apply(mc.getResourceManager());
+        
         ((IEClientPlayNetworkHandler) ((IEClientWorld) newWorld).getNetHandler())
             .setWorld(newWorld);
         
@@ -167,6 +174,8 @@ public class ClientWorldLoader {
         Helper.log("Faked World Created " + dimension);
         
         isLoadingFakedWorld = false;
+        
+        OptifineCompatibilityHelper.onFinishCreatingFakedWorld();
         
         return newWorld;
     }

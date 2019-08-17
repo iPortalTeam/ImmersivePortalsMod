@@ -88,6 +88,11 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     @Override
+    public void renderPortalInEntityRenderer(Portal portal) {
+        //nothing
+    }
+    
+    @Override
     public boolean shouldSkipClearing() {
         return false;
     }

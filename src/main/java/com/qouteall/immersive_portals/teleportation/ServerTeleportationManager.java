@@ -1,8 +1,7 @@
 package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetworkClient;
-import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -78,7 +77,8 @@ public class ServerTeleportationManager {
     ) {
         return canPlayerReachPos(player, dimensionBefore, posBefore) &&
             portalEntity instanceof Portal &&
-            isClose(posBefore, portalEntity.getPos());
+            isClose(posBefore, portalEntity.getPos()) &&
+            !player.hasVehicle();
     }
     
     private boolean canPlayerReachPos(
@@ -168,7 +168,7 @@ public class ServerTeleportationManager {
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {
-        CustomPayloadS2CPacket packet = MyNetworkClient.createStcDimensionConfirm(
+        CustomPayloadS2CPacket packet = MyNetwork.createStcDimensionConfirm(
             player.dimension,
             player.getPos()
         );
@@ -200,6 +200,10 @@ public class ServerTeleportationManager {
     private void teleportRegularEntity(Entity entity, Portal portal) {
         assert entity.dimension == portal.dimension;
         assert !(entity instanceof ServerPlayerEntity);
+    
+        if (entity.hasVehicle() || !entity.getPassengerList().isEmpty()) {
+            return;
+        }
         
         Vec3d newPos = portal.applyTransformationToPoint(entity.getPos());
         
@@ -245,7 +249,7 @@ public class ServerTeleportationManager {
         //so it will not be in the player's unloading entity list
         //manually send destroy packet to avoid duplicate
     
-        CustomPayloadS2CPacket removeEntityPacket = MyNetworkServer.createRedirectedMessage(
+        CustomPayloadS2CPacket removeEntityPacket = MyNetwork.createRedirectedMessage(
             fromWorld.dimension.getType(),
             new EntitiesDestroyS2CPacket(entity.getEntityId())
         );

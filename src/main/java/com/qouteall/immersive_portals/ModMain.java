@@ -29,8 +29,8 @@ public class ModMain implements ModInitializer {
     
         MyNetherPortalBlock.init();
     
-        MyNetworkServer.init();
-    
+        MyNetwork.init();
+        
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
@@ -39,4 +39,5 @@ public class ModMain implements ModInitializer {
         SGlobal.chunkTracker = new ChunkTracker();
         SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
     }
+    
 }

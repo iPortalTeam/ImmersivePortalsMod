@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.my_util.Helper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
@@ -24,10 +26,9 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 
-//import com.sun.istack.internal.Nullable;
-
 //this class is modified based on ClientChunkManager
 //re-write this class upon updating mod
+@Environment(EnvType.CLIENT)
 public class MyClientChunkManager extends ClientChunkManager {
     private static final Logger LOGGER = LogManager.getLogger();
     private final WorldChunk emptyChunk;

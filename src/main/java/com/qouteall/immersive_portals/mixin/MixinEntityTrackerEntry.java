@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.MyNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
@@ -30,7 +30,7 @@ public abstract class MixinEntityTrackerEntry {
         Packet<?> packet_1
     ) {
         serverPlayNetworkHandler.sendPacket(
-            MyNetworkServer.createRedirectedMessage(
+            MyNetwork.createRedirectedMessage(
                 entity.dimension,
                 packet_1
             )

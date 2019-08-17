@@ -1,9 +1,12 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -19,6 +22,25 @@ import java.util.Random;
 
 public class NetherPortalGenerator {
     public final static int randomShiftFactor = 20;
+    
+    public static void spawnLoadingIndicator(
+        ServerWorld world,
+        ObsidianFrame obsidianFrame
+    ) {
+        IntegerAABBInclusive box = obsidianFrame.boxWithoutObsidian;
+        Vec3d center = new Vec3d(
+            (double) (box.h.getX() + box.l.getX() + 1) / 2,
+            (double) (box.h.getY() + box.l.getY() + 1) / 2 - 1,
+            (double) (box.h.getZ() + box.l.getZ() + 1) / 2
+        );
+        CustomPayloadS2CPacket packet =
+            MyNetwork.createSpawnLoadingIndicator(world.dimension.getType(), center);
+        Helper.getEntitiesNearby(
+            world, center, ServerPlayerEntity.class, 64
+        ).forEach(
+            player -> player.networkHandler.sendPacket(packet)
+        );
+    }
     
     public static class NetherPortalGeneratedInformation {
         public DimensionType fromDimension;
@@ -61,7 +83,7 @@ public class NetherPortalGenerator {
     
         assert toWorld != null;
     
-        LoadingIndicatorEntity.spawnLoadingIndicator(fromWorld, fromObsidianFrame);
+        spawnLoadingIndicator(fromWorld, fromObsidianFrame);
         
         BlockPos posInOtherDimension = getPosInOtherDimension(
             firePos, fromDimension, toDimension

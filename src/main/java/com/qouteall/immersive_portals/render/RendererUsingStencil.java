@@ -1,8 +1,10 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.qouteall.immersive_portals.exposer.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
@@ -22,6 +24,13 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public boolean shouldSkipClearing() {
         return isRendering();
+    }
+    
+    @Override
+    protected void initIfNeeded() {
+        super.initIfNeeded();
+        IEGlFrameBuffer framebuffer = (IEGlFrameBuffer) MinecraftClient.getInstance().getFramebuffer();
+        framebuffer.setIsStencilBufferEnabledAndReload(true);
     }
     
     @Override
@@ -68,6 +77,11 @@ public class RendererUsingStencil extends PortalRenderer {
         
         //POP
         portalLayers.pop();
+    }
+    
+    @Override
+    public void renderPortalInEntityRenderer(Portal portal) {
+        //nothing
     }
     
     private void renderPortalViewAreaToStencil(

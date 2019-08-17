@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.MyNetworkServer;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
@@ -77,7 +77,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
             myRemovedEntities.stream()
                 .collect(Collectors.groupingBy(entity -> entity.dimension))
                 .forEach((dimension, list) -> networkHandler.sendPacket(
-                    MyNetworkServer.createRedirectedMessage(
+                    MyNetwork.createRedirectedMessage(
                         dimension,
                         new EntitiesDestroyS2CPacket(
                             list.stream().mapToInt(
@@ -105,7 +105,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     public void onStoppedTracking(Entity entity_1) {
         if (entity_1 instanceof PlayerEntity) {
             this.networkHandler.sendPacket(
-                MyNetworkServer.createRedirectedMessage(
+                MyNetwork.createRedirectedMessage(
                     entity_1.dimension,
                     new EntitiesDestroyS2CPacket(entity_1.getEntityId())
                 )

@@ -3,11 +3,11 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
@@ -32,7 +32,7 @@ import static org.lwjgl.opengl.GL11.*;
 public abstract class PortalRenderer {
     
     public static final MinecraftClient mc = MinecraftClient.getInstance();
-    public Supplier<Integer> maxPortalLayer = () -> SGlobal.maxPortalLayer;
+    public Supplier<Integer> maxPortalLayer = () -> CGlobal.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     protected Stack<Portal> portalLayers = new Stack<>();
     protected DimensionType originalPlayerDimension;
@@ -48,6 +48,7 @@ public abstract class PortalRenderer {
     protected void initIfNeeded() {
         if (idQueryObject == -1) {
             idQueryObject = GL15.glGenQueries();
+            Helper.log("initialized renderer " + this.getClass());
         }
     }
     
@@ -123,7 +124,8 @@ public abstract class PortalRenderer {
         originalPlayerDimension = cameraEntity.dimension;
         originalPlayerPos = cameraEntity.getPos();
         originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
-        originalGameMode = CHelper.getClientPlayerListEntry().getGameMode();
+        PlayerListEntry entry = CHelper.getClientPlayerListEntry();
+        originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
     }
     
     public boolean shouldRenderEntityNow(Entity entity) {
@@ -152,10 +154,6 @@ public abstract class PortalRenderer {
     }
     
     private void renderPortals() {
-        if (getPortalLayer() >= maxPortalLayer.get()) {
-            return;
-        }
-        
         assert cameraEntity.world == mc.world;
         assert cameraEntity.dimension == mc.world.dimension.getType();
         
@@ -201,12 +199,15 @@ public abstract class PortalRenderer {
     
     protected abstract void doRenderPortal(Portal portal);
     
-    
     //it will overwrite the matrix
     //do not push matrix before calling this
     protected void manageCameraAndRenderPortalContent(
         Portal portal
     ) {
+        if (getPortalLayer() > maxPortalLayer.get()) {
+            return;
+        }
+        
         Entity cameraEntity = mc.cameraEntity;
         int allowedStencilValue = getPortalLayer();
         Camera camera = mc.gameRenderer.getCamera();
@@ -245,7 +246,7 @@ public abstract class PortalRenderer {
         //restore the transformation
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
-        //setupCameraTransformation();
+        setupCameraTransformation();
     }
     
     private void renderPortalContentAndNestedPortals(
@@ -343,7 +344,7 @@ public abstract class PortalRenderer {
     }
     
     //it will render a box instead of a quad
-    protected void drawPortalViewTriangle(Portal portal) {
+    public void drawPortalViewTriangle(Portal portal) {
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
         
@@ -355,7 +356,6 @@ public abstract class PortalRenderer {
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         GlStateManager.disableBlend();
         GlStateManager.disableLighting();
-        
         
         GL11.glDisable(GL_CLIP_PLANE0);
         
@@ -376,4 +376,6 @@ public abstract class PortalRenderer {
         GlStateManager.enableTexture();
         GlStateManager.enableLighting();
     }
+    
+    public abstract void renderPortalInEntityRenderer(Portal portal);
 }

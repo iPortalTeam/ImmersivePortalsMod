@@ -1,11 +1,8 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
-import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
@@ -13,10 +10,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
@@ -38,25 +32,6 @@ public class LoadingIndicatorEntity extends Entity {
         EntityRendererRegistry.INSTANCE.register(
             LoadingIndicatorEntity.class,
             (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
-        );
-    }
-    
-    public static void spawnLoadingIndicator(
-        ServerWorld world,
-        ObsidianFrame obsidianFrame
-    ) {
-        IntegerAABBInclusive box = obsidianFrame.boxWithoutObsidian;
-        Vec3d center = new Vec3d(
-            (double) (box.h.getX() + box.l.getX() + 1) / 2,
-            (double) (box.h.getY() + box.l.getY() + 1) / 2 - 1,
-            (double) (box.h.getZ() + box.l.getZ() + 1) / 2
-        );
-        CustomPayloadS2CPacket packet =
-            MyNetworkClient.createSpawnLoadingIndicator(world.dimension.getType(), center);
-        Helper.getEntitiesNearby(
-            world, center, ServerPlayerEntity.class, 64
-        ).forEach(
-            player -> player.networkHandler.sendPacket(packet)
         );
     }
     

@@ -18,6 +18,10 @@
     "MixinGlStateManager",
     "MixinMinecraftClient",
     "MixinPlayerListEntry",
+    "MixinPlayerMoveC2SPacket_C",
+    "MixinPlayerMoveC2SPacketBoth",
+    "MixinPlayerMoveC2SPacketLookOnly",
+    "MixinPlayerMoveC2SPacketPositionOnly",
     "MixinWorldRenderer"
   ],
   "injectors": {

@@ -11,10 +11,8 @@
     "MixinFireBlock",
     "MixinMinecraftServer",
     "MixinPlayerManager",
-    "MixinPlayerMoveC2SPacket",
-    "MixinPlayerMoveC2SPacketBoth",
-    "MixinPlayerMoveC2SPacketLookOnly",
-    "MixinPlayerMoveC2SPacketPositionOnly",
+    "MixinPlayerMoveC2SPacket_S",
+
     "MixinPlayerPositionLookS2CPacket",
     "MixinPortalBlock",
     "MixinServerChunkManager",

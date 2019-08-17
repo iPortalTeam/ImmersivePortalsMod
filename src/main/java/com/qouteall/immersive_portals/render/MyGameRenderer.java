@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.exposer.IEChunkRenderList;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
@@ -75,7 +74,7 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         //ieGameRenderer.setCamera(newCamera);
     
-        SGlobal.renderInfoNumMap.put(
+        CGlobal.renderInfoNumMap.put(
             newWorld.dimension.getType(),
             ((IEWorldRenderer) mc.worldRenderer).getChunkInfos().size()
         );
@@ -90,7 +89,7 @@ public class MyGameRenderer {
         
         mc.getProfiler().push("render_portal_content");
     
-        SGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
+        CGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
@@ -122,7 +121,7 @@ public class MyGameRenderer {
     }
     
     public void startCulling() {
-        if (SGlobal.useFrontCulling) {
+        if (CGlobal.useFrontCulling) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
     }

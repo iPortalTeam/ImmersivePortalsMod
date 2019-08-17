@@ -6,13 +6,13 @@ import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -23,37 +23,14 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
+@Environment(EnvType.CLIENT)
 public class MyNetworkClient {
-    
-    //you can input a lambda expression and it will be invoked remotely
-    //but java serialization is not stable
-    @Deprecated
-    public static CustomPayloadS2CPacket createCustomPacketStc(
-        ICustomStcPacket serializable
-    ) {
-        //it copies the data twice but as the packet is small it's of no problem
-        
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream stream = null;
-        try {
-            stream = new ObjectOutputStream(byteArrayOutputStream);
-            stream.writeObject(serializable);
-        }
-        catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
-        
-        ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBytes(byteArrayOutputStream.toByteArray());
-        
-        PacketByteBuf buf = new PacketByteBuf(buffer);
-    
-        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcCustom, buf);
-    }
     
     @Deprecated
     private static void handleCustomPacketStc(PacketContext context, PacketByteBuf buf) {
@@ -82,22 +59,7 @@ public class MyNetworkClient {
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);
         buf.writeInt(portalEntityId);
-        return new CustomPayloadC2SPacket(MyNetworkServer.id_ctsTeleport, buf);
-    }
-    
-    //NOTE my packet is redirected but I cannot get the packet handler info here
-    public static CustomPayloadS2CPacket createStcSpawnEntity(
-        Entity entity
-    ) {
-        EntityType entityType = entity.getType();
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeString(EntityType.getId(entityType).toString());
-        buf.writeInt(entity.getEntityId());
-        buf.writeInt(entity.dimension.getRawId());
-        CompoundTag tag = new CompoundTag();
-        entity.toTag(tag);
-        buf.writeCompoundTag(tag);
-        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcSpawnEntity, buf);
+        return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
     }
     
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
@@ -105,13 +67,13 @@ public class MyNetworkClient {
         int entityId = buf.readInt();
         DimensionType dimensionType = DimensionType.byRawId(buf.readInt());
         CompoundTag compoundTag = buf.readCompoundTag();
-    
+        
         Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
         if (!entityType.isPresent()) {
             Helper.err("unknown entity type " + entityTypeString);
             return;
         }
-    
+        
         ModMain.clientTaskList.addTask(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
@@ -137,18 +99,6 @@ public class MyNetworkClient {
         });
     }
     
-    public static CustomPayloadS2CPacket createStcDimensionConfirm(
-        DimensionType dimensionType,
-        Vec3d pos
-    ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimensionType.getRawId());
-        buf.writeDouble(pos.x);
-        buf.writeDouble(pos.y);
-        buf.writeDouble(pos.z);
-        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcDimensionConfirm, buf);
-    }
-    
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
         DimensionType dimension = DimensionType.byRawId(buf.readInt());
         Vec3d pos = new Vec3d(
@@ -156,24 +106,12 @@ public class MyNetworkClient {
             buf.readDouble(),
             buf.readDouble()
         );
-    
+        
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos
             );
         });
-    }
-    
-    public static CustomPayloadS2CPacket createSpawnLoadingIndicator(
-        DimensionType dimensionType,
-        Vec3d pos
-    ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimensionType.getRawId());
-        buf.writeDouble(pos.x);
-        buf.writeDouble(pos.y);
-        buf.writeDouble(pos.z);
-        return new CustomPayloadS2CPacket(MyNetworkServer.id_stcSpawnLoadingIndicator, buf);
     }
     
     private static void processSpawnLoadingIndicator(PacketContext context, PacketByteBuf buf) {
@@ -198,30 +136,30 @@ public class MyNetworkClient {
     }
     
     public static void init() {
-    
-    
+        
+        
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetworkServer.id_stcCustom,
+            MyNetwork.id_stcCustom,
             MyNetworkClient::handleCustomPacketStc
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetworkServer.id_stcSpawnEntity,
+            MyNetwork.id_stcSpawnEntity,
             MyNetworkClient::processStcSpawnEntity
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetworkServer.id_stcDimensionConfirm,
+            MyNetwork.id_stcDimensionConfirm,
             MyNetworkClient::processStcDimensionConfirm
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetworkServer.id_stcRedirected,
+            MyNetwork.id_stcRedirected,
             MyNetworkClient::processRedirectedMessage
         );
-    
+        
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetworkServer.id_stcSpawnLoadingIndicator,
+            MyNetwork.id_stcSpawnLoadingIndicator,
             MyNetworkClient::processSpawnLoadingIndicator
         );
     }
@@ -233,7 +171,7 @@ public class MyNetworkClient {
         int dimensionId = buf.readInt();
         int messageType = buf.readInt();
         DimensionType dimension = DimensionType.byRawId(dimensionId);
-        Packet packet = MyNetworkServer.createEmptyPacketByType(messageType);
+        Packet packet = MyNetwork.createEmptyPacketByType(messageType);
         try {
             packet.read(buf);
         }

@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalDummyRenderer;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
+import com.qouteall.immersive_portals.render.RendererCompatibleWithShaders;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
@@ -30,6 +31,23 @@ public class ModMainClient implements ClientModInitializer {
         );
     }
     
+    public static void switchToCorrectRenderer() {
+        if (CGlobal.isOptifinePresent) {
+            if (OptifineCompatibilityHelper.getIsUsingShader()) {
+                if (CGlobal.renderer != CGlobal.rendererCompatibleWithShaders) {
+                    Helper.log("switched to dummy renderer");
+                }
+                CGlobal.renderer = CGlobal.rendererCompatibleWithShaders;
+            }
+            else {
+                if (CGlobal.renderer != CGlobal.rendererUsingStencil) {
+                    Helper.log("switched to normal renderer");
+                }
+                CGlobal.renderer = CGlobal.rendererUsingStencil;
+            }
+        }
+    }
+    
     @Override
     public void onInitializeClient() {
         Helper.log("initializing client");
@@ -43,19 +61,22 @@ public class ModMainClient implements ClientModInitializer {
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.rendererUsingStencil = new RendererUsingStencil();
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
+            CGlobal.rendererCompatibleWithShaders = new RendererCompatibleWithShaders();
             CGlobal.renderer = CGlobal.rendererUsingStencil;
             CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.myGameRenderer = new MyGameRenderer();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
     
-        SGlobal.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+        CGlobal.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
     
-        Helper.log(SGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
+        Helper.log(CGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
-        if (SGlobal.isOptifinePresent) {
-            SGlobal.useHackedChunkRenderDispatcher = false;
-            SGlobal.renderPortalBeforeTranslucentBlocks = false;
+        if (CGlobal.isOptifinePresent) {
+            CGlobal.useHackedChunkRenderDispatcher = false;
+            CGlobal.renderPortalBeforeTranslucentBlocks = false;
+        
+            OptifineCompatibilityHelper.init();
         }
     }
 }

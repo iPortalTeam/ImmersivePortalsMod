@@ -1,9 +1,14 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
@@ -13,9 +18,11 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
-public class MyNetworkServer {
+public class MyNetwork {
     public static final Identifier id_ctsTeleport =
         new Identifier("immersive_portals", "teleport");
     public static final Identifier id_stcCustom =
@@ -53,7 +60,7 @@ public class MyNetworkServer {
     public static void init() {
         ServerSidePacketRegistry.INSTANCE.register(
             id_ctsTeleport,
-            MyNetworkServer::processCtsTeleport
+            MyNetwork::processCtsTeleport
         );
     }
     
@@ -99,5 +106,70 @@ public class MyNetworkServer {
         Packet packet
     ) {
         player.networkHandler.sendPacket(createRedirectedMessage(dimension, packet));
+    }
+    
+    public static CustomPayloadS2CPacket createStcDimensionConfirm(
+        DimensionType dimensionType,
+        Vec3d pos
+    ) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(dimensionType.getRawId());
+        buf.writeDouble(pos.x);
+        buf.writeDouble(pos.y);
+        buf.writeDouble(pos.z);
+        return new CustomPayloadS2CPacket(id_stcDimensionConfirm, buf);
+    }
+    
+    //you can input a lambda expression and it will be invoked remotely
+    //but java serialization is not stable
+    @Deprecated
+    public static CustomPayloadS2CPacket createCustomPacketStc(
+        ICustomStcPacket serializable
+    ) {
+        //it copies the data twice but as the packet is small it's of no problem
+        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream stream = null;
+        try {
+            stream = new ObjectOutputStream(byteArrayOutputStream);
+            stream.writeObject(serializable);
+        }
+        catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeBytes(byteArrayOutputStream.toByteArray());
+        
+        PacketByteBuf buf = new PacketByteBuf(buffer);
+        
+        return new CustomPayloadS2CPacket(id_stcCustom, buf);
+    }
+    
+    //NOTE my packet is redirected but I cannot get the packet handler info here
+    public static CustomPayloadS2CPacket createStcSpawnEntity(
+        Entity entity
+    ) {
+        EntityType entityType = entity.getType();
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeString(EntityType.getId(entityType).toString());
+        buf.writeInt(entity.getEntityId());
+        buf.writeInt(entity.dimension.getRawId());
+        CompoundTag tag = new CompoundTag();
+        entity.toTag(tag);
+        buf.writeCompoundTag(tag);
+        return new CustomPayloadS2CPacket(id_stcSpawnEntity, buf);
+    }
+    
+    public static CustomPayloadS2CPacket createSpawnLoadingIndicator(
+        DimensionType dimensionType,
+        Vec3d pos
+    ) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(dimensionType.getRawId());
+        buf.writeDouble(pos.x);
+        buf.writeDouble(pos.y);
+        buf.writeDouble(pos.z);
+        return new CustomPayloadS2CPacket(id_stcSpawnLoadingIndicator, buf);
     }
 }

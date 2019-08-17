@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.CGlobal;
 import net.minecraft.client.render.VisibleRegion;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -18,7 +19,20 @@ public class PortalDummyRenderer extends EntityRenderer<Portal> {
         double double_2,
         double double_3
     ) {
-        return false;
+        return true;
+    }
+    
+    @Override
+    public void render(
+        Portal portal,
+        double double_1,
+        double double_2,
+        double double_3,
+        float float_1,
+        float float_2
+    ) {
+        super.render(portal, double_1, double_2, double_3, float_1, float_2);
+        CGlobal.renderer.renderPortalInEntityRenderer(portal);
     }
     
     @Override
