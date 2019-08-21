@@ -40,6 +40,9 @@ public class ClientTeleportationManager {
     }
     
     public void acceptSynchronizationDataFromServer(DimensionType dimension, Vec3d pos) {
+        if (isTeleportingFrequently()) {
+            return;
+        }
         if (mc.player.dimension != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
@@ -69,6 +72,7 @@ public class ClientTeleportationManager {
         if (isTeleportingFrequently()) {
             return;
         }
+        lastTeleportGameTime = tickTimeForTeleportation;
         
         ClientPlayerEntity player = mc.player;
         
@@ -106,12 +110,11 @@ public class ClientTeleportationManager {
     }
     
     private boolean isTeleportingFrequently() {
-        long currGameTime = tickTimeForTeleportation;
-        if (currGameTime - lastTeleportGameTime < 5) {
+        if (tickTimeForTeleportation - lastTeleportGameTime < 5) {
             return true;
         }
         else {
-            lastTeleportGameTime = currGameTime;
+        
             return false;
         }
     }

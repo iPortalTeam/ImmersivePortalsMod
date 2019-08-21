@@ -6,7 +6,6 @@ import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
-import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -248,14 +247,14 @@ public class ServerTeleportationManager {
         //this entity was untracked and retracked.
         //so it will not be in the player's unloading entity list
         //manually send destroy packet to avoid duplicate
-    
-        CustomPayloadS2CPacket removeEntityPacket = MyNetwork.createRedirectedMessage(
-            fromWorld.dimension.getType(),
-            new EntitiesDestroyS2CPacket(entity.getEntityId())
-        );
-        
-        watchingPlayers.forEach(
-            player -> player.networkHandler.sendPacket(removeEntityPacket)
-        );
+
+//        CustomPayloadS2CPacket removeEntityPacket = MyNetwork.createRedirectedMessage(
+//            fromWorld.dimension.getType(),
+//            new EntitiesDestroyS2CPacket(entity.getEntityId())
+//        );
+//
+//        watchingPlayers.forEach(
+//            player -> player.networkHandler.sendPacket(removeEntityPacket)
+//        );
     }
 }

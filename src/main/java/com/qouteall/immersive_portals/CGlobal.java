@@ -19,7 +19,7 @@ public class CGlobal {
     
     public static boolean doUseAdvancedFrustumCulling = true;
     public static int maxPortalLayer = 3;
-    public static int maxIdleChunkRendererNum = 1000;
+    public static int maxIdleChunkRendererNum = 500;
     public static Object switchedFogRenderer;
     public static boolean useHackedChunkRenderDispatcher = true;
     public static boolean isClientRemoteTickingEnabled = true;

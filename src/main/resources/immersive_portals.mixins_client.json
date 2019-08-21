@@ -7,6 +7,7 @@
     "MixinBlockEntityRenderDispatcher",
     "MixinCamera",
     "MixinChunkRenderDispatcher",
+    "MixinChunkRenderer",
     "MixinChunkRenderList",
     "MixinClientPlayerEntity",
     "MixinClientPlayNetworkHandler",

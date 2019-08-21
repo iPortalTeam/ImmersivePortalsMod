@@ -73,10 +73,15 @@ public class ModMainClient implements ClientModInitializer {
         Helper.log(CGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
         if (CGlobal.isOptifinePresent) {
-            CGlobal.useHackedChunkRenderDispatcher = false;
+            //CGlobal.useHackedChunkRenderDispatcher = false;
             CGlobal.renderPortalBeforeTranslucentBlocks = false;
         
             OptifineCompatibilityHelper.init();
+
+//            if (Config.isSmoothWorld()) {
+//                //TODO change smooth world to false
+//                Helper.err("Smooth world will cause entity in other dimension to vanish");
+//            }
         }
     }
 }

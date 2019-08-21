@@ -13,7 +13,21 @@ group = project.maven_group
 minecraft {
 }
 
+repositories {
+	//optifabric
+	maven { url 'https://jitpack.io' }
+
+}
+
 dependencies {
+	modCompile 'com.github.modmuss50:OptiFabric:e1834b016f'
+
+	//Deps required for optifabric
+	compile 'org.zeroturnaround:zt-zip:1.13'
+	compile ('net.fabricmc:stitch:0.2.1.61') {
+		transitive = false
+	}
+
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}"
@@ -24,6 +38,7 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
+
 }
 
 processResources {

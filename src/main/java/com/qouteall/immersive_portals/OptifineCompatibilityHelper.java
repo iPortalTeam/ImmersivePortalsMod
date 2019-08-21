@@ -35,7 +35,8 @@ public class OptifineCompatibilityHelper {
     
     public static boolean getIsUsingShader() {
         try {
-            return Shaders_shaderPack.get(null) != null;
+            Object obj = Shaders_shaderPack.get(null);
+            return !obj.getClass().getSimpleName().equals("ShaderPackNone");
         }
         catch (IllegalAccessException e) {
             e.printStackTrace();

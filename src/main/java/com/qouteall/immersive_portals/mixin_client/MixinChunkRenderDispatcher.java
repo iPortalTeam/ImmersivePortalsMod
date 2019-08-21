@@ -11,6 +11,7 @@ import net.minecraft.client.render.chunk.ChunkRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -221,6 +222,8 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                     }
                 }
             }
+    
+            updateNeighbours();
             
             ci.cancel();
         }
@@ -232,6 +235,23 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                 ) {
                     ci.cancel();
                 }
+            }
+        }
+    }
+    
+    private void updateNeighbours() {
+        if (!CGlobal.isOptifinePresent) {
+            return;
+        }
+        
+        for (int j = 0; j < this.renderers.length; ++j) {
+            ChunkRenderer renderChunk = this.renderers[j];
+            
+            for (int l = 0; l < Direction.ALL.length; ++l) {
+                Direction facing = Direction.ALL[l];
+                BlockPos posOffset16 = renderChunk.getNeighborPosition(facing);
+                ChunkRenderer neighbour = getChunkRenderer(posOffset16);
+                renderChunk.setRenderChunkNeighbour(facing, neighbour);
             }
         }
     }
@@ -273,6 +293,9 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
     @Shadow
     public abstract int getChunkIndex(int int_1, int int_2, int int_3);
+    
+    @Shadow
+    public abstract ChunkRenderer getChunkRenderer(BlockPos pos);
     
     @Override
     public int getEmployedRendererNum() {

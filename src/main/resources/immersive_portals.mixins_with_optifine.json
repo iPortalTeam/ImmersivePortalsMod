@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.qouteall.immersive_portals.mixin_optifine",
+  "plugin": "com.qouteall.immersive_portals.MixinPluginWithOptifine",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MOChunkRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

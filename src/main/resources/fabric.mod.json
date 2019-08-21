@@ -33,6 +33,10 @@
     {
       "config": "immersive_portals.mixins_client.json",
       "environment": "client"
+    },
+    {
+      "config": "immersive_portals.mixins_with_optifine.json",
+      "environment": "client"
     }
   ],
 

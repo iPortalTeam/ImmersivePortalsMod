@@ -73,8 +73,8 @@ public class MyNetworkClient {
             Helper.err("unknown entity type " + entityTypeString);
             return;
         }
-        
-        ModMain.clientTaskList.addTask(() -> {
+    
+        MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
             if (world.getEntityById(entityId) != null) {
@@ -84,7 +84,7 @@ public class MyNetworkClient {
                     entityType.get(),
                     compoundTag
                 ));
-                return true;
+                return;
             }
             
             Entity entity = entityType.get().create(
@@ -94,8 +94,8 @@ public class MyNetworkClient {
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.x, entity.y, entity.z);
             world.addEntity(entityId, entity);
-            
-            return true;
+        
+            return;
         });
     }
     
@@ -184,20 +184,28 @@ public class MyNetworkClient {
     }
     
     private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
-        MinecraftClient.getInstance().execute(() -> {
-            ClientWorld clientWorld = Helper.loadClientWorld(dimension);
-            
-            assert clientWorld != null;
-            
-            assert clientWorld.getChunkManager() instanceof MyClientChunkManager;
-            
-            ClientPlayNetworkHandler netHandler = ((IEClientWorld) clientWorld).getNetHandler();
-            
-            if ((netHandler).getWorld() != clientWorld) {
-                ((IEClientPlayNetworkHandler) netHandler).setWorld(clientWorld);
+        MinecraftClient mc = MinecraftClient.getInstance();
+        mc.execute(() -> {
+            ClientWorld packetWorld = Helper.loadClientWorld(dimension);
+        
+            assert packetWorld != null;
+        
+            assert packetWorld.getChunkManager() instanceof MyClientChunkManager;
+        
+            ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
+        
+            if ((netHandler).getWorld() != packetWorld) {
+                ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
+                Helper.err("The world field of client net handler is wrong");
             }
-            
+        
+            ClientWorld originalWorld = mc.world;
+            mc.world = packetWorld;
+        
+            //some packet handling may use mc.world
             packet.apply(netHandler);
+        
+            mc.world = originalWorld;
         });
     }
 }
