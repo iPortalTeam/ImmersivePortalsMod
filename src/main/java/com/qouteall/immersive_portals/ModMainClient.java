@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
-import com.qouteall.immersive_portals.optifine_compatibility.RendererCompatibleWithShaders;
+import com.qouteall.immersive_portals.optifine_compatibility.RendererTest;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -34,7 +34,7 @@ public class ModMainClient implements ClientModInitializer {
     }
     
     public static void switchToCorrectRenderer() {
-        CGlobal.renderer = OFGlobal.rendererCompatibleWithShaders;
+        CGlobal.renderer = OFGlobal.rendererTest;
 //        if (CGlobal.renderer.isRendering()) {
 //            //do not switch when rendering
 //            return;
@@ -84,7 +84,7 @@ public class ModMainClient implements ClientModInitializer {
         
             OptifineCompatibilityHelper.init();
     
-            OFGlobal.rendererCompatibleWithShaders = new RendererCompatibleWithShaders();
+            OFGlobal.rendererTest = new RendererTest();
 
 //            if (Config.isSmoothWorld()) {
 //                //TODO change smooth world to false

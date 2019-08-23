@@ -10,7 +10,7 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL20;
 
-public class RendererCompatibleWithShaders extends PortalRenderer {
+public class RendererTest extends PortalRenderer {
     private ShaderManager shaderManager;
     private boolean isEnabled = true;
     
