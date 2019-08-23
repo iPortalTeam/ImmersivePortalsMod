@@ -18,6 +18,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.optifine.Config;
+import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -92,6 +94,9 @@ public class MyGameRenderer {
         CGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
+        if (Config.isShaders()) {
+            Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
+        }
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
         
         mc.getProfiler().pop();

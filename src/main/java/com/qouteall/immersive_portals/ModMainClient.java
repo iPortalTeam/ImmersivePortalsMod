@@ -1,12 +1,14 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
+import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
+import com.qouteall.immersive_portals.optifine_compatibility.RendererCompatibleWithShaders;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalDummyRenderer;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
-import com.qouteall.immersive_portals.render.RendererCompatibleWithShaders;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
@@ -32,20 +34,25 @@ public class ModMainClient implements ClientModInitializer {
     }
     
     public static void switchToCorrectRenderer() {
-        if (CGlobal.isOptifinePresent) {
-            if (OptifineCompatibilityHelper.getIsUsingShader()) {
-                if (CGlobal.renderer != CGlobal.rendererCompatibleWithShaders) {
-                    Helper.log("switched to dummy renderer");
-                }
-                CGlobal.renderer = CGlobal.rendererCompatibleWithShaders;
-            }
-            else {
-                if (CGlobal.renderer != CGlobal.rendererUsingStencil) {
-                    Helper.log("switched to normal renderer");
-                }
-                CGlobal.renderer = CGlobal.rendererUsingStencil;
-            }
-        }
+        CGlobal.renderer = OFGlobal.rendererCompatibleWithShaders;
+//        if (CGlobal.renderer.isRendering()) {
+//            //do not switch when rendering
+//            return;
+//        }
+//        if (CGlobal.isOptifinePresent) {
+//            if (OptifineCompatibilityHelper.getIsUsingShader()) {
+//                if (CGlobal.renderer != OFGlobal.rendererCompatibleWithShaders) {
+//                    Helper.log("switched to dummy renderer");
+//                }
+//                CGlobal.renderer = OFGlobal.rendererCompatibleWithShaders;
+//            }
+//            else {
+//                if (CGlobal.renderer != CGlobal.rendererUsingStencil) {
+//                    Helper.log("switched to normal renderer");
+//                }
+//                CGlobal.renderer = CGlobal.rendererUsingStencil;
+//            }
+//        }
     }
     
     @Override
@@ -61,7 +68,7 @@ public class ModMainClient implements ClientModInitializer {
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.rendererUsingStencil = new RendererUsingStencil();
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
-            CGlobal.rendererCompatibleWithShaders = new RendererCompatibleWithShaders();
+    
             CGlobal.renderer = CGlobal.rendererUsingStencil;
             CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.myGameRenderer = new MyGameRenderer();
@@ -73,10 +80,11 @@ public class ModMainClient implements ClientModInitializer {
         Helper.log(CGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
         if (CGlobal.isOptifinePresent) {
-            //CGlobal.useHackedChunkRenderDispatcher = false;
             CGlobal.renderPortalBeforeTranslucentBlocks = false;
         
             OptifineCompatibilityHelper.init();
+    
+            OFGlobal.rendererCompatibleWithShaders = new RendererCompatibleWithShaders();
 
 //            if (Config.isSmoothWorld()) {
 //                //TODO change smooth world to false

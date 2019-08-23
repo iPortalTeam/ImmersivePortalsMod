@@ -35,7 +35,8 @@ public abstract class PortalRenderer {
     public Supplier<Integer> maxPortalLayer = () -> CGlobal.maxPortalLayer;
     public Supplier<Double> portalRenderingRange = () -> 64.0;
     protected Stack<Portal> portalLayers = new Stack<>();
-    protected DimensionType originalPlayerDimension;
+    
+    public static DimensionType originalPlayerDimension;
     protected Vec3d originalPlayerPos;
     protected Vec3d originalPlayerLastTickPos;
     protected GameMode originalGameMode;
@@ -69,10 +70,6 @@ public abstract class PortalRenderer {
         return portalLayers.peek();
     }
     
-    public DimensionType getOriginalPlayerDimension() {
-        return originalPlayerDimension;
-    }
-    
     public Vec3d getOrignialPlayerPos() {
         return originalPlayerPos;
     }
@@ -93,6 +90,16 @@ public abstract class PortalRenderer {
         return isRendering() &&
             cameraEntity.dimension == originalPlayerDimension &&
             getRenderingPortal().canRenderEntityInsideMe(originalPlayerPos);
+    }
+    
+    public boolean isDimensionRendered(DimensionType dimension) {
+        assert dimension != null;
+        if (dimension == CHelper.getOriginalDimension()) {
+            return true;
+        }
+        return portalLayers.stream().anyMatch(
+            portal -> portal.dimensionTo == dimension
+        );
     }
     
     public void doRendering(float partialTicks_, long finishTimeNano_) {
@@ -120,7 +127,8 @@ public abstract class PortalRenderer {
         prepareStates();
         
         renderedPortalNum = 0;
-        
+    
+        assert originalPlayerDimension == null;
         originalPlayerDimension = cameraEntity.dimension;
         originalPlayerPos = cameraEntity.getPos();
         originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
@@ -151,6 +159,8 @@ public abstract class PortalRenderer {
         CGlobal.clientWorldLoader
             .getDimensionRenderHelper(mc.world.dimension.getType())
             .switchToMe();
+    
+        originalPlayerDimension = null;
     }
     
     private void renderPortals() {

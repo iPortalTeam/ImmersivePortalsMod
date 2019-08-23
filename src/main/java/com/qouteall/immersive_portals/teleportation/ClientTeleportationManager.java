@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -19,6 +20,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.optifine.Config;
 
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
@@ -114,7 +116,7 @@ public class ClientTeleportationManager {
             return true;
         }
         else {
-        
+    
             return false;
         }
     }
@@ -190,6 +192,15 @@ public class ClientTeleportationManager {
             Helper.getEntitiesNearby(mc.player, Portal.class, 10).count()
         );
     
+        if (CGlobal.isOptifinePresent) {
+            if (Config.isShaders()) {
+                OFGlobal.shaderContextManager.onPlayerTraveled(
+                    fromWorld.dimension.getType(),
+                    toWorld.dimension.getType()
+                );
+            }
+        }
+        
     }
     
     private void amendChunkEntityStatus(Entity entity) {

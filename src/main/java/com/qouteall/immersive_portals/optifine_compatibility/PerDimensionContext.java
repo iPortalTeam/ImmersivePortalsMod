@@ -19,10 +19,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 //do not forget to update it when optifine changes Shaders class
-public class SecondaryShadersContext {
+public class PerDimensionContext {
     public MinecraftClient mc;
     public GameRenderer entityRenderer;
     public boolean isInitializedOnce = false;
@@ -436,7 +437,7 @@ public class SecondaryShadersContext {
         return buffer.asFloatBuffer();
     }
     
-    public SecondaryShadersContext(boolean isOriginalContext) {
+    public PerDimensionContext(boolean isOriginalContext) {
         if (isOriginalContext) {
             return;
         }
@@ -1143,8 +1144,10 @@ public class SecondaryShadersContext {
      * entityData;
      * entityDataIndex;
      */
-    
-    public static Consumer<SecondaryShadersContext> copyToContextFunc;
-    public static Consumer<SecondaryShadersContext> copyFromContextFunc;
+
+    public static Consumer<PerDimensionContext> copyContextToObject;
+    public static Consumer<PerDimensionContext> copyContextFromObject;
+    public static Supplier<Integer> getDfb;
+    public static Runnable bindGbuffersTextures;
     
 }

@@ -1,4 +1,6 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.optifine_compatibility;
+
+import net.optifine.Config;
 
 import java.lang.reflect.Field;
 
@@ -8,6 +10,7 @@ public class OptifineCompatibilityHelper {
     private static Field Shaders_isShadowPass;
     private static Field Shaders_shaderPack;
     private static boolean originalIsShaderPackInitialized;
+    private static boolean isCreatingFakedWorld = false;
     
     public static void init() {
         try {
@@ -34,14 +37,7 @@ public class OptifineCompatibilityHelper {
     }
     
     public static boolean getIsUsingShader() {
-        try {
-            Object obj = Shaders_shaderPack.get(null);
-            return !obj.getClass().getSimpleName().equals("ShaderPackNone");
-        }
-        catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return Config.isShaders();
     }
     
     public static boolean getIsShadowPass() {
@@ -55,25 +51,14 @@ public class OptifineCompatibilityHelper {
     }
     
     public static void onBeginCreatingFakedWorld() {
-        if (CGlobal.isOptifinePresent) {
-            try {
-                originalIsShaderPackInitialized = Shaders_isShaderPackInitialized.getBoolean(null);
-                Shaders_isShaderPackInitialized.setBoolean(null, false);
-            }
-            catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        isCreatingFakedWorld = true;
     }
     
     public static void onFinishCreatingFakedWorld() {
-        if (CGlobal.isOptifinePresent) {
-            try {
-                Shaders_isShaderPackInitialized.setBoolean(null, originalIsShaderPackInitialized);
-            }
-            catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            }
-        }
+        isCreatingFakedWorld = false;
+    }
+    
+    public static boolean getIsCreatingFakedWorld() {
+        return isCreatingFakedWorld;
     }
 }

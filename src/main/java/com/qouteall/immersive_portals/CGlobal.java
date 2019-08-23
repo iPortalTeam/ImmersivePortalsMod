@@ -11,7 +11,7 @@ public class CGlobal {
     public static PortalRenderer renderer;
     public static RendererUsingStencil rendererUsingStencil;
     public static RendererUsingFrameBuffer rendererUsingFrameBuffer;
-    public static RendererCompatibleWithShaders rendererCompatibleWithShaders;
+    public static RendererDummy rendererDummy = new RendererDummy();
     
     public static ClientWorldLoader clientWorldLoader;
     public static MyGameRenderer myGameRenderer;
@@ -28,4 +28,5 @@ public class CGlobal {
     public static boolean renderPortalBeforeTranslucentBlocks = true;
     public static boolean useFrontCulling = true;
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
+    
 }

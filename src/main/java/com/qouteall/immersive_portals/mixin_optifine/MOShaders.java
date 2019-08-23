@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_optifine;
 
-import com.qouteall.immersive_portals.optifine_compatibility.SecondaryShadersContext;
+import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
+import com.qouteall.immersive_portals.optifine_compatibility.PerDimensionContext;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
@@ -16,6 +17,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -28,15 +32,15 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 @Mixin(Shaders.class)
-public class MOShaders {
+public abstract class MOShaders {
     @Shadow
     static MinecraftClient mc;
     @Shadow
     static GameRenderer entityRenderer;
     @Shadow
-    public static boolean isInitializedOnce = false;
+    public static boolean isInitializedOnce;
     @Shadow
-    public static boolean isShaderPackInitialized = false;
+    public static boolean isShaderPackInitialized;
     @Shadow
     public static GLCapabilities capabilities;
     @Shadow
@@ -46,27 +50,27 @@ public class MOShaders {
     @Shadow
     public static String glRendererString;
     @Shadow
-    public static boolean hasGlGenMipmap = false;
+    public static boolean hasGlGenMipmap;
     @Shadow
-    public static int countResetDisplayLists = 0;
+    public static int countResetDisplayLists;
     @Shadow
-    private static int renderDisplayWidth = 0;
+    private static int renderDisplayWidth;
     @Shadow
-    private static int renderDisplayHeight = 0;
+    private static int renderDisplayHeight;
     @Shadow
-    public static int renderWidth = 0;
+    public static int renderWidth;
     @Shadow
-    public static int renderHeight = 0;
+    public static int renderHeight;
     @Shadow
-    public static boolean isRenderingWorld = false;
+    public static boolean isRenderingWorld;
     @Shadow
-    public static boolean isRenderingSky = false;
+    public static boolean isRenderingSky;
     @Shadow
-    public static boolean isCompositeRendered = false;
+    public static boolean isCompositeRendered;
     @Shadow
-    public static boolean isRenderingDfb = false;
+    public static boolean isRenderingDfb;
     @Shadow
-    public static boolean isShadowPass = false;
+    public static boolean isShadowPass;
     @Shadow
     public static boolean isSleeping;
     @Shadow
@@ -80,29 +84,29 @@ public class MOShaders {
     @Shadow
     private static boolean skipRenderHandOff;
     @Shadow
-    public static boolean renderItemKeepDepthMask = false;
+    public static boolean renderItemKeepDepthMask;
     @Shadow
-    public static boolean itemToRenderMainTranslucent = false;
+    public static boolean itemToRenderMainTranslucent;
     @Shadow
-    public static boolean itemToRenderOffTranslucent = false;
+    public static boolean itemToRenderOffTranslucent;
     @Shadow
-    static float[] sunPosition = new float[4];
+    static float[] sunPosition;
     @Shadow
-    static float[] moonPosition = new float[4];
+    static float[] moonPosition;
     @Shadow
-    static float[] shadowLightPosition = new float[4];
+    static float[] shadowLightPosition;
     @Shadow
-    static float[] upPosition = new float[4];
+    static float[] upPosition;
     @Shadow
-    static float[] shadowLightPositionVector = new float[4];
+    static float[] shadowLightPositionVector;
     @Shadow
-    static float[] upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+    static float[] upPosModelView;
     @Shadow
-    static float[] sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+    static float[] sunPosModelView;
     @Shadow
-    static float[] moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
+    static float[] moonPosModelView;
     @Shadow
-    private static float[] tempMat = new float[16];
+    private static float[] tempMat;
     @Shadow
     static float clearColorR;
     @Shadow
@@ -116,103 +120,103 @@ public class MOShaders {
     @Shadow
     static float skyColorB;
     @Shadow
-    static long worldTime = 0L;
+    static long worldTime;
     @Shadow
-    static long lastWorldTime = 0L;
+    static long lastWorldTime;
     @Shadow
-    static long diffWorldTime = 0L;
+    static long diffWorldTime;
     @Shadow
-    static float celestialAngle = 0.0F;
+    static float celestialAngle;
     @Shadow
-    static float sunAngle = 0.0F;
+    static float sunAngle;
     @Shadow
-    static float shadowAngle = 0.0F;
+    static float shadowAngle;
     @Shadow
-    static int moonPhase = 0;
+    static int moonPhase;
     @Shadow
-    static long systemTime = 0L;
+    static long systemTime;
     @Shadow
-    static long lastSystemTime = 0L;
+    static long lastSystemTime;
     @Shadow
-    static long diffSystemTime = 0L;
+    static long diffSystemTime;
     @Shadow
-    static int frameCounter = 0;
+    static int frameCounter;
     @Shadow
-    static float frameTime = 0.0F;
+    static float frameTime;
     @Shadow
-    static float frameTimeCounter = 0.0F;
+    static float frameTimeCounter;
     @Shadow
-    static int systemTimeInt32 = 0;
+    static int systemTimeInt32;
     @Shadow
-    static float rainStrength = 0.0F;
+    static float rainStrength;
     @Shadow
-    static float wetness = 0.0F;
+    static float wetness;
     @Shadow
-    public static float wetnessHalfLife = 600.0F;
+    public static float wetnessHalfLife;
     @Shadow
-    public static float drynessHalfLife = 200.0F;
+    public static float drynessHalfLife;
     @Shadow
-    public static float eyeBrightnessHalflife = 10.0F;
+    public static float eyeBrightnessHalflife;
     @Shadow
-    static boolean usewetness = false;
+    static boolean usewetness;
     @Shadow
-    static int isEyeInWater = 0;
+    static int isEyeInWater;
     @Shadow
-    static int eyeBrightness = 0;
+    static int eyeBrightness;
     @Shadow
-    static float eyeBrightnessFadeX = 0.0F;
+    static float eyeBrightnessFadeX;
     @Shadow
-    static float eyeBrightnessFadeY = 0.0F;
+    static float eyeBrightnessFadeY;
     @Shadow
-    static float eyePosY = 0.0F;
+    static float eyePosY;
     @Shadow
-    static float centerDepth = 0.0F;
+    static float centerDepth;
     @Shadow
-    static float centerDepthSmooth = 0.0F;
+    static float centerDepthSmooth;
     @Shadow
-    static float centerDepthSmoothHalflife = 1.0F;
+    static float centerDepthSmoothHalflife;
     @Shadow
-    static boolean centerDepthSmoothEnabled = false;
+    static boolean centerDepthSmoothEnabled;
     @Shadow
-    static int superSamplingLevel = 1;
+    static int superSamplingLevel;
     @Shadow
-    static float nightVision = 0.0F;
+    static float nightVision;
     @Shadow
-    static float blindness = 0.0F;
+    static float blindness;
     @Shadow
-    static boolean lightmapEnabled = false;
+    static boolean lightmapEnabled;
     @Shadow
-    static boolean fogEnabled = true;
+    static boolean fogEnabled;
     @Shadow
-    public static int entityAttrib = 10;
+    public static int entityAttrib;
     @Shadow
-    public static int midTexCoordAttrib = 11;
+    public static int midTexCoordAttrib;
     @Shadow
-    public static int tangentAttrib = 12;
+    public static int tangentAttrib;
     @Shadow
-    public static boolean useEntityAttrib = false;
+    public static boolean useEntityAttrib;
     @Shadow
-    public static boolean useMidTexCoordAttrib = false;
+    public static boolean useMidTexCoordAttrib;
     @Shadow
-    public static boolean useTangentAttrib = false;
+    public static boolean useTangentAttrib;
     @Shadow
-    public static boolean progUseEntityAttrib = false;
+    public static boolean progUseEntityAttrib;
     @Shadow
-    public static boolean progUseMidTexCoordAttrib = false;
+    public static boolean progUseMidTexCoordAttrib;
     @Shadow
-    public static boolean progUseTangentAttrib = false;
+    public static boolean progUseTangentAttrib;
     @Shadow
-    private static boolean progArbGeometryShader4 = false;
+    private static boolean progArbGeometryShader4;
     @Shadow
-    private static int progMaxVerticesOut = 3;
+    private static int progMaxVerticesOut;
     @Shadow
-    private static boolean hasGeometryShaders = false;
+    private static boolean hasGeometryShaders;
     @Shadow
-    public static int atlasSizeX = 0;
+    public static int atlasSizeX;
     @Shadow
-    public static int atlasSizeY = 0;
+    public static int atlasSizeY;
     @Shadow
-    private static ShaderUniforms shaderUniforms = new ShaderUniforms();
+    private static ShaderUniforms shaderUniforms;
     @Shadow
     public static ShaderUniform4f uniform_entityColor;
     @Shadow
@@ -434,23 +438,23 @@ public class MOShaders {
     @Shadow
     static @Final
     @Mutable
-    int MaxDrawBuffers = 8;
+    int MaxDrawBuffers;
     @Shadow
     static @Final
     @Mutable
-    int MaxColorBuffers = 8;
+    int MaxColorBuffers;
     @Shadow
     static @Final
     @Mutable
-    int MaxDepthBuffers = 3;
+    int MaxDepthBuffers;
     @Shadow
     static @Final
     @Mutable
-    int MaxShadowColorBuffers = 8;
+    int MaxShadowColorBuffers;
     @Shadow
     static @Final
     @Mutable
-    int MaxShadowDepthBuffers = 2;
+    int MaxShadowDepthBuffers;
     @Shadow
     static int usedColorBuffers;
     @Shadow
@@ -676,11 +680,11 @@ public class MOShaders {
     @Shadow
     public static @Final
     @Mutable
-    int texMinFilRange = 3;
+    int texMinFilRange;
     @Shadow
     public static @Final
     @Mutable
-    int texMagFilRange = 2;
+    int texMagFilRange;
     @Shadow
     public static @Final
     @Mutable
@@ -706,19 +710,19 @@ public class MOShaders {
     @Shadow
     public static @Final
     @Mutable
-    String SHADER_PACK_NAME_NONE = "OFF";
+    String SHADER_PACK_NAME_NONE;
     @Shadow
     public static @Final
     @Mutable
-    String SHADER_PACK_NAME_DEFAULT = "(internal)";
+    String SHADER_PACK_NAME_DEFAULT;
     @Shadow
     public static @Final
     @Mutable
-    String SHADER_PACKS_DIR_NAME = "shaderpacks";
+    String SHADER_PACKS_DIR_NAME;
     @Shadow
     public static @Final
     @Mutable
-    String OPTIONS_FILE_NAME = "optionsshaders.txt";
+    String OPTIONS_FILE_NAME;
     @Shadow
     public static @Final
     @Mutable
@@ -738,7 +742,7 @@ public class MOShaders {
     @Shadow
     public static @Final
     @Mutable
-    String PATH_SHADERS_PROPERTIES = "/shaders/shaders.properties";
+    String PATH_SHADERS_PROPERTIES;
     @Shadow
     public static PropertyDefaultFastFancyOff shaderPackClouds;
     @Shadow
@@ -792,15 +796,15 @@ public class MOShaders {
     @Shadow
     private static @Final
     @Mutable
-    int STAGE_GBUFFERS = 0;
+    int STAGE_GBUFFERS;
     @Shadow
     private static @Final
     @Mutable
-    int STAGE_COMPOSITE = 1;
+    int STAGE_COMPOSITE;
     @Shadow
     private static @Final
     @Mutable
-    int STAGE_DEFERRED = 2;
+    int STAGE_DEFERRED;
     @Shadow
     private static @Final
     @Mutable
@@ -808,11 +812,11 @@ public class MOShaders {
     @Shadow
     public static @Final
     @Mutable
-    boolean enableShadersOption = true;
+    boolean enableShadersOption;
     @Shadow
     private static @Final
     @Mutable
-    boolean enableShadersDebug = true;
+    boolean enableShadersDebug;
     @Shadow
     public static @Final
     @Mutable
@@ -899,6 +903,7 @@ public class MOShaders {
     static @Final
     @Mutable
     FloatBuffer projection;
+    
     @Shadow
     static @Final
     @Mutable
@@ -998,8 +1003,20 @@ public class MOShaders {
     @Shadow
     public static int entityDataIndex;
     
+    
+    @Shadow
+    private static void bindGbuffersTextures() {
+    }
+    
+    @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
+    private static void onCheckWorldChanged(World world, CallbackInfo ci) {
+        if (OptifineCompatibilityHelper.getIsCreatingFakedWorld()) {
+            ci.cancel();
+        }
+    }
+
     static {
-        SecondaryShadersContext.copyFromContextFunc = context -> {
+        PerDimensionContext.copyContextFromObject = context -> {
             mc = context.mc;
             entityRenderer = context.entityRenderer;
             isInitializedOnce = context.isInitializedOnce;
@@ -1392,8 +1409,8 @@ public class MOShaders {
             entityData = context.entityData;
             entityDataIndex = context.entityDataIndex;
         };
-        
-        SecondaryShadersContext.copyToContextFunc = context -> {
+    
+        PerDimensionContext.copyContextToObject = context -> {
             context.mc = mc;
             context.entityRenderer = entityRenderer;
             context.isInitializedOnce = isInitializedOnce;
@@ -1786,5 +1803,8 @@ public class MOShaders {
             context.entityData = entityData;
             context.entityDataIndex = entityDataIndex;
         };
+    
+        PerDimensionContext.getDfb = () -> dfb;
+        PerDimensionContext.bindGbuffersTextures = () -> bindGbuffersTextures();
     }
 }

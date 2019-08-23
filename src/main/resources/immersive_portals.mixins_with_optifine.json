@@ -4,7 +4,10 @@
   "plugin": "com.qouteall.immersive_portals.MixinPluginWithOptifine",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MOChunkRenderer"
+    "MOChunkRenderer",
+    "MOConfig",
+    "MOShaders",
+    "MOShadersRender"
   ],
   "injectors": {
     "defaultRequire": 1
