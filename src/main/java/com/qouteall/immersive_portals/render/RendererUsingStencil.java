@@ -56,9 +56,8 @@ public class RendererUsingStencil extends PortalRenderer {
         if (!anySamplePassed) {
             return;
         }
-        
-        renderedPortalNum += 1;
-        
+    
+    
         //PUSH
         portalLayers.push(portal);
         

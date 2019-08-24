@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL20;
 
 public class RendererTest extends PortalRenderer {
@@ -57,11 +56,10 @@ public class RendererTest extends PortalRenderer {
         portalLayers.push(portal);
         
         OFGlobal.shaderContextManager.switchContextAndRun(
-            portal.dimensionTo,
             () -> {
                 OFGlobal.shaderContextManager.startupIfNecessary(portal.dimensionTo);
                 manageCameraAndRenderPortalContent(portal);
-                PerDimensionContext.bindGbuffersTextures.run();
+                ShaderUtils.bindGbuffersTextures.run();
             }
         );
         
@@ -72,8 +70,8 @@ public class RendererTest extends PortalRenderer {
         setupCameraTransformation();
         
         //switch back frame buffer
-        EXTFramebufferObject.glBindFramebufferEXT(36160, PerDimensionContext.getDfb.get());
-        
+        ShaderUtils.bindToShaderFrameBuffer();
+    
         shaderManager.loadContentShaderAndShaderVars();
         
         GlStateManager.enableTexture();
@@ -85,8 +83,8 @@ public class RendererTest extends PortalRenderer {
         GlStateManager.enableBlend();
         
         shaderManager.unloadShader();
-        
-        PerDimensionContext.bindGbuffersTextures.run();
+    
+        ShaderUtils.bindGbuffersTextures.run();
     }
     
     private boolean testShouldRenderPortal(Portal portal) {
@@ -103,5 +101,6 @@ public class RendererTest extends PortalRenderer {
             GlStateManager.enableTexture();
         });
     }
+    
     
 }

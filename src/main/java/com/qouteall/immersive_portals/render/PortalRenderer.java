@@ -97,9 +97,11 @@ public abstract class PortalRenderer {
         if (dimension == CHelper.getOriginalDimension()) {
             return true;
         }
-        return portalLayers.stream().anyMatch(
-            portal -> portal.dimensionTo == dimension
-        );
+        return portalLayers
+            .subList(0, portalLayers.size() - 1)//except for the current rendering portal
+            .stream().anyMatch(
+                portal -> portal.dimensionTo == dimension
+            );
     }
     
     public void doRendering(float partialTicks_, long finishTimeNano_) {
@@ -217,6 +219,8 @@ public abstract class PortalRenderer {
         if (getPortalLayer() > maxPortalLayer.get()) {
             return;
         }
+    
+        renderedPortalNum += 1;
         
         Entity cameraEntity = mc.cameraEntity;
         int allowedStencilValue = getPortalLayer();
@@ -242,8 +246,8 @@ public abstract class PortalRenderer {
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         mc.world = newWorld;
-        
-        renderPortalContentAndNestedPortals(
+    
+        renderPortalContentWithContextSwitched(
             portal, oldCameraPos
         );
         
@@ -259,7 +263,7 @@ public abstract class PortalRenderer {
         setupCameraTransformation();
     }
     
-    private void renderPortalContentAndNestedPortals(
+    protected void renderPortalContentWithContextSwitched(
         Portal portal, Vec3d oldCameraPos
     ) {
         int thisPortalStencilValue = getPortalLayer();
@@ -272,12 +276,12 @@ public abstract class PortalRenderer {
         
         //do not manipulate stencil packetBuffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    
+        
         WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
         ClientWorld destClientWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
         
         Helper.checkGlError();
-    
+        
         CGlobal.myGameRenderer.renderWorld(
             partialTicks, worldRenderer, destClientWorld, oldCameraPos
         );
@@ -388,4 +392,8 @@ public abstract class PortalRenderer {
     }
     
     public abstract void renderPortalInEntityRenderer(Portal portal);
+    
+    public void onShaderRenderEnded() {
+        //nothing
+    }
 }

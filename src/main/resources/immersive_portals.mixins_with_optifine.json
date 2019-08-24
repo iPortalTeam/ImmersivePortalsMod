@@ -6,6 +6,7 @@
   "mixins": [
     "MOChunkRenderer",
     "MOConfig",
+    "MOGameRenderer",
     "MOShaders",
     "MOShadersRender"
   ],

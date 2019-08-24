@@ -29,4 +29,5 @@ public class CGlobal {
     public static boolean useFrontCulling = true;
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
+    public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
 }

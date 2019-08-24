@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_optifine;
 
 import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
-import com.qouteall.immersive_portals.optifine_compatibility.PerDimensionContext;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
@@ -1016,7 +1016,7 @@ public abstract class MOShaders {
     }
 
     static {
-        PerDimensionContext.copyContextFromObject = context -> {
+        ShaderUtils.copyContextFromObject = context -> {
             mc = context.mc;
             entityRenderer = context.entityRenderer;
             isInitializedOnce = context.isInitializedOnce;
@@ -1410,7 +1410,7 @@ public abstract class MOShaders {
             entityDataIndex = context.entityDataIndex;
         };
     
-        PerDimensionContext.copyContextToObject = context -> {
+        ShaderUtils.copyContextToObject = context -> {
             context.mc = mc;
             context.entityRenderer = entityRenderer;
             context.isInitializedOnce = isInitializedOnce;
@@ -1804,7 +1804,7 @@ public abstract class MOShaders {
             context.entityDataIndex = entityDataIndex;
         };
     
-        PerDimensionContext.getDfb = () -> dfb;
-        PerDimensionContext.bindGbuffersTextures = () -> bindGbuffersTextures();
+        ShaderUtils.getDfb = () -> dfb;
+        ShaderUtils.bindGbuffersTextures = () -> bindGbuffersTextures();
     }
 }

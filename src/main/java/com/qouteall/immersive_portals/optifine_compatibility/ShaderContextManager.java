@@ -64,22 +64,24 @@ public class ShaderContextManager {
         
     }
     
-    public void switchContextAndRun(DimensionType dimension, Runnable func) {
+    public void switchContextAndRun(Runnable func) {
         DimensionType originalContextDimension = this.currentContextDimension;
+        DimensionType dimensionToSiwtchTo = MinecraftClient.getInstance().world.dimension.getType();
         
         if (this.currentContextDimension == null) {
             //currently the context was not switched
             this.currentContextDimension = CHelper.getOriginalDimension();
             recordedOriginalContext = new PerDimensionContext(true);
-            PerDimensionContext.copyContextToObject.accept(recordedOriginalContext);
+            ShaderUtils.copyContextToObject.accept(recordedOriginalContext);
             isStartuped.put(currentContextDimension, true);
         }
         
-        if (currentContextDimension == dimension) {
+        if (currentContextDimension == dimensionToSiwtchTo) {
             func.run();
         }
         else {
-            forceSwitchContextAndRun(dimension, func);
+            currentContextDimension = dimensionToSiwtchTo;
+            forceSwitchContextAndRun(dimensionToSiwtchTo, func);
         }
         
         currentContextDimension = originalContextDimension;
@@ -87,18 +89,16 @@ public class ShaderContextManager {
     
     public void forceSwitchContextAndRun(DimensionType dimension, Runnable func) {
         PerDimensionContext originalContext = new PerDimensionContext(true);
-        PerDimensionContext.copyContextToObject.accept(originalContext);
+        ShaderUtils.copyContextToObject.accept(originalContext);
         
         PerDimensionContext newContext = getOrCreateContext(dimension);
-        PerDimensionContext.copyContextFromObject.accept(newContext);
-        
-        currentContextDimension = dimension;
+        ShaderUtils.copyContextFromObject.accept(newContext);
         
         func.run();
-        
-        PerDimensionContext.copyContextToObject.accept(newContext);
-        
-        PerDimensionContext.copyContextFromObject.accept(originalContext);
+    
+        ShaderUtils.copyContextToObject.accept(newContext);
+    
+        ShaderUtils.copyContextFromObject.accept(originalContext);
     }
     
     public void startupIfNecessary(DimensionType dimension) {
@@ -121,11 +121,11 @@ public class ShaderContextManager {
     public void onPlayerTraveled(DimensionType from, DimensionType to) {
         assert !managedContext.containsKey(from);
         PerDimensionContext oldContext = new PerDimensionContext(true);
-        PerDimensionContext.copyContextToObject.accept(oldContext);
+        ShaderUtils.copyContextToObject.accept(oldContext);
         managedContext.put(from, oldContext);
         
         PerDimensionContext newContext = managedContext.get(to);
-        PerDimensionContext.copyContextFromObject.accept(newContext);
+        ShaderUtils.copyContextFromObject.accept(newContext);
         managedContext.remove(to);
     }
 }

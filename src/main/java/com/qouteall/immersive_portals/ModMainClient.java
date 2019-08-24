@@ -34,7 +34,7 @@ public class ModMainClient implements ClientModInitializer {
     }
     
     public static void switchToCorrectRenderer() {
-        CGlobal.renderer = OFGlobal.rendererTest;
+        CGlobal.renderer = OFGlobal.rendererDeferred;
 //        if (CGlobal.renderer.isRendering()) {
 //            //do not switch when rendering
 //            return;
