@@ -49,7 +49,7 @@ public class RendererDeferred extends PortalRenderer {
         deferredBuffer.setClearColor(1, 0, 0, 0);
         deferredBuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
     
-        ShaderUtils.bindToShaderFrameBuffer();
+        OFHelper.bindToShaderFrameBuffer();
     }
     
     @Override
@@ -88,7 +88,7 @@ public class RendererDeferred extends PortalRenderer {
     
         shaderManager.unloadShader();
     
-        ShaderUtils.bindToShaderFrameBuffer();
+        OFHelper.bindToShaderFrameBuffer();
     }
     
     @Override
@@ -97,9 +97,8 @@ public class RendererDeferred extends PortalRenderer {
     ) {
         OFGlobal.shaderContextManager.switchContextAndRun(
             () -> {
-                OFGlobal.shaderContextManager.startupIfNecessary(portal.dimensionTo);
                 super.renderPortalContentWithContextSwitched(portal, oldCameraPos);
-                ShaderUtils.bindGbuffersTextures.run();
+                OFGlobal.bindGbuffersTextures.run();
             }
         );
     }
@@ -124,7 +123,7 @@ public class RendererDeferred extends PortalRenderer {
     }
     
     private void copyDepthFromMainToDeferred() {
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, ShaderUtils.getDfb.get());
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, OFGlobal.getDfb.get());
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fbo);
         
         GL30.glBlitFramebuffer(
@@ -132,12 +131,16 @@ public class RendererDeferred extends PortalRenderer {
             0, 0, deferredBuffer.viewWidth, deferredBuffer.viewHeight,
             GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST
         );
-        
-        ShaderUtils.bindToShaderFrameBuffer();
+    
+        OFHelper.bindToShaderFrameBuffer();
     }
     
     @Override
     public void onShaderRenderEnded() {
+        if (isRendering()) {
+            return;
+        }
+        
         if (renderedPortalNum == 0) {
             return;
         }

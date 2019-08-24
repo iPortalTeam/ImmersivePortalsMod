@@ -15,6 +15,8 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -31,6 +33,8 @@ import java.util.stream.Stream;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 
 public class Helper {
+    
+    private static final Logger LOGGER = LogManager.getLogger();
     
     public static void assertWithSideEffects(boolean cond) {
         //assert cond;
@@ -396,11 +400,13 @@ public class Helper {
     }
     
     public static void log(Object str) {
-        System.out.println(str);
+        LOGGER.info("[Portal] " + str);
+        //System.out.println(str);
     }
     
     public static void err(Object str) {
-        System.err.println(str);
+        LOGGER.error("[Portal] " + str);
+        //System.err.println(str);
     }
     
     public static Vec3d[] eightVerticesOf(Box box) {

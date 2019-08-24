@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin_optifine;
+package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
 import com.qouteall.immersive_portals.CGlobal;
 import net.minecraft.client.render.GameRenderer;
@@ -14,7 +14,8 @@ public class MOGameRenderer {
         at = @At(
             value = "INVOKE",
             target = "Lnet/optifine/shaders/Shaders;endRender()V",
-            shift = At.Shift.AFTER
+            shift = At.Shift.AFTER,
+            remap = false
         )
     )
     private void onShaderRenderEnded(float partialTicks, long nanoTime, CallbackInfo ci) {

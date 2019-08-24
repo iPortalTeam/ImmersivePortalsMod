@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
@@ -18,7 +19,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import net.optifine.Config;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 
@@ -94,7 +94,7 @@ public class MyGameRenderer {
         CGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
-        if (Config.isShaders()) {
+        if (OFHelper.getIsUsingShader()) {
             Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
         }
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());

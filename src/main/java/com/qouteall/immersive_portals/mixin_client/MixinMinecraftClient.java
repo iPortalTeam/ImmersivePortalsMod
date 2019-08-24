@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
-import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.client.world.ClientWorld;
@@ -42,7 +41,7 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
         CGlobal.clientWorldLoader.cleanUp();
         if (CGlobal.isOptifinePresent) {
-            OFGlobal.shaderContextManager.cleanup();
+            //OFGlobal.shaderContextManager.cleanup();
         }
     }
     

@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.optifine_compatibility;
 
 import net.fabricmc.loader.FabricLoader;
 import org.spongepowered.asm.lib.tree.ClassNode;

@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin_optifine;
+package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import net.minecraft.client.render.Camera;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ShadersRender.class)
+@Mixin(value = ShadersRender.class, remap = false)
 public class MOShadersRender {
     @Inject(method = "renderShadowMap", at = @At("HEAD"), cancellable = true)
     private static void onRenderShadowMap(

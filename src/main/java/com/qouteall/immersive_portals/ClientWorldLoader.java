@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -134,8 +134,8 @@ public class ClientWorldLoader {
         assert (mc.player.dimension != dimension);
         
         isLoadingFakedWorld = true;
-        
-        OptifineCompatibilityHelper.onBeginCreatingFakedWorld();
+    
+        OFHelper.onBeginCreatingFakedWorld();
         
         //TODO get load distance
         int chunkLoadDistance = 3;
@@ -175,8 +175,8 @@ public class ClientWorldLoader {
         Helper.log("Faked World Created " + dimension);
         
         isLoadingFakedWorld = false;
-        
-        OptifineCompatibilityHelper.onFinishCreatingFakedWorld();
+    
+        OFHelper.onFinishCreatingFakedWorld();
         
         return newWorld;
     }

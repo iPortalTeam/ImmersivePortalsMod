@@ -55,10 +55,13 @@ public class MixinClientWorld implements IEClientWorld {
     }
     
     //avoid entity duplicate when an entity travels
-    @Inject(method = "onEntityAdded", at = @At("TAIL"))
-    private void onOnEntityAdded(Entity entityIn, CallbackInfo ci) {
+    @Inject(
+        method = "addEntityPrivate",
+        at = @At("TAIL")
+    )
+    private void onOnEntityAdded(int entityId, Entity entityIn, CallbackInfo ci) {
         CGlobal.clientWorldLoader.clientWorldMap.values().stream()
             .filter(world -> world != (Object) this)
-            .forEach(world -> world.removeEntity(entityIn.getEntityId()));
+            .forEach(world -> world.removeEntity(entityId));
     }
 }

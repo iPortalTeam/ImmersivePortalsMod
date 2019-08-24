@@ -439,7 +439,8 @@ public class PerDimensionContext {
         if (isOriginalContext) {
             return;
         }
-        
+    
+        //original
         uniform_entityColor = shaderUniforms.make4f("entityColor");
         uniform_entityId = shaderUniforms.make1i("entityId");
         uniform_blockEntityId = shaderUniforms.make1i("blockEntityId");

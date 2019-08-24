@@ -1,13 +1,15 @@
-package com.qouteall.immersive_portals.mixin_optifine;
+package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
-import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
-import com.qouteall.immersive_portals.optifine_compatibility.ShaderUtils;
+import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.Texture;
 import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.optifine.expr.IExpressionBool;
 import net.optifine.shaders.*;
 import net.optifine.shaders.config.*;
@@ -19,6 +21,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
@@ -29,9 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-@Mixin(Shaders.class)
+@Mixin(value = Shaders.class, remap = false)
 public abstract class MOShaders {
     @Shadow
     static MinecraftClient mc;
@@ -1008,15 +1012,67 @@ public abstract class MOShaders {
     private static void bindGbuffersTextures() {
     }
     
+    
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
     private static void onCheckWorldChanged(World world, CallbackInfo ci) {
-        if (OptifineCompatibilityHelper.getIsCreatingFakedWorld()) {
+        if (OFHelper.getIsCreatingFakedWorld()) {
             ci.cancel();
         }
     }
-
+    
+    @Inject(
+        method = "uninit",
+        at = @At(
+            value = "INVOKE_STRING",
+            target = "Lnet/optifine/shaders/SMCLog;info(Ljava/lang/String;)V",
+            args = "ldc=Uninit"
+        )
+    )
+    private static void onUninit(CallbackInfo ci) {
+        OFGlobal.shaderContextManager.onShaderUninit();
+    }
+    
+    @Inject(method = "storeConfig", at = @At("HEAD"))
+    private static void onStoreConfig(CallbackInfo ci) {
+        if (OFGlobal.shaderContextManager.isContextSwitched()) {
+            Helper.err("Trying to store config when context switched");
+            ci.cancel();
+        }
+    }
+    
+    @Redirect(
+        method = "loadShaderPack",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/MinecraftClient;reloadResourcesConcurrently()Ljava/util/concurrent/CompletableFuture;"
+        )
+    )
+    private static CompletableFuture<Void> redirectReloadResource(MinecraftClient minecraftClient) {
+        if (!OFGlobal.shaderContextManager.isContextSwitched()) {
+            return minecraftClient.reloadResourcesConcurrently();
+        }
+        else {
+            return null;
+        }
+    }
+    
+    @Inject(method = "init", at = @At("HEAD"))
+    private static void onInit(CallbackInfo ci) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        DimensionType currDimension = mc.world.dimension.getType();
+        
+        OFHelper.onShaderInit(mc, currDimension);
+        
+        Helper.log("Shader init " + currDimension);
+    }
+    
+    @Inject(method = "loadShaderPack", at = @At("TAIL"))
+    private static void onShaderPackLoaded(CallbackInfo ci) {
+        OFGlobal.shaderContextManager.updateTemplateContext();
+    }
+    
     static {
-        ShaderUtils.copyContextFromObject = context -> {
+        OFGlobal.copyContextFromObject = context -> {
             mc = context.mc;
             entityRenderer = context.entityRenderer;
             isInitializedOnce = context.isInitializedOnce;
@@ -1410,7 +1466,7 @@ public abstract class MOShaders {
             entityDataIndex = context.entityDataIndex;
         };
     
-        ShaderUtils.copyContextToObject = context -> {
+        OFGlobal.copyContextToObject = context -> {
             context.mc = mc;
             context.entityRenderer = entityRenderer;
             context.isInitializedOnce = isInitializedOnce;
@@ -1804,7 +1860,9 @@ public abstract class MOShaders {
             context.entityDataIndex = entityDataIndex;
         };
     
-        ShaderUtils.getDfb = () -> dfb;
-        ShaderUtils.bindGbuffersTextures = () -> bindGbuffersTextures();
+        OFGlobal.getDfb = () -> dfb;
+        OFGlobal.bindGbuffersTextures = () -> bindGbuffersTextures();
+    
+        Helper.log("Finished Mixin Shaders Class");
     }
 }

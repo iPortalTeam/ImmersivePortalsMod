@@ -2,8 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OptifineCompatibilityHelper;
-import com.qouteall.immersive_portals.optifine_compatibility.RendererTest;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -34,25 +33,24 @@ public class ModMainClient implements ClientModInitializer {
     }
     
     public static void switchToCorrectRenderer() {
-        CGlobal.renderer = OFGlobal.rendererDeferred;
-//        if (CGlobal.renderer.isRendering()) {
-//            //do not switch when rendering
-//            return;
-//        }
-//        if (CGlobal.isOptifinePresent) {
-//            if (OptifineCompatibilityHelper.getIsUsingShader()) {
-//                if (CGlobal.renderer != OFGlobal.rendererCompatibleWithShaders) {
-//                    Helper.log("switched to dummy renderer");
-//                }
-//                CGlobal.renderer = OFGlobal.rendererCompatibleWithShaders;
-//            }
-//            else {
-//                if (CGlobal.renderer != CGlobal.rendererUsingStencil) {
-//                    Helper.log("switched to normal renderer");
-//                }
-//                CGlobal.renderer = CGlobal.rendererUsingStencil;
-//            }
-//        }
+        if (CGlobal.renderer.isRendering()) {
+            //do not switch when rendering
+            return;
+        }
+        if (CGlobal.isOptifinePresent) {
+            if (OFHelper.getIsUsingShader()) {
+                if (CGlobal.renderer != OFGlobal.rendererDeferred) {
+                    Helper.log("switched to shader compatibility renderer");
+                }
+                CGlobal.renderer = OFGlobal.rendererDeferred;
+            }
+            else {
+                if (CGlobal.renderer != CGlobal.rendererUsingStencil) {
+                    Helper.log("switched to normal renderer");
+                }
+                CGlobal.renderer = CGlobal.rendererUsingStencil;
+            }
+        }
     }
     
     @Override
@@ -81,11 +79,9 @@ public class ModMainClient implements ClientModInitializer {
     
         if (CGlobal.isOptifinePresent) {
             CGlobal.renderPortalBeforeTranslucentBlocks = false;
-        
-            OptifineCompatibilityHelper.init();
     
-            OFGlobal.rendererTest = new RendererTest();
-
+            OFHelper.init();
+    
 //            if (Config.isSmoothWorld()) {
 //                //TODO change smooth world to false
 //                Helper.err("Smooth world will cause entity in other dimension to vanish");

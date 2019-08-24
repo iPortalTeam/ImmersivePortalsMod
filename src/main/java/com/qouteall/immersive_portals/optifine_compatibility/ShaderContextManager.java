@@ -19,6 +19,9 @@ public class ShaderContextManager {
     private DimensionType currentContextDimension;
     
     private PerDimensionContext recordedOriginalContext;
+    private PerDimensionContext templateContext;
+    
+    private boolean isCleaningUp = false;
     
     public static boolean doUseDuplicateContextInCurrentDimension = true;
     
@@ -41,12 +44,22 @@ public class ShaderContextManager {
     }
     
     public void cleanup() {
+        isCleaningUp = true;
+    
+        Helper.log("start cleaning shader context " + managedContext.keySet());
+        
         managedContext.keySet().forEach(
-            dimension -> forceSwitchContextAndRun(dimension, Shaders::uninit)
+            dimension -> {
+                PerDimensionContext context = getOrCreateContext(dimension);
+                forceSwitchToContextAndRun(context, Shaders::uninit);
+            }
         );
         managedContext.clear();
         isStartuped.clear();
         recordedOriginalContext = null;
+        currentContextDimension = null;
+    
+        isCleaningUp = false;
     }
     
     public PerDimensionContext getOrCreateContext(DimensionType dimension) {
@@ -59,6 +72,7 @@ public class ShaderContextManager {
             dimension, k -> {
                 Helper.log("Context object created " + k);
                 return new PerDimensionContext(false);
+                //return createContextByTemplate();
             }
         );
         
@@ -66,44 +80,55 @@ public class ShaderContextManager {
     
     public void switchContextAndRun(Runnable func) {
         DimensionType originalContextDimension = this.currentContextDimension;
-        DimensionType dimensionToSiwtchTo = MinecraftClient.getInstance().world.dimension.getType();
+        DimensionType dimensionToSwitchTo = MinecraftClient.getInstance().world.dimension.getType();
         
         if (this.currentContextDimension == null) {
             //currently the context was not switched
             this.currentContextDimension = CHelper.getOriginalDimension();
             recordedOriginalContext = new PerDimensionContext(true);
-            ShaderUtils.copyContextToObject.accept(recordedOriginalContext);
+            OFGlobal.copyContextToObject.accept(recordedOriginalContext);
             isStartuped.put(currentContextDimension, true);
         }
-        
-        if (currentContextDimension == dimensionToSiwtchTo) {
+    
+        if (currentContextDimension == dimensionToSwitchTo) {
             func.run();
         }
         else {
-            currentContextDimension = dimensionToSiwtchTo;
-            forceSwitchContextAndRun(dimensionToSiwtchTo, func);
+            currentContextDimension = dimensionToSwitchTo;
+            PerDimensionContext newContext = getOrCreateContext(dimensionToSwitchTo);
+        
+            forceSwitchToContextAndRun(newContext, () -> {
+                startupIfNecessary(dimensionToSwitchTo);
+                func.run();
+            });
         }
         
         currentContextDimension = originalContextDimension;
     }
     
-    public void forceSwitchContextAndRun(DimensionType dimension, Runnable func) {
+    private void forceSwitchToContextAndRun(
+        PerDimensionContext contextToSwitchTo,
+        Runnable func
+    ) {
         PerDimensionContext originalContext = new PerDimensionContext(true);
-        ShaderUtils.copyContextToObject.accept(originalContext);
+        OFGlobal.copyContextToObject.accept(originalContext);
         
-        PerDimensionContext newContext = getOrCreateContext(dimension);
-        ShaderUtils.copyContextFromObject.accept(newContext);
+        OFGlobal.copyContextFromObject.accept(contextToSwitchTo);
         
-        func.run();
-    
-        ShaderUtils.copyContextToObject.accept(newContext);
-    
-        ShaderUtils.copyContextFromObject.accept(originalContext);
+        try {
+            func.run();
+        }
+        finally {
+            OFGlobal.copyContextToObject.accept(contextToSwitchTo);
+            
+            OFGlobal.copyContextFromObject.accept(originalContext);
+        }
     }
     
     public void startupIfNecessary(DimensionType dimension) {
         if (dimension != CHelper.getOriginalDimension()) {
             if (!isStartuped.getOrDefault(dimension, false)) {
+                Helper.log("Start Startuping secondary context " + dimension);
                 Shaders.startup(MinecraftClient.getInstance());
                 isStartuped.put(dimension, true);
                 Helper.log("Startuped secondary context " + dimension);
@@ -120,12 +145,41 @@ public class ShaderContextManager {
     
     public void onPlayerTraveled(DimensionType from, DimensionType to) {
         assert !managedContext.containsKey(from);
+    
+        isStartuped.put(from, true);
+        
         PerDimensionContext oldContext = new PerDimensionContext(true);
-        ShaderUtils.copyContextToObject.accept(oldContext);
+        OFGlobal.copyContextToObject.accept(oldContext);
         managedContext.put(from, oldContext);
         
         PerDimensionContext newContext = managedContext.get(to);
-        ShaderUtils.copyContextFromObject.accept(newContext);
+        OFGlobal.copyContextFromObject.accept(newContext);
         managedContext.remove(to);
+    }
+    
+    public void onShaderUninit() {
+        if (!isCleaningUp) {
+            cleanup();
+        }
+    }
+    
+    //we need to record the template when shader is loaded but not initialized
+    public void updateTemplateContext() {
+//        assert !isContextSwitched();
+//
+//        Shaders.uninit();
+//
+//        templateContext = new PerDimensionContext(true);
+//
+//        OFGlobal.copyContextToObject.accept(templateContext);
+    }
+    
+    private PerDimensionContext createContextByTemplate() {
+        assert templateContext != null;
+        PerDimensionContext newContext = new PerDimensionContext(true);
+        forceSwitchToContextAndRun(templateContext, () -> {
+            OFGlobal.copyContextToObject.accept(newContext);
+        });
+        return newContext;
     }
 }

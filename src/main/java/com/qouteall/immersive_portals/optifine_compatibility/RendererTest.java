@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.PortalRenderer;
@@ -54,14 +55,9 @@ public class RendererTest extends PortalRenderer {
         }
         
         portalLayers.push(portal);
+    
+        manageCameraAndRenderPortalContent(portal);
         
-        OFGlobal.shaderContextManager.switchContextAndRun(
-            () -> {
-                OFGlobal.shaderContextManager.startupIfNecessary(portal.dimensionTo);
-                manageCameraAndRenderPortalContent(portal);
-                ShaderUtils.bindGbuffersTextures.run();
-            }
-        );
         
         portalLayers.pop();
         
@@ -70,8 +66,8 @@ public class RendererTest extends PortalRenderer {
         setupCameraTransformation();
         
         //switch back frame buffer
-        ShaderUtils.bindToShaderFrameBuffer();
-    
+        OFHelper.bindToShaderFrameBuffer();
+        
         shaderManager.loadContentShaderAndShaderVars();
         
         GlStateManager.enableTexture();
@@ -84,7 +80,19 @@ public class RendererTest extends PortalRenderer {
         
         shaderManager.unloadShader();
     
-        ShaderUtils.bindGbuffersTextures.run();
+        OFGlobal.bindGbuffersTextures.run();
+    }
+    
+    @Override
+    protected void renderPortalContentWithContextSwitched(
+        Portal portal, Vec3d oldCameraPos
+    ) {
+        OFGlobal.shaderContextManager.switchContextAndRun(
+            () -> {
+                super.renderPortalContentWithContextSwitched(portal, oldCameraPos);
+                OFGlobal.bindGbuffersTextures.run();
+            }
+        );
     }
     
     private boolean testShouldRenderPortal(Portal portal) {
@@ -101,6 +109,5 @@ public class RendererTest extends PortalRenderer {
             GlStateManager.enableTexture();
         });
     }
-    
     
 }

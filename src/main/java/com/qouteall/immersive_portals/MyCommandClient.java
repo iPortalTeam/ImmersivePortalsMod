@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
@@ -242,6 +243,15 @@ public class MyCommandClient {
                         ((IEWorldRenderer) MinecraftClient.getInstance().worldRenderer)
                             .getChunkRenderDispatcher()
                     ).rebuildAll();
+                });
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("uninit_shader_context")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    OFHelper.forceUninit();
                 });
                 return 0;
             })

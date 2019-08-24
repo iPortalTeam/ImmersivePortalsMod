@@ -15,12 +15,13 @@ public class CHelper {
         );
     }
     
+    //NOTE this may not be reliable
     public static DimensionType getOriginalDimension() {
         if (CGlobal.renderer.isRendering()) {
             return PortalRenderer.originalPlayerDimension;
         }
         else {
-            return MinecraftClient.getInstance().world.dimension.getType();
+            return MinecraftClient.getInstance().player.dimension;
         }
     }
 }
