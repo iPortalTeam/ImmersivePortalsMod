@@ -33,10 +33,6 @@
     {
       "config": "immersive_portals.mixins_client.json",
       "environment": "client"
-    },
-    {
-      "config": "immersive_portals.mixins_with_optifine.json",
-      "environment": "client"
     }
   ],
 
@@ -46,5 +42,11 @@
   },
   "suggests": {
     "flamingo": "*"
+  },
+  "custom": {
+    "fabric-renderer-indigo:force_compatibility": true,
+    "mm:early_risers": [
+      "com.qouteall.immersive_portals.optifine_compatibility.LaunchMixinWithOptifineRunnable"
+    ]
   }
 }
