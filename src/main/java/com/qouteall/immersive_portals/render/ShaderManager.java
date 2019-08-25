@@ -78,7 +78,7 @@ public class ShaderManager {
         return idProgram;
     }
     
-    public void loadContentShaderAndShaderVars() {
+    public void loadContentShaderAndShaderVars(int textureSlot) {
         GL20.glUseProgram(idContentShaderProgram);
         
         int uniModelView = GL20.glGetUniformLocation(idContentShaderProgram, "modelView");
@@ -89,8 +89,8 @@ public class ShaderManager {
         
         GL20.glUniformMatrix4fv(uniModelView, false, Helper.getModelViewMatrix());
         GL20.glUniformMatrix4fv(uniProjection, false, Helper.getProjectionMatrix());
-    
-        GL20.glUniform1i(uniSampler, 1);
+        
+        GL20.glUniform1i(uniSampler, textureSlot);
         
         GL20.glUniform1f(uniWidth, MinecraftClient.getInstance().window.getFramebufferWidth());
         GL20.glUniform1f(uniHeight, MinecraftClient.getInstance().window.getFramebufferHeight());

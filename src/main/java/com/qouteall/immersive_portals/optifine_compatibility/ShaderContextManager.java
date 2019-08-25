@@ -24,6 +24,7 @@ public class ShaderContextManager {
     private boolean isCleaningUp = false;
     
     public static boolean doUseDuplicateContextInCurrentDimension = true;
+    public static boolean doUseTemplate = true;
     
     public ShaderContextManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
@@ -71,8 +72,14 @@ public class ShaderContextManager {
         return managedContext.computeIfAbsent(
             dimension, k -> {
                 Helper.log("Context object created " + k);
-                return new PerDimensionContext(false);
-                //return createContextByTemplate();
+                if (doUseTemplate) {
+                    return createContextByTemplate();
+                }
+                else {
+                    PerDimensionContext context = new PerDimensionContext();
+                    context.doDefaultInit();
+                    return context;
+                }
             }
         );
         
@@ -85,7 +92,7 @@ public class ShaderContextManager {
         if (this.currentContextDimension == null) {
             //currently the context was not switched
             this.currentContextDimension = CHelper.getOriginalDimension();
-            recordedOriginalContext = new PerDimensionContext(true);
+            recordedOriginalContext = new PerDimensionContext();
             OFGlobal.copyContextToObject.accept(recordedOriginalContext);
             isStartuped.put(currentContextDimension, true);
         }
@@ -110,7 +117,7 @@ public class ShaderContextManager {
         PerDimensionContext contextToSwitchTo,
         Runnable func
     ) {
-        PerDimensionContext originalContext = new PerDimensionContext(true);
+        PerDimensionContext originalContext = new PerDimensionContext();
         OFGlobal.copyContextToObject.accept(originalContext);
         
         OFGlobal.copyContextFromObject.accept(contextToSwitchTo);
@@ -126,6 +133,9 @@ public class ShaderContextManager {
     }
     
     public void startupIfNecessary(DimensionType dimension) {
+        if (doUseTemplate) {
+            return;
+        }
         if (dimension != CHelper.getOriginalDimension()) {
             if (!isStartuped.getOrDefault(dimension, false)) {
                 Helper.log("Start Startuping secondary context " + dimension);
@@ -147,8 +157,8 @@ public class ShaderContextManager {
         assert !managedContext.containsKey(from);
     
         isStartuped.put(from, true);
-        
-        PerDimensionContext oldContext = new PerDimensionContext(true);
+    
+        PerDimensionContext oldContext = new PerDimensionContext();
         OFGlobal.copyContextToObject.accept(oldContext);
         managedContext.put(from, oldContext);
         
@@ -165,21 +175,24 @@ public class ShaderContextManager {
     
     //we need to record the template when shader is loaded but not initialized
     public void updateTemplateContext() {
-//        assert !isContextSwitched();
-//
-//        Shaders.uninit();
-//
-//        templateContext = new PerDimensionContext(true);
-//
-//        OFGlobal.copyContextToObject.accept(templateContext);
+        if (doUseTemplate) {
+            assert !isContextSwitched();
+        
+            Shaders.uninit();
+        
+            templateContext = new PerDimensionContext();
+        
+            OFGlobal.copyContextToObject.accept(templateContext);
+        }
     }
     
     private PerDimensionContext createContextByTemplate() {
         assert templateContext != null;
-        PerDimensionContext newContext = new PerDimensionContext(true);
+        PerDimensionContext newContext = new PerDimensionContext();
         forceSwitchToContextAndRun(templateContext, () -> {
             OFGlobal.copyContextToObject.accept(newContext);
         });
+        newContext.doSpecialInit();
         return newContext;
     }
 }

@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
@@ -7,6 +8,7 @@ import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
@@ -395,5 +397,29 @@ public abstract class PortalRenderer {
     
     public void onShaderRenderEnded() {
         //nothing
+    }
+    
+    protected void drawFrameBufferUp(
+        Portal portal,
+        GlFramebuffer textureProvider,
+        ShaderManager shaderManager
+    ) {
+        setupCameraTransformation();
+        
+        shaderManager.loadContentShaderAndShaderVars(0);
+        
+        GlStateManager.enableTexture();
+        
+        GlStateManager.activeTexture(GLX.GL_TEXTURE0);
+        
+        GlStateManager.bindTexture(textureProvider.colorAttachment);
+//        GlStateManager.texParameter(3553, 10241, 9729);
+//        GlStateManager.texParameter(3553, 10240, 9729);
+//        GlStateManager.texParameter(3553, 10242, 10496);
+//        GlStateManager.texParameter(3553, 10243, 10496);
+        
+        drawPortalViewTriangle(portal);
+        
+        shaderManager.unloadShader();
     }
 }

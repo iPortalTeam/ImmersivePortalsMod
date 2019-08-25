@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
 import com.qouteall.immersive_portals.my_util.Helper;
@@ -109,21 +108,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     private void renderSecondBufferIntoMainBuffer(Portal portal) {
-        setupCameraTransformation();
-        
-        shaderManager.loadContentShaderAndShaderVars();
-        
-        GlStateManager.enableTexture();
-        
-        GlStateManager.activeTexture(GLX.GL_TEXTURE0);
-        GlStateManager.bindTexture(secondFrameBuffer.colorAttachment);
-        GlStateManager.texParameter(3553, 10241, 9729);
-        GlStateManager.texParameter(3553, 10240, 9729);
-        GlStateManager.texParameter(3553, 10242, 10496);
-        GlStateManager.texParameter(3553, 10243, 10496);
-        
-        drawPortalViewTriangle(portal);
-        
-        shaderManager.unloadShader();
+        GlFramebuffer textureProvider = this.secondFrameBuffer;
+    
+        drawFrameBufferUp(portal, textureProvider, shaderManager);
     }
+    
 }

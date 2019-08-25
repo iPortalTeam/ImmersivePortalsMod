@@ -409,6 +409,10 @@ public class Helper {
         //System.err.println(str);
     }
     
+    public static void forcePrintStackTrace(Throwable throwable) {
+        LOGGER.error("", throwable);
+    }
+    
     public static Vec3d[] eightVerticesOf(Box box) {
         return new Vec3d[]{
             new Vec3d(box.minX, box.minY, box.minZ),

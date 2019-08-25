@@ -67,8 +67,8 @@ public class RendererTest extends PortalRenderer {
         
         //switch back frame buffer
         OFHelper.bindToShaderFrameBuffer();
-        
-        shaderManager.loadContentShaderAndShaderVars();
+    
+        shaderManager.loadContentShaderAndShaderVars(1);
         
         GlStateManager.enableTexture();
         GlStateManager.disableBlend();

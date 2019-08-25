@@ -15,10 +15,7 @@ import net.optifine.shaders.*;
 import net.optifine.shaders.config.*;
 import net.optifine.shaders.uniform.*;
 import org.lwjgl.opengl.GLCapabilities;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -35,7 +32,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-@Mixin(value = Shaders.class, remap = false)
+@Pseudo
+@Mixin(targets = "net.optifine.shaders.Shaders")
 public abstract class MOShaders {
     @Shadow
     static MinecraftClient mc;

@@ -72,22 +72,10 @@ public class RendererDeferred extends PortalRenderer {
     
         portalLayers.pop();
     
-        deferredBuffer.beginWrite(MinecraftClient.IS_SYSTEM_MAC);
+        deferredBuffer.beginWrite(true);
     
-        setupCameraTransformation();
-    
-        shaderManager.loadContentShaderAndShaderVars();
-    
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
-        GlStateManager.disableLighting();
-    
-        drawPortalViewTriangle(portal);
-    
-        GlStateManager.enableBlend();
-    
-        shaderManager.unloadShader();
-    
+        drawFrameBufferUp(portal, mc.getFramebuffer(), shaderManager);
+        
         OFHelper.bindToShaderFrameBuffer();
     }
     
@@ -97,8 +85,8 @@ public class RendererDeferred extends PortalRenderer {
     ) {
         OFGlobal.shaderContextManager.switchContextAndRun(
             () -> {
+                OFHelper.bindToShaderFrameBuffer();
                 super.renderPortalContentWithContextSwitched(portal, oldCameraPos);
-                OFGlobal.bindGbuffersTextures.run();
             }
         );
     }
@@ -147,7 +135,7 @@ public class RendererDeferred extends PortalRenderer {
         
         GlStateManager.enableAlphaTest();
         mc.getFramebuffer().beginWrite(true);
-        
+    
         CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
         deferredBuffer.draw(deferredBuffer.viewWidth, deferredBuffer.viewHeight);
         CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
