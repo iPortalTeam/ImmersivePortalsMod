@@ -1,10 +1,31 @@
-fix mis-teleport sometimes still occur
-fix day time sync
-fix culling with shaders
-fix shaders go black or white
 
-render view area when max portal layer is 0
+fix culling with shaders
+fix shader malfunction (shadow abnormal, pure color, crash)
+
+test reliability in server
+
+add configuration for max portal layer
+
+compatible with post processing
 
 make nether portal possibly generate above lava lake
 
-check client chunk loading leak and server chunk loading leak
+horizontal portal
+
+nested portal with shader
+
+
+Beyond Belief shader: enter the world in nether will cause it to constantly blink
+BSL: seldomly overworld become black or shadow abnormal
+Builder's Moded shader / Builder's QOL shader: crash
+Chocapic shader: constantly blink or world become pure white or dark
+Molly Vxe shader: dark overworld
+Voyager: can't see overworld from nether
+
+Fine
+Kappa
+Nostalgia
+projectLUMA
+RRe36
+SEUS Renewed
+Sildurs Vibrant

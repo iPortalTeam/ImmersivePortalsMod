@@ -127,12 +127,14 @@ public class RendererDeferred extends PortalRenderer {
         return renderAndGetDoesAnySamplePassed(() -> {
             GlStateManager.enableDepthTest();
             GlStateManager.disableTexture();
+            GlStateManager.colorMask(false, false, false, false);
             setupCameraTransformation();
             GL20.glUseProgram(0);
             
             drawPortalViewTriangle(portal);
             
             GlStateManager.enableTexture();
+            GlStateManager.colorMask(true, true, true, true);
         });
     }
     

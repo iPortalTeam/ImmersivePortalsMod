@@ -243,18 +243,5 @@ public class ServerTeleportationManager {
         entity.world = toWorld;
         entity.dimension = toDimension;
         toWorld.method_18769(entity);
-        
-        //this entity was untracked and retracked.
-        //so it will not be in the player's unloading entity list
-        //manually send destroy packet to avoid duplicate
-
-//        CustomPayloadS2CPacket removeEntityPacket = MyNetwork.createRedirectedMessage(
-//            fromWorld.dimension.getType(),
-//            new EntitiesDestroyS2CPacket(entity.getEntityId())
-//        );
-//
-//        watchingPlayers.forEach(
-//            player -> player.networkHandler.sendPacket(removeEntityPacket)
-//        );
     }
 }
