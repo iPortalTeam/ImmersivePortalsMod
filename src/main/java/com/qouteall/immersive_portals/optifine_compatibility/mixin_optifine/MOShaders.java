@@ -1010,6 +1010,10 @@ public abstract class MOShaders {
     private static void bindGbuffersTextures() {
     }
     
+    @Shadow
+    protected static boolean checkBufferFlip(Program program) {
+        return false;
+    }
     
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
     private static void onCheckWorldChanged(World world, CallbackInfo ci) {
@@ -1861,6 +1865,10 @@ public abstract class MOShaders {
         OFGlobal.getDfb = () -> dfb;
         OFGlobal.bindGbuffersTextures = () -> bindGbuffersTextures();
     
+        OFGlobal.flipShaderFb = () -> {
+            checkBufferFlip(ProgramCompositePre);
+        };
+        
         Helper.log("Finished Mixin Shaders Class");
     }
 }

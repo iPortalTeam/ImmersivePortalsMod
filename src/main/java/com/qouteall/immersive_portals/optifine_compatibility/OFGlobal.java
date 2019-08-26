@@ -12,6 +12,7 @@ public class OFGlobal {
     public static Consumer<PerDimensionContext> copyContextFromObject;
     public static Supplier<Integer> getDfb;
     public static Runnable bindGbuffersTextures;
+    public static Runnable flipShaderFb;
     
     public static boolean doForceInitSequence = false;
     

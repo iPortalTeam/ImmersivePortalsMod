@@ -1,8 +1,10 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import net.minecraft.block.BlockRenderLayer;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.ChunkRenderDispatcher;
 import net.minecraft.client.render.VisibleRegion;
@@ -99,6 +101,33 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         CGlobal.myGameRenderer.renderPlayerItselfIfNecessary();
+    }
+    
+    @Inject(method = "reload", at = @At("TAIL"))
+    private void onReload(CallbackInfo ci) {
+        ClientWorldLoader clientWorldLoader = CGlobal.clientWorldLoader;
+        WorldRenderer this_ = (WorldRenderer) (Object) this;
+        if (CGlobal.isReloadingOtherWorldRenderers) {
+            return;
+        }
+        if (CGlobal.renderer.isRendering()) {
+            return;
+        }
+        if (clientWorldLoader.getIsLoadingFakedWorld()) {
+            return;
+        }
+        if (this_ != MinecraftClient.getInstance().worldRenderer) {
+            return;
+        }
+        
+        CGlobal.isReloadingOtherWorldRenderers = true;
+        
+        for (WorldRenderer worldRenderer : clientWorldLoader.worldRendererMap.values()) {
+            if (worldRenderer != this_) {
+                worldRenderer.reload();
+            }
+        }
+        CGlobal.isReloadingOtherWorldRenderers = false;
     }
     
     @Override

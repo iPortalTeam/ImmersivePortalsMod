@@ -50,15 +50,15 @@ public class PerDimensionContext {
     public boolean renderItemKeepDepthMask = false;
     public boolean itemToRenderMainTranslucent = false;
     public boolean itemToRenderOffTranslucent = false;
-    public float[] sunPosition = new float[4];
-    public float[] moonPosition = new float[4];
-    public float[] shadowLightPosition = new float[4];
-    public float[] upPosition = new float[4];
-    public float[] shadowLightPositionVector = new float[4];
-    public float[] upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
-    public float[] sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
-    public float[] moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
-    public float[] tempMat = new float[16];
+    public float[] sunPosition;
+    public float[] moonPosition;
+    public float[] shadowLightPosition;
+    public float[] upPosition;
+    public float[] shadowLightPositionVector;
+    public float[] upPosModelView;
+    public float[] sunPosModelView;
+    public float[] moonPosModelView;
+    public float[] tempMat;
     public float clearColorR;
     public float clearColorG;
     public float clearColorB;
@@ -113,7 +113,7 @@ public class PerDimensionContext {
     public boolean hasGeometryShaders = false;
     public int atlasSizeX = 0;
     public int atlasSizeY = 0;
-    public ShaderUniforms shaderUniforms = new ShaderUniforms();
+    public ShaderUniforms shaderUniforms;
     public ShaderUniform4f uniform_entityColor;
     public ShaderUniform1i uniform_entityId;
     public ShaderUniform1i uniform_blockEntityId;
@@ -437,9 +437,21 @@ public class PerDimensionContext {
     
     public PerDimensionContext() {
     
+    
     }
     
     public void doDefaultInit() {
+        sunPosition = new float[4];
+        moonPosition = new float[4];
+        shadowLightPosition = new float[4];
+        upPosition = new float[4];
+        shadowLightPositionVector = new float[4];
+        upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+        sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+        moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
+        tempMat = new float[16];
+        shaderUniforms = new ShaderUniforms();
+        
         uniform_entityColor = shaderUniforms.make4f("entityColor");
         uniform_entityId = shaderUniforms.make1i("entityId");
         uniform_blockEntityId = shaderUniforms.make1i("blockEntityId");
@@ -750,6 +762,17 @@ public class PerDimensionContext {
     }
     
     public void doSpecialInit() {
+        sunPosition = new float[4];
+        moonPosition = new float[4];
+        shadowLightPosition = new float[4];
+        upPosition = new float[4];
+        shadowLightPositionVector = new float[4];
+        upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+        sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+        moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
+        tempMat = new float[16];
+        shaderUniforms = new ShaderUniforms();
+        
         uniform_entityColor = shaderUniforms.make4f("entityColor");
         uniform_entityId = shaderUniforms.make1i("entityId");
         uniform_blockEntityId = shaderUniforms.make1i("blockEntityId");
@@ -838,19 +861,19 @@ public class PerDimensionContext {
         uniform_centerDepthSmooth = shaderUniforms.make1f("centerDepthSmooth");
         uniform_atlasSize = shaderUniforms.make2i("atlasSize");
         uniform_blendFunc = shaderUniforms.make4i("blendFunc");
-        shadowPassInterval = 0;
-        needResizeShadow = false;
-        shadowMapWidth = 1024;
-        shadowMapHeight = 1024;
-        spShadowMapWidth = 1024;
-        spShadowMapHeight = 1024;
-        shadowMapFOV = 90.0F;
-        shadowMapHalfPlane = 160.0F;
-        shadowMapIsOrtho = true;
-        shadowDistanceRenderMul = -1.0F;
-        shadowPassCounter = 0;
-        shouldSkipDefaultShadow = false;
-        waterShadowEnabled = false;
+//        shadowPassInterval = 0;
+//        needResizeShadow = false;
+//        shadowMapWidth = 1024;
+//        shadowMapHeight = 1024;
+//        spShadowMapWidth = 1024;
+//        spShadowMapHeight = 1024;
+//        shadowMapFOV = 90.0F;
+//        shadowMapHalfPlane = 160.0F;
+//        shadowMapIsOrtho = true;
+//        shadowDistanceRenderMul = -1.0F;
+//        shadowPassCounter = 0;
+//        shouldSkipDefaultShadow = false;
+//        waterShadowEnabled = false;
         usedColorBuffers = 0;
         usedDepthBuffers = 0;
         usedShadowColorBuffers = 0;
@@ -968,7 +991,7 @@ public class PerDimensionContext {
 //        customTexturesComposite = null;
 //        customTexturesDeferred = null;
 //        noiseTexturePath = null;
-//        customUniforms = null;
+        customUniforms = null;
 //        STAGE_NAMES = new String[]{"gbuffers", "composite", "deferred"};
 //        saveFinalShaders = System.getProperty("shaders.debug.save", "false").equals("true");
 //        blockLightLevel05 = 0.5F;

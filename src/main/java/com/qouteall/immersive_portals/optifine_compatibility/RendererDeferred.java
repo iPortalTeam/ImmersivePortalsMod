@@ -8,7 +8,9 @@ import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
+import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -16,6 +18,8 @@ import org.lwjgl.opengl.GL30;
 public class RendererDeferred extends PortalRenderer {
     private GlFramebuffer deferredBuffer;
     private ShaderManager shaderManager;
+    
+    private static boolean isEnabled = true;
     
     @Override
     public boolean shouldSkipClearing() {
@@ -54,6 +58,10 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal) {
+        if (!isEnabled) {
+            return;
+        }
+        
         if (isRendering()) {
             //currently only support one-layer portal
             return;
@@ -77,6 +85,7 @@ public class RendererDeferred extends PortalRenderer {
         drawFrameBufferUp(portal, mc.getFramebuffer(), shaderManager);
         
         OFHelper.bindToShaderFrameBuffer();
+    
     }
     
     @Override
@@ -93,7 +102,24 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
+        if (shouldRenderPortalInEntityRenderer(portal)) {
+            drawPortalViewTriangle(portal);
+        }
+    }
     
+    private boolean shouldRenderPortalInEntityRenderer(Portal portal) {
+        Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
+        if (cameraEntity == null) {
+            return false;
+        }
+        Vec3d cameraPos = cameraEntity.getPos();
+        if (Shaders.isShadowPass) {
+            return true;
+        }
+        if (isRendering()) {
+            return portal.isInFrontOfPortal(cameraPos);
+        }
+        return false;
     }
     
     //NOTE it will write to depth buffer
@@ -128,11 +154,11 @@ public class RendererDeferred extends PortalRenderer {
         if (isRendering()) {
             return;
         }
-        
+    
         if (renderedPortalNum == 0) {
             return;
         }
-        
+    
         GlStateManager.enableAlphaTest();
         mc.getFramebuffer().beginWrite(true);
     

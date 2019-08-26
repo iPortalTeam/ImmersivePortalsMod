@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
@@ -374,6 +375,10 @@ public abstract class PortalRenderer {
         GlStateManager.disableLighting();
         
         GL11.glDisable(GL_CLIP_PLANE0);
+    
+        if (OFHelper.getIsUsingShader()) {
+            fogColor = Vec3d.ZERO;
+        }
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBufferBuilder();

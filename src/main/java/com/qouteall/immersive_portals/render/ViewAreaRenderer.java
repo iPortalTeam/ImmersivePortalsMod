@@ -31,7 +31,7 @@ public class ViewAreaRenderer {
             .map(pos -> pos.add(posInPlayerCoordinate))
             .toArray(Vec3d[]::new);
     
-        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0.01))
+        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0.2))
             .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
             .toArray(Vec3d[]::new);
         

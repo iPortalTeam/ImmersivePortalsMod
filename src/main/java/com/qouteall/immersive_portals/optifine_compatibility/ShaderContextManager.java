@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.world.dimension.DimensionType;
@@ -27,21 +26,11 @@ public class ShaderContextManager {
     public static boolean doUseTemplate = true;
     
     public ShaderContextManager() {
-        ModMain.preRenderSignal.connectWithWeakRef(
-            this,
-            this_ -> {
-                if (MinecraftClient.getInstance().world != null) {
-                    this_.initIfNeeded();
-                }
-            }
-        );
+    
     }
     
     public boolean isContextSwitched() {
         return currentContextDimension != null;
-    }
-    
-    private void initIfNeeded() {
     }
     
     public void cleanup() {
@@ -161,8 +150,8 @@ public class ShaderContextManager {
         PerDimensionContext oldContext = new PerDimensionContext();
         OFGlobal.copyContextToObject.accept(oldContext);
         managedContext.put(from, oldContext);
-        
-        PerDimensionContext newContext = managedContext.get(to);
+    
+        PerDimensionContext newContext = getOrCreateContext(to);
         OFGlobal.copyContextFromObject.accept(newContext);
         managedContext.remove(to);
     }
@@ -179,10 +168,13 @@ public class ShaderContextManager {
             assert !isContextSwitched();
         
             Shaders.uninit();
+            cleanup();
         
             templateContext = new PerDimensionContext();
         
             OFGlobal.copyContextToObject.accept(templateContext);
+    
+            Helper.log("context template updated");
         }
     }
     

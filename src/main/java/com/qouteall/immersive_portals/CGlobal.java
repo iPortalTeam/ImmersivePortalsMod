@@ -30,4 +30,6 @@ public class CGlobal {
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
+    
+    public static boolean isReloadingOtherWorldRenderers = false;
 }

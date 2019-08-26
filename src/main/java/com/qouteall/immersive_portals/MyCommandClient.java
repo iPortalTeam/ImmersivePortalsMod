@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
@@ -252,6 +253,15 @@ public class MyCommandClient {
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
                     OFHelper.forceUninit();
+                });
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("flip_shader_fb")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    OFGlobal.flipShaderFb.run();
                 });
                 return 0;
             })
