@@ -22,6 +22,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -218,6 +219,10 @@ public class Helper {
             }
         }
         return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
+    }
+    
+    public static ArrayList<ServerPlayerEntity> getCopiedPlayerList() {
+        return new ArrayList<>(getServer().getPlayerManager().getPlayerList());
     }
     
     public static class SimpleBox<T> {

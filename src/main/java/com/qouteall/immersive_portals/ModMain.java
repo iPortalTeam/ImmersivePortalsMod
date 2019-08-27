@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
+import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
@@ -38,6 +39,8 @@ public class ModMain implements ModInitializer {
         SGlobal.serverTeleportationManager = new ServerTeleportationManager();
         SGlobal.chunkTracker = new ChunkTracker();
         SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
+    
+        WorldInfoSender.init();
     }
     
 }

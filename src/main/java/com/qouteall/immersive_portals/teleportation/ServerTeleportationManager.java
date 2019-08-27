@@ -180,7 +180,7 @@ public class ServerTeleportationManager {
         long tickTimeNow = Helper.getServerGameTime();
         if (tickTimeNow % 20 == 17) {
             ArrayList<ServerPlayerEntity> copiedPlayerList =
-                new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
+                Helper.getCopiedPlayerList();
             for (ServerPlayerEntity player : copiedPlayerList) {
                 Long lastTeleportGameTime =
                     this.lastTeleportGameTime.getOrDefault(player, 0L);

@@ -95,9 +95,13 @@ public class MyGameRenderer {
         
         //invoke it!
         if (OFHelper.getIsUsingShader()) {
+            Shaders.activeProgram = Shaders.ProgramNone;
             Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
         }
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
+        if (OFHelper.getIsUsingShader()) {
+            Shaders.activeProgram = Shaders.ProgramNone;
+        }
         
         mc.getProfiler().pop();
     
@@ -126,7 +130,9 @@ public class MyGameRenderer {
     }
     
     public void startCulling() {
-        if (CGlobal.useFrontCulling) {
+        //shaders does not compatible with glCullPlane
+        //I have to modify shader code
+        if (CGlobal.useFrontCulling && OFHelper.getIsUsingShader()) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
     }
@@ -146,7 +152,7 @@ public class MyGameRenderer {
         chunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
     }
     
-    private double[] getClipPlaneEquation() {
+    public double[] getClipPlaneEquation() {
         Portal portal = CGlobal.renderer.getRenderingPortal();
         
         Vec3d planeNormal = portal.getNormal().multiply(-1);

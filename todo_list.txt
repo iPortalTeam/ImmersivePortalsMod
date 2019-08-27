@@ -14,6 +14,8 @@ horizontal portal
 
 nested portal with shader
 
+check center depth correctness
+
 
 Beyond Belief shader: enter the world in nether will cause it to constantly blink
 BSL: seldomly overworld become black or shadow abnormal
@@ -29,3 +31,7 @@ projectLUMA
 RRe36
 SEUS Renewed
 Sildurs Vibrant
+
+question about optifine:
+camera position is offseted and used for getting biome
+frac function

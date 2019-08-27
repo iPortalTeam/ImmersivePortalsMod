@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
+import net.optifine.shaders.uniform.ShaderUniforms;
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -13,6 +15,7 @@ public class OFGlobal {
     public static Supplier<Integer> getDfb;
     public static Runnable bindGbuffersTextures;
     public static Runnable flipShaderFb;
+    public static Supplier<ShaderUniforms> getShaderUniforms;
     
     public static boolean doForceInitSequence = false;
     

@@ -167,10 +167,8 @@ public class ChunkTracker {
     }
     
     private void tick() {
-        List<ServerPlayerEntity> playerList =
-            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
         long currTime = Helper.getServerGameTime();
-        for (ServerPlayerEntity player : playerList) {
+        for (ServerPlayerEntity player : Helper.getCopiedPlayerList()) {
             if (currTime % 50 == player.getEntityId() % 50) {
                 updatePlayer(player);
     

@@ -3,6 +3,8 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
+import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.client.world.ClientWorld;
@@ -17,9 +19,11 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     @Shadow
     private GlFramebuffer framebuffer;
     
-    @Inject(at = @At("HEAD"), method = "init()V")
-    private void init(CallbackInfo info) {
-        System.out.println("start initializing");
+    @Inject(at = @At("TAIL"), method = "init()V")
+    private void onInitEnded(CallbackInfo info) {
+        if (FabricLoader.INSTANCE.isModLoaded("optifabric")) {
+            ShaderCullingManager.init();
+        }
     }
     
     @Inject(

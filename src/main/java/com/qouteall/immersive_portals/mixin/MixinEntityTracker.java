@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -127,11 +126,8 @@ public class MixinEntityTracker implements IEEntityTracker {
     @Overwrite
     public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
         //ignore the argument
-        
-        ArrayList<ServerPlayerEntity> playerList =
-            new ArrayList<>(Helper.getServer().getPlayerManager().getPlayerList());
-        
-        playerList.forEach(this::updateCameraPosition);
+    
+        Helper.getCopiedPlayerList().forEach(this::updateCameraPosition);
         
     }
     

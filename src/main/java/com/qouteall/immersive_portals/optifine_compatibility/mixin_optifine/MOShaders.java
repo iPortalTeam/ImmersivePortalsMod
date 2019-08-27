@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
@@ -18,8 +19,10 @@ import org.lwjgl.opengl.GLCapabilities;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -1073,6 +1076,64 @@ public abstract class MOShaders {
         OFGlobal.shaderContextManager.updateTemplateContext();
     }
     
+    @Redirect(
+        method = "init",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/optifine/shaders/uniform/ShaderUniforms;reset()V"
+        )
+    )
+    private static void redirectShaderUniformReset(ShaderUniforms shaderUniforms) {
+        if (!OFGlobal.shaderContextManager.isContextSwitched()) {
+            shaderUniforms.reset();
+        }
+    }
+    
+    //multiple context share the same custom uniforms
+    //do not reset when initializing the second context
+    @Redirect(
+        method = "init",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/optifine/shaders/uniform/CustomUniforms;reset()V"
+        )
+    )
+    private static void redirectCustomUniformReset(CustomUniforms customUniforms) {
+        if (!OFGlobal.shaderContextManager.isContextSwitched()) {
+            customUniforms.reset();
+        }
+    }
+    
+    private static boolean shouldModifyShaderCode;
+    
+    @Inject(method = "createFragShader", at = @At("HEAD"))
+    private static void onCreateFragShader(
+        Program program,
+        String filename,
+        CallbackInfoReturnable<Integer> cir
+    ) {
+        shouldModifyShaderCode = ShaderCullingManager.getShouldModifyShaderCode(program);
+    }
+    
+    @ModifyVariable(
+        method = "createFragShader",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/optifine/shaders/Shaders;saveFinalShaders:Z"
+        )
+    )
+    private static StringBuilder modifyFragShaderCode(StringBuilder shaderCode) {
+        if (!shouldModifyShaderCode) {
+            return shaderCode;
+        }
+        return ShaderCullingManager.modifyFragShaderCode(shaderCode);
+    }
+    
+    @Inject(method = "useProgram", at = @At("TAIL"))
+    private static void onLoadingUniforms(Program program, CallbackInfo ci) {
+        ShaderCullingManager.loadUniforms();
+    }
+    
     static {
         OFGlobal.copyContextFromObject = context -> {
             mc = context.mc;
@@ -1868,6 +1929,8 @@ public abstract class MOShaders {
         OFGlobal.flipShaderFb = () -> {
             checkBufferFlip(ProgramCompositePre);
         };
+    
+        OFGlobal.getShaderUniforms = () -> shaderUniforms;
         
         Helper.log("Finished Mixin Shaders Class");
     }

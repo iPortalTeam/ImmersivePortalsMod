@@ -1,0 +1,19 @@
+uniform vec3 cullingEquationXYZ;
+uniform float cullingEquationW;
+
+vec3 portal_toNDC(vec3 pos){
+	vec4 iProjDiag = vec4(gbufferProjectionInverse[0].x, gbufferProjectionInverse[1].y, gbufferProjectionInverse[2].zw);
+    vec3 p3 = pos * 2. - 1.;
+    vec4 fragpos = iProjDiag * p3.xyzz + gbufferProjectionInverse[3];
+    return fragpos.xyz / fragpos.w;
+}
+
+vec3 portal_toWorld(vec3 pos){
+	return mat3(gbufferModelViewInverse) * pos + gbufferModelViewInverse[3].xyz;
+}
+
+void main() {
+
+vec3 portal_fragPos =portal_toNDC(vec3(gl_FragCoord.xy / vec2(viewWidth,viewHeight), gl_FragCoord.z));
+vec3 portal_worldPos = portal_toWorld(portal_fragPos);
+if(portal_worldPos * cullingEquationXYZ + cullingEquationW < 0){discard;}
