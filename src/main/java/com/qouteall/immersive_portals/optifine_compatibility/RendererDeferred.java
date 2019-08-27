@@ -30,19 +30,21 @@ public class RendererDeferred extends PortalRenderer {
     @Override
     protected void prepareStates() {
         GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
+        int width = mainFrameBuffer.viewWidth;
+        int height = mainFrameBuffer.viewHeight;
         if (deferredBuffer == null) {
             deferredBuffer = new GlFramebuffer(
-                mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight,
+                width, height,
                 true,//has depth attachment
                 MinecraftClient.IS_SYSTEM_MAC
             );
         }
-        if (mainFrameBuffer.viewWidth != deferredBuffer.viewWidth ||
-            mainFrameBuffer.viewHeight != deferredBuffer.viewHeight
+        if (width != deferredBuffer.viewWidth ||
+            height != deferredBuffer.viewHeight
         ) {
             deferredBuffer.resize(
-                mainFrameBuffer.viewWidth,
-                mainFrameBuffer.viewHeight,
+                width,
+                height,
                 MinecraftClient.IS_SYSTEM_MAC
             );
             Helper.log("Deferred buffer resized");
@@ -55,6 +57,8 @@ public class RendererDeferred extends PortalRenderer {
         deferredBuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
     
         OFHelper.bindToShaderFrameBuffer();
+    
+        GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
     }
     
     @Override
@@ -68,37 +72,37 @@ public class RendererDeferred extends PortalRenderer {
                 return;
             }
         }
-    
+
         if (!isDebugMode) {
             copyDepthFromMainToDeferred();
         }
-    
+
         if (!isDebugMode) {
             if (!testShouldRenderPortal(portal)) {
                 return;
             }
         }
-    
+
         portalLayers.push(portal);
-    
+
         manageCameraAndRenderPortalContent(portal);
         //it will bind the gbuffer of rendered dimension
-    
+
         portalLayers.pop();
-    
+
         deferredBuffer.beginWrite(true);
-    
+
         if (!isDebugMode) {
             drawFrameBufferUp(portal, mc.getFramebuffer(), shaderManager);
         }
         else {
             GlStateManager.activeTexture(GL13.GL_TEXTURE0);
             mc.getFramebuffer().draw(
-                mc.getFramebuffer().viewWidth,
-                mc.getFramebuffer().viewHeight
+                deferredBuffer.viewWidth,
+                deferredBuffer.viewHeight
             );
         }
-        
+    
         OFHelper.bindToShaderFrameBuffer();
     
     }
@@ -137,7 +141,7 @@ public class RendererDeferred extends PortalRenderer {
         return false;
     }
     
-    //NOTE it will write to depth buffer
+    //NOTE it will write to shader depth buffer
     private boolean testShouldRenderPortal(Portal portal) {
         return renderAndGetDoesAnySamplePassed(() -> {
             GlStateManager.enableDepthTest();
@@ -158,7 +162,7 @@ public class RendererDeferred extends PortalRenderer {
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fbo);
         
         GL30.glBlitFramebuffer(
-            0, 0, deferredBuffer.viewWidth, deferredBuffer.viewHeight,
+            0, 0, Shaders.renderWidth, Shaders.renderHeight,
             0, 0, deferredBuffer.viewWidth, deferredBuffer.viewHeight,
             GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST
         );
@@ -177,12 +181,13 @@ public class RendererDeferred extends PortalRenderer {
         }
     
         GlStateManager.enableAlphaTest();
-        mc.getFramebuffer().beginWrite(true);
-    
+        GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
+        mainFrameBuffer.beginWrite(true);
+        
         if (!isDebugMode) {
             CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
         }
-        deferredBuffer.draw(deferredBuffer.viewWidth, deferredBuffer.viewHeight);
+        deferredBuffer.draw(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
         CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
     }
 }

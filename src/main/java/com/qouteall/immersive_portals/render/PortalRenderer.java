@@ -21,6 +21,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
+import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.ARBOcclusionQuery2;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -412,6 +413,15 @@ public abstract class PortalRenderer {
         setupCameraTransformation();
         
         shaderManager.loadContentShaderAndShaderVars(0);
+    
+        if (OFHelper.getIsUsingShader()) {
+            GlStateManager.viewport(
+                0,
+                0,
+                mc.getFramebuffer().viewWidth,
+                mc.getFramebuffer().viewHeight
+            );
+        }
         
         GlStateManager.enableTexture();
         
@@ -426,5 +436,9 @@ public abstract class PortalRenderer {
         drawPortalViewTriangle(portal);
         
         shaderManager.unloadShader();
+    
+        if (OFHelper.getIsUsingShader()) {
+            GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
+        }
     }
 }

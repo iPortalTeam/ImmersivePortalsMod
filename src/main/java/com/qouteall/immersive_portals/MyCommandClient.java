@@ -11,7 +11,6 @@ import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.optifine_compatibility.RendererDeferred;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
@@ -32,6 +31,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.optifine.shaders.Shaders;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -252,7 +252,7 @@ public class MyCommandClient {
             .literal("uninit_shader_context")
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
-                    OFHelper.forceUninit();
+                    Shaders.uninit();
                 });
                 return 0;
             })

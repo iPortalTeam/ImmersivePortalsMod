@@ -1,6 +1,7 @@
 
-fix culling with shaders
+fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
+fix render quality change
 
 test reliability in server
 
@@ -17,14 +18,14 @@ nested portal with shader
 check center depth correctness
 
 
-Beyond Belief shader: enter the world in nether will cause it to constantly blink
-BSL: seldomly overworld become black or shadow abnormal
-Builder's Moded shader / Builder's QOL shader: crash
-Chocapic shader: constantly blink or world become pure white or dark
-Molly Vxe shader: dark overworld
+Beyond Belief shader: blink
+Chocapic shader: pure white/dark or blink
+Molly Vxe shader: abnormal
 Voyager: can't see overworld from nether
 
 Fine
+BSL
+Builder's Moded shader / Builder's QOL shader
 Kappa
 Nostalgia
 projectLUMA

@@ -24,6 +24,7 @@ import java.util.List;
 
 @Mixin(WorldRenderer.class)
 public class MixinWorldRenderer implements IEWorldRenderer {
+    
     @Shadow
     private ClientWorld world;
     
@@ -103,11 +104,14 @@ public class MixinWorldRenderer implements IEWorldRenderer {
         CGlobal.myGameRenderer.renderPlayerItselfIfNecessary();
     }
     
+    private static boolean isReloadingOtherWorldRenderers = false;
+    
+    //reload other world renderers when the main world renderer is reloaded
     @Inject(method = "reload", at = @At("TAIL"))
     private void onReload(CallbackInfo ci) {
         ClientWorldLoader clientWorldLoader = CGlobal.clientWorldLoader;
         WorldRenderer this_ = (WorldRenderer) (Object) this;
-        if (CGlobal.isReloadingOtherWorldRenderers) {
+        if (isReloadingOtherWorldRenderers) {
             return;
         }
         if (CGlobal.renderer.isRendering()) {
@@ -120,14 +124,14 @@ public class MixinWorldRenderer implements IEWorldRenderer {
             return;
         }
         
-        CGlobal.isReloadingOtherWorldRenderers = true;
+        isReloadingOtherWorldRenderers = true;
         
         for (WorldRenderer worldRenderer : clientWorldLoader.worldRendererMap.values()) {
             if (worldRenderer != this_) {
                 worldRenderer.reload();
             }
         }
-        CGlobal.isReloadingOtherWorldRenderers = false;
+        isReloadingOtherWorldRenderers = false;
     }
     
     @Override

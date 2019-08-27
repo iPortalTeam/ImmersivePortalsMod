@@ -31,5 +31,4 @@ public class CGlobal {
     
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     
-    public static boolean isReloadingOtherWorldRenderers = false;
 }

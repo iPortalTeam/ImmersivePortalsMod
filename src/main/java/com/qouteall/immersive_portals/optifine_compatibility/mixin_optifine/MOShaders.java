@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 @Pseudo
@@ -1019,6 +1018,7 @@ public abstract class MOShaders {
         return false;
     }
     
+    //avoid uninit when creating faked world
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
     private static void onCheckWorldChanged(World world, CallbackInfo ci) {
         if (OFHelper.getIsCreatingFakedWorld()) {
@@ -1026,6 +1026,7 @@ public abstract class MOShaders {
         }
     }
     
+    //if the main shader context uninits, uninit all shader context
     @Inject(
         method = "uninit",
         at = @At(
@@ -1045,22 +1046,22 @@ public abstract class MOShaders {
             ci.cancel();
         }
     }
-    
-    @Redirect(
-        method = "loadShaderPack",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;reloadResourcesConcurrently()Ljava/util/concurrent/CompletableFuture;"
-        )
-    )
-    private static CompletableFuture<Void> redirectReloadResource(MinecraftClient minecraftClient) {
-        if (!OFGlobal.shaderContextManager.isContextSwitched()) {
-            return minecraftClient.reloadResourcesConcurrently();
-        }
-        else {
-            return null;
-        }
-    }
+
+//    @Redirect(
+//        method = "loadShaderPack",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/MinecraftClient;reloadResourcesConcurrently()Ljava/util/concurrent/CompletableFuture;"
+//        )
+//    )
+//    private static CompletableFuture<Void> redirectReloadResource(MinecraftClient minecraftClient) {
+//        if (!OFGlobal.shaderContextManager.isContextSwitched()) {
+//            return minecraftClient.reloadResourcesConcurrently();
+//        }
+//        else {
+//            return null;
+//        }
+//    }
     
     @Inject(method = "init", at = @At("HEAD"))
     private static void onInit(CallbackInfo ci) {
@@ -1070,6 +1071,16 @@ public abstract class MOShaders {
         OFHelper.onShaderInit(mc, currDimension);
         
         Helper.log("Shader init " + currDimension);
+    }
+    
+    //loading shader pack will change vertex format
+    //avoid changing vertex format when rebuilding
+    @Inject(method = "loadShaderPack", at = @At("HEAD"))
+    private static void onAboutToLoadShaderPack(CallbackInfo ci) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.worldRenderer != null) {
+            mc.worldRenderer.reload();
+        }
     }
     
     @Inject(method = "loadShaderPack", at = @At("TAIL"))

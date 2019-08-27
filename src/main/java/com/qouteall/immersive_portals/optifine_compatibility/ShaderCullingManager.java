@@ -54,17 +54,21 @@ public class ShaderCullingManager {
         uniform_equationW = shaderUniforms.make1f("cullingEquationW");
     }
     
-    public static StringBuilder modifyFragShaderCode(StringBuilder stringBuilder) {
+    public static StringBuilder modifyFragShaderCode(StringBuilder rawCode) {
         if (!cullingEnabled) {
-            return stringBuilder;
+            return rawCode;
         }
         
         if (toReplace == null) {
             throw new IllegalStateException("Shader Code Modifier is not initialized");
         }
         
-        Matcher matcher = pattern.matcher(stringBuilder);
-        String result = matcher.replaceFirst(toReplace);
+        StringBuilder uniformsDeclarationCode = getUniformsDeclarationCode(rawCode);
+        
+        Helper.log("added additional code:\n" + uniformsDeclarationCode);
+        
+        Matcher matcher = pattern.matcher(rawCode);
+        String result = matcher.replaceFirst(uniformsDeclarationCode + toReplace);
         return new StringBuilder(result);
     }
     
@@ -87,6 +91,26 @@ public class ShaderCullingManager {
     public static boolean getShouldModifyShaderCode(Program program) {
         return program.getName().equals("gbuffers_textured") ||
             program.getName().equals("gbuffers_textured_lit") ||
+            program.getName().equals("gbuffers_water") ||
             program.getName().equals("gbuffers_terrain");
+    }
+    
+    //sometimes the shader may not declare gbufferProjectionInverse
+    //we have to declare it
+    private static StringBuilder getUniformsDeclarationCode(StringBuilder rawCode) {
+        StringBuilder uniformsDeclarationCode = new StringBuilder();
+        if (rawCode.indexOf("gbufferProjectionInverse") == -1) {
+            uniformsDeclarationCode.append("uniform mat4 gbufferProjectionInverse;\n");
+        }
+        if (rawCode.indexOf("gbufferModelViewInverse") == -1) {
+            uniformsDeclarationCode.append("uniform mat4 gbufferModelViewInverse;\n");
+        }
+        if (rawCode.indexOf("viewWidth") == -1) {
+            uniformsDeclarationCode.append("uniform float viewWidth;\n");
+        }
+        if (rawCode.indexOf("viewHeight") == -1) {
+            uniformsDeclarationCode.append("uniform float viewHeight;\n");
+        }
+        return uniformsDeclarationCode;
     }
 }
