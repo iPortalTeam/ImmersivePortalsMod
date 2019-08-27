@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.Texture;
 import net.minecraft.client.util.math.Vector4f;
@@ -1129,9 +1130,25 @@ public abstract class MOShaders {
         return ShaderCullingManager.modifyFragShaderCode(shaderCode);
     }
     
-    @Inject(method = "useProgram", at = @At("TAIL"))
+    @Inject(
+        method = "useProgram",
+        at = @At("TAIL")
+    )
     private static void onLoadingUniforms(Program program, CallbackInfo ci) {
-        ShaderCullingManager.loadUniforms();
+        if (ShaderCullingManager.getShouldModifyShaderCode(program)) {
+            ShaderCullingManager.loadUniforms();
+        }
+    }
+    
+    //in setCameraShadow() it will set some uniforms
+    //but it's illegal to set a uniform without binding program
+    @Inject(method = "setCameraShadow", at = @At("HEAD"))
+    private static void onSetCameraShadow(
+        Camera activeRenderInfo,
+        float partialTicks,
+        CallbackInfo ci
+    ) {
+        Shaders.useProgram(Shaders.ProgramShadow);
     }
     
     static {

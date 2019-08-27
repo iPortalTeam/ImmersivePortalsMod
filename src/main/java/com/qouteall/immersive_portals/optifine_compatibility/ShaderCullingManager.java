@@ -85,9 +85,8 @@ public class ShaderCullingManager {
     }
     
     public static boolean getShouldModifyShaderCode(Program program) {
-        return program.getName().equals("gbuffers_terrain") ||
-            program.getName().equals("gbuffers_terrain_solid") ||
-            program.getName().equals("gbuffers_terrain_cutout_mip") ||
-            program.getName().equals("gbuffers_terrain_cutout");
+        return program.getName().equals("gbuffers_textured") ||
+            program.getName().equals("gbuffers_textured_lit") ||
+            program.getName().equals("gbuffers_terrain");
     }
 }

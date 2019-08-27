@@ -26,6 +26,7 @@ import java.util.List;
 
 public class MyGameRenderer {
     private MinecraftClient mc = MinecraftClient.getInstance();
+    private double[] clipPlaneEquation;
     
     public MyGameRenderer() {
     
@@ -80,8 +81,8 @@ public class MyGameRenderer {
             newWorld.dimension.getType(),
             ((IEWorldRenderer) mc.worldRenderer).getChunkInfos().size()
         );
-        
-        setupCullingPlane();
+    
+        updateCullingPlane();
         
         //this is important
         GlStateManager.disableBlend();
@@ -120,7 +121,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
         //ieGameRenderer.setCamera(oldCamera);
     
-        setupCullingPlane();
+        updateCullingPlane();
         
         restoreCameraPosOfRenderList(oldCameraPos);
     }
@@ -138,8 +139,11 @@ public class MyGameRenderer {
     }
     
     //NOTE the actual culling plane is related to current model view matrix
-    public void setupCullingPlane() {
-        GL11.glClipPlane(GL11.GL_CLIP_PLANE0, getClipPlaneEquation());
+    public void updateCullingPlane() {
+        clipPlaneEquation = calcClipPlaneEquation();
+        if (OFHelper.getIsUsingShader()) {
+            GL11.glClipPlane(GL11.GL_CLIP_PLANE0, clipPlaneEquation);
+        }
     }
     
     private long getChunkUpdateFinishTime() {
@@ -152,7 +156,9 @@ public class MyGameRenderer {
         chunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
     }
     
-    public double[] getClipPlaneEquation() {
+    //invoke this before rendering portal
+    //its result depends on camra pos
+    private double[] calcClipPlaneEquation() {
         Portal portal = CGlobal.renderer.getRenderingPortal();
         
         Vec3d planeNormal = portal.getNormal().multiply(-1);
@@ -161,8 +167,8 @@ public class MyGameRenderer {
             mc.gameRenderer.getCamera().getPos()
         );
         
-        //equation: normal * p + c > 0
-        //-normal * portalCenter = c
+        //equation: planeNormal * p + c > 0
+        //-planeNormal * portalCenter = c
         double c = portal.getNormal().dotProduct(portalPos);
         
         return new double[]{
@@ -171,6 +177,10 @@ public class MyGameRenderer {
             planeNormal.z,
             c
         };
+    }
+    
+    public double[] getClipPlaneEquation() {
+        return clipPlaneEquation;
     }
     
     public void renderPlayerItselfIfNecessary() {

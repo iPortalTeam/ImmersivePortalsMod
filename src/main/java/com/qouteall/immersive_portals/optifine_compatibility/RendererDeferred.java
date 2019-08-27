@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
@@ -19,7 +20,7 @@ public class RendererDeferred extends PortalRenderer {
     private GlFramebuffer deferredBuffer;
     private ShaderManager shaderManager;
     
-    private static boolean isEnabled = true;
+    public static boolean isDebugMode = false;
     
     @Override
     public boolean shouldSkipClearing() {
@@ -58,19 +59,24 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal) {
-        if (!isEnabled) {
-            return;
-        }
-        
         if (isRendering()) {
             //currently only support one-layer portal
             return;
         }
+        if (isDebugMode) {
+            if (renderedPortalNum >= 1) {
+                return;
+            }
+        }
     
-        copyDepthFromMainToDeferred();
+        if (!isDebugMode) {
+            copyDepthFromMainToDeferred();
+        }
     
-        if (!testShouldRenderPortal(portal)) {
-            return;
+        if (!isDebugMode) {
+            if (!testShouldRenderPortal(portal)) {
+                return;
+            }
         }
     
         portalLayers.push(portal);
@@ -82,7 +88,16 @@ public class RendererDeferred extends PortalRenderer {
     
         deferredBuffer.beginWrite(true);
     
-        drawFrameBufferUp(portal, mc.getFramebuffer(), shaderManager);
+        if (!isDebugMode) {
+            drawFrameBufferUp(portal, mc.getFramebuffer(), shaderManager);
+        }
+        else {
+            GlStateManager.activeTexture(GL13.GL_TEXTURE0);
+            mc.getFramebuffer().draw(
+                mc.getFramebuffer().viewWidth,
+                mc.getFramebuffer().viewHeight
+            );
+        }
         
         OFHelper.bindToShaderFrameBuffer();
     
@@ -164,7 +179,9 @@ public class RendererDeferred extends PortalRenderer {
         GlStateManager.enableAlphaTest();
         mc.getFramebuffer().beginWrite(true);
     
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
+        if (!isDebugMode) {
+            CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
+        }
         deferredBuffer.draw(deferredBuffer.viewWidth, deferredBuffer.viewHeight);
         CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
     }

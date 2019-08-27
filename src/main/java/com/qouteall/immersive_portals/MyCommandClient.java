@@ -11,8 +11,8 @@ import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
-import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.optifine_compatibility.RendererDeferred;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
@@ -258,11 +258,16 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("flip_shader_fb")
+            .literal("shader_debug_enable")
             .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    OFGlobal.flipShaderFb.run();
-                });
+                RendererDeferred.isDebugMode = true;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("shader_debug_disable")
+            .executes(context -> {
+                RendererDeferred.isDebugMode = false;
                 return 0;
             })
         );
