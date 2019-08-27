@@ -65,8 +65,6 @@ public class ShaderCullingManager {
         
         StringBuilder uniformsDeclarationCode = getUniformsDeclarationCode(rawCode);
         
-        Helper.log("added additional code:\n" + uniformsDeclarationCode);
-        
         Matcher matcher = pattern.matcher(rawCode);
         String result = matcher.replaceFirst(uniformsDeclarationCode + toReplace);
         return new StringBuilder(result);

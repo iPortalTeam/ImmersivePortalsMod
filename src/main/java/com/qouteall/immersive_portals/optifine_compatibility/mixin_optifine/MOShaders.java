@@ -16,6 +16,7 @@ import net.optifine.expr.IExpressionBool;
 import net.optifine.shaders.*;
 import net.optifine.shaders.config.*;
 import net.optifine.shaders.uniform.*;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GLCapabilities;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -1160,6 +1161,20 @@ public abstract class MOShaders {
         CallbackInfo ci
     ) {
         Shaders.useProgram(Shaders.ProgramShadow);
+    }
+    
+    //sometimes the bigger buffer's space is not enough
+    //I don't know why
+    //so I allocate new buffers
+    @Inject(method = "nextIntBuffer", at = @At("HEAD"), cancellable = true)
+    private static void onNextIntBuffer(int size, CallbackInfoReturnable<IntBuffer> cir) {
+        ByteBuffer buffer = bigBuffer;
+        int pos = buffer.limit();
+        if (buffer.capacity() <= pos + size * 4) {
+            //big buffer is not big enough
+            cir.setReturnValue(BufferUtils.createIntBuffer(size));
+            cir.cancel();
+        }
     }
     
     static {

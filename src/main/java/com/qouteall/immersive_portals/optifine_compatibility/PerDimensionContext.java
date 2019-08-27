@@ -1015,7 +1015,7 @@ public class PerDimensionContext {
 //        noiseTextureEnabled = false;
 //        noiseTextureResolution = 256;
 //        colorTextureImageUnit = new int[]{0, 1, 2, 3, 7, 8, 9, 10};
-        bigBufferSize = (285 + 8 * ProgramCount) * 4;
+        bigBufferSize = (285 + 8 * ProgramCount) * 4; //I increased buffer size
         bigBuffer = (ByteBuffer) BufferUtils.createByteBuffer(bigBufferSize).limit(0);
         faProjection = new float[16];
         faProjectionInverse = new float[16];
