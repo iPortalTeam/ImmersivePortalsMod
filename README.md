@@ -11,7 +11,7 @@ and use it to replace C:\Users\username\ .gradle\caches\fabric-loom\minecraft-1.
 
 ## Briefly explain how this mod works
 
-###Portal entity
+### Portal entity
 A portal entity is one-way and one-faced.
 A normal nether portal contains 2 portals in overworld and 2 portals in nether.
 
@@ -24,7 +24,7 @@ You can create a portal by command
 ```immersive_portals:monitoring_nether_portal``` is the portal entity that can disappear when nether portal breaks.
 
 
-###Rendering
+### Rendering
 Portal rendering takes place before translucent block rendering.
 It uses stencil buffer and does not use additional frame buffer when rendering without shaders.
 
@@ -39,7 +39,7 @@ It will then render nested portals.
 ChunkRenderDispatcher stores an fixed size array of ChunkRenderer s.
 I changed it into a map.
 
-###Chunk loading
+### Chunk loading
 Client chunk manager uses an fixed size array to store chunks.
 I changed it into a map.
 
