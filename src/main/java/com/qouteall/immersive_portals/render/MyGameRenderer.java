@@ -121,8 +121,6 @@ public class MyGameRenderer {
         ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
         //ieGameRenderer.setCamera(oldCamera);
     
-        updateCullingPlane();
-        
         restoreCameraPosOfRenderList(oldCameraPos);
     }
     
@@ -133,7 +131,7 @@ public class MyGameRenderer {
     public void startCulling() {
         //shaders does not compatible with glCullPlane
         //I have to modify shader code
-        if (CGlobal.useFrontCulling && OFHelper.getIsUsingShader()) {
+        if (CGlobal.useFrontCulling && !OFHelper.getIsUsingShader()) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
     }
@@ -141,7 +139,7 @@ public class MyGameRenderer {
     //NOTE the actual culling plane is related to current model view matrix
     public void updateCullingPlane() {
         clipPlaneEquation = calcClipPlaneEquation();
-        if (OFHelper.getIsUsingShader()) {
+        if (!OFHelper.getIsUsingShader()) {
             GL11.glClipPlane(GL11.GL_CLIP_PLANE0, clipPlaneEquation);
         }
     }
