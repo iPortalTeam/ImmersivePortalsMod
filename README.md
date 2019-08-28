@@ -23,6 +23,9 @@ You can create a portal by command
 
 ```immersive_portals:monitoring_nether_portal``` is the portal entity that can disappear when nether portal breaks.
 
+When lighting a nether portal, it will firstly try to link to the obsidian
+ frame with same size and direction in 128 range in the other dimension.
+You can control the destination of nether portal by building an obsidian frame.
 
 ### Rendering
 Portal rendering takes place before translucent block rendering.
