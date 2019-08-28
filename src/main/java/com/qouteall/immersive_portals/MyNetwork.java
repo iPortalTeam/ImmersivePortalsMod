@@ -30,11 +30,11 @@ public class MyNetwork {
     public static final Identifier id_stcSpawnEntity =
         new Identifier("immersive_portals", "spawn_entity");
     public static final Identifier id_stcDimensionConfirm =
-        new Identifier("immersive_portals", "dimension_confirm");
+        new Identifier("immersive_portals", "dim_confirm");
     public static final Identifier id_stcRedirected =
         new Identifier("immersive_portals", "redirected");
     public static final Identifier id_stcSpawnLoadingIndicator =
-        new Identifier("immersive_portals", "spawn_loading_indicator");
+        new Identifier("immersive_portals", "indicator");
     
     static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
