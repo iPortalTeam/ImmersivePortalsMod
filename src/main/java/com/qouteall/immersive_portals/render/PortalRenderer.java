@@ -297,19 +297,19 @@ public abstract class PortalRenderer {
     public boolean renderAndGetDoesAnySamplePassed(Runnable renderingFunc) {
         assert (!isQuerying);
         
-        GL15.glBeginQuery(ARBOcclusionQuery2.GL_ANY_SAMPLES_PASSED, idQueryObject);
+        GL15.glBeginQuery(GL15.GL_SAMPLES_PASSED, idQueryObject);
         
         isQuerying = true;
         
         renderingFunc.run();
         
-        GL15.glEndQuery(ARBOcclusionQuery2.GL_ANY_SAMPLES_PASSED);
+        GL15.glEndQuery(GL15.GL_SAMPLES_PASSED);
         
         isQuerying = false;
         
         int result = GL15.glGetQueryObjecti(idQueryObject, GL15.GL_QUERY_RESULT);
         
-        return result != 0;
+        return result > 0;
     }
     
     private int renderAndGetSampleCountPassed(Runnable renderingFunc) {
