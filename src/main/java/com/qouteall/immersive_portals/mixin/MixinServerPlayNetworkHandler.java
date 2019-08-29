@@ -2,23 +2,27 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.exposer.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
+import com.qouteall.immersive_portals.exposer.IEServerPlayNetworkHandler;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.ViewableWorld;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
 
 @Mixin(ServerPlayNetworkHandler.class)
-public class MixinServerPlayNetworkHandler {
+public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetworkHandler {
     @Shadow
     public ServerPlayerEntity player;
     @Shadow
@@ -30,6 +34,10 @@ public class MixinServerPlayNetworkHandler {
     @Shadow
     private int ticks;
     
+    @Shadow
+    protected abstract boolean method_20630(ViewableWorld viewableWorld_1);
+    
+    //do not process move packet when client dimension and server dimension are not synced
     @Inject(
         method = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;onPlayerMove(Lnet/minecraft/server/network/packet/PlayerMoveC2SPacket;)V",
         at = @At(
@@ -41,7 +49,7 @@ public class MixinServerPlayNetworkHandler {
     )
     private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         DimensionType packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
-    
+        
         assert packetDimension != null;
         
         if (player.dimension != packetDimension) {
@@ -50,6 +58,7 @@ public class MixinServerPlayNetworkHandler {
     }
     
     /**
+     * make PlayerPositionLookS2CPacket contain dimension data
      * @author qouteall
      */
     @Overwrite
@@ -84,5 +93,34 @@ public class MixinServerPlayNetworkHandler {
         );
         ((IEPlayerPositionLookS2CPacket) packet_1).setPlayerDimension(player.dimension);
         this.player.networkHandler.sendPacket(packet_1);
+    }
+    
+    //server will check the collision when receiving position packet from client
+    //we treat collision specially when player is halfway through a portal
+    @Redirect(
+        method = "onPlayerMove",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;method_20630(Lnet/minecraft/world/ViewableWorld;)Z"
+        )
+    )
+    private boolean onCheckPlayerCollision(
+        ServerPlayNetworkHandler serverPlayNetworkHandler,
+        ViewableWorld world
+    ) {
+        boolean portalsNearby = !player.world.getEntities(
+            Portal.class,
+            player.getBoundingBox().expand(4),
+            e -> true
+        ).isEmpty();
+        if (portalsNearby) {
+            return true;
+        }
+        return method_20630(world);
+    }
+    
+    @Override
+    public void cancelTeleportRequest() {
+        requestedTeleportPos = null;
     }
 }

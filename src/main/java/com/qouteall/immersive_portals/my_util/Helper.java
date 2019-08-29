@@ -102,14 +102,31 @@ public class Helper {
     //get the t of the colliding point
     //normal and lineDirection have to be normalized
     public static double getCollidingT(
-        Vec3d portalCenter,
-        Vec3d portalNormal,
+        Vec3d planeCenter,
+        Vec3d planeNormal,
         Vec3d lineCenter,
         Vec3d lineDirection
     ) {
-        return (portalCenter.subtract(lineCenter).dotProduct(portalNormal))
+        return (planeCenter.subtract(lineCenter).dotProduct(planeNormal))
             /
-            (lineDirection.dotProduct(portalNormal));
+            (lineDirection.dotProduct(planeNormal));
+    }
+    
+    public static boolean isInFrontOfPlane(
+        Vec3d pos,
+        Vec3d planePos,
+        Vec3d planeNormal
+    ) {
+        return pos.subtract(planePos).dotProduct(planeNormal) > 0;
+    }
+    
+    public static Vec3d fallPointOntoPlane(
+        Vec3d point,
+        Vec3d planePos,
+        Vec3d planeNormal
+    ) {
+        double t = getCollidingT(planePos, planeNormal, point, planeNormal);
+        return point.add(planeNormal.multiply(t));
     }
     
     public static Vec3i getUnitFromAxis(Direction.Axis axis) {
@@ -165,7 +182,7 @@ public class Helper {
             case X:
                 return new Pair<>(Direction.Axis.Y, Direction.Axis.Z);
             case Y:
-                return new Pair<>(Direction.Axis.Z, Direction.Axis.Z);
+                return new Pair<>(Direction.Axis.X, Direction.Axis.Z);
             case Z:
                 return new Pair<>(Direction.Axis.X, Direction.Axis.Y);
         }

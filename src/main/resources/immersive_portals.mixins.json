@@ -6,6 +6,7 @@
     "MixinChunkHolder",
     "MixinChunkTicketManager",
     "MixinCommandManager",
+    "MixinEntity",
     "MixinEntityTracker",
     "MixinEntityTrackerEntry",
     "MixinFireBlock",

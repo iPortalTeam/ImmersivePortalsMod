@@ -32,6 +32,7 @@ public class Portal extends Entity {
     private Vec3d normal;
     public DimensionType dimensionTo;
     public Vec3d destination;
+    public Box boundingBoxCache;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -143,6 +144,11 @@ public class Portal extends Entity {
             }
             serverPortalTickSignal.emit(this);
         }
+    
+        if (boundingBoxCache == null) {
+            boundingBoxCache = getPortalCollisionBox();
+        }
+        setBoundingBox(boundingBoxCache);
     }
     
     public boolean isPortalValid() {
@@ -238,7 +244,7 @@ public class Portal extends Entity {
         return destination;
     }
     
-    public Box getPortalCollisionBox() {
+    private Box getPortalCollisionBox() {
         return new Box(
             getPointInPlane(width / 2, height / 2),
             getPointInPlane(-width / 2, -height / 2)

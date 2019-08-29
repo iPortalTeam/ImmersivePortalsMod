@@ -11,11 +11,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 //import com.sun.istack.internal.NotNull;
 //import com.sun.istack.internal.Nullable;
@@ -64,7 +67,6 @@ public class NetherPortalGenerator {
     public static final SignalArged<NetherPortalGeneratedInformation> signalNetherPortalLit =
         new SignalArged<>();
     
-    //@Nullable
     public static NetherPortalGeneratedInformation onFireLit(
         ServerWorld fromWorld,
         BlockPos firePos
@@ -89,8 +91,6 @@ public class NetherPortalGenerator {
             firePos, fromDimension, toDimension
         );
     
-        BlockPos randomShift = getRandomShift(fromDimension);
-    
         ObsidianFrame toObsidianFrame = findExistingEmptyObsidianFrameWithSameSizeInDestDimension(
             fromObsidianFrame, toWorld, posInOtherDimension,
             NetherPortalMatcher.findingRadius
@@ -100,6 +100,7 @@ public class NetherPortalGenerator {
             NetherPortalMatcher.getHeightLimit(toDimension);
         
         if (toObsidianFrame == null) {
+            BlockPos randomShift = getRandomShift(fromDimension);
             toObsidianFrame = createObsidianFrameInOtherDimension(
                 fromObsidianFrame, toWorld, posInOtherDimension.add(randomShift),
                 heightLimitInOtherDimension
@@ -115,9 +116,7 @@ public class NetherPortalGenerator {
             fromDimension, toDimension,
             fromObsidianFrame, toObsidianFrame
         );
-        signalNetherPortalLit.emit(
-            information
-        );
+        signalNetherPortalLit.emit(information);
         
         return information;
     }
@@ -158,24 +157,27 @@ public class NetherPortalGenerator {
         BlockPos mappedPosInOtherDimension,
         IntegerAABBInclusive heightLimit
     ) {
-        BlockPos needsAreaSize = ObsidianFrame.expandToIncludeObsidianBlocks(
+        BlockPos neededAreaSize = ObsidianFrame.expandToIncludeObsidianBlocks(
             fromObsidianFrame.normalAxis,
             fromObsidianFrame.boxWithoutObsidian
         ).getSize();
-        
-        IntegerAABBInclusive foundAirCube = NetherPortalMatcher.findCubeAirAreaOnGround(
-            needsAreaSize,
-            toWorld,
-            mappedPosInOtherDimension,
-            heightLimit,
-            NetherPortalMatcher.findingRadius
-        );
+    
+        IntegerAABBInclusive foundAirCube =
+            fromObsidianFrame.normalAxis == Direction.Axis.Y ?
+                NetherPortalMatcher.findHorizontalPortalPlacement(
+                    neededAreaSize, toWorld, mappedPosInOtherDimension,
+                    heightLimit, NetherPortalMatcher.findingRadius
+                ) :
+                NetherPortalMatcher.findVerticalPortalPlacement(
+                    neededAreaSize, toWorld, mappedPosInOtherDimension,
+                    heightLimit, NetherPortalMatcher.findingRadius
+                );
         
         if (foundAirCube == null) {
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
-                needsAreaSize,
+                neededAreaSize,
                 toWorld,
-                mappedPosInOtherDimension, heightLimit
+                mappedPosInOtherDimension, heightLimit, NetherPortalMatcher.findingRadius
             );
         }
         
@@ -184,10 +186,15 @@ public class NetherPortalGenerator {
                 "Force placed portal. It will occupy normal blocks.");
             
             foundAirCube = IntegerAABBInclusive.getBoxByBasePointAndSize(
-                needsAreaSize,
+                neededAreaSize,
                 mappedPosInOtherDimension
             );
         }
+
+//        //make horizontal portal generate above ground
+//        if (fromObsidianFrame.normalAxis == Direction.Axis.Y) {
+//            foundAirCube = levitateBox(toWorld, foundAirCube);
+//        }
         
         ObsidianFrame toObsidianFrame = new ObsidianFrame(
             fromObsidianFrame.normalAxis,
@@ -203,6 +210,24 @@ public class NetherPortalGenerator {
         );
         
         return toObsidianFrame;
+    }
+    
+    //move the box up
+    private static IntegerAABBInclusive levitateBox(
+        IWorld world, IntegerAABBInclusive airCube
+    ) {
+        Integer maxUpShift = Helper.getLastSatisfying(
+            IntStream.range(1, 40).boxed(),
+            upShift -> NetherPortalMatcher.isAllAir(
+                world,
+                airCube.getMoved(new Vec3i(0, upShift, 0))
+            )
+        );
+        if (maxUpShift == null) {
+            maxUpShift = 0;
+        }
+        
+        return airCube.getMoved(new Vec3i(0, maxUpShift * 2 / 3, 0));
     }
     
     private static ObsidianFrame findExistingEmptyObsidianFrameWithSameSizeInDestDimension(
@@ -226,14 +251,11 @@ public class NetherPortalGenerator {
         ServerWorld fromWorld,
         BlockPos firePos
     ) {
-        return Arrays.stream(new Direction.Axis[]{
-            Direction.Axis.X, Direction.Axis.Z
-        }).map(
+        return Arrays.stream(
+            Direction.Axis.values()
+        ).map(
             axis -> NetherPortalMatcher.detectFrameFromInnerPos(
-                fromWorld,
-                firePos,
-                axis,
-                whatever -> true
+                fromWorld, firePos, axis, whatever -> true
             )
         ).filter(
             Objects::nonNull

@@ -72,7 +72,7 @@ public class ClientWorldLoader {
     }
     
     //@Nullable
-    public ClientWorld getDimension(DimensionType dimension) {
+    public ClientWorld getWorld(DimensionType dimension) {
         initializeIfNeeded();
         
         return clientWorldMap.get(dimension);
@@ -91,8 +91,8 @@ public class ClientWorldLoader {
         if (!clientWorldMap.containsKey(dimension)) {
             return createFakedClientWorld(dimension);
         }
-        
-        return getDimension(dimension);
+    
+        return getWorld(dimension);
     }
     
     public DimensionRenderHelper getDimensionRenderHelper(DimensionType dimension) {

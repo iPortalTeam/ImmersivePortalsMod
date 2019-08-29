@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.exposer.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -9,6 +10,7 @@ import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -112,9 +114,11 @@ public class ServerTeleportationManager {
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
+            ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
         }
     
         ((IEServerPlayerEntity) player).setIsInTeleportationState(true);
+        player.networkHandler.syncWithPlayerPosition();
     }
     
     /**
@@ -126,6 +130,8 @@ public class ServerTeleportationManager {
         ServerWorld toWorld,
         Vec3d destination
     ) {
+        BlockPos oldPos = player.getBlockPos();
+        
         teleportingEntities.add(player);
     
         //TODO fix travel when riding entity
@@ -151,10 +157,12 @@ public class ServerTeleportationManager {
         player.interactionManager.setWorld(toWorld);
     
         Helper.log(String.format(
-            "%s changed dimension on server from %s to %s",
-            player,
+            "%s teleported from %s %s to %s %s",
+            player.getName(),
             fromWorld.dimension.getType(),
-            toWorld.dimension.getType()
+            oldPos,
+            toWorld.dimension.getType(),
+            player.getBlockPos()
         ));
     
         //this is used for the advancement of "we need to go deeper"
@@ -178,7 +186,7 @@ public class ServerTeleportationManager {
     private void tick() {
         teleportingEntities = new HashSet<>();
         long tickTimeNow = Helper.getServerGameTime();
-        if (tickTimeNow % 20 == 17) {
+        if (tickTimeNow % 10 == 7) {
             ArrayList<ServerPlayerEntity> copiedPlayerList =
                 Helper.getCopiedPlayerList();
             for (ServerPlayerEntity player : copiedPlayerList) {
@@ -187,6 +195,9 @@ public class ServerTeleportationManager {
                 if (tickTimeNow - lastTeleportGameTime > 60) {
                     sendPositionConfirmMessage(player);
                     ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
+                }
+                else {
+                    ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
                 }
             }
         }

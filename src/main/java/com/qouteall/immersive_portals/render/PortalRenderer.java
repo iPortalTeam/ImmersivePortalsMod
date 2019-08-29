@@ -22,7 +22,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
-import org.lwjgl.opengl.ARBOcclusionQuery2;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
@@ -185,7 +184,9 @@ public abstract class PortalRenderer {
         }
         
         //do not use last tick pos
-        if (!portal.isInFrontOfPortal(cameraEntity.getPos())) {
+        Vec3d thisTickEyePos = cameraEntity.getPos()
+            .add(0, cameraEntity.getStandingEyeHeight(), 0);
+        if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }
         

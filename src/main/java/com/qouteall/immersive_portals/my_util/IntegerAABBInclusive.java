@@ -230,4 +230,15 @@ public class IntegerAABBInclusive {
             )
         );
     }
+    
+    public IntegerAABBInclusive getSubBoxInCenter(BlockPos subBoxSize) {
+        BlockPos thisSize = getSize();
+        assert thisSize.getX() >= subBoxSize.getX();
+        assert thisSize.getY() >= subBoxSize.getY();
+        assert thisSize.getZ() >= subBoxSize.getZ();
+        return getBoxByBasePointAndSize(
+            subBoxSize,
+            Helper.divide(thisSize.subtract(subBoxSize), 2).add(l)
+        );
+    }
 }

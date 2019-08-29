@@ -123,7 +123,7 @@ public class MyNetworkClient {
         );
         
         MinecraftClient.getInstance().execute(() -> {
-            ClientWorld world = CGlobal.clientWorldLoader.getDimension(dimension);
+            ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimension);
             if (world == null) {
                 return;
             }

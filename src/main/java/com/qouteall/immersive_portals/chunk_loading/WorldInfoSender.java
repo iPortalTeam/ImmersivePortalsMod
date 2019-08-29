@@ -26,6 +26,10 @@ public class WorldInfoSender {
     //send the daytime and weather info to player when player is in nether
     public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
         DimensionType remoteDimension = world.dimension.getType();
+        if (remoteDimension == DimensionType.THE_NETHER || remoteDimension == DimensionType.THE_END) {
+            return;
+        }
+        
         player.networkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(
                 remoteDimension,
@@ -38,6 +42,8 @@ public class WorldInfoSender {
                 )
             )
         );
+    
+        /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
         if (world.isRaining()) {
             player.networkHandler.sendPacket(
                 MyNetwork.createRedirectedMessage(
@@ -55,6 +61,14 @@ public class WorldInfoSender {
                 MyNetwork.createRedirectedMessage(
                     remoteDimension,
                     new GameStateChangeS2CPacket(8, world.getThunderGradient(1.0F))
+                )
+            );
+        }
+        else {
+            player.networkHandler.sendPacket(
+                MyNetwork.createRedirectedMessage(
+                    remoteDimension,
+                    new GameStateChangeS2CPacket(2, 0.0F)
                 )
             );
         }

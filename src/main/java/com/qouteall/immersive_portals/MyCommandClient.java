@@ -223,12 +223,6 @@ public class MyCommandClient {
             .executes(MyCommandClient::reportResourceConsumption)
         );
         builder = builder.then(CommandManager
-            .literal("report_fog_color")
-            .executes(context -> {
-                return reportFogColor(context);
-            })
-        );
-        builder = builder.then(CommandManager
             .literal("report_render_info_num")
             .executes(context -> {
                 String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
