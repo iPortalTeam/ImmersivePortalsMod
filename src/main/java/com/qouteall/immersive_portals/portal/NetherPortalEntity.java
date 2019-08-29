@@ -17,8 +17,8 @@ import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
 
-public class MonitoringNetherPortal extends Portal {
-    public static EntityType<MonitoringNetherPortal> entityType;
+public class NetherPortalEntity extends Portal {
+    public static EntityType<NetherPortalEntity> entityType;
     
     //the reversed portal is in another dimension and face the opposite direction
     public UUID reversePortalId;
@@ -33,33 +33,33 @@ public class MonitoringNetherPortal extends Portal {
             new Identifier("immersive_portals", "monitoring_nether_portal"),
             FabricEntityTypeBuilder.create(
                 EntityCategory.MISC,
-                (EntityType.EntityFactory<MonitoringNetherPortal>) MonitoringNetherPortal::new
+                (EntityType.EntityFactory<NetherPortalEntity>) NetherPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
             ).build()
         );
     
     
-        MyNetherPortalBlock.portalBlockUpdateSignal.connect((world, pos) -> {
+        PortalPlaceholderBlock.portalBlockUpdateSignal.connect((world, pos) -> {
             Helper.getEntitiesNearby(
                 world,
                 new Vec3d(pos),
-                MonitoringNetherPortal.class,
+                NetherPortalEntity.class,
                 20
             ).forEach(
-                MonitoringNetherPortal::notifyToCheckIntegrity
+                NetherPortalEntity::notifyToCheckIntegrity
             );
         });
     }
     
-    public MonitoringNetherPortal(
+    public NetherPortalEntity(
         EntityType type,
         World world
     ) {
         super(type, world);
     }
     
-    public MonitoringNetherPortal(
+    public NetherPortalEntity(
         World world
     ) {
         super(entityType, world);
@@ -80,7 +80,7 @@ public class MonitoringNetherPortal extends Portal {
             .filter(
                 blockPos -> world1.getBlockState(
                     blockPos
-                ).getBlock() == MyNetherPortalBlock.instance
+                ).getBlock() == PortalPlaceholderBlock.instance
             )
             .forEach(
                 blockPos -> world1.setBlockState(
@@ -100,12 +100,12 @@ public class MonitoringNetherPortal extends Portal {
         isNotified = true;
     }
     
-    private MonitoringNetherPortal getReversePortal() {
+    private NetherPortalEntity getReversePortal() {
         assert !world.isClient;
         
         ServerWorld world = getServer().getWorld(dimensionTo);
         return world == null ?
-            null : (MonitoringNetherPortal) world.getEntity(reversePortalId);
+            null : (NetherPortalEntity) world.getEntity(reversePortalId);
     }
     
     @Override
@@ -133,7 +133,7 @@ public class MonitoringNetherPortal extends Portal {
     
         if (!isPortalIntactOnThisSide()) {
             shouldBreakNetherPortal = true;
-            MonitoringNetherPortal reversePortal = getReversePortal();
+            NetherPortalEntity reversePortal = getReversePortal();
             if (reversePortal != null) {
                 reversePortal.shouldBreakNetherPortal = true;
             }
@@ -188,7 +188,7 @@ public class MonitoringNetherPortal extends Portal {
     ) {
         return obsidianFrame.boxWithoutObsidian.stream().allMatch(
             blockPos -> world.getBlockState(blockPos).getBlock()
-                == MyNetherPortalBlock.instance
+                == PortalPlaceholderBlock.instance
         );
     }
     

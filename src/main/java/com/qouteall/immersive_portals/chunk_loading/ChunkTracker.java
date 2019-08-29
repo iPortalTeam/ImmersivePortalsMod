@@ -28,7 +28,7 @@ public class ChunkTracker {
     private static final int unloadIdleTickTime = 20 * 15;
     
     //it's a graph
-
+    
     public static class Edge {
         public DimensionalChunkPos chunkPos;
         public ServerPlayerEntity player;
@@ -142,13 +142,13 @@ public class ChunkTracker {
     private Set<DimensionalChunkPos> getPlayerViewingChunks(
         ServerPlayerEntity player
     ) {
-        int portalChunkLoadingRadius = getRenderDistanceOnServer() / 3;
+        int renderDistance = getRenderDistanceOnServer();
         return Streams.concat(
             //directly watching chunks
             getNearbyChunkPoses(
                 player.dimension,
                 player.getBlockPos(),
-                getRenderDistanceOnServer()
+                renderDistance
             ),
     
             //indirectly watching chunks
@@ -157,10 +157,10 @@ public class ChunkTracker {
                 Portal.class,
                 portalLoadingRange
             ).flatMap(
-                portalEntity -> getNearbyChunkPoses(
-                    portalEntity.dimensionTo,
-                    new BlockPos(portalEntity.destination),
-                    portalChunkLoadingRadius
+                portal -> getNearbyChunkPoses(
+                    portal.dimensionTo,
+                    new BlockPos(portal.destination),
+                    portal.loadFewerChunks ? (renderDistance / 3) : renderDistance
                 )
             )
         ).collect(Collectors.toSet());

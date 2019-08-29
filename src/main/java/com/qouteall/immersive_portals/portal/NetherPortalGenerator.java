@@ -318,11 +318,11 @@ public class NetherPortalGenerator {
     
         Vec3d centerOffset = new Vec3d(innerAreaSize).multiply(0.5);
     
-        MonitoringNetherPortal[] portalArray = new MonitoringNetherPortal[]{
-            new MonitoringNetherPortal(fromWorld),
-            new MonitoringNetherPortal(fromWorld),
-            new MonitoringNetherPortal(toWorld),
-            new MonitoringNetherPortal(toWorld)
+        NetherPortalEntity[] portalArray = new NetherPortalEntity[]{
+            new NetherPortalEntity(fromWorld),
+            new NetherPortalEntity(fromWorld),
+            new NetherPortalEntity(toWorld),
+            new NetherPortalEntity(toWorld)
         };
     
         Portal.initBiWayBiFacedPortal(
@@ -409,8 +409,8 @@ public class NetherPortalGenerator {
     ) {
         world.setBlockState(
             pos,
-            MyNetherPortalBlock.instance.getDefaultState().with(
-                MyNetherPortalBlock.AXIS, normalAxis
+            PortalPlaceholderBlock.instance.getDefaultState().with(
+                PortalPlaceholderBlock.AXIS, normalAxis
             ),
             3
         );

@@ -58,6 +58,8 @@ public class ServerTeleportationManager {
             Vec3d newPos = ((Portal) portalEntity).applyTransformationToPoint(posBefore);
     
             teleportPlayer(player, dimensionTo, newPos);
+    
+            ((Portal) portalEntity).onEntityTeleportedOnServer(player);
         }
         else {
             Helper.err(String.format(
@@ -224,6 +226,8 @@ public class ServerTeleportationManager {
         entity.setPosition(
             newPos.x, newPos.y, newPos.z
         );
+    
+        portal.onEntityTeleportedOnServer(entity);
     }
     
     /**

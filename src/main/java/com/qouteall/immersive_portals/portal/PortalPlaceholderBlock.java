@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-public class MyNetherPortalBlock extends Block {
+public class PortalPlaceholderBlock extends Block {
     public static final EnumProperty<Direction.Axis> AXIS = Properties.AXIS;
     public static final VoxelShape X_AABB = Block.createCuboidShape(
         6.0D,
@@ -58,8 +58,8 @@ public class MyNetherPortalBlock extends Block {
     
     public static final SignalBiArged<ServerWorld, BlockPos> portalBlockUpdateSignal = new SignalBiArged<>();
     
-    public static final MyNetherPortalBlock instance =
-        new MyNetherPortalBlock(
+    public static final PortalPlaceholderBlock instance =
+        new PortalPlaceholderBlock(
             FabricBlockSettings.of(Material.PORTAL)
                 .noCollision()
                 .sounds(BlockSoundGroup.GLASS)
@@ -71,12 +71,13 @@ public class MyNetherPortalBlock extends Block {
     public static void init() {
         Registry.register(
             Registry.BLOCK,
+            //the id is not appropriate because I did not implement end portal when making this block
             new Identifier("immersive_portals", "nether_portal_block"),
             instance
         );
     }
     
-    public MyNetherPortalBlock(Settings properties) {
+    public PortalPlaceholderBlock(Settings properties) {
         super(properties);
         this.setDefaultState(
             (BlockState) ((BlockState) this.stateFactory.getDefaultState()).with(

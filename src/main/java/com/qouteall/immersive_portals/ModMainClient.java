@@ -3,10 +3,7 @@ package com.qouteall.immersive_portals;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
-import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
-import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
-import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.PortalDummyRenderer;
+import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
@@ -18,16 +15,17 @@ import net.minecraft.client.MinecraftClient;
 
 public class ModMainClient implements ClientModInitializer {
     
-    public static void portal_initClient() {
+    public static void initPortalRenderers() {
         EntityRendererRegistry.INSTANCE.register(
             Portal.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
         );
-    }
-    
-    public static void nether_initClient() {
         EntityRendererRegistry.INSTANCE.register(
-            MonitoringNetherPortal.class,
+            NetherPortalEntity.class,
+            (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
+        );
+        EntityRendererRegistry.INSTANCE.register(
+            EndPortalEntity.class,
             (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
         );
     }
@@ -57,8 +55,7 @@ public class ModMainClient implements ClientModInitializer {
     public void onInitializeClient() {
         Helper.log("initializing client");
     
-        portal_initClient();
-        nether_initClient();
+        initPortalRenderers();
         LoadingIndicatorEntity.initClient();
     
         MyNetworkClient.init();

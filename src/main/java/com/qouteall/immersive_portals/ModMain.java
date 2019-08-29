@@ -6,9 +6,10 @@ import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.portal.MonitoringNetherPortal;
-import com.qouteall.immersive_portals.portal.MyNetherPortalBlock;
+import com.qouteall.immersive_portals.portal.EndPortalEntity;
+import com.qouteall.immersive_portals.portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
 
@@ -26,9 +27,10 @@ public class ModMain implements ModInitializer {
         Helper.log("initializing common");
         
         Portal.init();
-        MonitoringNetherPortal.init();
+        NetherPortalEntity.init();
+        EndPortalEntity.init();
     
-        MyNetherPortalBlock.init();
+        PortalPlaceholderBlock.init();
     
         MyNetwork.init();
         

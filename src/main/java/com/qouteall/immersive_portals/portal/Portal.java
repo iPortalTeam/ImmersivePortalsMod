@@ -32,6 +32,8 @@ public class Portal extends Entity {
     private Vec3d normal;
     public DimensionType dimensionTo;
     public Vec3d destination;
+    public boolean loadFewerChunks = true;
+    
     public Box boundingBoxCache;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
@@ -108,6 +110,12 @@ public class Portal extends Entity {
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = DimensionType.byRawId(compoundTag.getInt("dimensionTo"));
         destination = Helper.getVec3d(compoundTag, "destination");
+        if (compoundTag.containsKey("loadFewerChunks")) {
+            loadFewerChunks = compoundTag.getBoolean("loadFewerChunks");
+        }
+        else {
+            loadFewerChunks = true;
+        }
     }
     
     public Vec3d getNormal() {
@@ -124,6 +132,7 @@ public class Portal extends Entity {
         Helper.putVec3d(compoundTag, "axisH", axisH);
         compoundTag.putInt("dimensionTo", dimensionTo.getRawId());
         Helper.putVec3d(compoundTag, "destination", destination);
+        compoundTag.putBoolean("loadFewerChunks", loadFewerChunks);
     }
     
     @Override
@@ -370,4 +379,7 @@ public class Portal extends Entity {
         return isPointInPortalProjection(collidingPoint);
     }
     
+    public void onEntityTeleportedOnServer(Entity entity) {
+    
+    }
 }

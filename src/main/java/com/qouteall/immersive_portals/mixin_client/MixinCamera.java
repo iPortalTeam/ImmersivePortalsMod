@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IECamera;
-import com.qouteall.immersive_portals.portal.MyNetherPortalBlock;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -100,7 +100,7 @@ public abstract class MixinCamera implements IECamera {
             ));
             if (hitResult2.getType() != HitResult.Type.MISS) {
                 Block hittedBlock = area.getBlockState(hitResult2.getBlockPos()).getBlock();
-                if (hittedBlock == MyNetherPortalBlock.instance) {
+                if (hittedBlock == PortalPlaceholderBlock.instance) {
                     double double_2 = hitResult2.getPos().distanceTo(this.pos);
                     if (double_2 < upperBound) {
                         upperBound = double_2;
