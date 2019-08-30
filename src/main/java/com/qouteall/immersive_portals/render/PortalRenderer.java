@@ -184,8 +184,7 @@ public abstract class PortalRenderer {
         }
         
         //do not use last tick pos
-        Vec3d thisTickEyePos = cameraEntity.getPos()
-            .add(0, cameraEntity.getStandingEyeHeight(), 0);
+        Vec3d thisTickEyePos = cameraEntity.getCameraPosVec(1);
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }

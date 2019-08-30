@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 @Environment(EnvType.CLIENT)
@@ -23,5 +24,9 @@ public class CHelper {
         else {
             return MinecraftClient.getInstance().player.dimension;
         }
+    }
+    
+    public static World getClientWorld(DimensionType dimension) {
+        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
 }

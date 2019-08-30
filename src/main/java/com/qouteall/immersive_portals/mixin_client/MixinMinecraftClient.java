@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManage
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,6 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinMinecraftClient implements IEMinecraftClient {
     @Shadow
     private GlFramebuffer framebuffer;
+    
+    @Shadow
+    public Screen currentScreen;
     
     @Inject(at = @At("TAIL"), method = "init()V")
     private void onInitEnded(CallbackInfo info) {
@@ -52,5 +56,10 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     @Override
     public void setFrameBuffer(GlFramebuffer buffer) {
         framebuffer = buffer;
+    }
+    
+    @Override
+    public Screen getCurrentScreen() {
+        return currentScreen;
     }
 }

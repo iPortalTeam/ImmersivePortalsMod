@@ -160,7 +160,7 @@ public class ServerTeleportationManager {
     
         Helper.log(String.format(
             "%s teleported from %s %s to %s %s",
-            player.getName(),
+            player.getName().asString(),
             fromWorld.dimension.getType(),
             oldPos,
             toWorld.dimension.getType(),
@@ -192,14 +192,16 @@ public class ServerTeleportationManager {
             ArrayList<ServerPlayerEntity> copiedPlayerList =
                 Helper.getCopiedPlayerList();
             for (ServerPlayerEntity player : copiedPlayerList) {
-                Long lastTeleportGameTime =
-                    this.lastTeleportGameTime.getOrDefault(player, 0L);
-                if (tickTimeNow - lastTeleportGameTime > 60) {
-                    sendPositionConfirmMessage(player);
-                    ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
-                }
-                else {
-                    ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
+                if (!player.notInAnyWorld) {
+                    Long lastTeleportGameTime =
+                        this.lastTeleportGameTime.getOrDefault(player, 0L);
+                    if (tickTimeNow - lastTeleportGameTime > 60) {
+                        sendPositionConfirmMessage(player);
+                        ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
+                    }
+                    else {
+                        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
+                    }
                 }
             }
         }

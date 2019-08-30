@@ -53,9 +53,7 @@ public class CollisionHelper {
     }
     
     private static boolean shouldCollideWithPortal(Entity entity, Portal portal) {
-        boolean result = portal.isInFrontOfPortal(entity.getPos().add(
-            0, entity.getStandingEyeHeight(), 0
-        ));
+        boolean result = portal.isInFrontOfPortal(entity.getCameraPosVec(1));
         return result;
     }
     
@@ -159,7 +157,7 @@ public class CollisionHelper {
     
     public static World getWorld(boolean isClient, DimensionType dimension) {
         if (isClient) {
-            return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+            return CHelper.getClientWorld(dimension);
         }
         else {
             return Helper.getServer().getWorld(dimension);
@@ -172,7 +170,7 @@ public class CollisionHelper {
     //use entity.getCollidingPortal() and do not use this
     public static Portal getCollidingPortalUnreliable(Entity entity) {
         return entity.world.getEntities(
-            Portal.class, entity.getBoundingBox().expand(0.4), e -> true
+            Portal.class, entity.getBoundingBox(), e -> true
         ).stream().filter(
             portal -> shouldCollideWithPortal(
                 entity, portal
@@ -180,13 +178,8 @@ public class CollisionHelper {
         ).findFirst().orElse(null);
     }
     
-    //note this is easier to be true than getCollidingPortal() != null
-    //teleportation in client is instant and accurate
-    //but it's not accurate in server because of network delay
     public static boolean isCollidingWithAnyPortal(Entity entity) {
-        return !entity.world.getEntities(
-            Portal.class, entity.getBoundingBox().expand(0.5), e -> true
-        ).isEmpty();
+        return ((IEEntity) entity).getCollidingPortal() != null;
     }
     
     public static Box getActiveCollisionBox(Entity entity) {

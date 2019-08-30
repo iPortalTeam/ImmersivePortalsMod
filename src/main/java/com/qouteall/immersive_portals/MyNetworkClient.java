@@ -109,7 +109,8 @@ public class MyNetworkClient {
         
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
-                dimension, pos
+                dimension, pos,
+                false
             );
         });
     }

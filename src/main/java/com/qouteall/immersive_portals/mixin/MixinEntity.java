@@ -23,8 +23,8 @@ public abstract class MixinEntity implements IEEntity {
     //so when player stops colliding a portal, it will not stop colliding instantly
     //it will stop colliding when counter turn to 0
     
-    Portal collidingPortal;
-    int stopCollidingPortalCounter;
+    private Portal collidingPortal;
+    private int stopCollidingPortalCounter;
     
     @Shadow
     public abstract Box getBoundingBox();
@@ -115,6 +115,23 @@ public abstract class MixinEntity implements IEEntity {
     private void redirectBurn(Entity entity, int int_1) {
         if (!CollisionHelper.isCollidingWithAnyPortal((Entity) (Object) this)) {
             burn(int_1);
+        }
+    }
+    
+    //don't burn when jumping into end portal
+    @Redirect(
+        method = "move",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"
+        )
+    )
+    private boolean redirectDoesContainFireSource(World world, Box box_1) {
+        if (!CollisionHelper.isCollidingWithAnyPortal((Entity) (Object) this)) {
+            return world.doesAreaContainFireSource(box_1);
+        }
+        else {
+            return false;
         }
     }
     

@@ -18,14 +18,24 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
     @Shadow
     private ClientWorld world;
     
+    @Shadow
+    private boolean field_3698;
+    
+    @Shadow
+    private MinecraftClient client;
+    
     @Override
     public void setWorld(ClientWorld world) {
         this.world = world;
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;onPlayerPositionLook(Lnet/minecraft/client/network/packet/PlayerPositionLookS2CPacket;)V",
-        at = @At("HEAD"),
+        method = "onPlayerPositionLook",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/ThreadExecutor;)V",
+            shift = At.Shift.AFTER
+        ),
         cancellable = true
     )
     private void onProcessingPosistionPacket(
@@ -34,7 +44,20 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
     ) {
         DimensionType playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         assert playerDimension != null;
-        ClientWorld world = MinecraftClient.getInstance().world;
+        ClientWorld world = client.world;
+
+//        if (!this.field_3698) {
+//            Helper.log("Early position packet received");
+//            if (playerDimension != world.dimension.getType()) {
+//                CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
+//                    playerDimension,
+//                    new Vec3d(packet.getX(), packet.getY(), packet.getZ()),
+//                    true
+//                );
+//            }
+//            return;
+//        }
+        
         if (world != null) {
             if (world.dimension != null) {
                 if (world.dimension.getType() != playerDimension) {

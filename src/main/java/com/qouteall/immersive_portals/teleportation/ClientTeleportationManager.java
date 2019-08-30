@@ -5,11 +5,13 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEClientWorld;
+import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.packet.PlayerRespawnS2CPacket;
@@ -41,13 +43,20 @@ public class ClientTeleportationManager {
         this_.tickTimeForTeleportation++;
     }
     
-    public void acceptSynchronizationDataFromServer(DimensionType dimension, Vec3d pos) {
-        if (isTeleportingFrequently()) {
-            return;
+    public void acceptSynchronizationDataFromServer(
+        DimensionType dimension,
+        Vec3d pos,
+        boolean forceAccept
+    ) {
+        if (!forceAccept) {
+            if (isTeleportingFrequently()) {
+                return;
+            }
         }
         if (mc.player.dimension != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
+        getOutOfLoadingScreen(dimension, pos);
     }
     
     private void manageTeleportation() {
@@ -116,7 +125,6 @@ public class ClientTeleportationManager {
             return true;
         }
         else {
-    
             return false;
         }
     }
@@ -213,6 +221,19 @@ public class ClientTeleportationManager {
     private void removeEntityFromChunk(Entity entity, WorldChunk worldChunk) {
         for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
             section.remove(entity);
+        }
+    }
+    
+    private void getOutOfLoadingScreen(DimensionType dimension, Vec3d playerPos) {
+        if (((IEMinecraftClient) mc).getCurrentScreen() instanceof DownloadingTerrainScreen) {
+            Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
+            if (mc.player.dimension != dimension) {
+                Helper.err("Manually fix dimension state while loading terrain");
+                ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+                changePlayerDimension(mc.player, mc.world, toWorld, playerPos);
+            }
+            mc.player.setPosition(playerPos.x, playerPos.y, playerPos.z);
+            mc.openScreen(null);
         }
     }
 }
