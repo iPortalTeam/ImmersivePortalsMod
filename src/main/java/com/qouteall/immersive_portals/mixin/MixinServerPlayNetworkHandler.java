@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin;
 import com.qouteall.immersive_portals.exposer.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.exposer.IEServerPlayNetworkHandler;
+import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -59,6 +60,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     /**
      * make PlayerPositionLookS2CPacket contain dimension data
+     *
      * @author qouteall
      */
     @Overwrite
@@ -70,6 +72,12 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         float float_2,
         Set<PlayerPositionLookS2CPacket.Flag> set_1
     ) {
+        Helper.log(String.format("request teleport %s in %s to %s %s %s",
+            player.getName(),
+            player.dimension,
+            double_1, double_2, double_3
+        ));
+        
         double double_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.x : 0.0D;
         double double_5 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.y : 0.0D;
         double double_6 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.z : 0.0D;

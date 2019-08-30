@@ -149,14 +149,14 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_enable")
             .executes(context -> {
-                CGlobal.isChunkLoadingMultiThreaded = true;
+                SGlobal.isChunkLoadingMultiThreaded = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_disable")
             .executes(context -> {
-                CGlobal.isChunkLoadingMultiThreaded = false;
+                SGlobal.isChunkLoadingMultiThreaded = false;
                 return 0;
             })
         );

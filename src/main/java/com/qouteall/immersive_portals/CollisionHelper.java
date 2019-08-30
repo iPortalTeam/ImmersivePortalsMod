@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.exposer.IEEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.entity.Entity;
@@ -52,9 +53,6 @@ public class CollisionHelper {
     }
     
     private static boolean shouldCollideWithPortal(Entity entity, Portal portal) {
-        if (!entity.getBoundingBox().intersects(portal.getBoundingBox())) {
-            return false;
-        }
         boolean result = portal.isInFrontOfPortal(entity.getPos().add(
             0, entity.getStandingEyeHeight(), 0
         ));
@@ -74,15 +72,10 @@ public class CollisionHelper {
             handleCollisionFunc, originalBoundingBox
         );
         
-        //return move1;
-        
         Vec3d move2 = getOtherSideMove(
             entity, attemptedMove, collidingPortal,
             handleCollisionFunc, originalBoundingBox
         );
-        
-        //restore bounding box
-        entity.setBoundingBox(originalBoundingBox);
         
         return new Vec3d(
             Math.abs(move1.x) < Math.abs(move2.x) ? move1.x : move2.x,
@@ -109,12 +102,13 @@ public class CollisionHelper {
         Vec3d oldLastTickPos = Helper.lastTickPosOf(entity);
         
         entity.world = getWorld(entity.world.isClient, collidingPortal.dimensionTo);
-        
         entity.setBoundingBox(boxOtherSide);
+    
         Vec3d move2 = handleCollisionFunc.apply(attemptedMove);
         
         entity.world = oldWorld;
         Helper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
+        entity.setBoundingBox(originalBoundingBox);
         
         return move2;
     }
@@ -127,26 +121,29 @@ public class CollisionHelper {
         Box originalBoundingBox
     ) {
         Box boxThisSide = getCollisionBoxThisSide(
-            collidingPortal, originalBoundingBox, attemptedMove
+            collidingPortal, originalBoundingBox
         );
         if (boxThisSide == null) {
             return attemptedMove;
         }
         
         entity.setBoundingBox(boxThisSide);
-        return handleCollisionFunc.apply(attemptedMove);
+        Vec3d move1 = handleCollisionFunc.apply(attemptedMove);
+    
+        entity.setBoundingBox(originalBoundingBox);
+    
+        return move1;
     }
     
     private static Box getCollisionBoxThisSide(
         Portal portal,
-        Box originalBox,
-        Vec3d attemptedMove
+        Box originalBox
     ) {
         return clipBox(
             originalBox,
             //cut the collision box a little bit more
             //because the box will be stretched by attemptedMove when calculating collision
-            portal.getPos().add(portal.getNormal().multiply(0.4)),
+            portal.getPos(),
             portal.getNormal()
         );
     }
@@ -169,13 +166,45 @@ public class CollisionHelper {
         }
     }
     
-    public static Portal getCollidingPortal(Entity entity, double expandFactor) {
+    //world.getEntities is not reliable
+    //it has a small chance to ignore collided entities
+    //this would cause player to fall through floor when halfway though portal
+    //use entity.getCollidingPortal() and do not use this
+    public static Portal getCollidingPortalUnreliable(Entity entity) {
         return entity.world.getEntities(
-            Portal.class, entity.getBoundingBox().expand(expandFactor), e -> true
+            Portal.class, entity.getBoundingBox().expand(0.4), e -> true
         ).stream().filter(
             portal -> shouldCollideWithPortal(
                 entity, portal
             )
         ).findFirst().orElse(null);
+    }
+    
+    //note this is easier to be true than getCollidingPortal() != null
+    //teleportation in client is instant and accurate
+    //but it's not accurate in server because of network delay
+    public static boolean isCollidingWithAnyPortal(Entity entity) {
+        return !entity.world.getEntities(
+            Portal.class, entity.getBoundingBox().expand(0.5), e -> true
+        ).isEmpty();
+    }
+    
+    public static Box getActiveCollisionBox(Entity entity) {
+        Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+        if (collidingPortal != null) {
+            Box thisSideBox = getCollisionBoxThisSide(
+                collidingPortal,
+                entity.getBoundingBox()
+            );
+            if (thisSideBox != null) {
+                return thisSideBox;
+            }
+            else {
+                return new Box(0, 0, 0, 0, 0, 0);
+            }
+        }
+        else {
+            return entity.getBoundingBox();
+        }
     }
 }

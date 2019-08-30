@@ -23,7 +23,6 @@ public class CGlobal {
     public static Object switchedFogRenderer;
     public static boolean useHackedChunkRenderDispatcher = true;
     public static boolean isClientRemoteTickingEnabled = true;
-    public static boolean isChunkLoadingMultiThreaded = true;
     public static boolean isOptifinePresent = false;
     public static boolean renderPortalBeforeTranslucentBlocks = true;
     public static boolean useFrontCulling = true;

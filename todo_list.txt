@@ -1,9 +1,11 @@
-fix can't light horizontal portal easily
+fix client fire when jumping into end portal
 fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
-fix /weather clear not working
 fix program id leak with shader switch
 fix issue when sneak halfway in a horizontal portal
+fix translucent block rendering issue with optiFine
+fix light flash when going into end portal
+fix frozen when going from end to overworld
 
 test reliability in server
 

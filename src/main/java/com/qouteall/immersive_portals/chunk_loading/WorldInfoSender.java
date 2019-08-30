@@ -16,7 +16,9 @@ public class WorldInfoSender {
             if (Helper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : Helper.getCopiedPlayerList()) {
                     for (ServerWorld world : Helper.getServer().getWorlds()) {
-                        sendWorldInfo(player, world);
+                        if (world != player.world) {
+                            sendWorldInfo(player, world);
+                        }
                     }
                 }
             }
@@ -61,14 +63,6 @@ public class WorldInfoSender {
                 MyNetwork.createRedirectedMessage(
                     remoteDimension,
                     new GameStateChangeS2CPacket(8, world.getThunderGradient(1.0F))
-                )
-            );
-        }
-        else {
-            player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    remoteDimension,
-                    new GameStateChangeS2CPacket(2, 0.0F)
                 )
             );
         }

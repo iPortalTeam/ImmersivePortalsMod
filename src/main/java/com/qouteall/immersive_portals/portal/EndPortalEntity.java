@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 public class EndPortalEntity extends Portal {
-    public static EntityType<NetherPortalEntity> entityType;
+    public static EntityType<EndPortalEntity> entityType;
     
     public static void init() {
         entityType = Registry.register(
@@ -21,7 +21,7 @@ public class EndPortalEntity extends Portal {
             new Identifier("immersive_portals", "end_portal"),
             FabricEntityTypeBuilder.create(
                 EntityCategory.MISC,
-                (EntityType.EntityFactory<NetherPortalEntity>) NetherPortalEntity::new
+                (EntityType.EntityFactory<EndPortalEntity>) EndPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
             ).build()
@@ -67,7 +67,7 @@ public class EndPortalEntity extends Portal {
             livingEntity.addPotionEffect(
                 new StatusEffectInstance(
                     StatusEffects.SLOW_FALLING,
-                    100,//duration
+                    120,//duration
                     1//amplifier
                 )
             );

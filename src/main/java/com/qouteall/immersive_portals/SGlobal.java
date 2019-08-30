@@ -12,4 +12,5 @@ public class SGlobal {
     
     public static ServerTeleportationManager serverTeleportationManager;
     
+    public static boolean isChunkLoadingMultiThreaded = true;
 }

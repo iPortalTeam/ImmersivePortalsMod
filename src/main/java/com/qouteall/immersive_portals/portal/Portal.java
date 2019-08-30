@@ -142,6 +142,11 @@ public class Portal extends Entity {
     
     @Override
     public void tick() {
+        if (boundingBoxCache == null) {
+            boundingBoxCache = getPortalCollisionBox();
+        }
+        setBoundingBox(boundingBoxCache);
+        
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
         }
@@ -153,11 +158,6 @@ public class Portal extends Entity {
             }
             serverPortalTickSignal.emit(this);
         }
-    
-        if (boundingBoxCache == null) {
-            boundingBoxCache = getPortalCollisionBox();
-        }
-        setBoundingBox(boundingBoxCache);
     }
     
     public boolean isPortalValid() {
@@ -257,7 +257,7 @@ public class Portal extends Entity {
         return new Box(
             getPointInPlane(width / 2, height / 2),
             getPointInPlane(-width / 2, -height / 2)
-        ).expand(0.1);
+        ).expand(0.4);
     }
     
     @Override

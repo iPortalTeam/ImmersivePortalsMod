@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.mojang.datafixers.util.Either;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
@@ -54,7 +53,7 @@ public class ChunkDataSyncManager {
         SGlobal.chunkTracker.onChunkDataSent(player, chunkPos);
         IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
     
-        if (CGlobal.isChunkLoadingMultiThreaded) {
+        if (SGlobal.isChunkLoadingMultiThreaded) {
             sendPacketMultiThreaded(player, chunkPos, ieStorage);
         }
         else {
