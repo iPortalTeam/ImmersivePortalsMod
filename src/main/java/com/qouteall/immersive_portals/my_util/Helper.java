@@ -327,8 +327,8 @@ public class Helper {
     public static void checkGlError() {
         int errorCode = GL11.glGetError();
         if (errorCode != GL_NO_ERROR) {
-            System.err.print("OPENGL ERROR ");
-            Helper.err(errorCode);
+            Helper.err("OpenGL Error" + errorCode);
+            new Throwable().printStackTrace();
         }
     }
     

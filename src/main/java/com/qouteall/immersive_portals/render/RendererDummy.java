@@ -9,7 +9,27 @@ public class RendererDummy extends PortalRenderer {
     }
     
     @Override
-    protected void prepareStates() {
+    public void prepareRendering() {
+    
+    }
+    
+    @Override
+    public void onBeforeTranslucentRendering() {
+    
+    }
+    
+    @Override
+    public void onAfterTranslucentRendering() {
+    
+    }
+    
+    @Override
+    public void onRenderCenterEnded() {
+    
+    }
+    
+    @Override
+    public void finishRendering() {
     
     }
     

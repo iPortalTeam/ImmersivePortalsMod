@@ -30,4 +30,7 @@ public class CGlobal {
     
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     
+    public static boolean isRenderDebugMode = false;
+    
+    public static ShaderManager shaderManager;
 }

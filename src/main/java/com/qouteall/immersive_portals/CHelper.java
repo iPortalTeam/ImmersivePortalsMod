@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.render.PortalRenderer;
+import com.qouteall.immersive_portals.render.RenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -19,7 +19,7 @@ public class CHelper {
     //NOTE this may not be reliable
     public static DimensionType getOriginalDimension() {
         if (CGlobal.renderer.isRendering()) {
-            return PortalRenderer.originalPlayerDimension;
+            return RenderHelper.originalPlayerDimension;
         }
         else {
             return MinecraftClient.getInstance().player.dimension;

@@ -1,4 +1,4 @@
-fix client fire when jumping into end portal
+
 fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
 fix program id leak with shader switch
@@ -7,7 +7,11 @@ fix translucent block rendering issue with optiFine
 fix light flash when going into end portal
 fix frozen when going from end to overworld
 
-test reliability in server
+refactor merge initIfNeeded and prepareStates
+
+test performance between any_sample_passed and samples_passed
+
+check public static fields of Shaders class
 
 add configuration for max portal layer
 

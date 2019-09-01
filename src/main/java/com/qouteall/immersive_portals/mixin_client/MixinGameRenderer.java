@@ -5,6 +5,8 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
+import com.qouteall.immersive_portals.render.RenderHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -56,9 +58,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         long finishTimeNano,
         CallbackInfo ci
     ) {
-        ModMainClient.switchToCorrectRenderer();
-        if (CGlobal.renderPortalBeforeTranslucentBlocks) {
-            CGlobal.renderer.doRendering(partialTicks, finishTimeNano);
+        if (MinecraftClient.getInstance().cameraEntity != null) {
+            CGlobal.renderer.onBeforeTranslucentRendering();
         }
     }
     
@@ -71,9 +72,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void beforeRenderingHand(float float_1, long long_1, CallbackInfo ci) {
-        ModMainClient.switchToCorrectRenderer();
-        if (!CGlobal.renderPortalBeforeTranslucentBlocks) {
-            CGlobal.renderer.doRendering(float_1, long_1);
+        if (MinecraftClient.getInstance().cameraEntity != null) {
+            CGlobal.renderer.onAfterTranslucentRendering();
         }
     }
     
@@ -90,12 +90,41 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
+    //before rendering world (not triggered when rendering portal)
     @Inject(
-        method = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V",
-        at = @At("HEAD")
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/GameRenderer;renderCenter(FJ)V"
+        )
     )
-    private void onPreRender(float float_1, long long_1, boolean boolean_1, CallbackInfo ci) {
+    private void onBeforeRenderingCenter(float partialTicks, long finishTimeNano, CallbackInfo ci) {
+        ModMainClient.switchToCorrectRenderer();
         ModMain.preRenderSignal.emit();
+        RenderHelper.updateRenderInfo(partialTicks);
+        CGlobal.renderer.prepareRendering();
+    }
+    
+    //after rendering world (not triggered when rendering portal)
+    @Inject(
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/GameRenderer;renderCenter(FJ)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onAfterRenderingCenter(float partialTicks, long finishTimeNano, CallbackInfo ci) {
+        CGlobal.renderer.finishRendering();
+        
+        CGlobal.clientWorldLoader
+            .getDimensionRenderHelper(MinecraftClient.getInstance().world.dimension.getType())
+            .switchToMe();
+    }
+    
+    @Inject(method = "renderCenter", at = @At("TAIL"))
+    private void onRenderCenterEnded(float partialTicks, long nanoTime, CallbackInfo ci) {
+        CGlobal.renderer.onRenderCenterEnded();
     }
     
     @Shadow

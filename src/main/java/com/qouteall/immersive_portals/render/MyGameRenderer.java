@@ -184,9 +184,9 @@ public class MyGameRenderer {
     public void renderPlayerItselfIfNecessary() {
         if (CGlobal.renderer.shouldRenderPlayerItself()) {
             renderPlayerItself(
-                CGlobal.renderer.getOrignialPlayerPos(),
-                CGlobal.renderer.getOriginalPlayerLastTickPos(),
-                CGlobal.renderer.getPartialTicks()
+                RenderHelper.originalPlayerPos,
+                RenderHelper.originalPlayerLastTickPos,
+                RenderHelper.partialTicks
             );
         }
     }
@@ -195,7 +195,7 @@ public class MyGameRenderer {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
-        GameMode originalGameMode = CGlobal.renderer.getOriginalGameMode();
+        GameMode originalGameMode = RenderHelper.originalGameMode;
         
         Entity player = mc.cameraEntity;
         assert player != null;

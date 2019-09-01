@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
@@ -10,43 +10,34 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 public class RendererUsingFrameBuffer extends PortalRenderer {
-    private GlFramebuffer secondFrameBuffer;
-    private int width;
-    private int height;
-    private ShaderManager shaderManager;
+    SecondaryFrameBuffer secondaryFrameBuffer = new SecondaryFrameBuffer();
     
     @Override
-    protected void initIfNeeded() {
-        super.initIfNeeded();
-        if (secondFrameBuffer == null) {
-            width = mc.window.getFramebufferWidth();
-            height = mc.window.getFramebufferHeight();
-            secondFrameBuffer = new GlFramebuffer(
-                width,
-                height,
-                true,
-                MinecraftClient.IS_SYSTEM_MAC
-            );
-        }
-        if (shaderManager == null) {
-            shaderManager = new ShaderManager();
-        }
+    public void onBeforeTranslucentRendering() {
+        renderPortals();
     }
     
     @Override
-    protected void prepareStates() {
-        if (mc.window.getFramebufferWidth() != width || mc.window.getFramebufferHeight() != height) {
-            Helper.log("Second Frame Buffer Resized");
-            secondFrameBuffer.resize(
-                mc.window.getFramebufferWidth(),
-                mc.window.getFramebufferHeight(),
-                MinecraftClient.IS_SYSTEM_MAC
-            );
-            width = mc.window.getFramebufferWidth();
-            height = mc.window.getFramebufferHeight();
-        }
+    public void onAfterTranslucentRendering() {
+    
+    }
+    
+    @Override
+    public void onRenderCenterEnded() {
+    
+    }
+    
+    @Override
+    public void finishRendering() {
+    
+    }
+    
+    @Override
+    public void prepareRendering() {
+        secondaryFrameBuffer.prepare();
+    
         GlStateManager.enableDepthTest();
-        
+    
         GL11.glDisable(GL11.GL_STENCIL_TEST);
     }
     
@@ -64,9 +55,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         portalLayers.push(portal);
         
         GlFramebuffer oldFrameBuffer = mc.getFramebuffer();
-        
-        ((IEMinecraftClient) mc).setFrameBuffer(secondFrameBuffer);
-        secondFrameBuffer.beginWrite(true);
+    
+        ((IEMinecraftClient) mc).setFrameBuffer(secondaryFrameBuffer.fb);
+        secondaryFrameBuffer.fb.beginWrite(true);
         
         GlStateManager.clearColor(1, 0, 1, 1);
         GlStateManager.clearDepth(1);
@@ -97,20 +88,18 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     private boolean testShouldRenderPortal(Portal portal) {
-        return renderAndGetDoesAnySamplePassed(() -> {
+        return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             GlStateManager.enableDepthTest();
             GlStateManager.depthMask(false);
-            setupCameraTransformation();
+            RenderHelper.setupCameraTransformation();
             GL20.glUseProgram(0);
-            drawPortalViewTriangle(portal);
+            RenderHelper.drawPortalViewTriangle(portal);
             GlStateManager.depthMask(true);
         });
     }
     
     private void renderSecondBufferIntoMainBuffer(Portal portal) {
-        GlFramebuffer textureProvider = this.secondFrameBuffer;
-    
-        drawFrameBufferUp(portal, textureProvider, shaderManager);
+        RenderHelper.drawFrameBufferUp(portal, secondaryFrameBuffer.fb, CGlobal.shaderManager);
     }
     
 }

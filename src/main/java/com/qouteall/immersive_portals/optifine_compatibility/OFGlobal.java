@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public class OFGlobal {
     public static RendererDeferred rendererDeferred = new RendererDeferred();
-    public static RendererTest rendererTest = new RendererTest();
+    public static RendererDebugWithShader rendererDebugWithShader = new RendererDebugWithShader();
     public static ShaderContextManager shaderContextManager = new ShaderContextManager();
     
     public static Consumer<PerDimensionContext> copyContextToObject;

@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
+import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
@@ -35,19 +36,23 @@ public class ModMainClient implements ClientModInitializer {
             //do not switch when rendering
             return;
         }
-        if (CGlobal.isOptifinePresent) {
-            if (OFHelper.getIsUsingShader()) {
-                if (CGlobal.renderer != OFGlobal.rendererDeferred) {
-                    Helper.log("switched to shader compatibility renderer");
-                }
-                CGlobal.renderer = OFGlobal.rendererDeferred;
+        if (OFHelper.getIsUsingShader()) {
+            if (CGlobal.isRenderDebugMode) {
+                switchRenderer(OFGlobal.rendererDebugWithShader);
             }
             else {
-                if (CGlobal.renderer != CGlobal.rendererUsingStencil) {
-                    Helper.log("switched to normal renderer");
-                }
-                CGlobal.renderer = CGlobal.rendererUsingStencil;
+                switchRenderer(OFGlobal.rendererDeferred);
             }
+        }
+        else {
+            switchRenderer(CGlobal.rendererUsingStencil);
+        }
+    }
+    
+    private static void switchRenderer(PortalRenderer renderer) {
+        if (CGlobal.renderer != renderer) {
+            Helper.log("switched to renderer " + renderer.getClass());
+            CGlobal.renderer = renderer;
         }
     }
     
@@ -63,7 +68,7 @@ public class ModMainClient implements ClientModInitializer {
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.rendererUsingStencil = new RendererUsingStencil();
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
-    
+        
             CGlobal.renderer = CGlobal.rendererUsingStencil;
             CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.myGameRenderer = new MyGameRenderer();
@@ -76,9 +81,9 @@ public class ModMainClient implements ClientModInitializer {
     
         if (CGlobal.isOptifinePresent) {
             CGlobal.renderPortalBeforeTranslucentBlocks = false;
-    
+        
             OFHelper.init();
-    
+
 //            if (Config.isSmoothWorld()) {
 //                //TODO change smooth world to false
 //                Helper.err("Smooth world will cause entity in other dimension to vanish");

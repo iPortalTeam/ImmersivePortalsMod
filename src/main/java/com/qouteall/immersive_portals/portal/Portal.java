@@ -181,12 +181,6 @@ public class Portal extends Entity {
         return getDistanceToPlane(playerPos) > 0;
     }
     
-    public boolean isInFrontOfPortalRoughly(
-        Vec3d playerPos
-    ) {
-        return getDistanceToPlane(playerPos) > -0.3;
-    }
-    
     public boolean canRenderPortalInsideMe(Portal anotherPortal) {
         if (anotherPortal.dimension != dimensionTo) {
             return false;
@@ -201,7 +195,7 @@ public class Portal extends Entity {
     }
     
     public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
-        return getPos().add(axisW.multiply(xInPlane)).add(axisH.multiply(yInPlane));
+        return getPos().add(getPointInPlaneRelativeToCenter(xInPlane, yInPlane));
     }
     
     public Vec3d getPointInPlaneRelativeToCenter(double xInPlane, double yInPlane) {
