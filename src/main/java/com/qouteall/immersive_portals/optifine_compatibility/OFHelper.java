@@ -1,7 +1,9 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import net.optifine.Config;
+import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.EXTFramebufferObject;
 
 public class OFHelper {
@@ -34,6 +36,7 @@ public class OFHelper {
     
     public static void bindToShaderFrameBuffer() {
         EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
+        GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
     }
     
 }

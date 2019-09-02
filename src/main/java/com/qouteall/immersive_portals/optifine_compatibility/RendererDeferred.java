@@ -11,7 +11,6 @@ import net.minecraft.util.math.Vec3d;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 
 public class RendererDeferred extends PortalRenderer {
     SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
@@ -49,7 +48,6 @@ public class RendererDeferred extends PortalRenderer {
     
         OFHelper.bindToShaderFrameBuffer();
     
-        GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
     }
     
     @Override
@@ -59,7 +57,7 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
     
-        copyDepthFromMainToDeferred();
+        RenderHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
     
         if (!testShouldRenderPortal(portal)) {
             return;
@@ -127,19 +125,6 @@ public class RendererDeferred extends PortalRenderer {
             GlStateManager.enableTexture();
             GlStateManager.colorMask(true, true, true, true);
         });
-    }
-    
-    private void copyDepthFromMainToDeferred() {
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, OFGlobal.getDfb.get());
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
-        
-        GL30.glBlitFramebuffer(
-            0, 0, Shaders.renderWidth, Shaders.renderHeight,
-            0, 0, deferredBuffer.fb.viewWidth, deferredBuffer.fb.viewHeight,
-            GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST
-        );
-    
-        OFHelper.bindToShaderFrameBuffer();
     }
     
     @Override

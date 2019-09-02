@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public abstract class PortalRenderer {
     
     public static final MinecraftClient mc = MinecraftClient.getInstance();
-    private Supplier<Integer> maxPortalLayer = () -> CGlobal.maxPortalLayer;
+    protected Supplier<Integer> maxPortalLayer = () -> CGlobal.maxPortalLayer;
     private Supplier<Double> portalRenderingRange = () -> 64.0;
     protected Stack<Portal> portalLayers = new Stack<>();
     

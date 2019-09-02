@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -22,6 +23,7 @@ import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -188,5 +190,18 @@ public class RenderHelper {
         
         GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture();
+    }
+    
+    public static void copyFromShaderFbTo(GlFramebuffer destFb, int copyComponent) {
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, OFGlobal.getDfb.get());
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destFb.fbo);
+        
+        GL30.glBlitFramebuffer(
+            0, 0, Shaders.renderWidth, Shaders.renderHeight,
+            0, 0, destFb.viewWidth, destFb.viewHeight,
+            copyComponent, GL_NEAREST
+        );
+        
+        OFHelper.bindToShaderFrameBuffer();
     }
 }

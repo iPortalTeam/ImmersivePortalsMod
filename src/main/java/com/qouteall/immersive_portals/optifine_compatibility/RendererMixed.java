@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.*;
 import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.util.math.Vec3d;
-import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -15,10 +14,7 @@ import org.lwjgl.opengl.GL30;
 import static org.lwjgl.opengl.GL11.*;
 
 public class RendererMixed extends PortalRenderer {
-    private SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
-    public static final int maxPortalLayer = 3;
-    
-    private SecondaryFrameBuffer[] secondaryFbs = new SecondaryFrameBuffer[maxPortalLayer];
+    private SecondaryFrameBuffer[] deferredFbs;
     
     @Override
     public boolean shouldSkipClearing() {
@@ -27,9 +23,36 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded() {
-        if (isRendering()) {
-            renderPortals();
+        int portalLayer = getPortalLayer();
+    
+        if (portalLayer == 0) {
+            deferredFbs[portalLayer].fb.beginWrite(true);
+            GlStateManager.clearStencil(0);
+            GlStateManager.clear(GL_STENCIL_BUFFER_BIT);
         }
+        else {
+            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
+            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
+        
+            GL30.glBlitFramebuffer(
+                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
+                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
+                GL_STENCIL_BUFFER_BIT, GL_NEAREST
+            );
+        }
+    
+        deferredFbs[portalLayer].fb.beginWrite(true);
+    
+        glEnable(GL_STENCIL_TEST);
+        glStencilFunc(GL_EQUAL, portalLayer, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    
+        GlFramebuffer mcFrameBuffer = mc.getFramebuffer();
+        mcFrameBuffer.draw(mcFrameBuffer.viewWidth, mcFrameBuffer.viewHeight);
+    
+        glDisable(GL_STENCIL_TEST);
+    
+        renderPortals();
     }
     
     @Override
@@ -39,11 +62,10 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering() {
-        copyDepthFromShaderToDeferred();
-    
-        if (!isRendering()) {
-            renderPortals();
-        }
+        RenderHelper.copyFromShaderFbTo(
+            deferredFbs[getPortalLayer()].fb,
+            GL_DEPTH_BUFFER_BIT
+        );
     }
     
     @Override
@@ -51,19 +73,27 @@ public class RendererMixed extends PortalRenderer {
         if (CGlobal.shaderManager == null) {
             CGlobal.shaderManager = new ShaderManager();
         }
-        
-        deferredBuffer.prepare();
-        ((IEGlFrameBuffer) deferredBuffer.fb).setIsStencilBufferEnabledAndReload(true);
     
-        deferredBuffer.fb.beginWrite(true);
-        GlStateManager.clearColor(1, 0, 0, 0);
-        GlStateManager.clearDepth(1);
-        GlStateManager.clearStencil(0);
-        GlStateManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        if (deferredFbs == null) {
+            deferredFbs = new SecondaryFrameBuffer[maxPortalLayer.get()];
+            for (int i = 0; i < deferredFbs.length; i++) {
+                deferredFbs[i] = new SecondaryFrameBuffer();
+            }
+        }
+    
+        for (SecondaryFrameBuffer deferredFb : deferredFbs) {
+            deferredFb.prepare();
+            ((IEGlFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
+        
+            deferredFb.fb.beginWrite(true);
+            GlStateManager.clearColor(1, 0, 0, 0);
+            GlStateManager.clearDepth(1);
+            GlStateManager.clearStencil(0);
+            GlStateManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        
+        }
         
         OFHelper.bindToShaderFrameBuffer();
-        
-        GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
     }
     
     @Override
@@ -75,14 +105,10 @@ public class RendererMixed extends PortalRenderer {
         GlStateManager.enableAlphaTest();
         GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
-        
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
-        deferredBuffer.fb.draw(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
+    
+        deferredFbs[0].fb.draw(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
     }
     
-    //this involves 3 frame buffers:
-    //mc framebuffer, shader framebuffer(in current dimension), my deferred buffer
     @Override
     protected void doRenderPortal(Portal portal) {
         
@@ -92,73 +118,35 @@ public class RendererMixed extends PortalRenderer {
         }
         
         portalLayers.push(portal);
-        
-        //write to shader fb in dest dimension
-        //then write to mc fb
+    
+        OFHelper.bindToShaderFrameBuffer();
         manageCameraAndRenderPortalContent(portal);
-        
-        int innerStencilValue = getPortalLayer();
+    
+        int innerLayer = getPortalLayer();
         
         portalLayers.pop();
-        
-        deferredBuffer.fb.beginWrite(true);
-        
-        writeFromMcFbToDeferredFb(portal, innerStencilValue);
-
-//        //make depth correct in shader fb
-//        OFHelper.bindToShaderFrameBuffer();
-//        myDrawPortalViewArea(portal);
     
-        if (getPortalLayer() < 3) {
-            renderPortals();
-        }
+        int outerLayer = getPortalLayer();
     
-        int outerStencilValue = getPortalLayer();
-        GL11.glEnable(GL_STENCIL_TEST);
-        RendererUsingStencil.clampStencilValue(outerStencilValue);
-        GL11.glDisable(GL_STENCIL_TEST);
-    }
-    
-    //drawing will be limited by stencil and will increase stencil
-    private void writeFromMcFbToDeferredFb(Portal portal, int innerStencilValue) {
-        GL11.glEnable(GL_STENCIL_TEST);
-        GL11.glStencilFunc(GL11.GL_EQUAL, innerStencilValue, 0xFF);
-        GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    
-        GlStateManager.disableDepthTest();
-        GlStateManager.depthMask(false);
-        
-        RenderHelper.drawFrameBufferUp(portal, mc.getFramebuffer(), CGlobal.shaderManager);
-    
-        GlStateManager.enableDepthTest();
-        GlStateManager.depthMask(true);
-        
-        GL11.glDisable(GL_STENCIL_TEST);
-    }
-    
-    //TODO reduce repeat
-    private void copyDepthFromShaderToDeferred() {
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, OFGlobal.getDfb.get());
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
-        
-        GL30.glBlitFramebuffer(
-            0, 0, Shaders.renderWidth, Shaders.renderHeight,
-            0, 0, deferredBuffer.fb.viewWidth, deferredBuffer.fb.viewHeight,
-            GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST
+        deferredFbs[outerLayer].fb.beginWrite(true);
+        GlStateManager.enableAlphaTest();
+        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
+        deferredFbs[innerLayer].fb.draw(
+            deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight
         );
-        
-        OFHelper.bindToShaderFrameBuffer();
+        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
     }
     
     //NOTE it will write to shader depth buffer
     //it's drawing into shader fb
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(Portal portal) {
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
-            deferredBuffer.fb.beginWrite(true);
+            int portalLayer = getPortalLayer();
     
-            int outerStencilValue = getPortalLayer();
+            deferredFbs[portalLayer].fb.beginWrite(true);
+            
             GL11.glEnable(GL_STENCIL_TEST);
-            GL11.glStencilFunc(GL11.GL_EQUAL, outerStencilValue, 0xFF);
+            GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
             GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
             
             myDrawPortalViewArea(portal);
