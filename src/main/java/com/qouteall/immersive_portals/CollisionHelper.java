@@ -141,7 +141,7 @@ public class CollisionHelper {
             originalBox,
             //cut the collision box a little bit more
             //because the box will be stretched by attemptedMove when calculating collision
-            portal.getPos(),
+            portal.getPos().add(portal.getNormal().multiply(0.3)),
             portal.getNormal()
         );
     }

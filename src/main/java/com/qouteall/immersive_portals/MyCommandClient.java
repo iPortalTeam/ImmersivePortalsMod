@@ -6,10 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
-import com.qouteall.immersive_portals.exposer.IEBackgroundRenderer;
-import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
-import com.qouteall.immersive_portals.exposer.IEGameRenderer;
-import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
+import com.qouteall.immersive_portals.exposer.*;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
@@ -261,6 +258,15 @@ public class MyCommandClient {
             .literal("shader_debug_disable")
             .executes(context -> {
                 CGlobal.isRenderDebugMode = false;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("get_player_colliding_portal_client")
+            .executes(context -> {
+                Portal collidingPortal =
+                    ((IEEntity) MinecraftClient.getInstance().player).getCollidingPortal();
+                Helper.serverLog(context.getSource().getPlayer(), collidingPortal.toString());
                 return 0;
             })
         );

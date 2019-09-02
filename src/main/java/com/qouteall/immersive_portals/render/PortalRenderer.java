@@ -188,8 +188,6 @@ public abstract class PortalRenderer {
     protected void renderPortalContentWithContextSwitched(
         Portal portal, Vec3d oldCameraPos
     ) {
-    
-    
         GlStateManager.enableAlphaTest();
         GlStateManager.enableCull();
         

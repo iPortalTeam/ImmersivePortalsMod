@@ -4,8 +4,10 @@ fix shader malfunction (shadow abnormal, pure color, crash)
 fix program id leak with shader switch
 fix issue when sneak halfway in a horizontal portal
 fix translucent block rendering issue with optiFine
-fix light flash when going into end portal
-fix frozen when going from end to overworld
+fix light flash when going into end portal(?)
+fix frozen when going from end to overworld(?)
+fix sometimes hand will vanish
+fix friction when jumping into portal
 
 refactor merge initIfNeeded and prepareStates
 

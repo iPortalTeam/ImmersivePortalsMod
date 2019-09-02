@@ -7,6 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -350,7 +351,8 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit, int findingRadius
+        IntegerAABBInclusive heightLimit,
+        int findingRadius
     ) {
         return fromNearToFarWithinHeightLimit(
             searchingCenter,
@@ -365,6 +367,12 @@ public class NetherPortalMatcher {
     }
     
     public static boolean isAllAir(IWorld world, IntegerAABBInclusive box) {
+        boolean roughTest = Arrays.stream(box.getEightVertices()).allMatch(
+            blockPos -> isAir(world, blockPos)
+        );
+        if (!roughTest) {
+            return false;
+        }
         return box.stream().allMatch(
             blockPos -> isAir(world, blockPos)
         );
@@ -431,4 +439,21 @@ public class NetherPortalMatcher {
     }
     
     
+    //move the box up
+    private static IntegerAABBInclusive levitateBox(
+        IWorld world, IntegerAABBInclusive airCube
+    ) {
+        Integer maxUpShift = Helper.getLastSatisfying(
+            IntStream.range(1, 40).boxed(),
+            upShift -> isAllAir(
+                world,
+                airCube.getMoved(new Vec3i(0, upShift, 0))
+            )
+        );
+        if (maxUpShift == null) {
+            maxUpShift = 0;
+        }
+        
+        return airCube.getMoved(new Vec3i(0, maxUpShift * 2 / 3, 0));
+    }
 }

@@ -64,7 +64,7 @@ public class PortalPlaceholderBlock extends Block {
                 .noCollision()
                 .sounds(BlockSoundGroup.GLASS)
                 .strength(99999, 0)
-                .lightLevel(11)
+                .lightLevel(15)
                 .build()
         );
     
@@ -152,8 +152,8 @@ public class PortalPlaceholderBlock extends Block {
                 false
             );
         }
-        
-        for (int int_1 = 0; int_1 < 4; ++int_1) {
+    
+        for (int int_1 = 0; int_1 < 2; ++int_1) {
             double double_1 = (double) ((float) blockPos_1.getX() + random_1.nextFloat());
             double double_2 = (double) ((float) blockPos_1.getY() + random_1.nextFloat());
             double double_3 = (double) ((float) blockPos_1.getZ() + random_1.nextFloat());

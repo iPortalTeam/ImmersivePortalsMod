@@ -33,6 +33,7 @@ public class RenderHelper {
     public static float partialTicks = 0;
     
     public static int renderedPortalNum = 0;
+    public static int lastRenderedPortalNum = 0;
     
     public static void updateRenderInfo(
         float partialTicks_
@@ -49,7 +50,8 @@ public class RenderHelper {
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         RenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
         partialTicks = partialTicks_;
-        
+    
+        lastRenderedPortalNum = renderedPortalNum;
         renderedPortalNum = 0;
     }
     

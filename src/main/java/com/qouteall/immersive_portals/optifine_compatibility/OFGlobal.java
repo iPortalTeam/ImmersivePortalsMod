@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 public class OFGlobal {
     public static RendererDeferred rendererDeferred = new RendererDeferred();
     public static RendererDebugWithShader rendererDebugWithShader = new RendererDebugWithShader();
+    public static RendererMixed rendererMixed = new RendererMixed();
     public static ShaderContextManager shaderContextManager = new ShaderContextManager();
     
     public static Consumer<PerDimensionContext> copyContextToObject;

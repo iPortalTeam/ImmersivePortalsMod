@@ -11,14 +11,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 //import com.sun.istack.internal.NotNull;
 //import com.sun.istack.internal.Nullable;
@@ -190,11 +187,6 @@ public class NetherPortalGenerator {
                 mappedPosInOtherDimension
             );
         }
-
-//        //make horizontal portal generate above ground
-//        if (fromObsidianFrame.normalAxis == Direction.Axis.Y) {
-//            foundAirCube = levitateBox(toWorld, foundAirCube);
-//        }
         
         ObsidianFrame toObsidianFrame = new ObsidianFrame(
             fromObsidianFrame.normalAxis,
@@ -210,24 +202,6 @@ public class NetherPortalGenerator {
         );
         
         return toObsidianFrame;
-    }
-    
-    //move the box up
-    private static IntegerAABBInclusive levitateBox(
-        IWorld world, IntegerAABBInclusive airCube
-    ) {
-        Integer maxUpShift = Helper.getLastSatisfying(
-            IntStream.range(1, 40).boxed(),
-            upShift -> NetherPortalMatcher.isAllAir(
-                world,
-                airCube.getMoved(new Vec3i(0, upShift, 0))
-            )
-        );
-        if (maxUpShift == null) {
-            maxUpShift = 0;
-        }
-        
-        return airCube.getMoved(new Vec3i(0, maxUpShift * 2 / 3, 0));
     }
     
     private static ObsidianFrame findExistingEmptyObsidianFrameWithSameSizeInDestDimension(

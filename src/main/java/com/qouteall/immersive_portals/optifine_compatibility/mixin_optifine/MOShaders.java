@@ -1069,8 +1069,6 @@ public abstract class MOShaders {
         MinecraftClient mc = MinecraftClient.getInstance();
         DimensionType currDimension = mc.world.dimension.getType();
         
-        OFHelper.onShaderInit(mc, currDimension);
-        
         Helper.log("Shader init " + currDimension);
     }
     

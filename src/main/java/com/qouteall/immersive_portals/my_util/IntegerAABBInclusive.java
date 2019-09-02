@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.my_util;
 
 //import com.sun.istack.internal.Nullable;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
@@ -58,7 +59,7 @@ public class IntegerAABBInclusive {
         return expandOrShrink(
             Helper.scale(
                 Direction.get(
-                    Direction.AxisDirection.POSITIVE,axis
+                    Direction.AxisDirection.POSITIVE, axis
                 ).getVector(),
                 n
             )
@@ -75,6 +76,12 @@ public class IntegerAABBInclusive {
                 )
             )
         );
+    }
+    
+    //it will get only one mutable block pos object
+    //don't store its reference. store its copy
+    public Stream<BlockPos> fastStream() {
+        return BlockPos.stream(l, h);
     }
     
     public BlockPos getSize() {
@@ -240,5 +247,18 @@ public class IntegerAABBInclusive {
             subBoxSize,
             Helper.divide(thisSize.subtract(subBoxSize), 2).add(l)
         );
+    }
+    
+    public BlockPos[] getEightVertices() {
+        return new BlockPos[]{
+            new BlockPos(l.getX(), l.getY(), l.getZ()),
+            new BlockPos(l.getX(), l.getY(), h.getZ()),
+            new BlockPos(l.getX(), h.getY(), l.getZ()),
+            new BlockPos(l.getX(), h.getY(), h.getZ()),
+            new BlockPos(h.getX(), l.getY(), l.getZ()),
+            new BlockPos(h.getX(), l.getY(), h.getZ()),
+            new BlockPos(h.getX(), h.getY(), l.getZ()),
+            new BlockPos(h.getX(), h.getY(), h.getZ())
+        };
     }
 }

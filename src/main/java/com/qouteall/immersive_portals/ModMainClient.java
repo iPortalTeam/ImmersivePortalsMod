@@ -38,7 +38,7 @@ public class ModMainClient implements ClientModInitializer {
         }
         if (OFHelper.getIsUsingShader()) {
             if (CGlobal.isRenderDebugMode) {
-                switchRenderer(OFGlobal.rendererDebugWithShader);
+                switchRenderer(OFGlobal.rendererMixed);
             }
             else {
                 switchRenderer(OFGlobal.rendererDeferred);

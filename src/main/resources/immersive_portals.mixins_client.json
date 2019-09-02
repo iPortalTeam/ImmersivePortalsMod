@@ -13,6 +13,7 @@
     "MixinClientPlayerEntity",
     "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
+    "MixinDebugHud",
     "MixinEntityRenderDispatcher",
     "MixinFrustumWithOrigin",
     "MixinGameRenderer",
