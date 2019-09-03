@@ -48,8 +48,8 @@ public class RendererMixed extends PortalRenderer {
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     
         GlFramebuffer mcFrameBuffer = mc.getFramebuffer();
-        mcFrameBuffer.draw(mcFrameBuffer.viewWidth, mcFrameBuffer.viewHeight);
-    
+        RenderHelper.myDrawFrameBuffer(mcFrameBuffer, false, true);
+        
         glDisable(GL_STENCIL_TEST);
     
         renderPortals();
@@ -86,7 +86,7 @@ public class RendererMixed extends PortalRenderer {
             ((IEGlFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
         
             deferredFb.fb.beginWrite(true);
-            GlStateManager.clearColor(1, 0, 0, 0);
+            GlStateManager.clearColor(1, 0, 1, 0);
             GlStateManager.clearDepth(1);
             GlStateManager.clearStencil(0);
             GlStateManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -129,12 +129,15 @@ public class RendererMixed extends PortalRenderer {
         int outerLayer = getPortalLayer();
     
         deferredFbs[outerLayer].fb.beginWrite(true);
-        GlStateManager.enableAlphaTest();
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
-        deferredFbs[innerLayer].fb.draw(
-            deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight
-        );
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
+    
+        boolean r = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
+            GlStateManager.enableAlphaTest();
+            RenderHelper.myDrawFrameBuffer(
+                deferredFbs[innerLayer].fb,
+                true,
+                true
+            );
+        });
     }
     
     //NOTE it will write to shader depth buffer

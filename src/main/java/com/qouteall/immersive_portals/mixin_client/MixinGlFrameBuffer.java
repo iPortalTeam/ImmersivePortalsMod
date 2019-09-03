@@ -1,8 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
@@ -11,7 +9,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GlFramebuffer.class)
@@ -78,19 +75,19 @@ public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
             ci.cancel();
         }
     }
-    
-    @Redirect(
-        method = "draw(IIZ)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/platform/GlStateManager;disableAlphaTest()V"
-        )
-    )
-    private void redirectDisableAlphaTest() {
-        if (CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer) {
-            GlStateManager.disableAlphaTest();
-        }
-    }
+//
+//    @Redirect(
+//        method = "draw(IIZ)V",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lcom/mojang/blaze3d/platform/GlStateManager;disableAlphaTest()V"
+//        )
+//    )
+//    private void redirectDisableAlphaTest() {
+//        if (CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer) {
+//            GlStateManager.disableAlphaTest();
+//        }
+//    }
     
     @Override
     public boolean getIsStencilBufferEnabled() {

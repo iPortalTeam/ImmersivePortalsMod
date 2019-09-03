@@ -9,6 +9,8 @@ fix frozen when going from end to overworld(?)
 fix sometimes hand will vanish
 fix friction when jumping into portal
 
+indirectly load chunks by 2 layers of portals
+
 refactor merge initIfNeeded and prepareStates
 
 test performance between any_sample_passed and samples_passed

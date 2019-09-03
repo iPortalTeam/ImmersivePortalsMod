@@ -141,8 +141,10 @@ public class RendererDeferred extends PortalRenderer {
         GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
     
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = false;
-        deferredBuffer.fb.draw(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
-        CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer = true;
+        RenderHelper.myDrawFrameBuffer(
+            deferredBuffer.fb,
+            true,
+            false
+        );
     }
 }

@@ -21,6 +21,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
+import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -203,5 +204,81 @@ public class RenderHelper {
         );
         
         OFHelper.bindToShaderFrameBuffer();
+    }
+    
+    /**
+     * {@link GlFramebuffer#draw(int, int)}
+     */
+    public static void myDrawFrameBuffer(
+        GlFramebuffer textureProvider,
+        boolean doEnableAlphaTest,
+        boolean doEnableModifyAlpha
+    ) {
+        Validate.isTrue(GLX.isUsingFBOs());
+        
+        if (doEnableModifyAlpha) {
+            GlStateManager.colorMask(true, true, true, true);
+        }
+        else {
+            GlStateManager.colorMask(true, true, true, false);
+        }
+        GlStateManager.disableDepthTest();
+        GlStateManager.depthMask(false);
+        GlStateManager.matrixMode(5889);
+        GlStateManager.loadIdentity();
+        GlStateManager.ortho(
+            0.0D,
+            (double) textureProvider.viewWidth,
+            (double) textureProvider.viewHeight,
+            0.0D,
+            1000.0D,
+            3000.0D
+        );
+        GlStateManager.matrixMode(5888);
+        GlStateManager.loadIdentity();
+        GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
+        GlStateManager.viewport(0, 0, textureProvider.viewWidth, textureProvider.viewHeight);
+        GlStateManager.enableTexture();
+        GlStateManager.disableLighting();
+        if (doEnableAlphaTest) {
+            GlStateManager.enableAlphaTest();
+        }
+        else {
+            GlStateManager.disableAlphaTest();
+        }
+        
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        textureProvider.beginRead();
+        float float_1 = (float) textureProvider.viewWidth;
+        float float_2 = (float) textureProvider.viewHeight;
+        float float_3 = (float) textureProvider.viewWidth / (float) textureProvider.texWidth;
+        float float_4 = (float) textureProvider.viewHeight / (float) textureProvider.texHeight;
+        Tessellator tessellator_1 = Tessellator.getInstance();
+        BufferBuilder bufferBuilder_1 = tessellator_1.getBufferBuilder();
+        bufferBuilder_1.begin(7, VertexFormats.POSITION_UV_COLOR);
+        bufferBuilder_1.vertex(0.0D, (double) float_2, 0.0D).texture(0.0D, 0.0D).color(
+            255,
+            255,
+            255,
+            255
+        ).next();
+        bufferBuilder_1.vertex((double) float_1, (double) float_2, 0.0D).texture(
+            (double) float_3,
+            0.0D
+        ).color(255, 255, 255, 255).next();
+        bufferBuilder_1.vertex((double) float_1, 0.0D, 0.0D).texture(
+            (double) float_3,
+            (double) float_4
+        ).color(255, 255, 255, 255).next();
+        bufferBuilder_1.vertex(0.0D, 0.0D, 0.0D).texture(0.0D, (double) float_4).color(
+            255,
+            255,
+            255,
+            255
+        ).next();
+        tessellator_1.draw();
+        textureProvider.endRead();
+        GlStateManager.depthMask(true);
+        GlStateManager.colorMask(true, true, true, true);
     }
 }
