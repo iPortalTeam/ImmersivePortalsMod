@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-//import com.sun.istack.internal.Nullable;
 
 public class ChunkTracker {
     
@@ -53,6 +52,7 @@ public class ChunkTracker {
         );
     
     public static final int portalLoadingRange = 48;
+    public static final int secondaryPortalLoadingRange = 16;
     
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
@@ -152,11 +152,7 @@ public class ChunkTracker {
             ),
     
             //indirectly watching chunks
-            Helper.getEntitiesNearby(
-                player,
-                Portal.class,
-                portalLoadingRange
-            ).flatMap(
+            getViewingPortals(player).flatMap(
                 portal -> getNearbyChunkPoses(
                     portal.dimensionTo,
                     new BlockPos(portal.destination),
@@ -164,6 +160,26 @@ public class ChunkTracker {
                 )
             )
         ).collect(Collectors.toSet());
+    }
+    
+    //not only the portals near player
+    //but also the portals that player can see from other portals
+    private Stream<Portal> getViewingPortals(ServerPlayerEntity player) {
+        return Helper.getEntitiesNearby(
+            player,
+            Portal.class,
+            portalLoadingRange
+        ).flatMap(
+            portal -> Streams.concat(
+                Stream.of(portal),
+                Helper.getEntitiesNearby(
+                    Helper.getServer().getWorld(portal.dimensionTo),
+                    portal.destination,
+                    Portal.class,
+                    secondaryPortalLoadingRange
+                )
+            )
+        ).distinct();
     }
     
     private void tick() {

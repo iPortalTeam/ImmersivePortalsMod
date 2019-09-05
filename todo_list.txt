@@ -1,4 +1,4 @@
-fix shadow map issue and not rendering issue with shaders
+fix hand rendering issue without shader and gui issue with shader
 fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
 fix program id leak with shader switch
@@ -10,15 +10,11 @@ fix sometimes hand will vanish
 fix friction when jumping into portal
 fix fired when halfway in portal
 
-indirectly load chunks by 2 layers of portals
-
 check public static fields of Shaders class
 
 add configuration for max portal layer
 
 compatible with post processing
-
-make nether portal possibly generate above lava lake
 
 check center depth correctness
 

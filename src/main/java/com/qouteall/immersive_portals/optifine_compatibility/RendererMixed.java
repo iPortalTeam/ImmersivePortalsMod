@@ -105,12 +105,16 @@ public class RendererMixed extends PortalRenderer {
         if (RenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
-        
-        GlStateManager.enableAlphaTest();
+    
+    
         GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
     
         deferredFbs[0].fb.draw(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
+
+//        GlStateManager.enableBlend();
+//        GlStateManager.enableAlphaTest();
+//        GuiLighting.disable();
     }
     
     @Override
