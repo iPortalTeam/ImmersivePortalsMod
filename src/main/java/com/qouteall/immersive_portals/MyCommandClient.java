@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.exposer.*;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
+import com.qouteall.immersive_portals.render.RenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -29,8 +30,10 @@ import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
 
+import java.lang.ref.Reference;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class MyCommandClient {
@@ -267,6 +270,22 @@ public class MyCommandClient {
                 Portal collidingPortal =
                     ((IEEntity) MinecraftClient.getInstance().player).getCollidingPortal();
                 Helper.serverLog(context.getSource().getPlayer(), collidingPortal.toString());
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("report_rendering")
+            .executes(context -> {
+                String str = RenderHelper.lastPortalRenderInfos
+                    .stream()
+                    .map(
+                        list -> list.stream()
+                            .map(Reference::get)
+                            .collect(Collectors.toList())
+                    )
+                    .collect(Collectors.toList())
+                    .toString();
+                Helper.serverLog(context.getSource().getPlayer(), str);
                 return 0;
             })
         );

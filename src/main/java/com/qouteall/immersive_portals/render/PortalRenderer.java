@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -65,18 +64,6 @@ public abstract class PortalRenderer {
         return isRendering() &&
             mc.cameraEntity.dimension == RenderHelper.originalPlayerDimension &&
             getRenderingPortal().canRenderEntityInsideMe(RenderHelper.originalPlayerPos);
-    }
-    
-    public boolean isDimensionRendered(DimensionType dimension) {
-        assert dimension != null;
-        if (dimension == CHelper.getOriginalDimension()) {
-            return true;
-        }
-        return portalLayers
-            .subList(0, portalLayers.size() - 1)//except for the current rendering portal
-            .stream().anyMatch(
-                portal -> portal.dimensionTo == dimension
-            );
     }
     
     public boolean shouldRenderEntityNow(Entity entity) {
@@ -142,7 +129,7 @@ public abstract class PortalRenderer {
             return;
         }
     
-        RenderHelper.renderedPortalNum += 1;
+        RenderHelper.onBeginPortalWorldRendering(portalLayers);
         
         Entity cameraEntity = mc.cameraEntity;
         int allowedStencilValue = getPortalLayer();

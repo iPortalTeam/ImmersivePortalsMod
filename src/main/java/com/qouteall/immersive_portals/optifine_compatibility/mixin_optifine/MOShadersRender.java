@@ -21,8 +21,10 @@ public class MOShadersRender {
         long finishTimeNano,
         CallbackInfo ci
     ) {
-        if (OFGlobal.shaderContextManager.isCurrentDimensionRendered()) {
-            ci.cancel();
+        if (!OFGlobal.alwaysRenderShadowMap) {
+            if (OFGlobal.shaderContextManager.isCurrentDimensionRendered()) {
+                ci.cancel();
+            }
         }
     }
 }

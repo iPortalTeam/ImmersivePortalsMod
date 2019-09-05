@@ -13,6 +13,6 @@ import java.util.List;
 public class MixinDebugHud {
     @Inject(method = "getInfoLeft", at = @At("RETURN"), cancellable = true)
     private void onGetInfoLeft(CallbackInfoReturnable<List<String>> cir) {
-        cir.getReturnValue().add("Rendered Portal Num: " + RenderHelper.lastRenderedPortalNum);
+        cir.getReturnValue().add("Rendered Portal Num: " + RenderHelper.lastPortalRenderInfos.size());
     }
 }

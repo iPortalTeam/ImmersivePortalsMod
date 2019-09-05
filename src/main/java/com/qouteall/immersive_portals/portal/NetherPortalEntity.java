@@ -36,7 +36,7 @@ public class NetherPortalEntity extends Portal {
                 (EntityType.EntityFactory<NetherPortalEntity>) NetherPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
-            ).build()
+            ).setImmuneToFire().build()
         );
     
     

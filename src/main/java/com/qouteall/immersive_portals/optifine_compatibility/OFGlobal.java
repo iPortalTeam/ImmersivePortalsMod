@@ -19,6 +19,7 @@ public class OFGlobal {
     public static Supplier<ShaderUniforms> getShaderUniforms;
     
     public static boolean doForceInitSequence = false;
+    public static boolean alwaysRenderShadowMap = true;
     
     /**
      * mc;

@@ -56,7 +56,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal) {
-        if (RenderHelper.renderedPortalNum >= 1) {
+        if (RenderHelper.getRenderedPortalNum() >= 1) {
             return;
         }
         
@@ -95,8 +95,8 @@ public class RendererDebugWithShader extends PortalRenderer {
         if (isRendering()) {
             return;
         }
-        
-        if (RenderHelper.renderedPortalNum == 0) {
+    
+        if (RenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
         

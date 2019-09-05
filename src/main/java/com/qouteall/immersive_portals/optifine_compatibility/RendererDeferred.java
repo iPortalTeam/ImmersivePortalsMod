@@ -133,7 +133,7 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
     
-        if (RenderHelper.renderedPortalNum == 0) {
+        if (RenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
     

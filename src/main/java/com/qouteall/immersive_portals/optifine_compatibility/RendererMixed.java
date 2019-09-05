@@ -25,21 +25,7 @@ public class RendererMixed extends PortalRenderer {
     public void onRenderCenterEnded() {
         int portalLayer = getPortalLayer();
     
-        if (portalLayer == 0) {
-            deferredFbs[portalLayer].fb.beginWrite(true);
-            GlStateManager.clearStencil(0);
-            GlStateManager.clear(GL_STENCIL_BUFFER_BIT);
-        }
-        else {
-            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
-            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
-        
-            GL30.glBlitFramebuffer(
-                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
-                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
-                GL_STENCIL_BUFFER_BIT, GL_NEAREST
-            );
-        }
+        initStencilForLayer(portalLayer);
     
         deferredFbs[portalLayer].fb.beginWrite(true);
     
@@ -53,6 +39,24 @@ public class RendererMixed extends PortalRenderer {
         glDisable(GL_STENCIL_TEST);
     
         renderPortals();
+    }
+    
+    private void initStencilForLayer(int portalLayer) {
+        if (portalLayer == 0) {
+            deferredFbs[portalLayer].fb.beginWrite(true);
+            GlStateManager.clearStencil(0);
+            GlStateManager.clear(GL_STENCIL_BUFFER_BIT);
+        }
+        else {
+            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
+            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
+            
+            GL30.glBlitFramebuffer(
+                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
+                0, 0, deferredFbs[0].fb.viewWidth, deferredFbs[0].fb.viewHeight,
+                GL_STENCIL_BUFFER_BIT, GL_NEAREST
+            );
+        }
     }
     
     @Override
@@ -75,7 +79,7 @@ public class RendererMixed extends PortalRenderer {
         }
     
         if (deferredFbs == null) {
-            deferredFbs = new SecondaryFrameBuffer[maxPortalLayer.get()];
+            deferredFbs = new SecondaryFrameBuffer[maxPortalLayer.get() + 1];
             for (int i = 0; i < deferredFbs.length; i++) {
                 deferredFbs[i] = new SecondaryFrameBuffer();
             }
@@ -98,7 +102,7 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void finishRendering() {
-        if (RenderHelper.renderedPortalNum == 0) {
+        if (RenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
         
@@ -146,6 +150,8 @@ public class RendererMixed extends PortalRenderer {
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             int portalLayer = getPortalLayer();
     
+            initStencilForLayer(portalLayer);
+            
             deferredFbs[portalLayer].fb.beginWrite(true);
             
             GL11.glEnable(GL_STENCIL_TEST);

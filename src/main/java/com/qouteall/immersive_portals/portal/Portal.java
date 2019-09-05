@@ -49,7 +49,7 @@ public class Portal extends Entity {
                     new Portal(type, world1)
             ).size(
                 new EntityDimensions(1, 1, true)
-            ).build()
+            ).setImmuneToFire().build()
         );
     }
     

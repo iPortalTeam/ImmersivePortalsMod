@@ -1,19 +1,16 @@
-
+fix shadow map issue and not rendering issue with shaders
 fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
 fix program id leak with shader switch
 fix issue when sneak halfway in a horizontal portal
-fix translucent block rendering issue with optiFine
+fix translucent block rendering issue with optiFine without shader
 fix light flash when going into end portal(?)
 fix frozen when going from end to overworld(?)
 fix sometimes hand will vanish
 fix friction when jumping into portal
+fix fired when halfway in portal
 
 indirectly load chunks by 2 layers of portals
-
-refactor merge initIfNeeded and prepareStates
-
-test performance between any_sample_passed and samples_passed
 
 check public static fields of Shaders class
 
@@ -23,17 +20,9 @@ compatible with post processing
 
 make nether portal possibly generate above lava lake
 
-horizontal portal
-
-nested portal with shader
-
 check center depth correctness
 
 Beyond Belief shader: blink
 Chocapic shader: pure white/dark or blink
 Molly Vxe shader: abnormal
 Voyager: can't see overworld from nether
-
-question about optifine:
-camera position is offseted and used for getting biome
-frac function

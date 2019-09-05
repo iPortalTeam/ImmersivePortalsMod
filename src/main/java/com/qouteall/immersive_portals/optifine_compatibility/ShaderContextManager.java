@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
@@ -17,10 +17,13 @@ public class ShaderContextManager {
     //null indicates that the context is not switched
     private DimensionType currentContextDimension;
     
-    private PerDimensionContext recordedOriginalContext;
+    private PerDimensionContext recordedOriginalContext = new PerDimensionContext();
+    
     private PerDimensionContext templateContext;
     
     private boolean isCleaningUp = false;
+    
+    public static boolean doUseDuplicateContextForCurrentDimension = false;
     
     public ShaderContextManager() {
     
@@ -47,13 +50,20 @@ public class ShaderContextManager {
             }
         );
         abundantContext.clear();
-        recordedOriginalContext = null;
+        recordedOriginalContext = new PerDimensionContext();
         currentContextDimension = null;
     
         isCleaningUp = false;
     }
     
     public PerDimensionContext getOrCreateContext(DimensionType dimension) {
+        if (!doUseDuplicateContextForCurrentDimension) {
+            if (isContextSwitched()) {
+                if (dimension == CHelper.getOriginalDimension()) {
+                    return recordedOriginalContext;
+                }
+            }
+        }
         return managedContext.computeIfAbsent(
             dimension, k -> {
                 if (abundantContext.containsKey(dimension)) {
@@ -70,13 +80,12 @@ public class ShaderContextManager {
     }
     
     public void switchContextAndRun(Runnable func) {
-        DimensionType originalContextDimension = this.currentContextDimension;
+        DimensionType oldContextDimension = this.currentContextDimension;
         DimensionType dimensionToSwitchTo = MinecraftClient.getInstance().world.dimension.getType();
-        
-        if (this.currentContextDimension == null) {
+    
+        if (currentContextDimension == null) {
             //currently the context was not switched
-            this.currentContextDimension = CHelper.getOriginalDimension();
-            recordedOriginalContext = new PerDimensionContext();
+            currentContextDimension = CHelper.getOriginalDimension();
             OFGlobal.copyContextToObject.accept(recordedOriginalContext);
         }
     
@@ -89,8 +98,8 @@ public class ShaderContextManager {
         
             forceSwitchToContextAndRun(newContext, func);
         }
-        
-        currentContextDimension = originalContextDimension;
+    
+        currentContextDimension = oldContextDimension;
     }
     
     private void forceSwitchToContextAndRun(
@@ -116,7 +125,7 @@ public class ShaderContextManager {
         if (currentContextDimension == null) {
             return false;
         }
-        return CGlobal.renderer.isDimensionRendered(currentContextDimension);
+        return RenderHelper.isDimensionRendered(currentContextDimension);
     }
     
     public void onPlayerTraveled(DimensionType from, DimensionType to) {

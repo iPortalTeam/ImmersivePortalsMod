@@ -24,7 +24,7 @@ public class EndPortalEntity extends Portal {
                 (EntityType.EntityFactory<EndPortalEntity>) EndPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
-            ).build()
+            ).setImmuneToFire().build()
         );
     }
     

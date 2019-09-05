@@ -26,6 +26,11 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import static org.lwjgl.opengl.GL11.*;
 
 public class RenderHelper {
@@ -35,10 +40,11 @@ public class RenderHelper {
     public static GameMode originalGameMode;
     public static float partialTicks = 0;
     
-    public static int renderedPortalNum = 0;
-    public static int lastRenderedPortalNum = 0;
+    private static Set<DimensionType> renderedDimensions = new HashSet<>();
+    public static List<List<WeakReference<Portal>>> lastPortalRenderInfos = new ArrayList<>();
+    private static List<List<WeakReference<Portal>>> portalRenderInfos = new ArrayList<>();
     
-    public static void updateRenderInfo(
+    public static void onTotalRenderBegin(
         float partialTicks_
     ) {
         Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
@@ -53,9 +59,26 @@ public class RenderHelper {
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         RenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
         partialTicks = partialTicks_;
+        
+        renderedDimensions.clear();
+        lastPortalRenderInfos = portalRenderInfos;
+        portalRenderInfos = new ArrayList<>();
+    }
     
-        lastRenderedPortalNum = renderedPortalNum;
-        renderedPortalNum = 0;
+    public static int getRenderedPortalNum() {
+        return portalRenderInfos.size();
+    }
+    
+    public static boolean isDimensionRendered(DimensionType dimensionType) {
+        return renderedDimensions.contains(dimensionType);
+    }
+    
+    public static void onBeginPortalWorldRendering(Stack<Portal> portalLayers) {
+        List<WeakReference<Portal>> currRenderInfo = portalLayers.stream().map(
+            (Function<Portal, WeakReference<Portal>>) WeakReference::new
+        ).collect(Collectors.toList());
+        portalRenderInfos.add(currRenderInfo);
+        renderedDimensions.add(portalLayers.peek().dimensionTo);
     }
     
     public static void setupCameraTransformation() {
