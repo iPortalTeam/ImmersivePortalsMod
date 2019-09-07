@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.util.math.Vec3d;
+import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL13;
 
 public class RendererDebugWithShader extends PortalRenderer {
@@ -22,6 +23,9 @@ public class RendererDebugWithShader extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
+        if (Shaders.isShadowPass) {
+            RenderHelper.drawPortalViewTriangle(portal);
+        }
     }
     
     @Override

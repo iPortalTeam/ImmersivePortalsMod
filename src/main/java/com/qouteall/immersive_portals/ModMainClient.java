@@ -19,15 +19,15 @@ public class ModMainClient implements ClientModInitializer {
     public static void initPortalRenderers() {
         EntityRendererRegistry.INSTANCE.register(
             Portal.class,
-            (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
+            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
         );
         EntityRendererRegistry.INSTANCE.register(
             NetherPortalEntity.class,
-            (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
+            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
         );
         EntityRendererRegistry.INSTANCE.register(
             EndPortalEntity.class,
-            (entityRenderDispatcher, context) -> new PortalDummyRenderer(entityRenderDispatcher)
+            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
         );
     }
     
@@ -80,14 +80,12 @@ public class ModMainClient implements ClientModInitializer {
         Helper.log(CGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
         if (CGlobal.isOptifinePresent) {
-            CGlobal.renderPortalBeforeTranslucentBlocks = false;
-        
             OFHelper.init();
-
-//            if (Config.isSmoothWorld()) {
-//                //TODO change smooth world to false
-//                Helper.err("Smooth world will cause entity in other dimension to vanish");
-//            }
         }
+    
+        //when false it will make translucent blocks in front of portal render incorrectly
+        //when true translucent blocks may disappear
+        //I haven't made rendering objects switch fully correct
+        CGlobal.renderPortalBeforeTranslucentBlocks = false;
     }
 }

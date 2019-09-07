@@ -169,8 +169,9 @@ public class CollisionHelper {
     //this would cause player to fall through floor when halfway though portal
     //use entity.getCollidingPortal() and do not use this
     public static Portal getCollidingPortalUnreliable(Entity entity) {
+        Box box = entity.getBoundingBox().stretch(entity.getVelocity());
         return entity.world.getEntities(
-            Portal.class, entity.getBoundingBox(), e -> true
+            Portal.class, box, e -> true
         ).stream().filter(
             portal -> shouldCollideWithPortal(
                 entity, portal
@@ -180,6 +181,14 @@ public class CollisionHelper {
     
     public static boolean isCollidingWithAnyPortal(Entity entity) {
         return ((IEEntity) entity).getCollidingPortal() != null;
+    }
+    
+    public static boolean isNearbyPortal(Entity entity) {
+        return !entity.world.getEntities(
+            Portal.class,
+            entity.getBoundingBox().expand(1),
+            e -> true
+        ).isEmpty();
     }
     
     public static Box getActiveCollisionBox(Entity entity) {

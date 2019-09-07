@@ -116,10 +116,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     )
     private void onAfterRenderingCenter(float partialTicks, long finishTimeNano, CallbackInfo ci) {
         CGlobal.renderer.finishRendering();
-        
-        CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(MinecraftClient.getInstance().world.dimension.getType())
-            .switchToMe();
+    
+        RenderHelper.onTotalRenderEnd();
     }
     
     @Inject(method = "renderCenter", at = @At("TAIL"))

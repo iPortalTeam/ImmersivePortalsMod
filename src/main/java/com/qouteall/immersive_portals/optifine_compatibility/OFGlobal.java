@@ -21,6 +21,7 @@ public class OFGlobal {
     public static boolean doForceInitSequence = false;
     public static boolean alwaysRenderShadowMap = true;
     
+    
     /**
      * mc;
      * entityRenderer;

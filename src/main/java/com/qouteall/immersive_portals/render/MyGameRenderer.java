@@ -122,6 +122,8 @@ public class MyGameRenderer {
         //ieGameRenderer.setCamera(oldCamera);
     
         restoreCameraPosOfRenderList(oldCameraPos);
+    
+    
     }
     
     public void endCulling() {

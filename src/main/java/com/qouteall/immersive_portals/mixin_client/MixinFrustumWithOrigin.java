@@ -1,11 +1,14 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.exposer.IEFrustumWithOrigin;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.FrustumWithOrigin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.optifine.shaders.Shaders;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,10 +16,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 @Mixin(FrustumWithOrigin.class)
-public class MixinFrustumWithOrigin {
+public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
     @Shadow
     private double originX;
     @Shadow
@@ -35,28 +39,8 @@ public class MixinFrustumWithOrigin {
         at = @At("TAIL")
     )
     private void onSetOrigin(double double_1, double double_2, double double_3, CallbackInfo ci) {
-        if (CGlobal.renderer.isRendering()) {
-            portal = CGlobal.renderer.getRenderingPortal();
-            
-            portalDestInLocalCoordinate = portal.destination.add(-originX, -originY, -originZ);
-            Vec3d[] fourVertices = portal.getFourVerticesRelativeToCenter(0);
-            Vec3d portalCenter = portal.getPos();
-            Vec3d[] relativeVertices = {
-                fourVertices[0].add(portalDestInLocalCoordinate),
-                fourVertices[1].add(portalDestInLocalCoordinate),
-                fourVertices[2].add(portalDestInLocalCoordinate),
-                fourVertices[3].add(portalDestInLocalCoordinate)
-            };
-            
-            //3  2
-            //1  0
-            normalOf4Planes = new Vec3d[]{
-                relativeVertices[0].crossProduct(relativeVertices[1]),
-                relativeVertices[1].crossProduct(relativeVertices[3]),
-                relativeVertices[3].crossProduct(relativeVertices[2]),
-                relativeVertices[2].crossProduct(relativeVertices[0])
-            };
-        }
+        CGlobal.currentFrustumCuller = new WeakReference<>((FrustumWithOrigin) (Object) this);
+        update();
     }
     
     private Vec3d getDownPlane() {
@@ -91,6 +75,12 @@ public class MixinFrustumWithOrigin {
     private boolean isOutsidePortalFrustum(Box box) {
         if (!CGlobal.doUseAdvancedFrustumCulling) {
             return false;
+        }
+    
+        if (OFHelper.getIsUsingShader()) {
+            if (Shaders.isShadowPass) {
+                return false;
+            }
         }
         
         Vec3d[] eightVertices = Helper.eightVerticesOf(box);
@@ -167,16 +157,42 @@ public class MixinFrustumWithOrigin {
                     -originY,
                     -originZ
                 );
-    
+            
                 if (isOutsidePortalFrustum(boxInLocalCoordinate)) {
                     cir.setReturnValue(false);
                     cir.cancel();
                 }
-                
+            
                 //then do vanilla frustum culling
             }
         }
-        
-        
+    
+    
+    }
+    
+    @Override
+    public void update() {
+        if (CGlobal.renderer.isRendering()) {
+            portal = CGlobal.renderer.getRenderingPortal();
+            
+            portalDestInLocalCoordinate = portal.destination.add(-originX, -originY, -originZ);
+            Vec3d[] fourVertices = portal.getFourVerticesRelativeToCenter(0);
+            Vec3d portalCenter = portal.getPos();
+            Vec3d[] relativeVertices = {
+                fourVertices[0].add(portalDestInLocalCoordinate),
+                fourVertices[1].add(portalDestInLocalCoordinate),
+                fourVertices[2].add(portalDestInLocalCoordinate),
+                fourVertices[3].add(portalDestInLocalCoordinate)
+            };
+            
+            //3  2
+            //1  0
+            normalOf4Planes = new Vec3d[]{
+                relativeVertices[0].crossProduct(relativeVertices[1]),
+                relativeVertices[1].crossProduct(relativeVertices[3]),
+                relativeVertices[3].crossProduct(relativeVertices[2]),
+                relativeVertices[2].crossProduct(relativeVertices[0])
+            };
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
+import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -1175,6 +1176,20 @@ public abstract class MOShaders {
         }
     }
     
+    //correct the previous camera pos
+    @Inject(method = "beginRender", at = @At("TAIL"))
+    private static void onBeginRender(
+        MinecraftClient minecraft,
+        Camera activeRenderInfo,
+        float partialTicks,
+        long finishTimeNano,
+        CallbackInfo ci
+    ) {
+        previousCameraPositionX = cameraPositionX - RenderHelper.cameraPosDelta.x;
+        previousCameraPositionY = cameraPositionY - RenderHelper.cameraPosDelta.y;
+        previousCameraPositionZ = cameraPositionZ - RenderHelper.cameraPosDelta.z;
+    }
+    
     static {
         OFGlobal.copyContextFromObject = context -> {
             mc = context.mc;
@@ -1972,7 +1987,5 @@ public abstract class MOShaders {
         };
     
         OFGlobal.getShaderUniforms = () -> shaderUniforms;
-        
-        Helper.log("Finished Mixin Shaders Class");
     }
 }

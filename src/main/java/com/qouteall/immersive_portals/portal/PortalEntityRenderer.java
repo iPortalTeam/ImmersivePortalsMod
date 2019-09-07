@@ -6,8 +6,8 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.util.Identifier;
 
-public class PortalDummyRenderer extends EntityRenderer<Portal> {
-    public PortalDummyRenderer(EntityRenderDispatcher entityRenderDispatcher_1) {
+public class PortalEntityRenderer extends EntityRenderer<Portal> {
+    public PortalEntityRenderer(EntityRenderDispatcher entityRenderDispatcher_1) {
         super(entityRenderDispatcher_1);
     }
     

@@ -11,8 +11,8 @@ import java.util.List;
 
 @Mixin(DebugHud.class)
 public class MixinDebugHud {
-    @Inject(method = "getInfoLeft", at = @At("RETURN"), cancellable = true)
-    private void onGetInfoLeft(CallbackInfoReturnable<List<String>> cir) {
+    @Inject(method = "getRightText", at = @At("RETURN"), cancellable = true)
+    private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
         cir.getReturnValue().add("Rendered Portal Num: " + RenderHelper.lastPortalRenderInfos.size());
     }
 }

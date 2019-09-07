@@ -28,6 +28,9 @@ public class RendererUsingStencil extends PortalRenderer {
     public void onBeforeTranslucentRendering() {
         if (!CGlobal.isOptifinePresent) {
             renderPortals();
+            if (!isRendering()) {
+                myFinishRendering();
+            }
         }
     }
     
@@ -35,6 +38,9 @@ public class RendererUsingStencil extends PortalRenderer {
     public void onAfterTranslucentRendering() {
         if (CGlobal.isOptifinePresent) {
             renderPortals();
+            if (!isRendering()) {
+                myFinishRendering();
+            }
         }
     }
     
@@ -58,14 +64,15 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void finishRendering() {
-        GL11.glClearStencil(0);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        //nothing
+    }
+    
+    private void myFinishRendering() {
         GL11.glStencilFunc(GL_ALWAYS, 2333, 0xFF);
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         GL11.glDisable(GL_STENCIL_TEST);
         GlStateManager.enableDepthTest();
-        
     }
     
     @Override

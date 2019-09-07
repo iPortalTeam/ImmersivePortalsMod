@@ -65,7 +65,7 @@ public abstract class MixinEntity implements IEEntity {
         }
         else {
             collidingPortal = nowCollidingPortal;
-            stopCollidingPortalCounter = 2;
+            stopCollidingPortalCounter = 1;
         }
     }
     
@@ -99,7 +99,7 @@ public abstract class MixinEntity implements IEEntity {
     //so collision may sometimes be incorrect when client teleported but server did not teleport
     @Inject(method = "setInLava", at = @At("HEAD"), cancellable = true)
     private void onSetInLava(CallbackInfo ci) {
-        if (CollisionHelper.isCollidingWithAnyPortal((Entity) (Object) this)) {
+        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
             ci.cancel();
         }
     }
@@ -113,7 +113,7 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private void redirectBurn(Entity entity, int int_1) {
-        if (!CollisionHelper.isCollidingWithAnyPortal((Entity) (Object) this)) {
+        if (!CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
             burn(int_1);
         }
     }
@@ -127,7 +127,7 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private boolean redirectDoesContainFireSource(World world, Box box_1) {
-        if (!CollisionHelper.isCollidingWithAnyPortal((Entity) (Object) this)) {
+        if (!CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
             return world.doesAreaContainFireSource(box_1);
         }
         else {

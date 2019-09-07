@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.exposer.IEGameRenderer;
+import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
@@ -44,6 +45,9 @@ public class RenderHelper {
     public static List<List<WeakReference<Portal>>> lastPortalRenderInfos = new ArrayList<>();
     private static List<List<WeakReference<Portal>>> portalRenderInfos = new ArrayList<>();
     
+    public static Vec3d lastCameraPos = Vec3d.ZERO;
+    public static Vec3d cameraPosDelta = Vec3d.ZERO;
+    
     public static void onTotalRenderBegin(
         float partialTicks_
     ) {
@@ -63,6 +67,26 @@ public class RenderHelper {
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
+    }
+    
+    public static void onTotalRenderEnd() {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        CGlobal.clientWorldLoader
+            .getDimensionRenderHelper(mc.world.dimension.getType())
+            .switchToMe();
+        
+        //recover chunk renderer dispatcher
+        ((IEWorldRenderer) mc.worldRenderer).getChunkRenderDispatcher().updateCameraPosition(
+            mc.cameraEntity.x,
+            mc.cameraEntity.z
+        );
+        
+        Vec3d currCameraPos = mc.gameRenderer.getCamera().getPos();
+        cameraPosDelta = currCameraPos.subtract(lastCameraPos);
+        if (cameraPosDelta.lengthSquared() > 1) {
+            cameraPosDelta = Vec3d.ZERO;
+        }
+        lastCameraPos = currCameraPos;
     }
     
     public static int getRenderedPortalNum() {

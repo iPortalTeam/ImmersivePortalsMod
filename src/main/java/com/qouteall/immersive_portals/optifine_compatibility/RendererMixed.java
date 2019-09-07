@@ -6,7 +6,9 @@ import com.qouteall.immersive_portals.exposer.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.*;
 import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.render.GuiLighting;
 import net.minecraft.util.math.Vec3d;
+import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -102,19 +104,18 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void finishRendering() {
+        GlStateManager.colorMask(true, true, true, true);
+        Shaders.useProgram(Shaders.ProgramNone);
+        GuiLighting.disable();
+        
         if (RenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
-    
-    
+
         GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
     
         deferredFbs[0].fb.draw(mainFrameBuffer.viewWidth, mainFrameBuffer.viewHeight);
-
-//        GlStateManager.enableBlend();
-//        GlStateManager.enableAlphaTest();
-//        GuiLighting.disable();
     }
     
     @Override
@@ -199,6 +200,8 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
-    
+        if (Shaders.isShadowPass) {
+            RenderHelper.drawPortalViewTriangle(portal);
+        }
     }
 }
