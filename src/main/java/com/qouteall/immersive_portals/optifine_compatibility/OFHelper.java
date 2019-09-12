@@ -22,6 +22,15 @@ public class OFHelper {
         }
     }
     
+    public static boolean isShaderShadowPass() {
+        if (getIsUsingShader()) {
+            return Shaders.isShadowPass;
+        }
+        else {
+            return false;
+        }
+    }
+    
     public static void onBeginCreatingFakedWorld() {
         isCreatingFakedWorld = true;
     }

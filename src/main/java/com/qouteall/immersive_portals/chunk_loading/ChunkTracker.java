@@ -25,8 +25,8 @@ public class ChunkTracker {
     
     //if a chunk is not watched for 15 seconds, it will be unloaded
     private static final int unloadIdleTickTime = 20 * 15;
+    private static final int unloadIdleTickTimeSameDimension = 20 * 3;
     
-    //it's a graph
     
     public static class Edge {
         public DimensionalChunkPos chunkPos;
@@ -201,10 +201,19 @@ public class ChunkTracker {
         long serverGameTime = Helper.getServerGameTime();
         playerToEdges.get(playerEntity).stream()
             .filter(
-                edge -> serverGameTime - edge.lastActiveGameTime > unloadIdleTickTime
+                edge -> shouldUnload(serverGameTime, edge)
             )
             .collect(Collectors.toCollection(ArrayDeque::new))
             .forEach(this::removeEdge);
+    }
+    
+    private boolean shouldUnload(long serverGameTime, Edge edge) {
+        if (edge.player.dimension == edge.chunkPos.dimension) {
+            return serverGameTime - edge.lastActiveGameTime > unloadIdleTickTimeSameDimension;
+        }
+        else {
+            return serverGameTime - edge.lastActiveGameTime > unloadIdleTickTime;
+        }
     }
     
     private void updateForcedChunks() {

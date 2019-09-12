@@ -141,7 +141,7 @@ public class CollisionHelper {
             originalBox,
             //cut the collision box a little bit more
             //because the box will be stretched by attemptedMove when calculating collision
-            portal.getPos().add(portal.getNormal().multiply(0.3)),
+            portal.getPos().add(portal.getNormal().multiply(0.5)),
             portal.getNormal()
         );
     }
@@ -169,7 +169,7 @@ public class CollisionHelper {
     //this would cause player to fall through floor when halfway though portal
     //use entity.getCollidingPortal() and do not use this
     public static Portal getCollidingPortalUnreliable(Entity entity) {
-        Box box = entity.getBoundingBox().stretch(entity.getVelocity());
+        Box box = entity.getBoundingBox();
         return entity.world.getEntities(
             Portal.class, box, e -> true
         ).stream().filter(

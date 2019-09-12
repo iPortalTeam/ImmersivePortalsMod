@@ -7,9 +7,12 @@ fix translucent block rendering issue with optiFine without shader
 fix light flash when going into end portal(with optifine without shader)
 fix friction when jumping into portal
 fix weather changed when player go back to overworld
-fix portal shadow
-fix shader motion blur
 fix translucent rendering issue when rendering nested portal
+fix motion blur issue with bsl
+fix reverse portal not destroyed
+fix fps very low on someone's computer
+
+support going through portal while riding entity
 
 check public static fields of Shaders class
 

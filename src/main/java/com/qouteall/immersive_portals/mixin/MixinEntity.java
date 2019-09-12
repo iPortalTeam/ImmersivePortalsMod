@@ -84,6 +84,10 @@ public abstract class MixinEntity implements IEEntity {
         if (collidingPortal == null) {
             return handleCollisions(attemptedMove);
         }
+    
+        if (entity.hasPassengers() || entity.hasVehicle()) {
+            return handleCollisions(attemptedMove);
+        }
         
         Vec3d result = CollisionHelper.handleCollisionHalfwayInPortal(
             (Entity) (Object) this,

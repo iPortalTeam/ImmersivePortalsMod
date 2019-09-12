@@ -250,9 +250,9 @@ public class Portal extends Entity {
     private Box getPortalCollisionBox() {
         return new Box(
             getPointInPlane(width / 2, height / 2)
-                .add(getNormal().multiply(0.3)),
+                .add(getNormal().multiply(0.1)),
             getPointInPlane(-width / 2, -height / 2)
-                .add(getNormal().multiply(-0.3))
+                .add(getNormal().multiply(-0.1))
         );
     }
     

@@ -8,7 +8,6 @@ import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.FrustumWithOrigin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.optifine.shaders.Shaders;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -77,10 +76,8 @@ public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
             return false;
         }
     
-        if (OFHelper.getIsUsingShader()) {
-            if (Shaders.isShadowPass) {
-                return false;
-            }
+        if (OFHelper.isShaderShadowPass()) {
+            return false;
         }
         
         Vec3d[] eightVertices = Helper.eightVerticesOf(box);

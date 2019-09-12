@@ -76,17 +76,17 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         if (CGlobal.useHackedChunkRenderDispatcher) {
             //it will run createChunks() before this
             for (ChunkRenderer renderChunk : renderers) {
-                chunkRendererMap.put(renderChunk.getOrigin(), renderChunk);
+                chunkRendererMap.put(getOriginNonMutable(renderChunk), renderChunk);
                 updateLastUsedTime(renderChunk);
             }
         }
     }
     
-    @Inject(
-        method = "delete",
-        at = @At("HEAD"),
-        cancellable = true
-    )
+    private BlockPos getOriginNonMutable(ChunkRenderer renderChunk) {
+        return renderChunk.getOrigin().toImmutable();
+    }
+    
+    @Inject(method = "delete", at = @At("HEAD"), cancellable = true)
     private void delete(CallbackInfo ci) {
         if (CGlobal.useHackedChunkRenderDispatcher) {
             chunkRendererMap.values().forEach(ChunkRenderer::delete);
@@ -124,6 +124,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
         employChunkRenderer(chunkRenderer, basePos);
     
+        if (chunkRenderer.getWorld() == null) {
+            Helper.err("Employed invalid chunk renderer");
+        }
+        
         return chunkRenderer;
     }
     
@@ -131,7 +135,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         assert CGlobal.useHackedChunkRenderDispatcher;
         
         chunkRenderer.setOrigin(basePos.getX(), basePos.getY(), basePos.getZ());
-        chunkRendererMap.put(chunkRenderer.getOrigin(), chunkRenderer);
+        chunkRendererMap.put(getOriginNonMutable(chunkRenderer), chunkRenderer);
         updateLastUsedTime(chunkRenderer);
     }
     
@@ -175,31 +179,16 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         }
     
         ArrayDeque<ChunkRenderer> chunkRenderersToDismiss = lastActiveNanoTime.entrySet().stream()
-            .filter(
-                entry -> currentTime - entry.getValue() > deletingValve
-            )
-            .map(
-                Map.Entry::getKey
-            )
+            .filter(entry -> currentTime - entry.getValue() > deletingValve)
+            .map(Map.Entry::getKey)
             .collect(Collectors.toCollection(ArrayDeque::new));
     
-        if (!chunkRenderersToDismiss.isEmpty()) {
-            Helper.log(String.format(
-                "dismissed %d render chunks",
-                chunkRenderersToDismiss.size()
-            ));
-        }
-    
         chunkRenderersToDismiss.forEach(
-            ChunkRenderer -> dismissChunkRenderer(ChunkRenderer.getOrigin())
+            ChunkRenderer -> dismissChunkRenderer(getOriginNonMutable(ChunkRenderer))
         );
     }
     
-    @Inject(
-        method = "updateCameraPosition",
-        at = @At("HEAD"),
-        cancellable = true
-    )
+    @Inject(method = "updateCameraPosition", at = @At("HEAD"), cancellable = true)
     private void updateCameraPosition(double viewEntityX, double viewEntityZ, CallbackInfo ci) {
         if (CGlobal.useHackedChunkRenderDispatcher) {
             int px = MathHelper.floor(viewEntityX) - 8;
@@ -217,8 +206,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                         int posY = cy * 16;
                         
                         renderers[this.getChunkIndex(cx, cy, cz)] =
-                            myGetChunkRenderer(
-                                new BlockPos(posX, posY, posZ)
+                            validateChunkRenderer(
+                                myGetChunkRenderer(
+                                    new BlockPos(posX, posY, posZ)
+                                )
                             );
                     }
                 }
@@ -269,6 +260,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         else {
             ChunkRenderer chunkRenderer = chunkRendererMap.get(basePos);
             updateLastUsedTime(chunkRenderer);
+    
             return chunkRenderer;
         }
     }
@@ -307,6 +299,18 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     public void rebuildAll() {
         for (ChunkRenderer chunkRenderer : renderers) {
             chunkRenderer.scheduleRebuild(true);
+        }
+    }
+    
+    private ChunkRenderer validateChunkRenderer(ChunkRenderer chunkRenderer) {
+        if (chunkRenderer.getWorld() == null) {
+            Helper.err("Invalid Chunk Renderer " +
+                world.dimension.getType() +
+                getOriginNonMutable(chunkRenderer));
+            return findAndEmployChunkRenderer(getOriginNonMutable(chunkRenderer));
+        }
+        else {
+            return chunkRenderer;
         }
     }
 }

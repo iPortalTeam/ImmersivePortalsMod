@@ -92,6 +92,10 @@ public class ClientTeleportationManager {
         if (!portal.shouldEntityTeleport(mc.player)) {
             return;
         }
+    
+        if (mc.player.hasPassengers() || mc.player.hasVehicle()) {
+            return;
+        }
         
         Vec3d oldPos = player.getPos();
         

@@ -26,8 +26,10 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void onBeforeTranslucentRendering() {
-        if (!CGlobal.isOptifinePresent) {
+        if (CGlobal.renderPortalBeforeTranslucentBlocks) {
+            mc.getProfiler().push("render_portal_total");
             renderPortals();
+            mc.getProfiler().pop();
             if (!isRendering()) {
                 myFinishRendering();
             }
@@ -36,8 +38,10 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering() {
-        if (CGlobal.isOptifinePresent) {
+        if (!CGlobal.renderPortalBeforeTranslucentBlocks) {
+            mc.getProfiler().push("render_portal_total");
             renderPortals();
+            mc.getProfiler().pop();
             if (!isRendering()) {
                 myFinishRendering();
             }
@@ -81,9 +85,11 @@ public class RendererUsingStencil extends PortalRenderer {
     
         RenderHelper.setupCameraTransformation();
     
+        mc.getProfiler().push("render_view_area");
         boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             renderPortalViewAreaToStencil(portal);
         });
+        mc.getProfiler().pop();
         
         if (!anySamplePassed) {
             return;
@@ -93,8 +99,10 @@ public class RendererUsingStencil extends PortalRenderer {
         portalLayers.push(portal);
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
-        
+    
+        mc.getProfiler().push("clear_depth_of_view_area");
         clearDepthOfThePortalViewArea(portal);
+        mc.getProfiler().pop();
         
         manageCameraAndRenderPortalContent(portal);
         
