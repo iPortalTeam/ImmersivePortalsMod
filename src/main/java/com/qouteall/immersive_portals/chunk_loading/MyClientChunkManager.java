@@ -158,7 +158,7 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public String getStatus() {
-        return "Client Chunk Manager Hacked by Immersive Portals Mod";
+        return "Hacked Client Chunk Manager " + chunkMap.size();
     }
     
     @Override

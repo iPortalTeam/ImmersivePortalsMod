@@ -74,12 +74,14 @@ public class RenderHelper {
         CGlobal.clientWorldLoader
             .getDimensionRenderHelper(mc.world.dimension.getType())
             .switchToMe();
-        
-        //recover chunk renderer dispatcher
-        ((IEWorldRenderer) mc.worldRenderer).getChunkRenderDispatcher().updateCameraPosition(
-            mc.cameraEntity.x,
-            mc.cameraEntity.z
-        );
+    
+        if (getRenderedPortalNum() != 0) {
+            //recover chunk renderer dispatcher
+            ((IEWorldRenderer) mc.worldRenderer).getChunkRenderDispatcher().updateCameraPosition(
+                mc.cameraEntity.x,
+                mc.cameraEntity.z
+            );
+        }
         
         Vec3d currCameraPos = mc.gameRenderer.getCamera().getPos();
         cameraPosDelta = currCameraPos.subtract(lastCameraPos);

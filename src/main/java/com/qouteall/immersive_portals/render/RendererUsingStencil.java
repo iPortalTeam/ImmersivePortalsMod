@@ -27,9 +27,8 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public void onBeforeTranslucentRendering() {
         if (CGlobal.renderPortalBeforeTranslucentBlocks) {
-            mc.getProfiler().push("render_portal_total");
+            mc.getProfiler().swap("render_portal_total");
             renderPortals();
-            mc.getProfiler().pop();
             if (!isRendering()) {
                 myFinishRendering();
             }
@@ -39,9 +38,8 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public void onAfterTranslucentRendering() {
         if (!CGlobal.renderPortalBeforeTranslucentBlocks) {
-            mc.getProfiler().push("render_portal_total");
+            mc.getProfiler().swap("render_portal_total");
             renderPortals();
-            mc.getProfiler().pop();
             if (!isRendering()) {
                 myFinishRendering();
             }

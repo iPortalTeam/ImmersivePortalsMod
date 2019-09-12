@@ -289,6 +289,13 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder = builder.then(CommandManager
+            .literal("profile_start")
+            .executes(context -> {
+            
+                return 0;
+            })
+        );
         
         dispatcher.register(builder);
         

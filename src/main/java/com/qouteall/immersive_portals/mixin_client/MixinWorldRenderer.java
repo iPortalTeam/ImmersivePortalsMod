@@ -1,29 +1,32 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
+import com.qouteall.immersive_portals.exposer.IEWorldRendererChunkInfo;
 import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.ChunkRenderDispatcher;
-import net.minecraft.client.render.VisibleRegion;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.chunk.ChunkRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.render.chunk.ChunkRendererList;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
+import net.optifine.Config;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import java.util.Set;
 
 @Mixin(WorldRenderer.class)
-public class MixinWorldRenderer implements IEWorldRenderer {
+public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private ClientWorld world;
@@ -46,6 +49,25 @@ public class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private int field_4076;
+    
+    @Shadow
+    @Final
+    public MinecraftClient client;
+    
+    @Shadow
+    private double lastTranslucentSortX;
+    
+    @Shadow
+    private double lastTranslucentSortY;
+    
+    @Shadow
+    private double lastTranslucentSortZ;
+    
+    @Shadow
+    public Set chunksToResortTransparency;
+    
+    @Shadow
+    protected abstract void renderLayer(BlockRenderLayer blockLayerIn);
     
     @Override
     public ChunkRenderDispatcher getChunkRenderDispatcher() {
@@ -132,6 +154,57 @@ public class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
         isReloadingOtherWorldRenderers = false;
+    }
+    
+    //avoid resort transparency when rendering portal
+    @Inject(
+        method = "renderLayer(Lnet/minecraft/block/BlockRenderLayer;Lnet/minecraft/client/render/Camera;)I",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    public void onRenderLayer(
+        BlockRenderLayer blockLayerIn,
+        Camera activeRenderInfo,
+        CallbackInfoReturnable<Integer> cir
+    ) {
+        if (blockLayerIn == BlockRenderLayer.TRANSLUCENT && CGlobal.renderer.isRendering()) {
+            //run my version and avoid resort transparency
+            
+            GuiLighting.disable();
+            
+            this.client.getProfiler().push("filterempty");
+            int l = 0;
+            boolean flag = blockLayerIn == BlockRenderLayer.TRANSLUCENT;
+            int i1 = flag ? this.chunkInfos.size() - 1 : 0;
+            int i = flag ? -1 : this.chunkInfos.size();
+            int j1 = flag ? -1 : 1;
+            
+            for (int j = i1; j != i; j += j1) {
+                ChunkRenderer chunkrender = ((IEWorldRendererChunkInfo) this.chunkInfos.get(j)).getChunkRenderer();
+                if (!chunkrender.getData().isEmpty(blockLayerIn)) {
+                    ++l;
+                    this.chunkRendererList.add(chunkrender, blockLayerIn);
+                }
+            }
+            
+            if (l == 0) {
+                this.client.getProfiler().pop();
+            }
+            else {
+                if (Config.isFogOff() && this.client.gameRenderer.fogStandard) {
+                    GlStateManager.disableFog();
+                }
+                
+                this.client.getProfiler().swap(() -> {
+                    return "render_" + blockLayerIn;
+                });
+                this.renderLayer(blockLayerIn);
+                this.client.getProfiler().pop();
+            }
+            
+            cir.setReturnValue(l);
+            cir.cancel();
+        }
     }
     
     @Override
