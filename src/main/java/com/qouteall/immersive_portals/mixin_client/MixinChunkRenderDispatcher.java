@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.exposer.IEChunkRenderDispatcher;
@@ -27,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+//NOTE WeakReference does not override equals()
+//don't put them into set
 @Mixin(ChunkRenderDispatcher.class)
 public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatcher {
     @Shadow
@@ -45,12 +48,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     public ChunkRenderer[] renderers;
     
     private Map<ChunkPos, ChunkRenderer[]> presetCache;
-    
     private ChunkRendererFactory factory;
     private Map<BlockPos, ChunkRenderer> chunkRendererMap;
-    private Map<ChunkRenderer, Long> lastActiveNanoTime;
     private Deque<ChunkRenderer> idleChunks;
-    private boolean shouldUpdateNeighbor = true;
+    private Set<ChunkRenderer[]> isNeighborUpdated;
     
     @Inject(
         method = "Lnet/minecraft/client/render/ChunkRenderDispatcher;<init>(Lnet/minecraft/world/World;ILnet/minecraft/client/render/WorldRenderer;Lnet/minecraft/client/render/chunk/ChunkRendererFactory;)V",
@@ -66,23 +67,23 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         this.factory = chunkRendererFactory;
         
         chunkRendererMap = new HashMap<>();
-        lastActiveNanoTime = new HashMap<>();
         idleChunks = new ArrayDeque<>();
-    
+        
         presetCache = new HashMap<>();
+        isNeighborUpdated = new HashSet<>();
         
         ModMain.postClientTickSignal.connectWithWeakRef(
             ((IEChunkRenderDispatcher) this),
             IEChunkRenderDispatcher::tick
         );
-    
+        
         if (CGlobal.useHackedChunkRenderDispatcher) {
             //it will run createChunks() before this
             for (ChunkRenderer renderChunk : renderers) {
                 chunkRendererMap.put(getOriginNonMutable(renderChunk), renderChunk);
-                updateLastUsedTime(renderChunk);
             }
             updateNeighbours();
+            fixAbnormality();
         }
     }
     
@@ -97,8 +98,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             idleChunks.forEach(ChunkRenderer::delete);
             
             chunkRendererMap.clear();
-            lastActiveNanoTime.clear();
             idleChunks.clear();
+            
+            presetCache.clear();
+            isNeighborUpdated.clear();
             
             ci.cancel();
         }
@@ -109,14 +112,12 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         if (CGlobal.useHackedChunkRenderDispatcher) {
             ClientWorld worldClient = MinecraftClient.getInstance().world;
             if (worldClient != null) {
-                if (worldClient.getTime() % 203 == 0) {
+                if (worldClient.getTime() % 233 == 66) {
                     fixAbnormality();
                     dismissInactiveChunkRenderers();
-                }
-                if (worldClient.getTime() % 533 == 0) {
                     presetCache.clear();
+                    isNeighborUpdated.clear();
                 }
-                shouldUpdateNeighbor = false;
             }
         }
     }
@@ -126,15 +127,15 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         assert CGlobal.useHackedChunkRenderDispatcher;
         
         ChunkRenderer chunkRenderer = idleChunks.pollLast();
-    
+        
         if (chunkRenderer == null) {
             MinecraftClient.getInstance().getProfiler().push("create_chunk_renderer");
             chunkRenderer = factory.create(world, renderer);
             MinecraftClient.getInstance().getProfiler().pop();
         }
-    
+        
         employChunkRenderer(chunkRenderer, basePos);
-    
+        
         if (chunkRenderer.getWorld() == null) {
             Helper.err("Employed invalid chunk renderer");
         }
@@ -144,33 +145,31 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
     private void employChunkRenderer(ChunkRenderer chunkRenderer, BlockPos basePos) {
         assert CGlobal.useHackedChunkRenderDispatcher;
-    
+        
         MinecraftClient.getInstance().getProfiler().push("employ");
         
+        assert basePos.getX() % 16 == 0;
+        assert basePos.getY() % 16 == 0;
+        assert basePos.getZ() % 16 == 0;
+        
         chunkRenderer.setOrigin(basePos.getX(), basePos.getY(), basePos.getZ());
-        chunkRendererMap.put(getOriginNonMutable(chunkRenderer), chunkRenderer);
-        updateLastUsedTime(chunkRenderer);
-    
-        shouldUpdateNeighbor = true;
-    
+        BlockPos origin = getOriginNonMutable(chunkRenderer);
+        assert !chunkRendererMap.containsKey(origin);
+        chunkRendererMap.put(origin, chunkRenderer);
+        
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
     private void dismissChunkRenderer(BlockPos basePos) {
         assert CGlobal.useHackedChunkRenderDispatcher;
-        assert chunkRendererMap.containsKey(basePos);
-    
+        
         ChunkRenderer chunkRenderer = chunkRendererMap.remove(basePos);
-    
-        assert lastActiveNanoTime.containsKey(chunkRenderer);
-    
+        
         if (chunkRenderer == null) {
             Helper.err("Chunk Renderer Abnormal");
             return;
         }
         
-        lastActiveNanoTime.remove(chunkRenderer);
-    
         idleChunks.addLast(chunkRenderer);
         
         destructAbundantIdleChunks();
@@ -181,9 +180,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         if (idleChunks.size() > CGlobal.maxIdleChunkRendererNum) {
             int toDestructChunkRenderersNum = idleChunks.size() - CGlobal.maxIdleChunkRendererNum;
             IntStream.range(0, toDestructChunkRenderersNum).forEach(n -> {
-                ChunkRenderer chunkRendererToDestruct = idleChunks.pollFirst();
-                assert chunkRendererToDestruct != null;
-                chunkRendererToDestruct.delete();
+                idleChunks.pollFirst().delete();
             });
         }
     }
@@ -191,28 +188,19 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     private void dismissInactiveChunkRenderers() {
         assert CGlobal.useHackedChunkRenderDispatcher;
         
-        long currentTime = System.nanoTime();
-        final long deletingValve = 1000000000L * 30;//30 seconds
-        //NOTE if you miss 'L' then it will overflow
-    
-        presetCache.values().stream().flatMap(
-            arr -> Arrays.stream(arr)
-        ).distinct().forEach(
-            this::updateLastUsedTime
-        );
-    
-        for (ChunkRenderer chunkRenderer : renderers) {
-            updateLastUsedTime(chunkRenderer);
-        }
-    
-        ArrayDeque<ChunkRenderer> chunkRenderersToDismiss = lastActiveNanoTime.entrySet().stream()
-            .filter(entry -> currentTime - entry.getValue() > deletingValve)
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toCollection(ArrayDeque::new));
-    
-        chunkRenderersToDismiss.forEach(
-            chunkRenderer -> dismissChunkRenderer(getOriginNonMutable(chunkRenderer))
-        );
+        Set<ChunkRenderer> activeRenderers = Streams.concat(
+            presetCache.values().stream().flatMap(
+                Arrays::stream
+            ),
+            Arrays.stream(renderers)
+        ).collect(Collectors.toSet());
+        
+        chunkRendererMap.values().stream()
+            .filter(r -> !activeRenderers.contains(r))
+            .collect(Collectors.toList())
+            .forEach(
+                chunkRenderer -> dismissChunkRenderer(getOriginNonMutable(chunkRenderer))
+            );
     }
     
     @Inject(method = "updateCameraPosition", at = @At("HEAD"), cancellable = true)
@@ -221,7 +209,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             MinecraftClient.getInstance().getProfiler().push(
                 "update_hacked_chunk_render_dispatcher"
             );
-    
+            
             ChunkPos currPlayerChunkPos = new ChunkPos(
                 (((int) viewEntityX) / 16),
                 (((int) viewEntityZ) / 16)
@@ -230,13 +218,12 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                 currPlayerChunkPos,
                 k -> createPreset(viewEntityX, viewEntityZ)
             );
-    
-            for (ChunkRenderer chunkRenderer : renderers) {
-                updateLastUsedTime(chunkRenderer);
+            
+            if (!isNeighborUpdated.contains(renderers)) {
+                updateNeighbours();
+                isNeighborUpdated.add(renderers);
             }
-    
-            updateNeighbours();
-    
+            
             MinecraftClient.getInstance().getProfiler().pop();
             
             ci.cancel();
@@ -253,22 +240,33 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         }
     }
     
-    void fixAbnormality() {
-        boolean removedAny = chunkRendererMap.entrySet().removeIf(
-            entry -> {
-                if (!entry.getKey().equals(entry.getValue().getOrigin())) {
-                    Helper.err("Chunk Renderer Abnormal" + entry.getKey() + entry.getValue().getOrigin());
-                    return true;
-                }
-                return false;
-            }
-        );
-        if (removedAny) {
-            presetCache.clear();
+    //I can't figure out why its origin is incorrect sometimes
+    //so fix it manually
+    private void fixAbnormality() {
+        if (chunkRendererMap.values().stream().distinct().count() != chunkRendererMap.size()) {
+            Helper.err("Not distinct!");
         }
+
+//        chunkRendererMap.entrySet().stream().filter(
+//            entry -> {
+//                boolean isPosCorrect = entry.getKey().equals(entry.getValue().getOrigin());
+//                boolean isKeyMutable = entry.getKey() instanceof BlockPos.Mutable;
+//                if (!isPosCorrect || isKeyMutable) {
+//                    Helper.err("Chunk Renderer Abnormal " + entry.getKey() + entry.getValue().getOrigin());
+//                    return true;
+//                }
+//                return false;
+//            }
+//        ).collect(
+//            Collectors.toList()
+//        ).forEach(entry -> {
+//            entry.getValue().setOrigin(
+//                entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ()
+//            );
+//        });
     }
     
-    ChunkRenderer[] createPreset(double viewEntityX, double viewEntityZ) {
+    private ChunkRenderer[] createPreset(double viewEntityX, double viewEntityZ) {
         ChunkRenderer[] preset = new ChunkRenderer[this.sizeX * this.sizeY * this.sizeZ];
         
         int px = MathHelper.floor(viewEntityX) - 8;
@@ -302,11 +300,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         if (!CGlobal.isOptifinePresent) {
             return;
         }
-    
-        if (!shouldUpdateNeighbor) {
-            return;
-        }
-    
+        
         MinecraftClient.getInstance().getProfiler().push("neighbor");
         
         for (int j = 0; j < this.renderers.length; ++j) {
@@ -319,7 +313,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                 renderChunk.setRenderChunkNeighbour(facing, neighbour);
             }
         }
-    
+        
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
@@ -329,14 +323,11 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         
         BlockPos basePos = getBasePos(blockPos);
         
-        if (!chunkRendererMap.containsKey(basePos)) {
-            return findAndEmployChunkRenderer(basePos);
+        if (chunkRendererMap.containsKey(basePos)) {
+            return chunkRendererMap.get(basePos);
         }
         else {
-            ChunkRenderer chunkRenderer = chunkRendererMap.get(basePos);
-            updateLastUsedTime(chunkRenderer);
-    
-            return chunkRenderer;
+            return findAndEmployChunkRenderer(basePos);
         }
     }
     
@@ -346,14 +337,6 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             MathHelper.floorDiv(blockPos.getY(), 16) * 16,
             MathHelper.floorDiv(blockPos.getZ(), 16) * 16
         );
-    }
-    
-    private void updateLastUsedTime(ChunkRenderer chunkRenderer) {
-        assert CGlobal.useHackedChunkRenderDispatcher;
-        if (chunkRenderer == null) {
-            return;
-        }
-        lastActiveNanoTime.put(chunkRenderer, System.nanoTime());
     }
     
     @Shadow

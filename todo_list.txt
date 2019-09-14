@@ -10,7 +10,7 @@ fix weather changed when player go back to overworld
 fix translucent rendering issue when rendering nested portal
 fix motion blur issue with bsl
 fix reverse portal not destroyed
-fix fps very low on someone's computer
+fix entity does not vanish when going into exit end portal
 
 support going through portal while riding entity
 
