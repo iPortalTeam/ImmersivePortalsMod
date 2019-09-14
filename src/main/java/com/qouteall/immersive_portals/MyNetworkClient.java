@@ -201,12 +201,21 @@ public class MyNetworkClient {
             }
         
             ClientWorld originalWorld = mc.world;
+            //some packet handling may use mc.world so switch it
             mc.world = packetWorld;
-        
-            //some packet handling may use mc.world
-            packet.apply(netHandler);
-        
-            mc.world = originalWorld;
+    
+            try {
+                packet.apply(netHandler);
+            }
+            catch (Throwable e) {
+                throw new IllegalStateException(
+                    "handling packet in " + dimension,
+                    e
+                );
+            }
+            finally {
+                mc.world = originalWorld;
+            }
         });
     }
 }

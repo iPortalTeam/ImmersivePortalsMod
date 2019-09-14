@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.optifine.Config;
 
 @Environment(EnvType.CLIENT)
 public class CHelper {
@@ -28,5 +29,14 @@ public class CHelper {
     
     public static World getClientWorld(DimensionType dimension) {
         return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+    }
+    
+    public static boolean shouldDisableFog() {
+        if (CGlobal.isOptifinePresent) {
+            return Config.isFogOff() && MinecraftClient.getInstance().gameRenderer.fogStandard;
+        }
+        else {
+            return false;
+        }
     }
 }

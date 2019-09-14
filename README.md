@@ -42,6 +42,12 @@ It will then render nested portals.
 ChunkRenderDispatcher stores an fixed size array of ChunkRenderer s.
 I changed it into a map.
 
+While rendering portal content, it will cull pixels behind portal and it
+will do more strict frustum culling to improve performance.
+
+![](https://i.ibb.co/tHJv6ZH/2019-09-05-17-10-47.png)
+![](https://i.ibb.co/y8JVVxH/2019-09-05-17-10-53.png)
+
 ### Chunk loading
 Client chunk manager uses an fixed size array to store chunks.
 I changed it into a map.

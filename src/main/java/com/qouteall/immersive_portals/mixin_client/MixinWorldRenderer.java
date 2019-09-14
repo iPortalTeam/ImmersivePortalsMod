@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.exposer.IEWorldRendererChunkInfo;
@@ -13,7 +14,6 @@ import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.render.chunk.ChunkRendererList;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
-import net.optifine.Config;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.Set;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements IEWorldRenderer {
@@ -62,9 +61,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private double lastTranslucentSortZ;
-    
-    @Shadow
-    public Set chunksToResortTransparency;
     
     @Shadow
     protected abstract void renderLayer(BlockRenderLayer blockLayerIn);
@@ -191,7 +187,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 this.client.getProfiler().pop();
             }
             else {
-                if (Config.isFogOff() && this.client.gameRenderer.fogStandard) {
+                if (CHelper.shouldDisableFog()) {
                     GlStateManager.disableFog();
                 }
                 

@@ -23,10 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -113,9 +110,10 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             ClientWorld worldClient = MinecraftClient.getInstance().world;
             if (worldClient != null) {
                 if (worldClient.getTime() % 203 == 0) {
+                    fixAbnormality();
                     dismissInactiveChunkRenderers();
                 }
-                if (worldClient.getTime() % 633 == 0) {
+                if (worldClient.getTime() % 533 == 0) {
                     presetCache.clear();
                 }
                 shouldUpdateNeighbor = false;
@@ -166,6 +164,11 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     
         assert lastActiveNanoTime.containsKey(chunkRenderer);
     
+        if (chunkRenderer == null) {
+            Helper.err("Chunk Renderer Abnormal");
+            return;
+        }
+        
         lastActiveNanoTime.remove(chunkRenderer);
     
         idleChunks.addLast(chunkRenderer);
@@ -191,10 +194,15 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         long currentTime = System.nanoTime();
         final long deletingValve = 1000000000L * 30;//30 seconds
         //NOTE if you miss 'L' then it will overflow
-        
-        for (ChunkRenderer ChunkRenderer : this.renderers) {
-            //make sure none of render chunk get dismissed
-            updateLastUsedTime(ChunkRenderer);
+    
+        presetCache.values().stream().flatMap(
+            arr -> Arrays.stream(arr)
+        ).distinct().forEach(
+            this::updateLastUsedTime
+        );
+    
+        for (ChunkRenderer chunkRenderer : renderers) {
+            updateLastUsedTime(chunkRenderer);
         }
     
         ArrayDeque<ChunkRenderer> chunkRenderersToDismiss = lastActiveNanoTime.entrySet().stream()
@@ -203,7 +211,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             .collect(Collectors.toCollection(ArrayDeque::new));
     
         chunkRenderersToDismiss.forEach(
-            ChunkRenderer -> dismissChunkRenderer(getOriginNonMutable(ChunkRenderer))
+            chunkRenderer -> dismissChunkRenderer(getOriginNonMutable(chunkRenderer))
         );
     }
     
@@ -242,6 +250,21 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                     ci.cancel();
                 }
             }
+        }
+    }
+    
+    void fixAbnormality() {
+        boolean removedAny = chunkRendererMap.entrySet().removeIf(
+            entry -> {
+                if (!entry.getKey().equals(entry.getValue().getOrigin())) {
+                    Helper.err("Chunk Renderer Abnormal" + entry.getKey() + entry.getValue().getOrigin());
+                    return true;
+                }
+                return false;
+            }
+        );
+        if (removedAny) {
+            presetCache.clear();
         }
     }
     
