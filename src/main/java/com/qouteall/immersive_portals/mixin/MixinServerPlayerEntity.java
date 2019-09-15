@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.google.common.collect.HashMultimap;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
@@ -21,8 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayDeque;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
@@ -31,7 +31,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     @Shadow
     private Vec3d enteredNetherPos;
     
-    private ArrayDeque<Entity> myRemovedEntities;
+    private HashMultimap<DimensionType, Entity> myRemovedEntities;
     
     @Shadow
     public abstract void method_18783(ServerWorld serverWorld_1);
@@ -74,9 +74,9 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     )
     private void onTicking(CallbackInfo ci) {
         if (myRemovedEntities != null) {
-            myRemovedEntities.stream()
-                .collect(Collectors.groupingBy(entity -> entity.dimension))
-                .forEach((dimension, list) -> networkHandler.sendPacket(
+            myRemovedEntities.keySet().forEach(dimension -> {
+                Set<Entity> list = myRemovedEntities.get(dimension);
+                networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         dimension,
                         new EntitiesDestroyS2CPacket(
@@ -85,7 +85,8 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
                             ).toArray()
                         )
                     )
-                ));
+                );
+            });
             myRemovedEntities = null;
         }
     }
@@ -113,9 +114,11 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
         }
         else {
             if (myRemovedEntities == null) {
-                myRemovedEntities = new ArrayDeque<>();
+                myRemovedEntities = HashMultimap.create();
             }
-            myRemovedEntities.add(entity_1);
+            //do not use entity.dimension
+            //or it will work abnormally when changeDimension() is run
+            myRemovedEntities.put(entity_1.world.dimension.getType(), entity_1);
         }
         
     }
@@ -126,7 +129,7 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     @Overwrite
     public void onStartedTracking(Entity entity_1) {
         if (myRemovedEntities != null) {
-            myRemovedEntities.remove(entity_1);
+            myRemovedEntities.remove(entity_1.dimension, entity_1);
         }
     }
     
