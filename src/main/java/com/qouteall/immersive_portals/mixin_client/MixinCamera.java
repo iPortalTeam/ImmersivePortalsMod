@@ -38,9 +38,11 @@ public abstract class MixinCamera implements IECamera {
         at = @At("HEAD"),
         cancellable = true
     )
-    public void getSubmergedFluidState(CallbackInfoReturnable<FluidState> cir) {
-        cir.setReturnValue(Fluids.EMPTY.getDefaultState());
-        cir.cancel();
+    private void getSubmergedFluidState(CallbackInfoReturnable<FluidState> cir) {
+        if (CGlobal.renderer.isRendering()) {
+            cir.setReturnValue(Fluids.EMPTY.getDefaultState());
+            cir.cancel();
+        }
     }
     
     @Shadow
