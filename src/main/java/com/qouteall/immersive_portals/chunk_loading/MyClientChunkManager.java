@@ -114,7 +114,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         }
         else {
             if (isFullChunk) {
-                Helper.err(String.format(
+                Helper.log(String.format(
                     "received full chunk while chunk is present. entity may duplicate %s %s",
                     chunk.getWorld().dimension.getType(),
                     chunk.getPos()

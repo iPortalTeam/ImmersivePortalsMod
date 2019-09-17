@@ -27,10 +27,6 @@ public class CHelper {
         }
     }
     
-    public static World getClientWorld(DimensionType dimension) {
-        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
-    }
-    
     public static boolean shouldDisableFog() {
         if (CGlobal.isOptifinePresent) {
             return Config.isFogOff() && MinecraftClient.getInstance().gameRenderer.fogStandard;
@@ -38,5 +34,11 @@ public class CHelper {
         else {
             return false;
         }
+    }
+    
+    //do not inline this
+    //or it will crash in server
+    public static World getClientWorld(DimensionType dimension) {
+        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
 }

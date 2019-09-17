@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.exposer.IEGameRenderer;
 import com.qouteall.immersive_portals.exposer.IEPlayerListEntry;
 import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.IEOFWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -55,13 +56,23 @@ public class MyGameRenderer {
         ClientWorld oldWorld = mc.world;
         LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
         BackgroundRenderer oldFogRenderer = ieGameRenderer.getBackgroundRenderer();
-        //assert BlockEntityRenderDispatcher.INSTANCE.world == oldWorld;
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         List oldChunkInfos = ((IEWorldRenderer) mc.worldRenderer).getChunkInfos();
-        Camera oldCamera = mc.gameRenderer.getCamera();
+        IEChunkRenderList oldChunkRenderList =
+            (IEChunkRenderList) ((IEWorldRenderer) oldWorldRenderer).getChunkRenderList();
+        //List<ChunkRenderer> oldChunkRenderers = oldChunkRenderList.getChunkRenderers();
     
+        if (CGlobal.isOptifinePresent) {
+            /**{@link WorldRenderer#chunkInfos}*/
+            //in vanilla it will create new chunkInfos object every frame
+            //but with optifine it will always use one object
+            //we need to switch chunkInfos correctly
+            //if we do not put it a new object, it will clear the original chunkInfos
+            ((IEOFWorldRenderer) newWorldRenderer).createNewRenderInfosNormal();
+        }
+        
         //switch
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
@@ -75,7 +86,6 @@ public class MyGameRenderer {
         ieGameRenderer.setDoRenderHand(false);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
-        //ieGameRenderer.setCamera(newCamera);
     
         CGlobal.renderInfoNumMap.put(
             newWorld.dimension.getType(),
@@ -119,11 +129,11 @@ public class MyGameRenderer {
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
         ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
-        //ieGameRenderer.setCamera(oldCamera);
-    
-        restoreCameraPosOfRenderList(oldCameraPos);
     
     
+        oldChunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
+        // oldChunkRenderList.setChunkRenderers(oldChunkRenderers);
+        
     }
     
     public void endCulling() {
@@ -148,12 +158,6 @@ public class MyGameRenderer {
     
     private long getChunkUpdateFinishTime() {
         return 0;
-    }
-    
-    public void restoreCameraPosOfRenderList(Vec3d oldCameraPos) {
-        IEWorldRenderer worldRenderer = (IEWorldRenderer) mc.worldRenderer;
-        IEChunkRenderList chunkRenderList = (IEChunkRenderList) worldRenderer.getChunkRenderList();
-        chunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
     }
     
     //invoke this before rendering portal

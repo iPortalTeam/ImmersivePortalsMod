@@ -295,7 +295,8 @@ public class ChunkTracker {
     public void onChunkDataSent(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
         Edge edge = getOrAddEdge(chunkPos, player);
         if (edge.isSent) {
-            Helper.err(String.format("chunk data sent twice! %s %s",
+            Helper.log(String.format(
+                "chunk data sent twice! %s %s",
                 player, chunkPos
             ));
         }

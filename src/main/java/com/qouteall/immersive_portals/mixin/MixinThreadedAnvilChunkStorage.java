@@ -182,7 +182,7 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
     }
     
     @Inject(
-        method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;unloadEntity(Lnet/minecraft/entity/Entity;)V",
+        method = "unloadEntity",
         at = @At("HEAD"),
         cancellable = true
     )

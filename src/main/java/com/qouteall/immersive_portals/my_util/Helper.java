@@ -1,9 +1,7 @@
 package com.qouteall.immersive_portals.my_util;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
@@ -407,20 +405,6 @@ public class Helper {
         return Streams.stream(iterator);
     }
     
-    @Deprecated
-    public static ServerWorld getWorldAndLoad(DimensionType dimension) {
-        return getServer().getWorld(dimension);
-    }
-    
-    @Deprecated
-    public static ServerWorld getWorldIfLoaded(DimensionType dimension) {
-        return getServer().getWorld(dimension);
-    }
-    
-    public static ClientWorld loadClientWorld(DimensionType dimension) {
-        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
-    }
-    
     public static void log(Object str) {
         LOGGER.info("[Portal] " + str);
         //System.out.println(str);
@@ -429,10 +413,6 @@ public class Helper {
     public static void err(Object str) {
         LOGGER.error("[Portal] " + str);
         //System.err.println(str);
-    }
-    
-    public static void forcePrintStackTrace(Throwable throwable) {
-        LOGGER.error("", throwable);
     }
     
     public static Vec3d[] eightVerticesOf(Box box) {

@@ -4,14 +4,20 @@ import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.dimension.DimensionType;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler {
@@ -24,9 +30,24 @@ public class MixinClientPlayNetworkHandler implements IEClientPlayNetworkHandler
     @Shadow
     private MinecraftClient client;
     
+    @Mutable
+    @Shadow
+    @Final
+    private Map<UUID, PlayerListEntry> playerListEntries;
+    
     @Override
     public void setWorld(ClientWorld world) {
         this.world = world;
+    }
+    
+    @Override
+    public Map getPlayerListEntries() {
+        return playerListEntries;
+    }
+    
+    @Override
+    public void setPlayerListEntries(Map value) {
+        playerListEntries = value;
     }
     
     @Inject(

@@ -21,6 +21,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.io.ByteArrayInputStream;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class MyNetworkClient {
@@ -65,8 +67,16 @@ public class MyNetworkClient {
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
         String entityTypeString = buf.readString();
         int entityId = buf.readInt();
-        DimensionType dimensionType = DimensionType.byRawId(buf.readInt());
+        int dimId = buf.readInt();
+        DimensionType dimensionType = DimensionType.byRawId(dimId);
         CompoundTag compoundTag = buf.readCompoundTag();
+    
+        if (dimensionType == null) {
+            Helper.err(String.format(
+                "Invalid dimension for spawning entity %s %s %s",
+                dimId, entityTypeString, compoundTag
+            ));
+        }
         
         Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
         if (!entityType.isPresent()) {
@@ -177,8 +187,18 @@ public class MyNetworkClient {
             packet.read(buf);
         }
         catch (IOException e) {
-            assert false;
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
+        }
+    
+        if (dimension == null) {
+            Helper.err(String.format(
+                "Invalid redirected packet %s %s \nRegistered dimensions %s",
+                dimensionId, packet,
+                Registry.DIMENSION.stream().map(
+                    dim -> dim.toString() + " " + dim.getRawId()
+                ).collect(Collectors.joining("\n"))
+            ));
+            return;
         }
         
         processRedirectedPacket(dimension, packet);
@@ -187,19 +207,19 @@ public class MyNetworkClient {
     private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
         MinecraftClient mc = MinecraftClient.getInstance();
         mc.execute(() -> {
-            ClientWorld packetWorld = Helper.loadClientWorld(dimension);
-        
+            ClientWorld packetWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+            
             assert packetWorld != null;
-        
+    
             assert packetWorld.getChunkManager() instanceof MyClientChunkManager;
-        
+    
             ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
-        
+    
             if ((netHandler).getWorld() != packetWorld) {
                 ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
                 Helper.err("The world field of client net handler is wrong");
             }
-        
+    
             ClientWorld originalWorld = mc.world;
             //some packet handling may use mc.world so switch it
             mc.world = packetWorld;

@@ -19,6 +19,7 @@ import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.LevelGeneratorType;
 import net.minecraft.world.level.LevelInfo;
+import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +87,8 @@ public class ClientWorldLoader {
     }
     
     public ClientWorld getOrCreateFakedWorld(DimensionType dimension) {
+        Validate.notNull(dimension);
+        
         initializeIfNeeded();
         
         if (!clientWorldMap.containsKey(dimension)) {
@@ -141,27 +144,41 @@ public class ClientWorldLoader {
         int chunkLoadDistance = 3;
         
         WorldRenderer worldRenderer = new WorldRenderer(mc);
-        
-        ClientWorld newWorld = new ClientWorld(
-            new ClientPlayNetworkHandler(
-                MinecraftClient.getInstance(),
+    
+        ClientWorld newWorld;
+        try {
+            ClientPlayNetworkHandler newNetworkHandler = new ClientPlayNetworkHandler(
+                mc,
                 new ChatScreen("You should not be seeing me. I'm just a faked screen."),
                 new ClientConnection(NetworkSide.CLIENTBOUND),
                 new GameProfile(null, "faked_profiler_id")
-            ),
-            new LevelInfo(
-                0L,
-                GameMode.CREATIVE,
-                true,
-                isHardCore,
-                LevelGeneratorType.FLAT
-            ),
-            dimension,
-            chunkLoadDistance,
-            mc.getProfiler(),
-            worldRenderer
-        );
-        
+            );
+            //multiple net handlers share the same playerListEntries object
+            ((IEClientPlayNetworkHandler) newNetworkHandler).setPlayerListEntries(
+                ((IEClientPlayNetworkHandler) mc.player.networkHandler).getPlayerListEntries()
+            );
+            newWorld = new ClientWorld(
+                newNetworkHandler,
+                new LevelInfo(
+                    0L,
+                    GameMode.CREATIVE,
+                    true,
+                    isHardCore,
+                    LevelGeneratorType.FLAT
+                ),
+                dimension,
+                chunkLoadDistance,
+                mc.getProfiler(),
+                worldRenderer
+            );
+        }
+        catch (Exception e) {
+            throw new IllegalStateException(
+                "Creating Faked World " + dimension + " " + clientWorldMap.keySet(),
+                e
+            );
+        }
+    
         worldRenderer.setWorld(newWorld);
         
         worldRenderer.apply(mc.getResourceManager());

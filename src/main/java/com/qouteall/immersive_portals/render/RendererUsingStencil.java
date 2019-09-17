@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -26,23 +25,23 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void onBeforeTranslucentRendering() {
-        if (CGlobal.renderPortalBeforeTranslucentBlocks) {
-            mc.getProfiler().swap("render_portal_total");
-            renderPortals();
-            if (!isRendering()) {
-                myFinishRendering();
-            }
+        if (!isRendering()) {
+            doPortalRendering();
+        }
+    }
+    
+    private void doPortalRendering() {
+        mc.getProfiler().swap("render_portal_total");
+        renderPortals();
+        if (!isRendering()) {
+            myFinishRendering();
         }
     }
     
     @Override
     public void onAfterTranslucentRendering() {
-        if (!CGlobal.renderPortalBeforeTranslucentBlocks) {
-            mc.getProfiler().swap("render_portal_total");
-            renderPortals();
-            if (!isRendering()) {
-                myFinishRendering();
-            }
+        if (isRendering()) {
+            doPortalRendering();
         }
     }
     

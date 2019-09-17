@@ -4,14 +4,18 @@ fix friction when jumping into portal
 fix weather changed when player go back to overworld
 fix translucent rendering issue when rendering nested portal
 fix motion blur issue with bsl
-fix reverse portal not destroyed
-fix entity does not vanish when going into exit end portal
+fix reverse portal not destroyed(rarely?)
+fix go into wall when colliding with portal
+
+use 1 client net handler
 
 NOTE entity.dimension sometimes is not the same as entity.world.dimension when called changeDimension
 
 support going through portal while riding entity
 
 check public static fields of Shaders class
+
+new functionality: mirror, upside down, scaling
 
 add configuration for max portal layer
 

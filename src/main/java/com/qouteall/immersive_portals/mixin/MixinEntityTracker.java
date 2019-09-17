@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
@@ -173,13 +172,14 @@ public class MixinEntityTracker implements IEEntityTracker {
                     if (chunkHolder_1 != null && chunkHolder_1.getWorldChunk() != null) {
                         shouldTrack = true;
                     }
-                    else {
+//                    else {
                         //retry it next tick
-                        ModMain.serverTaskList.addTask(() -> {
-                            updateCameraPosition_(player);
-                            return true;
-                        });
-                    }
+//                        ModMain.serverTaskList.addTask(() -> {
+//                            Helper.log("Retry tracking player " + player.getName());
+//                            updateCameraPosition_(player);
+//                            return true;
+//                        });
+//                    }
                 }
     
                 if (shouldTrack && this.playersTracking.add(player)) {
