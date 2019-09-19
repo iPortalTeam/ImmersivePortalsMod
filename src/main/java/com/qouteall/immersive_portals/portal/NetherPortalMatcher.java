@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
@@ -18,8 +17,9 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-//import com.sun.istack.internal.Nullable;
-
+//Well it will create millions of short-lived BlockPos objects
+//It will generate intense GC pressure
+//This is not frequently invoked so I don't want to optimize it
 public class NetherPortalMatcher {
     public static Stream<BlockPos> fromNearToFarWithinHeightLimit(
         BlockPos searchingCenter,
@@ -47,7 +47,7 @@ public class NetherPortalMatcher {
     //detect frame from inner pos
     
     public static final int maxFrameSize = 40;
-    public static final int findingRadius = 128;
+    public static final int findingRadius = 150;
     public static final IntegerAABBInclusive heightLimitOverworld = new IntegerAABBInclusive(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 254, Integer.MAX_VALUE)
@@ -248,18 +248,29 @@ public class NetherPortalMatcher {
         int findingRadius
     ) {
         IntegerAABBInclusive aboveLavaLake = getAirCubeOnGround(
-            areaSize.add(5, 20, 5), world, searchingCenter,
+            areaSize.add(20, 20, 20), world, searchingCenter,
             heightLimit, findingRadius / 3,
-            blockState -> blockState.getBlock() == Blocks.LAVA
+            blockPos -> isLavaLake(world, blockPos)
         );
         if (aboveLavaLake != null) {
+            Helper.log("Generated Portal Above Lava Lake");
             return aboveLavaLake.getSubBoxInCenter(areaSize);
         }
+    
+        Helper.log("Generated Portal On Ground");
         
         return getAirCubeOnGround(
             areaSize, world, searchingCenter,
             heightLimit, findingRadius, b -> true
         );
+    }
+    
+    private static boolean isLavaLake(
+        IWorld world, BlockPos blockPos
+    ) {
+        return world.getBlockState(blockPos).getBlock() == Blocks.LAVA &&
+            world.getBlockState(blockPos.add(5, 0, 5)).getBlock() == Blocks.LAVA &&
+            world.getBlockState(blockPos.add(-5, 0, -5)).getBlock() == Blocks.LAVA;
     }
     
     private static IntegerAABBInclusive getAirCubeOnGround(
@@ -268,7 +279,7 @@ public class NetherPortalMatcher {
         BlockPos searchingCenter,
         IntegerAABBInclusive heightLimit,
         int findingRadius,
-        Predicate<BlockState> groundBlockLimit
+        Predicate<BlockPos> groundBlockLimit
     ) {
         return fromNearToFarWithinHeightLimit(
             searchingCenter,
@@ -277,10 +288,11 @@ public class NetherPortalMatcher {
         ).filter(
             blockPos -> isAirOnGround(world, blockPos)
         ).filter(
-            blockPos -> groundBlockLimit.test(world.getBlockState(blockPos.add(0, -1, 0)))
+            blockPos -> groundBlockLimit.test(blockPos.add(0, -1, 0))
         ).map(
             basePoint -> IntegerAABBInclusive.getBoxByBasePointAndSize(
-                areaSize, basePoint
+                areaSize,
+                basePoint.subtract(new Vec3i(-areaSize.getX() / 2, 0, -areaSize.getZ() / 2))
             )
         ).filter(
             box -> isAllAir(world, box)

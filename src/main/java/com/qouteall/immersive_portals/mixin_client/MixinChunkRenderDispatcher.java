@@ -166,7 +166,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         ChunkRenderer chunkRenderer = chunkRendererMap.remove(basePos);
         
         if (chunkRenderer == null) {
-            Helper.err("Chunk Renderer Abnormal");
+            Helper.log("Chunk Renderer Abnormal");
             return;
         }
         

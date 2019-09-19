@@ -15,10 +15,11 @@ public class WorldInfoSender {
         ModMain.postServerTickSignal.connect(() -> {
             if (Helper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : Helper.getCopiedPlayerList()) {
-                    for (ServerWorld world : Helper.getServer().getWorlds()) {
-                        if (world != player.world) {
-                            sendWorldInfo(player, world);
-                        }
+                    if (player.dimension != DimensionType.OVERWORLD) {
+                        sendWorldInfo(
+                            player,
+                            Helper.getServer().getWorld(DimensionType.OVERWORLD)
+                        );
                     }
                 }
             }
@@ -28,9 +29,6 @@ public class WorldInfoSender {
     //send the daytime and weather info to player when player is in nether
     public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
         DimensionType remoteDimension = world.dimension.getType();
-        if (remoteDimension == DimensionType.THE_NETHER || remoteDimension == DimensionType.THE_END) {
-            return;
-        }
         
         player.networkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(

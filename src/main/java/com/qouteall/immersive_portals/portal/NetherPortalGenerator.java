@@ -171,6 +171,7 @@ public class NetherPortalGenerator {
                 );
         
         if (foundAirCube == null) {
+            Helper.log("Cannot find normal portal placement");
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
                 neededAreaSize,
                 toWorld,
@@ -179,7 +180,7 @@ public class NetherPortalGenerator {
         }
         
         if (foundAirCube == null) {
-            Helper.err("No place to put portal in 80 range? " +
+            Helper.err("No place to put portal? " +
                 "Force placed portal. It will occupy normal blocks.");
             
             foundAirCube = IntegerAABBInclusive.getBoxByBasePointAndSize(
