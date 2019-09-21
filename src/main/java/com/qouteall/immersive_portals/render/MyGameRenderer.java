@@ -165,7 +165,9 @@ public class MyGameRenderer {
     private double[] calcClipPlaneEquation() {
         Portal portal = CGlobal.renderer.getRenderingPortal();
     
-        Vec3d planeNormal = portal.getContentDirection();
+        //glClipPlane is correlated with modelview transformation
+        //but it's not in shaders
+        Vec3d planeNormal = portal.getNormal().multiply(-1);
         
         Vec3d portalPos = portal.getPos().subtract(
             mc.gameRenderer.getCamera().getPos()

@@ -303,6 +303,17 @@ public class RenderHelper {
         Untracker.untrack(MemoryUtil.memAddress(p_209238_0_));
     });
     
+    public static void multMatrix(float[] arr) {
+        matrixBuffer.put(arr);
+        matrixBuffer.rewind();
+        GlStateManager.multMatrix(matrixBuffer);
+    }
+    
+    public static boolean isRenderingMirror() {
+        return CGlobal.renderer.isRendering() &&
+            CGlobal.renderer.getRenderingPortal() instanceof Mirror;
+    }
+    
     public static void setupTransformationForMirror(Camera camera) {
         if (CGlobal.renderer.isRendering()) {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
@@ -313,9 +324,7 @@ public class RenderHelper {
                 GlStateManager.translated(relativePos.x, relativePos.y, relativePos.z);
                 
                 float[] arr = getMirrorTransformation(mirror.getNormal());
-                matrixBuffer.put(arr);
-                matrixBuffer.rewind();
-                GlStateManager.multMatrix(matrixBuffer);
+                multMatrix(arr);
                 
                 GlStateManager.translated(-relativePos.x, -relativePos.y, -relativePos.z);
                 
@@ -328,18 +337,8 @@ public class RenderHelper {
         else {
             GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
         }
-
-//        if (CGlobal.debugMirrorMode) {
-//            float[] arr = getMirrorTransformation(new Vec3d(0, 1, 0));
-//            matrixBuffer.put(arr);
-//            matrixBuffer.rewind();
-//            GlStateManager.multMatrix(matrixBuffer);
-//            GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
-//        }
-//        else {
-//            GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
-//        }
     }
+    
     
     //https://en.wikipedia.org/wiki/Householder_transformation
     private static float[] getMirrorTransformation(

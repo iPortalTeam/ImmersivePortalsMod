@@ -37,4 +37,9 @@ public class Mirror extends Portal {
     public Vec3d getContentDirection() {
         return getNormal();
     }
+    
+    @Override
+    public boolean isTeleportable() {
+        return false;
+    }
 }

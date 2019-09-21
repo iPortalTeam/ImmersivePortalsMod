@@ -180,7 +180,7 @@ public class Helper {
             case X:
                 return new Pair<>(Direction.Axis.Y, Direction.Axis.Z);
             case Y:
-                return new Pair<>(Direction.Axis.X, Direction.Axis.Z);
+                return new Pair<>(Direction.Axis.Z, Direction.Axis.X);
             case Z:
                 return new Pair<>(Direction.Axis.X, Direction.Axis.Y);
         }

@@ -134,7 +134,7 @@ public class BreakableMirror extends Mirror {
         breakableMirror.dimensionTo = world.dimension.getType();
         
         Pair<Direction.Axis, Direction.Axis> axises = Helper.getAnotherTwoAxis(facing.getAxis());
-        if (facing.getDirection() == Direction.AxisDirection.POSITIVE) {
+        if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
             axises = new Pair<>(axises.getRight(), axises.getLeft());
         }
         
