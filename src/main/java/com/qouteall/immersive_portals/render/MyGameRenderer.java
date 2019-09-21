@@ -164,8 +164,8 @@ public class MyGameRenderer {
     //its result depends on camra pos
     private double[] calcClipPlaneEquation() {
         Portal portal = CGlobal.renderer.getRenderingPortal();
-        
-        Vec3d planeNormal = portal.getNormal().multiply(-1);
+    
+        Vec3d planeNormal = portal.getContentDirection();
         
         Vec3d portalPos = portal.getPos().subtract(
             mc.gameRenderer.getCamera().getPos()
@@ -173,7 +173,7 @@ public class MyGameRenderer {
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
-        double c = portal.getNormal().dotProduct(portalPos);
+        double c = planeNormal.multiply(-1).dotProduct(portalPos);
         
         return new double[]{
             planeNormal.x,

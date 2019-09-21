@@ -3,10 +3,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.PortalRenderer;
-import com.qouteall.immersive_portals.render.RenderHelper;
-import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
-import com.qouteall.immersive_portals.render.ShaderManager;
+import com.qouteall.immersive_portals.render.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
 import net.minecraft.util.math.Vec3d;
@@ -24,7 +21,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
         if (Shaders.isShadowPass) {
-            RenderHelper.drawPortalViewTriangle(portal);
+            ViewAreaRenderer.drawPortalViewTriangle(portal);
         }
     }
     

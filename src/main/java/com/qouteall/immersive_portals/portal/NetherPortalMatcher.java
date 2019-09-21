@@ -70,7 +70,9 @@ public class NetherPortalMatcher {
         Direction.Axis normalAxis,
         Predicate<IntegerAABBInclusive> innerAreaFilter
     ) {
-        assert isAirOrFire(world, innerPos);
+        if (!isAirOrFire(world, innerPos)) {
+            return null;
+        }
         
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         
@@ -258,11 +260,12 @@ public class NetherPortalMatcher {
         }
     
         Helper.log("Generated Portal On Ground");
-        
-        return getAirCubeOnGround(
-            areaSize, world, searchingCenter,
-            heightLimit, findingRadius, b -> true
+    
+        IntegerAABBInclusive biggerArea = getAirCubeOnSolidGround(
+            areaSize.add(6, 0, 6), world, searchingCenter,
+            heightLimit, findingRadius
         );
+        return pushDownBox(world, biggerArea.getSubBoxInCenter(areaSize));
     }
     
     private static boolean isLavaLake(
@@ -294,6 +297,31 @@ public class NetherPortalMatcher {
                 areaSize,
                 basePoint.subtract(new Vec3i(-areaSize.getX() / 2, 0, -areaSize.getZ() / 2))
             )
+        ).filter(
+            box -> isAllAir(world, box)
+        ).findFirst().orElse(null);
+    }
+    
+    private static IntegerAABBInclusive getAirCubeOnSolidGround(
+        BlockPos areaSize,
+        IWorld world,
+        BlockPos searchingCenter,
+        IntegerAABBInclusive heightLimit,
+        int findingRadius
+    ) {
+        return fromNearToFarWithinHeightLimit(
+            searchingCenter,
+            findingRadius,
+            heightLimit
+        ).filter(
+            blockPos -> isAirOnGround(world, blockPos)
+        ).filter(
+            blockPos -> isAirOnGround(
+                world,
+                blockPos.add(areaSize.getX() - 1, 0, areaSize.getZ() - 1)
+            )
+        ).map(
+            basePoint -> IntegerAABBInclusive.getBoxByBasePointAndSize(areaSize, basePoint)
         ).filter(
             box -> isAllAir(world, box)
         ).findFirst().orElse(null);
@@ -452,7 +480,7 @@ public class NetherPortalMatcher {
     
     
     //move the box up
-    private static IntegerAABBInclusive levitateBox(
+    public static IntegerAABBInclusive levitateBox(
         IWorld world, IntegerAABBInclusive airCube
     ) {
         Integer maxUpShift = Helper.getLastSatisfying(
@@ -467,5 +495,22 @@ public class NetherPortalMatcher {
         }
         
         return airCube.getMoved(new Vec3i(0, maxUpShift * 2 / 3, 0));
+    }
+    
+    public static IntegerAABBInclusive pushDownBox(
+        IWorld world, IntegerAABBInclusive airCube
+    ) {
+        Integer downShift = Helper.getLastSatisfying(
+            IntStream.range(1, 40).boxed(),
+            i -> isAllAir(
+                world,
+                airCube.getMoved(new Vec3i(0, -i, 0))
+            )
+        );
+        if (downShift == null) {
+            downShift = 0;
+        }
+        
+        return airCube.getMoved(new Vec3i(0, -downShift, 0));
     }
 }

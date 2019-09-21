@@ -139,7 +139,6 @@ public abstract class PortalRenderer {
         RenderHelper.onBeginPortalWorldRendering(portalLayers);
         
         Entity cameraEntity = mc.cameraEntity;
-        int allowedStencilValue = getPortalLayer();
         Camera camera = mc.gameRenderer.getCamera();
         
         assert cameraEntity.world == mc.world;

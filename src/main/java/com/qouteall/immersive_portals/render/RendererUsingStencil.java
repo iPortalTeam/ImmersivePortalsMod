@@ -155,7 +155,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
         GL20.glUseProgram(0);
     
-        RenderHelper.drawPortalViewTriangle(portal);
+        ViewAreaRenderer.drawPortalViewTriangle(portal);
         
         GlStateManager.enableBlend();
         
@@ -217,7 +217,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
         GL20.glUseProgram(0);
     
-        RenderHelper.drawPortalViewTriangle(portal);
+        ViewAreaRenderer.drawPortalViewTriangle(portal);
         
         GL11.glColorMask(true, true, true, true);
     }

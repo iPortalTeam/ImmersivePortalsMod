@@ -124,6 +124,14 @@ public class Portal extends Entity {
         return normal;
     }
     
+    public boolean isTeleportable() {
+        return true;
+    }
+    
+    public Vec3d getContentDirection() {
+        return getNormal().multiply(-1);
+    }
+    
     @Override
     protected void writeCustomDataToTag(CompoundTag compoundTag) {
         compoundTag.putDouble("width", width);
@@ -185,13 +193,13 @@ public class Portal extends Entity {
         if (anotherPortal.dimension != dimensionTo) {
             return false;
         }
-        double v = anotherPortal.getPos().subtract(destination).dotProduct(getNormal());
-        return v < -0.5;
+        double v = anotherPortal.getPos().subtract(destination).dotProduct(getContentDirection());
+        return v > 0.5;
     }
     
     public boolean canRenderEntityInsideMe(Vec3d entityPos) {
-        double v = entityPos.subtract(destination).dotProduct(getNormal());
-        return v < 0;
+        double v = entityPos.subtract(destination).dotProduct(getContentDirection());
+        return v > 0;
     }
     
     public Vec3d getPointInPlane(double xInPlane, double yInPlane) {

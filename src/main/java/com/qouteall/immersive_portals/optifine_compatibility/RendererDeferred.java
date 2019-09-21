@@ -92,7 +92,7 @@ public class RendererDeferred extends PortalRenderer {
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
         if (shouldRenderPortalInEntityRenderer(portal)) {
-            RenderHelper.drawPortalViewTriangle(portal);
+            ViewAreaRenderer.drawPortalViewTriangle(portal);
         }
     }
     
@@ -119,8 +119,8 @@ public class RendererDeferred extends PortalRenderer {
             GlStateManager.colorMask(false, false, false, false);
             RenderHelper.setupCameraTransformation();
             GL20.glUseProgram(0);
-        
-            RenderHelper.drawPortalViewTriangle(portal);
+    
+            ViewAreaRenderer.drawPortalViewTriangle(portal);
             
             GlStateManager.enableTexture();
             GlStateManager.colorMask(true, true, true, true);

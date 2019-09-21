@@ -137,16 +137,18 @@ public class RendererMixed extends PortalRenderer {
     
         int outerLayer = getPortalLayer();
     
+        if (innerLayer > maxPortalLayer.get()) {
+            return;
+        }
+        
         deferredFbs[outerLayer].fb.beginWrite(true);
     
-        boolean r = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
-            GlStateManager.enableAlphaTest();
-            RenderHelper.myDrawFrameBuffer(
-                deferredFbs[innerLayer].fb,
-                true,
-                true
-            );
-        });
+        GlStateManager.enableAlphaTest();
+        RenderHelper.myDrawFrameBuffer(
+            deferredFbs[innerLayer].fb,
+            true,
+            true
+        );
     }
     
     //NOTE it will write to shader depth buffer
@@ -179,8 +181,8 @@ public class RendererMixed extends PortalRenderer {
         
         RenderHelper.setupCameraTransformation();
         GL20.glUseProgram(0);
-        
-        RenderHelper.drawPortalViewTriangle(portal);
+    
+        ViewAreaRenderer.drawPortalViewTriangle(portal);
         
         GlStateManager.enableTexture();
         GlStateManager.colorMask(true, true, true, true);
@@ -201,7 +203,7 @@ public class RendererMixed extends PortalRenderer {
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
         if (Shaders.isShadowPass) {
-            RenderHelper.drawPortalViewTriangle(portal);
+            ViewAreaRenderer.drawPortalViewTriangle(portal);
         }
     }
 }

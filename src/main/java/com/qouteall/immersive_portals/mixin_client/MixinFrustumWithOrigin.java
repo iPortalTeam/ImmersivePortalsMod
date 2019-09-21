@@ -63,7 +63,7 @@ public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
     }
     
     private boolean isPosInPortalViewFrustum(Vec3d pos) {
-        if (pos.subtract(portalDestInLocalCoordinate).dotProduct(portal.getNormal()) > 0) {
+        if (pos.subtract(portalDestInLocalCoordinate).dotProduct(portal.getContentDirection()) < 0) {
             return false;
         }
         return Arrays.stream(normalOf4Planes).allMatch(

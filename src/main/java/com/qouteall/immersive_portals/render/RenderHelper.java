@@ -120,44 +120,6 @@ public class RenderHelper {
         
     }
     
-    //it will render a box instead of a quad
-    public static void drawPortalViewTriangle(Portal portal) {
-        DimensionRenderHelper helper =
-            CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
-        
-        Vec3d fogColor = helper.getFogColor();
-        
-        GlStateManager.disableCull();
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableTexture();
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.disableBlend();
-        GlStateManager.disableLighting();
-        
-        GL11.glDisable(GL_CLIP_PLANE0);
-        
-        if (OFHelper.getIsUsingShader()) {
-            fogColor = Vec3d.ZERO;
-        }
-        
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
-        ViewAreaRenderer.buildPortalViewAreaTrianglesBuffer(
-            fogColor,
-            portal,
-            bufferbuilder,
-            PortalRenderer.mc.gameRenderer.getCamera().getPos(),
-            partialTicks
-        );
-        
-        tessellator.draw();
-        
-        GlStateManager.enableCull();
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableTexture();
-        GlStateManager.enableLighting();
-    }
-    
     public static void drawFrameBufferUp(
         Portal portal,
         GlFramebuffer textureProvider,
@@ -185,8 +147,8 @@ public class RenderHelper {
         GlStateManager.texParameter(3553, 10240, 9729);
         GlStateManager.texParameter(3553, 10242, 10496);
         GlStateManager.texParameter(3553, 10243, 10496);
-        
-        drawPortalViewTriangle(portal);
+    
+        ViewAreaRenderer.drawPortalViewTriangle(portal);
         
         shaderManager.unloadShader();
         

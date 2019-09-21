@@ -93,7 +93,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             GlStateManager.depthMask(false);
             RenderHelper.setupCameraTransformation();
             GL20.glUseProgram(0);
-            RenderHelper.drawPortalViewTriangle(portal);
+            ViewAreaRenderer.drawPortalViewTriangle(portal);
             GlStateManager.depthMask(true);
         });
     }

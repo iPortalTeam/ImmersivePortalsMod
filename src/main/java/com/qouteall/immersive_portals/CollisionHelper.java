@@ -53,8 +53,8 @@ public class CollisionHelper {
     }
     
     private static boolean shouldCollideWithPortal(Entity entity, Portal portal) {
-        boolean result = portal.isInFrontOfPortal(entity.getCameraPosVec(1));
-        return result;
+        return portal.isTeleportable() &&
+            portal.isInFrontOfPortal(entity.getCameraPosVec(1));
     }
     
     public static Vec3d handleCollisionHalfwayInPortal(
@@ -137,11 +137,14 @@ public class CollisionHelper {
         Portal portal,
         Box originalBox
     ) {
+        //cut the collision box a little bit more for horizontal portals
+        //because the box will be stretched by attemptedMove when calculating collision
+        Vec3d cullingPos = portal.getNormal().y > 0.5 ?
+            portal.getPos().add(portal.getNormal().multiply(0.5)) :
+            portal.getPos();
         return clipBox(
             originalBox,
-            //cut the collision box a little bit more
-            //because the box will be stretched by attemptedMove when calculating collision
-            portal.getPos().add(portal.getNormal().multiply(0.5)),
+            cullingPos,
             portal.getNormal()
         );
     }

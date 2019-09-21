@@ -17,10 +17,6 @@ check public static fields of Shaders class
 
 new functionality: mirror, upside down, scaling
 
-add configuration for max portal layer
-
-compatible with post processing
-
 check center depth correctness
 
 Beyond Belief shader: blink

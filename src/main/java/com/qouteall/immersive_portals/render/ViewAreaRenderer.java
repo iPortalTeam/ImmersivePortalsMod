@@ -1,16 +1,22 @@
 package com.qouteall.immersive_portals.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 
+import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class ViewAreaRenderer {
-    static void buildPortalViewAreaTrianglesBuffer(
+    private static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
         Vec3d cameraPos, float partialTicks
     ) {
@@ -109,14 +115,51 @@ public class ViewAreaRenderer {
         Vec3d fogColor
     ) {
         //counter-clockwise triangles are front-faced in default
-        
+    
         putIntoVertex(bufferBuilder, b, fogColor);
         putIntoVertex(bufferBuilder, c, fogColor);
         putIntoVertex(bufferBuilder, d, fogColor);
-        
+    
         putIntoVertex(bufferBuilder, d, fogColor);
         putIntoVertex(bufferBuilder, a, fogColor);
         putIntoVertex(bufferBuilder, b, fogColor);
+    
+    }
+    
+    public static void drawPortalViewTriangle(Portal portal) {
+        DimensionRenderHelper helper =
+            CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
         
+        Vec3d fogColor = helper.getFogColor();
+        
+        GlStateManager.disableCull();
+        GlStateManager.disableAlphaTest();
+        GlStateManager.disableTexture();
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        GlStateManager.disableBlend();
+        GlStateManager.disableLighting();
+        
+        GL11.glDisable(GL_CLIP_PLANE0);
+        
+        if (OFHelper.getIsUsingShader()) {
+            fogColor = Vec3d.ZERO;
+        }
+        
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
+        buildPortalViewAreaTrianglesBuffer(
+            fogColor,
+            portal,
+            bufferbuilder,
+            PortalRenderer.mc.gameRenderer.getCamera().getPos(),
+            RenderHelper.partialTicks
+        );
+        
+        tessellator.draw();
+        
+        GlStateManager.enableCull();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableTexture();
+        GlStateManager.enableLighting();
     }
 }
