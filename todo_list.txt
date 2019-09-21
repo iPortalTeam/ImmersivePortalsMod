@@ -7,6 +7,8 @@ fix motion blur issue with bsl
 fix reverse portal not destroyed(rarely?)
 fix go into wall when colliding with portal
 
+avoid hand rendering when rendering portal
+
 use 1 client net handler
 
 NOTE entity.dimension sometimes is not the same as entity.world.dimension when called changeDimension

@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.NetherPortalGenerator;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
@@ -16,17 +17,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MixinFlintAndSteelItem {
     @Inject(method = "useOnBlock", at = @At("HEAD"))
     private void onUseFlintAndSteel(
-        ItemUsageContext itemUsageContext_1,
+        ItemUsageContext context,
         CallbackInfoReturnable<ActionResult> cir
     ) {
-        IWorld world = itemUsageContext_1.getWorld();
+        IWorld world = context.getWorld();
         if (!world.isClient()) {
-            BlockPos blockPos_1 = itemUsageContext_1.getBlockPos();
-            BlockPos firePos = blockPos_1.offset(itemUsageContext_1.getSide());
-            NetherPortalGenerator.onFireLit(
-                ((ServerWorld) world),
-                firePos
-            );
+            BlockPos blockPos_1 = context.getBlockPos();
+            BlockPos firePos = blockPos_1.offset(context.getSide());
+            NetherPortalGenerator.NetherPortalGeneratedInformation info =
+                NetherPortalGenerator.onFireLit(((ServerWorld) world), firePos);
+            if (info == null) {
+                BreakableMirror.createMirror(
+                    ((ServerWorld) world), context.getBlockPos(), context.getSide()
+                );
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -18,13 +19,11 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 public class ViewAreaRenderer {
     private static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
-        Vec3d cameraPos, float partialTicks
+        Vec3d cameraPos, float partialTicks, float layerWidth
     ) {
         //if layerWidth is small, the teleportation will not be seamless
         
         //counter-clockwise triangles are front-faced in default
-    
-        float layerWidth = 0.4F;
         
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         
@@ -152,7 +151,8 @@ public class ViewAreaRenderer {
             portal,
             bufferbuilder,
             PortalRenderer.mc.gameRenderer.getCamera().getPos(),
-            RenderHelper.partialTicks
+            RenderHelper.partialTicks,
+            portal instanceof Mirror ? -0.1F : 0.4F
         );
         
         tessellator.draw();

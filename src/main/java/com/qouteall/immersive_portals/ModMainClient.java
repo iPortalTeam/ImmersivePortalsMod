@@ -29,6 +29,14 @@ public class ModMainClient implements ClientModInitializer {
             EndPortalEntity.class,
             (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
         );
+        EntityRendererRegistry.INSTANCE.register(
+            Mirror.class,
+            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+        );
+        EntityRendererRegistry.INSTANCE.register(
+            BreakableMirror.class,
+            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+        );
     }
     
     public static void switchToCorrectRenderer() {

@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.exposer.IECamera;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
@@ -115,24 +117,16 @@ public abstract class MixinCamera implements IECamera {
         
         return upperBound;
     }
-
-//    @Inject(
-//        method = "clipToSpace",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void onClipSpaceHead(double double_1, CallbackInfoReturnable<Double> cir) {
-//        if (Globals.renderer.isRendering()) {
-//            cir.setReturnValue(lastClipSpaceResult);
-//            cir.cancel();
-//        }
-//    }
-//
-//    @Inject(
-//        method = "clipToSpace",
-//        at = @At("RETURN")
-//    )
-//    private void onClipSpaceReturn(double double_1, CallbackInfoReturnable<Double> cir) {
-//        lastClipSpaceResult = cir.getReturnValueD();
-//    }
+    
+    @Inject(method = "update", at = @At("TAIL"))
+    private void onUpdated(
+        BlockView p_216772_1_,
+        Entity p_216772_2_,
+        boolean p_216772_3_,
+        boolean p_216772_4_,
+        float p_216772_5_,
+        CallbackInfo ci
+    ) {
+        RenderHelper.setupTransformationForMirror((Camera) (Object) this);
+    }
 }

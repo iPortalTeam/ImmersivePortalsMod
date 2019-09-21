@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
@@ -17,6 +18,7 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.util.Untracker;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -26,8 +28,10 @@ import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.system.MemoryUtil;
 
 import java.lang.ref.WeakReference;
+import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -291,5 +295,65 @@ public class RenderHelper {
         textureProvider.endRead();
         GlStateManager.depthMask(true);
         GlStateManager.colorMask(true, true, true, true);
+    }
+    
+    //If I don't do so JVM will crash
+    private static final FloatBuffer matrixBuffer = (FloatBuffer) GLX.make(MemoryUtil.memAllocFloat(
+        16), (p_209238_0_) -> {
+        Untracker.untrack(MemoryUtil.memAddress(p_209238_0_));
+    });
+    
+    public static void setupTransformationForMirror(Camera camera) {
+        if (CGlobal.renderer.isRendering()) {
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            if (renderingPortal instanceof Mirror) {
+                Mirror mirror = (Mirror) renderingPortal;
+                Vec3d relativePos = mirror.getPos().subtract(camera.getPos());
+                
+                GlStateManager.translated(relativePos.x, relativePos.y, relativePos.z);
+                
+                float[] arr = getMirrorTransformation(mirror.getNormal());
+                matrixBuffer.put(arr);
+                matrixBuffer.rewind();
+                GlStateManager.multMatrix(matrixBuffer);
+                
+                GlStateManager.translated(-relativePos.x, -relativePos.y, -relativePos.z);
+                
+                GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
+            }
+            else {
+                GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+            }
+        }
+        else {
+            GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+        }
+
+//        if (CGlobal.debugMirrorMode) {
+//            float[] arr = getMirrorTransformation(new Vec3d(0, 1, 0));
+//            matrixBuffer.put(arr);
+//            matrixBuffer.rewind();
+//            GlStateManager.multMatrix(matrixBuffer);
+//            GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
+//        }
+//        else {
+//            GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+//        }
+    }
+    
+    //https://en.wikipedia.org/wiki/Householder_transformation
+    private static float[] getMirrorTransformation(
+        Vec3d mirrorNormal
+    ) {
+        Vec3d normal = mirrorNormal.normalize();
+        float x = (float) normal.x;
+        float y = (float) normal.y;
+        float z = (float) normal.z;
+        return new float[]{
+            1 - 2 * x * x, 0 - 2 * x * y, 0 - 2 * x * z, 0,
+            0 - 2 * y * x, 1 - 2 * y * y, 0 - 2 * y * z, 0,
+            0 - 2 * z * x, 0 - 2 * z * y, 1 - 2 * z * z, 0,
+            0, 0, 0, 1
+        };
     }
 }

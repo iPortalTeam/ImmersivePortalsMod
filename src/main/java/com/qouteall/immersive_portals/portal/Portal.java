@@ -384,6 +384,6 @@ public class Portal extends Entity {
     }
     
     public void onEntityTeleportedOnServer(Entity entity) {
-    
+        //nothing
     }
 }

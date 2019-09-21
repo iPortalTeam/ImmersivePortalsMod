@@ -517,4 +517,22 @@ public class Helper {
         all_false,
         both
     }
+    
+    public static IntegerAABBInclusive expandArea(
+        IntegerAABBInclusive originalArea,
+        Predicate<BlockPos> predicate,
+        Direction direction
+    ) {
+        IntegerAABBInclusive currentBox = originalArea;
+        for (int i = 1; i < 42; i++) {
+            IntegerAABBInclusive expanded = currentBox.getExpanded(direction, 1);
+            if (expanded.getSurfaceLayer(direction).stream().allMatch(predicate)) {
+                currentBox = expanded;
+            }
+            else {
+                return currentBox;
+            }
+        }
+        return currentBox;
+    }
 }

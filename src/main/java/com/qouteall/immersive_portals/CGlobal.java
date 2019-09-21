@@ -22,7 +22,7 @@ public class CGlobal {
     public static WeakReference<FrustumWithOrigin> currentFrustumCuller;
     
     public static boolean doUseAdvancedFrustumCulling = true;
-    public static int maxPortalLayer = 3;
+    public static int maxPortalLayer = 10;
     public static int maxIdleChunkRendererNum = 500;
     public static Object switchedFogRenderer;
     public static boolean useHackedChunkRenderDispatcher = true;
@@ -35,6 +35,7 @@ public class CGlobal {
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     
     public static boolean isRenderDebugMode = false;
+    public static boolean debugMirrorMode = false;
     
     public static ShaderManager shaderManager;
     

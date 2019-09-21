@@ -290,9 +290,16 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("profile_start")
+            .literal("debug_mirror_mode_enable")
             .executes(context -> {
-            
+                CGlobal.debugMirrorMode = true;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("debug_mirror_mode_disable")
+            .executes(context -> {
+                CGlobal.debugMirrorMode = false;
                 return 0;
             })
         );

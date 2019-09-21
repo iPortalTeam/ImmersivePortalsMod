@@ -66,6 +66,21 @@ public class IntegerAABBInclusive {
         );
     }
     
+    public IntegerAABBInclusive getExpanded(Direction direction, int n) {
+        if (direction.getDirection() == Direction.AxisDirection.POSITIVE) {
+            return new IntegerAABBInclusive(
+                l,
+                h.add(Helper.scale(direction.getVector(), n))
+            );
+        }
+        else {
+            return new IntegerAABBInclusive(
+                l.add(Helper.scale(direction.getVector(), n)),
+                h
+            );
+        }
+    }
+    
     public Stream<BlockPos> stream() {
         assert isSorted();
         

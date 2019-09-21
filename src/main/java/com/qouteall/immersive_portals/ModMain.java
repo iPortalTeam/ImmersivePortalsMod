@@ -6,10 +6,7 @@ import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.portal.EndPortalEntity;
-import com.qouteall.immersive_portals.portal.NetherPortalEntity;
-import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
 
@@ -29,6 +26,8 @@ public class ModMain implements ModInitializer {
         Portal.init();
         NetherPortalEntity.init();
         EndPortalEntity.init();
+        Mirror.init();
+        BreakableMirror.init();
     
         PortalPlaceholderBlock.init();
     
