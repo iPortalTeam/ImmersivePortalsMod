@@ -9,6 +9,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.Comparator;
 import java.util.function.Function;
 
 public class CollisionHelper {
@@ -179,7 +180,9 @@ public class CollisionHelper {
             portal -> shouldCollideWithPortal(
                 entity, portal
             )
-        ).findFirst().orElse(null);
+        ).min(
+            Comparator.comparingDouble(p -> p.y)
+        ).orElse(null);
     }
     
     public static boolean isCollidingWithAnyPortal(Entity entity) {

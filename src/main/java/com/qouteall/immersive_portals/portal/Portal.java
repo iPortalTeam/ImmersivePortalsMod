@@ -341,6 +341,7 @@ public class Portal extends Entity {
     public boolean shouldEntityTeleport(Entity entity) {
         float eyeHeight = entity.getStandingEyeHeight();
         return entity.dimension == this.dimension &&
+            isTeleportable() &&
             isMovedThroughPortal(
                 Helper.lastTickPosOf(entity).add(0, eyeHeight, 0),
                 entity.getPos().add(0, eyeHeight, 0)

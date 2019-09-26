@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.Material;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -95,7 +95,7 @@ public class BreakableMirror extends Mirror {
     }
     
     private static boolean isGlass(World world, BlockPos blockPos) {
-        return world.getBlockState(blockPos).getMaterial() == Material.GLASS;
+        return world.getBlockState(blockPos).getBlock() == Blocks.GLASS;
     }
     
     public static BreakableMirror createMirror(

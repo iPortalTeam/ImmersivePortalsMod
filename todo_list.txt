@@ -1,11 +1,9 @@
-fix translucent block rendering issue with optiFine without shader
-fix light flash when going into end portal(with optifine without shader)
-fix friction when jumping into portal
+
 fix weather changed when player go back to overworld
-fix translucent rendering issue when rendering nested portal
 fix motion blur issue with bsl
 fix reverse portal not destroyed(rarely?)
-fix go into wall when colliding with portal
+
+avoid intersecting mirror and mirror merge
 
 avoid hand rendering when rendering portal
 
@@ -16,8 +14,6 @@ NOTE entity.dimension sometimes is not the same as entity.world.dimension when c
 support going through portal while riding entity
 
 check public static fields of Shaders class
-
-new functionality: mirror, upside down, scaling
 
 check center depth correctness
 
@@ -31,3 +27,9 @@ fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
 fix program id leak with shader switch
 fix issue when sneak halfway in a horizontal portal
+fix translucent rendering issue when rendering nested portal
+fix friction when jumping into portal
+fix light flash when going into end portal(with optifine without shader)
+
+
+

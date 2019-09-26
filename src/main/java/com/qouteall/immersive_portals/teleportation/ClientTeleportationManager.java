@@ -65,10 +65,11 @@ public class ClientTeleportationManager {
                 mc.player,
                 Portal.class,
                 10
-            )
-                .filter(portal -> portal.shouldEntityTeleport(mc.player))
-                .findFirst()
-                .ifPresent(portal -> onEntityGoInsidePortal(mc.player, portal));
+            ).filter(
+                portal -> portal.shouldEntityTeleport(mc.player)
+            ).findFirst().ifPresent(
+                portal -> onEntityGoInsidePortal(mc.player, portal)
+            );
         }
     }
     
@@ -121,11 +122,12 @@ public class ClientTeleportationManager {
         ));
         
         amendChunkEntityStatus(player);
-        
+    
+        slowDownIfTooFast(player);
     }
     
     private boolean isTeleportingFrequently() {
-        if (tickTimeForTeleportation - lastTeleportGameTime < 5) {
+        if (tickTimeForTeleportation - lastTeleportGameTime <= 2) {
             return true;
         }
         else {
@@ -238,6 +240,13 @@ public class ClientTeleportationManager {
             }
             mc.player.setPosition(playerPos.x, playerPos.y, playerPos.z);
             mc.openScreen(null);
+        }
+    }
+    
+    //if player is falling through looping portals, make it slower
+    private void slowDownIfTooFast(ClientPlayerEntity player) {
+        if (player.getVelocity().length() > 1) {
+            player.setVelocity(player.getVelocity().multiply(0.5));
         }
     }
 }
