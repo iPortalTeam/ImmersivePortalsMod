@@ -9,10 +9,13 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
@@ -104,8 +107,18 @@ public class NetherPortalEntity extends Portal {
         assert !world.isClient;
         
         ServerWorld world = getServer().getWorld(dimensionTo);
-        return world == null ?
-            null : (NetherPortalEntity) world.getEntity(reversePortalId);
+        if (world == null) {
+            return null;
+        }
+        else {
+            ChunkPos chunkPos = new ChunkPos(new BlockPos(destination));
+            world.setChunkForced(
+                chunkPos.x, chunkPos.z, true
+            );
+            world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, true);
+        
+            return (NetherPortalEntity) world.getEntity(reversePortalId);
+        }
     }
     
     @Override
@@ -136,11 +149,6 @@ public class NetherPortalEntity extends Portal {
             NetherPortalEntity reversePortal = getReversePortal();
             if (reversePortal != null) {
                 reversePortal.shouldBreakNetherPortal = true;
-            }
-            else {
-                Helper.err(
-                    "Cannot find the reverse portal. Nether portal may not be removed normally."
-                );
             }
         }
     }

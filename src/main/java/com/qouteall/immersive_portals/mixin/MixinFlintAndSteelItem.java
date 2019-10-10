@@ -27,9 +27,14 @@ public class MixinFlintAndSteelItem {
             NetherPortalGenerator.NetherPortalGeneratedInformation info =
                 NetherPortalGenerator.onFireLit(((ServerWorld) world), firePos);
             if (info == null) {
-                BreakableMirror.createMirror(
+                BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), context.getBlockPos(), context.getSide()
                 );
+                if (mirror != null) {
+                    context.getStack().damage(1, context.getPlayer(),
+                        playerEntity_1x -> playerEntity_1x.sendToolBreakStatus(context.getHand())
+                    );
+                }
             }
         }
     }

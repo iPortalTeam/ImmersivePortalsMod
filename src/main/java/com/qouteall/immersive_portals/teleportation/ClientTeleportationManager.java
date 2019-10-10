@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.exposer.IEMinecraftClient;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
@@ -41,6 +42,7 @@ public class ClientTeleportationManager {
     private static void tick(ClientTeleportationManager this_) {
         this_.manageTeleportation();
         this_.tickTimeForTeleportation++;
+        this_.slowDownPlayerIfCollidingWithPortal();
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -123,7 +125,7 @@ public class ClientTeleportationManager {
         
         amendChunkEntityStatus(player);
     
-        slowDownIfTooFast(player);
+        //slowDownIfTooFast(player, 0.5);
     }
     
     private boolean isTeleportingFrequently() {
@@ -243,10 +245,22 @@ public class ClientTeleportationManager {
         }
     }
     
+    private void slowDownPlayerIfCollidingWithPortal() {
+        boolean collidingWithPortal = !mc.player.world.getEntities(
+            Portal.class,
+            mc.player.getBoundingBox().expand(1),
+            e -> !(e instanceof Mirror)
+        ).isEmpty();
+        
+        if (collidingWithPortal) {
+            slowDownIfTooFast(mc.player, 0.7);
+        }
+    }
+    
     //if player is falling through looping portals, make it slower
-    private void slowDownIfTooFast(ClientPlayerEntity player) {
-        if (player.getVelocity().length() > 1) {
-            player.setVelocity(player.getVelocity().multiply(0.5));
+    private void slowDownIfTooFast(ClientPlayerEntity player, double ratio) {
+        if (player.getVelocity().length() > 0.7) {
+            player.setVelocity(player.getVelocity().multiply(ratio));
         }
     }
 }

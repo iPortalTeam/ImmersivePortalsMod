@@ -170,7 +170,7 @@ public class ViewAreaRenderer {
             bufferbuilder,
             PortalRenderer.mc.gameRenderer.getCamera().getPos(),
             RenderHelper.partialTicks,
-            portal instanceof Mirror ? -0.1F : 0.4F
+            portal instanceof Mirror ? -0.1F : 0.45F
         );
         
         tessellator.draw();

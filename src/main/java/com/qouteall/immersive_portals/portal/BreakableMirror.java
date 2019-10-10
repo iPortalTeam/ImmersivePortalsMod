@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -73,7 +74,7 @@ public class BreakableMirror extends Mirror {
     public void tick() {
         super.tick();
         if (!world.isClient) {
-            if (world.getTime() % 50 == getEntityId() % 50) {
+            if (world.getTime() % 10 == getEntityId() % 10) {
                 checkWallIntegrity();
             }
         }
@@ -96,6 +97,7 @@ public class BreakableMirror extends Mirror {
     
     private static boolean isGlass(World world, BlockPos blockPos) {
         return world.getBlockState(blockPos).getBlock() == Blocks.GLASS;
+        //return world.getBlockState(blockPos).getMaterial() == Material.GLASS;
     }
     
     public static BreakableMirror createMirror(
@@ -106,16 +108,8 @@ public class BreakableMirror extends Mirror {
         if (!isGlass(world, glassPos)) {
             return null;
         }
-        
-        IntegerAABBInclusive wallArea = new IntegerAABBInclusive(glassPos, glassPos);
-        
-        for (Direction direction : Helper.getAnotherFourDirections(facing.getAxis())) {
-            wallArea = Helper.expandArea(
-                wallArea,
-                blockPos -> isGlass(world, blockPos),
-                direction
-            );
-        }
+    
+        IntegerAABBInclusive wallArea = findGlassWallArea(world, glassPos, facing);
         
         BreakableMirror breakableMirror = BreakableMirror.entityType.create(world);
         Vec3d pos = new Vec3d(
@@ -155,7 +149,44 @@ public class BreakableMirror extends Mirror {
         breakableMirror.wallArea = wallArea;
         
         world.spawnEntity(breakableMirror);
+    
+        breakIntersectedMirror(breakableMirror);
         
         return breakableMirror;
+    }
+    
+    public static IntegerAABBInclusive findGlassWallArea(
+        ServerWorld world,
+        BlockPos glassPos,
+        Direction facing
+    ) {
+        IntegerAABBInclusive wallArea = new IntegerAABBInclusive(glassPos, glassPos);
+        
+        for (Direction direction : Helper.getAnotherFourDirections(facing.getAxis())) {
+            wallArea = Helper.expandArea(
+                wallArea,
+                blockPos -> isGlass(world, blockPos),
+                direction
+            );
+        }
+        return wallArea;
+    }
+    
+    private static void breakIntersectedMirror(BreakableMirror newMirror) {
+        Helper.getEntitiesNearby(
+            newMirror,
+            BreakableMirror.class,
+            10
+        ).filter(
+            mirror1 -> mirror1.getNormal().dotProduct(newMirror.getNormal()) > 0.5
+        ).filter(
+            mirror1 -> IntegerAABBInclusive.getIntersect(
+                mirror1.wallArea, newMirror.wallArea
+            ) != null
+        ).filter(
+            mirror -> mirror != newMirror
+        ).forEach(
+            Entity::remove
+        );
     }
 }

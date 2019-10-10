@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.exposer.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.IEOFWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
@@ -170,6 +171,10 @@ public class MyGameRenderer {
         Vec3d portalPos = portal.getPos().subtract(
             mc.gameRenderer.getCamera().getPos()
         );
+    
+        if (OFHelper.getIsUsingShader() && portal instanceof Mirror) {
+            planeNormal = planeNormal.multiply(-1);
+        }
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c

@@ -12,7 +12,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -262,16 +261,6 @@ public class Portal extends Entity {
             getPointInPlane(-width / 2, -height / 2)
                 .add(getNormal().multiply(-0.1))
         );
-    }
-    
-    @Override
-    public String toString() {
-        return "Portal{" +
-            "id=" + getEntityId() +
-            ", in=" + dimension + getBlockPos() +
-            ", to=" + dimensionTo + new BlockPos(destination) +
-            ", normal=" + new BlockPos(getNormal()) +
-            '}';
     }
     
     //0 and 3 are connected

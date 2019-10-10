@@ -327,15 +327,15 @@ public class RenderHelper {
                 multMatrix(arr);
                 
                 GlStateManager.translated(-relativePos.x, -relativePos.y, -relativePos.z);
-                
-                GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
+    
+                //GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
             }
             else {
-                GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+                //GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
             }
         }
         else {
-            GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+            //GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
         }
     }
     
