@@ -279,6 +279,7 @@ public class IntegerAABBInclusive {
     }
     
     public Box toRealNumberBox() {
+        assert isSorted();
         return new Box(
             l.getX(),
             l.getY(),

@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 public class CHelper {
+    
     public static PlayerListEntry getClientPlayerListEntry() {
         return MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
             MinecraftClient.getInstance().player.getGameProfile().getId()
@@ -51,19 +52,24 @@ public class CHelper {
         return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
     
-    public static Stream<Portal> getClientNearbyPortals() {
+    public static Stream<Portal> getClientNearbyPortals(int range) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
         Stream<Portal> nearbyPortals = Helper.getEntitiesNearby(
             player,
             Portal.class,
-            64
+            range
         );
         if (globalPortals == null) {
             return nearbyPortals;
         }
         else {
-            return Streams.concat(globalPortals.stream(), nearbyPortals);
+            return Streams.concat(
+                globalPortals.stream().filter(
+                    p -> p.getDistanceToNearestPointInPortal(player.getPos()) < range
+                ),
+                nearbyPortals
+            );
         }
     }
 }

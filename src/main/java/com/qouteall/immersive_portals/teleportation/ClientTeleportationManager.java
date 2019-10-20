@@ -64,7 +64,7 @@ public class ClientTeleportationManager {
     
     private void manageTeleportation() {
         if (mc.world != null && mc.player != null) {
-            CHelper.getClientNearbyPortals().filter(
+            CHelper.getClientNearbyPortals(20).filter(
                 portal -> portal.shouldEntityTeleport(mc.player)
             ).findFirst().ifPresent(
                 portal -> onEntityGoInsidePortal(mc.player, portal)

@@ -5,7 +5,6 @@ import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -44,11 +43,4 @@ public class Mirror extends Portal {
         return false;
     }
     
-    public String toString() {
-        return "Mirror{" +
-            "id=" + getEntityId() +
-            ", in=" + dimension + getBlockPos() +
-            ", normal=" + new BlockPos(getNormal()) +
-            '}';
-    }
 }

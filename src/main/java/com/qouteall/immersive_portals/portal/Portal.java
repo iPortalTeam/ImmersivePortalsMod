@@ -105,18 +105,8 @@ public class Portal extends Entity {
         }
     }
     
-    public Vec3d getNormal() {
-        if (normal == null)
-            normal = axisW.crossProduct(axisH).normalize();
-        return normal;
-    }
-    
     public boolean isTeleportable() {
         return true;
-    }
-    
-    public Vec3d getContentDirection() {
-        return getNormal().multiply(-1);
     }
     
     @Override
@@ -175,18 +165,6 @@ public class Portal extends Entity {
             destination != null;
     }
     
-    public double getDistanceToPlane(
-        Vec3d pos
-    ) {
-        return pos.subtract(getPos()).dotProduct(getNormal());
-    }
-    
-    public boolean isInFrontOfPortal(
-        Vec3d playerPos
-    ) {
-        return getDistanceToPlane(playerPos) > 0;
-    }
-    
     public boolean canRenderPortalInsideMe(Portal anotherPortal) {
         if (anotherPortal.dimension != dimensionTo) {
             return false;
@@ -198,68 +176,6 @@ public class Portal extends Entity {
     public boolean canRenderEntityInsideMe(Vec3d entityPos) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
         return v > 0;
-    }
-    
-    public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
-        return getPos().add(getPointInPlaneRelativeToCenter(xInPlane, yInPlane));
-    }
-    
-    public Vec3d getPointInPlaneRelativeToCenter(double xInPlane, double yInPlane) {
-        return axisW.multiply(xInPlane).add(axisH.multiply(yInPlane));
-    }
-    
-    //3  2
-    //1  0
-    public Vec3d[] getFourVertices(double shrinkFactor) {
-        Vec3d[] vertices = new Vec3d[4];
-        vertices[0] = getPointInPlane(width / 2 - shrinkFactor, -height / 2 + shrinkFactor);
-        vertices[1] = getPointInPlane(-width / 2 + shrinkFactor, -height / 2 + shrinkFactor);
-        vertices[2] = getPointInPlane(width / 2 - shrinkFactor, height / 2 - shrinkFactor);
-        vertices[3] = getPointInPlane(-width / 2 + shrinkFactor, height / 2 - shrinkFactor);
-        
-        return vertices;
-    }
-    
-    //3  2
-    //1  0
-    public Vec3d[] getFourVerticesRelativeToCenter(double shrinkFactor) {
-        Vec3d[] vertices = new Vec3d[4];
-        vertices[0] = getPointInPlaneRelativeToCenter(
-            width / 2 - shrinkFactor,
-            -height / 2 + shrinkFactor
-        );
-        vertices[1] = getPointInPlaneRelativeToCenter(
-            -width / 2 + shrinkFactor,
-            -height / 2 + shrinkFactor
-        );
-        vertices[2] = getPointInPlaneRelativeToCenter(
-            width / 2 - shrinkFactor,
-            height / 2 - shrinkFactor
-        );
-        vertices[3] = getPointInPlaneRelativeToCenter(
-            -width / 2 + shrinkFactor,
-            height / 2 - shrinkFactor
-        );
-        
-        return vertices;
-    }
-    
-    public Vec3d applyTransformationToPoint(Vec3d pos) {
-        Vec3d offset = destination.subtract(getPos());
-        return pos.add(offset);
-    }
-    
-    public Vec3d getCullingPoint() {
-        return destination;
-    }
-    
-    private Box getPortalCollisionBox() {
-        return new Box(
-            getPointInPlane(width / 2, height / 2)
-                .add(getNormal().multiply(0.1)),
-            getPointInPlane(-width / 2, -height / 2)
-                .add(getNormal().multiply(-0.1))
-        );
     }
     
     //0 and 3 are connected
@@ -336,6 +252,116 @@ public class Portal extends Entity {
             );
     }
     
+    public void onEntityTeleportedOnServer(Entity entity) {
+        //nothing
+    }
+    
+    public boolean canBeSeenByPlayer(PlayerEntity player) {
+        if (specificPlayer == null) {
+            return true;
+        }
+        else {
+            return specificPlayer.equals(player.getUuid());
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return String.format(
+            "%s{%s,(%s %s %s %s)->(%s %s %s %s)}",
+            getClass().getSimpleName(),
+            getEntityId(),
+            dimension, (int) x, (int) y, (int) z,
+            dimensionTo, (int) destination.x, (int) destination.y, (int) destination.z
+        );
+    }
+    
+    //Geometry----------
+    
+    public Vec3d getNormal() {
+        if (normal == null)
+            normal = axisW.crossProduct(axisH).normalize();
+        return normal;
+    }
+    
+    public Vec3d getContentDirection() {
+        return getNormal().multiply(-1);
+    }
+    
+    public double getDistanceToPlane(
+        Vec3d pos
+    ) {
+        return pos.subtract(getPos()).dotProduct(getNormal());
+    }
+    
+    public boolean isInFrontOfPortal(
+        Vec3d playerPos
+    ) {
+        return getDistanceToPlane(playerPos) > 0;
+    }
+    
+    public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
+        return getPos().add(getPointInPlaneRelativeToCenter(xInPlane, yInPlane));
+    }
+    
+    public Vec3d getPointInPlaneRelativeToCenter(double xInPlane, double yInPlane) {
+        return axisW.multiply(xInPlane).add(axisH.multiply(yInPlane));
+    }
+    
+    //3  2
+    //1  0
+    public Vec3d[] getFourVertices(double shrinkFactor) {
+        Vec3d[] vertices = new Vec3d[4];
+        vertices[0] = getPointInPlane(width / 2 - shrinkFactor, -height / 2 + shrinkFactor);
+        vertices[1] = getPointInPlane(-width / 2 + shrinkFactor, -height / 2 + shrinkFactor);
+        vertices[2] = getPointInPlane(width / 2 - shrinkFactor, height / 2 - shrinkFactor);
+        vertices[3] = getPointInPlane(-width / 2 + shrinkFactor, height / 2 - shrinkFactor);
+        
+        return vertices;
+    }
+    
+    //3  2
+    //1  0
+    public Vec3d[] getFourVerticesRelativeToCenter(double shrinkFactor) {
+        Vec3d[] vertices = new Vec3d[4];
+        vertices[0] = getPointInPlaneRelativeToCenter(
+            width / 2 - shrinkFactor,
+            -height / 2 + shrinkFactor
+        );
+        vertices[1] = getPointInPlaneRelativeToCenter(
+            -width / 2 + shrinkFactor,
+            -height / 2 + shrinkFactor
+        );
+        vertices[2] = getPointInPlaneRelativeToCenter(
+            width / 2 - shrinkFactor,
+            height / 2 - shrinkFactor
+        );
+        vertices[3] = getPointInPlaneRelativeToCenter(
+            -width / 2 + shrinkFactor,
+            height / 2 - shrinkFactor
+        );
+        
+        return vertices;
+    }
+    
+    public Vec3d applyTransformationToPoint(Vec3d pos) {
+        Vec3d offset = destination.subtract(getPos());
+        return pos.add(offset);
+    }
+    
+    public Vec3d getCullingPoint() {
+        return destination;
+    }
+    
+    private Box getPortalCollisionBox() {
+        return new Box(
+            getPointInPlane(width / 2, height / 2)
+                .add(getNormal().multiply(0.1)),
+            getPointInPlane(-width / 2, -height / 2)
+                .add(getNormal().multiply(-0.1))
+        );
+    }
+    
     public boolean isPointInPortalProjection(Vec3d pos) {
         Vec3d offset = pos.subtract(getPos());
         
@@ -351,7 +377,7 @@ public class Portal extends Entity {
         Vec3d lastTickPos,
         Vec3d pos
     ) {
-        if (pos.squaredDistanceTo(lastTickPos) > 5 * 5) {
+        if (pos.squaredDistanceTo(lastTickPos) > 4) {
             //entity moves to fast
             return false;
         }
@@ -372,16 +398,38 @@ public class Portal extends Entity {
         return isPointInPortalProjection(collidingPoint);
     }
     
-    public void onEntityTeleportedOnServer(Entity entity) {
-        //nothing
+    public double getDistanceToNearestPointInPortal(
+        Vec3d point
+    ) {
+        double distanceToPlane = getDistanceToPlane(point);
+        Vec3d posInPlane = point.add(getNormal().multiply(-distanceToPlane));
+        Vec3d localPos = posInPlane.subtract(getPos());
+        double localX = localPos.dotProduct(axisW);
+        double localY = localPos.dotProduct(axisH);
+        double distanceToRect = getDistanceToRectangle(
+            localX, localY,
+            -(width / 2), -(height / 2),
+            (width / 2), (height / 2)
+        );
+        return Math.sqrt(distanceToPlane * distanceToPlane + distanceToRect * distanceToRect);
     }
     
-    public boolean canBeSeenByPlayer(PlayerEntity player) {
-        if (specificPlayer == null) {
-            return true;
-        }
-        else {
-            return specificPlayer.equals(player.getUuid());
-        }
+    public static double getDistanceToRectangle(
+        double pointX, double pointY,
+        double rectAX, double rectAY,
+        double rectBX, double rectBY
+    ) {
+        assert rectAX <= rectBX;
+        assert rectAY <= rectBY;
+        
+        double wx1 = rectAX - pointX;
+        double wx2 = rectBX - pointX;
+        double dx = (wx1 * wx2 < 0 ? 0 : Math.min(Math.abs(wx1), Math.abs(wx2)));
+        
+        double wy1 = rectAY - pointY;
+        double wy2 = rectBY - pointY;
+        double dy = (wy1 * wy2 < 0 ? 0 : Math.min(Math.abs(wy1), Math.abs(wy2)));
+        
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }
