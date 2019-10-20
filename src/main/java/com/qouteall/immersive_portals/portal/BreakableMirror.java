@@ -126,12 +126,9 @@ public class BreakableMirror extends Mirror {
         );
         breakableMirror.destination = pos;
         breakableMirror.dimensionTo = world.dimension.getType();
-        
-        Pair<Direction.Axis, Direction.Axis> axises = Helper.getAnotherTwoAxis(facing.getAxis());
-        if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
-            axises = new Pair<>(axises.getRight(), axises.getLeft());
-        }
-        
+    
+        Pair<Direction.Axis, Direction.Axis> axises = Helper.getPerpendicularAxis(facing);
+    
         Direction.Axis wAxis = axises.getLeft();
         Direction.Axis hAxis = axises.getRight();
         float width = Helper.getCoordinate(wallArea.getSize(), wAxis);

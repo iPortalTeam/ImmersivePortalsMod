@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.PacketContext;
@@ -35,6 +36,8 @@ public class MyNetwork {
         new Identifier("immersive_portals", "redirected");
     public static final Identifier id_stcSpawnLoadingIndicator =
         new Identifier("immersive_portals", "indicator");
+    public static final Identifier id_stcUpdateGlobalPortal =
+        new Identifier("immersive_portals", "upd_glb_ptl");
     
     static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
@@ -171,5 +174,16 @@ public class MyNetwork {
         buf.writeDouble(pos.y);
         buf.writeDouble(pos.z);
         return new CustomPayloadS2CPacket(id_stcSpawnLoadingIndicator, buf);
+    }
+    
+    public static CustomPayloadS2CPacket createGlobalPortalUpdate(
+        GlobalPortalStorage storage
+    ) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        
+        buf.writeInt(storage.world.get().dimension.getType().getRawId());
+        buf.writeCompoundTag(storage.toTag(new CompoundTag()));
+        
+        return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
     }
 }

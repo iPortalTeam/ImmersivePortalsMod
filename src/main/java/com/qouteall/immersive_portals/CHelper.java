@@ -1,13 +1,22 @@
 package com.qouteall.immersive_portals;
 
+import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.exposer.IEClientWorld;
+import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.Config;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 public class CHelper {
@@ -40,5 +49,21 @@ public class CHelper {
     //or it will crash in server
     public static World getClientWorld(DimensionType dimension) {
         return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+    }
+    
+    public static Stream<Portal> getClientNearbyPortals() {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
+        Stream<Portal> nearbyPortals = Helper.getEntitiesNearby(
+            player,
+            Portal.class,
+            64
+        );
+        if (globalPortals == null) {
+            return nearbyPortals;
+        }
+        else {
+            return Streams.concat(globalPortals.stream(), nearbyPortals);
+        }
     }
 }

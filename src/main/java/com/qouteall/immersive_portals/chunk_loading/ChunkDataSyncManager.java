@@ -50,6 +50,8 @@ public class ChunkDataSyncManager {
             return;
         }
     
+        Helper.getServer().getProfiler().push("begin_watch");
+        
         SGlobal.chunkTracker.onChunkDataSent(player, chunkPos);
         IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
     
@@ -59,6 +61,8 @@ public class ChunkDataSyncManager {
         else {
             sendPacketNormally(player, chunkPos, ieStorage);
         }
+    
+        Helper.getServer().getProfiler().pop();
     }
     
     private void sendPacketMultiThreaded(
@@ -107,6 +111,8 @@ public class ChunkDataSyncManager {
         DimensionalChunkPos chunkPos,
         IEThreadedAnvilChunkStorage ieStorage
     ) {
+        Helper.getServer().getProfiler().push("send_chunk_data");
+        
         Chunk chunk = Helper.getServer()
             .getWorld(chunkPos.dimension)
             .getChunk(chunkPos.x, chunkPos.z);
@@ -131,10 +137,11 @@ public class ChunkDataSyncManager {
                 )
             )
         );
-        
-        //this is to update the entity trackers
-        //performance may be slowed down
+    
+        //update the entity trackers
         ((ThreadedAnvilChunkStorage) ieStorage).updateCameraPosition(player);
+    
+        Helper.getServer().getProfiler().pop();
     }
     
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {

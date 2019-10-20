@@ -17,6 +17,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -192,7 +194,7 @@ public class MyCommandClient {
             .literal("switch_to_normal_renderer")
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
-                    CGlobal.renderer = CGlobal.rendererUsingStencil;
+                    CGlobal.useCompatibilityRenderer = false;
                 });
                 return 0;
             })
@@ -201,7 +203,7 @@ public class MyCommandClient {
             .literal("switch_to_compatibility_renderer")
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
-                    CGlobal.renderer = CGlobal.rendererUsingFrameBuffer;
+                    CGlobal.useCompatibilityRenderer = true;
                 });
                 return 0;
             })
@@ -306,6 +308,17 @@ public class MyCommandClient {
             .literal("debug_mirror_mode_disable")
             .executes(context -> {
                 CGlobal.debugMirrorMode = false;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("test_riding")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                MinecartEntity minecart = EntityType.MINECART.create(player.world);
+                minecart.setPosition(player.x + 1, player.y, player.z);
+                player.world.spawnEntity(minecart);
+                player.startRiding(minecart, true);
                 return 0;
             })
         );

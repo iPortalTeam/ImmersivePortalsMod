@@ -240,6 +240,36 @@ public class Helper {
         return new ArrayList<>(getServer().getPlayerManager().getPlayerList());
     }
     
+    @Deprecated
+    public static Pair<Direction.Axis, Direction.Axis> getPerpendicularAxis(Direction facing) {
+        Pair<Direction.Axis, Direction.Axis> axises = getAnotherTwoAxis(facing.getAxis());
+        if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
+            axises = new Pair<>(axises.getRight(), axises.getLeft());
+        }
+        return axises;
+    }
+    
+    public static Pair<Direction, Direction> getPerpendicularDirections(Direction facing) {
+        Pair<Direction.Axis, Direction.Axis> axises = getAnotherTwoAxis(facing.getAxis());
+        if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
+            axises = new Pair<>(axises.getRight(), axises.getLeft());
+        }
+        return new Pair<>(
+            Direction.get(Direction.AxisDirection.POSITIVE, axises.getLeft()),
+            Direction.get(Direction.AxisDirection.POSITIVE, axises.getRight())
+        );
+    }
+    
+    public static Vec3d getBoxSize(Box box) {
+        return new Vec3d(box.getXSize(), box.getYSize(), box.getZSize());
+    }
+    
+    public static Box getBoxSurface(Box box, Direction direction) {
+        double size = getCoordinate(getBoxSize(box), direction.getAxis());
+        Vec3d shrinkVec = new Vec3d(direction.getVector()).multiply(size);
+        return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         

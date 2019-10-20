@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -10,7 +11,6 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
@@ -19,12 +19,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class PortalRenderer {
     
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     protected Supplier<Integer> maxPortalLayer = () -> CGlobal.maxPortalLayer;
-    private Supplier<Double> portalRenderingRange = () -> 64.0;
     protected Stack<Portal> portalLayers = new Stack<>();
     
     //this WILL be called when rendering portal
@@ -102,6 +102,12 @@ public abstract class PortalRenderer {
         
         //do not use last tick pos
         Vec3d thisTickEyePos = mc.cameraEntity.getCameraPosVec(1);
+    
+        //special treat for third person mode
+        if (mc.gameRenderer.getCamera().isThirdPerson()) {
+            thisTickEyePos = mc.gameRenderer.getCamera().getPos();
+        }
+        
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }
@@ -118,17 +124,13 @@ public abstract class PortalRenderer {
     }
     
     private List<Portal> getPortalsNearbySorted() {
-        List<Portal> portalsNearby = mc.world.getEntities(
-            Portal.class,
-            new Box(mc.cameraEntity.getBlockPos()).expand(portalRenderingRange.get())
-        );
-        
-        portalsNearby.sort(
-            Comparator.comparing(portalEntity ->
-                portalEntity.getPos().squaredDistanceTo(mc.cameraEntity.getPos())
-            )
-        );
-        return portalsNearby;
+        Vec3d cameraPos = mc.cameraEntity.getPos();
+        return CHelper.getClientNearbyPortals()
+            .sorted(
+                Comparator.comparing(portalEntity ->
+                    portalEntity.getPos().squaredDistanceTo(cameraPos)
+                )
+            ).collect(Collectors.toList());
     }
     
     protected abstract void doRenderPortal(Portal portal);

@@ -6,6 +6,8 @@ import com.qouteall.immersive_portals.exposer.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -28,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -237,5 +240,19 @@ public class MyNetworkClient {
                 mc.world = originalWorld;
             }
         });
+    }
+    
+    private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
+        DimensionType dimensionType = DimensionType.byRawId(buf.readInt());
+        
+        ClientWorld world =
+            CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
+        
+        CompoundTag compoundTag = buf.readCompoundTag();
+        
+        List<GlobalTrackedPortal> portals =
+            GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
+        
+        ((IEClientWorld) world).setGlobalPortals(portals);
     }
 }

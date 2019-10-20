@@ -22,14 +22,14 @@ public class CGlobal {
     public static WeakReference<FrustumWithOrigin> currentFrustumCuller;
     
     public static boolean doUseAdvancedFrustumCulling = true;
-    public static int maxPortalLayer = 10;
+    public static int maxPortalLayer = 5;
     public static int maxIdleChunkRendererNum = 500;
     public static Object switchedFogRenderer;
     public static boolean useHackedChunkRenderDispatcher = true;
     public static boolean isClientRemoteTickingEnabled = true;
     public static boolean isOptifinePresent = false;
-    public static boolean renderPortalBeforeTranslucentBlocks = true;
     public static boolean useFrontCulling = true;
+    public static boolean useCompatibilityRenderer = false;
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;

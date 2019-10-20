@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.*;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
@@ -37,6 +38,10 @@ public class ModMainClient implements ClientModInitializer {
             BreakableMirror.class,
             (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
         );
+        EntityRendererRegistry.INSTANCE.register(
+            GlobalTrackedPortal.class,
+            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+        );
     }
     
     public static void switchToCorrectRenderer() {
@@ -53,7 +58,12 @@ public class ModMainClient implements ClientModInitializer {
             }
         }
         else {
-            switchRenderer(CGlobal.rendererUsingStencil);
+            if (CGlobal.useCompatibilityRenderer || SatinCompatibility.isSatinShaderEnabled()) {
+                switchRenderer(CGlobal.rendererUsingFrameBuffer);
+            }
+            else {
+                switchRenderer(CGlobal.rendererUsingStencil);
+            }
         }
     }
     
@@ -87,13 +97,6 @@ public class ModMainClient implements ClientModInitializer {
     
         Helper.log(CGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
-        if (CGlobal.isOptifinePresent) {
-            OFHelper.init();
-        }
-    
-        //when false it will make translucent blocks in front of portal render incorrectly
-        //when true translucent blocks may disappear
-        //I haven't made rendering objects switch fully correct
-        CGlobal.renderPortalBeforeTranslucentBlocks = false;
+        SatinCompatibility.init();
     }
 }

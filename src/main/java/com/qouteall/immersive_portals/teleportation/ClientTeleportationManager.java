@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
@@ -63,11 +64,7 @@ public class ClientTeleportationManager {
     
     private void manageTeleportation() {
         if (mc.world != null && mc.player != null) {
-            Helper.getEntitiesNearby(
-                mc.player,
-                Portal.class,
-                10
-            ).filter(
+            CHelper.getClientNearbyPortals().filter(
                 portal -> portal.shouldEntityTeleport(mc.player)
             ).findFirst().ifPresent(
                 portal -> onEntityGoInsidePortal(mc.player, portal)

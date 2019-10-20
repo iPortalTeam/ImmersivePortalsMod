@@ -1,13 +1,18 @@
 
 fix weather changed when player go back to overworld
-fix motion blur issue with bsl
-fix reverse portal not destroyed(rarely?)
+fix render issue with glowing effect (hand go left and smaller) (break portal transformation)
 
 avoid intersecting mirror and mirror merge
 
-avoid hand rendering when rendering portal
+render view area using 2 layers
 
 use 1 client net handler
+
+some-player-only portal and personal space
+
+faked infinite height
+
+check packet delay (create an entity and ride it)
 
 NOTE entity.dimension sometimes is not the same as entity.world.dimension when called changeDimension
 

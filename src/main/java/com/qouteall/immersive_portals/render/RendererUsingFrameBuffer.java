@@ -39,12 +39,16 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         GlStateManager.enableDepthTest();
     
         GL11.glDisable(GL11.GL_STENCIL_TEST);
+    
+        if (CGlobal.shaderManager == null) {
+            CGlobal.shaderManager = new ShaderManager();
+        }
     }
     
     @Override
     protected void doRenderPortal(Portal portal) {
         if (isRendering()) {
-            //currently only support one-layer portal
+            //only support one-layer portal
             return;
         }
         

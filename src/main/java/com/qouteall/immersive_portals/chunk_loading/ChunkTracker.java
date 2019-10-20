@@ -169,6 +169,8 @@ public class ChunkTracker {
             player,
             Portal.class,
             portalLoadingRange
+        ).filter(
+            portal -> portal.canBeSeenByPlayer(player)
         ).flatMap(
             portal -> Streams.concat(
                 Stream.of(portal),
@@ -177,12 +179,16 @@ public class ChunkTracker {
                     portal.destination,
                     Portal.class,
                     secondaryPortalLoadingRange
+                ).filter(
+                    portal1 -> portal1.canBeSeenByPlayer(player)
                 )
             )
         ).distinct();
     }
     
     private void tick() {
+        Helper.getServer().getProfiler().push("chunk_tracker");
+        
         long currTime = Helper.getServerGameTime();
         for (ServerPlayerEntity player : Helper.getCopiedPlayerList()) {
             if (currTime % 50 == player.getEntityId() % 50) {
@@ -195,6 +201,8 @@ public class ChunkTracker {
         if (currTime % 100 == 66) {
             cleanupForRemovedPlayers();
         }
+    
+        Helper.getServer().getProfiler().pop();
     }
     
     private void removeInactiveEdges(ServerPlayerEntity playerEntity) {

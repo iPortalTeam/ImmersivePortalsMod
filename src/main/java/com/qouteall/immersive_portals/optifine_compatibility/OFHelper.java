@@ -9,10 +9,6 @@ import org.lwjgl.opengl.EXTFramebufferObject;
 public class OFHelper {
     private static boolean isCreatingFakedWorld = false;
     
-    public static void init() {
-        
-    }
-    
     public static boolean getIsUsingShader() {
         if (CGlobal.isOptifinePresent) {
             return Config.isShaders();

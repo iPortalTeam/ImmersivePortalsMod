@@ -26,4 +26,8 @@ public class KeyedTaskList<K> {
             }
         });
     }
+    
+    synchronized public boolean isTaskExist(K key) {
+        return tasks.containsKey(key);
+    }
 }

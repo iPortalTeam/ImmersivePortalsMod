@@ -112,6 +112,20 @@ public class RenderHelper {
     }
     
     public static void setupCameraTransformation() {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        //rendering post processing shader may change view port
+        if (OFHelper.getIsUsingShader()) {
+            //Shaders.setViewport(0, 0, mc.window.getFramebufferWidth(), mc.window.getFramebufferHeight());
+        }
+        else {
+            GlStateManager.viewport(
+                0,
+                0,
+                mc.window.getFramebufferWidth(),
+                mc.window.getFramebufferHeight()
+            );
+        }
+        
         ((IEGameRenderer) PortalRenderer.mc.gameRenderer).applyCameraTransformations_(partialTicks);
         Camera camera = PortalRenderer.mc.gameRenderer.getCamera();
         camera.update(

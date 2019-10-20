@@ -4,10 +4,13 @@ import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
@@ -19,6 +22,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class Portal extends Entity {
@@ -32,8 +36,9 @@ public class Portal extends Entity {
     public DimensionType dimensionTo;
     public Vec3d destination;
     public boolean loadFewerChunks = true;
+    public UUID specificPlayer;
     
-    public Box boundingBoxCache;
+    private Box boundingBoxCache;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -63,26 +68,6 @@ public class Portal extends Entity {
         World world
     ) {
         this(entityType, world);
-    }
-    
-    public Portal(
-        World world_1,
-        double width,
-        double height,
-        Vec3d axisW,
-        Vec3d axisH,
-        DimensionType dimensionTo,
-        Vec3d destination
-    ) {
-        super(entityType, world_1);
-        this.width = width;
-        this.height = height;
-        this.axisW = axisW;
-        this.axisH = axisH;
-        this.dimensionTo = dimensionTo;
-        this.destination = destination;
-        
-        normal = axisW.crossProduct(axisH).normalize();
     }
     
     public Stream<Entity> getEntitiesToTeleport() {
@@ -115,6 +100,9 @@ public class Portal extends Entity {
         else {
             loadFewerChunks = true;
         }
+        if (compoundTag.containsKey("specificPlayer")) {
+            specificPlayer = compoundTag.getUuid("specificPlayer");
+        }
     }
     
     public Vec3d getNormal() {
@@ -140,6 +128,10 @@ public class Portal extends Entity {
         compoundTag.putInt("dimensionTo", dimensionTo.getRawId());
         Helper.putVec3d(compoundTag, "destination", destination);
         compoundTag.putBoolean("loadFewerChunks", loadFewerChunks);
+    
+        if (specificPlayer != null) {
+            compoundTag.putUuid("specificPlayer", specificPlayer);
+        }
     }
     
     @Override
@@ -156,6 +148,13 @@ public class Portal extends Entity {
         
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
+            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            if (player != null) {
+                if (!canBeSeenByPlayer(player)) {
+                    //removed in client but not in server
+                    remove();
+                }
+            }
         }
         else {
             if (!isPortalValid()) {
@@ -375,5 +374,14 @@ public class Portal extends Entity {
     
     public void onEntityTeleportedOnServer(Entity entity) {
         //nothing
+    }
+    
+    public boolean canBeSeenByPlayer(PlayerEntity player) {
+        if (specificPlayer == null) {
+            return true;
+        }
+        else {
+            return specificPlayer.equals(player.getUuid());
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.my_util;
 //import com.sun.istack.internal.Nullable;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 
@@ -275,5 +276,16 @@ public class IntegerAABBInclusive {
             new BlockPos(h.getX(), h.getY(), l.getZ()),
             new BlockPos(h.getX(), h.getY(), h.getZ())
         };
+    }
+    
+    public Box toRealNumberBox() {
+        return new Box(
+            l.getX(),
+            l.getY(),
+            l.getZ(),
+            h.getX() + 1,
+            h.getY() + 1,
+            h.getZ() + 1
+        );
     }
 }

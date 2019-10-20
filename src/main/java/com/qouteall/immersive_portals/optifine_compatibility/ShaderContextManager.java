@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
 
@@ -81,8 +82,9 @@ public class ShaderContextManager {
     
     public void switchContextAndRun(Runnable func) {
         DimensionType oldContextDimension = this.currentContextDimension;
-        DimensionType dimensionToSwitchTo = MinecraftClient.getInstance().world.dimension.getType();
-    
+        ClientWorld currentClientWorld = MinecraftClient.getInstance().world;
+        DimensionType dimensionToSwitchTo = currentClientWorld.dimension.getType();
+        
         if (currentContextDimension == null) {
             //currently the context was not switched
             currentContextDimension = CHelper.getOriginalDimension();
@@ -96,11 +98,40 @@ public class ShaderContextManager {
             currentContextDimension = dimensionToSwitchTo;
             PerDimensionContext newContext = getOrCreateContext(dimensionToSwitchTo);
         
+            if (newContext.currentWorld != null) {
+                checkState(currentClientWorld, dimensionToSwitchTo, newContext);
+            }
+            
             forceSwitchToContextAndRun(newContext, func);
         }
     
         currentContextDimension = oldContextDimension;
     }
+    
+    private void checkState(
+        ClientWorld currentClientWorld,
+        DimensionType dimensionToSwitchTo,
+        PerDimensionContext newContext
+    ) {
+        DimensionType newContextDimension = newContext.currentWorld.dimension.getType();
+        
+        if (newContextDimension != dimensionToSwitchTo) {
+            Helper.err(
+                "Shader Context Abnormal. Shader: " +
+                    newContextDimension +
+                    "Main: " +
+                    dimensionToSwitchTo
+            );
+            newContext.currentWorld = currentClientWorld;
+            Helper.log("Force corrected");
+            forceCorrectedNum++;
+            if (forceCorrectedNum > 100) {
+                throw new IllegalStateException();
+            }
+        }
+    }
+    
+    int forceCorrectedNum = 0;
     
     private void forceSwitchToContextAndRun(
         PerDimensionContext contextToSwitchTo,
