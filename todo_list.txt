@@ -1,4 +1,4 @@
-
+fix sky color without optifine
 fix weather changed when player go back to overworld
 fix render issue with glowing effect (hand go left and smaller) (break portal transformation)
 

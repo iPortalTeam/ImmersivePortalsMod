@@ -117,7 +117,7 @@ public class ClientTeleportationManager {
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldPos,
-            portal.getEntityId()
+            portal.getUuid()
         ));
         
         amendChunkEntityStatus(player);

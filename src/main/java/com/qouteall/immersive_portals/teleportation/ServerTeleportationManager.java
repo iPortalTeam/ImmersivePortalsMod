@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.exposer.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -14,10 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class ServerTeleportationManager {
@@ -43,10 +41,16 @@ public class ServerTeleportationManager {
         ServerPlayerEntity player,
         DimensionType dimensionBefore,
         Vec3d posBefore,
-        int portalId
+        UUID portalId
     ) {
-        Entity portalEntity = Helper.getServer()
-            .getWorld(dimensionBefore).getEntityById(portalId);
+        ServerWorld originalWorld = Helper.getServer().getWorld(dimensionBefore);
+        Entity portalEntity = originalWorld.getEntity(portalId);
+        if (portalEntity == null) {
+            portalEntity = GlobalPortalStorage.get(originalWorld).data
+                .stream().filter(
+                    p -> p.getUuid().equals(portalId)
+                ).findFirst().orElse(null);
+        }
         lastTeleportGameTime.put(player, Helper.getServerGameTime());
         
         if (canPlayerTeleport(player, dimensionBefore, posBefore, portalEntity)) {
@@ -80,7 +84,7 @@ public class ServerTeleportationManager {
     ) {
         return canPlayerReachPos(player, dimensionBefore, posBefore) &&
             portalEntity instanceof Portal &&
-            isClose(posBefore, portalEntity.getPos()) &&
+            ((Portal) portalEntity).getDistanceToPlane(posBefore) < 10 &&
             !player.hasVehicle();
     }
     

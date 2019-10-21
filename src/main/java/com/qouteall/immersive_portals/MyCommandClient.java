@@ -383,6 +383,17 @@ public class MyCommandClient {
                 ));
             }
         );
+    
+        str.append("Server Chunks:\n");
+        Helper.getServer().getWorlds().forEach(
+            world -> {
+                str.append(String.format(
+                    "%s %s\n",
+                    world.dimension.getType(),
+                    world.getForcedChunks().size()
+                ));
+            }
+        );
         
         String result = str.toString();
         

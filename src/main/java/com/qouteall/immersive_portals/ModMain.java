@@ -7,6 +7,8 @@ import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal.*;
+import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
+import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
@@ -30,7 +32,9 @@ public class ModMain implements ModInitializer {
         Mirror.init();
         BreakableMirror.init();
         GlobalTrackedPortal.init();
-    
+        BorderPortal.init();
+        EndFloorPortal.init();
+        
         PortalPlaceholderBlock.init();
     
         MyNetwork.init();

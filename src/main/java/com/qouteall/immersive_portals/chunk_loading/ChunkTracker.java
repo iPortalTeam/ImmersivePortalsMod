@@ -7,6 +7,8 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -155,35 +157,87 @@ public class ChunkTracker {
             getViewingPortals(player).flatMap(
                 portal -> getNearbyChunkPoses(
                     portal.dimensionTo,
-                    new BlockPos(portal.destination),
+                    getPortalLoadingCenter(player, portal),
                     portal.loadFewerChunks ? (renderDistance / 3) : renderDistance
                 )
             )
         ).collect(Collectors.toSet());
     }
     
+    private BlockPos getPortalLoadingCenter(ServerPlayerEntity player, Portal portal) {
+        if (portal instanceof GlobalTrackedPortal) {
+            return new BlockPos(portal.applyTransformationToPoint(player.getPos()));
+        }
+        else {
+            return new BlockPos(portal.destination);
+        }
+    }
+    
     //not only the portals near player
     //but also the portals that player can see from other portals
     private Stream<Portal> getViewingPortals(ServerPlayerEntity player) {
-        return Helper.getEntitiesNearby(
-            player,
-            Portal.class,
-            portalLoadingRange
-        ).filter(
-            portal -> portal.canBeSeenByPlayer(player)
-        ).flatMap(
-            portal -> Streams.concat(
-                Stream.of(portal),
-                Helper.getEntitiesNearby(
-                    Helper.getServer().getWorld(portal.dimensionTo),
-                    portal.destination,
-                    Portal.class,
-                    secondaryPortalLoadingRange
-                ).filter(
-                    portal1 -> portal1.canBeSeenByPlayer(player)
+        return Streams.concat(
+            Helper.getEntitiesNearby(
+                player,
+                Portal.class,
+                portalLoadingRange
+            ).filter(
+                portal -> portal.canBeSeenByPlayer(player)
+            ).flatMap(
+                portal -> Streams.concat(
+                    //directly seen portal
+                    Stream.of(portal),
+                
+                    //indirectly seen portals
+                    Helper.getEntitiesNearby(
+                        Helper.getServer().getWorld(portal.dimensionTo),
+                        portal.destination,
+                        Portal.class,
+                        secondaryPortalLoadingRange
+                    ).filter(
+                        portal1 -> portal1.canBeSeenByPlayer(player)
+                    )
                 )
-            )
+            ),
+        
+            //global portals
+            GlobalPortalStorage
+                .get(((ServerWorld) player.world))
+                .data.stream()
+                .filter(
+                    p -> p.getDistanceToNearestPointInPortal(player.getPos()) < 128
+                )
         ).distinct();
+//        return Helper.getEntitiesNearby(
+//            player,
+//            Portal.class,
+//            portalLoadingRange
+//        ).filter(
+//            portal -> portal.canBeSeenByPlayer(player)
+//        ).flatMap(
+//            portal -> Streams.concat(
+//                //directly seen portal
+//                Stream.of(portal),
+//
+//                //indirectly seen portals
+//                Helper.getEntitiesNearby(
+//                    Helper.getServer().getWorld(portal.dimensionTo),
+//                    portal.destination,
+//                    Portal.class,
+//                    secondaryPortalLoadingRange
+//                ).filter(
+//                    portal1 -> portal1.canBeSeenByPlayer(player)
+//                ),
+//
+//                //global portals
+//                GlobalPortalStorage
+//                    .get(((ServerWorld) player.world))
+//                    .data.stream()
+//                    .filter(
+//                        p -> p.getDistanceToNearestPointInPortal(player.getPos()) < 128
+//                    )
+//            )
+//        ).distinct();
     }
     
     private void tick() {

@@ -22,6 +22,7 @@ import net.minecraft.world.dimension.DimensionType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.UUID;
 
 public class MyNetwork {
     public static final Identifier id_ctsTeleport =
@@ -46,7 +47,7 @@ public class MyNetwork {
             buf.readDouble(),
             buf.readDouble()
         );
-        int portalEntityId = buf.readInt();
+        UUID portalEntityId = buf.readUuid();
         
         ModMain.serverTaskList.addTask(() -> {
             SGlobal.serverTeleportationManager.onPlayerTeleportedInClient(

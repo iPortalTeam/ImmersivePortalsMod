@@ -4,6 +4,8 @@ import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.*;
+import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
+import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
@@ -15,33 +17,52 @@ import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 
+import java.util.Arrays;
+
 public class ModMainClient implements ClientModInitializer {
     
     public static void initPortalRenderers() {
-        EntityRendererRegistry.INSTANCE.register(
+        Arrays.stream(new Class[]{
             Portal.class,
-            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-        );
-        EntityRendererRegistry.INSTANCE.register(
             NetherPortalEntity.class,
-            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-        );
-        EntityRendererRegistry.INSTANCE.register(
             EndPortalEntity.class,
-            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-        );
-        EntityRendererRegistry.INSTANCE.register(
             Mirror.class,
-            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-        );
-        EntityRendererRegistry.INSTANCE.register(
             BreakableMirror.class,
-            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-        );
-        EntityRendererRegistry.INSTANCE.register(
             GlobalTrackedPortal.class,
-            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+            BorderPortal.class,
+            EndFloorPortal.class
+        
+        }).forEach(
+            portalClass -> EntityRendererRegistry.INSTANCE.register(
+                portalClass,
+                (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+            )
         );
+//
+//        EntityRendererRegistry.INSTANCE.register(
+//            Portal.class,
+//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+//        );
+//        EntityRendererRegistry.INSTANCE.register(
+//            NetherPortalEntity.class,
+//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+//        );
+//        EntityRendererRegistry.INSTANCE.register(
+//            EndPortalEntity.class,
+//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+//        );
+//        EntityRendererRegistry.INSTANCE.register(
+//            Mirror.class,
+//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+//        );
+//        EntityRendererRegistry.INSTANCE.register(
+//            BreakableMirror.class,
+//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+//        );
+//        EntityRendererRegistry.INSTANCE.register(
+//            GlobalTrackedPortal.class,
+//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+//        );
     }
     
     public static void switchToCorrectRenderer() {

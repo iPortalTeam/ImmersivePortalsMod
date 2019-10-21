@@ -32,6 +32,7 @@ import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
@@ -56,14 +57,14 @@ public class MyNetworkClient {
     public static CustomPayloadC2SPacket createCtsTeleport(
         DimensionType dimensionBefore,
         Vec3d posBefore,
-        int portalEntityId
+        UUID portalEntityId
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(dimensionBefore.getRawId());
         buf.writeDouble(posBefore.x);
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);
-        buf.writeInt(portalEntityId);
+        buf.writeUuid(portalEntityId);
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
     }
     
@@ -176,6 +177,11 @@ public class MyNetworkClient {
             MyNetwork.id_stcSpawnLoadingIndicator,
             MyNetworkClient::processSpawnLoadingIndicator
         );
+    
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcUpdateGlobalPortal,
+            MyNetworkClient::processGlobalPortalUpdate
+        );
     }
     
     public static void processRedirectedMessage(
@@ -244,15 +250,15 @@ public class MyNetworkClient {
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
         DimensionType dimensionType = DimensionType.byRawId(buf.readInt());
-        
-        ClientWorld world =
-            CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
-        
         CompoundTag compoundTag = buf.readCompoundTag();
+        MinecraftClient.getInstance().execute(() -> {
+            ClientWorld world =
+                CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
         
-        List<GlobalTrackedPortal> portals =
-            GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
+            List<GlobalTrackedPortal> portals =
+                GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
         
-        ((IEClientWorld) world).setGlobalPortals(portals);
+            ((IEClientWorld) world).setGlobalPortals(portals);
+        });
     }
 }

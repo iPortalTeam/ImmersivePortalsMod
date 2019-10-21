@@ -125,7 +125,8 @@ public abstract class PortalRenderer {
     
     private List<Portal> getPortalsNearbySorted() {
         Vec3d cameraPos = mc.cameraEntity.getPos();
-        return CHelper.getClientNearbyPortals(64)
+        int range = 128 / (getPortalLayer() + 1);
+        return CHelper.getClientNearbyPortals(range)
             .sorted(
                 Comparator.comparing(portalEntity ->
                     portalEntity.getPos().squaredDistanceTo(cameraPos)

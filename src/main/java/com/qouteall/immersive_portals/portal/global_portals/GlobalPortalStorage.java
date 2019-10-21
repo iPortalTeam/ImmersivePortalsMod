@@ -3,10 +3,14 @@ package com.qouteall.immersive_portals.portal.global_portals;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
@@ -22,24 +26,25 @@ public class GlobalPortalStorage extends PersistentState {
     public GlobalPortalStorage(String string_1, ServerWorld world_) {
         super(string_1);
         world = new WeakReference<>(world_);
-    }
-    
-    public static void onDataChanged(GlobalPortalStorage storage) {
-        storage.setDirty(true);
-        
-        CustomPayloadS2CPacket packet = MyNetwork.createGlobalPortalUpdate(storage);
-        Helper.getCopiedPlayerList().forEach(
-            player -> player.networkHandler.sendPacket(packet)
-        );
+        data = new ArrayList<>();
     }
     
     public static void onPlayerLoggedIn(ServerPlayerEntity player) {
         Helper.getServer().getWorlds().forEach(
             world -> player.networkHandler.sendPacket(
                 MyNetwork.createGlobalPortalUpdate(
-                    getFromWorld(world)
+                    get(world)
                 )
             )
+        );
+    }
+    
+    public void onDataChanged() {
+        setDirty(true);
+        
+        CustomPayloadS2CPacket packet = MyNetwork.createGlobalPortalUpdate(this);
+        Helper.getCopiedPlayerList().forEach(
+            player -> player.networkHandler.sendPacket(packet)
         );
     }
     
@@ -60,15 +65,33 @@ public class GlobalPortalStorage extends PersistentState {
         /**{@link CompoundTag#getType()}*/
         ListTag listTag = var1.getList("data", 10);
         
-        
         List<GlobalTrackedPortal> newData = new ArrayList<>();
         
         for (int i = 0; i < listTag.size(); i++) {
-            GlobalTrackedPortal e = GlobalTrackedPortal.entityType.create(currWorld);
-            e.fromTag(listTag.getCompoundTag(i));
-            newData.add(e);
+            CompoundTag compoundTag = listTag.getCompoundTag(i);
+            GlobalTrackedPortal e = readPortalFromTag(currWorld, compoundTag);
+            if (e != null) {
+                newData.add(e);
+            }
+            else {
+                Helper.err("error reading portal" + compoundTag);
+            }
         }
         return newData;
+    }
+    
+    public static GlobalTrackedPortal readPortalFromTag(World currWorld, CompoundTag compoundTag) {
+        Identifier entityId = new Identifier(compoundTag.getString("entity_type"));
+        EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
+        
+        Entity e = entityType.create(currWorld);
+        e.fromTag(compoundTag);
+        
+        if (!(e instanceof GlobalTrackedPortal)) {
+            return null;
+        }
+        
+        return (GlobalTrackedPortal) e;
     }
     
     @Override
@@ -85,6 +108,10 @@ public class GlobalPortalStorage extends PersistentState {
             Validate.isTrue(portal.world == currWorld);
             CompoundTag tag = new CompoundTag();
             portal.toTag(tag);
+            tag.putString(
+                "entity_type",
+                EntityType.getId(portal.getType()).toString()
+            );
             listTag.add(tag);
         }
         
@@ -93,7 +120,7 @@ public class GlobalPortalStorage extends PersistentState {
         return var1;
     }
     
-    public static GlobalPortalStorage getFromWorld(
+    public static GlobalPortalStorage get(
         ServerWorld world
     ) {
         return world.getPersistentStateManager().getOrCreate(
