@@ -167,10 +167,10 @@ public class MyGameRenderer {
         Portal portal = CGlobal.renderer.getRenderingPortal();
     
         Vec3d planeNormal = portal.getNormal().multiply(-1);
-        
-        Vec3d portalPos = portal.getPos().subtract(
-            mc.gameRenderer.getCamera().getPos()
-        );
+    
+        Vec3d portalPos = portal.getPos()
+            .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
+            .subtract(mc.gameRenderer.getCamera().getPos());
     
         if (OFHelper.getIsUsingShader() && portal instanceof Mirror) {
             planeNormal = planeNormal.multiply(-1);

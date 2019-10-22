@@ -32,69 +32,19 @@ public class ViewAreaRenderer {
         );
     
         if (!(portal instanceof Mirror)) {
-            Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
-        
-            Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
-                .map(pos -> pos.add(posInPlayerCoordinate))
-                .toArray(Vec3d[]::new);
-        
-            Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0.2))
-                .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
-                .toArray(Vec3d[]::new);
-        
-            //3  2
-            //1  0
-        
-            //we do not render the front side
-        
-            //back side can only be seen from front
-            putIntoQuad(
+//            generateTriangleForBox(
+//                fogColor,
+//                portal,
+//                bufferbuilder,
+//                layerWidth,
+//                posInPlayerCoordinate
+//            );
+            generateTriangleBiLayered(
+                fogColor,
+                portal,
                 bufferbuilder,
-                backFace[0],
-                backFace[2],
-                backFace[3],
-                backFace[1],
-                fogColor
-            );
-        
-            //right side can only be seen from center
-            putIntoQuad(
-                bufferbuilder,
-                backFace[2],
-                backFace[0],
-                frontFace[0],
-                frontFace[2],
-                fogColor
-            );
-        
-            //left side can only be seen from center
-            putIntoQuad(
-                bufferbuilder,
-                backFace[1],
-                backFace[3],
-                frontFace[3],
-                frontFace[1],
-                fogColor
-            );
-        
-            //top side can only be seen from center
-            putIntoQuad(
-                bufferbuilder,
-                backFace[3],
-                backFace[2],
-                frontFace[2],
-                frontFace[3],
-                fogColor
-            );
-        
-            //bottom side can only be seen from bottom
-            putIntoQuad(
-                bufferbuilder,
-                backFace[0],
-                backFace[1],
-                frontFace[1],
-                frontFace[0],
-                fogColor
+                layerWidth,
+                posInPlayerCoordinate
             );
         }
         else {
@@ -102,7 +52,7 @@ public class ViewAreaRenderer {
             Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
                 .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
                 .toArray(Vec3d[]::new);
-        
+    
             putIntoQuad(
                 bufferbuilder,
                 frontFace[0],
@@ -112,6 +62,115 @@ public class ViewAreaRenderer {
                 fogColor
             );
         }
+    }
+    
+    private static void generateTriangleForBox(
+        Vec3d fogColor,
+        Portal portal,
+        BufferBuilder bufferbuilder,
+        float layerWidth,
+        Vec3d posInPlayerCoordinate
+    ) {
+        Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
+        
+        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
+            .map(pos -> pos.add(posInPlayerCoordinate))
+            .toArray(Vec3d[]::new);
+        
+        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0.2))
+            .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
+            .toArray(Vec3d[]::new);
+        
+        //3  2
+        //1  0
+        
+        //we do not render the front side
+        
+        //back side can only be seen from front
+        putIntoQuad(
+            bufferbuilder,
+            backFace[0],
+            backFace[2],
+            backFace[3],
+            backFace[1],
+            fogColor
+        );
+        
+        //right side can only be seen from center
+        putIntoQuad(
+            bufferbuilder,
+            backFace[2],
+            backFace[0],
+            frontFace[0],
+            frontFace[2],
+            fogColor
+        );
+        
+        //left side can only be seen from center
+        putIntoQuad(
+            bufferbuilder,
+            backFace[1],
+            backFace[3],
+            frontFace[3],
+            frontFace[1],
+            fogColor
+        );
+        
+        //top side can only be seen from center
+        putIntoQuad(
+            bufferbuilder,
+            backFace[3],
+            backFace[2],
+            frontFace[2],
+            frontFace[3],
+            fogColor
+        );
+        
+        //bottom side can only be seen from bottom
+        putIntoQuad(
+            bufferbuilder,
+            backFace[0],
+            backFace[1],
+            frontFace[1],
+            frontFace[0],
+            fogColor
+        );
+    }
+    
+    private static void generateTriangleBiLayered(
+        Vec3d fogColor,
+        Portal portal,
+        BufferBuilder bufferbuilder,
+        float layerWidth,
+        Vec3d posInPlayerCoordinate
+    ) {
+        Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
+        
+        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
+            .map(pos -> pos.add(posInPlayerCoordinate))
+            .toArray(Vec3d[]::new);
+        
+        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
+            .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
+            .toArray(Vec3d[]::new);
+        
+        putIntoQuad(
+            bufferbuilder,
+            backFace[0],
+            backFace[2],
+            backFace[3],
+            backFace[1],
+            fogColor
+        );
+        
+        putIntoQuad(
+            bufferbuilder,
+            frontFace[0],
+            frontFace[2],
+            frontFace[3],
+            frontFace[1],
+            fogColor
+        );
     }
     
     static private void putIntoVertex(BufferBuilder bufferBuilder, Vec3d pos, Vec3d fogColor) {
@@ -148,8 +207,10 @@ public class ViewAreaRenderer {
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
         
         Vec3d fogColor = helper.getFogColor();
+    
+        //important
+        GlStateManager.enableCull();
         
-        GlStateManager.disableCull();
         GlStateManager.disableAlphaTest();
         GlStateManager.disableTexture();
         GlStateManager.shadeModel(GL11.GL_SMOOTH);

@@ -1,6 +1,10 @@
 fix sky color without optifine
 fix weather changed when player go back to overworld
 fix render issue with glowing effect (hand go left and smaller) (break portal transformation)
+fix chunk render dispatcher issue (may be caused by neighbor abnormal)
+fix weather rendering culling
+fix global portal data lost after respawning
+fix deep layered portal rendering determination
 
 avoid intersecting mirror and mirror merge
 
@@ -28,6 +32,8 @@ Molly Vxe shader: abnormal
 Voyager: can't see overworld from nether
 
 postponed:
+support any-shaped portal
+multi-threaded nether portal matching
 fix so bright when rendering portal using beyond belief shader
 fix shader malfunction (shadow abnormal, pure color, crash)
 fix program id leak with shader switch

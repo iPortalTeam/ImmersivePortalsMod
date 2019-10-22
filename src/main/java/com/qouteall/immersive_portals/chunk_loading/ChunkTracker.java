@@ -12,7 +12,6 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -47,19 +46,12 @@ public class ChunkTracker {
         }
     }
     
-    private static final ChunkTicketType<ChunkPos> immersiveTicketType =
-        ChunkTicketType.create(
-            "immersive_portal_ticket",
-            Comparator.comparingLong(ChunkPos::toLong)
-        );
-    
     public static final int portalLoadingRange = 48;
     public static final int secondaryPortalLoadingRange = 16;
     
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
-    //TODO optimize using nested map
     private Multimap<DimensionalChunkPos, Edge> chunkPosToEdges = HashMultimap.create();
     private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
     
@@ -208,36 +200,6 @@ public class ChunkTracker {
                     p -> p.getDistanceToNearestPointInPortal(player.getPos()) < 128
                 )
         ).distinct();
-//        return Helper.getEntitiesNearby(
-//            player,
-//            Portal.class,
-//            portalLoadingRange
-//        ).filter(
-//            portal -> portal.canBeSeenByPlayer(player)
-//        ).flatMap(
-//            portal -> Streams.concat(
-//                //directly seen portal
-//                Stream.of(portal),
-//
-//                //indirectly seen portals
-//                Helper.getEntitiesNearby(
-//                    Helper.getServer().getWorld(portal.dimensionTo),
-//                    portal.destination,
-//                    Portal.class,
-//                    secondaryPortalLoadingRange
-//                ).filter(
-//                    portal1 -> portal1.canBeSeenByPlayer(player)
-//                ),
-//
-//                //global portals
-//                GlobalPortalStorage
-//                    .get(((ServerWorld) player.world))
-//                    .data.stream()
-//                    .filter(
-//                        p -> p.getDistanceToNearestPointInPortal(player.getPos()) < 128
-//                    )
-//            )
-//        ).distinct();
     }
     
     private void tick() {

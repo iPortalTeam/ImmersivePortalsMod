@@ -52,7 +52,7 @@ public class CHelper {
         return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
     
-    public static Stream<Portal> getClientNearbyPortals(int range) {
+    public static Stream<Portal> getClientNearbyPortals(double range) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
         Stream<Portal> nearbyPortals = Helper.getEntitiesNearby(

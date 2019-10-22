@@ -377,11 +377,6 @@ public class Portal extends Entity {
         Vec3d lastTickPos,
         Vec3d pos
     ) {
-        if (pos.squaredDistanceTo(lastTickPos) > 4) {
-            //entity moves to fast
-            return false;
-        }
-        
         double lastDistance = getDistanceToPlane(lastTickPos);
         double nowDistance = getDistanceToPlane(pos);
         
