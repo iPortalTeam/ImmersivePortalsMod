@@ -28,17 +28,21 @@ import java.util.stream.Stream;
 public class Portal extends Entity {
     public static EntityType<Portal> entityType;
     
+    //basic properties
     public double width = 0;
     public double height = 0;
     public Vec3d axisW;
     public Vec3d axisH;
-    private Vec3d normal;
     public DimensionType dimensionTo;
     public Vec3d destination;
+    
+    //additional properteis
     public boolean loadFewerChunks = true;
     public UUID specificPlayer;
+    public SpecialPortalShape specialShape;
     
     private Box boundingBoxCache;
+    private Vec3d normal;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -103,6 +107,11 @@ public class Portal extends Entity {
         if (compoundTag.containsKey("specificPlayer")) {
             specificPlayer = compoundTag.getUuid("specificPlayer");
         }
+        if (compoundTag.containsKey("specialShape")) {
+            specialShape = new SpecialPortalShape(
+                compoundTag.getList("specialShape", 6)
+            );
+        }
     }
     
     public boolean isTeleportable() {
@@ -121,6 +130,10 @@ public class Portal extends Entity {
     
         if (specificPlayer != null) {
             compoundTag.putUuid("specificPlayer", specificPlayer);
+        }
+    
+        if (specialShape != null) {
+            compoundTag.put("specialShape", specialShape.writeToTag());
         }
     }
     
