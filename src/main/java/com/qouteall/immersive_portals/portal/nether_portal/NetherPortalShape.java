@@ -2,13 +2,14 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import net.minecraft.server.world.ServerWorld;
+import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SpecialNetherPortalShape {
+public class NetherPortalShape {
     public BlockPos anchor;
     public Set<BlockPos> area;
     public IntegerAABBInclusive areaBox;
@@ -24,7 +25,7 @@ public class SpecialNetherPortalShape {
     public Set<BlockPos> frameAreaWithoutCorner;
     public Set<BlockPos> frameAreaWithCorner;
     
-    public SpecialNetherPortalShape(
+    public NetherPortalShape(
         Set<BlockPos> area, Direction.Axis axis
     ) {
         this.area = area;
@@ -93,20 +94,33 @@ public class SpecialNetherPortalShape {
         frameAreaWithCorner.addAll(frameAreaWithoutCorner);
     }
     
-    public static SpecialNetherPortalShape findArea(
-        ServerWorld world,
+    //null for not found
+    public static NetherPortalShape findArea(
         BlockPos startingPos,
-        Direction.Axis axis
+        Direction.Axis axis,
+        Predicate<BlockPos> isAir,
+        Predicate<BlockPos> isObsidian
     ) {
+        if (!isAir.test(startingPos)) {
+            return null;
+        }
+        
         Set<BlockPos> area = new HashSet<>();
         findAreaRecursively(
             startingPos,
-            world::isAir,
+            isAir,
             Helper.getAnotherFourDirections(axis),
             area
         );
         
-        return new SpecialNetherPortalShape(area, axis);
+        NetherPortalShape result =
+            new NetherPortalShape(area, axis);
+        
+        if (!result.isFrameIntact(isObsidian)) {
+            return null;
+        }
+        
+        return result;
     }
     
     private static void findAreaRecursively(
@@ -132,22 +146,23 @@ public class SpecialNetherPortalShape {
         }
     }
     
-    public boolean isShapeMatched(
+    //return null for not match
+    public NetherPortalShape matchShape(
         Predicate<BlockPos> isAir,
         Predicate<BlockPos> isObsidian,
         BlockPos newAnchor
     ) {
         if (!isAir.test(newAnchor)) {
-            return false;
+            return null;
         }
-        
-        boolean roughTest = Arrays.stream(Helper.getAnotherFourDirections(axis)).anyMatch(
-            direction -> isObsidian.test(newAnchor.add(direction.getVector()))
-        );
-        
-        if (!roughTest) {
-            return false;
-        }
+
+//        boolean roughTest = Arrays.stream(Helper.getAnotherFourDirections(axis)).anyMatch(
+//            direction -> isObsidian.test(newAnchor.add(direction.getVector()))
+//        );
+//
+//        if (!roughTest) {
+//            return null;
+//        }
         
         boolean testFrame = frameAreaWithoutCorner.stream().map(
             blockPos -> blockPos.subtract(anchor).add(newAnchor)
@@ -156,7 +171,7 @@ public class SpecialNetherPortalShape {
         );
         
         if (!testFrame) {
-            return false;
+            return null;
         }
         
         boolean testAir = area.stream().map(
@@ -165,6 +180,76 @@ public class SpecialNetherPortalShape {
             isAir
         );
         
-        return testAir;
+        if (!testAir) {
+            return null;
+        }
+        
+        return getShapeWithMovedAnchor(newAnchor);
     }
+    
+    public NetherPortalShape getShapeWithMovedAnchor(
+        BlockPos newAnchor
+    ) {
+        BlockPos offset = newAnchor.subtract(anchor);
+        return new NetherPortalShape(
+            area.stream().map(
+                blockPos -> blockPos.add(offset)
+            ).collect(Collectors.toSet()),
+            axis
+        );
+    }
+    
+    public boolean isFrameIntact(
+        Predicate<BlockPos> isObsidian
+    ) {
+        return frameAreaWithoutCorner.stream().allMatch(isObsidian::test);
+    }
+    
+    public boolean isPortalIntact(
+        Predicate<BlockPos> isPortalBlock,
+        Predicate<BlockPos> isObsidian
+    ) {
+        return isFrameIntact(isObsidian) &&
+            area.stream().allMatch(isPortalBlock);
+    }
+    
+    public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
+        BlockPos centerBlockPos = areaBox.getCenter();
+        Vec3d center = new Vec3d(centerBlockPos).add(0.5, 0.5, 0.5);
+        portal.setPosition(center.x, center.y, center.z);
+        
+        Direction[] anotherFourDirections = Helper.getAnotherFourDirections(axis);
+        Direction wDirection;
+        Direction hDirection;
+        if (doInvert) {
+            wDirection = anotherFourDirections[0];
+            hDirection = anotherFourDirections[1];
+        }
+        else {
+            wDirection = anotherFourDirections[1];
+            hDirection = anotherFourDirections[0];
+        }
+        portal.axisW = new Vec3d(wDirection.getVector());
+        portal.axisH = new Vec3d(hDirection.getVector());
+        
+        SpecialPortalShape shape = new SpecialPortalShape();
+        Vec3d offset = new Vec3d(
+            Direction.from(axis, Direction.AxisDirection.POSITIVE).getVector()
+        ).multiply(0.5);
+        for (BlockPos blockPos : area) {
+            Vec3d p1 = new Vec3d(blockPos).add(offset);
+            Vec3d p2 = new Vec3d(blockPos).add(0.5, 0.5, 0.5).add(offset);
+            double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
+            double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
+            double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
+            double p2LocalY = p2.subtract(center).dotProduct(portal.axisH);
+            shape.addTriangleForRectangle(
+                p1LocalX, p1LocalY,
+                p2LocalX, p2LocalY
+            );
+        }
+        
+        portal.specialShape = shape;
+    }
+    
 }

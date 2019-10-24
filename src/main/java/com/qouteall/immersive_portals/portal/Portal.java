@@ -3,6 +3,8 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -151,13 +153,7 @@ public class Portal extends Entity {
         
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            if (player != null) {
-                if (!canBeSeenByPlayer(player)) {
-                    //removed in client but not in server
-                    remove();
-                }
-            }
+            tickClient();
         }
         else {
             if (!isPortalValid()) {
@@ -166,6 +162,17 @@ public class Portal extends Entity {
                 return;
             }
             serverPortalTickSignal.emit(this);
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private void tickClient() {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player != null) {
+            if (!canBeSeenByPlayer(player)) {
+                //removed in client but not in server
+                remove();
+            }
         }
     }
     

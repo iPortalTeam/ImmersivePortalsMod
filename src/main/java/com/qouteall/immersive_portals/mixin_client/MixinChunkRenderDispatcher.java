@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -52,6 +53,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     private Map<BlockPos, ChunkRenderer> chunkRendererMap;
     private Deque<ChunkRenderer> idleChunks;
     private Set<ChunkRenderer[]> isNeighborUpdated;
+    private WeakReference<ChunkRenderer[]> mainPreset;
     
     @Inject(
         method = "Lnet/minecraft/client/render/ChunkRenderDispatcher;<init>(Lnet/minecraft/world/World;ILnet/minecraft/client/render/WorldRenderer;Lnet/minecraft/client/render/chunk/ChunkRendererFactory;)V",
@@ -85,6 +87,8 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             updateNeighbours();
             fixAbnormality();
         }
+    
+        mainPreset = new WeakReference<>(null);
     }
     
     private BlockPos getOriginNonMutable(ChunkRenderer renderChunk) {
@@ -112,7 +116,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         if (CGlobal.useHackedChunkRenderDispatcher) {
             ClientWorld worldClient = MinecraftClient.getInstance().world;
             if (worldClient != null) {
-                if (worldClient.getTime() % 233 == 66) {
+                if (worldClient.getTime() % 533 == 66) {
                     fixAbnormality();
                     dismissInactiveChunkRenderers();
                     presetCache.clear();
@@ -218,10 +222,18 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
                 currPlayerChunkPos,
                 k -> createPreset(viewEntityX, viewEntityZ)
             );
+    
+            if (!CGlobal.renderer.isRendering()) {
+                mainPreset = new WeakReference<>(renderers);
+            }
             
             if (!isNeighborUpdated.contains(renderers)) {
                 updateNeighbours();
                 isNeighborUpdated.add(renderers);
+                if (CGlobal.renderer.isRendering()) {
+                    //the neighbor stuff is strange
+                    isNeighborUpdated.remove(mainPreset.get());
+                }
             }
             
             MinecraftClient.getInstance().getProfiler().pop();

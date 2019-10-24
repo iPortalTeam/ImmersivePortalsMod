@@ -143,6 +143,11 @@ public class Helper {
         return axis.choose(v.x, v.y, v.z);
     }
     
+    public static int getCoordinate(Vec3i v, Direction direction) {
+        return getCoordinate(v, direction.getAxis()) *
+            (direction.getDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1);
+    }
+    
     public static <A, B> Pair<B, A> swaped(Pair<A, B> p) {
         return new Pair<>(p.getRight(), p.getLeft());
     }

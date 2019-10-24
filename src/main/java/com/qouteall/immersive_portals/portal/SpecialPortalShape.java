@@ -115,4 +115,17 @@ public class SpecialPortalShape {
         
         return tag;
     }
+    
+    public void addTriangleForRectangle(double x1, double y1, double x2, double y2) {
+        triangles.add(new TriangleInPlane(
+            x1, y1,
+            x2, y1,
+            x2, y2
+        ));
+        triangles.add(new TriangleInPlane(
+            x2, y2,
+            x1, y2,
+            x1, y1
+        ));
+    }
 }

@@ -125,7 +125,7 @@ public abstract class PortalRenderer {
     
     private List<Portal> getPortalsNearbySorted() {
         Vec3d cameraPos = mc.cameraEntity.getPos();
-        double range = 128.0 / Math.sqrt(getPortalLayer() + 1);
+        double range = 128.0;
         return CHelper.getClientNearbyPortals(range)
             .sorted(
                 Comparator.comparing(portalEntity ->
@@ -143,11 +143,19 @@ public abstract class PortalRenderer {
         if (getPortalLayer() > maxPortalLayer.get()) {
             return;
         }
-    
-        RenderHelper.onBeginPortalWorldRendering(portalLayers);
         
         Entity cameraEntity = mc.cameraEntity;
         Camera camera = mc.gameRenderer.getCamera();
+    
+        if (getPortalLayer() >= 2 &&
+            portal.getDistanceToNearestPointInPortal(cameraEntity.getPos()) >
+                (16 * maxPortalLayer.get())
+        ) {
+            return;
+        }
+    
+        RenderHelper.onBeginPortalWorldRendering(portalLayers);
+        
         
         assert cameraEntity.world == mc.world;
         

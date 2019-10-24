@@ -156,13 +156,45 @@ public class NetherPortalGenerator {
         BlockPos mappedPosInOtherDimension,
         IntegerAABBInclusive heightLimit
     ) {
+        Direction.Axis axis = fromObsidianFrame.normalAxis;
         BlockPos neededAreaSize = ObsidianFrame.expandToIncludeObsidianBlocks(
-            fromObsidianFrame.normalAxis,
+            axis,
             fromObsidianFrame.boxWithoutObsidian
         ).getSize();
     
+        IntegerAABBInclusive foundAirCube = findAirCubePlacement(
+            toWorld,
+            mappedPosInOtherDimension,
+            heightLimit,
+            axis,
+            neededAreaSize
+        );
+    
+        ObsidianFrame toObsidianFrame = new ObsidianFrame(
+            axis,
+            ObsidianFrame.shrinkToExcludeObsidianBlocks(
+                axis,
+                foundAirCube
+            )
+        );
+    
+        generateObsidianFrame(
+            toWorld,
+            toObsidianFrame
+        );
+    
+        return toObsidianFrame;
+    }
+    
+    public static IntegerAABBInclusive findAirCubePlacement(
+        ServerWorld toWorld,
+        BlockPos mappedPosInOtherDimension,
+        IntegerAABBInclusive heightLimit,
+        Direction.Axis axis,
+        BlockPos neededAreaSize
+    ) {
         IntegerAABBInclusive foundAirCube =
-            fromObsidianFrame.normalAxis == Direction.Axis.Y ?
+            axis == Direction.Axis.Y ?
                 NetherPortalMatcher.findHorizontalPortalPlacement(
                     neededAreaSize, toWorld, mappedPosInOtherDimension,
                     heightLimit, NetherPortalMatcher.findingRadius
@@ -190,21 +222,7 @@ public class NetherPortalGenerator {
                 mappedPosInOtherDimension
             );
         }
-        
-        ObsidianFrame toObsidianFrame = new ObsidianFrame(
-            fromObsidianFrame.normalAxis,
-            ObsidianFrame.shrinkToExcludeObsidianBlocks(
-                fromObsidianFrame.normalAxis,
-                foundAirCube
-            )
-        );
-        
-        generateObsidianFrame(
-            toWorld,
-            toObsidianFrame
-        );
-        
-        return toObsidianFrame;
+        return foundAirCube;
     }
     
     private static ObsidianFrame findExistingEmptyObsidianFrameWithSameSizeInDestDimension(
@@ -253,7 +271,7 @@ public class NetherPortalGenerator {
         }
     }
     
-    private static BlockPos getPosInOtherDimension(
+    public static BlockPos getPosInOtherDimension(
         BlockPos pos,
         DimensionType dimensionFrom,
         DimensionType dimensionTo

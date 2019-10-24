@@ -227,7 +227,7 @@ public class NetherPortalMatcher {
         );
     }
     
-    private static boolean isObsidian(IWorld world, BlockPos obsidianPos) {
+    public static boolean isObsidian(IWorld world, BlockPos obsidianPos) {
         return world.getBlockState(obsidianPos) == Blocks.OBSIDIAN.getDefaultState();
     }
     
@@ -235,7 +235,7 @@ public class NetherPortalMatcher {
         return world.isAir(pos);
     }
     
-    private static boolean isAirOrFire(IWorld world, BlockPos pos) {
+    public static boolean isAirOrFire(IWorld world, BlockPos pos) {
         return world.isAir(pos) || world.getBlockState(pos).getBlock() == Blocks.FIRE;
     }
     
