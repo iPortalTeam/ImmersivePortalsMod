@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -201,16 +202,16 @@ public class Helper {
         );
         return new Direction[]{
             Direction.get(
-                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getLeft()
-            ),
-            Direction.get(
                 Direction.AxisDirection.POSITIVE, anotherTwoAxis.getLeft()
             ),
             Direction.get(
-                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getRight()
+                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getRight()
             ),
             Direction.get(
-                Direction.AxisDirection.POSITIVE, anotherTwoAxis.getRight()
+                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getLeft()
+            ),
+            Direction.get(
+                Direction.AxisDirection.NEGATIVE, anotherTwoAxis.getRight()
             )
         };
     }
@@ -564,5 +565,17 @@ public class Helper {
             }
         }
         return currentBox;
+    }
+    
+    public static <A, B> B reduceWithDifferentType(
+        B start,
+        Stream<A> stream,
+        BiFunction<B, A, B> func
+    ) {
+        SimpleBox<B> bBox = new SimpleBox<>(start);
+        stream.forEach(a -> {
+            bBox.obj = func.apply(bBox.obj, a);
+        });
+        return bBox.obj;
     }
 }

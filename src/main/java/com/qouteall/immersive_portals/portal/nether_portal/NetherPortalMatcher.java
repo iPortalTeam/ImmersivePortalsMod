@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.portal;
+package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;

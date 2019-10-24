@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.portal.BreakableMirror;
-import com.qouteall.immersive_portals.portal.NetherPortalGenerator;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGenerator;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;

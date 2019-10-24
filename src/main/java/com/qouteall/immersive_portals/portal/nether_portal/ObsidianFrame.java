@@ -1,9 +1,9 @@
-package com.qouteall.immersive_portals.portal;
+package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import net.minecraft.util.Pair;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 

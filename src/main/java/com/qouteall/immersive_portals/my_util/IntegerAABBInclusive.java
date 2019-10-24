@@ -289,4 +289,17 @@ public class IntegerAABBInclusive {
             h.getZ() + 1
         );
     }
+    
+    public IntegerAABBInclusive getExpanded(BlockPos newPoint) {
+        return new IntegerAABBInclusive(
+            Helper.min(
+                l,
+                newPoint
+            ),
+            Helper.max(
+                h,
+                newPoint
+            )
+        );
+    }
 }
