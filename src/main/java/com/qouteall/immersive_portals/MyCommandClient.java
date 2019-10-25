@@ -316,44 +316,57 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder = builder.then(CommandManager
+            .literal("report_fog_color")
+            .executes(MyCommandClient::reportFogColor)
+        );
         
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
-    private static int reportFogColor(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        StringBuilder str = new StringBuilder();
-        
-        CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
-            DimensionRenderHelper helper =
-                CGlobal.clientWorldLoader.getDimensionRenderHelper(
-                    world.dimension.getType()
-                );
+    private static int reportFogColor(CommandContext<ServerCommandSource> context) {
+        MinecraftClient.getInstance().execute(() -> {
+            StringBuilder str = new StringBuilder();
+            
+            CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
+                DimensionRenderHelper helper =
+                    CGlobal.clientWorldLoader.getDimensionRenderHelper(
+                        world.dimension.getType()
+                    );
+                str.append(String.format(
+                    "%s %s %s %s\n",
+                    world.dimension.getType(),
+                    helper.fogRenderer,
+                    helper.getFogColor(),
+                    ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
+                ));
+            });
+            
+            BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
+                .gameRenderer
+            ).getBackgroundRenderer();
             str.append(String.format(
-                "%s %s %s %s\n",
-                world.dimension.getType(),
-                helper.fogRenderer,
-                helper.getFogColor(),
-                ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
+                "current: %s %s \n switched %s \n",
+                currentFogRenderer,
+                ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
+                CGlobal.switchedFogRenderer
             ));
+            
+            String result = str.toString();
+            
+            Helper.log(str);
+            
+            Helper.getServer().execute(() -> {
+                try {
+                    context.getSource().getPlayer().sendMessage(new LiteralText(result));
+                }
+                catch (CommandSyntaxException e) {
+                    e.printStackTrace();
+                }
+            });
         });
-        
-        BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
-            .gameRenderer
-        ).getBackgroundRenderer();
-        str.append(String.format(
-            "current: %s %s \n switched %s \n",
-            currentFogRenderer,
-            ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
-            CGlobal.switchedFogRenderer
-        ));
-        
-        String result = str.toString();
-        
-        Helper.log(str);
-        
-        context.getSource().getPlayer().sendMessage(new LiteralText(result));
         
         return 0;
     }

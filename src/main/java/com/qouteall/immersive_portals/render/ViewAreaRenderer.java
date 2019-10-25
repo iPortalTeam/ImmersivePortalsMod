@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.GuiLighting;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Vec3d;
@@ -29,10 +30,12 @@ public class ViewAreaRenderer {
         //counter-clockwise triangles are front-faced in default
         
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
-        
-        Vec3d posInPlayerCoordinate = portal.getPos().subtract(
-            cameraPos
-        );
+    
+        Vec3d posInPlayerCoordinate = portal.getPos().subtract(cameraPos);
+    
+        if (portal instanceof Mirror) {
+            posInPlayerCoordinate = posInPlayerCoordinate.add(portal.getNormal().multiply(-0.001));
+        }
     
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
             bufferbuilder, p, fogColor
@@ -184,7 +187,12 @@ public class ViewAreaRenderer {
     
         //important
         GlStateManager.enableCull();
-        
+    
+        //In OpenGL, if you forget to set one rendering state and the result will be abnormal
+        //this design is bug-prone (DirectX is better in this aspect)
+        GuiLighting.disable();
+        GlStateManager.color4f(1, 1, 1, 1);
+        GlStateManager.disableFog();
         GlStateManager.disableAlphaTest();
         GlStateManager.disableTexture();
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
@@ -205,7 +213,7 @@ public class ViewAreaRenderer {
             bufferbuilder,
             PortalRenderer.mc.gameRenderer.getCamera().getPos(),
             RenderHelper.partialTicks,
-            portal instanceof Mirror ? -0.1F : 0.45F
+            portal instanceof Mirror ? 0 : 0.45F
         );
         
         tessellator.draw();

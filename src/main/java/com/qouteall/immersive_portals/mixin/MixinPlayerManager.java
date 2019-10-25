@@ -27,6 +27,20 @@ public class MixinPlayerManager {
         SGlobal.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
     }
     
+    @Inject(
+        method = "respawnPlayer",
+        at = @At("RETURN"),
+        cancellable = true
+    )
+    private void onPlayerReapawnFinished(
+        ServerPlayerEntity serverPlayerEntity_1,
+        DimensionType dimensionType_1,
+        boolean boolean_1,
+        CallbackInfoReturnable<ServerPlayerEntity> cir
+    ) {
+        GlobalPortalStorage.onPlayerLoggedIn(cir.getReturnValue());
+    }
+    
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
     private void onOnPlayerConnect(
         ClientConnection clientConnection_1,

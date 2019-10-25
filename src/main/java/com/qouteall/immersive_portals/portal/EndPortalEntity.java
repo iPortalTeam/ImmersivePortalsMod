@@ -5,10 +5,13 @@ import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -62,7 +65,7 @@ public class EndPortalEntity extends Portal {
     
     @Override
     public void onEntityTeleportedOnServer(Entity entity) {
-        if (entity instanceof LivingEntity) {
+        if (shouldAddSlowFalling(entity)) {
             LivingEntity livingEntity = (LivingEntity) entity;
             livingEntity.addPotionEffect(
                 new StatusEffectInstance(
@@ -71,6 +74,24 @@ public class EndPortalEntity extends Portal {
                     1//amplifier
                 )
             );
+        }
+    }
+    
+    private boolean shouldAddSlowFalling(Entity entity) {
+        if (entity instanceof LivingEntity) {
+            if (entity instanceof ServerPlayerEntity) {
+                ServerPlayerEntity player = (ServerPlayerEntity) entity;
+                if (player.interactionManager.getGameMode() == GameMode.CREATIVE) {
+                    return false;
+                }
+                if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == Items.ELYTRA) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        else {
+            return false;
         }
     }
 }
