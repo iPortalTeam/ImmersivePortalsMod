@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
+import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;

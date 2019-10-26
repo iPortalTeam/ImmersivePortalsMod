@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.exposer.IEBackgroundRenderer;
-import com.qouteall.immersive_portals.exposer.IEGameRenderer;
+import com.qouteall.immersive_portals.ducks.IEBackgroundRenderer;
+import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.LightmapTextureManager;

@@ -4,7 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
-import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
+import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;

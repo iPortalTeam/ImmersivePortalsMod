@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.my_util;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.exposer.IEThreadedAnvilChunkStorage;
+import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;

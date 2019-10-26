@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.exposer.IEServerPlayNetworkHandler;
-import com.qouteall.immersive_portals.exposer.IEServerPlayerEntity;
+import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
+import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;

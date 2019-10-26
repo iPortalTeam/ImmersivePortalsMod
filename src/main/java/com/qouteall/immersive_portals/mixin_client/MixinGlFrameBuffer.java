@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GLX;
-import com.qouteall.immersive_portals.exposer.IEGlFrameBuffer;
+import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;

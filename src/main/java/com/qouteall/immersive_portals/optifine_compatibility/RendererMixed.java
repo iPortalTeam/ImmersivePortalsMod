@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.exposer.IEGlFrameBuffer;
+import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.*;
 import net.minecraft.client.gl.GlFramebuffer;

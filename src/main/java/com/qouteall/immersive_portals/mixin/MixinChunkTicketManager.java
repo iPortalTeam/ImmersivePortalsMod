@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.qouteall.immersive_portals.exposer.IEChunkTicketManager;
+import com.qouteall.immersive_portals.ducks.IEChunkTicketManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;

@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
-import com.qouteall.immersive_portals.exposer.IEClientWorld;
-import com.qouteall.immersive_portals.exposer.IEWorld;
+import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;

@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.exposer.IEPlayerMoveC2SPacket;
+import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
 import net.minecraft.world.dimension.DimensionType;

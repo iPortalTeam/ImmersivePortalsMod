@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.exposer.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;

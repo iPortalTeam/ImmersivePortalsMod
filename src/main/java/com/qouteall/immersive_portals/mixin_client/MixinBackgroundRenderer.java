@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.exposer.IEBackgroundRenderer;
+import com.qouteall.immersive_portals.ducks.IEBackgroundRenderer;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.util.math.Vec3d;

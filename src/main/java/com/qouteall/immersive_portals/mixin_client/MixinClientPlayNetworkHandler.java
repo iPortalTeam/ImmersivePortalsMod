@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.exposer.IEClientPlayNetworkHandler;
-import com.qouteall.immersive_portals.exposer.IEPlayerPositionLookS2CPacket;
+import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
+import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
