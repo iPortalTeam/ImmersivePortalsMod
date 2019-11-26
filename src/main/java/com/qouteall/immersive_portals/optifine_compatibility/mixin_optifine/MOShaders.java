@@ -1149,6 +1149,7 @@ public abstract class MOShaders {
         if (ShaderCullingManager.getShouldModifyShaderCode(program)) {
             ShaderCullingManager.loadUniforms();
         }
+        OFGlobal.debugFunc.accept(program);
     }
     
     //in setCameraShadow() it will set some uniforms

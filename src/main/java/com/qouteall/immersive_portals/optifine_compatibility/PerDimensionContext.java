@@ -766,15 +766,15 @@ public class PerDimensionContext {
     //reset the fields that will be changed by init()
     //do not reset the fields that was initialized by loadShaderPack()
     public void doSpecialInit() {
-        sunPosition = new float[4];
-        moonPosition = new float[4];
-        shadowLightPosition = new float[4];
-        upPosition = new float[4];
-        shadowLightPositionVector = new float[4];
-        upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
-        sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
-        moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
-        tempMat = new float[16];
+//        sunPosition = new float[4];
+//        moonPosition = new float[4];
+//        shadowLightPosition = new float[4];
+        //upPosition = new float[4]; //Fix Sildurs shader black entities in nether
+//        shadowLightPositionVector = new float[4];
+//        upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+//        sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
+//        moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
+//        tempMat = new float[16];
 //        shaderUniforms = new ShaderUniforms();
 
 //        uniform_entityColor = shaderUniforms.make4f("entityColor");

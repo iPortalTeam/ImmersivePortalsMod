@@ -12,39 +12,6 @@ public class MyCommandServer {
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
-//        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
-//            .literal("portal_wrap_wall")
-//            .requires(commandSource -> commandSource.hasPermissionLevel(2))
-//            .then(CommandManager
-//                .argument("from", BlockPosArgumentType.blockPos())
-//                .then(CommandManager
-//                    .argument("to", BlockPosArgumentType.blockPos())
-//                    .executes(context -> {
-//                        BlockPos from = BlockPosArgumentType.getLoadedBlockPos(context, "from");
-//                        BlockPos to = BlockPosArgumentType.getLoadedBlockPos(context, "to");
-//                        createWrappedWall(context.getSource().getWorld(), from, to);
-//                        return 0;
-//                    })
-//                )
-//            );
-//
-//        dispatcher.register(builder);
-//
-//        builder = CommandManager
-//            .literal("portal_wrap_cube")
-//            .requires(commandSource -> commandSource.hasPermissionLevel(2))
-//            .then(CommandManager
-//                .argument("from", BlockPosArgumentType.blockPos())
-//                .then(CommandManager
-//                    .argument("to", BlockPosArgumentType.blockPos())
-//                    .executes(context -> {
-//                        BlockPos from = BlockPosArgumentType.getLoadedBlockPos(context, "from");
-//                        BlockPos to = BlockPosArgumentType.getLoadedBlockPos(context, "to");
-//                        createWrappedCube(context.getSource().getWorld(), from, to);
-//                        return 0;
-//                    })
-//                )
-//            );
         
         LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("portal")

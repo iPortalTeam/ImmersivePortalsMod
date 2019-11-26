@@ -129,7 +129,7 @@ public abstract class PortalRenderer {
         return CHelper.getClientNearbyPortals(range)
             .sorted(
                 Comparator.comparing(portalEntity ->
-                    portalEntity.getPos().squaredDistanceTo(cameraPos)
+                    portalEntity.getDistanceToNearestPointInPortal(cameraPos)
                 )
             ).collect(Collectors.toList());
     }

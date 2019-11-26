@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
+import net.optifine.shaders.Program;
 import net.optifine.shaders.uniform.ShaderUniforms;
 
 import java.util.function.Consumer;
@@ -21,6 +22,8 @@ public class OFGlobal {
     public static boolean doForceInitSequence = false;
     public static boolean alwaysRenderShadowMap = true;
     
+    public static Consumer<Program> debugFunc = (p) -> {
+    };
     
     /**
      * mc;

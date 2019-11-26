@@ -8,6 +8,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.*;
 import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
+import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.RenderHelper;
@@ -319,6 +321,31 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("report_fog_color")
             .executes(MyCommandClient::reportFogColor)
+        );
+        builder = builder.then(CommandManager
+            .literal("uniform_report_hand")
+            .executes(context -> {
+                OFGlobal.debugFunc = program -> {
+                    String name = program.getName();
+                    if (name.equals("gbuffers_hand") || name.equals("gbuffers_hand_water")) {
+                        try {
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            UniformReport.reportUniforms(
+                                program.getId(),
+                                s -> Helper.serverLog(player, s)
+                            );
+                            OFGlobal.debugFunc = p -> {
+                            };
+                        }
+                        catch (CommandSyntaxException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                    
+                    }
+                };
+                return 0;
+            })
         );
         
         dispatcher.register(builder);
