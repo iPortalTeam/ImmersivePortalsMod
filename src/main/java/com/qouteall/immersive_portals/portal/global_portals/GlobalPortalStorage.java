@@ -1,7 +1,8 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -30,7 +31,7 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     public static void onPlayerLoggedIn(ServerPlayerEntity player) {
-        Helper.getServer().getWorlds().forEach(
+        McHelper.getServer().getWorlds().forEach(
             world -> player.networkHandler.sendPacket(
                 MyNetwork.createGlobalPortalUpdate(
                     get(world)
@@ -43,7 +44,7 @@ public class GlobalPortalStorage extends PersistentState {
         setDirty(true);
         
         CustomPayloadS2CPacket packet = MyNetwork.createGlobalPortalUpdate(this);
-        Helper.getCopiedPlayerList().forEach(
+        McHelper.getCopiedPlayerList().forEach(
             player -> player.networkHandler.sendPacket(packet)
         );
     }

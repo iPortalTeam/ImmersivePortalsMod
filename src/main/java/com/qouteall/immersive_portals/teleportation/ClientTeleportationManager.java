@@ -1,13 +1,9 @@
 package com.qouteall.immersive_portals.teleportation;
 
-import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetworkClient;
+import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -100,7 +96,7 @@ public class ClientTeleportationManager {
         Vec3d oldPos = player.getPos();
         
         Vec3d newPos = portal.applyTransformationToPoint(oldPos);
-        Vec3d newLastTickPos = portal.applyTransformationToPoint(Helper.lastTickPosOf(player));
+        Vec3d newLastTickPos = portal.applyTransformationToPoint(McHelper.lastTickPosOf(player));
         
         ClientWorld fromWorld = mc.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
@@ -202,7 +198,7 @@ public class ClientTeleportationManager {
         ));
     
         Helper.log("Portal Number Near Player Now" +
-            Helper.getEntitiesNearby(mc.player, Portal.class, 10).count()
+            McHelper.getEntitiesNearby(mc.player, Portal.class, 10).count()
         );
     
         if (OFHelper.getIsUsingShader()) {

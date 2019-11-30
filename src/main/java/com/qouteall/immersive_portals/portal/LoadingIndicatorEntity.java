@@ -1,12 +1,15 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.my_util.Helper;
-import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.MyNetwork;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
@@ -17,7 +20,13 @@ import net.minecraft.world.World;
 public class LoadingIndicatorEntity extends Entity {
     public static EntityType<LoadingIndicatorEntity> entityType;
     
-    public static void initClient() {
+    private static final TrackedData<String> text = DataTracker.registerData(
+        LoadingIndicatorEntity.class, TrackedDataHandlerRegistry.STRING
+    );
+    
+    public boolean isAlive = false;
+    
+    public static void init() {
         entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "loading_indicator"),
@@ -27,11 +36,6 @@ public class LoadingIndicatorEntity extends Entity {
             ).size(
                 new EntityDimensions(1, 1, true)
             ).build()
-        );
-        
-        EntityRendererRegistry.INSTANCE.register(
-            LoadingIndicatorEntity.class,
-            (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
         );
     }
     
@@ -51,15 +55,15 @@ public class LoadingIndicatorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        
-        if (Helper.getEntitiesNearby(this, Portal.class, 3).findAny().isPresent()) {
+    
+        if (McHelper.getEntitiesNearby(this, Portal.class, 3).findAny().isPresent()) {
             this.remove();
         }
     }
     
     @Override
     protected void initDataTracker() {
-    
+        getDataTracker().startTracking(text, "Loading...");
     }
     
     @Override
@@ -74,6 +78,14 @@ public class LoadingIndicatorEntity extends Entity {
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return null;
+        return MyNetwork.createStcSpawnEntity(this);
+    }
+    
+    public void setText(String str) {
+        getDataTracker().set(text, str);
+    }
+    
+    public String getText() {
+        return getDataTracker().get(text);
     }
 }

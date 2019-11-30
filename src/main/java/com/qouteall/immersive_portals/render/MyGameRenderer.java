@@ -3,11 +3,12 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEChunkRenderList;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEPlayerListEntry;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.IEOFWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -212,7 +213,7 @@ public class MyGameRenderer {
         assert player != null;
         
         Vec3d oldPos = player.getPos();
-        Vec3d oldLastTickPos = Helper.lastTickPosOf(player);
+        Vec3d oldLastTickPos = McHelper.lastTickPosOf(player);
         GameMode oldGameMode = playerListEntry.getGameMode();
         
         Helper.setPosAndLastTickPos(

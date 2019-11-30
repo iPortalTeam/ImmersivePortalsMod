@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.GameStateChangeS2CPacket;
 import net.minecraft.client.network.packet.WorldTimeUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,12 +13,12 @@ import net.minecraft.world.dimension.DimensionType;
 public class WorldInfoSender {
     public static void init() {
         ModMain.postServerTickSignal.connect(() -> {
-            if (Helper.getServerGameTime() % 100 == 42) {
-                for (ServerPlayerEntity player : Helper.getCopiedPlayerList()) {
+            if (McHelper.getServerGameTime() % 100 == 42) {
+                for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
                     if (player.dimension != DimensionType.OVERWORLD) {
                         sendWorldInfo(
                             player,
-                            Helper.getServer().getWorld(DimensionType.OVERWORLD)
+                            McHelper.getServer().getWorld(DimensionType.OVERWORLD)
                         );
                     }
                 }

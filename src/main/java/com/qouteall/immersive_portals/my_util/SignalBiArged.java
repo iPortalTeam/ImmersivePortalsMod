@@ -1,12 +1,12 @@
 package com.qouteall.immersive_portals.my_util;
 
+import com.qouteall.immersive_portals.Helper;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class SignalBiArged<A, B> {
     private List<BiConsumer<A, B>> funcList = new ArrayList<>();

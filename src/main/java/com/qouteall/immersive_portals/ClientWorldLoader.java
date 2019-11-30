@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals;
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;

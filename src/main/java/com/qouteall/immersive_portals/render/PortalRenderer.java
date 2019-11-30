@@ -3,7 +3,8 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -160,7 +161,7 @@ public abstract class PortalRenderer {
         assert cameraEntity.world == mc.world;
         
         Vec3d oldPos = cameraEntity.getPos();
-        Vec3d oldLastTickPos = Helper.lastTickPosOf(cameraEntity);
+        Vec3d oldLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         DimensionType oldDimension = cameraEntity.dimension;
         ClientWorld oldWorld = ((ClientWorld) cameraEntity.world);
         

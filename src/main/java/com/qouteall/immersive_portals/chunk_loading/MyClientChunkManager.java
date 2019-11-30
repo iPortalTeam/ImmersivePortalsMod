@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

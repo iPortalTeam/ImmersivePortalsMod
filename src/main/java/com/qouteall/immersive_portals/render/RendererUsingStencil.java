@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;

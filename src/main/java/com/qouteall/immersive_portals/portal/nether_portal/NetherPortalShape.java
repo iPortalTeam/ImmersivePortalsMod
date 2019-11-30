@@ -1,9 +1,12 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -20,7 +23,8 @@ import java.util.stream.Stream;
 public class NetherPortalShape {
     public BlockPos anchor;
     public Set<BlockPos> area;
-    public IntegerAABBInclusive areaBox;
+    public IntegerAABBInclusive innerAreaBox;
+    public IntegerAABBInclusive totalAreaBox;
     public Direction.Axis axis;
     public Set<BlockPos> frameAreaWithoutCorner;
     public Set<BlockPos> frameAreaWithCorner;
@@ -36,6 +40,48 @@ public class NetherPortalShape {
         calcArea();
         
         calcFrameArea();
+    }
+    
+    public NetherPortalShape(
+        CompoundTag tag
+    ) {
+        this(
+            readArea(tag.getList("poses", 3)),
+            Direction.Axis.values()[tag.getInt("axis")]
+        );
+    }
+    
+    private static Set<BlockPos> readArea(ListTag list) {
+        int size = list.size();
+        
+        Validate.isTrue(size % 3 == 0);
+        Set<BlockPos> result = new HashSet<>();
+        
+        for (int i = 0; i < size / 3; i++) {
+            result.add(new BlockPos(
+                list.getInt(i * 3 + 0),
+                list.getInt(i * 3 + 1),
+                list.getInt(i * 3 + 2)
+            ));
+        }
+        
+        return result;
+    }
+    
+    public CompoundTag toTag() {
+        CompoundTag data = new CompoundTag();
+        ListTag list = new ListTag();
+        
+        area.forEach(blockPos -> {
+            list.add(list.size(), new IntTag(blockPos.getX()));
+            list.add(list.size(), new IntTag(blockPos.getY()));
+            list.add(list.size(), new IntTag(blockPos.getZ()));
+        });
+        
+        data.put("poses", list);
+        data.putInt("axis", axis.ordinal());
+        
+        return data;
     }
     
     public void calcAnchor() {
@@ -54,9 +100,14 @@ public class NetherPortalShape {
     }
     
     public void calcArea() {
-        areaBox = Helper.reduceWithDifferentType(
+        innerAreaBox = Helper.reduceWithDifferentType(
             new IntegerAABBInclusive(anchor, anchor),
             area.stream(),
+            IntegerAABBInclusive::getExpanded
+        );
+        totalAreaBox = Helper.reduceWithDifferentType(
+            new IntegerAABBInclusive(anchor, anchor),
+            frameAreaWithoutCorner.stream(),
             IntegerAABBInclusive::getExpanded
         );
     }
@@ -75,10 +126,10 @@ public class NetherPortalShape {
         ).collect(Collectors.toSet());
         
         BlockPos[] cornerOffsets = {
-            new BlockPos(directions[0].getVector()).add(directions[2].getVector()),
-            new BlockPos(directions[1].getVector()).add(directions[3].getVector()),
-            new BlockPos(directions[2].getVector()).add(directions[0].getVector()),
-            new BlockPos(directions[3].getVector()).add(directions[1].getVector())
+            new BlockPos(directions[0].getVector()).add(directions[1].getVector()),
+            new BlockPos(directions[1].getVector()).add(directions[2].getVector()),
+            new BlockPos(directions[2].getVector()).add(directions[3].getVector()),
+            new BlockPos(directions[3].getVector()).add(directions[0].getVector())
         };
         
         frameAreaWithCorner = area.stream().flatMap(
@@ -150,22 +201,20 @@ public class NetherPortalShape {
     public NetherPortalShape matchShape(
         Predicate<BlockPos> isAir,
         Predicate<BlockPos> isObsidian,
-        BlockPos newAnchor
+        BlockPos newAnchor,
+        BlockPos.Mutable temp
     ) {
         if (!isAir.test(newAnchor)) {
             return null;
         }
-
-//        boolean roughTest = Arrays.stream(Helper.getAnotherFourDirections(axis)).anyMatch(
-//            direction -> isObsidian.test(newAnchor.add(direction.getVector()))
-//        );
-//
-//        if (!roughTest) {
-//            return null;
-//        }
         
         boolean testFrame = frameAreaWithoutCorner.stream().map(
-            blockPos -> blockPos.subtract(anchor).add(newAnchor)
+            blockPos -> temp.set(
+                blockPos.getX() - anchor.getX() + newAnchor.getX(),
+                blockPos.getY() - anchor.getY() + newAnchor.getY(),
+                blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
+            )
+            //return blockPos.subtract(anchor).add(newAnchor);
         ).allMatch(
             isObsidian
         );
@@ -175,7 +224,12 @@ public class NetherPortalShape {
         }
         
         boolean testAir = area.stream().map(
-            blockPos -> blockPos.subtract(anchor).add(newAnchor)
+            blockPos -> temp.set(
+                blockPos.getX() - anchor.getX() + newAnchor.getX(),
+                blockPos.getY() - anchor.getY() + newAnchor.getY(),
+                blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
+            )
+            //blockPos.subtract(anchor).add(newAnchor)
         ).allMatch(
             isAir
         );
@@ -214,7 +268,7 @@ public class NetherPortalShape {
     }
     
     public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
-        BlockPos centerBlockPos = areaBox.getCenter();
+        BlockPos centerBlockPos = innerAreaBox.getCenter();
         Vec3d center = new Vec3d(centerBlockPos).add(0.5, 0.5, 0.5);
         portal.setPosition(center.x, center.y, center.z);
         

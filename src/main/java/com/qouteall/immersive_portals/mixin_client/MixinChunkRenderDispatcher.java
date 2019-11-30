@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEChunkRenderDispatcher;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.ChunkRenderDispatcher;

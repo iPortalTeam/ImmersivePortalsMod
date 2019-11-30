@@ -1,7 +1,8 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -37,7 +38,7 @@ public class NetherPortalGenerator {
         );
         CustomPayloadS2CPacket packet =
             MyNetwork.createSpawnLoadingIndicator(world.dimension.getType(), center);
-        Helper.getEntitiesNearby(
+        McHelper.getEntitiesNearby(
             world, center, ServerPlayerEntity.class, 64
         ).forEach(
             player -> player.networkHandler.sendPacket(packet)
@@ -66,6 +67,7 @@ public class NetherPortalGenerator {
     public static final SignalArged<NetherPortalGeneratedInformation> signalNetherPortalLit =
         new SignalArged<>();
     
+    @Deprecated
     public static NetherPortalGeneratedInformation onFireLit(
         ServerWorld fromWorld,
         BlockPos firePos
@@ -79,17 +81,17 @@ public class NetherPortalGenerator {
         ObsidianFrame fromObsidianFrame = findTheObsidianFrameThatIsLighted(fromWorld, firePos);
         
         if (fromObsidianFrame == null) return null;
-    
-        ServerWorld toWorld = Helper.getServer().getWorld(toDimension);
-    
+        
+        ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
+        
         assert toWorld != null;
-    
+        
         spawnLoadingIndicator(fromWorld, fromObsidianFrame);
         
         BlockPos posInOtherDimension = getPosInOtherDimension(
             firePos, fromDimension, toDimension
         );
-    
+        
         ObsidianFrame toObsidianFrame = findExistingEmptyObsidianFrameWithSameSizeInDestDimension(
             fromObsidianFrame, toWorld, posInOtherDimension,
             NetherPortalMatcher.findingRadius
@@ -105,7 +107,7 @@ public class NetherPortalGenerator {
                 heightLimitInOtherDimension
             );
         }
-    
+        
         registerPortalAndGenerateContentBlocks(
             fromWorld, fromObsidianFrame,
             toWorld, toObsidianFrame
@@ -121,7 +123,7 @@ public class NetherPortalGenerator {
     }
     
     private static BlockPos getRandomShift(DimensionType fromDimension) {
-        Random rand = Helper.getServer().getWorld(fromDimension).random;
+        Random rand = McHelper.getServer().getWorld(fromDimension).random;
         return new BlockPos(
             (rand.nextDouble() * 2 - 1) * randomShiftFactor,
             (rand.nextDouble() * 2 - 1) * randomShiftFactor,
@@ -397,7 +399,7 @@ public class NetherPortalGenerator {
         boolean result = world.setBlockState(pos, Blocks.OBSIDIAN.getDefaultState(), 1 | 2);
     }
     
-    private static void setPortalContentBlock(
+    public static void setPortalContentBlock(
         ServerWorld world,
         BlockPos pos,
         Direction.Axis normalAxis

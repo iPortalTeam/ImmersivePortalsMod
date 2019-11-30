@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.optifine.shaders.Program;

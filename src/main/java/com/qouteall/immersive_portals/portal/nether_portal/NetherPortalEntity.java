@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
@@ -46,7 +46,7 @@ public class NetherPortalEntity extends Portal {
     
     
         PortalPlaceholderBlock.portalBlockUpdateSignal.connect((world, pos) -> {
-            Helper.getEntitiesNearby(
+            McHelper.getEntitiesNearby(
                 world,
                 new Vec3d(pos),
                 NetherPortalEntity.class,
@@ -79,7 +79,7 @@ public class NetherPortalEntity extends Portal {
     }
     
     private void breakNetherPortalBlocks() {
-        ServerWorld world1 = Helper.getServer().getWorld(dimension);
+        ServerWorld world1 = McHelper.getServer().getWorld(dimension);
     
         obsidianFrame.boxWithoutObsidian.stream()
             .filter(
@@ -156,7 +156,7 @@ public class NetherPortalEntity extends Portal {
     }
     
     private boolean isPortalIntactOnThisSide() {
-        assert Helper.getServer() != null;
+        assert McHelper.getServer() != null;
         
         return NetherPortalMatcher.isObsidianFrameIntact(
             world,
@@ -171,7 +171,7 @@ public class NetherPortalEntity extends Portal {
         DimensionType dimension,
         ObsidianFrame obsidianFrame
     ) {
-        ServerWorld world = Helper.getServer().getWorld(dimension);
+        ServerWorld world = McHelper.getServer().getWorld(dimension);
         
         if (world == null) {
             return true;

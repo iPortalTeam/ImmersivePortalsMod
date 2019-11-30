@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;

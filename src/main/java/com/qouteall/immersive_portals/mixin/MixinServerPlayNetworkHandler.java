@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;

@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.*;
@@ -8,10 +7,8 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
-import com.qouteall.immersive_portals.render.MyGameRenderer;
-import com.qouteall.immersive_portals.render.PortalRenderer;
-import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
-import com.qouteall.immersive_portals.render.RendererUsingStencil;
+import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
+import com.qouteall.immersive_portals.render.*;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.render.EntityRendererRegistry;
@@ -26,6 +23,7 @@ public class ModMainClient implements ClientModInitializer {
         Arrays.stream(new Class[]{
             Portal.class,
             NetherPortalEntity.class,
+            NewNetherPortalEntity.class,
             EndPortalEntity.class,
             Mirror.class,
             BreakableMirror.class,
@@ -38,6 +36,11 @@ public class ModMainClient implements ClientModInitializer {
                 portalClass,
                 (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
             )
+        );
+    
+        EntityRendererRegistry.INSTANCE.register(
+            LoadingIndicatorEntity.class,
+            (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
         );
 //
 //        EntityRendererRegistry.INSTANCE.register(
@@ -101,7 +104,7 @@ public class ModMainClient implements ClientModInitializer {
         Helper.log("initializing client");
     
         initPortalRenderers();
-        LoadingIndicatorEntity.initClient();
+    
     
         MyNetworkClient.init();
     

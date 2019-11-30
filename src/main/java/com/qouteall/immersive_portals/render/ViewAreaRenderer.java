@@ -92,11 +92,11 @@ public class ViewAreaRenderer {
             );
             putIntoLocalVertex(
                 vertexOutput, portal, offset, posInPlayerCoordinate,
-                triangle.x2, triangle.y2
+                triangle.x3, triangle.y3
             );
             putIntoLocalVertex(
                 vertexOutput, portal, offset, posInPlayerCoordinate,
-                triangle.x3, triangle.y3
+                triangle.x2, triangle.y2
             );
         }
     }

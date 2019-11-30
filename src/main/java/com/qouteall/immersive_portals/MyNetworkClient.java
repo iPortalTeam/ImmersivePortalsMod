@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;

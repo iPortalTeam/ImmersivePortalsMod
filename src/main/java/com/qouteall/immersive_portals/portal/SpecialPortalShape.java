@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 

@@ -1,11 +1,11 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.mojang.datafixers.util.Either;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
-import com.qouteall.immersive_portals.my_util.Helper;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
 import net.minecraft.client.network.packet.LightUpdateS2CPacket;
 import net.minecraft.client.network.packet.UnloadChunkS2CPacket;
@@ -50,10 +50,10 @@ public class ChunkDataSyncManager {
             return;
         }
     
-        Helper.getServer().getProfiler().push("begin_watch");
+        McHelper.getServer().getProfiler().push("begin_watch");
         
         SGlobal.chunkTracker.onChunkDataSent(player, chunkPos);
-        IEThreadedAnvilChunkStorage ieStorage = Helper.getIEStorage(chunkPos.dimension);
+        IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(chunkPos.dimension);
     
         if (SGlobal.isChunkLoadingMultiThreaded) {
             sendPacketMultiThreaded(player, chunkPos, ieStorage);
@@ -62,7 +62,7 @@ public class ChunkDataSyncManager {
             sendPacketNormally(player, chunkPos, ieStorage);
         }
     
-        Helper.getServer().getProfiler().pop();
+        McHelper.getServer().getProfiler().pop();
     }
     
     private void sendPacketMultiThreaded(
@@ -111,9 +111,9 @@ public class ChunkDataSyncManager {
         DimensionalChunkPos chunkPos,
         IEThreadedAnvilChunkStorage ieStorage
     ) {
-        Helper.getServer().getProfiler().push("send_chunk_data");
-        
-        Chunk chunk = Helper.getServer()
+        McHelper.getServer().getProfiler().push("send_chunk_data");
+    
+        Chunk chunk = McHelper.getServer()
             .getWorld(chunkPos.dimension)
             .getChunk(chunkPos.x, chunkPos.z);
         assert chunk != null;
@@ -141,7 +141,7 @@ public class ChunkDataSyncManager {
         //update the entity trackers
         ((ThreadedAnvilChunkStorage) ieStorage).updateCameraPosition(player);
     
-        Helper.getServer().getProfiler().pop();
+        McHelper.getServer().getProfiler().pop();
     }
     
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
@@ -179,8 +179,8 @@ public class ChunkDataSyncManager {
     
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
         SGlobal.chunkTracker.onPlayerRespawn(oldPlayer);
-        
-        Helper.getServer().getWorlds()
+    
+        McHelper.getServer().getWorlds()
             .forEach(world -> {
                 ServerChunkManager chunkManager = (ServerChunkManager) world.getChunkManager();
                 IEThreadedAnvilChunkStorage storage =

@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityCategory;

@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GLX;
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.util.Untracker;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;

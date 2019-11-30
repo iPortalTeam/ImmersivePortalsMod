@@ -7,7 +7,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.*;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -97,13 +96,13 @@ public class MyCommandClient {
                             int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
                             int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
                             ServerPlayerEntity player = context.getSource().getPlayer();
-                            Chunk chunk = Helper.getServer()
+                            Chunk chunk = McHelper.getServer()
                                 .getWorld(player.dimension)
                                 .getChunk(
                                     chunkX, chunkZ,
                                     ChunkStatus.FULL, false
                                 );
-                            Helper.serverLog(
+                            McHelper.serverLog(
                                 player,
                                 chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
                             );
@@ -217,7 +216,7 @@ public class MyCommandClient {
                     Entity.class,
                     new Box(player.getBlockPos()).expand(32)
                 );
-                Helper.serverLog(player, entities.toString());
+                McHelper.serverLog(player, entities.toString());
                 return 0;
             })
         );
@@ -273,7 +272,7 @@ public class MyCommandClient {
             .executes(context -> {
                 Portal collidingPortal =
                     ((IEEntity) MinecraftClient.getInstance().player).getCollidingPortal();
-                Helper.serverLog(context.getSource().getPlayer(), collidingPortal.toString());
+                McHelper.serverLog(context.getSource().getPlayer(), collidingPortal.toString());
                 return 0;
             })
         );
@@ -289,7 +288,7 @@ public class MyCommandClient {
                     )
                     .collect(Collectors.toList())
                     .toString();
-                Helper.serverLog(context.getSource().getPlayer(), str);
+                McHelper.serverLog(context.getSource().getPlayer(), str);
                 return 0;
             })
         );
@@ -332,7 +331,7 @@ public class MyCommandClient {
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             UniformReport.reportUniforms(
                                 program.getId(),
-                                s -> Helper.serverLog(player, s)
+                                s -> McHelper.serverLog(player, s)
                             );
                             OFGlobal.debugFunc = p -> {
                             };
@@ -384,8 +383,8 @@ public class MyCommandClient {
             String result = str.toString();
             
             Helper.log(str);
-            
-            Helper.getServer().execute(() -> {
+    
+            McHelper.getServer().execute(() -> {
                 try {
                     context.getSource().getPlayer().sendMessage(new LiteralText(result));
                 }
@@ -425,7 +424,7 @@ public class MyCommandClient {
         );
     
         str.append("Server Chunks:\n");
-        Helper.getServer().getWorlds().forEach(
+        McHelper.getServer().getWorlds().forEach(
             world -> {
                 str.append(String.format(
                     "%s %s\n",
@@ -450,7 +449,7 @@ public class MyCommandClient {
         Chunk chunk = MinecraftClient.getInstance().world.getChunk(
             chunkX, chunkZ
         );
-        Helper.serverLog(
+        McHelper.serverLog(
             context.getSource().getPlayer(),
             chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
         );
@@ -465,22 +464,22 @@ public class MyCommandClient {
     private static int listNearbyPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity playerServer = context.getSource().getPlayer();
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
-        
-        Helper.serverLog(playerServer, "Server Portals");
-        Helper.serverLog(
+    
+        McHelper.serverLog(playerServer, "Server Portals");
+        McHelper.serverLog(
             playerServer,
             Helper.myToString(
-                Helper.getEntitiesNearby(
+                McHelper.getEntitiesNearby(
                     playerServer, Portal.class, 64
                 )
             )
         );
-        
-        Helper.serverLog(playerServer, "Client Portals");
-        Helper.serverLog(
+    
+        McHelper.serverLog(playerServer, "Client Portals");
+        McHelper.serverLog(
             playerServer,
             Helper.myToString(
-                Helper.getEntitiesNearby(
+                McHelper.getEntitiesNearby(
                     playerClient, Portal.class, 64
                 )
             )
@@ -542,12 +541,12 @@ public class MyCommandClient {
         
         ServerPlayerEntity playerMP = context.getSource().getPlayer();
         ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
-        
-        Helper.serverLog(
+    
+        McHelper.serverLog(
             playerMP,
             "On Server " + playerMP.dimension + " " + playerMP.getBlockPos()
         );
-        Helper.serverLog(
+        McHelper.serverLog(
             playerMP,
             "On Client " + playerSP.dimension + " " + playerSP.getBlockPos()
         );

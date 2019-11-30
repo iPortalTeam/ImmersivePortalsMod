@@ -3,8 +3,9 @@ package com.qouteall.immersive_portals.chunk_loading;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -69,7 +70,7 @@ public class ChunkTracker {
         ChunkPos chunkPos,
         boolean isLoadedNow
     ) {
-        ServerWorld world = Helper.getServer().getWorld(dimension);
+        ServerWorld world = McHelper.getServer().getWorld(dimension);
         
         world.setChunkForced(chunkPos.x, chunkPos.z, isLoadedNow);
         //world.method_14178().setChunkForced(chunkPos, isLoadedNow);
@@ -93,7 +94,7 @@ public class ChunkTracker {
     }
     
     private Edge addEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity player) {
-        Edge edge = new Edge(chunkPos, player, Helper.getServerGameTime());
+        Edge edge = new Edge(chunkPos, player, McHelper.getServerGameTime());
         chunkPosToEdges.put(chunkPos, edge);
         playerToEdges.put(player, edge);
     
@@ -127,7 +128,7 @@ public class ChunkTracker {
         );
         newPlayerViewingChunks.forEach(chunkPos -> {
             Edge edge = getOrAddEdge(chunkPos, playerEntity);
-            edge.lastActiveGameTime = Helper.getServerGameTime();
+            edge.lastActiveGameTime = McHelper.getServerGameTime();
         });
     
         removeInactiveEdges(playerEntity);
@@ -169,7 +170,7 @@ public class ChunkTracker {
     //but also the portals that player can see from other portals
     private Stream<Portal> getViewingPortals(ServerPlayerEntity player) {
         return Streams.concat(
-            Helper.getEntitiesNearby(
+            McHelper.getEntitiesNearby(
                 player,
                 Portal.class,
                 portalLoadingRange
@@ -181,8 +182,8 @@ public class ChunkTracker {
                     Stream.of(portal),
                 
                     //indirectly seen portals
-                    Helper.getEntitiesNearby(
-                        Helper.getServer().getWorld(portal.dimensionTo),
+                    McHelper.getEntitiesNearby(
+                        McHelper.getServer().getWorld(portal.dimensionTo),
                         portal.destination,
                         Portal.class,
                         secondaryPortalLoadingRange
@@ -203,10 +204,10 @@ public class ChunkTracker {
     }
     
     private void tick() {
-        Helper.getServer().getProfiler().push("chunk_tracker");
-        
-        long currTime = Helper.getServerGameTime();
-        for (ServerPlayerEntity player : Helper.getCopiedPlayerList()) {
+        McHelper.getServer().getProfiler().push("chunk_tracker");
+    
+        long currTime = McHelper.getServerGameTime();
+        for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
             if (currTime % 50 == player.getEntityId() % 50) {
                 updatePlayer(player);
     
@@ -218,11 +219,11 @@ public class ChunkTracker {
             cleanupForRemovedPlayers();
         }
     
-        Helper.getServer().getProfiler().pop();
+        McHelper.getServer().getProfiler().pop();
     }
     
     private void removeInactiveEdges(ServerPlayerEntity playerEntity) {
-        long serverGameTime = Helper.getServerGameTime();
+        long serverGameTime = McHelper.getServerGameTime();
         playerToEdges.get(playerEntity).stream()
             .filter(
                 edge -> shouldUnload(serverGameTime, edge)
@@ -245,7 +246,7 @@ public class ChunkTracker {
             chunkPosToEdges.keySet().stream().collect(
                 Collectors.groupingBy(chunkPos -> chunkPos.dimension)
             );
-        Helper.getServer().getWorlds().forEach(world -> {
+        McHelper.getServer().getWorlds().forEach(world -> {
             List<DimensionalChunkPos> newForcedChunks =
                 newForcedChunkMap.computeIfAbsent(
                     world.dimension.getType(),
@@ -340,7 +341,7 @@ public class ChunkTracker {
     }
     
     public static int getRenderDistanceOnServer() {
-        return Helper.getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
+        return McHelper.getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
     }
     
 }

@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.my_util.Helper;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
@@ -170,7 +171,7 @@ public class BreakableMirror extends Mirror {
     }
     
     private static void breakIntersectedMirror(BreakableMirror newMirror) {
-        Helper.getEntitiesNearby(
+        McHelper.getEntitiesNearby(
             newMirror,
             BreakableMirror.class,
             10

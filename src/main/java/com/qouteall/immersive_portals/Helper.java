@@ -1,18 +1,12 @@
-package com.qouteall.immersive_portals.my_util;
+package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.*;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
@@ -20,7 +14,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -221,12 +214,6 @@ public class Helper {
         };
     }
     
-    public static IEThreadedAnvilChunkStorage getIEStorage(DimensionType dimension) {
-        return (IEThreadedAnvilChunkStorage) (
-            (ServerChunkManager) Helper.getServer().getWorld(dimension).getChunkManager()
-        ).threadedAnvilChunkStorage;
-    }
-    
     public static BatchTestResult batchTest(
         Vec3d[] testObjs,
         Predicate<Vec3d> predicate
@@ -240,10 +227,6 @@ public class Helper {
             }
         }
         return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
-    }
-    
-    public static ArrayList<ServerPlayerEntity> getCopiedPlayerList() {
-        return new ArrayList<>(getServer().getPlayerManager().getPlayerList());
     }
     
     @Deprecated
@@ -303,13 +286,9 @@ public class Helper {
         public T run();
     }
     
-    public static Vec3d lastTickPosOf(Entity entity) {
-        return new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
-    }
-    
     public static Vec3d interpolatePos(Entity entity, float partialTicks) {
         Vec3d currPos = entity.getPos();
-        Vec3d lastTickPos = lastTickPosOf(entity);
+        Vec3d lastTickPos = McHelper.lastTickPosOf(entity);
         return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
     }
     
@@ -335,10 +314,6 @@ public class Helper {
     
     public static WeakReference<MinecraftServer> refMinecraftServer;
     
-    public static MinecraftServer getServer() {
-        return refMinecraftServer.get();
-    }
-    
     public static Runnable noException(Callable func) {
         return () -> {
             try {
@@ -350,24 +325,12 @@ public class Helper {
         };
     }
     
-    public static <MSG> void sendToServer(MSG message) {
-        assert false;
-    }
-    
-    public static <MSG> void sendToPlayer(ServerPlayerEntity player, MSG message) {
-        assert false;
-    }
-    
     public static void checkGlError() {
         int errorCode = GL11.glGetError();
         if (errorCode != GL_NO_ERROR) {
             Helper.err("OpenGL Error" + errorCode);
             new Throwable().printStackTrace();
         }
-    }
-    
-    public static ServerWorld getOverWorldOnServer() {
-        return getServer().getWorld(DimensionType.OVERWORLD);
     }
     
     public static void doNotEatExceptionMessage(
@@ -395,15 +358,6 @@ public class Helper {
             e.printStackTrace();
             throw e;
         }
-    }
-    
-    public static void serverLog(
-        ServerPlayerEntity player,
-        String text
-    ) {
-        //Helper.log(text);
-        
-        player.sendMessage(new LiteralText(text));
     }
     
     public static <T> String myToString(
@@ -492,36 +446,6 @@ public class Helper {
         );
     }
     
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
-        World world,
-        Vec3d center,
-        Class<ENTITY> entityClass,
-        double range
-    ) {
-        Box box = new Box(center, center).expand(range);
-        return (Stream) world.getEntities(entityClass, box).stream();
-    }
-    
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
-        Entity center,
-        Class<ENTITY> entityClass,
-        double range
-    ) {
-        return getEntitiesNearby(
-            center.world,
-            center.getPos(),
-            entityClass,
-            range
-        );
-    }
-    
-    public static Box getChunkBoundingBox(ChunkPos chunkPos) {
-        return new Box(
-            chunkPos.getCenterBlockPos(),
-            chunkPos.getCenterBlockPos().add(16, 256, 16)
-        );
-    }
-    
     public static <T> void compareOldAndNew(
         Set<T> oldSet,
         Set<T> newSet,
@@ -538,10 +462,6 @@ public class Helper {
         ).forEach(
             forAdded
         );
-    }
-    
-    public static long getServerGameTime() {
-        return getOverWorldOnServer().getTime();
     }
     
     public static long secondToNano(double second) {

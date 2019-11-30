@@ -4,9 +4,9 @@ import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -63,7 +63,7 @@ public class RenderHelper {
         
         RenderHelper.originalPlayerDimension = cameraEntity.dimension;
         RenderHelper.originalPlayerPos = cameraEntity.getPos();
-        RenderHelper.originalPlayerLastTickPos = Helper.lastTickPosOf(cameraEntity);
+        RenderHelper.originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         RenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
         partialTicks = partialTicks_;

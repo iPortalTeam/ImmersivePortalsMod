@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.my_util.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.RenderHelper;
@@ -55,7 +54,7 @@ public class CHelper {
     public static Stream<Portal> getClientNearbyPortals(double range) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
-        Stream<Portal> nearbyPortals = Helper.getEntitiesNearby(
+        Stream<Portal> nearbyPortals = McHelper.getEntitiesNearby(
             player,
             Portal.class,
             range
