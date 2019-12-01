@@ -100,15 +100,9 @@ public abstract class PortalRenderer {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
-        
-        //do not use last tick pos
-        Vec3d thisTickEyePos = mc.cameraEntity.getCameraPosVec(1);
     
-        //special treat for third person mode
-        if (mc.gameRenderer.getCamera().isThirdPerson()) {
-            thisTickEyePos = mc.gameRenderer.getCamera().getPos();
-        }
-        
+        Vec3d thisTickEyePos = getRoughTestCameraPos();
+    
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }
@@ -122,6 +116,18 @@ public abstract class PortalRenderer {
         }
         
         doRenderPortal(portal);
+    }
+    
+    private Vec3d getRoughTestCameraPos() {
+        if (mc.gameRenderer.getCamera().isThirdPerson()) {
+            return mc.gameRenderer.getCamera().getPos();
+        }
+        if (CGlobal.teleportOnRendering) {
+            return mc.cameraEntity.getCameraPosVec(RenderHelper.partialTicks);
+        }
+        else {
+            return mc.cameraEntity.getCameraPosVec(1);
+        }
     }
     
     private List<Portal> getPortalsNearbySorted() {

@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import net.fabricmc.api.EnvType;
@@ -264,12 +263,11 @@ public class Portal extends Entity {
     }
     
     public boolean shouldEntityTeleport(Entity entity) {
-        float eyeHeight = entity.getStandingEyeHeight();
         return entity.dimension == this.dimension &&
             isTeleportable() &&
             isMovedThroughPortal(
-                McHelper.lastTickPosOf(entity).add(0, eyeHeight, 0),
-                entity.getPos().add(0, eyeHeight, 0)
+                entity.getCameraPosVec(0),
+                entity.getCameraPosVec(1)
             );
     }
     
@@ -447,5 +445,19 @@ public class Portal extends Entity {
         double dy = (wy1 * wy2 < 0 ? 0 : Math.min(Math.abs(wy1), Math.abs(wy2)));
         
         return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    public Vec3d getPointInPortalProjection(Vec3d pos) {
+        Vec3d myPos = getPos();
+        Vec3d offset = pos.subtract(myPos);
+        
+        double yInPlane = offset.dotProduct(axisH);
+        double xInPlane = offset.dotProduct(axisW);
+        
+        return myPos.add(
+            axisW.multiply(xInPlane)
+        ).add(
+            axisH.multiply(yInPlane)
+        );
     }
 }

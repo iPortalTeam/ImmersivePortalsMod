@@ -58,6 +58,10 @@ public class ViewAreaRenderer {
                 posInPlayerCoordinate
             );
         }
+    
+        if (shouldRenderAdditionalBox(portal, cameraPos)) {
+            renderAdditionalBox(portal, cameraPos, vertexOutput);
+        }
     }
     
     private static void generateTriangleSpecialBiLayered(
@@ -70,11 +74,11 @@ public class ViewAreaRenderer {
             vertexOutput, portal, posInPlayerCoordinate,
             Vec3d.ZERO
         );
-        
-        generateTriangleSpecialWithOffset(
-            vertexOutput, portal, posInPlayerCoordinate,
-            portal.getNormal().multiply(-layerWidth)
-        );
+
+//        generateTriangleSpecialWithOffset(
+//            vertexOutput, portal, posInPlayerCoordinate,
+//            portal.getNormal().multiply(-layerWidth)
+//        );
     }
     
     private static void generateTriangleSpecialWithOffset(
@@ -133,14 +137,14 @@ public class ViewAreaRenderer {
         Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
             .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
             .toArray(Vec3d[]::new);
-        
-        putIntoQuad(
-            vertexOutput,
-            backFace[0],
-            backFace[2],
-            backFace[3],
-            backFace[1]
-        );
+
+//        putIntoQuad(
+//            vertexOutput,
+//            backFace[0],
+//            backFace[2],
+//            backFace[3],
+//            backFace[1]
+//        );
         
         putIntoQuad(
             vertexOutput,
@@ -226,5 +230,58 @@ public class ViewAreaRenderer {
         GlStateManager.enableLighting();
     
         MinecraftClient.getInstance().getProfiler().pop();
+    }
+    
+    
+    private static boolean shouldRenderAdditionalBox(
+        Portal portal,
+        Vec3d cameraPos
+    ) {
+        return (portal.getDistanceToPlane(cameraPos) < 0.1) &&
+            portal.isPointInPortalProjection(cameraPos);
+    }
+    
+    //this view area rendering method is incorrect
+    @Deprecated
+    private static void renderAdditionalBox(
+        Portal portal,
+        Vec3d cameraPos,
+        Consumer<Vec3d> vertexOutput
+    ) {
+        Vec3d projected = portal.getPointInPortalProjection(cameraPos).subtract(cameraPos);
+        Vec3d normal = portal.getNormal();
+        
+        final double boxRadius = 1;
+        final double correctionFactor = 0;
+        Vec3d correction = normal.multiply(correctionFactor);
+        
+        Vec3d dx = portal.axisW.multiply(boxRadius);
+        Vec3d dy = portal.axisH.multiply(boxRadius);
+        
+        Vec3d a = projected.add(dx).add(dy).add(correction);
+        Vec3d b = projected.subtract(dx).add(dy).add(correction);
+        Vec3d c = projected.subtract(dx).subtract(dy).add(correction);
+        Vec3d d = projected.add(dx).subtract(dy).add(correction);
+        
+        Vec3d mid = projected.add(normal.multiply(-2));
+        
+        Consumer<Vec3d> compactVertexOutput = vertexOutput;
+        
+        compactVertexOutput.accept(b);
+        compactVertexOutput.accept(mid);
+        compactVertexOutput.accept(a);
+        
+        compactVertexOutput.accept(c);
+        compactVertexOutput.accept(mid);
+        compactVertexOutput.accept(b);
+        
+        compactVertexOutput.accept(d);
+        compactVertexOutput.accept(mid);
+        compactVertexOutput.accept(c);
+        
+        compactVertexOutput.accept(a);
+        compactVertexOutput.accept(mid);
+        compactVertexOutput.accept(d);
+        
     }
 }

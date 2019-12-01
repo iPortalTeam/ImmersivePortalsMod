@@ -18,26 +18,27 @@ public class CGlobal {
     public static ClientWorldLoader clientWorldLoader;
     public static MyGameRenderer myGameRenderer;
     public static ClientTeleportationManager clientTeleportationManager;
+    public static ShaderManager shaderManager;
     
-    public static WeakReference<FrustumWithOrigin> currentFrustumCuller;
-    
-    public static boolean doUseAdvancedFrustumCulling = true;
     public static int maxPortalLayer = 5;
     public static int maxIdleChunkRendererNum = 500;
+    
     public static Object switchedFogRenderer;
-    public static boolean useHackedChunkRenderDispatcher = true;
-    public static boolean isClientRemoteTickingEnabled = true;
-    public static boolean isOptifinePresent = false;
-    public static boolean useFrontCulling = true;
-    public static boolean useCompatibilityRenderer = false;
+    public static WeakReference<FrustumWithOrigin> currentFrustumCuller;
+    
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
-    public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
+    public static boolean isOptifinePresent = false;
     
+    public static boolean doUseAdvancedFrustumCulling = true;
+    public static boolean useHackedChunkRenderDispatcher = true;
+    public static boolean isClientRemoteTickingEnabled = true;
+    public static boolean useFrontCulling = true;
+    public static boolean useCompatibilityRenderer = false;
+    public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     public static boolean isRenderDebugMode = false;
     public static boolean debugMirrorMode = false;
-    
-    public static ShaderManager shaderManager;
+    public static boolean teleportOnRendering = true;
     
     
 }

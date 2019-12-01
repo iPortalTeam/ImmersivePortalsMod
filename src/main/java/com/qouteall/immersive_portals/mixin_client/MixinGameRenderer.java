@@ -90,6 +90,18 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
+    //may do teleportation here
+    @Inject(method = "render", at = @At("HEAD"))
+    private void onFarBeforeRendering(
+        float partialTicks,
+        long nanoTime,
+        boolean renderWorldIn,
+        CallbackInfo ci
+    ) {
+        RenderHelper.onTotalRenderBegin(partialTicks);
+        ModMain.preRenderSignal.emit();
+    }
+    
     //before rendering world (not triggered when rendering portal)
     @Inject(
         method = "renderWorld",
@@ -100,8 +112,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     )
     private void onBeforeRenderingCenter(float partialTicks, long finishTimeNano, CallbackInfo ci) {
         ModMainClient.switchToCorrectRenderer();
-        ModMain.preRenderSignal.emit();
-        RenderHelper.onTotalRenderBegin(partialTicks);
+    
         CGlobal.renderer.prepareRendering();
     }
     

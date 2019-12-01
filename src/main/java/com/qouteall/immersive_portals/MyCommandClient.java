@@ -346,6 +346,20 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder = builder.then(CommandManager
+            .literal("teleport_on_rendering_enable")
+            .executes(context -> {
+                CGlobal.teleportOnRendering = true;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("teleport_on_rendering_disable")
+            .executes(context -> {
+                CGlobal.teleportOnRendering = false;
+                return 0;
+            })
+        );
         
         dispatcher.register(builder);
         
