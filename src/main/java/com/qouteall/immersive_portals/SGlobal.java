@@ -1,12 +1,12 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
-import com.qouteall.immersive_portals.chunk_loading.ChunkTracker;
+import com.qouteall.immersive_portals.chunk_loading.ChunkTrackingGraph;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 
 public class SGlobal {
     
-    public static ChunkTracker chunkTracker;
+    public static ChunkTrackingGraph chunkTrackingGraph;
     
     public static ChunkDataSyncManager chunkDataSyncManager;
     

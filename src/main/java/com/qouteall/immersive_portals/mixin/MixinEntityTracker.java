@@ -157,7 +157,7 @@ public class MixinEntityTracker implements IEEntityTracker {
                     relativePos.z <= (double) maxWatchDistance &&
                     this.entity.canBeSpectated(player);
             isWatchedNow = isWatchedNow ||
-                SGlobal.chunkTracker.isPlayerWatchingChunk(
+                SGlobal.chunkTrackingGraph.isPlayerWatchingChunk(
                     player,
                     new DimensionalChunkPos(
                         entity.dimension,

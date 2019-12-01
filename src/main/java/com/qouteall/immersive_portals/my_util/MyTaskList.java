@@ -20,12 +20,16 @@ public class MyTaskList {
     public synchronized void processTasks() {
         Queue<MyTask> oldTasks = this.tasks;
         this.tasks = new ArrayDeque<>();
-    
+        
         oldTasks.stream().filter(
             task -> !task.runAndGetIsSucceeded()
         ).forEach(
             task -> this.tasks.add(task)
         );
         
+    }
+    
+    public void forceClearTasks() {
+        tasks = new ArrayDeque<>();
     }
 }

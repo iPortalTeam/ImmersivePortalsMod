@@ -37,7 +37,7 @@ public class MixinChunkHolder implements IEChunkHolder {
             this.playersWatchingChunkProvider.getPlayersWatchingChunk(
                 this.pos, boolean_1
             ),
-            SGlobal.chunkTracker.getPlayersViewingChunk(dimension, pos)
+            SGlobal.chunkTrackingGraph.getPlayersViewingChunk(dimension, pos)
         ).distinct().forEach(player ->
             player.networkHandler.sendPacket(
                 MyNetwork.createRedirectedMessage(

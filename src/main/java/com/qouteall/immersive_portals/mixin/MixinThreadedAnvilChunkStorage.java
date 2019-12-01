@@ -97,13 +97,13 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
         DimensionalChunkPos chunkPos = new DimensionalChunkPos(
             world.dimension.getType(), worldChunk_1.getPos()
         );
-        boolean isChunkDataSent = SGlobal.chunkTracker.isChunkDataSent(player, chunkPos);
+        boolean isChunkDataSent = SGlobal.chunkTrackingGraph.isChunkDataSent(player, chunkPos);
         if (isChunkDataSent) {
             return;
         }
     
         ModMain.serverTaskList.addTask(() -> {
-            SGlobal.chunkTracker.onChunkDataSent(player, chunkPos);
+            SGlobal.chunkTrackingGraph.onChunkDataSent(player, chunkPos);
             return true;
         });
         

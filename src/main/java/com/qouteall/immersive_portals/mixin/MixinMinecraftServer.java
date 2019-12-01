@@ -56,6 +56,7 @@ public class MixinMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
-        SGlobal.chunkTracker.cleanUp();
+        SGlobal.chunkTrackingGraph.cleanUp();
+        ModMain.serverTaskList.forceClearTasks();
     }
 }

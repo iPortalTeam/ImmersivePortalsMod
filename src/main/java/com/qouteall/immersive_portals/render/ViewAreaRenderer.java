@@ -101,6 +101,8 @@ public class ViewAreaRenderer {
         }
     }
     
+    //according to https://stackoverflow.com/questions/43002528/when-can-hotspot-allocate-objects-on-the-stack
+    //this will not generate gc pressure
     private static void putIntoLocalVertex(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
