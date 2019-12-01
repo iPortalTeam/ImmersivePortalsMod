@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.portal.BreakableMirror;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGenerator;
+import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalGenerator;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
@@ -24,9 +24,9 @@ public class MixinFlintAndSteelItem {
         if (!world.isClient()) {
             BlockPos blockPos_1 = context.getBlockPos();
             BlockPos firePos = blockPos_1.offset(context.getSide());
-            NetherPortalGenerator.NetherPortalGeneratedInformation info =
-                NetherPortalGenerator.onFireLit(((ServerWorld) world), firePos);
-            if (info == null) {
+            boolean generated =
+                NewNetherPortalGenerator.onFireLit(((ServerWorld) world), firePos);
+            if (!generated) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), context.getBlockPos(), context.getSide()
                 );

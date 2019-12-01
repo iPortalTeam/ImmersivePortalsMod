@@ -30,7 +30,7 @@ public class ModMainClient implements ClientModInitializer {
             GlobalTrackedPortal.class,
             BorderPortal.class,
             EndFloorPortal.class
-        
+    
         }).forEach(
             portalClass -> EntityRendererRegistry.INSTANCE.register(
                 portalClass,

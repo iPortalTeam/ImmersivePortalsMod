@@ -3,10 +3,7 @@ package com.qouteall.immersive_portals.my_util;
 //import com.sun.istack.internal.Nullable;
 
 import com.qouteall.immersive_portals.Helper;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -181,6 +178,14 @@ public class IntegerAABBInclusive {
     
     public BlockPos getCenter() {
         return Helper.divide(l.add(h), 2);
+    }
+    
+    public Vec3d getCenterVec() {
+        return new Vec3d(
+            (l.getX() + h.getX() + 1) / 2.0,
+            (l.getY() + h.getY() + 1) / 2.0,
+            (l.getZ() + h.getZ() + 1) / 2.0
+        );
     }
     
     public IntegerAABBInclusive getAdjusted(

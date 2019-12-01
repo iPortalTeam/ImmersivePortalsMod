@@ -4,6 +4,8 @@ fix (not confirmed) cannot go through end portal
 fix end floor portal shaking caused by float inaccuracy
 fix change to bigger max portal layer with shader causes crash
 
+force clear task when exiting
+
 use 1 client net handler
 
 faked infinite height
@@ -14,9 +16,6 @@ check public static fields of Shaders class
 
 check center depth correctness
 
-Beyond Belief shader: blink
-Chocapic shader: pure white/dark or blink
-Molly Vxe shader: abnormal
 Voyager: can't see overworld from nether
 
 postponed:

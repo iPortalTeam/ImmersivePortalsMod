@@ -36,10 +36,10 @@ public class NetherPortalShape {
         this.axis = axis;
         
         calcAnchor();
-        
-        calcArea();
-        
+    
         calcFrameArea();
+    
+        calcAreaBox();
     }
     
     public NetherPortalShape(
@@ -99,7 +99,7 @@ public class NetherPortalShape {
         Validate.notNull(anchor);
     }
     
-    public void calcArea() {
+    public void calcAreaBox() {
         innerAreaBox = Helper.reduceWithDifferentType(
             new IntegerAABBInclusive(anchor, anchor),
             area.stream(),
@@ -157,6 +157,7 @@ public class NetherPortalShape {
         }
         
         Set<BlockPos> area = new HashSet<>();
+        area.add(startingPos);
         findAreaRecursively(
             startingPos,
             isAir,
@@ -186,13 +187,15 @@ public class NetherPortalShape {
         for (Direction direction : directions) {
             BlockPos newPos = startingPos.add(direction.getVector());
             if (!foundArea.contains(newPos)) {
-                foundArea.add(newPos);
-                findAreaRecursively(
-                    newPos,
-                    isEmptyPos,
-                    directions,
-                    foundArea
-                );
+                if (isEmptyPos.test(newPos)) {
+                    foundArea.add(newPos);
+                    findAreaRecursively(
+                        newPos,
+                        isEmptyPos,
+                        directions,
+                        foundArea
+                    );
+                }
             }
         }
     }
@@ -268,10 +271,9 @@ public class NetherPortalShape {
     }
     
     public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
-        BlockPos centerBlockPos = innerAreaBox.getCenter();
-        Vec3d center = new Vec3d(centerBlockPos).add(0.5, 0.5, 0.5);
+        Vec3d center = innerAreaBox.getCenterVec();
         portal.setPosition(center.x, center.y, center.z);
-        
+    
         Direction[] anotherFourDirections = Helper.getAnotherFourDirections(axis);
         Direction wDirection;
         Direction hDirection;
@@ -285,14 +287,17 @@ public class NetherPortalShape {
         }
         portal.axisW = new Vec3d(wDirection.getVector());
         portal.axisH = new Vec3d(hDirection.getVector());
-        
+        portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
+        portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
+    
         SpecialPortalShape shape = new SpecialPortalShape();
         Vec3d offset = new Vec3d(
-            Direction.from(axis, Direction.AxisDirection.POSITIVE).getVector()
+            Direction.get(Direction.AxisDirection.POSITIVE, axis)
+                .getVector()
         ).multiply(0.5);
         for (BlockPos blockPos : area) {
             Vec3d p1 = new Vec3d(blockPos).add(offset);
-            Vec3d p2 = new Vec3d(blockPos).add(0.5, 0.5, 0.5).add(offset);
+            Vec3d p2 = new Vec3d(blockPos).add(1, 1, 1).add(offset);
             double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
             double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
             double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
@@ -302,7 +307,7 @@ public class NetherPortalShape {
                 p2LocalX, p2LocalY
             );
         }
-        
+    
         portal.specialShape = shape;
     }
     
