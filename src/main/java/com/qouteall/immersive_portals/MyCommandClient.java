@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.*;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
@@ -357,6 +358,20 @@ public class MyCommandClient {
             .literal("teleport_on_rendering_disable")
             .executes(context -> {
                 CGlobal.teleportOnRendering = false;
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("report_chunk_loaders")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                ChunkVisibilityManager.getChunkLoaders(
+                    player
+                ).forEach(
+                    loader -> McHelper.serverLog(
+                        player, loader.toString()
+                    )
+                );
                 return 0;
             })
         );

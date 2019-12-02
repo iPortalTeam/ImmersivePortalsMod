@@ -179,6 +179,9 @@ public class ClientTeleportationManager {
         ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d destination
     ) {
     
+        DimensionType toDimension = toWorld.dimension.getType();
+        DimensionType fromDimension = fromWorld.dimension.getType();
+    
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
         ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
@@ -189,7 +192,8 @@ public class ClientTeleportationManager {
         fromWorld.removeEntity(player.getEntityId());
         player.removed = false;
         player.world = toWorld;
-        player.dimension = toWorld.dimension.getType();
+    
+        player.dimension = toDimension;
         player.x = destination.x;
         player.y = destination.y;
         player.z = destination.z;
@@ -197,7 +201,7 @@ public class ClientTeleportationManager {
         toWorld.addPlayer(player.getEntityId(), player);
     
         mc.world = toWorld;
-        mc.worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(toWorld.dimension.getType());
+        mc.worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(toDimension);
     
         toWorld.setScoreboard(fromWorld.getScoreboard());
     
@@ -207,13 +211,14 @@ public class ClientTeleportationManager {
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
     
         CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(toWorld.dimension.getType())
+            .getDimensionRenderHelper(toDimension)
             .switchToMe();
-        
+    
+    
         Helper.log(String.format(
             "Client Changed Dimension from %s to %s time: %s",
-            fromWorld.dimension.getType(),
-            toWorld.dimension.getType(),
+            fromDimension,
+            toDimension,
             tickTimeForTeleportation
         ));
     
@@ -223,10 +228,12 @@ public class ClientTeleportationManager {
     
         if (OFHelper.getIsUsingShader()) {
             OFGlobal.shaderContextManager.onPlayerTraveled(
-                fromWorld.dimension.getType(),
-                toWorld.dimension.getType()
+                fromDimension,
+                toDimension
             );
         }
+    
+        RenderHelper.originalPlayerDimension = toDimension;
     }
     
     private void amendChunkEntityStatus(Entity entity) {

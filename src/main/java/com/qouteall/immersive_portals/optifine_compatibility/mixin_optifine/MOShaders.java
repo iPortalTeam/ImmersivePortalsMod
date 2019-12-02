@@ -1988,5 +1988,7 @@ public abstract class MOShaders {
         };
     
         OFGlobal.getShaderUniforms = () -> shaderUniforms;
+    
+        OFGlobal.getCurrentWorld = () -> currentWorld;
     }
 }

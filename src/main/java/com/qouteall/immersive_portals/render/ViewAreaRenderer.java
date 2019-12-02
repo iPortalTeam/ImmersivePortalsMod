@@ -241,8 +241,6 @@ public class ViewAreaRenderer {
             portal.isPointInPortalProjection(cameraPos);
     }
     
-    //this view area rendering method is incorrect
-    @Deprecated
     private static void renderAdditionalBox(
         Portal portal,
         Vec3d cameraPos,
@@ -262,8 +260,8 @@ public class ViewAreaRenderer {
         Vec3d b = projected.subtract(dx).add(dy).add(correction);
         Vec3d c = projected.subtract(dx).subtract(dy).add(correction);
         Vec3d d = projected.add(dx).subtract(dy).add(correction);
-        
-        Vec3d mid = projected.add(normal.multiply(-2));
+    
+        Vec3d mid = projected.add(normal.multiply(-0.5));
         
         Consumer<Vec3d> compactVertexOutput = vertexOutput;
         

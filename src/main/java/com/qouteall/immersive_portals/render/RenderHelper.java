@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import static org.lwjgl.opengl.GL11.*;
 
 public class RenderHelper {
+    //switching context is really bug-prone
     public static DimensionType originalPlayerDimension;
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;

@@ -101,7 +101,7 @@ public class ChunkVisibilityManager {
         int renderDistance = getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
-                portal.dimension,
+                portal.dimensionTo,
                 new ChunkPos(new BlockPos(
                     portal.applyTransformationToPoint(player.getPos())
                 ))
@@ -118,7 +118,7 @@ public class ChunkVisibilityManager {
         int renderDistance = getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
-                remotePortal.dimension,
+                remotePortal.dimensionTo,
                 new ChunkPos(new BlockPos(
                     remotePortal.applyTransformationToPoint(
                         outerPortal.applyTransformationToPoint(player.getPos())

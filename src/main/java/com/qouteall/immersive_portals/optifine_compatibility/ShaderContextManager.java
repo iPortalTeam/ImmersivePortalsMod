@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
 
@@ -92,6 +93,7 @@ public class ShaderContextManager {
         }
     
         if (currentContextDimension == dimensionToSwitchTo) {
+            check(dimensionToSwitchTo);
             func.run();
         }
         else {
@@ -106,6 +108,21 @@ public class ShaderContextManager {
         }
     
         currentContextDimension = oldContextDimension;
+    }
+    
+    private void check(DimensionType dimensionToSwitchTo) {
+        World shadersCurrentWorld = OFGlobal.getCurrentWorld.get();
+        if (shadersCurrentWorld != null) {
+            DimensionType shaderCurrentDimension = shadersCurrentWorld.dimension.getType();
+            if (shaderCurrentDimension != dimensionToSwitchTo) {
+                Helper.err(
+                    "Shader Context Abnormal. Shader: " +
+                        shaderCurrentDimension +
+                        "Main: " +
+                        dimensionToSwitchTo
+                );
+            }
+        }
     }
     
     private void checkState(
@@ -172,6 +189,8 @@ public class ShaderContextManager {
         PerDimensionContext newContext = getOrCreateContext(to);
         OFGlobal.copyContextFromObject.accept(newContext);
         managedContext.remove(to);
+    
+        check(to);
     }
     
     public void onShaderUninit() {
