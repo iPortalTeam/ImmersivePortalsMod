@@ -48,9 +48,6 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
         CGlobal.clientWorldLoader.cleanUp();
-        if (CGlobal.isOptifinePresent) {
-            //OFGlobal.shaderContextManager.cleanup();
-        }
     }
     
     @Override

@@ -1,16 +1,11 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.IEChunkRenderList;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEPlayerListEntry;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.optifine_compatibility.IEOFWorldRenderer;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -22,7 +17,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -66,15 +60,9 @@ public class MyGameRenderer {
             (IEChunkRenderList) ((IEWorldRenderer) oldWorldRenderer).getChunkRenderList();
         //List<ChunkRenderer> oldChunkRenderers = oldChunkRenderList.getChunkRenderers();
     
-        if (CGlobal.isOptifinePresent) {
-            /**{@link WorldRenderer#chunkInfos}*/
-            //in vanilla it will create new chunkInfos object every frame
-            //but with optifine it will always use one object
-            //we need to switch chunkInfos correctly
-            //if we do not put it a new object, it will clear the original chunkInfos
-            ((IEOFWorldRenderer) newWorldRenderer).createNewRenderInfosNormal();
-        }
-        
+    
+        OFInterface.createNewRenderInfosNormal.accept((IEOFWorldRenderer) newWorldRenderer);
+    
         //switch
         mc.worldRenderer = newWorldRenderer;
         mc.world = newWorld;
@@ -107,14 +95,9 @@ public class MyGameRenderer {
         CGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
         
         //invoke it!
-        if (OFHelper.getIsUsingShader()) {
-            Shaders.activeProgram = Shaders.ProgramNone;
-            Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
-        }
+        OFInterface.beforeRenderCenter.accept(partialTicks);
         ieGameRenderer.renderCenter_(partialTicks, getChunkUpdateFinishTime());
-        if (OFHelper.getIsUsingShader()) {
-            Shaders.activeProgram = Shaders.ProgramNone;
-        }
+        OFInterface.afterRenderCenter.run();
         
         mc.getProfiler().pop();
     
@@ -134,7 +117,6 @@ public class MyGameRenderer {
     
     
         oldChunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
-        // oldChunkRenderList.setChunkRenderers(oldChunkRenderers);
         
     }
     
@@ -145,7 +127,7 @@ public class MyGameRenderer {
     public void startCulling() {
         //shaders does not compatible with glCullPlane
         //I have to modify shader code
-        if (CGlobal.useFrontCulling && !OFHelper.getIsUsingShader()) {
+        if (CGlobal.useFrontCulling && !OFInterface.isShaders.getAsBoolean()) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
     }
@@ -153,7 +135,7 @@ public class MyGameRenderer {
     //NOTE the actual culling plane is related to current model view matrix
     public void updateCullingPlane() {
         clipPlaneEquation = calcClipPlaneEquation();
-        if (!OFHelper.getIsUsingShader()) {
+        if (!OFInterface.isShaders.getAsBoolean()) {
             GL11.glClipPlane(GL11.GL_CLIP_PLANE0, clipPlaneEquation);
         }
     }
@@ -173,7 +155,7 @@ public class MyGameRenderer {
             .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
             .subtract(mc.gameRenderer.getCamera().getPos());
     
-        if (OFHelper.getIsUsingShader() && portal instanceof Mirror) {
+        if (OFInterface.isShaders.getAsBoolean() && portal instanceof Mirror) {
             planeNormal = planeNormal.multiply(-1);
         }
         

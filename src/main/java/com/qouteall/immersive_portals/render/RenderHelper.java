@@ -5,10 +5,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -23,11 +22,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
-import net.optifine.shaders.Shaders;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
 import java.lang.ref.WeakReference;
@@ -53,7 +50,7 @@ public class RenderHelper {
     public static Vec3d lastCameraPos = Vec3d.ZERO;
     public static Vec3d cameraPosDelta = Vec3d.ZERO;
     
-    public static void onTotalRenderBegin(
+    public static void updatePreRenderInfo(
         float partialTicks_
     ) {
         Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
@@ -115,7 +112,7 @@ public class RenderHelper {
     public static void setupCameraTransformation() {
         MinecraftClient mc = MinecraftClient.getInstance();
         //rendering post processing shader may change view port
-        if (OFHelper.getIsUsingShader()) {
+        if (OFInterface.isShaders.getAsBoolean()) {
             //Shaders.setViewport(0, 0, mc.window.getFramebufferWidth(), mc.window.getFramebufferHeight());
         }
         else {
@@ -147,8 +144,8 @@ public class RenderHelper {
         setupCameraTransformation();
         
         shaderManager.loadContentShaderAndShaderVars(0);
-        
-        if (OFHelper.getIsUsingShader()) {
+    
+        if (OFInterface.isShaders.getAsBoolean()) {
             GlStateManager.viewport(
                 0,
                 0,
@@ -170,10 +167,8 @@ public class RenderHelper {
         ViewAreaRenderer.drawPortalViewTriangle(portal);
         
         shaderManager.unloadShader();
-        
-        if (OFHelper.getIsUsingShader()) {
-            GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
-        }
+    
+        OFInterface.resetViewport.run();
     }
     
     static void renderScreenTriangle() {
@@ -221,19 +216,6 @@ public class RenderHelper {
         
         GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture();
-    }
-    
-    public static void copyFromShaderFbTo(GlFramebuffer destFb, int copyComponent) {
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, OFGlobal.getDfb.get());
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destFb.fbo);
-        
-        GL30.glBlitFramebuffer(
-            0, 0, Shaders.renderWidth, Shaders.renderHeight,
-            0, 0, destFb.viewWidth, destFb.viewHeight,
-            copyComponent, GL_NEAREST
-        );
-        
-        OFHelper.bindToShaderFrameBuffer();
     }
     
     /**

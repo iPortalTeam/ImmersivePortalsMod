@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.*;
 import net.minecraft.client.MinecraftClient;
@@ -45,9 +46,9 @@ public class RendererDebugWithShader extends PortalRenderer {
         
         deferredBuffer.fb.setClearColor(1, 0, 0, 0);
         deferredBuffer.fb.clear(MinecraftClient.IS_SYSTEM_MAC);
-        
-        OFHelper.bindToShaderFrameBuffer();
-        
+    
+        OFInterface.bindToShaderFrameBuffer.run();
+    
     }
     
     @Override
@@ -75,8 +76,8 @@ public class RendererDebugWithShader extends PortalRenderer {
             deferredBuffer.fb.viewWidth,
             deferredBuffer.fb.viewHeight
         );
-        
-        OFHelper.bindToShaderFrameBuffer();
+    
+        OFInterface.bindToShaderFrameBuffer.run();
     }
     
     @Override
@@ -85,7 +86,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     ) {
         OFGlobal.shaderContextManager.switchContextAndRun(
             () -> {
-                OFHelper.bindToShaderFrameBuffer();
+                OFInterface.bindToShaderFrameBuffer.run();
                 super.renderPortalContentWithContextSwitched(portal, oldCameraPos);
             }
         );

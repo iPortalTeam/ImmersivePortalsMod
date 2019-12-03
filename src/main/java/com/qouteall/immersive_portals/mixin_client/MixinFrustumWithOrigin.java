@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEFrustumWithOrigin;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.render.FrustumWithOrigin;
@@ -77,7 +77,7 @@ public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
             return false;
         }
     
-        if (OFHelper.isShaderShadowPass()) {
+        if (OFInterface.isShadowPass.getAsBoolean()) {
             return false;
         }
     

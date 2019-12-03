@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+//this is not correlated with optifine shaders
 public class ShaderManager {
     private int idContentShaderProgram = -1;
     

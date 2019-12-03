@@ -260,8 +260,6 @@ public class RendererUsingStencil extends PortalRenderer {
             return;
         }
         
-        //TODO maybe should update fog color here?
-    
         RenderHelper.setupCameraTransformation();
         
         renderPortalViewAreaToStencil(portal);

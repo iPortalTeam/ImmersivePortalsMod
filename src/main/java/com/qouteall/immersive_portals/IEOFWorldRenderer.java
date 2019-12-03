@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.optifine_compatibility;
+package com.qouteall.immersive_portals;
 
 public interface IEOFWorldRenderer {
     void createNewRenderInfosNormal();

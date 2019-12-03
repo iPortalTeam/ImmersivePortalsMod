@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
@@ -206,8 +206,8 @@ public class ViewAreaRenderer {
         GlStateManager.disableLighting();
         
         GL11.glDisable(GL_CLIP_PLANE0);
-        
-        if (OFHelper.getIsUsingShader()) {
+    
+        if (OFInterface.isShaders.getAsBoolean()) {
             fogColor = Vec3d.ZERO;
         }
         

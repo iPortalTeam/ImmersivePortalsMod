@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.*;
@@ -68,7 +69,7 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering() {
-        RenderHelper.copyFromShaderFbTo(
+        OFHelper.copyFromShaderFbTo(
             deferredFbs[getPortalLayer()].fb,
             GL_DEPTH_BUFFER_BIT
         );
@@ -98,8 +99,8 @@ public class RendererMixed extends PortalRenderer {
             GlStateManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         
         }
-        
-        OFHelper.bindToShaderFrameBuffer();
+    
+        OFInterface.bindToShaderFrameBuffer.run();
     }
     
     @Override
@@ -128,7 +129,7 @@ public class RendererMixed extends PortalRenderer {
         
         portalLayers.push(portal);
     
-        OFHelper.bindToShaderFrameBuffer();
+        OFInterface.bindToShaderFrameBuffer.run();
         manageCameraAndRenderPortalContent(portal);
     
         int innerLayer = getPortalLayer();
@@ -168,8 +169,8 @@ public class RendererMixed extends PortalRenderer {
             myDrawPortalViewArea(portal);
     
             GL11.glDisable(GL_STENCIL_TEST);
-            
-            OFHelper.bindToShaderFrameBuffer();
+    
+            OFInterface.bindToShaderFrameBuffer.run();
         });
     }
     
@@ -194,7 +195,7 @@ public class RendererMixed extends PortalRenderer {
     ) {
         OFGlobal.shaderContextManager.switchContextAndRun(
             () -> {
-                OFHelper.bindToShaderFrameBuffer();
+                OFInterface.bindToShaderFrameBuffer.run();
                 super.renderPortalContentWithContextSwitched(portal, oldCameraPos);
             }
         );

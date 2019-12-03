@@ -12,7 +12,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.optifine.Config;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -37,12 +36,7 @@ public class CHelper {
     }
     
     public static boolean shouldDisableFog() {
-        if (CGlobal.isOptifinePresent) {
-            return Config.isFogOff() && MinecraftClient.getInstance().gameRenderer.fogStandard;
-        }
-        else {
-            return false;
-        }
+        return OFInterface.shouldDisableFog.getAsBoolean();
     }
     
     //do not inline this

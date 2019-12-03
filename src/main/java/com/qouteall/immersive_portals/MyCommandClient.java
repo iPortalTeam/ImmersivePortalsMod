@@ -32,7 +32,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
-import net.optifine.shaders.Shaders;
 
 import java.lang.ref.Reference;
 import java.util.List;
@@ -241,15 +240,6 @@ public class MyCommandClient {
                         ((IEWorldRenderer) MinecraftClient.getInstance().worldRenderer)
                             .getChunkRenderDispatcher()
                     ).rebuildAll();
-                });
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("uninit_shader_context")
-            .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    Shaders.uninit();
                 });
                 return 0;
             })

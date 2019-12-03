@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEChunkRenderDispatcher;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.MinecraftClient;
@@ -14,7 +15,6 @@ import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -309,24 +309,7 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void updateNeighbours() {
-        if (!CGlobal.isOptifinePresent) {
-            return;
-        }
-        
-        MinecraftClient.getInstance().getProfiler().push("neighbor");
-        
-        for (int j = 0; j < this.renderers.length; ++j) {
-            ChunkRenderer renderChunk = this.renderers[j];
-            
-            for (int l = 0; l < Direction.ALL.length; ++l) {
-                Direction facing = Direction.ALL[l];
-                BlockPos posOffset16 = renderChunk.getNeighborPosition(facing);
-                ChunkRenderer neighbour = getChunkRenderer(posOffset16);
-                renderChunk.setRenderChunkNeighbour(facing, neighbour);
-            }
-        }
-        
-        MinecraftClient.getInstance().getProfiler().pop();
+        OFInterface.updateChunkRendererNeighbours.accept((ChunkRenderDispatcher) (Object) this);
     }
     
     //NOTE input block pos instead of chunk pos

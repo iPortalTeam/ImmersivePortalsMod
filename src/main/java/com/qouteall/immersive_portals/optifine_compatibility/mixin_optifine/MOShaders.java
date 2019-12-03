@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.block.Block;
@@ -1023,7 +1023,7 @@ public abstract class MOShaders {
     //avoid uninit when creating faked world
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
     private static void onCheckWorldChanged(World world, CallbackInfo ci) {
-        if (OFHelper.getIsCreatingFakedWorld()) {
+        if (CGlobal.clientWorldLoader.getIsLoadingFakedWorld()) {
             ci.cancel();
         }
     }

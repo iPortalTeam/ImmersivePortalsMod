@@ -28,8 +28,6 @@ public class CGlobal {
     
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
-    public static boolean isOptifinePresent = false;
-    
     public static boolean doUseAdvancedFrustumCulling = true;
     public static boolean useHackedChunkRenderDispatcher = true;
     public static boolean isClientRemoteTickingEnabled = true;

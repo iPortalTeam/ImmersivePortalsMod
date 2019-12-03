@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
@@ -42,31 +42,7 @@ public class ModMainClient implements ClientModInitializer {
             LoadingIndicatorEntity.class,
             (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
         );
-//
-//        EntityRendererRegistry.INSTANCE.register(
-//            Portal.class,
-//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-//        );
-//        EntityRendererRegistry.INSTANCE.register(
-//            NetherPortalEntity.class,
-//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-//        );
-//        EntityRendererRegistry.INSTANCE.register(
-//            EndPortalEntity.class,
-//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-//        );
-//        EntityRendererRegistry.INSTANCE.register(
-//            Mirror.class,
-//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-//        );
-//        EntityRendererRegistry.INSTANCE.register(
-//            BreakableMirror.class,
-//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-//        );
-//        EntityRendererRegistry.INSTANCE.register(
-//            GlobalTrackedPortal.class,
-//            (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-//        );
+    
     }
     
     public static void switchToCorrectRenderer() {
@@ -74,7 +50,7 @@ public class ModMainClient implements ClientModInitializer {
             //do not switch when rendering
             return;
         }
-        if (OFHelper.getIsUsingShader()) {
+        if (OFInterface.isShaders.getAsBoolean()) {
             if (CGlobal.isRenderDebugMode) {
                 switchRenderer(OFGlobal.rendererDebugWithShader);
             }
@@ -118,9 +94,13 @@ public class ModMainClient implements ClientModInitializer {
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
     
-        CGlobal.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+        OFInterface.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
     
-        Helper.log(CGlobal.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
+        if (OFInterface.isOptifinePresent) {
+            OFInterfaceInitializer.init();
+        }
+    
+        Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
         SatinCompatibility.init();
     }

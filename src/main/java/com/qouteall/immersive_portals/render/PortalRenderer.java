@@ -1,11 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
+import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -14,7 +10,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
-import net.optifine.shaders.Shaders;
 
 import java.util.Comparator;
 import java.util.List;
@@ -70,10 +65,8 @@ public abstract class PortalRenderer {
     }
     
     public boolean shouldRenderEntityNow(Entity entity) {
-        if (OFHelper.getIsUsingShader()) {
-            if (Shaders.isShadowPass) {
-                return true;
-            }
+        if (OFInterface.isShadowPass.getAsBoolean()) {
+            return true;
         }
         if (isRendering()) {
             return getRenderingPortal().canRenderEntityInsideMe(entity.getPos());

@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals;
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -131,19 +130,18 @@ public class ClientWorldLoader {
         }
     }
     
+    //fool minecraft using the faked world
     private ClientWorld createFakedClientWorld(DimensionType dimension) {
         assert mc.world.dimension.getType() == mc.player.dimension;
         assert (mc.player.dimension != dimension);
         
         isLoadingFakedWorld = true;
-    
-        OFHelper.onBeginCreatingFakedWorld();
         
         //TODO get load distance
         int chunkLoadDistance = 3;
         
         WorldRenderer worldRenderer = new WorldRenderer(mc);
-    
+        
         ClientWorld newWorld;
         try {
             ClientPlayNetworkHandler newNetworkHandler = new ClientPlayNetworkHandler(
@@ -177,7 +175,7 @@ public class ClientWorldLoader {
                 e
             );
         }
-    
+        
         worldRenderer.setWorld(newWorld);
         
         worldRenderer.apply(mc.getResourceManager());
@@ -191,8 +189,6 @@ public class ClientWorldLoader {
         Helper.log("Faked World Created " + dimension);
         
         isLoadingFakedWorld = false;
-    
-        OFHelper.onFinishCreatingFakedWorld();
         
         return newWorld;
     }

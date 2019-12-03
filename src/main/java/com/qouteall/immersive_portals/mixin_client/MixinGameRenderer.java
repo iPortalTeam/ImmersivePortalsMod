@@ -98,7 +98,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean renderWorldIn,
         CallbackInfo ci
     ) {
-        RenderHelper.onTotalRenderBegin(partialTicks);
+        RenderHelper.updatePreRenderInfo(partialTicks);
         ModMain.preRenderSignal.emit();
     }
     

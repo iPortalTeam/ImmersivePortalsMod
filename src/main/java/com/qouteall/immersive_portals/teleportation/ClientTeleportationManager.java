@@ -4,8 +4,6 @@ import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
-import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OFHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.RenderHelper;
@@ -226,14 +224,12 @@ public class ClientTeleportationManager {
             McHelper.getEntitiesNearby(mc.player, Portal.class, 10).count()
         );
     
-        if (OFHelper.getIsUsingShader()) {
-            OFGlobal.shaderContextManager.onPlayerTraveled(
-                fromDimension,
-                toDimension
-            );
-        }
+        //because the teleportation may happen before rendering
+        //but after pre render info being updated
+        RenderHelper.updatePreRenderInfo(RenderHelper.partialTicks);
     
-        RenderHelper.originalPlayerDimension = toDimension;
+        OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
+        
     }
     
     private void amendChunkEntityStatus(Entity entity) {
