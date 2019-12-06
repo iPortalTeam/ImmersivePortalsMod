@@ -32,7 +32,9 @@ Portal rendering takes place before translucent block rendering.
 It uses stencil buffer and does not use additional frame buffer when rendering without shaders.
 
 It firstly draw the portal view area.
-(the view area mesh is not a quad. It's a concave box with 5 faces.)
+When the camera is very close to the portal,
+the pixels that are too close to the camera are culled during rasterization.
+So it will additionally render a small pyramid-shaped hood around camera.
 
 Drawing view area will increase stencil value by one.
 Then it will move the player to another dimension, switch objects for rendering 
@@ -55,5 +57,10 @@ I changed it into a map.
 In server side, it will send redirected packet to players to synchronize world information.
 If the packet is not redirected, a chunk data packet of nether may be recognized as overworld chunk data in client.
 
-In vanilla if a player is faraway from a chunk, it will be immediately unloaded.
-But with this mod, it has to wait for 15 seconds to unload.
+I made my own chunk loading determination logic. The /forceload command will not work.
+
+### Seamless teleportation
+Teleportation on client side happens before rendering (not during ticking).
+Teleportation happens when the camera cross the portal (after the player entity crossing the portal).
+
+Client will teleport first and then the server receives the teleport request and do teleportation on server.
