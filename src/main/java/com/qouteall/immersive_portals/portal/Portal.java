@@ -46,6 +46,7 @@ public class Portal extends Entity {
     private Box boundingBoxCache;
     private Vec3d normal;
     
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -161,6 +162,7 @@ public class Portal extends Entity {
                 removed = true;
                 return;
             }
+    
             serverPortalTickSignal.emit(this);
         }
     }
@@ -287,9 +289,12 @@ public class Portal extends Entity {
     @Override
     public String toString() {
         return String.format(
-            "%s{%s,(%s %s %s %s)->(%s %s %s %s)}",
+            "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)}",
             getClass().getSimpleName(),
             getEntityId(),
+            Direction.getFacing(
+                getNormal().x, getNormal().y, getNormal().z
+            ),
             dimension, (int) x, (int) y, (int) z,
             dimensionTo, (int) destination.x, (int) destination.y, (int) destination.z
         );
@@ -396,20 +401,32 @@ public class Portal extends Entity {
         Vec3d lastTickPos,
         Vec3d pos
     ) {
-        double lastDistance = getDistanceToPlane(lastTickPos);
-        double nowDistance = getDistanceToPlane(pos);
+        return rayTrace(lastTickPos, pos) != null;
+    }
+    
+    public Vec3d rayTrace(
+        Vec3d from,
+        Vec3d to
+    ) {
+        double lastDistance = getDistanceToPlane(from);
+        double nowDistance = getDistanceToPlane(to);
         
         if (!(lastDistance > 0 && nowDistance < 0)) {
-            return false;
+            return null;
         }
         
-        Vec3d lineOrigin = lastTickPos;
-        Vec3d lineDirection = pos.subtract(lastTickPos).normalize();
+        Vec3d lineOrigin = from;
+        Vec3d lineDirection = to.subtract(from).normalize();
         
         double collidingT = Helper.getCollidingT(getPos(), normal, lineOrigin, lineDirection);
         Vec3d collidingPoint = lineOrigin.add(lineDirection.multiply(collidingT));
         
-        return isPointInPortalProjection(collidingPoint);
+        if (isPointInPortalProjection(collidingPoint)) {
+            return collidingPoint;
+        }
+        else {
+            return null;
+        }
     }
     
     public double getDistanceToNearestPointInPortal(
