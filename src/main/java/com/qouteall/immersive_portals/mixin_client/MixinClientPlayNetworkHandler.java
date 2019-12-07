@@ -78,7 +78,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         method = "onPlayerPositionLook",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/ThreadExecutor;)V",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V",
             shift = At.Shift.AFTER
         ),
         cancellable = true
@@ -114,7 +114,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         method = "onEntityPassengersSet",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/ThreadExecutor;)V",
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V",
             shift = At.Shift.AFTER
         ),
         cancellable = true
