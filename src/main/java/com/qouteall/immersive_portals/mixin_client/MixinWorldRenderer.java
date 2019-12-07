@@ -6,16 +6,21 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
+import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.BuiltChunkStorage;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.chunk.ChunkRenderer;
 import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.render.chunk.ChunkRendererList;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -71,6 +76,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private boolean entityOutlinesUpdateNecessary;
     
+    @Shadow
+    private BuiltChunkStorage chunks;
+    
     @Override
     public ChunkRenderDispatcher getChunkRenderDispatcher() {
         return chunkRenderDispatcher;
@@ -89,6 +97,26 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void setChunkInfos(List list) {
         chunkInfos = list;
+    }
+    
+    @Redirect(
+        method = "reload",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/BuiltChunkStorage;<init>(Lnet/minecraft/client/render/chunk/ChunkBuilder;Lnet/minecraft/world/World;ILnet/minecraft/client/render/WorldRenderer;)V"
+        )
+    )
+    private void redirectConstructingBuildChunkStorage(
+        ChunkBuilder chunkBuilder_1,
+        World world_1,
+        int int_1,
+        WorldRenderer worldRenderer_1
+    ) {
+        chunks = new MyBuiltChunkStorage(
+            chunkBuilder_1,
+            world_1, int_1,
+            worldRenderer_1
+        );
     }
     
     @Inject(
