@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.BufferUtils;
@@ -24,7 +25,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering() {
+    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
         if (!isRendering()) {
             doPortalRendering();
         }
@@ -39,14 +40,14 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     @Override
-    public void onAfterTranslucentRendering() {
+    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
         if (isRendering()) {
             doPortalRendering();
         }
     }
     
     @Override
-    public void onRenderCenterEnded() {
+    public void onRenderCenterEnded(MatrixStack matrixStack) {
         //nothing
     }
     

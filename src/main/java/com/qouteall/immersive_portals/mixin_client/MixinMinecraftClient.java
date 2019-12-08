@@ -6,10 +6,13 @@ import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,12 +21,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient implements IEMinecraftClient {
     @Shadow
-    private GlFramebuffer framebuffer;
+    private Framebuffer framebuffer;
     
     @Shadow
     public Screen currentScreen;
     
-    @Inject(at = @At("TAIL"), method = "init()V")
+    @Mutable
+    @Shadow
+    @Final
+    public WorldRenderer worldRenderer;
+    
+    @Inject(at = @At("TAIL"), method = "<init>")
     private void onInitEnded(CallbackInfo info) {
         if (FabricLoader.INSTANCE.isModLoaded("optifabric")) {
             ShaderCullingManager.init();
@@ -51,12 +59,17 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     }
     
     @Override
-    public void setFrameBuffer(GlFramebuffer buffer) {
+    public void setFrameBuffer(Framebuffer buffer) {
         framebuffer = buffer;
     }
     
     @Override
     public Screen getCurrentScreen() {
         return currentScreen;
+    }
+    
+    @Override
+    public void setWorldRenderer(WorldRenderer r) {
+        worldRenderer = r;
     }
 }

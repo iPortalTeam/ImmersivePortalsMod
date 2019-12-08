@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -13,17 +14,17 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     SecondaryFrameBuffer secondaryFrameBuffer = new SecondaryFrameBuffer();
     
     @Override
-    public void onBeforeTranslucentRendering() {
+    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
         renderPortals();
     }
     
     @Override
-    public void onAfterTranslucentRendering() {
+    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
     
     }
     
     @Override
-    public void onRenderCenterEnded() {
+    public void onRenderCenterEnded(MatrixStack matrixStack) {
     
     }
     

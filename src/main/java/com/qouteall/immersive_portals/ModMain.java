@@ -15,7 +15,6 @@ import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
 
 public class ModMain implements ModInitializer {
-    //after world ticking
     public static final Signal postClientTickSignal = new Signal();
     public static final Signal postServerTickSignal = new Signal();
     public static final Signal preRenderSignal = new Signal();

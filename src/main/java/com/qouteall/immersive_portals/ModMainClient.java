@@ -102,6 +102,8 @@ public class ModMainClient implements ClientModInitializer {
     
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
+        FogRendererContext.init();
+        
         SatinCompatibility.init();
     }
 }

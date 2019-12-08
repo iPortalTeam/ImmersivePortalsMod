@@ -139,8 +139,8 @@ public class ClientWorldLoader {
         
         //TODO get load distance
         int chunkLoadDistance = 3;
-        
-        WorldRenderer worldRenderer = new WorldRenderer(mc);
+    
+        WorldRenderer worldRenderer = new WorldRenderer(mc, mc.getBufferBuilders());
         
         ClientWorld newWorld;
         try {

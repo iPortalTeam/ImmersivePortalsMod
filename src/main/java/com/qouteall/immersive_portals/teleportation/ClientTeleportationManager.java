@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
@@ -192,15 +193,15 @@ public class ClientTeleportationManager {
         player.world = toWorld;
     
         player.dimension = toDimension;
-        player.x = destination.x;
-        player.y = destination.y;
-        player.z = destination.z;
+        player.setPos(destination.x, destination.y, destination.z);
     
         toWorld.addPlayer(player.getEntityId(), player);
     
         mc.world = toWorld;
-        mc.worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(toDimension);
-    
+        ((IEMinecraftClient) mc).setWorldRenderer(
+            CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
+        );
+        
         toWorld.setScoreboard(fromWorld.getScoreboard());
     
         if (mc.particleManager != null)
@@ -229,6 +230,8 @@ public class ClientTeleportationManager {
         RenderHelper.updatePreRenderInfo(RenderHelper.partialTicks);
     
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
+    
+        FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
         
     }
     

@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL13;
@@ -27,12 +28,12 @@ public class RendererDebugWithShader extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering() {
+    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
     
     }
     
     @Override
-    public void onAfterTranslucentRendering() {
+    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
         renderPortals();
     }
     
@@ -93,7 +94,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     }
     
     @Override
-    public void onRenderCenterEnded() {
+    public void onRenderCenterEnded(MatrixStack matrixStack) {
         if (isRendering()) {
             return;
         }

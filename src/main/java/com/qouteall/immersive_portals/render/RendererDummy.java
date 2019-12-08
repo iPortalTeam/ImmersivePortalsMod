@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.portal.Portal;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class RendererDummy extends PortalRenderer {
     @Override
@@ -14,17 +15,17 @@ public class RendererDummy extends PortalRenderer {
     }
     
     @Override
-    public void onBeforeTranslucentRendering() {
+    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
     
     }
     
     @Override
-    public void onAfterTranslucentRendering() {
+    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
     
     }
     
     @Override
-    public void onRenderCenterEnded() {
+    public void onRenderCenterEnded(MatrixStack matrixStack) {
     
     }
     

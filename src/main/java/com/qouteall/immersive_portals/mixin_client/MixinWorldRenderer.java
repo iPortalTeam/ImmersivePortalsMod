@@ -1,26 +1,20 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
-import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BuiltChunkStorage;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.client.render.chunk.ChunkRenderer;
-import net.minecraft.client.render.chunk.ChunkRendererFactory;
-import net.minecraft.client.render.chunk.ChunkRendererList;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,9 +22,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.List;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements IEWorldRenderer {
@@ -39,23 +30,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private ClientWorld world;
     
     @Shadow
-    private ChunkRendererFactory chunkRendererFactory;
-    
-    @Shadow
-    private ChunkRenderDispatcher chunkRenderDispatcher;
-    
-    @Shadow
-    private ChunkRendererList chunkRendererList;
-    
-    @Shadow
-    private List chunkInfos;
-    
-    @Shadow
     @Final
     private EntityRenderDispatcher entityRenderDispatcher;
-    
-    @Shadow
-    private int field_4076;
     
     @Shadow
     @Final
@@ -71,48 +47,84 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private double lastTranslucentSortZ;
     
     @Shadow
-    protected abstract void renderLayer(BlockRenderLayer blockLayerIn);
-    
-    @Shadow
-    private boolean entityOutlinesUpdateNecessary;
-    
-    @Shadow
     private BuiltChunkStorage chunks;
     
-    @Override
-    public ChunkRenderDispatcher getChunkRenderDispatcher() {
-        return chunkRenderDispatcher;
+    @Shadow
+    protected abstract void renderLayer(
+        RenderLayer renderLayer_1,
+        MatrixStack matrixStack_1,
+        double double_1,
+        double double_2,
+        double double_3
+    );
+    
+    @Shadow
+    protected abstract void renderEntity(
+        Entity entity_1,
+        double double_1,
+        double double_2,
+        double double_3,
+        float float_1,
+        MatrixStack matrixStack_1,
+        VertexConsumerProvider vertexConsumerProvider_1
+    );
+    
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
+        )
+    )
+    private void onRenderBeforeRenderLayer(
+        WorldRenderer worldRenderer,
+        RenderLayer renderLayer_1,
+        MatrixStack matrixStack_1,
+        double double_1,
+        double double_2,
+        double double_3
+    ) {
+        boolean isTranslucent = renderLayer_1 == RenderLayer.getTranslucent();
+        if (isTranslucent) {
+            CGlobal.renderer.onBeforeTranslucentRendering(matrixStack_1);
+        }
+        renderLayer(
+            renderLayer_1, matrixStack_1,
+            double_1, double_2, double_3
+        );
+        if (isTranslucent) {
+            CGlobal.renderer.onAfterTranslucentRendering(matrixStack_1);
+        }
+        
     }
     
-    @Override
-    public ChunkRendererList getChunkRenderList() {
-        return chunkRendererList;
-    }
-    
-    @Override
-    public List getChunkInfos() {
-        return chunkInfos;
-    }
-    
-    @Override
-    public void setChunkInfos(List list) {
-        chunkInfos = list;
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"
+        )
+    )
+    private void redirectClearing(int int_1, boolean boolean_1) {
+        if (!CGlobal.renderer.shouldSkipClearing()) {
+            RenderSystem.clear(int_1, boolean_1);
+        }
     }
     
     @Redirect(
         method = "reload",
         at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/BuiltChunkStorage;<init>(Lnet/minecraft/client/render/chunk/ChunkBuilder;Lnet/minecraft/world/World;ILnet/minecraft/client/render/WorldRenderer;)V"
+            value = "NEW",
+            target = "net/minecraft/client/render/BuiltChunkStorage"
         )
     )
-    private void redirectConstructingBuildChunkStorage(
+    private BuiltChunkStorage redirectConstructingBuildChunkStorage(
         ChunkBuilder chunkBuilder_1,
         World world_1,
         int int_1,
         WorldRenderer worldRenderer_1
     ) {
-        chunks = new MyBuiltChunkStorage(
+        return new MyBuiltChunkStorage(
             chunkBuilder_1,
             world_1, int_1,
             worldRenderer_1
@@ -120,49 +132,102 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/block/BlockRenderLayer;)V",
+        method = "renderLayer",
         at = @At("HEAD")
     )
-    private void onStartRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
+    private void onStartRenderLayer(
+        RenderLayer renderLayer_1,
+        MatrixStack matrixStack_1,
+        double double_1,
+        double double_2,
+        double double_3,
+        CallbackInfo ci
+    ) {
         if (CGlobal.renderer.isRendering()) {
             CGlobal.myGameRenderer.startCulling();
             if (RenderHelper.isRenderingMirror()) {
-                GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
+                GL11.glCullFace(GL11.GL_FRONT);
             }
         }
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/block/BlockRenderLayer;)V",
+        method = "renderLayer",
         at = @At("TAIL")
     )
-    private void onStopRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
+    private void onStopRenderLayer(
+        RenderLayer renderLayer_1,
+        MatrixStack matrixStack_1,
+        double double_1,
+        double double_2,
+        double double_3,
+        CallbackInfo ci
+    ) {
         if (CGlobal.renderer.isRendering()) {
             CGlobal.myGameRenderer.endCulling();
-            GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+            GL11.glCullFace(GL11.GL_BACK);
         }
     }
     
-    @Inject(
-        method = "renderEntities",
+    //to let the player be rendered when rendering portal
+    @Redirect(
+        method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;enableLightmap()V",
-            shift = At.Shift.AFTER
+            target = "Lnet/minecraft/client/render/Camera;isThirdPerson()Z"
         )
     )
-    private void onEndRenderEntities(
-        Camera camera_1,
-        VisibleRegion visibleRegion_1,
+    private boolean redirectIsThirdPerson(Camera camera) {
+        if (CGlobal.renderer.shouldRenderPlayerItself()) {
+            return true;
+        }
+        return camera.isThirdPerson();
+    }
+    
+    //render player itself when rendering portal
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"
+        )
+    )
+    private void redirectRenderEntity(
+        WorldRenderer worldRenderer,
+        Entity entity_1,
+        double double_1,
+        double double_2,
+        double double_3,
         float float_1,
-        CallbackInfo ci
+        MatrixStack matrixStack_1,
+        VertexConsumerProvider vertexConsumerProvider_1
     ) {
-        CGlobal.myGameRenderer.renderPlayerItselfIfNecessary();
+        Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+        if (entity_1 == camera.getFocusedEntity()) {
+            if (CGlobal.renderer.shouldRenderPlayerItself()) {
+                CGlobal.myGameRenderer.renderPlayerItself(() -> {
+                    renderEntity(
+                        entity_1,
+                        double_1, double_2, double_3,
+                        float_1,
+                        matrixStack_1, vertexConsumerProvider_1
+                    );
+                });
+                return;
+            }
+        }
+        
+        renderEntity(
+            entity_1,
+            double_1, double_2, double_3,
+            float_1,
+            matrixStack_1, vertexConsumerProvider_1
+        );
     }
     
     //avoid render glowing entities when rendering portal
     @Redirect(
-        method = "renderEntities",
+        method = "render",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/entity/Entity;isGlowing()Z"
@@ -205,67 +270,31 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         isReloadingOtherWorldRenderers = false;
     }
     
-    //avoid resort transparency when rendering portal
-    @Inject(
-        method = "renderLayer(Lnet/minecraft/block/BlockRenderLayer;Lnet/minecraft/client/render/Camera;)I",
-        at = @At("HEAD"),
-        cancellable = true
+    //avoid translucent sort while rendering portal
+    @Redirect(
+        method = "renderLayer",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;"
+        )
     )
-    public void onRenderLayer(
-        BlockRenderLayer blockLayerIn,
-        Camera activeRenderInfo,
-        CallbackInfoReturnable<Integer> cir
-    ) {
-        if (blockLayerIn == BlockRenderLayer.TRANSLUCENT && CGlobal.renderer.isRendering()) {
-            //run my version and avoid resort transparency
-            
-            GuiLighting.disable();
-            
-            this.client.getProfiler().push("filterempty");
-            int l = 0;
-            boolean flag = blockLayerIn == BlockRenderLayer.TRANSLUCENT;
-            int i1 = flag ? this.chunkInfos.size() - 1 : 0;
-            int i = flag ? -1 : this.chunkInfos.size();
-            int j1 = flag ? -1 : 1;
-            
-            for (int j = i1; j != i; j += j1) {
-                ChunkRenderer chunkrender = ((IEWorldRendererChunkInfo) this.chunkInfos.get(j)).getChunkRenderer();
-                if (!chunkrender.getData().isEmpty(blockLayerIn)) {
-                    ++l;
-                    this.chunkRendererList.add(chunkrender, blockLayerIn);
-                }
-            }
-            
-            if (l == 0) {
-                this.client.getProfiler().pop();
-            }
-            else {
-                if (CHelper.shouldDisableFog()) {
-                    GlStateManager.disableFog();
-                }
-                
-                this.client.getProfiler().swap(() -> {
-                    return "render_" + blockLayerIn;
-                });
-                this.renderLayer(blockLayerIn);
-                this.client.getProfiler().pop();
-            }
-            
-            cir.setReturnValue(l);
-            cir.cancel();
+    private RenderLayer redirectGetTranslucent() {
+        if (CGlobal.renderer.isRendering()) {
+            return null;
         }
+        return RenderLayer.getTranslucent();
     }
     
     @Inject(method = "renderSky", at = @At("HEAD"))
-    private void onRenderSkyBegin(float partialTicks, CallbackInfo ci) {
+    private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
         if (RenderHelper.isRenderingMirror()) {
-            GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
+            GL11.glCullFace(GL11.GL_FRONT);
         }
     }
     
     @Inject(method = "renderSky", at = @At("RETURN"))
-    private void onRenderSkyEnd(float partialTicks, CallbackInfo ci) {
-        GlStateManager.cullFace(GlStateManager.FaceSides.BACK);
+    private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
+        GL11.glCullFace(GL11.GL_BACK);
     }
     
     @Override

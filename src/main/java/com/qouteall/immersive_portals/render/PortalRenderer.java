@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
@@ -24,13 +25,13 @@ public abstract class PortalRenderer {
     protected Stack<Portal> portalLayers = new Stack<>();
     
     //this WILL be called when rendering portal
-    public abstract void onBeforeTranslucentRendering();
+    public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
     
     //this WILL be called when rendering portal
-    public abstract void onAfterTranslucentRendering();
+    public abstract void onAfterTranslucentRendering(MatrixStack matrixStack);
     
     //this WILL be called when rendering portal
-    public abstract void onRenderCenterEnded();
+    public abstract void onRenderCenterEnded(MatrixStack matrixStack);
     
     //this will NOT be called when rendering portal
     public abstract void prepareRendering();

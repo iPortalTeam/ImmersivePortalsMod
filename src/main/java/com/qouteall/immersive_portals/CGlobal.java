@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.render.*;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
-import net.minecraft.client.render.FrustumWithOrigin;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.lang.ref.WeakReference;
@@ -24,7 +24,7 @@ public class CGlobal {
     public static int maxIdleChunkRendererNum = 500;
     
     public static Object switchedFogRenderer;
-    public static WeakReference<FrustumWithOrigin> currentFrustumCuller;
+    public static WeakReference<Frustum> currentFrustumCuller;
     
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
