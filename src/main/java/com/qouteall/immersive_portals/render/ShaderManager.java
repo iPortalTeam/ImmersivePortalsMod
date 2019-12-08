@@ -92,9 +92,12 @@ public class ShaderManager {
         GL20.glUniformMatrix4fv(uniProjection, false, Helper.getProjectionMatrix());
         
         GL20.glUniform1i(uniSampler, textureSlot);
-        
-        GL20.glUniform1f(uniWidth, MinecraftClient.getInstance().window.getFramebufferWidth());
-        GL20.glUniform1f(uniHeight, MinecraftClient.getInstance().window.getFramebufferHeight());
+    
+        GL20.glUniform1f(uniWidth, MinecraftClient.getInstance().getWindow().getFramebufferWidth());
+        GL20.glUniform1f(
+            uniHeight,
+            MinecraftClient.getInstance().getWindow().getFramebufferHeight()
+        );
     }
     
     public void unloadShader() {

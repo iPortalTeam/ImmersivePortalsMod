@@ -25,7 +25,6 @@ public class DimensionRenderHelper {
         }
     }
     
-    
     public void tick() {
         lightmapTexture.tick();
     }
@@ -37,8 +36,4 @@ public class DimensionRenderHelper {
         }
     }
     
-    public void switchToMe() {
-        IEGameRenderer gameRenderer = (IEGameRenderer) mc.gameRenderer;
-        gameRenderer.setLightmapTextureManager(lightmapTexture);
-    }
 }

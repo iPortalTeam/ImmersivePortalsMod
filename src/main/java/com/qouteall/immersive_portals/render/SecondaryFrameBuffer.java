@@ -2,25 +2,25 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.gl.Framebuffer;
 
 //it will always be the same size as the main frame buffer
 public class SecondaryFrameBuffer {
-    public GlFramebuffer fb;
+    public Framebuffer fb;
     
     public void prepare() {
-        GlFramebuffer mainFrameBuffer = MinecraftClient.getInstance().getFramebuffer();
-        int width = mainFrameBuffer.viewWidth;
-        int height = mainFrameBuffer.viewHeight;
+        Framebuffer mainFrameBuffer = MinecraftClient.getInstance().getFramebuffer();
+        int width = mainFrameBuffer.viewportWidth;
+        int height = mainFrameBuffer.viewportHeight;
         if (fb == null) {
-            fb = new GlFramebuffer(
+            fb = new Framebuffer(
                 width, height,
                 true,//has depth attachment
                 MinecraftClient.IS_SYSTEM_MAC
             );
         }
-        if (width != fb.viewWidth ||
-            height != fb.viewHeight
+        if (width != fb.viewportWidth ||
+            height != fb.viewportHeight
         ) {
             fb.resize(
                 width, height, MinecraftClient.IS_SYSTEM_MAC

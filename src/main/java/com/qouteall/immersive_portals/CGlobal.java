@@ -23,7 +23,6 @@ public class CGlobal {
     public static int maxPortalLayer = 5;
     public static int maxIdleChunkRendererNum = 500;
     
-    public static Object switchedFogRenderer;
     public static WeakReference<Frustum> currentFrustumCuller;
     
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();

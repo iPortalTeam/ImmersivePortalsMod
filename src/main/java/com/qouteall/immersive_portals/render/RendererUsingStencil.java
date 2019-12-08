@@ -27,13 +27,13 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
         if (!isRendering()) {
-            doPortalRendering();
+            doPortalRendering(matrixStack);
         }
     }
     
-    private void doPortalRendering() {
+    private void doPortalRendering(MatrixStack matrixStack) {
         mc.getProfiler().swap("render_portal_total");
-        renderPortals();
+        renderPortals(matrixStack);
         if (!isRendering()) {
             myFinishRendering();
         }
@@ -42,7 +42,7 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
         if (isRendering()) {
-            doPortalRendering();
+            doPortalRendering(matrixStack);
         }
     }
     
@@ -78,14 +78,15 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     @Override
-    protected void doRenderPortal(Portal portal) {
+    protected void doRenderPortal(
+        Portal portal,
+        MatrixStack matrixStack
+    ) {
         int outerPortalStencilValue = getPortalLayer();
-    
-        RenderHelper.setupCameraTransformation();
     
         mc.getProfiler().push("render_view_area");
         boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
-            renderPortalViewAreaToStencil(portal);
+            renderPortalViewAreaToStencil(portal, matrixStack);
         });
         mc.getProfiler().pop();
         
@@ -101,13 +102,10 @@ public class RendererUsingStencil extends PortalRenderer {
         mc.getProfiler().push("clear_depth_of_view_area");
         clearDepthOfThePortalViewArea(portal);
         mc.getProfiler().pop();
-        
-        manageCameraAndRenderPortalContent(portal);
-        
-        //the world rendering will modify the transformation
-        RenderHelper.setupCameraTransformation();
-        
-        restoreDepthOfPortalViewArea(portal);
+    
+        manageCameraAndRenderPortalContent(portal, matrixStack);
+    
+        restoreDepthOfPortalViewArea(portal, matrixStack);
         
         clampStencilValue(outerPortalStencilValue);
         
@@ -136,7 +134,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void renderPortalViewAreaToStencil(
-        Portal portal
+        Portal portal, MatrixStack matrixStack
     ) {
         int outerPortalStencilValue = getPortalLayer();
         
@@ -156,7 +154,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
         GL20.glUseProgram(0);
     
-        ViewAreaRenderer.drawPortalViewTriangle(portal);
+        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
         
         GlStateManager.enableBlend();
         
@@ -200,7 +198,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void restoreDepthOfPortalViewArea(
-        Portal portal
+        Portal portal, MatrixStack matrixStack
     ) {
         int thisPortalStencilValue = getPortalLayer();
         
@@ -218,7 +216,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
         GL20.glUseProgram(0);
     
-        ViewAreaRenderer.drawPortalViewTriangle(portal);
+        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
         
         GL11.glColorMask(true, true, true, true);
     }
@@ -254,16 +252,14 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager.enableDepthTest();
     }
     
-    public void renderViewArea(Portal portal) {
+    public void renderViewArea(Portal portal, MatrixStack matrixStack) {
         Entity renderViewEntity = mc.cameraEntity;
         
         if (!portal.isInFrontOfPortal(renderViewEntity.getPos())) {
             return;
         }
         
-        RenderHelper.setupCameraTransformation();
-        
-        renderPortalViewAreaToStencil(portal);
+        renderPortalViewAreaToStencil(portal, matrixStack);
     }
     
 }

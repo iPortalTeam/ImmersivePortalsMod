@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.teleportation;
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -209,9 +210,9 @@ public class ClientTeleportationManager {
     
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
     
-        CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(toDimension)
-            .switchToMe();
+        IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
+        gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
+            .getDimensionRenderHelper(toDimension).lightmapTexture);
     
     
         Helper.log(String.format(

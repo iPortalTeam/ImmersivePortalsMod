@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -121,7 +123,7 @@ public class McHelper {
         double range
     ) {
         Box box = new Box(center, center).expand(range);
-        return (Stream) world.getEntities(entityClass, box).stream();
+        return (Stream) world.getEntities(entityClass, box, e -> true).stream();
     }
     
     public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
@@ -135,5 +137,16 @@ public class McHelper {
             entityClass,
             range
         );
+    }
+    
+    public static void renderWithTransformation(
+        MatrixStack matrixStack,
+        Runnable renderingFunc
+    ) {
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
+        RenderSystem.multMatrix(matrixStack.peek().getModel());
+        renderingFunc.run();
+        RenderSystem.popMatrix();
     }
 }

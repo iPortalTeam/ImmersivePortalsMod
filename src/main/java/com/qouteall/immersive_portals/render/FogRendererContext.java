@@ -2,9 +2,11 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FogRendererContext {
     public float red;
@@ -16,6 +18,7 @@ public class FogRendererContext {
     
     public static Consumer<FogRendererContext> copyContextFromObject;
     public static Consumer<FogRendererContext> copyContextToObject;
+    public static Supplier<Vec3d> getCurrentFogColor;
     
     public static StaticFieldsSwappingManager<FogRendererContext> swappingManager;
     
@@ -50,4 +53,5 @@ public class FogRendererContext {
     public static void onPlayerTeleport(DimensionType from, DimensionType to) {
         swappingManager.updateOuterDimensionAndChangeContext(to);
     }
+    
 }

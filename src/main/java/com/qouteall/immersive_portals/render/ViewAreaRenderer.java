@@ -2,15 +2,16 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GuiLighting;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
@@ -183,20 +184,20 @@ public class ViewAreaRenderer {
         
     }
     
-    public static void drawPortalViewTriangle(Portal portal) {
+    public static void drawPortalViewTriangle(
+        Portal portal,
+        MatrixStack matrixStack
+    ) {
         MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
         
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
         
-        Vec3d fogColor = helper.getFogColor();
-    
+        Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
+        
         //important
         GlStateManager.enableCull();
-    
-        //In OpenGL, if you forget to set one rendering state and the result will be abnormal
-        //this design is bug-prone (DirectX is better in this aspect)
-        GuiLighting.disable();
+        
         GlStateManager.color4f(1, 1, 1, 1);
         GlStateManager.disableFog();
         GlStateManager.disableAlphaTest();
@@ -206,13 +207,13 @@ public class ViewAreaRenderer {
         GlStateManager.disableLighting();
         
         GL11.glDisable(GL_CLIP_PLANE0);
-    
+        
         if (OFInterface.isShaders.getAsBoolean()) {
             fogColor = Vec3d.ZERO;
         }
         
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBufferBuilder();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
         buildPortalViewAreaTrianglesBuffer(
             fogColor,
             portal,
@@ -222,13 +223,16 @@ public class ViewAreaRenderer {
             portal instanceof Mirror ? 0 : 0.45F
         );
         
-        tessellator.draw();
+        McHelper.renderWithTransformation(
+            matrixStack,
+            () -> tessellator.draw()
+        );
         
         GlStateManager.enableCull();
         GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture();
         GlStateManager.enableLighting();
-    
+        
         MinecraftClient.getInstance().getProfiler().pop();
     }
     

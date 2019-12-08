@@ -5,26 +5,22 @@ import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.*;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 public class MyGameRenderer {
     private MinecraftClient mc = MinecraftClient.getInstance();
@@ -40,56 +36,10 @@ public class MyGameRenderer {
         ClientWorld newWorld,
         Vec3d oldCameraPos
     ) {
-        Camera camera_1 = this.camera;
-        this.viewDistance = (float) (this.client.options.viewDistance * 16);
-        MatrixStack matrixStack_2 = new MatrixStack();
-        matrixStack_2.peek().getModel().multiply(this.method_22973(camera_1, float_1, true));
-        this.bobViewWhenHurt(matrixStack_2, float_1);
-        if (this.client.options.bobView) {
-            this.bobView(matrixStack_2, float_1);
-        }
-    
-        float float_2 = MathHelper.lerp(
-            float_1,
-            this.client.player.lastNauseaStrength,
-            this.client.player.nextNauseaStrength
-        );
-        if (float_2 > 0.0F) {
-            int int_1 = 20;
-            if (this.client.player.hasStatusEffect(StatusEffects.NAUSEA)) {
-                int_1 = 7;
-            }
-        
-            float float_3 = 5.0F / (float_2 * float_2 + 5.0F) - float_2 * 0.04F;
-            float_3 *= float_3;
-            Vector3f vector3f_1 = new Vector3f(
-                0.0F,
-                MathHelper.SQUARE_ROOT_OF_TWO / 2.0F,
-                MathHelper.SQUARE_ROOT_OF_TWO / 2.0F
-            );
-            matrixStack_2.multiply(vector3f_1.getDegreesQuaternion(((float) this.ticks + float_1) * (float) int_1));
-            matrixStack_2.scale(1.0F / float_3, 1.0F, 1.0F);
-            float float_4 = -((float) this.ticks + float_1) * (float) int_1;
-            matrixStack_2.multiply(vector3f_1.getDegreesQuaternion(float_4));
-        }
-    
-        Matrix4f matrix4f_1 = matrixStack_2.peek().getModel();
-        this.method_22709(matrix4f_1);
-        camera_1.update(
-            this.client.world,
-            (Entity) (this.client.getCameraEntity() == null ? this.client.player : this.client.getCameraEntity()),
-            this.client.options.perspective > 0,
-            this.client.options.perspective == 2,
-            float_1
-        );
-        matrixStack_1.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(camera_1.getPitch()));
-        matrixStack_1.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(camera_1.getYaw() + 180.0F));
-    
-    
-        ChunkRenderDispatcher chunkRenderDispatcher =
-            ((IEWorldRenderer) newWorldRenderer).getChunkRenderDispatcher();
+        BuiltChunkStorage chunkRenderDispatcher =
+            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage();
         chunkRenderDispatcher.updateCameraPosition(
-            mc.player.x, mc.player.z
+            mc.player.getX(), mc.player.getZ()
         );
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
@@ -105,13 +55,11 @@ public class MyGameRenderer {
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        List oldChunkInfos = ((IEWorldRenderer) mc.worldRenderer).getChunkInfos();
-        IEChunkRenderList oldChunkRenderList =
-            (IEChunkRenderList) ((IEWorldRenderer) oldWorldRenderer).getChunkRenderList();
-    
-    
         OFInterface.createNewRenderInfosNormal.accept((IEOFWorldRenderer) newWorldRenderer);
+        ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
     
+        ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
+        
         //switch
         ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
         mc.world = newWorld;
@@ -126,34 +74,20 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(newWorld.dimension.getType());
     
-        CGlobal.renderInfoNumMap.put(
-            newWorld.dimension.getType(),
-            ((IEWorldRenderer) mc.worldRenderer).getChunkInfos().size()
-        );
-    
         updateCullingPlane();
         
         //this is important
         GlStateManager.disableBlend();
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GuiLighting.disable();
-        ((GameRenderer) ieGameRenderer).disableLightmap();
         
         mc.getProfiler().push("render_portal_content");
     
-        CGlobal.switchedFogRenderer = ieGameRenderer.getBackgroundRenderer();
-        
         //invoke it!
         OFInterface.beforeRenderCenter.accept(partialTicks);
-        newWorldRenderer.render(
-            matrixStack,
-            partialTicks,
-            getChunkUpdateFinishTime(),
-            false,//should render block outline
-            mc.gameRenderer.getCamera(),
-            helper.lightmapTexture,
-        
-            );
+        mc.gameRenderer.renderWorld(
+            partialTicks, getChunkUpdateFinishTime(),
+            new MatrixStack()
+        );
         OFInterface.afterRenderCenter.run();
         
         mc.getProfiler().pop();
@@ -169,12 +103,10 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
-        ((IEWorldRenderer) mc.worldRenderer).setChunkInfos(oldChunkInfos);
         FogRendererContext.swappingManager.popSwapping();
     
-    
-        oldChunkRenderList.setCameraPos(oldCameraPos.x, oldCameraPos.y, oldCameraPos.z);
-        
+        ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
+        ((IECamera) mc.gameRenderer.getCamera()).setPos_(oldCameraPos);
     }
     
     public void endCulling() {

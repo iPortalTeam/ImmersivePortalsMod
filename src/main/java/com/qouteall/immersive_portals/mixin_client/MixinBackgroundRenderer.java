@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.render.FogRendererContext;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -38,5 +39,8 @@ public class MixinBackgroundRenderer {
             context.nextWaterFogColor = nextWaterFogColor;
             context.lastWaterFogColorUpdateTime = lastWaterFogColorUpdateTime;
         };
+    
+        FogRendererContext.getCurrentFogColor =
+            () -> new Vec3d(red, green, blue);
     }
 }

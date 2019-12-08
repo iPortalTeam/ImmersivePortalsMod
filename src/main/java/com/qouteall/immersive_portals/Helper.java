@@ -250,7 +250,7 @@ public class Helper {
     }
     
     public static Vec3d getBoxSize(Box box) {
-        return new Vec3d(box.getXSize(), box.getYSize(), box.getZSize());
+        return new Vec3d(box.getXLength(), box.getYLength(), box.getZLength());
     }
     
     public static Box getBoxSurface(Box box, Direction direction) {
@@ -300,13 +300,10 @@ public class Helper {
         
         
         //NOTE do not call entity.setPosition() because it may tick the entity
-        
-        entity.x = pos.x;
-        entity.y = pos.y;
-        entity.z = pos.z;
-        entity.prevRenderX = lastTickPos.x;
-        entity.prevRenderY = lastTickPos.y;
-        entity.prevRenderZ = lastTickPos.z;
+        entity.setPos(pos.x, pos.y, pos.z);
+        entity.lastRenderX = lastTickPos.x;
+        entity.lastRenderY = lastTickPos.y;
+        entity.lastRenderZ = lastTickPos.z;
         entity.prevX = lastTickPos.x;
         entity.prevY = lastTickPos.y;
         entity.prevZ = lastTickPos.z;
@@ -407,14 +404,14 @@ public class Helper {
     
     public static Vec3d[] eightVerticesOf(Box box) {
         return new Vec3d[]{
-            new Vec3d(box.minX, box.minY, box.minZ),
-            new Vec3d(box.minX, box.minY, box.maxZ),
-            new Vec3d(box.minX, box.maxY, box.minZ),
-            new Vec3d(box.minX, box.maxY, box.maxZ),
-            new Vec3d(box.maxX, box.minY, box.minZ),
-            new Vec3d(box.maxX, box.minY, box.maxZ),
-            new Vec3d(box.maxX, box.maxY, box.minZ),
-            new Vec3d(box.maxX, box.maxY, box.maxZ)
+            new Vec3d(box.x1, box.y1, box.z1),
+            new Vec3d(box.x1, box.y1, box.z2),
+            new Vec3d(box.x1, box.y2, box.z1),
+            new Vec3d(box.x1, box.y2, box.z2),
+            new Vec3d(box.x2, box.y1, box.z1),
+            new Vec3d(box.x2, box.y1, box.z2),
+            new Vec3d(box.x2, box.y2, box.z1),
+            new Vec3d(box.x2, box.y2, box.z2)
         };
     }
     

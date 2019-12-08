@@ -75,7 +75,7 @@ public abstract class PortalRenderer {
         return true;
     }
     
-    protected void renderPortals() {
+    protected void renderPortals(MatrixStack matrixStack) {
         assert mc.cameraEntity.world == mc.world;
         assert mc.cameraEntity.dimension == mc.world.dimension.getType();
     
@@ -85,11 +85,14 @@ public abstract class PortalRenderer {
         }
         
         for (Portal portal : getPortalsNearbySorted()) {
-            renderPortalIfRoughCheckPassed(portal);
+            renderPortalIfRoughCheckPassed(portal, matrixStack);
         }
     }
     
-    private void renderPortalIfRoughCheckPassed(Portal portal) {
+    private void renderPortalIfRoughCheckPassed(
+        Portal portal,
+        MatrixStack matrixStack
+    ) {
         if (!portal.isPortalValid()) {
             Helper.err("rendering invalid portal " + portal);
             return;
@@ -109,7 +112,7 @@ public abstract class PortalRenderer {
             }
         }
         
-        doRenderPortal(portal);
+        doRenderPortal(portal, matrixStack);
     }
     
     private Vec3d getRoughTestCameraPos() {
@@ -135,11 +138,14 @@ public abstract class PortalRenderer {
             ).collect(Collectors.toList());
     }
     
-    protected abstract void doRenderPortal(Portal portal);
+    protected abstract void doRenderPortal(
+        Portal portal,
+        MatrixStack matrixStack
+    );
     
-    //it will overwrite the matrix
     protected final void manageCameraAndRenderPortalContent(
-        Portal portal
+        Portal portal,
+        MatrixStack matrixStack
     ) {
         if (getPortalLayer() > maxPortalLayer.get()) {
             return;
@@ -189,10 +195,9 @@ public abstract class PortalRenderer {
         mc.world = oldWorld;
         Helper.setPosAndLastTickPos(cameraEntity, oldPos, oldLastTickPos);
         
-        //restore the transformation
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
-        RenderHelper.setupCameraTransformation();
+        RenderHelper.restoreViewPort();
     }
     
     protected void renderPortalContentWithContextSwitched(
