@@ -1,25 +1,25 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.GlFramebuffer;
+import net.minecraft.client.gl.Framebuffer;
+import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GlFramebuffer.class)
+@Mixin(Framebuffer.class)
 public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
     
     private boolean isStencilBufferEnabled;
     
     @Shadow
-    public int texWidth;
+    public int textureWidth;
     @Shadow
-    public int texHeight;
+    public int textureHeight;
     
     @Shadow
     public abstract void initFbo(int int_1, int int_2, boolean boolean_1);
@@ -36,31 +36,34 @@ public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/gl/GlFramebuffer;initFbo(IIZ)V",
-        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GLX;glBindRenderbuffer(II)V"),
+        method = "initFbo",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;bindRenderbuffer(II)V"
+        ),
         cancellable = true
     )
     private void onInitFrameBuffer(int int_1, int int_2, boolean isMac, CallbackInfo ci) {
         if (isStencilBufferEnabled) {
-            GlFramebuffer this_ = (GlFramebuffer) (Object) this;
-        
-            GLX.glBindRenderbuffer(GLX.GL_RENDERBUFFER, this_.depthAttachment);
-            GLX.glRenderbufferStorage(
-                GLX.GL_RENDERBUFFER,
+            Framebuffer this_ = (Framebuffer) (Object) this;
+    
+            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, this_.depthAttachment);
+            GL30.glRenderbufferStorage(
+                GL30.GL_RENDERBUFFER,
                 org.lwjgl.opengl.EXTPackedDepthStencil.GL_DEPTH24_STENCIL8_EXT,
-                this_.texWidth,
-                this_.texHeight
+                this_.textureWidth,
+                this_.textureHeight
             );
-            GLX.glFramebufferRenderbuffer(
-                GLX.GL_FRAMEBUFFER,
+            GL30.glFramebufferRenderbuffer(
+                GL30.GL_FRAMEBUFFER,
                 org.lwjgl.opengl.EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT,
-                GLX.GL_RENDERBUFFER,
+                GL30.GL_RENDERBUFFER,
                 this_.depthAttachment
             );
-            GLX.glFramebufferRenderbuffer(
-                GLX.GL_FRAMEBUFFER,
+            GL30.glFramebufferRenderbuffer(
+                GL30.GL_FRAMEBUFFER,
                 org.lwjgl.opengl.EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT,
-                GLX.GL_RENDERBUFFER,
+                GL30.GL_RENDERBUFFER,
                 this_.depthAttachment
             );
         
@@ -75,19 +78,6 @@ public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
             ci.cancel();
         }
     }
-//
-//    @Redirect(
-//        method = "draw(IIZ)V",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lcom/mojang/blaze3d/platform/GlStateManager;disableAlphaTest()V"
-//        )
-//    )
-//    private void redirectDisableAlphaTest() {
-//        if (CGlobal.doDisableAlphaTestWhenRenderingFrameBuffer) {
-//            GlStateManager.disableAlphaTest();
-//        }
-//    }
     
     @Override
     public boolean getIsStencilBufferEnabled() {
@@ -98,7 +88,7 @@ public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
     public void setIsStencilBufferEnabledAndReload(boolean cond) {
         if (isStencilBufferEnabled != cond) {
             isStencilBufferEnabled = cond;
-            initFbo(texWidth, texHeight, MinecraftClient.IS_SYSTEM_MAC);
+            initFbo(textureWidth, textureHeight, MinecraftClient.IS_SYSTEM_MAC);
         }
     }
 }
