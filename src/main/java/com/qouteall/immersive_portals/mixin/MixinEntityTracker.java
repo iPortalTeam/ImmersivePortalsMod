@@ -14,7 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -82,26 +81,6 @@ public class MixinEntityTracker implements IEEntityTracker {
         );
     }
     
-    //copied
-    private static int getChebyshevDistance(
-        ChunkPos chunkPos_1,
-        ServerPlayerEntity serverPlayerEntity_1,
-        boolean boolean_1
-    ) {
-        int int_3;
-        int int_4;
-        if (boolean_1) {
-            ChunkSectionPos chunkSectionPos_1 = serverPlayerEntity_1.getCameraPosition();
-            int_3 = chunkSectionPos_1.getChunkX();
-            int_4 = chunkSectionPos_1.getChunkZ();
-        }
-        else {
-            int_3 = MathHelper.floor(serverPlayerEntity_1.x / 16.0D);
-            int_4 = MathHelper.floor(serverPlayerEntity_1.z / 16.0D);
-        }
-        
-        return getChebyshevDistance(chunkPos_1, int_3, int_4);
-    }
     
     //copied
     private static int getChebyshevDistance(ChunkPos chunkPos_1, int int_1, int int_2) {
@@ -140,30 +119,20 @@ public class MixinEntityTracker implements IEEntityTracker {
         IEThreadedAnvilChunkStorage storage = McHelper.getIEStorage(entity.dimension);
         
         if (player != this.entity) {
-            Vec3d relativePos = (new Vec3d(
-                player.x,
-                player.y,
-                player.z
-            )).subtract(this.entry.method_18759());
+            Vec3d relativePos = (player.getPos()).subtract(this.entry.method_18759());
             int maxWatchDistance = Math.min(
                 this.maxDistance,
                 (storage.getWatchDistance() - 1) * 16
             );
             boolean isWatchedNow =
-                player.dimension == entity.dimension &&
-                    relativePos.x >= (double) (-maxWatchDistance) &&
-                    relativePos.x <= (double) maxWatchDistance &&
-                    relativePos.z >= (double) (-maxWatchDistance) &&
-                    relativePos.z <= (double) maxWatchDistance &&
-                    this.entity.canBeSpectated(player);
-            isWatchedNow = isWatchedNow ||
                 SGlobal.chunkTrackingGraph.isPlayerWatchingChunk(
                     player,
                     new DimensionalChunkPos(
                         entity.dimension,
                         new ChunkPos(entity.getBlockPos())
                     )
-                );
+                ) &&
+                    this.entity.canBeSpectated(player);
             if (isWatchedNow) {
                 boolean shouldTrack = this.entity.teleporting;
                 if (!shouldTrack) {
@@ -172,14 +141,6 @@ public class MixinEntityTracker implements IEEntityTracker {
                     if (chunkHolder_1 != null && chunkHolder_1.getWorldChunk() != null) {
                         shouldTrack = true;
                     }
-//                    else {
-                        //retry it next tick
-//                        ModMain.serverTaskList.addTask(() -> {
-//                            Helper.log("Retry tracking player " + player.getName());
-//                            updateCameraPosition_(player);
-//                            return true;
-//                        });
-//                    }
                 }
     
                 if (shouldTrack && this.playersTracking.add(player)) {

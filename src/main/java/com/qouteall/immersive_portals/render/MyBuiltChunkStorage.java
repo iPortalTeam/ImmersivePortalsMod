@@ -40,7 +40,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     private ChunkBuilder factory;
-    private Map<BlockPos, ChunkBuilder.BuiltChunk> chunkRendererMap = new HashMap<>();
+    private Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
     private Map<ChunkPos, Preset> presets = new HashMap<>();
     private WeakReference<Preset> mainPreset;
     
@@ -68,7 +68,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         getAllActiveBuiltChunks().forEach(
             ChunkBuilder.BuiltChunk::delete
         );
-        chunkRendererMap.clear();
+        builtChunkMap.clear();
         presets.clear();
     }
     
@@ -142,7 +142,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         assert basePos.getX() % 16 == 0;
         assert basePos.getY() % 16 == 0;
         assert basePos.getZ() % 16 == 0;
-        return chunkRendererMap.computeIfAbsent(
+        return builtChunkMap.computeIfAbsent(
             basePos.toImmutable(),
             whatever -> {
                 ChunkBuilder.BuiltChunk builtChunk = factory.new BuiltChunk();
@@ -184,8 +184,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private void purge() {
         Set<ChunkBuilder.BuiltChunk> activeBuiltChunks =
             getAllActiveBuiltChunks().collect(Collectors.toSet());
-        
-        List<ChunkBuilder.BuiltChunk> chunksToDelete = chunkRendererMap
+    
+        List<ChunkBuilder.BuiltChunk> chunksToDelete = builtChunkMap
             .values().stream().filter(
                 builtChunk -> !activeBuiltChunks.contains(builtChunk)
             ).collect(Collectors.toList());
@@ -194,7 +194,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             builtChunk -> {
                 builtChunk.delete();
                 ChunkBuilder.BuiltChunk removed =
-                    chunkRendererMap.remove(builtChunk.getOrigin());
+                    builtChunkMap.remove(builtChunk.getOrigin());
                 if (removed == null) {
                     Helper.err("Chunk Renderer Abnormal " + builtChunk.getOrigin());
                 }
@@ -202,5 +202,9 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
         
         presets.clear();
+    }
+    
+    public int getManagedChunkNum() {
+        return builtChunkMap.size();
     }
 }

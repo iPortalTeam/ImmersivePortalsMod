@@ -10,7 +10,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.ViewableWorld;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -36,7 +36,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     private int ticks;
     
     @Shadow
-    protected abstract boolean method_20630(ViewableWorld viewableWorld_1);
+    protected abstract boolean method_20630(WorldView worldView_1);
     
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
@@ -77,10 +77,10 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             player.dimension,
             double_1, double_2, double_3
         ));
-        
-        double double_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.x : 0.0D;
-        double double_5 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.y : 0.0D;
-        double double_6 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.z : 0.0D;
+    
+        double double_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0D;
+        double double_5 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.getY() : 0.0D;
+        double double_6 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.getZ() : 0.0D;
         float float_3 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y_ROT) ? this.player.yaw : 0.0F;
         float float_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X_ROT) ? this.player.pitch : 0.0F;
         this.requestedTeleportPos = new Vec3d(double_1, double_2, double_3);
@@ -109,12 +109,12 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onPlayerMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;method_20630(Lnet/minecraft/world/ViewableWorld;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;method_20630(Lnet/minecraft/world/WorldView;)Z"
         )
     )
     private boolean onCheckPlayerCollision(
         ServerPlayNetworkHandler serverPlayNetworkHandler,
-        ViewableWorld world
+        WorldView worldView_1
     ) {
         boolean portalsNearby = !player.world.getEntities(
             Portal.class,
@@ -124,7 +124,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (portalsNearby) {
             return true;
         }
-        return method_20630(world);
+        return method_20630(worldView_1);
     }
     
     @Override

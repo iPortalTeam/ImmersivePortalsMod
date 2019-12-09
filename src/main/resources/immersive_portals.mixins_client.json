@@ -6,12 +6,8 @@
     "MixinBackgroundRenderer",
     "MixinBlockEntityRenderDispatcher",
     "MixinCamera",
-    "MixinChunkRenderDispatcher",
-    "MixinChunkRenderer",
     "MixinChunkRendererRegion",
-    "MixinChunkRenderList",
     "MixinClientConnection",
-    "MixinClientPlayerEntity",
     "MixinClientPlayNetworkHandler",
     "MixinClientWorld",
     "MixinDebugHud",
@@ -19,7 +15,6 @@
     "MixinFrustumWithOrigin",
     "MixinGameRenderer",
     "MixinGlFrameBuffer",
-    "MixinGlStateManager",
     "MixinMinecraftClient",
     "MixinPlayerListEntry",
     "MixinPlayerMoveC2SPacket_C",
@@ -27,8 +22,7 @@
     "MixinPlayerMoveC2SPacketLookOnly",
     "MixinPlayerMoveC2SPacketPositionOnly",
     "MixinProfileResultImpl",
-    "MixinWorldRenderer",
-    "MixinWorldRendererChunkInfo"
+    "MixinWorldRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

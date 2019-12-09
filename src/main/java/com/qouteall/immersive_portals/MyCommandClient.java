@@ -7,20 +7,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
-import com.qouteall.immersive_portals.ducks.*;
-import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
+import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.DimensionRenderHelper;
+import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -214,7 +210,8 @@ public class MyCommandClient {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 List<Entity> entities = player.world.getEntities(
                     Entity.class,
-                    new Box(player.getBlockPos()).expand(32)
+                    new Box(player.getBlockPos()).expand(32),
+                    e -> true
                 );
                 McHelper.serverLog(player, entities.toString());
                 return 0;
@@ -229,18 +226,6 @@ public class MyCommandClient {
             .executes(context -> {
                 String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
                 context.getSource().getPlayer().sendMessage(new LiteralText(str));
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("rebuild_all")
-            .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    ((IEChunkRenderDispatcher)
-                        ((IEWorldRenderer) MinecraftClient.getInstance().worldRenderer)
-                            .getChunkRenderDispatcher()
-                    ).rebuildAll();
-                });
                 return 0;
             })
         );
@@ -298,46 +283,6 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("test_riding")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                MinecartEntity minecart = EntityType.MINECART.create(player.world);
-                minecart.setPosition(player.x + 1, player.y, player.z);
-                player.world.spawnEntity(minecart);
-                player.startRiding(minecart, true);
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("report_fog_color")
-            .executes(MyCommandClient::reportFogColor)
-        );
-        builder = builder.then(CommandManager
-            .literal("uniform_report_hand")
-            .executes(context -> {
-                OFGlobal.debugFunc = program -> {
-                    String name = program.getName();
-                    if (name.equals("gbuffers_hand") || name.equals("gbuffers_hand_water")) {
-                        try {
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            UniformReport.reportUniforms(
-                                program.getId(),
-                                s -> McHelper.serverLog(player, s)
-                            );
-                            OFGlobal.debugFunc = p -> {
-                            };
-                        }
-                        catch (CommandSyntaxException e) {
-                            e.printStackTrace();
-                            return;
-                        }
-                    
-                    }
-                };
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
             .literal("teleport_on_rendering_enable")
             .executes(context -> {
                 CGlobal.teleportOnRendering = true;
@@ -371,51 +316,6 @@ public class MyCommandClient {
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
-    private static int reportFogColor(CommandContext<ServerCommandSource> context) {
-        MinecraftClient.getInstance().execute(() -> {
-            StringBuilder str = new StringBuilder();
-            
-            CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
-                DimensionRenderHelper helper =
-                    CGlobal.clientWorldLoader.getDimensionRenderHelper(
-                        world.dimension.getType()
-                    );
-                str.append(String.format(
-                    "%s %s %s %s\n",
-                    world.dimension.getType(),
-                    helper.fogRenderer,
-                    helper.getFogColor(),
-                    ((IEBackgroundRenderer) helper.fogRenderer).getDimensionConstraint()
-                ));
-            });
-            
-            BackgroundRenderer currentFogRenderer = ((IEGameRenderer) MinecraftClient.getInstance()
-                .gameRenderer
-            ).getBackgroundRenderer();
-            str.append(String.format(
-                "current: %s %s \n switched %s \n",
-                currentFogRenderer,
-                ((IEBackgroundRenderer) currentFogRenderer).getDimensionConstraint(),
-                CGlobal.switchedFogRenderer
-            ));
-            
-            String result = str.toString();
-            
-            Helper.log(str);
-    
-            McHelper.getServer().execute(() -> {
-                try {
-                    context.getSource().getPlayer().sendMessage(new LiteralText(result));
-                }
-                catch (CommandSyntaxException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
-        
-        return 0;
-    }
-    
     private static int reportResourceConsumption(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         StringBuilder str = new StringBuilder();
         
@@ -435,9 +335,9 @@ public class MyCommandClient {
                 str.append(String.format(
                     "%s %s\n",
                     dimension,
-                    ((IEChunkRenderDispatcher) ((IEWorldRenderer) worldRenderer)
-                        .getChunkRenderDispatcher()
-                    ).getEmployedRendererNum()
+                    ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
+                        .getBuiltChunkStorage()
+                    ).getManagedChunkNum()
                 ));
             }
         );
@@ -521,9 +421,7 @@ public class MyCommandClient {
                 DimensionType toDimension = player.dimension;
                 
                 Portal portal = new Portal(fromWorld);
-                portal.x = fromPos.x;
-                portal.y = fromPos.y;
-                portal.z = fromPos.z;
+                portal.setPos(fromPos.x, fromPos.y, fromPos.z);
                 
                 portal.axisH = new Vec3d(0, 1, 0);
                 portal.axisW = portal.axisH.crossProduct(fromNormal).normalize();

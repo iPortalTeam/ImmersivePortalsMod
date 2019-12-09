@@ -105,7 +105,7 @@ public class MyNetworkClient {
             );
             entity.fromTag(compoundTag);
             entity.setEntityId(entityId);
-            entity.updateTrackedPosition(entity.x, entity.y, entity.z);
+            entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
         
             return;
