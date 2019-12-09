@@ -42,5 +42,7 @@ public class MixinBackgroundRenderer {
     
         FogRendererContext.getCurrentFogColor =
             () -> new Vec3d(red, green, blue);
+    
+        FogRendererContext.init();
     }
 }

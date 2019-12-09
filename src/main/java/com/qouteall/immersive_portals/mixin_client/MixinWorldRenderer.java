@@ -4,17 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -117,26 +114,26 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             RenderSystem.clear(int_1, boolean_1);
         }
     }
-    
-    @Redirect(
-        method = "reload",
-        at = @At(
-            value = "NEW",
-            target = "net/minecraft/client/render/BuiltChunkStorage"
-        )
-    )
-    private BuiltChunkStorage redirectConstructingBuildChunkStorage(
-        ChunkBuilder chunkBuilder_1,
-        World world_1,
-        int int_1,
-        WorldRenderer worldRenderer_1
-    ) {
-        return new MyBuiltChunkStorage(
-            chunkBuilder_1,
-            world_1, int_1,
-            worldRenderer_1
-        );
-    }
+
+//    @Redirect(
+//        method = "reload",
+//        at = @At(
+//            value = "NEW",
+//            target = "net/minecraft/client/render/BuiltChunkStorage"
+//        )
+//    )
+//    private BuiltChunkStorage redirectConstructingBuildChunkStorage(
+//        ChunkBuilder chunkBuilder_1,
+//        World world_1,
+//        int int_1,
+//        WorldRenderer worldRenderer_1
+//    ) {
+//        return new MyBuiltChunkStorage(
+//            chunkBuilder_1,
+//            world_1, int_1,
+//            worldRenderer_1
+//        );
+//    }
     
     @Inject(
         method = "renderLayer",
@@ -151,6 +148,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
+            CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
             if (RenderHelper.isRenderingMirror()) {
                 GL11.glCullFace(GL11.GL_FRONT);

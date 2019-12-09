@@ -32,11 +32,16 @@ public class GlobalPortalStorage extends PersistentState {
     
     public static void onPlayerLoggedIn(ServerPlayerEntity player) {
         McHelper.getServer().getWorlds().forEach(
-            world -> player.networkHandler.sendPacket(
-                MyNetwork.createGlobalPortalUpdate(
-                    get(world)
-                )
-            )
+            world -> {
+                GlobalPortalStorage storage = get(world);
+                if (!storage.data.isEmpty()) {
+                    player.networkHandler.sendPacket(
+                        MyNetwork.createGlobalPortalUpdate(
+                            storage
+                        )
+                    );
+                }
+            }
         );
     }
     

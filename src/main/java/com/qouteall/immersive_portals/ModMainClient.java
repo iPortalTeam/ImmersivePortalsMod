@@ -83,7 +83,6 @@ public class ModMainClient implements ClientModInitializer {
     
         initPortalRenderers();
     
-    
         MyNetworkClient.init();
     
         MinecraftClient.getInstance().execute(() -> {
@@ -103,8 +102,6 @@ public class ModMainClient implements ClientModInitializer {
         }
     
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
-    
-        FogRendererContext.init();
         
         SatinCompatibility.init();
     }

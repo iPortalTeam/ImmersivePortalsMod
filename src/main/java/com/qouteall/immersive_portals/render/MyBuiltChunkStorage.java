@@ -56,6 +56,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
         );
+    
+        updateCameraPosition(0, 0);
     }
     
     @Override

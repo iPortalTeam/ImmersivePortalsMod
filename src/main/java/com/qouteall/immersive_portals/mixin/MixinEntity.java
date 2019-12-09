@@ -33,9 +33,6 @@ public abstract class MixinEntity implements IEEntity {
     public World world;
     
     @Shadow
-    protected abstract Vec3d handleCollisions(Vec3d vec3d_1);
-    
-    @Shadow
     public abstract void setBoundingBox(Box box_1);
     
     @Shadow
@@ -43,6 +40,9 @@ public abstract class MixinEntity implements IEEntity {
     
     @Shadow
     public DimensionType dimension;
+    
+    @Shadow
+    protected abstract Vec3d adjustMovementForCollisions(Vec3d vec3d_1);
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
@@ -73,27 +73,27 @@ public abstract class MixinEntity implements IEEntity {
         method = "move",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;handleCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"
         )
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
         if (attemptedMove.lengthSquared() > 16) {
-            return handleCollisions(attemptedMove);
+            return adjustMovementForCollisions(attemptedMove);
         }
         
         if (collidingPortal == null) {
-            return handleCollisions(attemptedMove);
+            return adjustMovementForCollisions(attemptedMove);
         }
     
         if (entity.hasPassengers() || entity.hasVehicle()) {
-            return handleCollisions(attemptedMove);
+            return adjustMovementForCollisions(attemptedMove);
         }
         
         Vec3d result = CollisionHelper.handleCollisionHalfwayInPortal(
             (Entity) (Object) this,
             attemptedMove,
             collidingPortal,
-            attemptedMove1 -> handleCollisions(attemptedMove1)
+            attemptedMove1 -> adjustMovementForCollisions(attemptedMove1)
         );
         return result;
     }

@@ -222,8 +222,8 @@ public class ViewAreaRenderer {
             RenderHelper.partialTicks,
             portal instanceof Mirror ? 0 : 0.45F
         );
-        
-        McHelper.renderWithTransformation(
+    
+        McHelper.runWithTransformation(
             matrixStack,
             () -> tessellator.draw()
         );

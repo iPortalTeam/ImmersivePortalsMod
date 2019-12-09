@@ -55,7 +55,7 @@ public class MyGameRenderer {
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        OFInterface.createNewRenderInfosNormal.accept((IEOFWorldRenderer) newWorldRenderer);
+        OFInterface.createNewRenderInfosNormal.accept(newWorldRenderer);
         ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
     
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
@@ -73,8 +73,6 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(newWorld.dimension.getType());
-    
-        updateCullingPlane();
         
         //this is important
         GlStateManager.disableBlend();
@@ -122,11 +120,16 @@ public class MyGameRenderer {
     }
     
     //NOTE the actual culling plane is related to current model view matrix
-    public void updateCullingPlane() {
-        clipPlaneEquation = calcClipPlaneEquation();
-        if (!OFInterface.isShaders.getAsBoolean()) {
-            GL11.glClipPlane(GL11.GL_CLIP_PLANE0, clipPlaneEquation);
-        }
+    public void updateCullingPlane(MatrixStack matrixStack) {
+        McHelper.runWithTransformation(
+            matrixStack,
+            () -> {
+                clipPlaneEquation = calcClipPlaneEquation();
+                if (!OFInterface.isShaders.getAsBoolean()) {
+                    GL11.glClipPlane(GL11.GL_CLIP_PLANE0, clipPlaneEquation);
+                }
+            }
+        );
     }
     
     private long getChunkUpdateFinishTime() {

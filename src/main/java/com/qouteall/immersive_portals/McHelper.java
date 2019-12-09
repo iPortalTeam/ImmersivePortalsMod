@@ -139,7 +139,7 @@ public class McHelper {
         );
     }
     
-    public static void renderWithTransformation(
+    public static void runWithTransformation(
         MatrixStack matrixStack,
         Runnable renderingFunc
     ) {

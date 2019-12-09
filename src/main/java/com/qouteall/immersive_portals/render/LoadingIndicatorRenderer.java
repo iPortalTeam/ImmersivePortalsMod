@@ -28,13 +28,16 @@ public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEnt
     ) {
         String[] splited = entity_1.getText().split("\n");
         for (int i = 0; i < splited.length; i++) {
+            matrixStack_1.push();
+            matrixStack_1.translate(0, -i * 0.5, 0);
             this.renderLabelIfPresent(
                 entity_1,
                 splited[i],
                 matrixStack_1,
                 vertexConsumerProvider_1,
-                64//light?
+                int_1
             );
+            matrixStack_1.pop();
         }
     }
 }
