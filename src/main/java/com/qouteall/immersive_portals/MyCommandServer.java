@@ -9,10 +9,11 @@ import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import net.minecraft.command.arguments.DimensionArgumentType;
+import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
 import net.minecraft.command.arguments.TextArgumentType;
 import net.minecraft.command.arguments.Vec3ArgumentType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,13 +22,14 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class MyCommandServer {
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
-        
+    
         LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("portal")
             .requires(commandSource -> commandSource.hasPermissionLevel(2));
@@ -85,13 +87,7 @@ public class MyCommandServer {
                 return processPortalTargetedCommand(
                     context,
                     (portal) -> {
-                        sendMessage(
-                            context,
-                            String.format(
-                                "%s",
-                                portal
-                            )
-                        );
+                        sendPortalInfo(context, portal);
                     }
                 );
             })
@@ -114,23 +110,23 @@ public class MyCommandServer {
                 })
             )
         );
-    
-        builder.then(CommandManager
-            .literal("stabilize_nether_portal")
-            .executes(context -> processPortalTargetedCommand(
-                context,
-                portal -> {
-                    if (portal instanceof NewNetherPortalEntity) {
-                        NewNetherPortalEntity portal1 = (NewNetherPortalEntity) portal;
-                        portal1.unbreakable = true;
-                        sendMessage(context, "Stabilized " + portal);
-                    }
-                    else {
-                        sendMessage(context, "Not Nether Portal");
-                    }
-                }
-            ))
-        );
+
+//        builder.then(CommandManager
+//            .literal("stabilize_nether_portal")
+//            .executes(context -> processPortalTargetedCommand(
+//                context,
+//                portal -> {
+//                    if (portal instanceof NewNetherPortalEntity) {
+//                        NewNetherPortalEntity portal1 = (NewNetherPortalEntity) portal;
+//                        portal1.unbreakable = true;
+//                        sendMessage(context, "Stabilized " + portal);
+//                    }
+//                    else {
+//                        sendMessage(context, "Not Nether Portal");
+//                    }
+//                }
+//            ))
+//        );
     
         builder.then(CommandManager
             .literal("delete_portal")
@@ -141,6 +137,33 @@ public class MyCommandServer {
                     portal.remove();
                 }
             ))
+        );
+    
+        builder.then(CommandManager
+            .literal("set_portal_nbt")
+            .then(CommandManager
+                .argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+                .executes(context -> processPortalTargetedCommand(
+                    context,
+                    portal -> {
+                        CompoundTag newNbt = NbtCompoundTagArgumentType.getCompoundTag(
+                            context, "nbt"
+                        );
+                    
+                        CompoundTag portalNbt = portal.toTag(new CompoundTag());
+                    
+                        portalNbt.copyFrom(newNbt);
+                    
+                        UUID uuid = portal.getUuid();
+                        portal.fromTag(portalNbt);
+                        portal.setUuid(uuid);
+                    
+                        reloadPortal(portal);
+                    
+                        sendPortalInfo(context, portal);
+                    }
+                ))
+            )
         );
     
         builder.then(CommandManager
@@ -165,18 +188,7 @@ public class MyCommandServer {
                                         context, "dest"
                                     );
                                 
-                                    portal.remove();
-                                
-                                    Helper.SimpleBox<Integer> counter = new Helper.SimpleBox<>(0);
-                                    ModMain.serverTaskList.addTask(() -> {
-                                        if (counter.obj < 3) {
-                                            counter.obj++;
-                                            return false;
-                                        }
-                                        portal.removed = false;
-                                        portal.world.spawnEntity(portal);
-                                        return true;
-                                    });
+                                    reloadPortal(portal);
                                 
                                     sendMessage(context, portal.toString());
                                 }
@@ -189,8 +201,35 @@ public class MyCommandServer {
                 )
             )
         );
-        
+    
         dispatcher.register(builder);
+    }
+    
+    public static void sendPortalInfo(CommandContext<ServerCommandSource> context, Portal portal) {
+        context.getSource().sendFeedback(
+            portal.toTag(new CompoundTag()).toText(),
+            false
+        );
+        
+        sendMessage(
+            context,
+            "\n\n" + portal.toString()
+        );
+    }
+    
+    public static void reloadPortal(Portal portal) {
+        portal.remove();
+        
+        Helper.SimpleBox<Integer> counter = new Helper.SimpleBox<>(0);
+        ModMain.serverTaskList.addTask(() -> {
+            if (counter.obj < 3) {
+                counter.obj++;
+                return false;
+            }
+            portal.removed = false;
+            portal.world.spawnEntity(portal);
+            return true;
+        });
     }
     
     public static void sendMessage(CommandContext<ServerCommandSource> context, String message) {
@@ -198,7 +237,7 @@ public class MyCommandServer {
             new LiteralText(
                 message
             ),
-            true
+            false
         );
     }
     
@@ -209,6 +248,10 @@ public class MyCommandServer {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         if (player == null) {
+            source.sendFeedback(
+                new LiteralText("Only player can use this command"),
+                true
+            );
             return 0;
         }
         

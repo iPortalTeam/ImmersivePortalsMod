@@ -74,7 +74,7 @@ public class ClientTeleportationManager {
                         }
                         else {
                             return mc.player.dimension == portal.dimension &&
-                                portal.isTeleportable() &&
+                                portal.teleportable &&
                                 portal.isMovedThroughPortal(
                                     lastPlayerHeadPos,
                                     currentHeadPos

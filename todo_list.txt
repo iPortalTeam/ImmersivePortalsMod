@@ -4,15 +4,13 @@ fix (not confirmed) cannot go through end portal
 fix end floor portal shaking caused by float inaccuracy
 fix change to bigger max portal layer with shader causes crash
 
-force clear task when exiting
+check is portal teleportable on server
 
 use 1 client net handler
 
 faked infinite height
 
 check packet delay (create an entity and ride it)
-
-check public static fields of Shaders class
 
 check center depth correctness
 

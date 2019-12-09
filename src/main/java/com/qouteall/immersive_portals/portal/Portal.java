@@ -40,12 +40,12 @@ public class Portal extends Entity {
     
     //additional properteis
     public boolean loadFewerChunks = true;
+    public boolean teleportable = true;
     public UUID specificPlayer;
     public SpecialPortalShape specialShape;
     
     private Box boundingBoxCache;
     private Vec3d normal;
-    
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -115,10 +115,9 @@ public class Portal extends Entity {
                 compoundTag.getList("specialShape", 6)
             );
         }
-    }
-    
-    public boolean isTeleportable() {
-        return true;
+        if (compoundTag.containsKey("teleportable")) {
+            teleportable = compoundTag.getBoolean("teleportable");
+        }
     }
     
     @Override
@@ -138,6 +137,8 @@ public class Portal extends Entity {
         if (specialShape != null) {
             compoundTag.put("specialShape", specialShape.writeToTag());
         }
+    
+        compoundTag.putBoolean("teleportable", teleportable);
     }
     
     @Override
@@ -266,7 +267,7 @@ public class Portal extends Entity {
     
     public boolean shouldEntityTeleport(Entity entity) {
         return entity.dimension == this.dimension &&
-            isTeleportable() &&
+            teleportable &&
             isMovedThroughPortal(
                 entity.getCameraPosVec(0),
                 entity.getCameraPosVec(1)
