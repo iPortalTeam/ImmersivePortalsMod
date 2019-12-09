@@ -96,12 +96,7 @@ public class MyNetwork {
     public static Packet createEmptyPacketByType(
         int messageType
     ) {
-        try {
-            return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
-        }
-        catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
     }
     
     public static void sendRedirectedMessage(

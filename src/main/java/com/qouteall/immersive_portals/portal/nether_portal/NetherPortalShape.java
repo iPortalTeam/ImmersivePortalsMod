@@ -73,9 +73,9 @@ public class NetherPortalShape {
         ListTag list = new ListTag();
         
         area.forEach(blockPos -> {
-            list.add(list.size(), new IntTag(blockPos.getX()));
-            list.add(list.size(), new IntTag(blockPos.getY()));
-            list.add(list.size(), new IntTag(blockPos.getZ()));
+            list.add(list.size(), IntTag.of(blockPos.getX()));
+            list.add(list.size(), IntTag.of(blockPos.getY()));
+            list.add(list.size(), IntTag.of(blockPos.getZ()));
         });
         
         data.put("poses", list);

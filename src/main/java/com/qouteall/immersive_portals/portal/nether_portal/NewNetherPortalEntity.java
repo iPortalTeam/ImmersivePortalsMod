@@ -71,7 +71,7 @@ public class NewNetherPortalEntity extends Portal {
     @Override
     protected void readCustomDataFromTag(CompoundTag compoundTag) {
         super.readCustomDataFromTag(compoundTag);
-        if (compoundTag.containsKey("netherPortalShape")) {
+        if (compoundTag.contains("netherPortalShape")) {
             netherPortalShape = new NetherPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
         reversePortalId = compoundTag.getUuid("reversePortalId");

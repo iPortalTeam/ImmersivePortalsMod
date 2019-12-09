@@ -15,7 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
@@ -65,6 +65,9 @@ public class PortalPlaceholderBlock extends Block {
                 .sounds(BlockSoundGroup.GLASS)
                 .strength(99999, 0)
                 .lightLevel(15)
+                .ticksRandomly()
+                .nonOpaque()
+                .dropsNothing()
                 .build()
         );
     
@@ -80,7 +83,7 @@ public class PortalPlaceholderBlock extends Block {
     public PortalPlaceholderBlock(Settings properties) {
         super(properties);
         this.setDefaultState(
-            (BlockState) ((BlockState) this.stateFactory.getDefaultState()).with(
+            (BlockState) ((BlockState) this.getStateManager().getDefaultState()).with(
                 AXIS, Direction.Axis.X
             )
         );
@@ -105,7 +108,7 @@ public class PortalPlaceholderBlock extends Block {
     }
     
     @Override
-    protected void appendProperties(StateFactory.Builder<Block, BlockState> builder) {
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(AXIS);
     }
     
@@ -197,11 +200,6 @@ public class PortalPlaceholderBlock extends Block {
     @Override
     public BlockRenderType getRenderType(BlockState blockState_1) {
         return BlockRenderType.INVISIBLE;
-    }
-    
-    @Override
-    public boolean isOpaque(BlockState blockState_1) {
-        return false;
     }
     
     @Environment(EnvType.CLIENT)

@@ -70,7 +70,7 @@ public class EndPortalEntity extends Portal {
     public void onEntityTeleportedOnServer(Entity entity) {
         if (shouldAddSlowFalling(entity)) {
             LivingEntity livingEntity = (LivingEntity) entity;
-            livingEntity.addPotionEffect(
+            livingEntity.addStatusEffect(
                 new StatusEffectInstance(
                     StatusEffects.SLOW_FALLING,
                     120,//duration

@@ -79,7 +79,8 @@ public class Portal extends Entity {
     public Stream<Entity> getEntitiesToTeleport() {
         return world.getEntities(
             Entity.class,
-            getPortalCollisionBox()
+            getPortalCollisionBox(),
+            e -> true
         ).stream().filter(
             e -> !(e instanceof Portal)
         ).filter(
@@ -100,16 +101,16 @@ public class Portal extends Entity {
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = DimensionType.byRawId(compoundTag.getInt("dimensionTo"));
         destination = Helper.getVec3d(compoundTag, "destination");
-        if (compoundTag.containsKey("loadFewerChunks")) {
+        if (compoundTag.contains("loadFewerChunks")) {
             loadFewerChunks = compoundTag.getBoolean("loadFewerChunks");
         }
         else {
             loadFewerChunks = true;
         }
-        if (compoundTag.containsKey("specificPlayer")) {
+        if (compoundTag.contains("specificPlayer")) {
             specificPlayer = compoundTag.getUuid("specificPlayer");
         }
-        if (compoundTag.containsKey("specialShape")) {
+        if (compoundTag.contains("specialShape")) {
             specialShape = new SpecialPortalShape(
                 compoundTag.getList("specialShape", 6)
             );
@@ -290,7 +291,7 @@ public class Portal extends Entity {
             "%s{%s,(%s %s %s %s)->(%s %s %s %s)}",
             getClass().getSimpleName(),
             getEntityId(),
-            dimension, (int) x, (int) y, (int) z,
+            dimension, (int) getX(), (int) getY(), (int) getZ(),
             dimensionTo, (int) destination.x, (int) destination.y, (int) destination.z
         );
     }

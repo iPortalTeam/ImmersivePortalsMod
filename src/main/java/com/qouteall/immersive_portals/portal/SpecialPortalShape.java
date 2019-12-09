@@ -105,12 +105,12 @@ public class SpecialPortalShape {
         ListTag tag = new ListTag();
         
         for (TriangleInPlane triangle : triangles) {
-            tag.add(new DoubleTag(triangle.x1));
-            tag.add(new DoubleTag(triangle.y1));
-            tag.add(new DoubleTag(triangle.x2));
-            tag.add(new DoubleTag(triangle.y2));
-            tag.add(new DoubleTag(triangle.x3));
-            tag.add(new DoubleTag(triangle.y3));
+            tag.add(DoubleTag.of(triangle.x1));
+            tag.add(DoubleTag.of(triangle.y1));
+            tag.add(DoubleTag.of(triangle.x2));
+            tag.add(DoubleTag.of(triangle.y2));
+            tag.add(DoubleTag.of(triangle.x3));
+            tag.add(DoubleTag.of(triangle.y3));
         }
         
         return tag;

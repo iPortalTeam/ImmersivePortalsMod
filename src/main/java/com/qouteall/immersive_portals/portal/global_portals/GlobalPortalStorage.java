@@ -69,7 +69,7 @@ public class GlobalPortalStorage extends PersistentState {
         List<GlobalTrackedPortal> newData = new ArrayList<>();
         
         for (int i = 0; i < listTag.size(); i++) {
-            CompoundTag compoundTag = listTag.getCompoundTag(i);
+            CompoundTag compoundTag = listTag.getCompound(i);
             GlobalTrackedPortal e = readPortalFromTag(currWorld, compoundTag);
             if (e != null) {
                 newData.add(e);

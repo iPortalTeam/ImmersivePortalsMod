@@ -176,8 +176,8 @@ public class NetherPortalEntity extends Portal {
         if (world == null) {
             return true;
         }
-        
-        if (!world.isBlockLoaded(obsidianFrame.boxWithoutObsidian.l)) {
+    
+        if (!world.isChunkLoaded(obsidianFrame.boxWithoutObsidian.l)) {
             return true;
         }
     

@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
-import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
@@ -19,7 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient implements IEMinecraftClient {
+    @Final
     @Shadow
+    @Mutable
     private Framebuffer framebuffer;
     
     @Shadow
@@ -32,9 +34,7 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     
     @Inject(at = @At("TAIL"), method = "<init>")
     private void onInitEnded(CallbackInfo info) {
-        if (FabricLoader.INSTANCE.isModLoaded("optifabric")) {
-            //ShaderCullingManager.init();
-        }
+        OFInterface.initShaderCullingManager.run();
     }
     
     @Inject(

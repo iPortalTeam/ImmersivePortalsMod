@@ -147,9 +147,7 @@ public class ServerTeleportationManager {
         fromWorld.removePlayer(player);
         player.removed = false;
     
-        player.x = destination.x;
-        player.y = destination.y;
-        player.z = destination.z;
+        player.setPos(destination.x, destination.y, destination.z);
         
         player.world = toWorld;
         player.dimension = toWorld.dimension.getType();
@@ -257,10 +255,8 @@ public class ServerTeleportationManager {
         
         fromWorld.removeEntity(entity);
         entity.removed = false;
-        
-        entity.x = destination.x;
-        entity.y = destination.y;
-        entity.z = destination.z;
+    
+        entity.setPos(destination.x, destination.y, destination.z);
         
         entity.world = toWorld;
         entity.dimension = toDimension;
