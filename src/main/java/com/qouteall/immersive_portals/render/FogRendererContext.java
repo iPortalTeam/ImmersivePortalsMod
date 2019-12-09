@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
@@ -30,12 +29,9 @@ public class FogRendererContext {
             copyContextFromObject, copyContextToObject
         );
         
-        ModMain.preRenderSignal.connect(() -> {
-            update();
-        });
     }
     
-    private static void update() {
+    public static void update() {
         swappingManager.setOuterDimension(RenderHelper.originalPlayerDimension);
         swappingManager.resetChecks();
         DimensionType.getAll().forEach(dimension ->

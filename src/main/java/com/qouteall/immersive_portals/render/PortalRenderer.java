@@ -144,8 +144,7 @@ public abstract class PortalRenderer {
     );
     
     protected final void manageCameraAndRenderPortalContent(
-        Portal portal,
-        MatrixStack matrixStack
+        Portal portal
     ) {
         if (getPortalLayer() > maxPortalLayer.get()) {
             return;

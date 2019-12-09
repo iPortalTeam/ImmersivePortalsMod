@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -103,7 +104,7 @@ public class RendererUsingStencil extends PortalRenderer {
         clearDepthOfThePortalViewArea(portal);
         mc.getProfiler().pop();
     
-        manageCameraAndRenderPortalContent(portal, matrixStack);
+        manageCameraAndRenderPortalContent(portal);
     
         restoreDepthOfPortalViewArea(portal, matrixStack);
         
@@ -148,12 +149,14 @@ public class RendererUsingStencil extends PortalRenderer {
         //its stencil value will still increase by one
         
         GL11.glStencilMask(0xFF);
-        GlStateManager.depthMask(true);
         
         GlStateManager.disableBlend();
     
         GL20.glUseProgram(0);
     
+        RenderSystem.enableDepthTest();
+        GlStateManager.depthMask(true);
+        
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
         
         GlStateManager.enableBlend();

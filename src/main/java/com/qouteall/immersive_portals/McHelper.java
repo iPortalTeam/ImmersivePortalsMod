@@ -14,6 +14,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -143,6 +144,7 @@ public class McHelper {
         MatrixStack matrixStack,
         Runnable renderingFunc
     ) {
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
         RenderSystem.multMatrix(matrixStack.peek().getModel());

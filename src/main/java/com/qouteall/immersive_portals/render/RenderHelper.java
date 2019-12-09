@@ -71,6 +71,8 @@ public class RenderHelper {
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
+    
+        FogRendererContext.update();
     }
     
     public static void onTotalRenderEnd() {
@@ -127,31 +129,36 @@ public class RenderHelper {
         ShaderManager shaderManager,
         MatrixStack matrixStack
     ) {
-        shaderManager.loadContentShaderAndShaderVars(0);
-    
-        if (OFInterface.isShaders.getAsBoolean()) {
-            GlStateManager.viewport(
-                0,
-                0,
-                PortalRenderer.mc.getFramebuffer().viewportWidth,
-                PortalRenderer.mc.getFramebuffer().viewportHeight
-            );
-        }
-        
-        GlStateManager.enableTexture();
-        GlStateManager.activeTexture(GL13.GL_TEXTURE0);
-        
-        GlStateManager.bindTexture(textureProvider.colorAttachment);
-        GlStateManager.texParameter(3553, 10241, 9729);
-        GlStateManager.texParameter(3553, 10240, 9729);
-        GlStateManager.texParameter(3553, 10242, 10496);
-        GlStateManager.texParameter(3553, 10243, 10496);
-    
-        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
-        
-        shaderManager.unloadShader();
-    
-        OFInterface.resetViewport.run();
+        McHelper.runWithTransformation(
+            matrixStack,
+            () -> {
+                shaderManager.loadContentShaderAndShaderVars(0);
+            
+                if (OFInterface.isShaders.getAsBoolean()) {
+                    GlStateManager.viewport(
+                        0,
+                        0,
+                        PortalRenderer.mc.getFramebuffer().viewportWidth,
+                        PortalRenderer.mc.getFramebuffer().viewportHeight
+                    );
+                }
+            
+                GlStateManager.enableTexture();
+                GlStateManager.activeTexture(GL13.GL_TEXTURE0);
+            
+                GlStateManager.bindTexture(textureProvider.colorAttachment);
+                GlStateManager.texParameter(3553, 10241, 9729);
+                GlStateManager.texParameter(3553, 10240, 9729);
+                GlStateManager.texParameter(3553, 10242, 10496);
+                GlStateManager.texParameter(3553, 10243, 10496);
+            
+                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
+            
+                shaderManager.unloadShader();
+            
+                OFInterface.resetViewport.run();
+            }
+        );
     }
     
     static void renderScreenTriangle() {

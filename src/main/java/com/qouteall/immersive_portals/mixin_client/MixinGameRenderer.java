@@ -90,6 +90,13 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     ) {
         CGlobal.renderer.onRenderCenterEnded(matrixStack_1);
     }
+
+//    @Inject(method = "method_22709", at = @At("HEAD"), cancellable = true)
+//    private void onApplyProjectionMatrix(Matrix4f matrix4f_1, CallbackInfo ci) {
+//        if (CGlobal.renderer.isRendering()) {
+//            ci.cancel();
+//        }
+//    }
     
     @Override
     public LightmapTextureManager getLightmapTextureManager() {

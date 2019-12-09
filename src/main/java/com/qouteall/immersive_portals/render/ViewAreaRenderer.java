@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -192,19 +193,28 @@ public class ViewAreaRenderer {
         
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
-        
-        Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
+    
+        Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
+    
+        FogRendererContext.swappingManager.swapAndInvoke(
+            portal.dimensionTo,
+            () -> {
+                boxOfFogColor.obj = FogRendererContext.getCurrentFogColor.get();
+            }
+        );
+    
+        Vec3d fogColor = boxOfFogColor.obj;
         
         //important
         GlStateManager.enableCull();
-        
-        GlStateManager.color4f(1, 1, 1, 1);
-        GlStateManager.disableFog();
-        GlStateManager.disableAlphaTest();
+    
+        //GlStateManager.color4f(1, 1, 1, 1);
+        //GlStateManager.disableFog();
+        //GlStateManager.disableAlphaTest();
         GlStateManager.disableTexture();
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.disableBlend();
-        GlStateManager.disableLighting();
+        //GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        //GlStateManager.disableBlend();
+        //GlStateManager.disableLighting();
         
         GL11.glDisable(GL_CLIP_PLANE0);
         
@@ -229,9 +239,9 @@ public class ViewAreaRenderer {
         );
         
         GlStateManager.enableCull();
-        GlStateManager.enableAlphaTest();
+        //GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture();
-        GlStateManager.enableLighting();
+        //GlStateManager.enableLighting();
         
         MinecraftClient.getInstance().getProfiler().pop();
     }
