@@ -13,6 +13,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.lang.ref.WeakReference;
@@ -56,8 +57,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
         );
-    
-        updateCameraPosition(0, 0);
     }
     
     @Override
@@ -77,23 +76,63 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     @Override
     public void updateCameraPosition(double playerX, double playerZ) {
         ChunkPos cameraChunkPos = new ChunkPos(
-            (int) MathHelper.floorMod(playerX, 16),
-            (int) MathHelper.floorMod(playerZ, 16)
+            MathHelper.floorDiv((int) playerX, 16),
+            MathHelper.floorDiv((int) playerZ, 16)
         );
         
         Preset preset = presets.computeIfAbsent(
             cameraChunkPos,
-            whatever -> createPreset(cameraChunkPos.x, cameraChunkPos.z)
+            whatever -> myCreatePreset(playerX, playerZ)
+            //whatever -> createPreset(cameraChunkPos.x, cameraChunkPos.z)
         );
         
         this.chunks = preset.data;
     }
     
+    @Override
+    public void scheduleRebuild(int int_1, int int_2, int int_3, boolean boolean_1) {
+        ChunkBuilder.BuiltChunk builtChunk = provideBuiltChunk(
+            new BlockPos(int_1 * 16, int_2 * 16, int_3 * 16)
+        );
+        builtChunk.scheduleRebuild(boolean_1);
+    }
+    
+    @Deprecated
     private Preset createPreset(int centerChunkX, int centerChunkZ) {
+        ChunkBuilder.BuiltChunk[] chunks1 =
+            new ChunkBuilder.BuiltChunk[this.sizeX * this.sizeY * this.sizeZ];
+        
+        int radiusX = sizeX / 2;
+        int radiusZ = sizeZ / 2;
+        
+        for (int cx = -radiusX; cx <= radiusX; cx++) {
+            for (int cz = -radiusX; cz <= radiusZ; cz++) {
+                for (int cy = 0; cy < sizeY; cy++) {
+                    int index = this.getChunkIndex(
+                        cx + radiusX,
+                        cy,
+                        cz + radiusZ
+                    );
+                    BlockPos origin = new BlockPos(
+                        (cx + centerChunkX) * 16,
+                        cy * 16,
+                        (cz + centerChunkZ) * 16
+                    );
+                    
+                    chunks1[index] = provideBuiltChunk(origin);
+                }
+            }
+        }
+        
+        return new Preset(chunks1, false);
+    }
+    
+    private Preset myCreatePreset(double playerXCoord, double playerZCoord) {
         ChunkBuilder.BuiltChunk[] chunks =
             new ChunkBuilder.BuiltChunk[this.sizeX * this.sizeY * this.sizeZ];
-        int int_1 = MathHelper.floor(centerChunkX * 16 + 8);
-        int int_2 = MathHelper.floor(centerChunkZ * 16 + 8);
+        
+        int int_1 = MathHelper.floor(playerXCoord);
+        int int_2 = MathHelper.floor(playerZCoord);
         
         for (int cx = 0; cx < this.sizeX; ++cx) {
             int int_4 = this.sizeX * 16;
@@ -113,6 +152,9 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                         cy,
                         cz
                     );
+                    Validate.isTrue(px % 16 == 0);
+                    Validate.isTrue(py % 16 == 0);
+                    Validate.isTrue(pz % 16 == 0);
                     chunks[index] = provideBuiltChunk(
                         new BlockPos(px, py, pz)
                     );
@@ -131,12 +173,12 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private static BlockPos getBasePos(BlockPos blockPos) {
         return new BlockPos(
             MathHelper.floorDiv(blockPos.getX(), 16) * 16,
-            MathHelper.floorDiv(blockPos.getY(), 16) * 16,
+            MathHelper.floorDiv(MathHelper.clamp(blockPos.getY(), 0, 255), 16) * 16,
             MathHelper.floorDiv(blockPos.getZ(), 16) * 16
         );
     }
     
-    private ChunkBuilder.BuiltChunk provideBuiltChunk(BlockPos blockPos) {
+    public ChunkBuilder.BuiltChunk provideBuiltChunk(BlockPos blockPos) {
         return provideBuiltChunkWithAlignedPos(getBasePos(blockPos));
     }
     
@@ -144,6 +186,10 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         assert basePos.getX() % 16 == 0;
         assert basePos.getY() % 16 == 0;
         assert basePos.getZ() % 16 == 0;
+        if (basePos.getY() < 0 || basePos.getY() >= 256) {
+            return null;
+        }
+        
         return builtChunkMap.computeIfAbsent(
             basePos.toImmutable(),
             whatever -> {
@@ -177,7 +223,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private void tick() {
         ClientWorld worldClient = MinecraftClient.getInstance().world;
         if (worldClient != null) {
-            if (worldClient.getTime() % 687 == 66) {
+            if (worldClient.getTime() % 537 == 66) {
                 purge();
             }
         }

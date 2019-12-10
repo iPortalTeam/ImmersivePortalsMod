@@ -296,6 +296,20 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder = builder.then(CommandManager
+            .literal("vanilla_chunk_culling_enable")
+            .executes(context -> {
+                MinecraftClient.getInstance().chunkCullingEnabled = true;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("vanilla_chunk_culling_disable")
+            .executes(context -> {
+                MinecraftClient.getInstance().chunkCullingEnabled = false;
+                return 0;
+            })
+        );
         builder.then(CommandManager
             .literal("report_chunk_loaders")
             .executes(context -> {
@@ -310,7 +324,8 @@ public class MyCommandClient {
                 return 0;
             })
         );
-        
+    
+    
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");

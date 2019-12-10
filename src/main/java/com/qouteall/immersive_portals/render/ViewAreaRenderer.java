@@ -27,10 +27,6 @@ public class ViewAreaRenderer {
         Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
         Vec3d cameraPos, float partialTicks, float layerWidth
     ) {
-        //if layerWidth is small, the teleportation will not be seamless
-        
-        //counter-clockwise triangles are front-faced in default
-        
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
     
         Vec3d posInPlayerCoordinate = portal.getPos().subtract(cameraPos);
@@ -42,7 +38,6 @@ public class ViewAreaRenderer {
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
             bufferbuilder, p, fogColor
         );
-    
     
         if (portal.specialShape == null) {
             generateTriangleBiLayered(
@@ -205,17 +200,8 @@ public class ViewAreaRenderer {
     
         Vec3d fogColor = boxOfFogColor.obj;
         
-        //important
         GlStateManager.enableCull();
-    
-        //GlStateManager.color4f(1, 1, 1, 1);
-        //GlStateManager.disableFog();
-        //GlStateManager.disableAlphaTest();
         GlStateManager.disableTexture();
-        //GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        //GlStateManager.disableBlend();
-        //GlStateManager.disableLighting();
-        
         GL11.glDisable(GL_CLIP_PLANE0);
         
         if (OFInterface.isShaders.getAsBoolean()) {
@@ -239,9 +225,7 @@ public class ViewAreaRenderer {
         );
         
         GlStateManager.enableCull();
-        //GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture();
-        //GlStateManager.enableLighting();
         
         MinecraftClient.getInstance().getProfiler().pop();
     }

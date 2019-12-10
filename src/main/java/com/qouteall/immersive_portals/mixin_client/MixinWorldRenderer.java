@@ -4,14 +4,17 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.lang.reflect.Constructor;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements IEWorldRenderer {
@@ -73,6 +78,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Final
     private ObjectList<?> visibleChunks;
     
+    @Shadow
+    private int renderDistance;
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -114,26 +122,31 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             RenderSystem.clear(int_1, boolean_1);
         }
     }
-
-//    @Redirect(
-//        method = "reload",
-//        at = @At(
-//            value = "NEW",
-//            target = "net/minecraft/client/render/BuiltChunkStorage"
-//        )
-//    )
-//    private BuiltChunkStorage redirectConstructingBuildChunkStorage(
-//        ChunkBuilder chunkBuilder_1,
-//        World world_1,
-//        int int_1,
-//        WorldRenderer worldRenderer_1
-//    ) {
-//        return new MyBuiltChunkStorage(
-//            chunkBuilder_1,
-//            world_1, int_1,
-//            worldRenderer_1
-//        );
-//    }
+    
+    @Redirect(
+        method = "reload",
+        at = @At(
+            value = "NEW",
+            target = "net/minecraft/client/render/BuiltChunkStorage"
+        )
+    )
+    private BuiltChunkStorage redirectConstructingBuildChunkStorage(
+        ChunkBuilder chunkBuilder_1,
+        World world_1,
+        int int_1,
+        WorldRenderer worldRenderer_1
+    ) {
+        if (CGlobal.useHackedChunkRenderDispatcher) {
+            return new MyBuiltChunkStorage(
+                chunkBuilder_1, world_1, int_1, worldRenderer_1
+            );
+        }
+        else {
+            return new BuiltChunkStorage(
+                chunkBuilder_1, world_1, int_1, worldRenderer_1
+            );
+        }
+    }
     
     @Inject(
         method = "renderLayer",
@@ -320,5 +333,168 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void setVisibleChunks(ObjectList l) {
         visibleChunks = l;
+    }
+    
+    //update it every frame
+    @Inject(
+        method = "setupTerrain",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
+        )
+    )
+    private void onBeforeChunkBuilderSetCameraPosition(
+        Camera camera_1,
+        Frustum frustum_1,
+        boolean boolean_1,
+        int int_1,
+        boolean boolean_2,
+        CallbackInfo ci
+    ) {
+        CGlobal.frustumRef = frustum_1;
+        if (CGlobal.useHackedChunkRenderDispatcher) {
+            this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
+        }
+    }
+//
+//    @Redirect(
+//        method = "setupTerrain",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Ljava/util/Queue;isEmpty()Z"
+//        )
+//    )
+//    private boolean redirectIsEmpty(Queue queue) {
+//        if (CGlobal.useHackedChunkRenderDispatcher) {
+//            Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+//            int cameraSectionX = MathHelper.floorDiv((int) cameraPos.x, 16);
+//            int cameraSectionY = MathHelper.floorDiv((int) cameraPos.y, 16);
+//            int cameraSectionZ = MathHelper.floorDiv((int) cameraPos.z, 16);
+//
+//            ChunkBuilder.BuiltChunk[] chunkArray = this.chunks.chunks;
+//            List<ChunkBuilder.BuiltChunk> selected = new ArrayList<>();
+//            for (ChunkBuilder.BuiltChunk builtChunk : chunkArray) {
+//                if (CGlobal.frustumRef.isVisible(builtChunk.boundingBox)) {
+//                    selected.add(builtChunk);
+//                }
+//            }
+//
+//            selected.sort(
+//                Comparator.comparingInt(
+//                    builtChunk -> Math.abs(builtChunk.getOrigin().getX() / 16 - cameraSectionX) +
+//                        Math.abs(builtChunk.getOrigin().getY() / 16 - cameraSectionY) +
+//                        Math.abs(builtChunk.getOrigin().getZ() / 16 - cameraSectionZ)
+//                )
+//            );
+//
+//            for (ChunkBuilder.BuiltChunk builtChunk : selected) {
+//                try {
+//                    Object newChunkInfo = chunkInfoConstructor.newInstance(
+//                        (Object) this,
+//                        builtChunk, Direction.UP, 1,
+//                        null
+//                    );
+//                    ((ObjectList<Object>) visibleChunks).add(newChunkInfo);
+//                }
+//                catch (Throwable e) {
+//                    throw new IllegalStateException(e);
+//                }
+//            }
+//
+//            return true;
+//        }
+//        else {
+//            return queue.isEmpty();
+//        }
+//    }
+//
+//    @Inject(
+//        method = "getAdjacentChunk",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void onGetAdjacentChunk(
+//        BlockPos cameraPos,
+//        ChunkBuilder.BuiltChunk builtChunk,
+//        Direction direction,
+//        CallbackInfoReturnable<ChunkBuilder.BuiltChunk> cir
+//    ) {
+//        if (CGlobal.useHackedChunkRenderDispatcher) {
+//
+//            BlockPos neighborPosition = builtChunk.getNeighborPosition(direction);
+//            if (neighborPosition.getY() < 0 || neighborPosition.getY() >= 256) {
+//                cir.setReturnValue(null);
+//                cir.cancel();
+//            }
+//
+//            ChunkPos neighborChunkPos = new ChunkPos(neighborPosition);
+//            ChunkPos cameraChunkPos = new ChunkPos(cameraPos);
+//
+//            if (neighborChunkPos.method_24022(cameraChunkPos) > renderDistance) {
+//                cir.setReturnValue(null);
+//                cir.cancel();
+//            }
+//
+//            MyBuiltChunkStorage storage = (MyBuiltChunkStorage) this.chunks;
+//            ChunkBuilder.BuiltChunk result =
+//                storage.provideBuiltChunk(neighborPosition);
+//
+//            cir.setReturnValue(result);
+//            cir.cancel();
+//        }
+//    }
+
+//    //increase render distance in this method
+//    //so it will be less likely to return null
+//    //if not the chunks may not be rendered
+//    //it may make the performance slower?
+//    @Redirect(
+//        method = "getAdjacentChunk",
+//        at = @At(
+//            value = "FIELD",
+//            target = "Lnet/minecraft/client/render/WorldRenderer;renderDistance:I"
+//        )
+//    )
+//    private int redirectRenderDistance(WorldRenderer target) {
+//        return renderDistance + 2;
+//    }
+    
+    //for debug
+//    @Redirect(
+//        method = "setupTerrain",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;setRebuildFrame(I)Z",
+//            ordinal = 2
+//        )
+//    )
+//    private boolean redirectSetRebuildFrame(ChunkBuilder.BuiltChunk builtChunk, int int_1) {
+//        return true;
+//    }
+//
+//    @Redirect(
+//        method = "setupTerrain",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/Frustum;isVisible(Lnet/minecraft/util/math/Box;)Z",
+//            ordinal = 1
+//        )
+//    )
+//    private boolean redirectIsVisible(Frustum frustum, Box box_1) {
+//        return true;
+//    }
+    
+    private static Constructor chunkInfoConstructor;
+    
+    static {
+        try {
+            Class chunkInfoClass = Class.forName(
+                "net.minecraft.client.render.WorldRenderer$ChunkInfo"
+            );
+            chunkInfoConstructor = chunkInfoClass.getConstructors()[0];
+        }
+        catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

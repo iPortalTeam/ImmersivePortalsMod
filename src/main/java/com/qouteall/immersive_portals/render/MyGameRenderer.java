@@ -74,9 +74,6 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(newWorld.dimension.getType());
     
-        //GlStateManager.disableBlend();
-        //GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        
         mc.getProfiler().push("render_portal_content");
     
         //invoke it!
@@ -99,7 +96,7 @@ public class MyGameRenderer {
         ieGameRenderer.setDoRenderHand(oldDoRenderHand);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.popMatrix();
-        //GlStateManager.enableBlend();
+    
         FogRendererContext.swappingManager.popSwapping();
     
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
