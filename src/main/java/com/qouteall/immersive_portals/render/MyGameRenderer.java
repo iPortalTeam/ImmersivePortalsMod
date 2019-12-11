@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
@@ -36,11 +35,11 @@ public class MyGameRenderer {
         ClientWorld newWorld,
         Vec3d oldCameraPos
     ) {
-        BuiltChunkStorage chunkRenderDispatcher =
-            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage();
-        chunkRenderDispatcher.updateCameraPosition(
-            mc.player.getX(), mc.player.getZ()
-        );
+//        BuiltChunkStorage chunkRenderDispatcher =
+//            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage();
+//        chunkRenderDispatcher.updateCameraPosition(
+//            mc.player.getX(), mc.player.getZ()
+//        );
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper helper =
@@ -139,7 +138,7 @@ public class MyGameRenderer {
     
         Vec3d planeNormal = portal.getNormal().multiply(-1);
     
-        Vec3d portalPos = portal.getPos()
+        Vec3d portalPos = portal.destination
             .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
             .subtract(mc.gameRenderer.getCamera().getPos());
     

@@ -230,14 +230,14 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("shader_debug_enable")
+            .literal("render_debug_enable")
             .executes(context -> {
                 CGlobal.isRenderDebugMode = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
-            .literal("shader_debug_disable")
+            .literal("render_debug_disable")
             .executes(context -> {
                 CGlobal.isRenderDebugMode = false;
                 return 0;

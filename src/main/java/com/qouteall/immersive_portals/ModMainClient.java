@@ -65,7 +65,12 @@ public class ModMainClient implements ClientModInitializer {
                 switchRenderer(CGlobal.rendererUsingFrameBuffer);
             }
             else {
-                switchRenderer(CGlobal.rendererUsingStencil);
+                if (CGlobal.isRenderDebugMode) {
+                    switchRenderer(CGlobal.rendererDebug);
+                }
+                else {
+                    switchRenderer(CGlobal.rendererUsingStencil);
+                }
             }
         }
     }

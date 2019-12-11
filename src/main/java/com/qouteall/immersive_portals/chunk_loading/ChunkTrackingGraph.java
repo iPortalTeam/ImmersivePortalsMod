@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class ChunkTrackingGraph {
     
     private static final int unloadIdleTickTime = 20 * 15;
-    private static final int unloadIdleTickTimeSameDimension = 20 * 3;
+    private static final int unloadIdleTickTimeSameDimension = 20 * 8;
     
     public static class Edge {
         public DimensionalChunkPos chunkPos;

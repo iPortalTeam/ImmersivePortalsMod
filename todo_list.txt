@@ -1,33 +1,12 @@
 fix weather changed when player go back to overworld
 fix weather rendering culling
-fix (not confirmed) cannot go through end portal
-fix end floor portal shaking caused by float inaccuracy
-fix change to bigger max portal layer with shader causes crash
-
-force clear task when exiting
-
-use 1 client net handler
-
-faked infinite height
+fix faked raining
+fix updating cursor when rendering portal
+fix abnormal when change window size
 
 check packet delay (create an entity and ride it)
 
-check public static fields of Shaders class
-
-check center depth correctness
-
-Voyager: can't see overworld from nether
-
 postponed:
-support any-shaped portal
-multi-threaded nether portal matching
 support going through portal while riding entity
-fix so bright when rendering portal using beyond belief shader
-fix shader malfunction (shadow abnormal, pure color, crash)
-fix program id leak with shader switch
-fix issue when sneak halfway in a horizontal portal
-fix translucent rendering issue when rendering nested portal
-fix friction when jumping into portal
-fix light flash when going into end portal(with optifine without shader)
 
 matrix mode 5889 is projection

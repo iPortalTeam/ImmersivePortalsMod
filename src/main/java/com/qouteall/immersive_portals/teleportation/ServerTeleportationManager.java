@@ -151,7 +151,7 @@ public class ServerTeleportationManager {
         
         player.world = toWorld;
         player.dimension = toWorld.dimension.getType();
-        toWorld.respawnPlayer(player);
+        toWorld.onPlayerChangeDimension(player);
         
         toWorld.checkChunk(player);
     
@@ -260,6 +260,6 @@ public class ServerTeleportationManager {
         
         entity.world = toWorld;
         entity.dimension = toDimension;
-        toWorld.method_18769(entity);
+        toWorld.onDimensionChanged(entity);
     }
 }

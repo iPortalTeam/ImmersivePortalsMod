@@ -14,6 +14,7 @@ public class CGlobal {
     public static RendererUsingStencil rendererUsingStencil;
     public static RendererUsingFrameBuffer rendererUsingFrameBuffer;
     public static RendererDummy rendererDummy = new RendererDummy();
+    public static RendererDebug rendererDebug = new RendererDebug();
     
     public static ClientWorldLoader clientWorldLoader;
     public static MyGameRenderer myGameRenderer;
