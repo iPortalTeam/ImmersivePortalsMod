@@ -24,10 +24,13 @@ public class OFInterfaceInitializer {
             GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
         };
         OFInterface.beforeRenderCenter = (partialTicks) -> {
-            MinecraftClient mc = MinecraftClient.getInstance();
+            if (Config.isShaders()) {
+                MinecraftClient mc = MinecraftClient.getInstance();
         
-            Shaders.activeProgram = Shaders.ProgramNone;
-            Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
+                Shaders.activeProgram = Shaders.ProgramNone;
+                Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
+            }
+            
         };
         OFInterface.afterRenderCenter = () -> Shaders.activeProgram = Shaders.ProgramNone;
         OFInterface.resetViewport = () -> {
