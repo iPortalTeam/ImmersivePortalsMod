@@ -70,5 +70,6 @@ public class OFInterfaceInitializer {
             //if we do not put it a new object, it will clear the original chunkInfos
             ((IEOFWorldRenderer) newWorldRenderer1).createNewRenderInfosNormal();
         };
+        OFInterface.initShaderCullingManager = ShaderCullingManager::init;
     }
 }

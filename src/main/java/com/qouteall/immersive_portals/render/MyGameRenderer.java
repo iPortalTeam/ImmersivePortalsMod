@@ -61,7 +61,7 @@ public class MyGameRenderer {
         //List<ChunkRenderer> oldChunkRenderers = oldChunkRenderList.getChunkRenderers();
     
     
-        OFInterface.createNewRenderInfosNormal.accept((IEOFWorldRenderer) newWorldRenderer);
+        OFInterface.createNewRenderInfosNormal.accept(newWorldRenderer);
     
         //switch
         mc.worldRenderer = newWorldRenderer;

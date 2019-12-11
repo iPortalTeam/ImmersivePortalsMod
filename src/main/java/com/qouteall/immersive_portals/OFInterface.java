@@ -40,4 +40,6 @@ public class OFInterface {
     public static Consumer<Object> createNewRenderInfosNormal = (a) -> {
     };
     
+    public static Runnable initShaderCullingManager = invokeNothing;
+    
 }

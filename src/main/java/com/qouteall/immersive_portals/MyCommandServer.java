@@ -110,23 +110,6 @@ public class MyCommandServer {
                 })
             )
         );
-
-//        builder.then(CommandManager
-//            .literal("stabilize_nether_portal")
-//            .executes(context -> processPortalTargetedCommand(
-//                context,
-//                portal -> {
-//                    if (portal instanceof NewNetherPortalEntity) {
-//                        NewNetherPortalEntity portal1 = (NewNetherPortalEntity) portal;
-//                        portal1.unbreakable = true;
-//                        sendMessage(context, "Stabilized " + portal);
-//                    }
-//                    else {
-//                        sendMessage(context, "Not Nether Portal");
-//                    }
-//                }
-//            ))
-//        );
     
         builder.then(CommandManager
             .literal("delete_portal")
@@ -149,17 +132,21 @@ public class MyCommandServer {
                         CompoundTag newNbt = NbtCompoundTagArgumentType.getCompoundTag(
                             context, "nbt"
                         );
-                    
+    
                         CompoundTag portalNbt = portal.toTag(new CompoundTag());
-                    
-                        portalNbt.copyFrom(newNbt);
-                    
+    
+                        newNbt.getKeys().forEach(
+                            key -> portalNbt.put(key, newNbt.getTag(key))
+                        );
+    
+                        //portalNbt.copyFrom(newNbt);
+                        
                         UUID uuid = portal.getUuid();
                         portal.fromTag(portalNbt);
                         portal.setUuid(uuid);
-                    
+    
                         reloadPortal(portal);
-                    
+    
                         sendPortalInfo(context, portal);
                     }
                 ))
@@ -187,9 +174,9 @@ public class MyCommandServer {
                                     portal.destination = Vec3ArgumentType.getVec3(
                                         context, "dest"
                                     );
-                                
+    
                                     reloadPortal(portal);
-                                
+    
                                     sendMessage(context, portal.toString());
                                 }
                                 catch (CommandSyntaxException ignored) {
