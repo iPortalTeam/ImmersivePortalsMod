@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -80,6 +81,31 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private int renderDistance;
     
+    @Shadow
+    private boolean needsTerrainUpdate;
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE_STRING",
+            target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+            args = "ldc=destroyProgress"
+        )
+    )
+    private void onAfterRenderingOutline(
+        MatrixStack matrices,
+        float tickDelta,
+        long limitTime,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+        CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+    }
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -97,7 +123,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         boolean isTranslucent = renderLayer_1 == RenderLayer.getTranslucent();
         if (isTranslucent) {
-            CGlobal.renderer.onBeforeTranslucentRendering(matrixStack_1);
+    
         }
         renderLayer(
             renderLayer_1, matrixStack_1,
@@ -351,7 +377,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         visibleChunks = l;
     }
     
-    //update it every frame
+    //update builtChunkStorage every frame
+    //update terrain when rendering mirror
     @Inject(
         method = "setupTerrain",
         at = @At(
@@ -370,6 +397,24 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CGlobal.frustumRef = frustum_1;
         if (CGlobal.useHackedChunkRenderDispatcher) {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
+        }
+    
+        //update terrain when rendering mirror
+        if (RenderHelper.isRenderingMirror()) {
+            needsTerrainUpdate = true;
+        }
+    }
+    
+    @ModifyVariable(
+        method = "updateChunks",
+        at = @At("HEAD")
+    )
+    private long modifyLimitTime(long limitTime) {
+        if (CGlobal.renderer.isRendering()) {
+            return 0;
+        }
+        else {
+            return limitTime;
         }
     }
     

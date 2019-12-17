@@ -2,16 +2,12 @@ fix weather changed when player go back to overworld
 fix weather rendering culling
 fix faked raining
 fix updating cursor when rendering portal
-fix abnormal when change window size
 fix nether fog black(not red)
 fix rain shaking
-fix lag spike when crossing portal
 fix mirror flickering
 fix sometimes cannot see remote portal when entering world
 
-check packet delay (create an entity and ride it)
-
-support buffered chunk unloading
+reduce lag spike when rendering portal
 
 postponed:
 support going through portal while riding entity
