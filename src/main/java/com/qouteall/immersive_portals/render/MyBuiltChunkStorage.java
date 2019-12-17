@@ -95,6 +95,9 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             new BlockPos(int_1 * 16, int_2 * 16, int_3 * 16)
         );
         builtChunk.scheduleRebuild(boolean_1);
+    
+        //is it necessary?
+        //super.scheduleRebuild(int_1,int_2,int_3,boolean_1);
     }
     
     @Deprecated

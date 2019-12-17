@@ -3,8 +3,12 @@ fix weather rendering culling
 fix faked raining
 fix updating cursor when rendering portal
 fix abnormal when change window size
+fix nether fog black(not red)
+fix rain shaking
 
 check packet delay (create an entity and ride it)
+
+support buffered chunk unloading
 
 postponed:
 support going through portal while riding entity

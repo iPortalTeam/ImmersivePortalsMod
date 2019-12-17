@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.*;
+import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
@@ -87,7 +88,7 @@ public class ClientTeleportationManager {
                     portal -> onEntityGoInsidePortal(mc.player, portal)
                 );
             }
-        
+    
             lastPlayerHeadPos = mc.player.getCameraPosVec(RenderHelper.partialTicks);
         }
     }
@@ -233,7 +234,10 @@ public class ClientTeleportationManager {
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
     
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
-        
+    
+        MyClientChunkManager.updateLightStatus(
+            player.world.getChunk(player.chunkX, player.chunkZ)
+        );
     }
     
     private void amendChunkEntityStatus(Entity entity) {

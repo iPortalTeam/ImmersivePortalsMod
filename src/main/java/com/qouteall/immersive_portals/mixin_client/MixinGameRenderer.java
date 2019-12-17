@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.render.RenderHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -29,6 +30,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Final
     @Mutable
     private Camera camera;
+    
+    @Shadow
+    @Final
+    private MinecraftClient client;
     
     //may do teleportation here
     @Inject(method = "render", at = @At("HEAD"))
@@ -90,13 +95,20 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     ) {
         CGlobal.renderer.onRenderCenterEnded(matrixStack_1);
     }
-
-//    @Inject(method = "method_22709", at = @At("HEAD"), cancellable = true)
-//    private void onApplyProjectionMatrix(Matrix4f matrix4f_1, CallbackInfo ci) {
-//        if (CGlobal.renderer.isRendering()) {
-//            ci.cancel();
-//        }
-//    }
+    
+    //resize all world renderers when resizing window
+    @Inject(method = "onResized", at = @At("RETURN"))
+    private void onOnResized(int int_1, int int_2, CallbackInfo ci) {
+        if (CGlobal.clientWorldLoader != null) {
+            CGlobal.clientWorldLoader.worldRendererMap.values().stream()
+                .filter(
+                    worldRenderer -> worldRenderer != client.worldRenderer
+                )
+                .forEach(
+                    worldRenderer -> worldRenderer.onResized(int_1, int_2)
+                );
+        }
+    }
     
     @Override
     public LightmapTextureManager getLightmapTextureManager() {

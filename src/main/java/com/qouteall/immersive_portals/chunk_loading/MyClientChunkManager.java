@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.immersive_portals.CGlobal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -127,6 +127,18 @@ public class MyClientChunkManager extends ClientChunkManager {
         return worldChunk_1;
     }
     
+    public static void updateLightStatus(WorldChunk chunk) {
+        ChunkSection[] chunkSections_1 = chunk.getSectionArray();
+        LightingProvider lightingProvider = chunk.getWorld().getLightingProvider();
+        for (int int_5 = 0; int_5 < chunkSections_1.length; ++int_5) {
+            ChunkSection chunkSection_1 = chunkSections_1[int_5];
+            lightingProvider.updateSectionStatus(
+                ChunkSectionPos.from(chunk.getPos().x, int_5, chunk.getPos().z),
+                ChunkSection.isEmpty(chunkSection_1)
+            );
+        }
+    }
+    
     @Override
     public void tick(BooleanSupplier booleanSupplier_1) {
     }
@@ -143,7 +155,7 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public String getDebugString() {
-        return "HACKED Client Chunk: " + chunkMap.size();
+        return "Immersive Portals Present " + chunkMap.size();
     }
     
     @Override
@@ -153,7 +165,9 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public void onLightUpdate(LightType lightType_1, ChunkSectionPos chunkSectionPos_1) {
-        MinecraftClient.getInstance().worldRenderer.scheduleBlockRender(
+        CGlobal.clientWorldLoader.getWorldRenderer(
+            world.dimension.getType()
+        ).scheduleBlockRender(
             chunkSectionPos_1.getSectionX(),
             chunkSectionPos_1.getSectionY(),
             chunkSectionPos_1.getSectionZ()

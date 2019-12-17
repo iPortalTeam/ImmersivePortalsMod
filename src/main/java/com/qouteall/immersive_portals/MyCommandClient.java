@@ -23,6 +23,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -324,8 +325,21 @@ public class MyCommandClient {
                 return 0;
             })
         );
-    
-    
+        builder.then(CommandManager
+            .literal("check_light")
+            .executes(context -> {
+                MinecraftClient mc = MinecraftClient.getInstance();
+                mc.execute(() -> {
+                    mc.world.getChunkManager().getLightingProvider().updateSectionStatus(
+                        ChunkSectionPos.from(mc.player.getBlockPos()),
+                        false
+                    );
+                });
+                return 0;
+            })
+        );
+        
+        
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");
