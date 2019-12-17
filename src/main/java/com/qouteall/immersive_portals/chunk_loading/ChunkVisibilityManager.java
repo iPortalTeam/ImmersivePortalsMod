@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -62,6 +63,15 @@ public class ChunkVisibilityManager {
         }
     }
     
+    private static int getChebyshevDistance(
+        Entity a, Entity b
+    ) {
+        return Math.max(
+            Math.abs(a.chunkX - b.chunkX),
+            Math.abs(a.chunkZ - b.chunkZ)
+        );
+    }
+    
     private static ChunkLoader playerDirectLoader(ServerPlayerEntity player) {
         return new ChunkLoader(
             new DimensionalChunkPos(
@@ -72,14 +82,21 @@ public class ChunkVisibilityManager {
         );
     }
     
-    private static ChunkLoader portalDirectLoader(Portal portal) {
+    private static ChunkLoader portalDirectLoader(
+        Portal portal,
+        ServerPlayerEntity player
+    ) {
         int renderDistance = getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
                 new ChunkPos(new BlockPos(portal.destination))
             ),
-            portal.loadFewerChunks ? (renderDistance / 3) : renderDistance
+            Math.max(
+                1,
+                renderDistance - getChebyshevDistance(portal, player)
+                    - (portal.loadFewerChunks ? 3 : 0)
+            )
         );
     }
     
@@ -157,7 +174,7 @@ public class ChunkVisibilityManager {
                 portal -> portal.canBeSeenByPlayer(player)
             ).flatMap(
                 portal -> Streams.concat(
-                    Stream.of(portalDirectLoader(portal)),
+                    Stream.of(portalDirectLoader(portal, player)),
                     
                     McHelper.getEntitiesNearby(
                         McHelper.getServer().getWorld(portal.dimensionTo),

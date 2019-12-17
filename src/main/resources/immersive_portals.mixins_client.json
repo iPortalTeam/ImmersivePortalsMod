@@ -5,6 +5,7 @@
   "mixins": [
     "MixinBackgroundRenderer",
     "MixinBlockEntityRenderDispatcher",
+    "MixinBuiltChunk",
     "MixinCamera",
     "MixinChunkRendererRegion",
     "MixinClientConnection",
@@ -15,6 +16,7 @@
     "MixinFrustumWithOrigin",
     "MixinGameRenderer",
     "MixinGlFrameBuffer",
+    "MixinMatrix4f",
     "MixinMinecraftClient",
     "MixinPlayerListEntry",
     "MixinPlayerMoveC2SPacket_C",

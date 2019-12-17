@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -22,7 +23,10 @@ import java.util.stream.Stream;
 public class ChunkTrackingGraph {
     
     private static final int unloadIdleTickTime = 20 * 15;
-    private static final int unloadIdleTickTimeSameDimension = 20 * 8;
+    private static final int unloadIdleTickTimeSameDimension = 20 * 10;
+    
+    //only 1 fifth of the chunks will be unload at a time
+    private static final int bufferedChunkUnloadingFactor = 5;
     
     public static class Edge {
         public DimensionalChunkPos chunkPos;
@@ -41,7 +45,7 @@ public class ChunkTrackingGraph {
         }
     }
     
-    public static final int portalLoadingRange = 48;
+    public static final int portalLoadingRange = 64;
     public static final int secondaryPortalLoadingRange = 16;
     
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
@@ -149,12 +153,20 @@ public class ChunkTrackingGraph {
     
     private void removeInactiveEdges(ServerPlayerEntity playerEntity) {
         long serverGameTime = McHelper.getServerGameTime();
-        playerToEdges.get(playerEntity).stream()
+        ArrayDeque<Edge> edgesToRemove = playerToEdges.get(playerEntity).stream()
             .filter(
                 edge -> shouldUnload(serverGameTime, edge)
             )
-            .collect(Collectors.toCollection(ArrayDeque::new))
-            .forEach(this::removeEdge);
+            .collect(Collectors.toCollection(ArrayDeque::new));
+    
+        if (SGlobal.bufferedChunkUnloading) {
+            edgesToRemove.stream()
+                .limit(edgesToRemove.size() / bufferedChunkUnloadingFactor + 1)
+                .forEach(this::removeEdge);
+        }
+        else {
+            edgesToRemove.forEach(this::removeEdge);
+        }
     }
     
     private boolean shouldUnload(long serverGameTime, Edge edge) {

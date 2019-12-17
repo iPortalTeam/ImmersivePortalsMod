@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.*;
-import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -136,15 +135,11 @@ public class MyGameRenderer {
     private double[] calcClipPlaneEquation() {
         Portal portal = CGlobal.renderer.getRenderingPortal();
     
-        Vec3d planeNormal = portal.getNormal().multiply(-1);
+        Vec3d planeNormal = portal.getContentDirection();
     
         Vec3d portalPos = portal.destination
             .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
             .subtract(mc.gameRenderer.getCamera().getPos());
-    
-        if (OFInterface.isShaders.getAsBoolean() && portal instanceof Mirror) {
-            planeNormal = planeNormal.multiply(-1);
-        }
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c

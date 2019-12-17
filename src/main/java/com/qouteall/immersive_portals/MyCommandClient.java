@@ -338,11 +338,41 @@ public class MyCommandClient {
                 return 0;
             })
         );
-        
+        registerSwitchCommand(
+            builder,
+            "buffered_chunk_unloading",
+            cond -> SGlobal.bufferedChunkUnloading = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "smooth_unload",
+            cond -> CGlobal.smoothUnload = cond
+        );
         
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");
+    }
+    
+    private static void registerSwitchCommand(
+        LiteralArgumentBuilder<ServerCommandSource> builder,
+        String name,
+        Consumer<Boolean> setFunction
+    ) {
+        builder = builder.then(CommandManager
+            .literal(name + "_enable")
+            .executes(context -> {
+                setFunction.accept(true);
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal(name + "_disable")
+            .executes(context -> {
+                setFunction.accept(false);
+                return 0;
+            })
+        );
     }
     
     private static int reportResourceConsumption(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IECamera;
-import com.qouteall.immersive_portals.render.RenderHelper;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -13,7 +12,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
@@ -60,15 +58,4 @@ public abstract class MixinCamera implements IECamera {
         lastClipSpaceResult = cir.getReturnValue();
     }
     
-    @Inject(method = "update", at = @At("TAIL"))
-    private void onUpdated(
-        BlockView p_216772_1_,
-        Entity p_216772_2_,
-        boolean p_216772_3_,
-        boolean p_216772_4_,
-        float p_216772_5_,
-        CallbackInfo ci
-    ) {
-        RenderHelper.setupTransformationForMirror((Camera) (Object) this);
-    }
 }

@@ -45,6 +45,23 @@ public class ClientTeleportationManager {
         }
         this_.tickTimeForTeleportation++;
         this_.slowDownPlayerIfCollidingWithPortal();
+        
+        updateLight();
+    }
+    
+    //fix light issue https://github.com/qouteall/ImmersivePortalsMod/issues/45
+    //it's not an elegant solution
+    //the issue could be caused by other things
+    private static void updateLight() {
+        ClientWorld world = MinecraftClient.getInstance().world;
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (world != null && player != null) {
+            if (world.getTime() % 233 == 34) {
+                MyClientChunkManager.updateLightStatus(world.getChunk(
+                    player.chunkX, player.chunkZ
+                ));
+            }
+        }
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -234,10 +251,10 @@ public class ClientTeleportationManager {
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
     
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
-    
-        MyClientChunkManager.updateLightStatus(
-            player.world.getChunk(player.chunkX, player.chunkZ)
-        );
+
+//        MyClientChunkManager.updateLightStatus(
+//            player.world.getChunk(player.chunkX, player.chunkZ)
+//        );
     }
     
     private void amendChunkEntityStatus(Entity entity) {

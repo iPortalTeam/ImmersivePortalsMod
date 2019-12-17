@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.mojang.authlib.GameProfile;
+import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
@@ -20,13 +21,16 @@ import net.minecraft.world.level.LevelInfo;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
     public Map<DimensionType, ClientWorld> clientWorldMap = new HashMap<>();
     public Map<DimensionType, WorldRenderer> worldRendererMap = new HashMap<>();
     public Map<DimensionType, DimensionRenderHelper> renderHelperMap = new HashMap<>();
+    private Set<DimensionalChunkPos> unloadedChunks = new HashSet<>();
     
     private MinecraftClient mc = MinecraftClient.getInstance();
     
@@ -68,6 +72,8 @@ public class ClientWorldLoader {
         renderHelperMap.clear();
         
         isInitialized = false;
+    
+        ModMain.clientTaskList.forceClearTasks();
     }
     
     //@Nullable

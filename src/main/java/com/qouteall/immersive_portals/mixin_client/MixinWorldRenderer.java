@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -311,6 +312,23 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
         GL11.glCullFace(GL11.GL_BACK);
+    }
+    
+    @Inject(
+        method = "render", at = @At("HEAD")
+    )
+    private void onBeforeRender(
+        MatrixStack matrices,
+        float tickDelta,
+        long limitTime,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+        RenderHelper.setupTransformationForMirror(camera, matrices);
     }
     
     @Override

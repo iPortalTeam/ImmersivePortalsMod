@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
+import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -19,6 +20,8 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.Untracker;
+import net.minecraft.client.util.math.Matrix3f;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
@@ -301,23 +304,25 @@ public class RenderHelper {
             CGlobal.renderer.getRenderingPortal() instanceof Mirror;
     }
     
-    public static void setupTransformationForMirror(Camera camera) {
+    public static void setupTransformationForMirror(Camera camera, MatrixStack matrixStack) {
         if (CGlobal.renderer.isRendering()) {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             if (renderingPortal instanceof Mirror) {
                 Mirror mirror = (Mirror) renderingPortal;
                 Vec3d relativePos = mirror.getPos().subtract(camera.getPos());
-                
-                GlStateManager.translated(relativePos.x, relativePos.y, relativePos.z);
+    
+                matrixStack.translate(relativePos.x, relativePos.y, relativePos.z);
                 
                 float[] arr = getMirrorTransformation(mirror.getNormal());
-                multMatrix(arr);
-                
-                GlStateManager.translated(-relativePos.x, -relativePos.y, -relativePos.z);
+                Matrix4f matrix = new Matrix4f();
+                ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
+                matrixStack.peek().getModel().multiply(matrix);
+                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+    
+                matrixStack.translate(-relativePos.x, -relativePos.y, -relativePos.z);
             }
         }
     }
-    
     
     //https://en.wikipedia.org/wiki/Householder_transformation
     private static float[] getMirrorTransformation(

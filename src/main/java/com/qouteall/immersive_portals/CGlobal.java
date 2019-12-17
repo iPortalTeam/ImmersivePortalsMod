@@ -37,6 +37,7 @@ public class CGlobal {
     public static boolean isRenderDebugMode = false;
     public static boolean debugMirrorMode = false;
     public static boolean teleportOnRendering = true;
+    public static boolean smoothUnload = true;
     
     
     public static Frustum frustumRef;
