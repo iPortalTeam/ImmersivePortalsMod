@@ -6,6 +6,9 @@ fix nether fog black(not red)
 fix rain shaking
 fix mirror flickering
 fix sometimes cannot see remote portal when entering world
+fix cloud rendering
+fix transparent triangle fog
+fix hand item light abnormal
 
 reduce lag spike when rendering portal
 

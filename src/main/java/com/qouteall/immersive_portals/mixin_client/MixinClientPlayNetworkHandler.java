@@ -25,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -185,7 +186,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             }
             
             int[] counter = new int[1];
-            counter[0] = 20 * 60;
+            counter[0] = (int) (Math.random() * 100);
             ModMain.clientTaskList.addTask(() -> {
                 ClientWorld world1 = CGlobal.clientWorldLoader.getWorld(pos.dimension);
                 
@@ -197,6 +198,9 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                     counter[0]--;
                     return false;
                 }
+    
+                Profiler profiler = MinecraftClient.getInstance().getProfiler();
+                profiler.push("delayed_unload");
                 
                 for (int y = 0; y < 16; ++y) {
                     world1.getLightingProvider().updateSectionStatus(
@@ -205,6 +209,8 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                 }
                 
                 world1.getLightingProvider().setLightEnabled(pos.getChunkPos(), false);
+    
+                profiler.pop();
                 
                 return true;
             });

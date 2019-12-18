@@ -53,13 +53,16 @@ public class ClientTeleportationManager {
     //it's not an elegant solution
     //the issue could be caused by other things
     private static void updateLight() {
-        ClientWorld world = MinecraftClient.getInstance().world;
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ClientWorld world = mc.world;
+        ClientPlayerEntity player = mc.player;
         if (world != null && player != null) {
             if (world.getTime() % 233 == 34) {
+                mc.getProfiler().push("my_light_update");
                 MyClientChunkManager.updateLightStatus(world.getChunk(
                     player.chunkX, player.chunkZ
                 ));
+                mc.getProfiler().pop();
             }
         }
     }

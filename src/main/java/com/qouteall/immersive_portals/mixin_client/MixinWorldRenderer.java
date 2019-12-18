@@ -103,7 +103,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+    
     }
     
     @Redirect(
@@ -116,21 +116,21 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private void onRenderBeforeRenderLayer(
         WorldRenderer worldRenderer,
         RenderLayer renderLayer_1,
-        MatrixStack matrixStack_1,
+        MatrixStack matrices,
         double double_1,
         double double_2,
         double double_3
     ) {
         boolean isTranslucent = renderLayer_1 == RenderLayer.getTranslucent();
         if (isTranslucent) {
-    
+            CGlobal.renderer.onBeforeTranslucentRendering(matrices);
         }
         renderLayer(
-            renderLayer_1, matrixStack_1,
+            renderLayer_1, matrices,
             double_1, double_2, double_3
         );
         if (isTranslucent) {
-            CGlobal.renderer.onAfterTranslucentRendering(matrixStack_1);
+            CGlobal.renderer.onAfterTranslucentRendering(matrices);
         }
         
     }
@@ -330,6 +330,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("HEAD"))
     private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
+        if (CGlobal.renderer.isRendering()) {
+            //reset gl states
+            RenderLayer.getBlockLayers().get(0).startDrawing();
+            RenderLayer.getBlockLayers().get(0).endDrawing();
+        }
+    
         if (RenderHelper.isRenderingMirror()) {
             GL11.glCullFace(GL11.GL_FRONT);
         }
@@ -417,5 +423,38 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             return limitTime;
         }
     }
+    
+    //disable rebuild near when rendering portal
+//    @Redirect(
+//        method = "setupTerrain",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;rebuild(Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;)V"
+//        )
+//    )
+//    private void redirectRebuildInSetupTerrain(
+//        ChunkBuilder chunkBuilder,
+//        ChunkBuilder.BuiltChunk chunk
+//    ) {
+//        if (!CGlobal.renderer.isRendering()) {
+//            chunkBuilder.rebuild(chunk);
+//        }else {
+//            chunk.scheduleRebuild(true);
+//            chunk.scheduleRebuild(chunkBuilder);
+//        }
+//    }
+//
+//    @Redirect(
+//        method = "setupTerrain",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;cancelRebuild()V"
+//        )
+//    )
+//    private void redirectCancelRebuildInSetupTerrain(ChunkBuilder.BuiltChunk builtChunk) {
+//        if (!CGlobal.renderer.isRendering()) {
+//            builtChunk.cancelRebuild();
+//        }
+//    }
     
 }
