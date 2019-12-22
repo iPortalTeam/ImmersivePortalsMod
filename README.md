@@ -3,25 +3,20 @@ It's a minecraft mod.
 
 https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
 
-## How to run this code with Intellij IDEA
-1. Import the project, enable auto import and let gradle tasks finish
-2. Download this jar https://github.com/qouteall/ImmersivePortalsMod/blob/master/minecraft-1.14.4-mapped-net.fabricmc.yarn-2.jar
-and use it to replace C:\Users\username\ .gradle\caches\fabric-loom\minecraft-1.14.4-mapped-net.fabricmc.yarn-2.jar (It contains OptiFine stuff)
-3. Run  ```gradlew idea``` ```gradlew genSources```
+## How to run this code without OptiFine
+1. Remove things related to "OptiFabric" in build.gradle
+2. Remove package com.qouteall.immersive_portals.optifine_compatibility
+3. Fix some compile errors manually
+
+## How to run this code with OptiFine
+It needs to use OptiFine-patched minecraft jar to replace original minecraft jar.
+If you want to know the details, contact me in email or discord.
 
 ## Briefly explain how this mod works
 
 ### Portal entity
 A portal entity is one-way and one-faced.
 A normal nether portal contains 2 portals in overworld and 2 portals in nether.
-
-You can create a portal by command
-```
-/summon immersive_portals:portal ~ ~5 ~ {width:4,height:4,axisWX:1,axisWY:0,axisWZ:0,axisHX:0,axisHY:1,axisHZ:0,dimensionTo:-1,destinationX:0,destinationY:129,destinationZ:0}
-```
-![](https://i.ibb.co/zbC9RW7/1.png)
-
-```immersive_portals:monitoring_nether_portal``` is the portal entity that can disappear when nether portal breaks.
 
 When lighting a nether portal, it will firstly try to link to the obsidian
  frame with same size and direction in 128 range in the other dimension.

@@ -252,30 +252,8 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
         }
     }
     
-    //I can't figure out why its origin is incorrect sometimes
-    //so fix it manually
     private void fixAbnormality() {
-        if (chunkRendererMap.values().stream().distinct().count() != chunkRendererMap.size()) {
-            Helper.err("Not distinct!");
-        }
-
-//        chunkRendererMap.entrySet().stream().filter(
-//            entry -> {
-//                boolean isPosCorrect = entry.getKey().equals(entry.getValue().getOrigin());
-//                boolean isKeyMutable = entry.getKey() instanceof BlockPos.Mutable;
-//                if (!isPosCorrect || isKeyMutable) {
-//                    Helper.err("Chunk Renderer Abnormal " + entry.getKey() + entry.getValue().getOrigin());
-//                    return true;
-//                }
-//                return false;
-//            }
-//        ).collect(
-//            Collectors.toList()
-//        ).forEach(entry -> {
-//            entry.getValue().setOrigin(
-//                entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ()
-//            );
-//        });
+    
     }
     
     private ChunkRenderer[] createPreset(double viewEntityX, double viewEntityZ) {
