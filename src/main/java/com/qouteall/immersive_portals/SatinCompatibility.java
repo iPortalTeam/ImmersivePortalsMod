@@ -25,7 +25,7 @@ public class SatinCompatibility {
                 methodIsActive = instance.getClass().getMethod("isActive");
             }
             catch (Throwable e) {
-                e.printStackTrace();
+                throw new IllegalStateException(e);
             }
             
         }

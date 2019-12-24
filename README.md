@@ -52,7 +52,10 @@ I changed it into a map.
 In server side, it will send redirected packet to players to synchronize world information.
 If the packet is not redirected, a chunk data packet of nether may be recognized as overworld chunk data in client.
 
-I made my own chunk loading determination logic. The /forceload command will not work.
+I made my own chunk loading determination logic.
+I tried to use my own chunk ticket to load the chunk but it didn't work as intended.
+Currently it invokes vanilla's force loading mechanic to load chunks.
+So /forceload command with this mod will not work.
 
 ### Seamless teleportation
 Teleportation on client side happens before rendering (not during ticking).

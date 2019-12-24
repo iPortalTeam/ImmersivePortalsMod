@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+	//OptiFabric
 	modCompile 'com.github.modmuss50:OptiFabric:e1834b016f'
 
 	//Deps required for optifabric
