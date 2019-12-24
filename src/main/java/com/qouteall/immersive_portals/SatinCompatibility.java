@@ -22,7 +22,7 @@ public class SatinCompatibility {
                     classSatinFeatures.getDeclaredField("readableDepthFramebuffers");
                 Object instance = methodGetInstance.invoke(null);
                 readableDepthFramebuffers = fieldReadableDepthFramebuffers.get(instance);
-                methodIsActive = readableDepthFramebuffers.getClass().getMethod("isActive");
+                methodIsActive = instance.getClass().getMethod("isActive");
             }
             catch (Throwable e) {
                 throw new IllegalStateException(e);
