@@ -106,7 +106,7 @@ public class MyGameRenderer {
     }
     
     public void startCulling() {
-        //shaders does not compatible with glCullPlane
+        //shaders do not compatible with glCullPlane
         //I have to modify shader code
         if (CGlobal.useFrontCulling && !OFInterface.isShaders.getAsBoolean()) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
@@ -183,4 +183,5 @@ public class MyGameRenderer {
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
     }
+    
 }

@@ -39,6 +39,5 @@ public class CGlobal {
     public static boolean teleportOnRendering = true;
     public static boolean smoothUnload = true;
     
-    
     public static Frustum frustumRef;
 }

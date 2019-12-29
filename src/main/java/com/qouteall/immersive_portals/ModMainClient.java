@@ -61,7 +61,7 @@ public class ModMainClient implements ClientModInitializer {
 //            }
         }
         else {
-            if (CGlobal.useCompatibilityRenderer || SatinCompatibility.isSatinShaderEnabled()) {
+            if (CGlobal.useCompatibilityRenderer) {
                 switchRenderer(CGlobal.rendererUsingFrameBuffer);
             }
             else {

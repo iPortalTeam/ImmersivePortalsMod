@@ -52,19 +52,27 @@ public class ClientTeleportationManager {
     //fix light issue https://github.com/qouteall/ImmersivePortalsMod/issues/45
     //it's not an elegant solution
     //the issue could be caused by other things
+    //TODO move this to another class
     private static void updateLight() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        ClientWorld world = mc.world;
-        ClientPlayerEntity player = mc.player;
-        if (world != null && player != null) {
-            if (world.getTime() % 233 == 34) {
-                mc.getProfiler().push("my_light_update");
-                MyClientChunkManager.updateLightStatus(world.getChunk(
-                    player.chunkX, player.chunkZ
-                ));
-                mc.getProfiler().pop();
-            }
+        ClientWorld world = MinecraftClient.getInstance().world;
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (world == null) {
+            return;
         }
+        if (player == null) {
+            return;
+        }
+        if (world.getTime() % 233 == 34) {
+            doUpdateLight(player);
+        }
+    }
+    
+    private static void doUpdateLight(ClientPlayerEntity player) {
+        MinecraftClient.getInstance().getProfiler().push("my_light_update");
+        MyClientChunkManager.updateLightStatus(player.world.getChunk(
+            player.chunkX, player.chunkZ
+        ));
+        MinecraftClient.getInstance().getProfiler().pop();
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -159,7 +167,8 @@ public class ClientTeleportationManager {
         
         amendChunkEntityStatus(player);
     
-        //slowDownIfTooFast(player, 0.5);
+        //is it necessary?
+        //doUpdateLight(player);
     }
     
     private boolean isTeleportingFrequently() {

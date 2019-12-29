@@ -114,6 +114,9 @@ public class Portal extends Entity {
             specialShape = new SpecialPortalShape(
                 compoundTag.getList("specialShape", 6)
             );
+            if (specialShape.triangles.isEmpty()) {
+                specialShape = null;
+            }
         }
     }
     
@@ -196,7 +199,7 @@ public class Portal extends Entity {
     
     public boolean canRenderEntityInsideMe(Vec3d entityPos) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
-        return v > 0;
+        return v > -0.01;
     }
     
     //0 and 3 are connected
