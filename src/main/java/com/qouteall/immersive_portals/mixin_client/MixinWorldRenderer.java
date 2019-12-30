@@ -360,7 +360,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     //update builtChunkStorage every frame
-    //update terrain when rendering mirror
+    //update terrain when rendering portal
     @Inject(
         method = "setupTerrain",
         at = @At(
@@ -381,8 +381,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
     
-        //update terrain when rendering mirror
-        if (RenderHelper.isRenderingMirror()) {
+        if (CGlobal.renderer.isRendering()) {
             needsTerrainUpdate = true;
         }
     }

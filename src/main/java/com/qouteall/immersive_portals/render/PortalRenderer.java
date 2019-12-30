@@ -196,7 +196,9 @@ public abstract class PortalRenderer {
         
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
-        //RenderHelper.restoreViewPort();
+        RenderHelper.restoreViewPort();
+    
+        CGlobal.myGameRenderer.resetFog();
     }
     
     protected void renderPortalContentWithContextSwitched(

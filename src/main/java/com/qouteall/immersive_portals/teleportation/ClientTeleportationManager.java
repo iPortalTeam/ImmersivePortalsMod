@@ -264,9 +264,6 @@ public class ClientTeleportationManager {
     
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
 
-//        MyClientChunkManager.updateLightStatus(
-//            player.world.getChunk(player.chunkX, player.chunkZ)
-//        );
     }
     
     private void amendChunkEntityStatus(Entity entity) {

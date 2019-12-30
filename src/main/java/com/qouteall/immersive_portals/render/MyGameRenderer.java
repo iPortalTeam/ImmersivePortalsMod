@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
@@ -16,6 +17,7 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.lwjgl.opengl.GL11;
@@ -182,6 +184,29 @@ public class MyGameRenderer {
             player, oldPos, oldLastTickPos
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
+    }
+    
+    public void resetFog() {
+        Camera camera = mc.gameRenderer.getCamera();
+        float g = mc.gameRenderer.getViewDistance();
+        
+        Vec3d cameraPos = camera.getPos();
+        double d = cameraPos.getX();
+        double e = cameraPos.getY();
+        double f = cameraPos.getZ();
+        
+        boolean bl2 = mc.world.dimension.isFogThick(
+            MathHelper.floor(d),
+            MathHelper.floor(e)
+        ) || mc.inGameHud.getBossBarHud().shouldThickenFog();
+        
+        BackgroundRenderer.applyFog(
+            camera,
+            BackgroundRenderer.FogType.FOG_TERRAIN,
+            Math.max(g - 16.0F, 32.0F),
+            bl2
+        );
+        
     }
     
 }

@@ -87,6 +87,7 @@ public class ChunkVisibilityManager {
         ServerPlayerEntity player
     ) {
         int renderDistance = getRenderDistanceOnServer();
+        int distanceToPortal = getChebyshevDistance(portal, player);
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -94,8 +95,9 @@ public class ChunkVisibilityManager {
             ),
             Math.max(
                 1,
-                renderDistance - getChebyshevDistance(portal, player)
-                    - (portal.loadFewerChunks ? 3 : 0)
+                (portal.loadFewerChunks ? (renderDistance / 2) : renderDistance) - distanceToPortal
+//                renderDistance - getChebyshevDistance(portal, player)
+//                    - (portal.loadFewerChunks ? 3 : 0)
             )
         );
     }

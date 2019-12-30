@@ -5,6 +5,7 @@
   "mixins": [
     "MixinBackgroundRenderer",
     "MixinBlockEntityRenderDispatcher",
+    "MixinBossBarHud",
     "MixinBuiltChunk",
     "MixinCamera",
     "MixinChunkRendererRegion",
