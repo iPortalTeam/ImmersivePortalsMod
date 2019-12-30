@@ -90,7 +90,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
-    //may do teleportation here
     @Inject(method = "render", at = @At("HEAD"))
     private void onFarBeforeRendering(
         float partialTicks,

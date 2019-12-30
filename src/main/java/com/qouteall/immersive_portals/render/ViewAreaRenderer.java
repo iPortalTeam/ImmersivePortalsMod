@@ -43,7 +43,7 @@ public class ViewAreaRenderer {
     
     
         if (portal.specialShape == null) {
-            generateTriangleBiLayered(
+            generateTriangleRectangular(
                 vertexOutput,
                 portal,
                 layerWidth,
@@ -51,7 +51,7 @@ public class ViewAreaRenderer {
             );
         }
         else {
-            generateTriangleSpecialBiLayered(
+            generateTriangleSpecial(
                 vertexOutput,
                 portal,
                 layerWidth,
@@ -64,7 +64,7 @@ public class ViewAreaRenderer {
         }
     }
     
-    private static void generateTriangleSpecialBiLayered(
+    private static void generateTriangleSpecial(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
         float layerWidth,
@@ -122,7 +122,7 @@ public class ViewAreaRenderer {
         );
     }
     
-    private static void generateTriangleBiLayered(
+    private static void generateTriangleRectangular(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
         float layerWidth,

@@ -114,6 +114,9 @@ public class Portal extends Entity {
             specialShape = new SpecialPortalShape(
                 compoundTag.getList("specialShape", 6)
             );
+            if (specialShape.triangles.isEmpty()) {
+                specialShape = null;
+            }
         }
         if (compoundTag.containsKey("teleportable")) {
             teleportable = compoundTag.getBoolean("teleportable");
