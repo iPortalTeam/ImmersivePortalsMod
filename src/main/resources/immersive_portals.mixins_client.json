@@ -26,7 +26,8 @@
     "MixinPlayerMoveC2SPacketLookOnly",
     "MixinPlayerMoveC2SPacketPositionOnly",
     "MixinProfileResultImpl",
-    "MixinWorldRenderer"
+    "MixinWorldRenderer",
+    "MixinWorldRendererChunkInfo"
   ],
   "injectors": {
     "defaultRequire": 1

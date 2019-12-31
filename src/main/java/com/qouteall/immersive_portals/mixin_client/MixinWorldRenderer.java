@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
@@ -150,6 +149,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
+    //apply culling and apply optimization
     @Inject(
         method = "renderLayer",
         at = @At("HEAD")
@@ -163,6 +163,14 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
+            if (CGlobal.renderFewerInFastGraphic) {
+                if (renderLayer_1 == RenderLayer.getSolid()) {
+                    if (!MinecraftClient.getInstance().options.fancyGraphics) {
+                        CGlobal.myGameRenderer.pruneVisibleChunks(visibleChunks, renderDistance);
+                    }
+                }
+            }
+            
             CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
             if (RenderHelper.isRenderingMirror()) {
@@ -264,7 +272,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        McHelper.transformationPush(matrices);
+        if (CGlobal.renderer.isRendering()) {
+            CGlobal.myGameRenderer.updateCullingPlane(matrices);
+            CGlobal.myGameRenderer.startCulling();
+        }
     }
     
     //render weather in correct transformation
@@ -287,7 +298,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        McHelper.transformationPop();
+        if (CGlobal.renderer.isRendering()) {
+            CGlobal.myGameRenderer.endCulling();
+        }
     }
     
     //avoid render glowing entities when rendering portal

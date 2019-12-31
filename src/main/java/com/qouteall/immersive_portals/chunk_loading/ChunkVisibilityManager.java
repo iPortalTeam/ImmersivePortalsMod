@@ -82,23 +82,28 @@ public class ChunkVisibilityManager {
         );
     }
     
+    private static int getDirectLoadingDistance(int renderDistance, double distanceToPortal) {
+        if (distanceToPortal < 5) {
+            return renderDistance;
+        }
+        if (distanceToPortal < 15) {
+            return (renderDistance * 2) / 3;
+        }
+        return renderDistance / 3;
+    }
+    
     private static ChunkLoader portalDirectLoader(
         Portal portal,
         ServerPlayerEntity player
     ) {
         int renderDistance = getRenderDistanceOnServer();
-        int distanceToPortal = getChebyshevDistance(portal, player);
+        double distance = portal.getDistanceToNearestPointInPortal(player.getPos());
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
                 new ChunkPos(new BlockPos(portal.destination))
             ),
-            Math.max(
-                1,
-                (portal.loadFewerChunks ? (renderDistance / 2) : renderDistance) - distanceToPortal
-//                renderDistance - getChebyshevDistance(portal, player)
-//                    - (portal.loadFewerChunks ? 3 : 0)
-            )
+            getDirectLoadingDistance(renderDistance, distance)
         );
     }
     

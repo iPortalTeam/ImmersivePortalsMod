@@ -84,7 +84,8 @@ public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
         if (RenderHelper.isRenderingMirror()) {
             return false;
         }
-        
+    
+    
         Vec3d[] eightVertices = Helper.eightVerticesOf(box);
     
         Helper.BatchTestResult left = Helper.batchTest(
@@ -116,17 +117,6 @@ public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
         if (up == Helper.BatchTestResult.all_true && down == Helper.BatchTestResult.all_false) {
             return true;
         }
-    
-        //this is problematic
-//        BatchTestResult portalPlane = Helper.batchTest(
-//            eightVertices,
-//            point -> point
-//                .subtract(portalDestInLocalCoordinate)
-//                .dotProduct(portal.getNormal()) < 0 //true for inside portal area
-//        );
-//        if (portalPlane == BatchTestResult.all_false) {
-//            return true;
-//        }
     
         return false;
     }

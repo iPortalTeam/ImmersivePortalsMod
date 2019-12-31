@@ -13,6 +13,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -209,6 +210,23 @@ public class MyGameRenderer {
             bl2
         );
         
+    }
+    
+    //render fewer chunks when rendering portal
+    //only active when graphic option is not fancy
+    //NOTE we should not prune these chunks in setupTerrain()
+    //because if it's pruned there these chunks will be rebuilt
+    //then it will generate lag when player cross the portal by building chunks
+    //we want the far chunks to be built but not rendered
+    public void pruneVisibleChunks(ObjectList<?> visibleChunks, int renderDistance) {
+        Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+        double range = ((renderDistance * 16) / 3) * ((renderDistance * 16) / 3);
+        
+        visibleChunks.removeIf(obj -> {
+            ChunkBuilder.BuiltChunk builtChunk = ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+            Vec3d center = builtChunk.boundingBox.getCenter();
+            return center.squaredDistanceTo(cameraPos) > range;
+        });
     }
     
 }

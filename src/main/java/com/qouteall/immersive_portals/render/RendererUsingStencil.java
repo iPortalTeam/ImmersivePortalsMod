@@ -192,7 +192,6 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glDepthRange(1, 1);
     
         RenderHelper.renderScreenTriangle();
-        //drawPortalViewTriangle(partialTicks, portal);
         
         //retrieve the state
         GL11.glColorMask(true, true, true, true);
@@ -208,8 +207,8 @@ public class RendererUsingStencil extends PortalRenderer {
         //do not manipulate stencil packetBuffer
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     
-        //fix restore depth issue
-        GL11.glStencilFunc(GL_ALWAYS, 0, 0xff);
+        //only draw in portalView area
+        GL11.glStencilFunc(GL_LEQUAL, thisPortalStencilValue, 0xFF);
         
         //do not manipulate color packetBuffer
         GL11.glColorMask(false, false, false, false);

@@ -348,6 +348,11 @@ public class MyCommandClient {
             "smooth_unload",
             cond -> CGlobal.smoothUnload = cond
         );
+        registerSwitchCommand(
+            builder,
+            "render_fewer_on_fast_graphic",
+            cond -> CGlobal.renderFewerInFastGraphic = cond
+        );
         
         dispatcher.register(builder);
         
