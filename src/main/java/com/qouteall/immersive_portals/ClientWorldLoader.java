@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -52,14 +53,33 @@ public class ClientWorldLoader {
         if (CGlobal.isClientRemoteTickingEnabled) {
             clientWorldMap.values().forEach(world -> {
                 if (mc.world != world) {
-                    //NOTE tick() does not include ticking entities
-                    world.tickEntities();
-                    world.tick(() -> true);
+                    tickRemoteWorld(world);
+                }
+            });
+            worldRendererMap.values().forEach(worldRenderer -> {
+                if (worldRenderer != mc.worldRenderer) {
+                    worldRenderer.tick();
                 }
             });
         }
         renderHelperMap.values().forEach(DimensionRenderHelper::tick);
         
+    }
+    
+    private void tickRemoteWorld(ClientWorld newWorld) {
+        ClientWorld oldWorld = mc.world;
+        
+        mc.world = newWorld;
+        ((IEParticleManager) mc.particleManager).mySetWorld(newWorld);
+        
+        try {
+            newWorld.tickEntities();
+            newWorld.tick(() -> true);
+        }
+        finally {
+            mc.world = oldWorld;
+            ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
+        }
     }
     
     public void cleanUp() {

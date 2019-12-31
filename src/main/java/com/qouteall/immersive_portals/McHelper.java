@@ -144,11 +144,21 @@ public class McHelper {
         MatrixStack matrixStack,
         Runnable renderingFunc
     ) {
+        transformationPush(matrixStack);
+        renderingFunc.run();
+        transformationPop();
+    }
+    
+    public static void transformationPop() {
+        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        RenderSystem.popMatrix();
+    }
+    
+    public static void transformationPush(MatrixStack matrixStack) {
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
         RenderSystem.multMatrix(matrixStack.peek().getModel());
-        renderingFunc.run();
-        RenderSystem.popMatrix();
     }
+    
 }

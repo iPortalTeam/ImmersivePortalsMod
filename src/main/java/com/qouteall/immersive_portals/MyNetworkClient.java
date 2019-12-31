@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -231,6 +232,7 @@ public class MyNetworkClient {
             ClientWorld originalWorld = mc.world;
             //some packet handling may use mc.world so switch it
             mc.world = packetWorld;
+            ((IEParticleManager) mc.particleManager).mySetWorld(packetWorld);
     
             try {
                 packet.apply(netHandler);
@@ -243,6 +245,7 @@ public class MyNetworkClient {
             }
             finally {
                 mc.world = originalWorld;
+                ((IEParticleManager) mc.particleManager).mySetWorld(originalWorld);
             }
         });
     }

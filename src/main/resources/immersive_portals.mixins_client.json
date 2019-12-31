@@ -19,6 +19,7 @@
     "MixinGlFrameBuffer",
     "MixinMatrix4f",
     "MixinMinecraftClient",
+    "MixinParticleManager",
     "MixinPlayerListEntry",
     "MixinPlayerMoveC2SPacket_C",
     "MixinPlayerMoveC2SPacketBoth",

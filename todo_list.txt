@@ -1,15 +1,10 @@
 fix weather changed when player go back to overworld
 fix weather rendering culling
 fix faked raining
-fix updating cursor when rendering portal
 fix nether fog black(not red)
-fix rain shaking
-fix sometimes cannot see remote portal when entering world
-fix cloud rendering
-fix transparent triangle fog
-fix hand item light abnormal
-fix grid rendering
 fix light issue radically
+fix rain too few through portal
+fix portal depth restoration
 
 reduce lag spike when rendering portal
 

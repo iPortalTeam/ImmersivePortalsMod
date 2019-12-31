@@ -73,6 +73,7 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(newWorld.dimension.getType());
+        ((IEParticleManager) mc.particleManager).mySetWorld(newWorld);
     
         mc.getProfiler().push("render_portal_content");
     
@@ -96,6 +97,7 @@ public class MyGameRenderer {
         ieGameRenderer.setDoRenderHand(oldDoRenderHand);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.popMatrix();
+        ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
     
         FogRendererContext.swappingManager.popSwapping();
     

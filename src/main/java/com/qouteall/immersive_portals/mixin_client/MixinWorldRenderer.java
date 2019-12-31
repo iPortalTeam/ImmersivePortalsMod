@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.RenderHelper;
@@ -242,6 +243,51 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             float_1,
             matrixStack_1, vertexConsumerProvider_1
         );
+    }
+    
+    //render weather in correct transformation
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V"
+        )
+    )
+    private void beforeRenderingWeather(
+        MatrixStack matrices,
+        float tickDelta,
+        long limitTime,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+        McHelper.transformationPush(matrices);
+    }
+    
+    //render weather in correct transformation
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void afterRenderingWeather(
+        MatrixStack matrices,
+        float tickDelta,
+        long limitTime,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+        McHelper.transformationPop();
     }
     
     //avoid render glowing entities when rendering portal
