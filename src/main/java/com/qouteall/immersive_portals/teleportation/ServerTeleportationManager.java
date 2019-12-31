@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 public class ServerTeleportationManager {
     private Set<ServerPlayerEntity> teleportingEntities = new HashSet<>();
-    private WeakHashMap<ServerPlayerEntity, Long> lastTeleportGameTime = new WeakHashMap<>();
+    private WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
     
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
@@ -218,6 +218,13 @@ public class ServerTeleportationManager {
         assert entity.dimension == portal.dimension;
         assert !(entity instanceof ServerPlayerEntity);
     
+        long currGameTime = McHelper.getServerGameTime();
+        Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
+        if (currGameTime - lastTeleportGameTime < 5) {
+            return;
+        }
+        this.lastTeleportGameTime.put(entity, currGameTime);
+        
         if (entity.hasVehicle() || !entity.getPassengerList().isEmpty()) {
             return;
         }
