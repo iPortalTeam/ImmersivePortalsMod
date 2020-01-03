@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import net.minecraft.client.gl.GlFramebuffer;
 import net.optifine.shaders.Shaders;
@@ -19,6 +20,8 @@ public class OFHelper {
             0, 0, destFb.viewWidth, destFb.viewHeight,
             copyComponent, GL_NEAREST
         );
+    
+        Helper.checkGlError();
         
         OFInterface.bindToShaderFrameBuffer.run();
     }

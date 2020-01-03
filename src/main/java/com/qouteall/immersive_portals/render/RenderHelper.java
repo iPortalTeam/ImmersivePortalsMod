@@ -2,10 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -141,6 +138,8 @@ public class RenderHelper {
         GlFramebuffer textureProvider,
         ShaderManager shaderManager
     ) {
+        Helper.checkGlError();
+        
         setupCameraTransformation();
         
         shaderManager.loadContentShaderAndShaderVars(0);
@@ -169,6 +168,8 @@ public class RenderHelper {
         shaderManager.unloadShader();
     
         OFInterface.resetViewport.run();
+    
+        Helper.checkGlError();
     }
     
     static void renderScreenTriangle() {
@@ -226,6 +227,8 @@ public class RenderHelper {
         boolean doEnableAlphaTest,
         boolean doEnableModifyAlpha
     ) {
+        Helper.checkGlError();
+        
         Validate.isTrue(GLX.isUsingFBOs());
         
         if (doEnableModifyAlpha) {
@@ -292,6 +295,8 @@ public class RenderHelper {
         textureProvider.endRead();
         GlStateManager.depthMask(true);
         GlStateManager.colorMask(true, true, true, true);
+    
+        Helper.checkGlError();
     }
     
     //If I don't do so JVM will crash
