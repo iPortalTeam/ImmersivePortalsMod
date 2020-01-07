@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class RenderHelper {
+public class MyRenderHelper {
     //switching context is really bug-prone
     public static DimensionType originalPlayerDimension;
     public static Vec3d originalPlayerPos;
@@ -51,18 +51,18 @@ public class RenderHelper {
         float partialTicks_
     ) {
         Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
-        
+    
         if (cameraEntity == null) {
             return;
         }
-        
-        RenderHelper.originalPlayerDimension = cameraEntity.dimension;
-        RenderHelper.originalPlayerPos = cameraEntity.getPos();
-        RenderHelper.originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
+    
+        MyRenderHelper.originalPlayerDimension = cameraEntity.dimension;
+        MyRenderHelper.originalPlayerPos = cameraEntity.getPos();
+        MyRenderHelper.originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
-        RenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
+        MyRenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
         partialTicks = partialTicks_;
-        
+    
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
@@ -104,6 +104,8 @@ public class RenderHelper {
         ).collect(Collectors.toList());
         portalRenderInfos.add(currRenderInfo);
         renderedDimensions.add(portalLayers.peek().dimensionTo);
+    
+        Helper.checkGlError();
     }
     
     public static void setupCameraTransformation() {

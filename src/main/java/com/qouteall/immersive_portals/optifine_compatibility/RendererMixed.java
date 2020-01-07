@@ -37,7 +37,7 @@ public class RendererMixed extends PortalRenderer {
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     
         GlFramebuffer mcFrameBuffer = mc.getFramebuffer();
-        RenderHelper.myDrawFrameBuffer(mcFrameBuffer, false, true);
+        MyRenderHelper.myDrawFrameBuffer(mcFrameBuffer, false, true);
         
         glDisable(GL_STENCIL_TEST);
     
@@ -108,8 +108,8 @@ public class RendererMixed extends PortalRenderer {
         GlStateManager.colorMask(true, true, true, true);
         Shaders.useProgram(Shaders.ProgramNone);
         GuiLighting.disable();
-        
-        if (RenderHelper.getRenderedPortalNum() == 0) {
+    
+        if (MyRenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
 
@@ -145,7 +145,7 @@ public class RendererMixed extends PortalRenderer {
         deferredFbs[outerLayer].fb.beginWrite(true);
     
         GlStateManager.enableAlphaTest();
-        RenderHelper.myDrawFrameBuffer(
+        MyRenderHelper.myDrawFrameBuffer(
             deferredFbs[innerLayer].fb,
             true,
             true
@@ -179,8 +179,8 @@ public class RendererMixed extends PortalRenderer {
         GlStateManager.enableDepthTest();
         GlStateManager.disableTexture();
         GlStateManager.colorMask(false, false, false, false);
-        
-        RenderHelper.setupCameraTransformation();
+    
+        MyRenderHelper.setupCameraTransformation();
         GL20.glUseProgram(0);
     
         ViewAreaRenderer.drawPortalViewTriangle(portal);

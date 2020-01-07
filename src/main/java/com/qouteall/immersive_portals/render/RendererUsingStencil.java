@@ -80,7 +80,7 @@ public class RendererUsingStencil extends PortalRenderer {
     protected void doRenderPortal(Portal portal) {
         int outerPortalStencilValue = getPortalLayer();
     
-        RenderHelper.setupCameraTransformation();
+        MyRenderHelper.setupCameraTransformation();
     
         mc.getProfiler().push("render_view_area");
         boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
@@ -104,7 +104,7 @@ public class RendererUsingStencil extends PortalRenderer {
         manageCameraAndRenderPortalContent(portal);
         
         //the world rendering will modify the transformation
-        RenderHelper.setupCameraTransformation();
+        MyRenderHelper.setupCameraTransformation();
         
         restoreDepthOfPortalViewArea(portal);
         
@@ -189,7 +189,7 @@ public class RendererUsingStencil extends PortalRenderer {
         //the pixel's depth will be 1, which is the furthest
         GL11.glDepthRange(1, 1);
     
-        RenderHelper.renderScreenTriangle();
+        MyRenderHelper.renderScreenTriangle();
         //drawPortalViewTriangle(partialTicks, portal);
         
         //retrieve the state
@@ -243,8 +243,8 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glColorMask(false, false, false, false);
         
         GlStateManager.disableDepthTest();
-        
-        RenderHelper.renderScreenTriangle();
+    
+        MyRenderHelper.renderScreenTriangle();
         
         GL11.glDepthMask(true);
         
@@ -259,8 +259,8 @@ public class RendererUsingStencil extends PortalRenderer {
         if (!portal.isInFrontOfPortal(renderViewEntity.getPos())) {
             return;
         }
-        
-        RenderHelper.setupCameraTransformation();
+    
+        MyRenderHelper.setupCameraTransformation();
         
         renderPortalViewAreaToStencil(portal);
     }

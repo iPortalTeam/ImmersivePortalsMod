@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -127,6 +127,6 @@ public abstract class MixinCamera implements IECamera {
         float p_216772_5_,
         CallbackInfo ci
     ) {
-        RenderHelper.setupTransformationForMirror((Camera) (Object) this);
+        MyRenderHelper.setupTransformationForMirror((Camera) (Object) this);
     }
 }

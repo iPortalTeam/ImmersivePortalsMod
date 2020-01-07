@@ -6,7 +6,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -98,7 +98,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private void onStartRenderLayer(BlockRenderLayer blockRenderLayer_1, CallbackInfo ci) {
         if (CGlobal.renderer.isRendering()) {
             CGlobal.myGameRenderer.startCulling();
-            if (RenderHelper.isRenderingMirror()) {
+            if (MyRenderHelper.isRenderingMirror()) {
                 GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
             }
         }
@@ -230,7 +230,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("HEAD"))
     private void onRenderSkyBegin(float partialTicks, CallbackInfo ci) {
-        if (RenderHelper.isRenderingMirror()) {
+        if (MyRenderHelper.isRenderingMirror()) {
             GlStateManager.cullFace(GlStateManager.FaceSides.FRONT);
         }
     }

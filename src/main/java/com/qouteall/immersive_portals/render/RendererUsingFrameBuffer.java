@@ -95,7 +95,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             GlStateManager.enableDepthTest();
             GlStateManager.depthMask(false);
-            RenderHelper.setupCameraTransformation();
+            MyRenderHelper.setupCameraTransformation();
             GL20.glUseProgram(0);
             ViewAreaRenderer.drawPortalViewTriangle(portal);
             GlStateManager.depthMask(true);
@@ -103,7 +103,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     private void renderSecondBufferIntoMainBuffer(Portal portal) {
-        RenderHelper.drawFrameBufferUp(portal, secondaryFrameBuffer.fb, CGlobal.shaderManager);
+        MyRenderHelper.drawFrameBufferUp(portal, secondaryFrameBuffer.fb, CGlobal.shaderManager);
     }
     
 }

@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -97,7 +97,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean renderWorldIn,
         CallbackInfo ci
     ) {
-        RenderHelper.updatePreRenderInfo(partialTicks);
+        MyRenderHelper.updatePreRenderInfo(partialTicks);
         ModMain.preRenderSignal.emit();
     }
     
@@ -127,7 +127,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private void onAfterRenderingCenter(float partialTicks, long finishTimeNano, CallbackInfo ci) {
         CGlobal.renderer.finishRendering();
     
-        RenderHelper.onTotalRenderEnd();
+        MyRenderHelper.onTotalRenderEnd();
     }
     
     @Inject(method = "renderCenter", at = @At("TAIL"))

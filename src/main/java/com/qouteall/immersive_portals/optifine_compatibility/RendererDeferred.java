@@ -73,7 +73,7 @@ public class RendererDeferred extends PortalRenderer {
     
         deferredBuffer.fb.beginWrite(true);
     
-        RenderHelper.drawFrameBufferUp(portal, mc.getFramebuffer(), CGlobal.shaderManager);
+        MyRenderHelper.drawFrameBufferUp(portal, mc.getFramebuffer(), CGlobal.shaderManager);
     
         OFInterface.bindToShaderFrameBuffer.run();
     }
@@ -118,7 +118,7 @@ public class RendererDeferred extends PortalRenderer {
             GlStateManager.enableDepthTest();
             GlStateManager.disableTexture();
             GlStateManager.colorMask(false, false, false, false);
-            RenderHelper.setupCameraTransformation();
+            MyRenderHelper.setupCameraTransformation();
             GL20.glUseProgram(0);
     
             ViewAreaRenderer.drawPortalViewTriangle(portal);
@@ -134,7 +134,7 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
     
-        if (RenderHelper.getRenderedPortalNum() == 0) {
+        if (MyRenderHelper.getRenderedPortalNum() == 0) {
             return;
         }
     
@@ -142,7 +142,7 @@ public class RendererDeferred extends PortalRenderer {
         GlFramebuffer mainFrameBuffer = mc.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
     
-        RenderHelper.myDrawFrameBuffer(
+        MyRenderHelper.myDrawFrameBuffer(
             deferredBuffer.fb,
             true,
             false

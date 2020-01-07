@@ -4,7 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -1186,9 +1186,9 @@ public abstract class MOShaders {
         long finishTimeNano,
         CallbackInfo ci
     ) {
-        previousCameraPositionX = cameraPositionX - RenderHelper.cameraPosDelta.x;
-        previousCameraPositionY = cameraPositionY - RenderHelper.cameraPosDelta.y;
-        previousCameraPositionZ = cameraPositionZ - RenderHelper.cameraPosDelta.z;
+        previousCameraPositionX = cameraPositionX - MyRenderHelper.cameraPosDelta.x;
+        previousCameraPositionY = cameraPositionY - MyRenderHelper.cameraPosDelta.y;
+        previousCameraPositionZ = cameraPositionZ - MyRenderHelper.cameraPosDelta.z;
     }
     
     static {

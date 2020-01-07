@@ -12,7 +12,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.DimensionRenderHelper;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -270,7 +270,7 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("report_rendering")
             .executes(context -> {
-                String str = RenderHelper.lastPortalRenderInfos
+                String str = MyRenderHelper.lastPortalRenderInfos
                     .stream()
                     .map(
                         list -> list.stream()
