@@ -48,7 +48,7 @@ public class RendererMixed extends PortalRenderer {
         if (portalLayer == 0) {
             deferredFbs[portalLayer].fb.beginWrite(true);
             GlStateManager.clearStencil(0);
-            GlStateManager.clear(GL_STENCIL_BUFFER_BIT);
+            GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         }
         else {
             GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
@@ -96,7 +96,7 @@ public class RendererMixed extends PortalRenderer {
             GlStateManager.clearColor(1, 0, 1, 0);
             GlStateManager.clearDepth(1);
             GlStateManager.clearStencil(0);
-            GlStateManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         
         }
     

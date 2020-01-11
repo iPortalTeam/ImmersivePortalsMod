@@ -4,16 +4,18 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.IEOFWorldRenderer;
 import com.qouteall.immersive_portals.OFInterface;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.ChunkRenderer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.optifine.Config;
 import net.optifine.shaders.Shaders;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.EXTFramebufferObject;
 
+import java.lang.reflect.Field;
+
 public class OFInterfaceInitializer {
+    private static Field gameRenderer_fogStandard;
+    
     public static void init() {
         Validate.isTrue(OFInterface.isOptifinePresent);
         
@@ -47,23 +49,27 @@ public class OFInterfaceInitializer {
             }
         };
         OFInterface.shouldDisableFog = () -> {
-            return Config.isFogOff() && MinecraftClient.getInstance().gameRenderer.fogStandard;
-        };
-        OFInterface.updateChunkRendererNeighbours = (dispatcher) -> {
-            MinecraftClient.getInstance().getProfiler().push("neighbor");
-        
-            for (int j = 0; j < dispatcher.renderers.length; ++j) {
-                ChunkRenderer renderChunk = dispatcher.renderers[j];
-            
-                for (int l = 0; l < Direction.ALL.length; ++l) {
-                    Direction facing = Direction.ALL[l];
-                    BlockPos posOffset16 = renderChunk.getNeighborPosition(facing);
-                    ChunkRenderer neighbour = dispatcher.getChunkRenderer(posOffset16);
-                    renderChunk.setRenderChunkNeighbour(facing, neighbour);
+            GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
+    
+            if (gameRenderer_fogStandard == null) {
+                try {
+                    gameRenderer_fogStandard = GameRenderer.class.getDeclaredField(
+                        "fogStandard"
+                    );
+                }
+                catch (NoSuchFieldException e) {
+                    throw new IllegalStateException(e);
                 }
             }
+    
+            try {
+                boolean fogStandard = gameRenderer_fogStandard.getBoolean(gameRenderer);
         
-            MinecraftClient.getInstance().getProfiler().pop();
+                return Config.isFogOff() && fogStandard;
+            }
+            catch (IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            }
         };
         OFInterface.createNewRenderInfosNormal = newWorldRenderer1 -> {
             /**{@link WorldRenderer#chunkInfos}*/

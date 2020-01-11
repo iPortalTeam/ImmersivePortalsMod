@@ -15,6 +15,7 @@ import net.minecraft.client.render.chunk.ChunkRendererFactory;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -25,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -55,6 +57,8 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     private Set<ChunkRenderer[]> isNeighborUpdated;
     private WeakReference<ChunkRenderer[]> mainPreset;
     
+    private Method method_setRenderChunkNeighbour;
+    
     @Inject(
         method = "Lnet/minecraft/client/render/ChunkRenderDispatcher;<init>(Lnet/minecraft/world/World;ILnet/minecraft/client/render/WorldRenderer;Lnet/minecraft/client/render/chunk/ChunkRendererFactory;)V",
         at = @At("RETURN")
@@ -78,6 +82,20 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
             ((IEChunkRenderDispatcher) this),
             IEChunkRenderDispatcher::tick
         );
+        
+        if (OFInterface.isOptifinePresent) {
+            try {
+                method_setRenderChunkNeighbour = ChunkRenderer.class
+                    .getDeclaredMethod(
+                        "setRenderChunkNeighbour",
+                        Direction.class,
+                        ChunkRenderer.class
+                    );
+            }
+            catch (NoSuchMethodException e) {
+                throw new IllegalStateException(e);
+            }
+        }
         
         if (CGlobal.useHackedChunkRenderDispatcher) {
             //it will run createChunks() before this
@@ -287,7 +305,33 @@ public abstract class MixinChunkRenderDispatcher implements IEChunkRenderDispatc
     }
     
     private void updateNeighbours() {
-        OFInterface.updateChunkRendererNeighbours.accept((ChunkRenderDispatcher) (Object) this);
+        if (!OFInterface.isOptifinePresent) {
+            return;
+        }
+    
+        MinecraftClient.getInstance().getProfiler().push("neighbor");
+    
+        try {
+            for (int j = 0; j < renderers.length; ++j) {
+                ChunkRenderer renderChunk = renderers[j];
+            
+                for (int l = 0; l < Direction.values().length; ++l) {
+                    Direction facing = Direction.values()[l];
+                    BlockPos posOffset16 = renderChunk.getNeighborPosition(facing);
+                    ChunkRenderer neighbour = getChunkRenderer(posOffset16);
+                    method_setRenderChunkNeighbour.invoke(
+                        renderChunk,
+                        facing,
+                        neighbour
+                    );
+                }
+            }
+        }
+        catch (Throwable e) {
+            throw new IllegalStateException(e);
+        }
+    
+        MinecraftClient.getInstance().getProfiler().pop();
     }
     
     //NOTE input block pos instead of chunk pos

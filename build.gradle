@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.2.3-SNAPSHOT'
+	id 'fabric-loom' version '0.2.6-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -40,6 +40,8 @@ dependencies {
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
 
+	//used for building mod
+	compile files('ofstuff1.14yarn.jar')
 }
 
 processResources {

@@ -150,19 +150,24 @@ public class MyGameRenderer {
         Portal portal = CGlobal.renderer.getRenderingPortal();
     
         Vec3d planeNormal = portal.getNormal().multiply(-1);
+
+//        Vec3d cullingPos = portal.getPos()
+//            .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
+//            .subtract(mc.gameRenderer.getCamera().getPos());
     
-        Vec3d portalPos = portal.getPos()
-            .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
-            .subtract(mc.gameRenderer.getCamera().getPos());
+        Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+        Vec3d cullingPos = portal.getPointInPortalProjection(cameraPos)
+            .subtract(cameraPos)
+            .subtract(portal.getNormal().multiply(-0.01));//avoid z fighting
     
         if (OFInterface.isShaders.getAsBoolean() && portal instanceof Mirror) {
             planeNormal = planeNormal.multiply(-1);
         }
-        
+    
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
-        double c = planeNormal.multiply(-1).dotProduct(portalPos);
-        
+        double c = planeNormal.multiply(-1).dotProduct(cullingPos);
+    
         return new double[]{
             planeNormal.x,
             planeNormal.y,
