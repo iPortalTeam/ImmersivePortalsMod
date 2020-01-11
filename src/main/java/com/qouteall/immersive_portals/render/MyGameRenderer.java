@@ -167,7 +167,7 @@ public class MyGameRenderer {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
-        GameMode originalGameMode = RenderHelper.originalGameMode;
+        GameMode originalGameMode = MyRenderHelper.originalGameMode;
         
         Entity player = mc.cameraEntity;
         assert player != null;
@@ -177,7 +177,7 @@ public class MyGameRenderer {
         GameMode oldGameMode = playerListEntry.getGameMode();
         
         Helper.setPosAndLastTickPos(
-            player, RenderHelper.originalPlayerPos, RenderHelper.originalPlayerLastTickPos
+            player, MyRenderHelper.originalPlayerPos, MyRenderHelper.originalPlayerLastTickPos
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         

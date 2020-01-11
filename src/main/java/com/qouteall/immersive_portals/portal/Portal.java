@@ -390,13 +390,21 @@ public class Portal extends Entity {
     
     public boolean isPointInPortalProjection(Vec3d pos) {
         Vec3d offset = pos.subtract(getPos());
-        
+    
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
-        
-        return Math.abs(xInPlane) < (width / 2 + 0.1) &&
+    
+        boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.1) &&
             Math.abs(yInPlane) < (height / 2 + 0.1);
-        
+    
+        if (roughResult && specialShape != null) {
+            return specialShape.triangles.stream()
+                .anyMatch(triangle ->
+                    triangle.isPointInTriangle(xInPlane, yInPlane)
+                );
+        }
+    
+        return roughResult;
     }
     
     public boolean isMovedThroughPortal(

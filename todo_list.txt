@@ -5,8 +5,7 @@ fix nether fog black(not red)
 fix light issue radically
 fix rain too few through portal
 fix portal depth restoration
-
-reduce lag spike when rendering portal
+fix sometimes cloud is not rendered
 
 postponed:
 support going through portal while riding entity

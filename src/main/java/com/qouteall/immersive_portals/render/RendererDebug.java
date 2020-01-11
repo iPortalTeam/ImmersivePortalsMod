@@ -44,7 +44,7 @@ public class RendererDebug extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
-        if (RenderHelper.getRenderedPortalNum() != 0) {
+        if (MyRenderHelper.getRenderedPortalNum() != 0) {
             return;
         }
         

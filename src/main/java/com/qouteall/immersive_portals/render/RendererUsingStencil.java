@@ -191,7 +191,7 @@ public class RendererUsingStencil extends PortalRenderer {
         //the pixel's depth will be 1, which is the furthest
         GL11.glDepthRange(1, 1);
     
-        RenderHelper.renderScreenTriangle();
+        MyRenderHelper.renderScreenTriangle();
         
         //retrieve the state
         GL11.glColorMask(true, true, true, true);
@@ -246,8 +246,8 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glColorMask(false, false, false, false);
         
         GlStateManager.disableDepthTest();
-        
-        RenderHelper.renderScreenTriangle();
+    
+        MyRenderHelper.renderScreenTriangle();
         
         GL11.glDepthMask(true);
         

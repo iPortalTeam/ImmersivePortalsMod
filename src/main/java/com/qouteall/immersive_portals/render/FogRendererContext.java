@@ -32,7 +32,7 @@ public class FogRendererContext {
     }
     
     public static void update() {
-        swappingManager.setOuterDimension(RenderHelper.originalPlayerDimension);
+        swappingManager.setOuterDimension(MyRenderHelper.originalPlayerDimension);
         swappingManager.resetChecks();
         DimensionType.getAll().forEach(dimension ->
             swappingManager.contextMap.computeIfAbsent(
@@ -40,7 +40,7 @@ public class FogRendererContext {
                 k -> new StaticFieldsSwappingManager.ContextRecord<>(
                     dimension,
                     new FogRendererContext(),
-                    dimension != RenderHelper.originalPlayerDimension
+                    dimension != MyRenderHelper.originalPlayerDimension
                 )
             )
         );

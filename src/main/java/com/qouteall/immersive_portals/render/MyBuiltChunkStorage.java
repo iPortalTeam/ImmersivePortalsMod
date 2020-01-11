@@ -16,7 +16,6 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,13 +25,15 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     public static class Preset {
         public ChunkBuilder.BuiltChunk[] data;
+        public long lastActiveTime;
+        public boolean isMainPreset;
         public boolean isNeighborUpdated;
-        
+    
         public Preset(ChunkBuilder.BuiltChunk[] data, boolean isNeighborUpdated) {
             this.data = data;
             this.isNeighborUpdated = isNeighborUpdated;
         }
-        
+    
         public void updateNeighbor(
             TriConsumer<ChunkBuilder.BuiltChunk, Direction, ChunkBuilder.BuiltChunk> func
         ) {
@@ -43,7 +44,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private ChunkBuilder factory;
     private Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
     private Map<ChunkPos, Preset> presets = new HashMap<>();
-    private WeakReference<Preset> mainPreset;
     
     public MyBuiltChunkStorage(
         ChunkBuilder chunkBuilder_1,
@@ -83,8 +83,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         Preset preset = presets.computeIfAbsent(
             cameraChunkPos,
             whatever -> myCreatePreset(playerX, playerZ)
-            //whatever -> createPreset(cameraChunkPos.x, cameraChunkPos.z)
         );
+        preset.lastActiveTime = System.nanoTime();
         
         this.chunks = preset.data;
     }
@@ -98,36 +98,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
         //is it necessary?
         //super.scheduleRebuild(int_1,int_2,int_3,boolean_1);
-    }
-    
-    @Deprecated
-    private Preset createPreset(int centerChunkX, int centerChunkZ) {
-        ChunkBuilder.BuiltChunk[] chunks1 =
-            new ChunkBuilder.BuiltChunk[this.sizeX * this.sizeY * this.sizeZ];
-        
-        int radiusX = sizeX / 2;
-        int radiusZ = sizeZ / 2;
-        
-        for (int cx = -radiusX; cx <= radiusX; cx++) {
-            for (int cz = -radiusX; cz <= radiusZ; cz++) {
-                for (int cy = 0; cy < sizeY; cy++) {
-                    int index = this.getChunkIndex(
-                        cx + radiusX,
-                        cy,
-                        cz + radiusZ
-                    );
-                    BlockPos origin = new BlockPos(
-                        (cx + centerChunkX) * 16,
-                        cy * 16,
-                        (cz + centerChunkZ) * 16
-                    );
-                    
-                    chunks1[index] = provideBuiltChunk(origin);
-                }
-            }
-        }
-        
-        return new Preset(chunks1, false);
     }
     
     private Preset myCreatePreset(double playerXCoord, double playerZCoord) {
@@ -226,13 +196,24 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private void tick() {
         ClientWorld worldClient = MinecraftClient.getInstance().world;
         if (worldClient != null) {
-            if (worldClient.getTime() % 537 == 66) {
+            if (worldClient.getTime() % 213 == 66) {
                 purge();
             }
         }
     }
     
     private void purge() {
+        MinecraftClient.getInstance().getProfiler().push("my_built_chunk_storage_purge");
+    
+        long currentTime = System.nanoTime();
+        presets.entrySet().removeIf(entry -> {
+            Preset preset = entry.getValue();
+            if (preset.data == this.chunks) {
+                return false;
+            }
+            return currentTime - preset.lastActiveTime > Helper.secondToNano(10);
+        });
+    
         Set<ChunkBuilder.BuiltChunk> activeBuiltChunks =
             getAllActiveBuiltChunks().collect(Collectors.toSet());
     
@@ -240,7 +221,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             .values().stream().filter(
                 builtChunk -> !activeBuiltChunks.contains(builtChunk)
             ).collect(Collectors.toList());
-        
+    
         chunksToDelete.forEach(
             builtChunk -> {
                 builtChunk.delete();
@@ -251,8 +232,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 }
             }
         );
-        
-        presets.clear();
+    
+        MinecraftClient.getInstance().getProfiler().pop();
     }
     
     public int getManagedChunkNum() {

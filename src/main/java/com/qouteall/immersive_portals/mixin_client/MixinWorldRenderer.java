@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -173,7 +173,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             
             CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
-            if (RenderHelper.isRenderingMirror()) {
+            if (MyRenderHelper.isRenderingMirror()) {
                 GL11.glCullFace(GL11.GL_FRONT);
             }
         }
@@ -371,7 +371,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             RenderLayer.getBlockLayers().get(0).endDrawing();
         }
     
-        if (RenderHelper.isRenderingMirror()) {
+        if (MyRenderHelper.isRenderingMirror()) {
             GL11.glCullFace(GL11.GL_FRONT);
         }
     }
@@ -395,7 +395,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        RenderHelper.setupTransformationForMirror(camera, matrices);
+        MyRenderHelper.setupTransformationForMirror(camera, matrices);
     }
     
     @Override

@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEFrustumWithOrigin;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -81,7 +81,7 @@ public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
             return false;
         }
     
-        if (RenderHelper.isRenderingMirror()) {
+        if (MyRenderHelper.isRenderingMirror()) {
             return false;
         }
     

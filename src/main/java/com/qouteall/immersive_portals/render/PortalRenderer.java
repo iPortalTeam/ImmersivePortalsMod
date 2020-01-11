@@ -61,8 +61,8 @@ public abstract class PortalRenderer {
     
     public boolean shouldRenderPlayerItself() {
         return isRendering() &&
-            mc.cameraEntity.dimension == RenderHelper.originalPlayerDimension &&
-            getRenderingPortal().canRenderEntityInsideMe(RenderHelper.originalPlayerPos);
+            mc.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension &&
+            getRenderingPortal().canRenderEntityInsideMe(MyRenderHelper.originalPlayerPos);
     }
     
     public boolean shouldRenderEntityNow(Entity entity) {
@@ -80,7 +80,7 @@ public abstract class PortalRenderer {
         assert mc.cameraEntity.dimension == mc.world.dimension.getType();
     
         //currently does not support nested portal rendering in mirror
-        if (RenderHelper.isRenderingMirror()) {
+        if (MyRenderHelper.isRenderingMirror()) {
             return;
         }
         
@@ -120,7 +120,7 @@ public abstract class PortalRenderer {
             return mc.gameRenderer.getCamera().getPos();
         }
         if (CGlobal.teleportOnRendering) {
-            return mc.cameraEntity.getCameraPosVec(RenderHelper.partialTicks);
+            return mc.cameraEntity.getCameraPosVec(MyRenderHelper.partialTicks);
         }
         else {
             return mc.cameraEntity.getCameraPosVec(1);
@@ -160,7 +160,7 @@ public abstract class PortalRenderer {
             return;
         }
     
-        RenderHelper.onBeginPortalWorldRendering(portalLayers);
+        MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
         
         
         assert cameraEntity.world == mc.world;
@@ -196,7 +196,7 @@ public abstract class PortalRenderer {
         
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
-        RenderHelper.restoreViewPort();
+        MyRenderHelper.restoreViewPort();
     
         CGlobal.myGameRenderer.resetFog();
     }
@@ -213,7 +213,7 @@ public abstract class PortalRenderer {
         Helper.checkGlError();
         
         CGlobal.myGameRenderer.renderWorld(
-            RenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos
+            MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos
         );
         
         Helper.checkGlError();

@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.gui.hud.DebugHud;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +13,6 @@ import java.util.List;
 public class MixinDebugHud {
     @Inject(method = "getRightText", at = @At("RETURN"), cancellable = true)
     private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
-        cir.getReturnValue().add("Rendered Portal Num: " + RenderHelper.lastPortalRenderInfos.size());
+        cir.getReturnValue().add("Rendered Portal Num: " + MyRenderHelper.lastPortalRenderInfos.size());
     }
 }

@@ -109,7 +109,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     private void renderSecondBufferIntoMainBuffer(Portal portal, MatrixStack matrixStack) {
-        RenderHelper.drawFrameBufferUp(
+        MyRenderHelper.drawFrameBufferUp(
             portal,
             secondaryFrameBuffer.fb,
             CGlobal.shaderManager,

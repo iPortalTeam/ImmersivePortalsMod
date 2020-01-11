@@ -9,7 +9,7 @@ import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FogRendererContext;
-import com.qouteall.immersive_portals.render.RenderHelper;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -96,7 +96,7 @@ public class ClientTeleportationManager {
             lastPlayerHeadPos = null;
         }
         else {
-            Vec3d currentHeadPos = mc.player.getCameraPosVec(RenderHelper.partialTicks);
+            Vec3d currentHeadPos = mc.player.getCameraPosVec(MyRenderHelper.partialTicks);
             if (lastPlayerHeadPos != null) {
                 CHelper.getClientNearbyPortals(20).filter(
                     portal -> {
@@ -117,7 +117,7 @@ public class ClientTeleportationManager {
                 );
             }
     
-            lastPlayerHeadPos = mc.player.getCameraPosVec(RenderHelper.partialTicks);
+            lastPlayerHeadPos = mc.player.getCameraPosVec(MyRenderHelper.partialTicks);
         }
     }
     
@@ -258,7 +258,7 @@ public class ClientTeleportationManager {
     
         //because the teleportation may happen before rendering
         //but after pre render info being updated
-        RenderHelper.updatePreRenderInfo(RenderHelper.partialTicks);
+        MyRenderHelper.updatePreRenderInfo(MyRenderHelper.partialTicks);
     
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
     

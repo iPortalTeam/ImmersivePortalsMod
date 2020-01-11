@@ -72,7 +72,7 @@ public class ServerTeleportationManager {
                 player.getName().asString(),
                 player.dimension,
                 player.getPos(),
-                portalId
+                portalEntity
             ));
         }
     }
