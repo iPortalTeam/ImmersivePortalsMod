@@ -3,24 +3,25 @@ It's a minecraft mod.
 
 https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
 
-## How to run this code without OptiFine
-1. Remove things related to "OptiFabric" in build.gradle
-2. Remove package com.qouteall.immersive_portals.optifine_compatibility
-3. Fix some compile errors manually
+## How to run this code
+1. ```gradlew idea``` or ```gradlew eclipse```
+2. Put OptiFine jar into run/mods folder
+This project has dependency to OptiFabric which needs OptiFine jar to run
 
-## How to run this code with OptiFine
-It needs to use OptiFine-patched minecraft jar to replace original minecraft jar.
-If you want to know the details, contact me in email or discord.
+ofstuff1.14yarn.jar is a part of OptiFine and is used as a local dependency.
 
 ## Briefly explain how this mod works
+
+This mod hacks a large range of vanilla mechanics.
 
 ### Portal entity
 A portal entity is one-way and one-faced.
 A normal nether portal contains 2 portals in overworld and 2 portals in nether.
 
 When lighting a nether portal, it will firstly try to link to the obsidian
- frame with same size and direction in 128 range in the other dimension.
-You can control the destination of nether portal by building an obsidian frame.
+ frame with same shape and direction in 150 range in the other dimension.
+The frame searching will be done on server thread but the task will be splited so
+ that the server will not froze.
 
 ### Rendering
 Portal rendering takes place before translucent block rendering.
@@ -45,9 +46,7 @@ will do more strict frustum culling to improve performance.
 ![](https://i.ibb.co/tHJv6ZH/2019-09-05-17-10-47.png)
 ![](https://i.ibb.co/y8JVVxH/2019-09-05-17-10-53.png)
 
-### Chunk loading
-Client chunk manager uses an fixed size array to store chunks.
-I changed it into a map.
+### Server side chunk loading
 
 In server side, it will send redirected packet to players to synchronize world information.
 If the packet is not redirected, a chunk data packet of nether may be recognized as overworld chunk data in client.
@@ -56,6 +55,21 @@ I made my own chunk loading determination logic.
 I tried to use my own chunk ticket to load the chunk but it didn't work as intended.
 Currently it invokes vanilla's force loading mechanic to load chunks.
 So /forceload command with this mod will not work.
+
+This mod will delay the unloading of chunks to avoid frequently load/unload chunks.
+ So it will consume more memory.
+
+### Client side world data management
+Minecraft vanilla assumes that only one dimension would exist in client at the same time.
+But this mod breaks that assumption.
+This mod will create faked client world when it's firstly used.
+When ticking remote world or processing remote world packet, it will switch the world field of
+MinecraftClient and then switch back.
+
+Vanilla assumes that only the chunks near player will be loaded so ClientChunkManager
+use a fixed size 2d array to store chunks.
+I change it into a map so the chunk storage is not limited to the area near player.
+Similar thing also applies to ChunkRenderDispatcher.
 
 ### Seamless teleportation
 Teleportation on client side happens before rendering (not during ticking).
