@@ -7,8 +7,8 @@ import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
-import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
@@ -34,7 +34,7 @@ public class ModMain implements ModInitializer {
         BreakableMirror.init();
         GlobalTrackedPortal.init();
         BorderPortal.init();
-        EndFloorPortal.init();
+        VerticalConnectingPortal.init();
     
         LoadingIndicatorEntity.init();
         

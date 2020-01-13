@@ -177,22 +177,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
     }
     
-    private Stream<ChunkBuilder.BuiltChunk> getAllActiveBuiltChunks() {
-        Stream<ChunkBuilder.BuiltChunk> chunksFromPresets = presets.values().stream()
-            .flatMap(
-                preset -> Arrays.stream(preset.data)
-            );
-        if (chunks == null) {
-            return chunksFromPresets.distinct();
-        }
-        else {
-            return Streams.concat(
-                Arrays.stream(chunks),
-                chunksFromPresets
-            ).distinct();
-        }
-    }
-    
     private void tick() {
         ClientWorld worldClient = MinecraftClient.getInstance().world;
         if (worldClient != null) {
@@ -214,8 +198,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             return currentTime - preset.lastActiveTime > Helper.secondToNano(10);
         });
     
-        Set<ChunkBuilder.BuiltChunk> activeBuiltChunks =
-            getAllActiveBuiltChunks().collect(Collectors.toSet());
+        Set<ChunkBuilder.BuiltChunk> activeBuiltChunks = getAllActiveBuiltChunks();
     
         List<ChunkBuilder.BuiltChunk> chunksToDelete = builtChunkMap
             .values().stream().filter(
@@ -234,6 +217,24 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
     
         MinecraftClient.getInstance().getProfiler().pop();
+    }
+    
+    private Set<ChunkBuilder.BuiltChunk> getAllActiveBuiltChunks() {
+        Stream<ChunkBuilder.BuiltChunk> result;
+        Stream<ChunkBuilder.BuiltChunk> chunksFromPresets = presets.values().stream()
+            .flatMap(
+                preset -> Arrays.stream(preset.data)
+            );
+        if (chunks == null) {
+            result = chunksFromPresets;
+        }
+        else {
+            result = Streams.concat(
+                Arrays.stream(chunks),
+                chunksFromPresets
+            );
+        }
+        return result.collect(Collectors.toSet());
     }
     
     public int getManagedChunkNum() {

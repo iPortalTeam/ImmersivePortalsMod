@@ -128,6 +128,34 @@ public class ServerTeleportationManager {
         player.networkHandler.syncWithPlayerPosition();
     }
     
+    public void invokeTpmeCommand(
+        ServerPlayerEntity player,
+        DimensionType dimensionTo,
+        Vec3d newPos
+    ) {
+        ServerWorld fromWorld = (ServerWorld) player.world;
+        ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
+        
+        if (player.dimension == dimensionTo) {
+            player.setPosition(newPos.x, newPos.y, newPos.z);
+        }
+        else {
+            changePlayerDimension(player, fromWorld, toWorld, newPos);
+            sendPositionConfirmMessage(player);
+        }
+        
+        player.networkHandler.requestTeleport(
+            newPos.x,
+            newPos.y,
+            newPos.z,
+            player.yaw,
+            player.pitch
+        );
+        player.networkHandler.syncWithPlayerPosition();
+        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
+        
+    }
+    
     /**
      * {@link ServerPlayerEntity#changeDimension(DimensionType)}
      */
