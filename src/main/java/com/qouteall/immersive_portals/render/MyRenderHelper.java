@@ -3,7 +3,10 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.*;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
@@ -112,7 +115,7 @@ public class MyRenderHelper {
         portalRenderInfos.add(currRenderInfo);
         renderedDimensions.add(portalLayers.peek().dimensionTo);
     
-        Helper.checkGlError();
+        CHelper.checkGlError();
     }
     
     public static void restoreViewPort() {
@@ -131,7 +134,7 @@ public class MyRenderHelper {
         ShaderManager shaderManager,
         MatrixStack matrixStack
     ) {
-        Helper.checkGlError();
+        CHelper.checkGlError();
         McHelper.runWithTransformation(
             matrixStack,
             () -> {
@@ -162,7 +165,7 @@ public class MyRenderHelper {
                 OFInterface.resetViewport.run();
             }
         );
-        Helper.checkGlError();
+        CHelper.checkGlError();
     }
     
     static void renderScreenTriangle() {
@@ -220,7 +223,7 @@ public class MyRenderHelper {
         boolean doEnableAlphaTest,
         boolean doEnableModifyAlpha
     ) {
-        Helper.checkGlError();
+        CHelper.checkGlError();
     
         int int_1 = textureProvider.viewportWidth;
         int int_2 = textureProvider.viewportHeight;
@@ -289,7 +292,7 @@ public class MyRenderHelper {
         GlStateManager.depthMask(true);
         GlStateManager.colorMask(true, true, true, true);
     
-        Helper.checkGlError();
+        CHelper.checkGlError();
     }
     
     //If I don't do so JVM will crash

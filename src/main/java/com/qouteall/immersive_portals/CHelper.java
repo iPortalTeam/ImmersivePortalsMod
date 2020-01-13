@@ -12,12 +12,17 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+
 @Environment(EnvType.CLIENT)
 public class CHelper {
+    
+    private static int reportedErrorNum = 0;
     
     public static PlayerListEntry getClientPlayerListEntry() {
         return MinecraftClient.getInstance().getNetworkHandler().getPlayerListEntry(
@@ -63,6 +68,21 @@ public class CHelper {
                 ),
                 nearbyPortals
             );
+        }
+    }
+    
+    public static void checkGlError() {
+        if (!CGlobal.doCheckGlError) {
+            return;
+        }
+        if (reportedErrorNum > 100) {
+            return;
+        }
+        int errorCode = GL11.glGetError();
+        if (errorCode != GL_NO_ERROR) {
+            Helper.err("OpenGL Error" + errorCode);
+            new Throwable().printStackTrace();
+            reportedErrorNum++;
         }
     }
 }

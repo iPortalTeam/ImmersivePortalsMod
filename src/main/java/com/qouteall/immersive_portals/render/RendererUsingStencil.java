@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.util.math.MatrixStack;
@@ -160,8 +160,8 @@ public class RendererUsingStencil extends PortalRenderer {
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
         
         GlStateManager.enableBlend();
-        
-        Helper.checkGlError();
+    
+        CHelper.checkGlError();
     }
     
     private void clearDepthOfThePortalViewArea(

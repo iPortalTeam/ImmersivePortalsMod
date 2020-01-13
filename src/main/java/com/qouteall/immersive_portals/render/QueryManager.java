@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.CHelper;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
@@ -12,7 +12,7 @@ public class QueryManager {
     public static boolean renderAndGetDoesAnySamplePassed(Runnable renderingFunc) {
         if (idQueryObject == -1) {
             idQueryObject = GL15.glGenQueries();
-            Helper.checkGlError();
+            CHelper.checkGlError();
         }
         
         //mac does not support GL_ANY_SAMPLES_PASSED
@@ -42,7 +42,7 @@ public class QueryManager {
         
         if (idQueryObject == -1) {
             idQueryObject = GL15.glGenQueries();
-            Helper.checkGlError();
+            CHelper.checkGlError();
         }
         
         GL15.glBeginQuery(GL15.GL_SAMPLES_PASSED, QueryManager.idQueryObject);

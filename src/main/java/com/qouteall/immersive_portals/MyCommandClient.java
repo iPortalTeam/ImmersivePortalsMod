@@ -353,9 +353,14 @@ public class MyCommandClient {
             "render_fewer_on_fast_graphic",
             cond -> CGlobal.renderFewerInFastGraphic = cond
         );
-        
+        registerSwitchCommand(
+            builder,
+            "gl_check_error",
+            cond -> CGlobal.doCheckGlError = cond
+        );
+    
         dispatcher.register(builder);
-        
+    
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     

@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import net.minecraft.client.MinecraftClient;
@@ -70,8 +71,8 @@ public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
             this_.checkFramebufferStatus();
             this_.clear(isMac);
             this_.endRead();
-        
-            Helper.checkGlError();
+    
+            CHelper.checkGlError();
         
             Helper.log("Frame Buffer Reloaded with Stencil Buffer");
         
