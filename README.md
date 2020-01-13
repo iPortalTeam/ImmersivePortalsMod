@@ -33,8 +33,8 @@ So it will additionally render a small pyramid-shaped hood around camera.
 
 Drawing view area will increase stencil value by one.
 Then it will move the player to another dimension, switch objects for rendering 
-and render the world in stencil limitation.
-It will then render nested portals.
+and render the world again in stencil limitation.
+It will then render nested portals recursively.
 
 ChunkRenderDispatcher stores an fixed size array of ChunkRenderer s.
 I changed it into a map.
@@ -59,6 +59,17 @@ So /forceload command with this mod will not work.
 
 ### Seamless teleportation
 Teleportation on client side happens before rendering (not during ticking).
-Teleportation happens when the camera cross the portal (after the player entity crossing the portal).
+Teleportation happens when the camera cross the portal (not after the player entity crossing the portal).
 
 Client will teleport first and then the server receives the teleport request and do teleportation on server.
+
+### Collision
+When an entity is halfway in portal then its collision will be specially treated.
+It will cut the entity's collision into two pieces, one outside portal and one inside portal.
+It firstly do collision test for outer part and then
+ switch the entity to the portal destination position and do collision test for inner part.
+ 
+### Global Portals
+World wrapping portals and vertical dimension connecting portals are very big.
+They are not entities in world like small portals.
+They are stored in per dimension global portal storage.

@@ -59,7 +59,7 @@ public class CHelper {
         else {
             return Streams.concat(
                 globalPortals.stream().filter(
-                    p -> p.getDistanceToNearestPointInPortal(player.getPos()) < range
+                    p -> p.getDistanceToNearestPointInPortal(player.getPos()) < range * 2
                 ),
                 nearbyPortals
             );

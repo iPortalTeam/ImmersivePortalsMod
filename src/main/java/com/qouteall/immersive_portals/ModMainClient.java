@@ -4,8 +4,8 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
-import com.qouteall.immersive_portals.portal.global_portals.EndFloorPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.render.*;
@@ -29,7 +29,7 @@ public class ModMainClient implements ClientModInitializer {
             BreakableMirror.class,
             GlobalTrackedPortal.class,
             BorderPortal.class,
-            EndFloorPortal.class
+            VerticalConnectingPortal.class
     
         }).forEach(
             portalClass -> EntityRendererRegistry.INSTANCE.register(
