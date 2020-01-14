@@ -61,7 +61,7 @@ public class SpecialPortalShape {
         return crossProduct2D(
             x - x1, x2 - x1,
             y - y1, y2 - y1
-        ) > 0;
+        ) >= 0;
     }
     
     //positive if it's rotating counter clock wise

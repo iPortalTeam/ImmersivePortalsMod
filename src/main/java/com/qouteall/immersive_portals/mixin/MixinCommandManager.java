@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.qouteall.immersive_portals.MyCommandClient;
-import com.qouteall.immersive_portals.MyCommandServer;
+import com.qouteall.immersive_portals.commands.MyCommandClient;
+import com.qouteall.immersive_portals.commands.MyCommandServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Final;

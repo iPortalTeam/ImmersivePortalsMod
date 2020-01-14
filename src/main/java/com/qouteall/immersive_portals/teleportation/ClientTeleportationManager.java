@@ -40,9 +40,6 @@ public class ClientTeleportationManager {
     }
     
     private static void tick(ClientTeleportationManager this_) {
-        if (!CGlobal.teleportOnRendering) {
-            this_.manageTeleportation();
-        }
         this_.tickTimeForTeleportation++;
         this_.slowDownPlayerIfCollidingWithPortal();
         
@@ -98,19 +95,17 @@ public class ClientTeleportationManager {
         else {
             Vec3d currentHeadPos = mc.player.getCameraPosVec(MyRenderHelper.partialTicks);
             if (lastPlayerHeadPos != null) {
+                if (lastPlayerHeadPos.squaredDistanceTo(currentHeadPos) > 100) {
+                    Helper.err("The Player is Moving Too Fast!");
+                }
                 CHelper.getClientNearbyPortals(20).filter(
                     portal -> {
-                        if (!CGlobal.teleportOnRendering) {
-                            return portal.shouldEntityTeleport(mc.player);
-                        }
-                        else {
-                            return mc.player.dimension == portal.dimension &&
-                                portal.isTeleportable() &&
-                                portal.isMovedThroughPortal(
-                                    lastPlayerHeadPos,
-                                    currentHeadPos
-                                );
-                        }
+                        return mc.player.dimension == portal.dimension &&
+                            portal.isTeleportable() &&
+                            portal.isMovedThroughPortal(
+                                lastPlayerHeadPos,
+                                currentHeadPos
+                            );
                     }
                 ).findFirst().ifPresent(
                     portal -> onEntityGoInsidePortal(mc.player, portal)
@@ -130,7 +125,7 @@ public class ClientTeleportationManager {
     
     private void teleportPlayer(Portal portal) {
         if (isTeleportingFrequently()) {
-            return;
+            Helper.err("The Player is Teleporting Frequently");
         }
         lastTeleportGameTime = tickTimeForTeleportation;
         

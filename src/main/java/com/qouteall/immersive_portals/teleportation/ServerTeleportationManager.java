@@ -27,7 +27,7 @@ public class ServerTeleportationManager {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
         Portal.serverPortalTickSignal.connectWithWeakRef(
             this, (this_, portal) ->
-                portal.getEntitiesToTeleport().forEach(entity -> {
+                getEntitiesToTeleport(portal).forEach(entity -> {
                     if (!(entity instanceof ServerPlayerEntity)) {
                         ModMain.serverTaskList.addTask(() -> {
                             teleportRegularEntity(entity, portal);
@@ -35,6 +35,18 @@ public class ServerTeleportationManager {
                         });
                     }
                 })
+        );
+    }
+    
+    public static Stream<Entity> getEntitiesToTeleport(Portal portal) {
+        return portal.world.getEntities(
+            Entity.class,
+            portal.getBoundingBox().expand(2),
+            e -> true
+        ).stream().filter(
+            e -> !(e instanceof Portal)
+        ).filter(
+            portal::shouldEntityTeleport
         );
     }
     

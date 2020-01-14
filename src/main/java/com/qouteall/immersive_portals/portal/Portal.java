@@ -25,7 +25,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public class Portal extends Entity {
     public static EntityType<Portal> entityType;
@@ -74,18 +73,6 @@ public class Portal extends Entity {
         World world
     ) {
         this(entityType, world);
-    }
-    
-    public Stream<Entity> getEntitiesToTeleport() {
-        return world.getEntities(
-            Entity.class,
-            getPortalCollisionBox(),
-            e -> true
-        ).stream().filter(
-            e -> !(e instanceof Portal)
-        ).filter(
-            this::shouldEntityTeleport
-        );
     }
     
     @Override
