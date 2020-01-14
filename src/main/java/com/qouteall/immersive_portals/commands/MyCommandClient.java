@@ -1,10 +1,14 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.*;

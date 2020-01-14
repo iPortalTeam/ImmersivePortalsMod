@@ -99,7 +99,7 @@ public class ClientTeleportationManager {
     
     private void teleportPlayer(Portal portal) {
         if (isTeleportingFrequently()) {
-            return;
+            Helper.err("The Player is Teleporting Frequently");
         }
         lastTeleportGameTime = tickTimeForTeleportation;
         

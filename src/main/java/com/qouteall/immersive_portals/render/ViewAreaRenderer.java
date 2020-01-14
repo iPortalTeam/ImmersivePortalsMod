@@ -237,7 +237,7 @@ public class ViewAreaRenderer {
         Portal portal,
         Vec3d cameraPos
     ) {
-        return (portal.getDistanceToPlane(cameraPos) < 0.1) &&
+        return (portal.getDistanceToPlane(cameraPos) < 0.2) &&
             portal.isPointInPortalProjection(cameraPos);
     }
     

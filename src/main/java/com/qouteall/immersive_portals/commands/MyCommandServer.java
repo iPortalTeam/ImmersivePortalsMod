@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -6,6 +6,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;

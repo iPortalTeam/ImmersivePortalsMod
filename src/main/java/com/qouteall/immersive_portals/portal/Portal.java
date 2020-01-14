@@ -80,7 +80,7 @@ public class Portal extends Entity {
     public Stream<Entity> getEntitiesToTeleport() {
         return world.getEntities(
             Entity.class,
-            getPortalCollisionBox()
+            getBoundingBox().expand(2)
         ).stream().filter(
             e -> !(e instanceof Portal)
         ).filter(
