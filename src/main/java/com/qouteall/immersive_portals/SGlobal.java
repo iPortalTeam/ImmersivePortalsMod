@@ -14,5 +14,4 @@ public class SGlobal {
     
     public static boolean isChunkLoadingMultiThreaded = true;
     
-    public static boolean bufferedChunkUnloading = false;
 }

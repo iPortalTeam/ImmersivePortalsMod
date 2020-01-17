@@ -125,12 +125,13 @@ public class MixinEntityTracker implements IEEntityTracker {
                 (storage.getWatchDistance() - 1) * 16
             );
             boolean isWatchedNow =
-                SGlobal.chunkTrackingGraph.isPlayerWatchingChunk(
+                SGlobal.chunkTrackingGraph.isPlayerWatchingChunkWithinDistance(
                     player,
                     new DimensionalChunkPos(
                         entity.dimension,
                         new ChunkPos(entity.getBlockPos())
-                    )
+                    ),
+                    Math.floorDiv(maxWatchDistance, 16)
                 ) &&
                     this.entity.canBeSpectated(player);
             if (isWatchedNow) {

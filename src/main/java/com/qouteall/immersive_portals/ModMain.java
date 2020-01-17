@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.ChunkTrackingGraph;
+import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
@@ -41,7 +42,7 @@ public class ModMain implements ModInitializer {
         PortalPlaceholderBlock.init();
     
         MyNetwork.init();
-        
+    
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
@@ -51,6 +52,8 @@ public class ModMain implements ModInitializer {
         SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
     
         WorldInfoSender.init();
+    
+        ServerPerformanceAdjust.init();
     }
     
 }

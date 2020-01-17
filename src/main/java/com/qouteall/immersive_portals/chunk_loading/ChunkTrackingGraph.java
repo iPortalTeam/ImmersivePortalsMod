@@ -5,13 +5,12 @@ import com.google.common.collect.Multimap;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
+import com.sun.istack.internal.Nullable;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -22,8 +21,12 @@ import java.util.stream.Stream;
 
 public class ChunkTrackingGraph {
     
+    //if server is about to be out of memory then load fewer chunks
+    public static boolean isMemoryTight = false;
+    
     private static final int unloadIdleTickTime = 20 * 15;
     private static final int unloadIdleTickTimeSameDimension = 20 * 10;
+    private static final int unloadIdleTickTimeWhenMemoryTight = 1;
     
     //only 1 fifth of the chunks will be unload at a time
     private static final int bufferedChunkUnloadingFactor = 5;
@@ -32,6 +35,7 @@ public class ChunkTrackingGraph {
         public DimensionalChunkPos chunkPos;
         public ServerPlayerEntity player;
         public long lastActiveGameTime;
+        public int distanceToSource = 2333;//2333 means uninitialized
         public boolean isSent = false;
         
         public Edge(
@@ -43,6 +47,14 @@ public class ChunkTrackingGraph {
             this.player = player;
             this.lastActiveGameTime = lastActiveGameTime;
         }
+        
+        public void resetDistanceToSource() {
+            distanceToSource = 2333;
+        }
+        
+        public void updateDistanceToSource(int newValue) {
+            distanceToSource = Math.min(newValue, distanceToSource);
+        }
     }
     
     public static final int portalLoadingRange = 64;
@@ -52,7 +64,7 @@ public class ChunkTrackingGraph {
     public final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
     private Multimap<DimensionalChunkPos, Edge> chunkPosToEdges = HashMultimap.create();
-    private Multimap<ServerPlayerEntity, Edge> playerToEdges = HashMultimap.create();
+    private Map<ServerPlayerEntity, Map<DimensionalChunkPos, Edge>> playerToEdges = new HashMap<>();
     
     public ChunkTrackingGraph() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ChunkTrackingGraph::tick);
@@ -74,7 +86,7 @@ public class ChunkTrackingGraph {
         //world.method_14178().setChunkForced(chunkPos, isLoadedNow);
     }
     
-    //@Nullable
+    @Nullable
     private Edge getEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity playerEntity) {
         return chunkPosToEdges.get(chunkPos)
             .stream()
@@ -94,13 +106,15 @@ public class ChunkTrackingGraph {
     private Edge addEdge(DimensionalChunkPos chunkPos, ServerPlayerEntity player) {
         Edge edge = new Edge(chunkPos, player, McHelper.getServerGameTime());
         chunkPosToEdges.put(chunkPos, edge);
-        playerToEdges.put(player, edge);
+        playerToEdges
+            .computeIfAbsent(player, k -> new HashMap<>())
+            .put(chunkPos, edge);
     
         ModMain.serverTaskList.addTask(() -> {
             beginWatchChunkSignal.emit(player, chunkPos);
             return true;
         });
-        
+    
         return edge;
     }
     
@@ -108,9 +122,13 @@ public class ChunkTrackingGraph {
         chunkPosToEdges.entries().removeIf(
             entry -> entry.getValue() == edge
         );
-        playerToEdges.entries().removeIf(
-            entry -> entry.getValue() == edge
-        );
+        Map<DimensionalChunkPos, Edge> corr = playerToEdges.get(edge.player);
+        if (corr != null) {
+            corr.remove(edge.chunkPos);
+        }
+        if (corr.isEmpty()) {
+            playerToEdges.remove(edge.player);
+        }
     
         ModMain.serverTaskList.addTask(() -> {
             if (!edge.player.removed) {
@@ -121,13 +139,20 @@ public class ChunkTrackingGraph {
     }
     
     private void updatePlayer(ServerPlayerEntity playerEntity) {
-        Set<DimensionalChunkPos> newPlayerViewingChunks = ChunkVisibilityManager.getPlayerViewingChunksNew(
-            playerEntity
-        );
-        newPlayerViewingChunks.forEach(chunkPos -> {
-            Edge edge = getOrAddEdge(chunkPos, playerEntity);
-            edge.lastActiveGameTime = McHelper.getServerGameTime();
-        });
+        playerToEdges.computeIfAbsent(playerEntity, k -> new HashMap<>())
+            .values().forEach(Edge::resetDistanceToSource);
+    
+        ChunkVisibilityManager.getChunkLoaders(playerEntity)
+            .forEach(chunkLoader -> chunkLoader.foreachChunkPos(
+                (dimension, x, z, distance) -> {
+                    Edge edge = getOrAddEdge(
+                        new DimensionalChunkPos(dimension, x, z),
+                        playerEntity
+                    );
+                    edge.updateDistanceToSource(distance);
+                    edge.lastActiveGameTime = McHelper.getServerGameTime();
+                }
+            ));
     
         removeInactiveEdges(playerEntity);
     }
@@ -153,28 +178,25 @@ public class ChunkTrackingGraph {
     
     private void removeInactiveEdges(ServerPlayerEntity playerEntity) {
         long serverGameTime = McHelper.getServerGameTime();
-        ArrayDeque<Edge> edgesToRemove = playerToEdges.get(playerEntity).stream()
+        ArrayDeque<Edge> edgesToRemove = playerToEdges.get(playerEntity).values().stream()
             .filter(
-                edge -> shouldUnload(serverGameTime, edge)
+                edge -> ((serverGameTime - edge.lastActiveGameTime) > getUnloadTime(edge))
             )
             .collect(Collectors.toCollection(ArrayDeque::new));
     
-        if (SGlobal.bufferedChunkUnloading) {
-            edgesToRemove.stream()
-                .limit(edgesToRemove.size() / bufferedChunkUnloadingFactor + 1)
-                .forEach(this::removeEdge);
-        }
-        else {
-            edgesToRemove.forEach(this::removeEdge);
-        }
+        edgesToRemove.forEach(this::removeEdge);
+    
     }
     
-    private boolean shouldUnload(long serverGameTime, Edge edge) {
+    private long getUnloadTime(Edge edge) {
+        if (isMemoryTight) {
+            return unloadIdleTickTimeWhenMemoryTight;
+        }
         if (edge.player.dimension == edge.chunkPos.dimension) {
-            return serverGameTime - edge.lastActiveGameTime > unloadIdleTickTimeSameDimension;
+            return unloadIdleTickTimeSameDimension;
         }
         else {
-            return serverGameTime - edge.lastActiveGameTime > unloadIdleTickTime;
+            return unloadIdleTickTime;
         }
     }
     
@@ -210,29 +232,14 @@ public class ChunkTrackingGraph {
     }
     
     private void cleanupForRemovedPlayers() {
-        playerToEdges.entries().stream()
-            .filter(entry -> entry.getKey().removed)
-            .map(Map.Entry::getValue)
-            .collect(Collectors.toCollection(ArrayDeque::new))
+        chunkPosToEdges.values().stream()
+            .filter(edge -> edge.player.removed)
+            .collect(Collectors.toList())
             .forEach(this::removeEdge);
-    }
-    
-    private Stream<DimensionalChunkPos> getNearbyChunkPoses(
-        DimensionType dimension,
-        BlockPos pos, int radius
-    ) {
-        ArrayDeque<DimensionalChunkPos> chunkPoses = new ArrayDeque<>();
-        ChunkPos portalChunkPos = new ChunkPos(pos);
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dz = -radius; dz <= radius; dz++) {
-                chunkPoses.add(new DimensionalChunkPos(
-                    dimension,
-                    portalChunkPos.x + dx,
-                    portalChunkPos.z + dz
-                ));
-            }
-        }
-        return chunkPoses.stream();
+        playerToEdges.keySet().stream()
+            .filter(player -> player.removed)
+            .collect(Collectors.toList())
+            .forEach(player -> playerToEdges.remove(player));
     }
     
     public Stream<ServerPlayerEntity> getPlayersViewingChunk(
@@ -254,6 +261,15 @@ public class ChunkTrackingGraph {
             .anyMatch(edge -> edge.player == player);
     }
     
+    public boolean isPlayerWatchingChunkWithinDistance(
+        ServerPlayerEntity player,
+        DimensionalChunkPos chunkPos,
+        int maxDistance
+    ) {
+        return chunkPosToEdges.get(chunkPos).stream()
+            .anyMatch(edge -> edge.player == player && edge.distanceToSource <= maxDistance);
+    }
+    
     public void onChunkDataSent(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
         Edge edge = getOrAddEdge(chunkPos, player);
         if (edge.isSent) {
@@ -271,7 +287,7 @@ public class ChunkTrackingGraph {
     }
     
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        playerToEdges.removeAll(oldPlayer);
+        playerToEdges.remove(oldPlayer);
         chunkPosToEdges.entries().removeIf(entry ->
             entry.getValue().player == oldPlayer
         );

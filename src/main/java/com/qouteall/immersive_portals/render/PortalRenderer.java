@@ -119,12 +119,7 @@ public abstract class PortalRenderer {
         if (mc.gameRenderer.getCamera().isThirdPerson()) {
             return mc.gameRenderer.getCamera().getPos();
         }
-        if (CGlobal.teleportOnRendering) {
-            return mc.cameraEntity.getCameraPosVec(MyRenderHelper.partialTicks);
-        }
-        else {
-            return mc.cameraEntity.getCameraPosVec(1);
-        }
+        return mc.cameraEntity.getCameraPosVec(MyRenderHelper.partialTicks);
     }
     
     private List<Portal> getPortalsNearbySorted() {

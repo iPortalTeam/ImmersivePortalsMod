@@ -353,13 +353,18 @@ public class Portal extends Entity {
             -width / 2 + shrinkFactor,
             height / 2 - shrinkFactor
         );
-        
+    
         return vertices;
     }
     
     public Vec3d applyTransformationToPoint(Vec3d pos) {
         Vec3d offset = destination.subtract(getPos());
         return pos.add(offset);
+    }
+    
+    public Vec3d reverseTransformPoint(Vec3d pos) {
+        Vec3d offset = destination.subtract(getPos());
+        return pos.subtract(offset);
     }
     
     public Vec3d getCullingPoint() {

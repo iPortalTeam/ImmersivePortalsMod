@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 public class ServerTeleportationManager {
     private Set<ServerPlayerEntity> teleportingEntities = new HashSet<>();
     private WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
+    public boolean isFiringMyChangeDimensionEvent = false;
     
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
@@ -97,7 +98,7 @@ public class ServerTeleportationManager {
     ) {
         return canPlayerReachPos(player, dimensionBefore, posBefore) &&
             portalEntity instanceof Portal &&
-            ((Portal) portalEntity).getDistanceToPlane(posBefore) < 10 &&
+            ((Portal) portalEntity).getDistanceToPlane(posBefore) < 20 &&
             !player.hasVehicle();
     }
     
@@ -109,15 +110,15 @@ public class ServerTeleportationManager {
         return player.dimension == dimension ?
             isClose(pos, player.getPos())
             :
-            McHelper.getEntitiesNearby(player, Portal.class, 10)
+            McHelper.getServerPortalsNearby(player, 20)
                 .anyMatch(
                     portal -> portal.dimensionTo == dimension &&
-                        isClose(pos, portal.destination)
+                        portal.getDistanceToNearestPointInPortal(portal.reverseTransformPoint(pos)) < 20
                 );
     }
     
     private static boolean isClose(Vec3d a, Vec3d b) {
-        return a.squaredDistanceTo(b) < 15 * 15;
+        return a.squaredDistanceTo(b) < 20 * 20;
     }
     
     private void teleportPlayer(
@@ -195,9 +196,11 @@ public class ServerTeleportationManager {
         
         toWorld.checkChunk(player);
     
+        isFiringMyChangeDimensionEvent = true;
         McHelper.getServer().getPlayerManager().sendWorldInfo(
             player, toWorld
         );
+        isFiringMyChangeDimensionEvent = false;
         
         player.interactionManager.setWorld(toWorld);
     

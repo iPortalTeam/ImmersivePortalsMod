@@ -5,19 +5,19 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class ChunkVisibilityManager {
+    public static interface ChunkPosConsumer {
+        void consume(DimensionType dimensionType, int x, int z, int distanceToSource);
+    }
+    
     //the players and portals are chunk loaders
     public static class ChunkLoader {
         public DimensionalChunkPos center;
@@ -28,14 +28,15 @@ public class ChunkVisibilityManager {
             this.radius = radius;
         }
         
-        public void foreachChunkPos(Consumer<DimensionalChunkPos> func) {
+        public void foreachChunkPos(ChunkPosConsumer func) {
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
-                    func.accept(new DimensionalChunkPos(
+                    func.consume(
                         center.dimension,
                         center.x + dx,
-                        center.z + dz
-                    ));
+                        center.z + dz,
+                        Math.max(Math.abs(dx), Math.abs(dz))
+                    );
                 }
             }
         }
@@ -64,11 +65,12 @@ public class ChunkVisibilityManager {
     }
     
     private static int getChebyshevDistance(
-        Entity a, Entity b
+        int x1, int z1,
+        int x2, int z2
     ) {
         return Math.max(
-            Math.abs(a.chunkX - b.chunkX),
-            Math.abs(a.chunkZ - b.chunkZ)
+            Math.abs(x1 - x2),
+            Math.abs(z1 - z2)
         );
     }
     
@@ -78,7 +80,7 @@ public class ChunkVisibilityManager {
                 player.dimension,
                 player.chunkX, player.chunkZ
             ),
-            getRenderDistanceOnServer()
+            McHelper.getRenderDistanceOnServer()
         );
     }
     
@@ -96,7 +98,7 @@ public class ChunkVisibilityManager {
         Portal portal,
         ServerPlayerEntity player
     ) {
-        int renderDistance = getRenderDistanceOnServer();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         double distance = portal.getDistanceToNearestPointInPortal(player.getPos());
         return new ChunkLoader(
             new DimensionalChunkPos(
@@ -108,7 +110,7 @@ public class ChunkVisibilityManager {
     }
     
     private static ChunkLoader portalIndirectLoader(Portal portal) {
-        int renderDistance = getRenderDistanceOnServer();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -122,7 +124,7 @@ public class ChunkVisibilityManager {
         ServerPlayerEntity player,
         GlobalTrackedPortal portal
     ) {
-        int renderDistance = getRenderDistanceOnServer();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -139,7 +141,7 @@ public class ChunkVisibilityManager {
         GlobalTrackedPortal outerPortal,
         GlobalTrackedPortal remotePortal
     ) {
-        int renderDistance = getRenderDistanceOnServer();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 remotePortal.dimensionTo,
@@ -223,18 +225,4 @@ public class ChunkVisibilityManager {
         ).distinct();
     }
     
-    public static Set<DimensionalChunkPos> getPlayerViewingChunksNew(
-        ServerPlayerEntity player
-    ) {
-        HashSet<DimensionalChunkPos> chunks = new HashSet<>();
-        getChunkLoaders(player)
-            .forEach(
-                loader -> loader.foreachChunkPos(chunks::add)
-            );
-        return chunks;
-    }
-    
-    public static int getRenderDistanceOnServer() {
-        return McHelper.getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
-    }
 }

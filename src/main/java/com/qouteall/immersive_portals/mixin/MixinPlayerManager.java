@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
-import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,26 +27,10 @@ public class MixinPlayerManager {
         SGlobal.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
     }
     
-    @Inject(
-        method = "respawnPlayer",
-        at = @At("RETURN"),
-        cancellable = true
-    )
-    private void onPlayerReapawnFinished(
-        ServerPlayerEntity serverPlayerEntity_1,
-        DimensionType dimensionType_1,
-        boolean boolean_1,
-        CallbackInfoReturnable<ServerPlayerEntity> cir
-    ) {
-        GlobalPortalStorage.onPlayerLoggedIn(cir.getReturnValue());
-    }
-    
-    @Inject(method = "onPlayerConnect", at = @At("TAIL"))
-    private void onOnPlayerConnect(
-        ClientConnection clientConnection_1,
-        ServerPlayerEntity serverPlayerEntity_1,
-        CallbackInfo ci
-    ) {
-        GlobalPortalStorage.onPlayerLoggedIn(serverPlayerEntity_1);
+    @Inject(method = "sendWorldInfo", at = @At("RETURN"))
+    private void onSendWorldInfo(ServerPlayerEntity player, ServerWorld world, CallbackInfo ci) {
+        if (!SGlobal.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
+            GlobalPortalStorage.onPlayerLoggedIn(player);
+        }
     }
 }
