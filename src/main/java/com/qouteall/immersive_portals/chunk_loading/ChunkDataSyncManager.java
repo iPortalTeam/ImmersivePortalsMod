@@ -1,8 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.mojang.datafixers.util.Either;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.client.network.packet.ChunkDataS2CPacket;
@@ -14,11 +12,10 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
-
-import java.util.concurrent.CompletableFuture;
+import net.minecraft.world.dimension.DimensionType;
+import org.apache.commons.lang3.Validate;
 
 //the chunks near player are managed by vanilla
 //we only manage the chunks that's seen by portal and not near player
@@ -44,56 +41,62 @@ public class ChunkDataSyncManager {
     
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(chunkPos.dimension);
     
-        sendPacketDeferred(player, chunkPos, ieStorage);
+        sendChunkDataPacketNow(player, chunkPos, ieStorage);
     
         McHelper.getServer().getProfiler().pop();
     }
     
-    private void sendPacketDeferred(
+    private void sendChunkDataPacketNow(
         ServerPlayerEntity player,
         DimensionalChunkPos chunkPos,
         IEThreadedAnvilChunkStorage ieStorage
     ) {
-        ModMain.serverTaskList.addTask(() -> {
-            ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
-            if (chunkHolder == null) {
-                //Helper.err("No Chunk Holder Present When Trying to Send Chunk Data Packet");
-                return false;
+        ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
+        if (chunkHolder != null) {
+            WorldChunk chunk = chunkHolder.getWorldChunk();
+            if (chunk != null) {
+                doSendWatchPackets(
+                    player,
+                    chunkPos,
+                    ieStorage,
+                    chunk
+                );
             }
-            
-            CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> future = chunkHolder.createFuture(
-                ChunkStatus.FULL,
-                ((ThreadedAnvilChunkStorage) ieStorage)
-            );
-            
-            future.thenAcceptAsync(either -> {
-                ModMain.serverTaskList.addTask(() -> {
-                    if (!NewChunkTrackingGraph.isPlayerWatchingChunk(
-                        player, chunkPos.dimension,
-                        chunkPos.x, chunkPos.z
-                    )) {
-                        return true;
-                    }
-    
-                    sendWatchPackets(player, chunkPos, ieStorage);
-                    return true;
-                });
-            });
-            
-            return true;
-        });
+        }
+        //if the chunk is not present then the packet will be sent when chunk is ready
+        
     }
     
-    private void sendWatchPackets(
+    public void onChunkProvidedDeferred(WorldChunk chunk) {
+        DimensionType dimension = chunk.getWorld().dimension.getType();
+        NewChunkTrackingGraph.getPlayersViewingChunk(
+            dimension,
+            chunk.getPos().x,
+            chunk.getPos().z
+        ).forEach(player -> {
+            doSendWatchPackets(
+                player,
+                new DimensionalChunkPos(
+                    dimension,
+                    chunk.getPos()
+                ),
+                McHelper.getIEStorage(dimension),
+                chunk
+            );
+        });
+        //TODO avoid recreating packet when sending to multiple players
+    }
+    
+    private void doSendWatchPackets(
         ServerPlayerEntity player,
         DimensionalChunkPos chunkPos,
-        IEThreadedAnvilChunkStorage ieStorage
+        IEThreadedAnvilChunkStorage ieStorage,
+        Chunk chunk
     ) {
+        Validate.notNull(chunk);
+        
         McHelper.getServer().getProfiler().push("send_chunk_data");
-    
-        Chunk chunk = McHelper.getServer()
-            .getWorld(chunkPos.dimension)
-            .getChunk(chunkPos.x, chunkPos.z);
+        
         assert chunk != null;
         assert !(chunk instanceof EmptyChunk);
         player.networkHandler.sendPacket(
@@ -115,10 +118,10 @@ public class ChunkDataSyncManager {
                 )
             )
         );
-    
+        
         //update the entity trackers
         ((ThreadedAnvilChunkStorage) ieStorage).updateCameraPosition(player);
-    
+        
         McHelper.getServer().getProfiler().pop();
     }
     

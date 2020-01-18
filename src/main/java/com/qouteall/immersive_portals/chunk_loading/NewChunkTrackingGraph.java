@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -21,14 +22,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class NewChunkTrackingGraph {
-    public static class Edge {
-        public DimensionType dimension;
-        public int x;
-        public int z;
-        public ServerPlayerEntity player;
-        public int distanceToSource;
-    }
-    
     public static interface ShouldRemoveWatchPredicate {
         boolean test(ServerPlayerEntity player, long lastWatchTime, int distanceToSource);
     }
@@ -109,7 +102,7 @@ public class NewChunkTrackingGraph {
         return data.computeIfAbsent(dimension, k -> new Long2ObjectLinkedOpenHashMap<>());
     }
     
-    private static void updateForPlayer(ServerPlayerEntity player) {
+    public static void updateForPlayer(ServerPlayerEntity player) {
         long gameTime = McHelper.getOverWorldOnServer().getTime();
         ChunkVisibilityManager.getChunkLoaders(player)
             .forEach(chunkLoader -> chunkLoader.foreachChunkPos(
@@ -167,7 +160,7 @@ public class NewChunkTrackingGraph {
             LongSortedSet currentLoadedChunks = getChunkRecordMap(world.dimension.getType()).keySet();
             
             currentLoadedChunks.forEach(
-                (long longChunkPos) -> world.setChunkForced(
+                (long longChunkPos) -> ((IEServerWorld) world).setChunkForcedWithoutImmediateLoading(
                     ChunkPos.getPackedX(longChunkPos),
                     ChunkPos.getPackedZ(longChunkPos),
                     true
@@ -191,7 +184,7 @@ public class NewChunkTrackingGraph {
     }
     
     private static long getUnloadTimeValve() {
-        if (ServerPerformanceAdjust.getIsMemoryTight()) {
+        if (ServerPerformanceAdjust.getIsServerLagging()) {
             return 41;
         }
         return 15 * 20;

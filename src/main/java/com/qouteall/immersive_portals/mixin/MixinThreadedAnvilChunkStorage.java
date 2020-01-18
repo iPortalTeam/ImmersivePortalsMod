@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.mojang.datafixers.util.Either;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
@@ -7,10 +8,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.server.world.*;
+import net.minecraft.util.thread.MessageListener;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +17,14 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilChunkStorage {
@@ -45,6 +51,14 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
     @Shadow
     @Final
     private Int2ObjectMap entityTrackers;
+    
+    @Shadow
+    @Final
+    private AtomicInteger totalChunksLoadedCount;
+    
+    @Shadow
+    @Final
+    private MessageListener<ChunkTaskPrioritySystem.Task<Runnable>> mainExecutor;
     
     @Override
     public int getWatchDistance() {
@@ -93,6 +107,47 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
                 ci.cancel();
             }
         }
+    }
+    
+    //cancel vanilla packet sending
+    @Redirect(
+        method = "createTickingFuture",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/concurrent/CompletableFuture;thenAcceptAsync(Ljava/util/function/Consumer;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"
+        )
+    )
+    private CompletableFuture<Void> redirectThenAcceptAsync(
+        CompletableFuture completableFuture,
+        Consumer<?> action,
+        Executor executor
+    ) {
+        return null;
+    }
+    
+    //do my packet sending
+    @Inject(
+        method = "createTickingFuture",
+        at = @At("RETURN"),
+        cancellable = true
+    )
+    private void onCreateTickingFuture(
+        ChunkHolder chunkHolder,
+        CallbackInfoReturnable<CompletableFuture<Either<WorldChunk, ChunkHolder.Unloaded>>> cir
+    ) {
+        CompletableFuture<Either<WorldChunk, ChunkHolder.Unloaded>> future = cir.getReturnValue();
+        
+        future.thenAcceptAsync((either) -> {
+            either.mapLeft((worldChunk) -> {
+                this.totalChunksLoadedCount.getAndIncrement();
+                
+                SGlobal.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
+                
+                return Either.left(worldChunk);
+            });
+        }, (runnable) -> {
+            this.mainExecutor.send(ChunkTaskPrioritySystem.createMessage(chunkHolder, runnable));
+        });
     }
     
     @Override

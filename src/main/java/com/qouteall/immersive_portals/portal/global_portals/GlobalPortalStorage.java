@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal.global_portals;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -43,6 +44,7 @@ public class GlobalPortalStorage extends PersistentState {
                 }
             }
         );
+        NewChunkTrackingGraph.updateForPlayer(player);
     }
     
     public void onDataChanged() {

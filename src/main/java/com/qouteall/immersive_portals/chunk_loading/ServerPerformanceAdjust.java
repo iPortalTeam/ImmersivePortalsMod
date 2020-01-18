@@ -4,7 +4,9 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.MetricsData;
 
+import java.util.Arrays;
 import java.util.WeakHashMap;
 
 //dynamically adjust the player's loading distance
@@ -39,15 +41,15 @@ public class ServerPerformanceAdjust {
             int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 20;
             return loadingChunkNum > valve;
         }
-        
+    
         public boolean isTravellingFast() {
             int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 30;
             return chunkLoadingFactor > valve;
         }
     }
     
-    private static double memoryUsageFactor = 0;
-    private static boolean isMemoryTight = false;
+    private static double serverLagFactor = 0;
+    private static boolean isServerLagging = false;
     private static WeakHashMap<ServerPlayerEntity, PlayerProfile> playerProfileMap = new WeakHashMap<>();
     
     public static void init() {
@@ -68,38 +70,41 @@ public class ServerPerformanceAdjust {
     
     private static void tick() {
         playerProfileMap.values().forEach(PlayerProfile::tick);
-        
+    
         //exponentially decrease
-        memoryUsageFactor *= 0.999;
-        
-        Runtime runtime = Runtime.getRuntime();
-        double freeMemory = ((double) runtime.freeMemory()) / runtime.totalMemory();
-        
-        if (freeMemory < 0.3) {
-            memoryUsageFactor += 1;
+        serverLagFactor *= 0.998;
+    
+        MetricsData profile = McHelper.getServer().getMetricsData();
+        double averageTickTimeNano = Arrays.stream(profile.getSamples()).average().orElse(0);
+        if (averageTickTimeNano > Helper.secondToNano(1.0 / 20)) {
+            serverLagFactor += 1;
         }
-        
-        if (freeMemory < 0.2) {
-            memoryUsageFactor += 1;
-        }
-        
-        if (!isMemoryTight) {
-            if (memoryUsageFactor > 300) {
-                Helper.log("Server Memory Tight. Reduce Loading Distance");
-                isMemoryTight = true;
+    
+        if (!isServerLagging) {
+            if (serverLagFactor > 100) {
+                Helper.log("Server is lagging. Reduce Loading Distance");
+                isServerLagging = true;
             }
         }
         else {
-            if (memoryUsageFactor < 100) {
-                Helper.log("Server Memory Enough. Return to Normal Loading Distance");
-                isMemoryTight = false;
+            if (serverLagFactor < 30) {
+                Helper.log("Server is not lagging now. Return to Normal Loading Distance");
+                isServerLagging = false;
             }
         }
     }
     
+    public static int getGeneralLoadingDistance() {
+        int distance = McHelper.getRenderDistanceOnServer();
+        if (isServerLagging) {
+            return distance / 2;
+        }
+        return distance;
+    }
+    
     public static int getPlayerLoadingDistance(ServerPlayerEntity player) {
         int distance = McHelper.getRenderDistanceOnServer();
-        if (isMemoryTight) {
+        if (isServerLagging) {
             return distance / 2;
         }
         PlayerProfile profile = getPlayerProfile(player);
@@ -111,8 +116,8 @@ public class ServerPerformanceAdjust {
         }
     }
     
-    public static boolean getIsMemoryTight() {
-        return isMemoryTight;
+    public static boolean getIsServerLagging() {
+        return isServerLagging;
     }
     
 }
