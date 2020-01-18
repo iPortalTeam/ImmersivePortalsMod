@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IEEntity {
@@ -122,20 +123,50 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
-    //don't burn when jumping into end portal
-    @Redirect(
-        method = "move",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"
-        )
+    
+    @Inject(
+        method = "isFireImmune",
+        at = @At("HEAD"),
+        cancellable = true
     )
-    private boolean redirectDoesContainFireSource(World world, Box box_1) {
-        if (!CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
-            return world.doesAreaContainFireSource(box_1);
+    private void onIsFireImmune(CallbackInfoReturnable<Boolean> cir) {
+        if (collidingPortal != null) {
+            cir.setReturnValue(true);
+            cir.cancel();
         }
-        else {
-            return false;
+    }
+    
+    @Inject(
+        method = "setOnFireFor",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onSetOnFireFor(int int_1, CallbackInfo ci) {
+        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
+            ci.cancel();
+        }
+    }
+    
+    @Inject(
+        method = "burn",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onBurn(int int_1, CallbackInfo ci) {
+        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
+            ci.cancel();
+        }
+    }
+    
+    @Inject(
+        method = "isTouchingWater",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onIsTouchingWater(CallbackInfoReturnable<Boolean> cir) {
+        if (collidingPortal != null) {
+            cir.setReturnValue(true);
+            cir.cancel();
         }
     }
     

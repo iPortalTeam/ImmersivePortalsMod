@@ -15,8 +15,10 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class NewChunkTrackingGraph {
     public static class Edge {
@@ -98,7 +100,7 @@ public class NewChunkTrackingGraph {
         }
     }
     
-    private static Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data;
+    private static Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
     
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
@@ -212,11 +214,59 @@ public class NewChunkTrackingGraph {
         boolean isLoadedNow
     ) {
         ServerWorld world = McHelper.getServer().getWorld(dimension);
-        
+    
         world.setChunkForced(chunkPos.x, chunkPos.z, isLoadedNow);
     }
     
     public static void init() {
         ModMain.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
+    }
+    
+    public static boolean isPlayerWatchingChunk(
+        ServerPlayerEntity player,
+        DimensionType dimension,
+        int x, int z
+    ) {
+        ChunkRecord record = data.get(dimension)
+            .get(ChunkPos.toLong(x, z));
+        if (record == null) {
+            return false;
+        }
+        return record.watchingPlayers.indexOf(player) != -1;
+    }
+    
+    public static boolean isPlayerWatchingChunkWithinRaidus(
+        ServerPlayerEntity player,
+        DimensionType dimension,
+        int x, int z,
+        int radiusBlocks
+    ) {
+        ChunkRecord record = data.get(dimension)
+            .get(ChunkPos.toLong(x, z));
+        if (record == null) {
+            return false;
+        }
+        int index = record.watchingPlayers.indexOf(player);
+        if (index == -1) {
+            return false;
+        }
+        int distanceToSource = record.distanceToSourceList.getInt(index);
+        return distanceToSource * 16 <= radiusBlocks;
+    }
+    
+    public static void cleanup() {
+        data.clear();
+    }
+    
+    public static Stream<ServerPlayerEntity> getPlayersViewingChunk(
+        DimensionType dimension,
+        int x, int z
+    ) {
+        ChunkRecord record = data.get(dimension)
+            .get(ChunkPos.toLong(x, z));
+        if (record == null) {
+            return Stream.empty();
+        }
+        return record.watchingPlayers.stream();
     }
 }
