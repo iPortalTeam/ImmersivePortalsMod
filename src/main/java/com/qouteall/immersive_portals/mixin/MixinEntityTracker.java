@@ -2,8 +2,7 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.SGlobal;
-import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.entity.Entity;
@@ -125,13 +124,12 @@ public class MixinEntityTracker implements IEEntityTracker {
                 (storage.getWatchDistance() - 1) * 16
             );
             boolean isWatchedNow =
-                SGlobal.chunkTrackingGraph.isPlayerWatchingChunkWithinDistance(
+                NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
                     player,
-                    new DimensionalChunkPos(
-                        entity.dimension,
-                        new ChunkPos(entity.getBlockPos())
-                    ),
-                    Math.floorDiv(maxWatchDistance, 16)
+                    entity.dimension,
+                    entity.chunkX,
+                    entity.chunkZ,
+                    maxWatchDistance
                 ) &&
                     this.entity.canBeSpectated(player);
             if (isWatchedNow) {

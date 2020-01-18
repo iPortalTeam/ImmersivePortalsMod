@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin;
 import com.google.common.collect.HashMultimap;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
-import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import net.minecraft.client.network.packet.EntitiesDestroyS2CPacket;
 import net.minecraft.entity.Entity;
@@ -55,16 +54,6 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
         cancellable = true
     )
     private void onSendUnloadChunkPacket(ChunkPos chunkPos_1, CallbackInfo ci) {
-        ServerPlayerEntity this_ = (ServerPlayerEntity) (Object) this;
-        DimensionalChunkPos dimensionalChunkPos = new DimensionalChunkPos(
-            this_.dimension,
-            chunkPos_1
-        );
-    
-        SGlobal.chunkDataSyncManager.sendUnloadPacket(
-            this_, dimensionalChunkPos
-        );
-        
         ci.cancel();
     }
     

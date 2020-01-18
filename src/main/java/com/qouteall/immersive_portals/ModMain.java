@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
-import com.qouteall.immersive_portals.chunk_loading.ChunkTrackingGraph;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
@@ -48,8 +48,9 @@ public class ModMain implements ModInitializer {
         preRenderSignal.connect(preRenderTaskList::processTasks);
     
         SGlobal.serverTeleportationManager = new ServerTeleportationManager();
-        SGlobal.chunkTrackingGraph = new ChunkTrackingGraph();
         SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
+    
+        NewChunkTrackingGraph.init();
     
         WorldInfoSender.init();
     

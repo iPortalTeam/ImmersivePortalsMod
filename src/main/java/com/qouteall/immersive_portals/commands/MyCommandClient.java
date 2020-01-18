@@ -330,11 +330,6 @@ public class MyCommandClient {
         );
         registerSwitchCommand(
             builder,
-            "buffered_chunk_unloading",
-            cond -> SGlobal.bufferedChunkUnloading = cond
-        );
-        registerSwitchCommand(
-            builder,
             "smooth_unload",
             cond -> CGlobal.smoothUnload = cond
         );

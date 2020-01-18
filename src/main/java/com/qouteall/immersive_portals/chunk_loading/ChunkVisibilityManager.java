@@ -14,6 +14,9 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ChunkVisibilityManager {
+    public static final int portalLoadingRange = 48;
+    public static final int secondaryPortalLoadingRange = 16;
+    
     public static interface ChunkPosConsumer {
         void consume(DimensionType dimensionType, int x, int z, int distanceToSource);
     }
@@ -178,7 +181,7 @@ public class ChunkVisibilityManager {
             McHelper.getEntitiesNearby(
                 player,
                 Portal.class,
-                ChunkTrackingGraph.portalLoadingRange
+                portalLoadingRange
             ).filter(
                 portal -> portal.canBeSeenByPlayer(player)
             ).flatMap(
@@ -189,7 +192,7 @@ public class ChunkVisibilityManager {
                         McHelper.getServer().getWorld(portal.dimensionTo),
                         portal.destination,
                         Portal.class,
-                        ChunkTrackingGraph.secondaryPortalLoadingRange
+                        secondaryPortalLoadingRange
                     ).filter(
                         remotePortal -> remotePortal.canBeSeenByPlayer(player)
                     ).map(

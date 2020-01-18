@@ -80,40 +80,41 @@ public class NewChunkTrackingGraph {
             //this is not the most efficent
             int size = watchingPlayers.size();
             int placingIndex = 0;
-            for (int i = size - 1; i <= 0; i--) {
+            for (int i = size - 1; i >= 0; i--) {
                 boolean shouldRemove = predicate.test(
                     watchingPlayers.get(i),
                     lastWatchTimeList.getLong(i),
                     distanceToSourceList.getInt(i)
                 );
                 if (shouldRemove) {
-                    informer.accept(watchingPlayers.get(i));
-                    watchingPlayers.remove(i);
+                    ServerPlayerEntity removed = watchingPlayers.remove(i);
                     lastWatchTimeList.removeLong(i);
                     distanceToSourceList.removeInt(i);
+                    informer.accept(removed);
                 }
             }
         }
-        
+    
         public boolean isBeingWatchedByAnyPlayer() {
             return !watchingPlayers.isEmpty();
         }
     }
     
-    private static Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
+    private static final Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
     
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
+    
+    private static Long2ObjectLinkedOpenHashMap<ChunkRecord> getChunkRecordMap(DimensionType dimension) {
+        return data.computeIfAbsent(dimension, k -> new Long2ObjectLinkedOpenHashMap<>());
+    }
     
     private static void updateForPlayer(ServerPlayerEntity player) {
         long gameTime = McHelper.getOverWorldOnServer().getTime();
         ChunkVisibilityManager.getChunkLoaders(player)
             .forEach(chunkLoader -> chunkLoader.foreachChunkPos(
                 (dimension, x, z, distanceToSource) -> {
-                    data.computeIfAbsent(
-                        dimension,
-                        k -> new Long2ObjectLinkedOpenHashMap<>()
-                    ).computeIfAbsent(
+                    getChunkRecordMap(dimension).computeIfAbsent(
                         ChunkPos.toLong(x, z),
                         k -> new ChunkRecord()
                     ).updateWatchingStatus(
@@ -162,8 +163,8 @@ public class NewChunkTrackingGraph {
         });
         
         McHelper.getServer().getWorlds().forEach(world -> {
-            
-            LongSortedSet currentLoadedChunks = data.get(world.dimension.getType()).keySet();
+    
+            LongSortedSet currentLoadedChunks = getChunkRecordMap(world.dimension.getType()).keySet();
             
             currentLoadedChunks.forEach(
                 (long longChunkPos) -> world.setChunkForced(
@@ -227,7 +228,7 @@ public class NewChunkTrackingGraph {
         DimensionType dimension,
         int x, int z
     ) {
-        ChunkRecord record = data.get(dimension)
+        ChunkRecord record = getChunkRecordMap(dimension)
             .get(ChunkPos.toLong(x, z));
         if (record == null) {
             return false;
@@ -241,7 +242,7 @@ public class NewChunkTrackingGraph {
         int x, int z,
         int radiusBlocks
     ) {
-        ChunkRecord record = data.get(dimension)
+        ChunkRecord record = getChunkRecordMap(dimension)
             .get(ChunkPos.toLong(x, z));
         if (record == null) {
             return false;
@@ -262,11 +263,21 @@ public class NewChunkTrackingGraph {
         DimensionType dimension,
         int x, int z
     ) {
-        ChunkRecord record = data.get(dimension)
+        ChunkRecord record = getChunkRecordMap(dimension)
             .get(ChunkPos.toLong(x, z));
         if (record == null) {
             return Stream.empty();
         }
         return record.watchingPlayers.stream();
+    }
+    
+    public static void forceRemovePlayer(ServerPlayerEntity player) {
+        data.values().forEach(map -> map.values().forEach(
+            chunkRecord -> chunkRecord.removeInactiveWatcher(
+                (player1, l, d) -> player1 == player,
+                p -> {
+                }
+            )
+        ));
     }
 }

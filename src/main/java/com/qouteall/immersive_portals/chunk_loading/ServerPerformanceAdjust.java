@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.chunk_loading;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.SGlobal;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.WeakHashMap;
@@ -37,12 +36,12 @@ public class ServerPerformanceAdjust {
         }
         
         public boolean isLoadingTooMuchChunks() {
-            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 8;
+            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 20;
             return loadingChunkNum > valve;
         }
         
         public boolean isTravellingFast() {
-            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 8;
+            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 30;
             return chunkLoadingFactor > valve;
         }
     }
@@ -52,10 +51,10 @@ public class ServerPerformanceAdjust {
     private static WeakHashMap<ServerPlayerEntity, PlayerProfile> playerProfileMap = new WeakHashMap<>();
     
     public static void init() {
-        SGlobal.chunkTrackingGraph.beginWatchChunkSignal.connect(
+        NewChunkTrackingGraph.beginWatchChunkSignal.connect(
             (player, chunkPos) -> getPlayerProfile(player).onNewChunkLoaded()
         );
-        SGlobal.chunkTrackingGraph.endWatchChunkSignal.connect(
+        NewChunkTrackingGraph.endWatchChunkSignal.connect(
             (player, chunkPos) -> getPlayerProfile(player).onNewChunkUnloaded()
         );
         ModMain.postServerTickSignal.connect(ServerPerformanceAdjust::tick);
@@ -81,17 +80,17 @@ public class ServerPerformanceAdjust {
         }
         
         if (freeMemory < 0.2) {
-            memoryUsageFactor += 2;
+            memoryUsageFactor += 1;
         }
         
         if (!isMemoryTight) {
-            if (memoryUsageFactor > 20) {
+            if (memoryUsageFactor > 300) {
                 Helper.log("Server Memory Tight. Reduce Loading Distance");
                 isMemoryTight = true;
             }
         }
         else {
-            if (memoryUsageFactor < 2) {
+            if (memoryUsageFactor < 100) {
                 Helper.log("Server Memory Enough. Return to Normal Loading Distance");
                 isMemoryTight = false;
             }
