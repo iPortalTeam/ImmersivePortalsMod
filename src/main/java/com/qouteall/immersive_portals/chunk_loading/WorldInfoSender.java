@@ -21,6 +21,10 @@ public class WorldInfoSender {
                             McHelper.getServer().getWorld(DimensionType.OVERWORLD)
                         );
                     }
+                    sendWorldInfo(
+                        player,
+                        McHelper.getServer().getWorld(ModMain.alternate)
+                    );
                 }
             }
         });
@@ -51,6 +55,20 @@ public class WorldInfoSender {
                     new GameStateChangeS2CPacket(1, 0.0F)
                 )
             );
+            player.networkHandler.sendPacket(
+                MyNetwork.createRedirectedMessage(
+                    remoteDimension,
+                    new GameStateChangeS2CPacket(7, world.getRainGradient(1.0F))
+                )
+            );
+            player.networkHandler.sendPacket(
+                MyNetwork.createRedirectedMessage(
+                    remoteDimension,
+                    new GameStateChangeS2CPacket(8, world.getThunderGradient(1.0F))
+                )
+            );
+        }
+        else {
             player.networkHandler.sendPacket(
                 MyNetwork.createRedirectedMessage(
                     remoteDimension,
