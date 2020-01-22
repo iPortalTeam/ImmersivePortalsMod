@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.BufferUtils;
@@ -121,7 +122,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     protected void renderPortalContentWithContextSwitched(
-        Portal portal, Vec3d oldCameraPos
+        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
     ) {
         int thisPortalStencilValue = getPortalLayer();
         
@@ -130,8 +131,8 @@ public class RendererUsingStencil extends PortalRenderer {
         
         //do not manipulate stencil packetBuffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        
-        super.renderPortalContentWithContextSwitched(portal, oldCameraPos);
+    
+        super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
     }
     
     private void renderPortalViewAreaToStencil(

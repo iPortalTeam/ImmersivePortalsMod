@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -41,8 +42,9 @@ public abstract class MixinCamera implements IECamera {
     protected abstract void setPos(net.minecraft.util.math.Vec3d vec3d_1);
     
     @Override
-    public void setPos_(Vec3d pos) {
+    public void resetState(Vec3d pos, ClientWorld currWorld) {
         setPos(pos);
+        area = currWorld;
     }
     
     @Inject(method = "clipToSpace", at = @At("HEAD"), cancellable = true)

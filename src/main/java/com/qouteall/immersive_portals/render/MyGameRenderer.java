@@ -35,7 +35,8 @@ public class MyGameRenderer {
         float partialTicks,
         WorldRenderer newWorldRenderer,
         ClientWorld newWorld,
-        Vec3d oldCameraPos
+        Vec3d oldCameraPos,
+        ClientWorld oldWorld
     ) {
 //        BuiltChunkStorage chunkRenderDispatcher =
 //            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage();
@@ -51,7 +52,6 @@ public class MyGameRenderer {
     
         //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
-        ClientWorld oldWorld = mc.world;
         LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
@@ -103,7 +103,7 @@ public class MyGameRenderer {
         FogRendererContext.swappingManager.popSwapping();
     
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
-        ((IECamera) mc.gameRenderer.getCamera()).setPos_(oldCameraPos);
+        ((IECamera) mc.gameRenderer.getCamera()).resetState(oldCameraPos, oldWorld);
     }
     
     public void endCulling() {

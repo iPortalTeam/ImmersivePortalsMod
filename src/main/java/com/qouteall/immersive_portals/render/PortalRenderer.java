@@ -180,7 +180,7 @@ public abstract class PortalRenderer {
         mc.world = newWorld;
     
         renderPortalContentWithContextSwitched(
-            portal, oldCameraPos
+            portal, oldCameraPos, oldWorld
         );
         
         //restore the position
@@ -197,7 +197,7 @@ public abstract class PortalRenderer {
     }
     
     protected void renderPortalContentWithContextSwitched(
-        Portal portal, Vec3d oldCameraPos
+        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
     ) {
         GlStateManager.enableAlphaTest();
         GlStateManager.enableCull();
@@ -208,7 +208,7 @@ public abstract class PortalRenderer {
         CHelper.checkGlError();
         
         CGlobal.myGameRenderer.renderWorld(
-            MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos
+            MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
     
         CHelper.checkGlError();
