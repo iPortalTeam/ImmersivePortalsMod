@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
+import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
@@ -258,7 +259,8 @@ public class ClientTeleportationManager {
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
     
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
-
+    
+        RequiemCompat.onPlayerTeleportedClient();
     }
     
     private void amendChunkEntityStatus(Entity entity) {

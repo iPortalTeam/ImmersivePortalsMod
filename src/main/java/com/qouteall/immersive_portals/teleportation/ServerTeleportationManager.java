@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -220,6 +221,8 @@ public class ServerTeleportationManager {
             ((IEServerPlayerEntity) player).setEnteredNetherPos(player.getPos());
         }
         ((IEServerPlayerEntity) player).updateDimensionTravelAdvancements(fromWorld);
+    
+        RequiemCompat.onPlayerTeleportedServer(player);
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {
@@ -288,7 +291,7 @@ public class ServerTeleportationManager {
     /**
      * {@link Entity#changeDimension(DimensionType)}
      */
-    private void changeEntityDimension(
+    public void changeEntityDimension(
         Entity entity,
         DimensionType toDimension,
         Vec3d destination
@@ -296,7 +299,7 @@ public class ServerTeleportationManager {
         ServerWorld fromWorld = (ServerWorld) entity.world;
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
         entity.detach();
-    
+        
         Stream<ServerPlayerEntity> watchingPlayers = McHelper.getEntitiesNearby(
             entity,
             ServerPlayerEntity.class,

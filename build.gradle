@@ -39,6 +39,18 @@ dependencies {
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
 
+	modImplementation "io.github.Ladysnake:Requiem:1.1.4"
+	modImplementation "io.github.Ladysnake:Requiem:1.1.4:api"
+
+//	modRuntime("ignored:requiem:1.1.4")
+//	modRuntime("ignored:cardinal-components-base:2.0.3")
+//	modRuntime("ignored:cardinal-components-entity:2.0.3")
+//	modRuntime("ignored:cardinal-components-world:2.0.3")
+//	modRuntime("ignored:LibCD:1.15-SNAPSHOT")
+//	modRuntime("ignored:PlayerAbilityLib:1.0.0")
+//	modRuntime("ignored:requiem-api:1.1.4")
+//	modRuntime("ignored:Satin:1.15-SNAPSHOT")
+//	modRuntime("ignored:jankson:1.0.0")
 }
 
 processResources {
@@ -91,5 +103,18 @@ publishing {
 	repositories {
 		// uncomment to publish to the local maven
 		// mavenLocal()
+	}
+}
+
+repositories{
+	flatDir {
+		dirs 'deps'
+	}
+
+	//for requiem
+	jcenter()
+	maven {
+		name = 'JitPack'
+		url = 'https://jitpack.io'
 	}
 }

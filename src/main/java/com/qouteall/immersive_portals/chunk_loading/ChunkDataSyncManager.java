@@ -135,18 +135,6 @@ public class ChunkDataSyncManager {
     }
     
     public void sendUnloadPacket(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
-
-//        boolean isWatchingNow = NewChunkTrackingGraph.isPlayerWatchingChunk(
-//            player,
-//            chunkPos.dimension,
-//            chunkPos.x,
-//            chunkPos.z
-//        );
-//        if (isWatchingNow) {
-//            Helper.err("Give Up Unloading");
-//            return;
-//        }
-    
         player.networkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(
                 chunkPos.dimension,

@@ -174,18 +174,6 @@ public abstract class MixinEntity implements IEEntity {
         return entity.isWet();
     }
 
-//    @Inject(
-//        method = "isTouchingWater",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void onIsTouchingWater(CallbackInfoReturnable<Boolean> cir) {
-//        if (collidingPortal != null) {
-//            cir.setReturnValue(true);
-//            cir.cancel();
-//        }
-//    }
-    
     @Redirect(
         method = "checkBlockCollision",
         at = @At(

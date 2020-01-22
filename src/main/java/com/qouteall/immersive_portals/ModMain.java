@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
+import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal.*;
@@ -75,6 +76,8 @@ public class ModMain implements ModInitializer {
                     )
             )
             .buildAndRegister(new Identifier("immersive_portals", "alternate1"));
+    
+        RequiemCompat.init();
     }
     
 }
