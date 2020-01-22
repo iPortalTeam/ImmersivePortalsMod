@@ -38,7 +38,7 @@ public abstract class MixinEntityTrackerEntry {
     }
     
     @Redirect(
-        method = "Lnet/minecraft/server/network/EntityTrackerEntry;method_18756()V",
+        method = "tick",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
@@ -64,7 +64,7 @@ public abstract class MixinEntityTrackerEntry {
     }
     
     @Redirect(
-        method = "Lnet/minecraft/server/network/EntityTrackerEntry;method_18758(Lnet/minecraft/network/Packet;)V",
+        method = "sendSyncPacket",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
