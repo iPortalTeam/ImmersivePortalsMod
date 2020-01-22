@@ -1,10 +1,12 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -12,7 +14,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class CollisionHelper {
     
@@ -92,16 +96,20 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
-        Box boxOtherSide = getCollisionBoxOtherSide(collidingPortal, originalBoundingBox);
+        Box boxOtherSide = getCollisionBoxOtherSide(
+            collidingPortal,
+            originalBoundingBox,
+            attemptedMove
+        );
         if (boxOtherSide == null) {
             return attemptedMove;
         }
-        
+    
         //switch world and check collision
         World oldWorld = entity.world;
         Vec3d oldPos = entity.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(entity);
-        
+    
         entity.world = getWorld(entity.world.isClient, collidingPortal.dimensionTo);
         entity.setBoundingBox(boxOtherSide);
     
@@ -122,7 +130,7 @@ public class CollisionHelper {
         Box originalBoundingBox
     ) {
         Box boxThisSide = getCollisionBoxThisSide(
-            collidingPortal, originalBoundingBox
+            collidingPortal, originalBoundingBox, attemptedMove
         );
         if (boxThisSide == null) {
             return attemptedMove;
@@ -138,13 +146,15 @@ public class CollisionHelper {
     
     private static Box getCollisionBoxThisSide(
         Portal portal,
-        Box originalBox
+        Box originalBox,
+        Vec3d attemptedMove
     ) {
         //cut the collision box a little bit more for horizontal portals
         //because the box will be stretched by attemptedMove when calculating collision
-        Vec3d cullingPos = portal.getNormal().y > 0.5 ?
-            portal.getPos().add(portal.getNormal().multiply(0.5)) :
-            portal.getPos();
+//        Vec3d cullingPos = portal.getNormal().y > 0.5 ?
+//            portal.getPos().add(portal.getNormal().multiply(0.5)) :
+//            portal.getPos();
+        Vec3d cullingPos = portal.getPos().subtract(attemptedMove);
         return clipBox(
             originalBox,
             cullingPos,
@@ -152,11 +162,15 @@ public class CollisionHelper {
         );
     }
     
-    private static Box getCollisionBoxOtherSide(Portal portal, Box originalBox) {
+    private static Box getCollisionBoxOtherSide(
+        Portal portal,
+        Box originalBox,
+        Vec3d attemptedMove
+    ) {
         Vec3d teleportation = portal.destination.subtract(portal.getPos());
         return clipBox(
             originalBox.offset(teleportation),
-            portal.destination,
+            portal.destination.subtract(attemptedMove),
             portal.getNormal().multiply(-1)
         );
     }
@@ -176,9 +190,8 @@ public class CollisionHelper {
     //use entity.getCollidingPortal() and do not use this
     public static Portal getCollidingPortalUnreliable(Entity entity) {
         Box box = entity.getBoundingBox();
-        return entity.world.getEntities(
-            Portal.class, box, e -> true
-        ).stream().filter(
+    
+        return getCollidingPortalRough(entity, box).filter(
             portal -> shouldCollideWithPortal(
                 entity, portal
             )
@@ -187,16 +200,34 @@ public class CollisionHelper {
         ).orElse(null);
     }
     
+    public static Stream<Portal> getCollidingPortalRough(Entity entity, Box box) {
+        World world = entity.world;
+        
+        List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
+        
+        Stream<Portal> normalPortals = world.getEntities(
+            Portal.class, box, e -> true
+        ).stream();
+        
+        if (globalPortals == null) {
+            return normalPortals;
+        }
+        
+        return Streams.concat(
+            normalPortals,
+            globalPortals.stream()
+        );
+    }
+    
     public static boolean isCollidingWithAnyPortal(Entity entity) {
         return ((IEEntity) entity).getCollidingPortal() != null;
     }
     
     public static boolean isNearbyPortal(Entity entity) {
-        return !entity.world.getEntities(
-            Portal.class,
-            entity.getBoundingBox().expand(1),
-            e -> true
-        ).isEmpty();
+        return getCollidingPortalRough(
+            entity,
+            entity.getBoundingBox().expand(1)
+        ).findAny().isPresent();
     }
     
     public static Box getActiveCollisionBox(Entity entity) {
@@ -204,7 +235,8 @@ public class CollisionHelper {
         if (collidingPortal != null) {
             Box thisSideBox = getCollisionBoxThisSide(
                 collidingPortal,
-                entity.getBoundingBox()
+                entity.getBoundingBox(),
+                Vec3d.ZERO //is it ok?
             );
             if (thisSideBox != null) {
                 return thisSideBox;

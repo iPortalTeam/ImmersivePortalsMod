@@ -95,7 +95,7 @@ public class MyNetworkClient {
                 Helper.err(String.format(
                     "duplicate entity %s %s %s",
                     ((Integer) entityId).toString(),
-                    entityType.get(),
+                    entityType.get().getTranslationKey(),
                     compoundTag
                 ));
                 return;

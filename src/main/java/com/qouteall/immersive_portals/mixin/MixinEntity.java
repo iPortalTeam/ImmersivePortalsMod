@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
@@ -69,6 +70,21 @@ public abstract class MixinEntity implements IEEntity {
             stopCollidingPortalCounter = 1;
         }
     }
+
+//    @Inject(
+//        method = "move",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void injectMove(MovementType type, Vec3d movement, CallbackInfo ci) {
+//        if (world.isClient && ((Object) this) instanceof PlayerEntity) {
+//            if (type == MovementType.PLAYER) {
+//                if (collidingPortal != null) {
+//                    ci.cancel();
+//                }
+//            }
+//        }
+//    }
     
     @Redirect(
         method = "move",
@@ -78,14 +94,15 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
-        if (attemptedMove.lengthSquared() > 16) {
-            return adjustMovementForCollisions(attemptedMove);
+        if (attemptedMove.lengthSquared() > 256) {
+            Helper.err("Entity moving too fast " + entity + attemptedMove);
+            return Vec3d.ZERO;
         }
         
         if (collidingPortal == null) {
             return adjustMovementForCollisions(attemptedMove);
         }
-    
+        
         if (entity.hasPassengers() || entity.hasVehicle()) {
             return adjustMovementForCollisions(attemptedMove);
         }

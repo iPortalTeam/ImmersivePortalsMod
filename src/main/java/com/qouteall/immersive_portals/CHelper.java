@@ -50,6 +50,11 @@ public class CHelper {
         return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
     }
     
+    public static List<GlobalTrackedPortal> getClientGlobalPortal(World world) {
+        List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) world).getGlobalPortals();
+        return globalPortals;
+    }
+    
     public static Stream<Portal> getClientNearbyPortals(double range) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();

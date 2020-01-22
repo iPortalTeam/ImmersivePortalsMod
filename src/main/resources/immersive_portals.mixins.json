@@ -12,6 +12,7 @@
     "MixinEntityTrackerEntry",
     "MixinFireBlock",
     "MixinFlintAndSteelItem",
+    "MixinMetricsData",
     "MixinMinecraftServer",
     "MixinPlayerManager",
     "MixinPlayerMoveC2SPacket_S",

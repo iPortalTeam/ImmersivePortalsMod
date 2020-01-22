@@ -3,7 +3,12 @@ package com.qouteall.immersive_portals.chunk_loading;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.ducks.IEChunkTicketManager;
+import com.qouteall.immersive_portals.ducks.IEMetricsData;
+import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
+import com.qouteall.immersive_portals.ducks.IEServerChunkManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketManager;
 import net.minecraft.util.MetricsData;
 
 import java.util.Arrays;
@@ -21,7 +26,7 @@ public class ServerPerformanceAdjust {
         
         public void tick() {
             //exponentially decrease
-            chunkLoadingFactor = ((int) (((double) chunkLoadingFactor) * 0.999));
+            chunkLoadingFactor = ((int) (((double) chunkLoadingFactor) * 0.998));
         }
         
         public void onNewChunkLoaded() {
@@ -38,12 +43,12 @@ public class ServerPerformanceAdjust {
         }
         
         public boolean isLoadingTooMuchChunks() {
-            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 20;
+            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 8;
             return loadingChunkNum > valve;
         }
     
         public boolean isTravellingFast() {
-            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 30;
+            int valve = McHelper.getRenderDistanceOnServer() * McHelper.getRenderDistanceOnServer() * 5;
             return chunkLoadingFactor > valve;
         }
     }
@@ -74,21 +79,22 @@ public class ServerPerformanceAdjust {
         //exponentially decrease
         serverLagFactor *= 0.998;
     
-        MetricsData profile = McHelper.getServer().getMetricsData();
-        double averageTickTimeNano = Arrays.stream(profile.getSamples()).average().orElse(0);
+        MetricsData profile = ((IEMinecraftServer) McHelper.getServer()).getMetricsDataNonClientOnly();
+        long[] samples = ((IEMetricsData) profile).getSamplesNonClientOnly();
+        double averageTickTimeNano = Arrays.stream(samples).average().orElse(0);
         if (averageTickTimeNano > Helper.secondToNano(1.0 / 20)) {
             serverLagFactor += 1;
         }
     
         if (!isServerLagging) {
             if (serverLagFactor > 100) {
-                Helper.log("Server is lagging. Reduce Loading Distance");
+                Helper.log("Server is lagging. Reduce Portal Loading Distance");
                 isServerLagging = true;
             }
         }
         else {
             if (serverLagFactor < 30) {
-                Helper.log("Server is not lagging now. Return to Normal Loading Distance");
+                Helper.log("Server is not lagging now. Return to Normal Portal Loading Distance");
                 isServerLagging = false;
             }
         }
@@ -120,4 +126,15 @@ public class ServerPerformanceAdjust {
         return isServerLagging;
     }
     
+    @Deprecated
+    private static void updateTicketManagerWatchDistance() {
+        int newLoadingDistance = getGeneralLoadingDistance();
+        
+        McHelper.getServer().getWorlds().forEach(world -> {
+            ChunkTicketManager ticketManager =
+                ((IEServerChunkManager) world.getChunkManager()).getTicketManager();
+            
+            ((IEChunkTicketManager) ticketManager).mySetWatchDistance(newLoadingDistance);
+        });
+    }
 }

@@ -88,7 +88,8 @@ public class ChunkVisibilityManager {
                 player.dimension,
                 player.chunkX, player.chunkZ
             ),
-            ServerPerformanceAdjust.getPlayerLoadingDistance(player)
+            McHelper.getRenderDistanceOnServer()
+            //ServerPerformanceAdjust.getPlayerLoadingDistance(player)
         );
     }
     

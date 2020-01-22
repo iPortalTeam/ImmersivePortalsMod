@@ -15,18 +15,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChunkTicketManager.class)
-public class MixinChunkTicketManager implements IEChunkTicketManager {
-    @Shadow
-    private long location;
+public abstract class MixinChunkTicketManager implements IEChunkTicketManager {
     
     @Shadow
     @Final
     private Long2ObjectMap<ObjectSet<ServerPlayerEntity>> playersByChunkPos;
     
-    @Override
-    public long getLocation() {
-        return location;
-    }
+    
+    @Shadow
+    protected abstract void setWatchDistance(int viewDistance);
     
     //avoid NPE
     @Inject(method = "handleChunkLeave", at = @At("HEAD"))
@@ -37,5 +34,10 @@ public class MixinChunkTicketManager implements IEChunkTicketManager {
     ) {
         long long_1 = chunkSectionPos_1.toChunkPos().toLong();
         playersByChunkPos.putIfAbsent(long_1, new ObjectOpenHashSet<>());
+    }
+    
+    @Override
+    public void mySetWatchDistance(int newWatchDistance) {
+        setWatchDistance(newWatchDistance);
     }
 }

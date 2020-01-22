@@ -166,6 +166,15 @@ public class McHelper {
         RenderSystem.multMatrix(matrixStack.peek().getModel());
     }
     
+    public static List<GlobalTrackedPortal> getGlobalPortals(World world) {
+        if (world.isClient) {
+            return CHelper.getClientGlobalPortal(world);
+        }
+        else {
+            return GlobalPortalStorage.get(((ServerWorld) world)).data;
+        }
+    }
+    
     public static Stream<Portal> getServerPortalsNearby(Entity center, double range) {
         List<GlobalTrackedPortal> globalPortals = GlobalPortalStorage.get(((ServerWorld) center.world)).data;
         Stream<Portal> nearbyPortals = McHelper.getEntitiesNearby(

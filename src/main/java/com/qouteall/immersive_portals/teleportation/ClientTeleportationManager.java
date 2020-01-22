@@ -219,7 +219,11 @@ public class ClientTeleportationManager {
         player.world = toWorld;
     
         player.dimension = toDimension;
-        player.setPos(destination.x, destination.y, destination.z);
+        player.setPosition(
+            destination.x,
+            destination.y,
+            destination.z
+        );//set pos and update bounding box
     
         toWorld.addPlayer(player.getEntityId(), player);
     
@@ -246,10 +250,6 @@ public class ClientTeleportationManager {
             toDimension,
             tickTimeForTeleportation
         ));
-    
-        Helper.log("Portal Number Near Player Now" +
-            McHelper.getEntitiesNearby(mc.player, Portal.class, 10).count()
-        );
     
         //because the teleportation may happen before rendering
         //but after pre render info being updated
