@@ -171,6 +171,7 @@ public class CollisionHelper {
         return clipBox(
             originalBox.offset(teleportation),
             portal.destination.subtract(attemptedMove),
+//            portal.destination,
             portal.getNormal().multiply(-1)
         );
     }
@@ -216,6 +217,9 @@ public class CollisionHelper {
         return Streams.concat(
             normalPortals,
             globalPortals.stream()
+                .filter(
+                    p -> p.getBoundingBox().expand(0.5).intersects(box)
+                )
         );
     }
     

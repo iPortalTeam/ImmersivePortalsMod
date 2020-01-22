@@ -9,6 +9,7 @@ import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.server.network.packet.TeleportConfirmC2SPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.dimension.DimensionType;
@@ -125,6 +126,17 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             return true;
         }
         return method_20630(worldView_1);
+    }
+    
+    @Inject(
+        method = "onTeleportConfirm",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onOnTeleportConfirm(TeleportConfirmC2SPacket packet, CallbackInfo ci) {
+        if (requestedTeleportPos == null) {
+            ci.cancel();
+        }
     }
     
     @Override

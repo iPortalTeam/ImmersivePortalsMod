@@ -71,21 +71,6 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
 
-//    @Inject(
-//        method = "move",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void injectMove(MovementType type, Vec3d movement, CallbackInfo ci) {
-//        if (world.isClient && ((Object) this) instanceof PlayerEntity) {
-//            if (type == MovementType.PLAYER) {
-//                if (collidingPortal != null) {
-//                    ci.cancel();
-//                }
-//            }
-//        }
-//    }
-    
     @Redirect(
         method = "move",
         at = @At(
@@ -175,17 +160,31 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
-    @Inject(
-        method = "isTouchingWater",
-        at = @At("HEAD"),
-        cancellable = true
+    @Redirect(
+        method = "move",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/Entity;isWet()Z"
+        )
     )
-    private void onIsTouchingWater(CallbackInfoReturnable<Boolean> cir) {
+    private boolean redirectIsWet(Entity entity) {
         if (collidingPortal != null) {
-            cir.setReturnValue(true);
-            cir.cancel();
+            return true;
         }
+        return entity.isWet();
     }
+
+//    @Inject(
+//        method = "isTouchingWater",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void onIsTouchingWater(CallbackInfoReturnable<Boolean> cir) {
+//        if (collidingPortal != null) {
+//            cir.setReturnValue(true);
+//            cir.cancel();
+//        }
+//    }
     
     @Redirect(
         method = "checkBlockCollision",

@@ -1,0 +1,119 @@
+package com.qouteall.immersive_portals.alternate_dimension;
+
+import com.qouteall.immersive_portals.ModMain;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.source.BiomeSourceType;
+import net.minecraft.world.dimension.Dimension;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.ChunkGeneratorType;
+import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
+import org.apache.commons.lang3.Validate;
+
+import java.util.Random;
+
+public class AlternateDimension extends Dimension {
+    
+    public static final BlockPos SPAWN = new BlockPos(100, 50, 0);
+    
+    private static Random random = new Random();
+    
+    public AlternateDimension(
+        World worldIn,
+        DimensionType typeIn
+    ) {
+        super(worldIn, typeIn, 0);
+    }
+    
+    public ChunkGenerator<?> createChunkGenerator() {
+        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.withCenter(this.getForcedSpawnPoint());
+        return ChunkGeneratorType.FLOATING_ISLANDS.create(
+            this.world,
+            BiomeSourceType.FIXED.applyConfig(
+                BiomeSourceType.FIXED.getConfig(world.getLevelProperties()).setBiome(
+                    Registry.BIOME.getRandom(random)
+                )
+            ),
+            generationSettings
+        );
+    }
+    
+    @Override
+    public BlockPos getSpawningBlockInChunk(ChunkPos chunkPos, boolean checkMobSpawnValidity) {
+        return null;
+    }
+    
+    @Override
+    public BlockPos getTopSpawningBlockPosition(int x, int z, boolean checkMobSpawnValidity) {
+        return null;
+    }
+    
+    @Override
+    public float getSkyAngle(long worldTime, float partialTicks) {
+        double d0 = MathHelper.fractionalPart((double) worldTime / 24000.0D - 0.25D);
+        double d1 = 0.5D - Math.cos(d0 * Math.PI) / 2.0D;
+        return (float) (d0 * 2.0D + d1) / 3.0F;
+    }
+    
+    @Override
+    public boolean hasVisibleSky() {
+        return true;
+    }
+    
+    @Environment(EnvType.CLIENT)
+    @Override
+    public Vec3d getFogColor(float celestialAngle, float partialTicks) {
+        float f = MathHelper.cos(celestialAngle * ((float) Math.PI * 2F)) * 2.0F + 0.5F;
+        f = MathHelper.clamp(f, 0.0F, 1.0F);
+        float f1 = 0.7529412F;
+        float f2 = 0.84705883F;
+        float f3 = 1.0F;
+        f1 = f1 * (f * 0.94F + 0.06F);
+        f2 = f2 * (f * 0.94F + 0.06F);
+        f3 = f3 * (f * 0.91F + 0.09F);
+        return new Vec3d((double) f1, (double) f2, (double) f3);
+    }
+    
+    @Override
+    public boolean canPlayersSleep() {
+        return false;
+    }
+    
+    @Override
+    public boolean isFogThick(int x, int z) {
+        return false;
+    }
+    
+    @Override
+    public DimensionType getType() {
+        Validate.notNull(ModMain.alternate);
+        return ModMain.alternate;
+    }
+    
+    @Environment(EnvType.CLIENT)
+    @Override
+    public boolean hasGround() {
+        return true;
+    }
+    
+    /**
+     * the y level at which clouds are rendered.
+     */
+    @Environment(EnvType.CLIENT)
+    @Override
+    public float getCloudHeight() {
+        return 128.0F;
+    }
+    
+}

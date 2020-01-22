@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEWorld;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
@@ -78,5 +80,19 @@ public class MixinClientWorld implements IEClientWorld {
         CGlobal.clientWorldLoader.clientWorldMap.values().stream()
             .filter(world -> world != (Object) this)
             .forEach(world -> world.removeEntity(entityId));
+    }
+    
+    //avoid alternate dimension dark
+    @Inject(
+        method = "getSkyDarknessHeight",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onGetSkyDarknessHeight(CallbackInfoReturnable<Double> cir) {
+        ClientWorld clientWorld = (ClientWorld) (Object) this;
+        if (clientWorld.dimension.getType() == ModMain.alternate) {
+            cir.setReturnValue(-100d);
+            cir.cancel();
+        }
     }
 }

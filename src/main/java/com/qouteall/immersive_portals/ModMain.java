@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
@@ -14,6 +15,10 @@ import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
+import net.minecraft.block.pattern.BlockPattern;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 public class ModMain implements ModInitializer {
     public static final Signal postClientTickSignal = new Signal();
@@ -22,6 +27,8 @@ public class ModMain implements ModInitializer {
     public static final MyTaskList clientTaskList = new MyTaskList();
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
+    
+    public static FabricDimensionType alternate;
     
     @Override
     public void onInitialize() {
@@ -36,25 +43,38 @@ public class ModMain implements ModInitializer {
         GlobalTrackedPortal.init();
         BorderPortal.init();
         VerticalConnectingPortal.init();
-    
+        
         LoadingIndicatorEntity.init();
         
         PortalPlaceholderBlock.init();
-    
+        
         MyNetwork.init();
-    
+        
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
-    
+        
         SGlobal.serverTeleportationManager = new ServerTeleportationManager();
         SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
-    
+        
         NewChunkTrackingGraph.init();
-    
+        
         WorldInfoSender.init();
-    
+        
         ServerPerformanceAdjust.init();
+        
+        alternate = FabricDimensionType.builder()
+            .factory(AlternateDimension::new)
+            .skyLight(true)
+            .defaultPlacer(
+                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+                    new BlockPattern.TeleportTarget(
+                        Vec3d.ZERO,
+                        Vec3d.ZERO,
+                        0
+                    )
+            )
+            .buildAndRegister(new Identifier("immersive_portals", "alternate1"));
     }
     
 }
