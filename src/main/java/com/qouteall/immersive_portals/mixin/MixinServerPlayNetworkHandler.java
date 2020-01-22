@@ -89,7 +89,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         }
         
         this.teleportRequestTick = this.ticks;
-        this.player.setPositionAnglesAndUpdate(double_1, double_2, double_3, float_1, float_2);
+        this.player.updatePositionAndAngles(double_1, double_2, double_3, float_1, float_2);
         PlayerPositionLookS2CPacket packet_1 = new PlayerPositionLookS2CPacket(
             double_1 - double_4,
             double_2 - double_5,

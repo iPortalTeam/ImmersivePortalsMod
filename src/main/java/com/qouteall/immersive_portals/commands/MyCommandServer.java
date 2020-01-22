@@ -498,7 +498,7 @@ public class MyCommandServer {
         
         Portal newPortal = Portal.entityType.create(toWorld);
         newPortal.dimensionTo = portal.dimension;
-        newPortal.setPosition(portal.destination.x, portal.destination.y, portal.destination.z);
+        newPortal.updatePosition(portal.destination.x, portal.destination.y, portal.destination.z);
         newPortal.destination = portal.getPos();
         newPortal.loadFewerChunks = portal.loadFewerChunks;
         newPortal.specificPlayer = portal.specificPlayer;
@@ -531,7 +531,7 @@ public class MyCommandServer {
         
         Portal newPortal = Portal.entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
-        newPortal.setPosition(portal.getX(), portal.getY(), portal.getZ());
+        newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
         newPortal.destination = portal.destination;
         newPortal.loadFewerChunks = portal.loadFewerChunks;
         newPortal.specificPlayer = portal.specificPlayer;

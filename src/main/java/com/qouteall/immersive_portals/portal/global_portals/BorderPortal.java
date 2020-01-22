@@ -92,7 +92,7 @@ public class BorderPortal extends GlobalTrackedPortal {
         Vec3d center = boxSurface.getCenter();
         Box oppositeSurface = Helper.getBoxSurface(area, direction.getOpposite());
         Vec3d destination = oppositeSurface.getCenter();
-        portal.setPosition(center.x, center.y, center.z);
+        portal.updatePosition(center.x, center.y, center.z);
         portal.destination = destination;
         
         portal.axisW = new Vec3d(axises.getLeft().getVector());

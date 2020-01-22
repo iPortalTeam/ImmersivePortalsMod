@@ -130,7 +130,7 @@ public class ServerTeleportationManager {
         ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
     
         if (player.dimension == dimensionTo) {
-            player.setPosition(newPos.x, newPos.y, newPos.z);
+            player.updatePosition(newPos.x, newPos.y, newPos.z);
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
@@ -150,7 +150,7 @@ public class ServerTeleportationManager {
         ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
         
         if (player.dimension == dimensionTo) {
-            player.setPosition(newPos.x, newPos.y, newPos.z);
+            player.updatePosition(newPos.x, newPos.y, newPos.z);
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
@@ -277,8 +277,8 @@ public class ServerTeleportationManager {
         if (portal.dimensionTo != entity.dimension) {
             changeEntityDimension(entity, portal.dimensionTo, newPos);
         }
-        
-        entity.setPosition(
+    
+        entity.updatePosition(
             newPos.x, newPos.y, newPos.z
         );
     

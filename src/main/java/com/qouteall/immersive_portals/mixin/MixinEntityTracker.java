@@ -118,7 +118,7 @@ public class MixinEntityTracker implements IEEntityTracker {
         IEThreadedAnvilChunkStorage storage = McHelper.getIEStorage(entity.dimension);
         
         if (player != this.entity) {
-            Vec3d relativePos = (player.getPos()).subtract(this.entry.method_18759());
+            Vec3d relativePos = (player.getPos()).subtract(this.entry.getLastPos());
             int maxWatchDistance = Math.min(
                 this.maxDistance,
                 (storage.getWatchDistance() - 1) * 16

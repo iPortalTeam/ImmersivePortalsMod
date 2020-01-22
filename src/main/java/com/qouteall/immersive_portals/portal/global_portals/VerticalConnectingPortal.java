@@ -85,13 +85,13 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         
         switch (connectorType) {
             case floor:
-                verticalConnectingPortal.setPosition(0, 0, 0);
+                verticalConnectingPortal.updatePosition(0, 0, 0);
                 verticalConnectingPortal.destination = new Vec3d(0, 256, 0);
                 verticalConnectingPortal.axisW = new Vec3d(0, 0, 1);
                 verticalConnectingPortal.axisH = new Vec3d(1, 0, 0);
                 break;
             case ceil:
-                verticalConnectingPortal.setPosition(0, 256, 0);
+                verticalConnectingPortal.updatePosition(0, 256, 0);
                 verticalConnectingPortal.destination = new Vec3d(0, 0, 0);
                 verticalConnectingPortal.axisW = new Vec3d(1, 0, 0);
                 verticalConnectingPortal.axisH = new Vec3d(0, 0, 1);

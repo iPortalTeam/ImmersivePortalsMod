@@ -116,7 +116,7 @@ public class NewNetherPortalGenerator {
         LoadingIndicatorEntity indicatorEntity =
             LoadingIndicatorEntity.entityType.create(fromWorld);
         indicatorEntity.isAlive = true;
-        indicatorEntity.setPosition(
+        indicatorEntity.updatePosition(
             fromPos.getX() + 0.5,
             fromPos.getY() + 0.5,
             fromPos.getZ() + 0.5
@@ -147,6 +147,7 @@ public class NewNetherPortalGenerator {
                 finishGeneratingPortal(new Info(
                     fromDimension, toDimension, fromShape, toShape
                 ));
+                indicatorEntity.remove();
             },
             () -> {
                 indicatorEntity.setText(
@@ -170,10 +171,11 @@ public class NewNetherPortalGenerator {
                     toShape.frameAreaWithCorner.forEach(blockPos ->
                         toWorld.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState())
                     );
-                
+    
                     finishGeneratingPortal(new Info(
                         fromDimension, toDimension, fromShape, toShape
                     ));
+                    indicatorEntity.remove();
                 
                     return true;
                 });

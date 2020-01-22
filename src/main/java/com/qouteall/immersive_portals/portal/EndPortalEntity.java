@@ -49,7 +49,7 @@ public class EndPortalEntity extends Portal {
         Portal portal = new EndPortalEntity(world);
         
         Vec3d center = new Vec3d(pattern.getFrontTopLeft()).add(-1.5, 0.5, -1.5);
-        portal.setPosition(center.x, center.y, center.z);
+        portal.updatePosition(center.x, center.y, center.z);
         
         portal.destination = new Vec3d(0, 120, 0);
         

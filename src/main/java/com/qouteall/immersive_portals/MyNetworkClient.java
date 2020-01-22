@@ -144,7 +144,7 @@ public class MyNetworkClient {
             }
             
             LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(world);
-            indicator.setPosition(pos.x, pos.y, pos.z);
+            indicator.updatePosition(pos.x, pos.y, pos.z);
             
             world.addEntity(233333333, indicator);
         });
@@ -203,7 +203,7 @@ public class MyNetworkClient {
             Helper.err(String.format(
                 "Invalid redirected packet %s %s \nRegistered dimensions %s",
                 dimensionId, packet,
-                Registry.DIMENSION.stream().map(
+                Registry.DIMENSION_TYPE.stream().map(
                     dim -> dim.toString() + " " + dim.getRawId()
                 ).collect(Collectors.joining("\n"))
             ));

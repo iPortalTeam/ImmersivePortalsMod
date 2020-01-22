@@ -272,7 +272,7 @@ public class NetherPortalShape {
     
     public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
         Vec3d center = innerAreaBox.getCenterVec();
-        portal.setPosition(center.x, center.y, center.z);
+        portal.updatePosition(center.x, center.y, center.z);
     
         Direction[] anotherFourDirections = Helper.getAnotherFourDirections(axis);
         Direction wDirection;

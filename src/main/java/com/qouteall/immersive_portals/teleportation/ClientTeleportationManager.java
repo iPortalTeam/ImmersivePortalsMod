@@ -151,7 +151,7 @@ public class ClientTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
         
-        player.setPosition(newPos.x, newPos.y, newPos.z);
+        player.updatePosition(newPos.x, newPos.y, newPos.z);
         Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
     
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
@@ -182,7 +182,7 @@ public class ClientTeleportationManager {
         DimensionType fromDimension = fromWorld.dimension.getType();
         ClientPlayerEntity player = mc.player;
         if (fromDimension == toDimension) {
-            player.setPosition(
+            player.updatePosition(
                 destination.x,
                 destination.y,
                 destination.z
@@ -219,7 +219,7 @@ public class ClientTeleportationManager {
         player.world = toWorld;
     
         player.dimension = toDimension;
-        player.setPosition(
+        player.updatePosition(
             destination.x,
             destination.y,
             destination.z
@@ -285,7 +285,7 @@ public class ClientTeleportationManager {
                 ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
                 changePlayerDimension(mc.player, mc.world, toWorld, playerPos);
             }
-            mc.player.setPosition(playerPos.x, playerPos.y, playerPos.z);
+            mc.player.updatePosition(playerPos.x, playerPos.y, playerPos.z);
             mc.openScreen(null);
         }
     }

@@ -122,7 +122,7 @@ public class BreakableMirror extends Mirror {
         ).add(
             new Vec3d(facing.getVector()).multiply(0.5)
         );
-        breakableMirror.setPosition(
+        breakableMirror.updatePosition(
             pos.x, pos.y, pos.z
         );
         breakableMirror.destination = pos;

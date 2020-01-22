@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
@@ -56,8 +55,10 @@ public class LoadingIndicatorEntity extends Entity {
     public void tick() {
         super.tick();
     
-        if (McHelper.getEntitiesNearby(this, Portal.class, 3).findAny().isPresent()) {
-            this.remove();
+        if (!world.isClient()) {
+            if (!isAlive) {
+                remove();
+            }
         }
     }
     
