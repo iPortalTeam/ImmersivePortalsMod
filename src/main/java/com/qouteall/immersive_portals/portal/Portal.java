@@ -188,13 +188,12 @@ public class Portal extends Entity {
         if (anotherPortal.dimension != dimensionTo) {
             return false;
         }
-        double v = anotherPortal.getPos().subtract(destination).dotProduct(getContentDirection());
-        return v > 0.5;
+        return canRenderEntityInsideMe(anotherPortal.getPos(), 0.5);
     }
     
-    public boolean canRenderEntityInsideMe(Vec3d entityPos) {
+    public boolean canRenderEntityInsideMe(Vec3d entityPos, double valve) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
-        return v > -0.01;
+        return v > valve;
     }
     
     //0 and 3 are connected

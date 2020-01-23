@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -183,6 +184,23 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Box redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
         return CollisionHelper.getActiveCollisionBox(entity);
+    }
+    
+    @Inject(
+        method = "fromTag",
+        at = @At("RETURN")
+    )
+    private void onReadFinished(CompoundTag compound, CallbackInfo ci) {
+        if (dimension == null) {
+            Helper.err("Invalid Dimension Id Read From NBT " + this);
+            if (world != null) {
+                dimension = world.dimension.getType();
+            }
+            else {
+                Helper.err("World Field is Null");
+                dimension = DimensionType.OVERWORLD;
+            }
+        }
     }
     
     @Override

@@ -62,7 +62,7 @@ public abstract class PortalRenderer {
     public boolean shouldRenderPlayerItself() {
         return isRendering() &&
             mc.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension &&
-            getRenderingPortal().canRenderEntityInsideMe(MyRenderHelper.originalPlayerPos);
+            getRenderingPortal().canRenderEntityInsideMe(MyRenderHelper.originalPlayerPos, -0.01);
     }
     
     public boolean shouldRenderEntityNow(Entity entity) {
@@ -70,7 +70,7 @@ public abstract class PortalRenderer {
             return true;
         }
         if (isRendering()) {
-            return getRenderingPortal().canRenderEntityInsideMe(entity.getPos());
+            return getRenderingPortal().canRenderEntityInsideMe(entity.getPos(), -0.01);
         }
         return true;
     }
