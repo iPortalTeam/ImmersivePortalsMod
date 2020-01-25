@@ -116,7 +116,7 @@ public class CollisionHelper {
         Vec3d move2 = handleCollisionFunc.apply(attemptedMove);
         
         entity.world = oldWorld;
-        Helper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
+        McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
         entity.setBoundingBox(originalBoundingBox);
         
         return move2;

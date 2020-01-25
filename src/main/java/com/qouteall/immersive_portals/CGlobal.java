@@ -39,6 +39,4 @@ public class CGlobal {
     public static boolean smoothUnload = true;
     public static boolean renderFewerInFastGraphic = true;
     public static boolean doCheckGlError = false;
-    
-    public static Frustum frustumRef;
 }

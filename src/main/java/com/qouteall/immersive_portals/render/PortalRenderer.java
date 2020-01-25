@@ -174,7 +174,7 @@ public abstract class PortalRenderer {
             CGlobal.clientWorldLoader.getOrCreateFakedWorld(newDimension);
         //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
         
-        Helper.setPosAndLastTickPos(cameraEntity, newPos, newLastTickPos);
+        McHelper.setPosAndLastTickPos(cameraEntity, newPos, newLastTickPos);
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         mc.world = newWorld;
@@ -187,7 +187,7 @@ public abstract class PortalRenderer {
         cameraEntity.dimension = oldDimension;
         cameraEntity.world = oldWorld;
         mc.world = oldWorld;
-        Helper.setPosAndLastTickPos(cameraEntity, oldPos, oldLastTickPos);
+        McHelper.setPosAndLastTickPos(cameraEntity, oldPos, oldLastTickPos);
         
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();

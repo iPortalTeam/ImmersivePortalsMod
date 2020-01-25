@@ -435,7 +435,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean boolean_2,
         CallbackInfo ci
     ) {
-        CGlobal.frustumRef = frustum_1;
         if (CGlobal.useHackedChunkRenderDispatcher) {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }

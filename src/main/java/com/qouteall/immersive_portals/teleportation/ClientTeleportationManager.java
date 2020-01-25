@@ -153,7 +153,7 @@ public class ClientTeleportationManager {
         }
         
         player.updatePosition(newPos.x, newPos.y, newPos.z);
-        Helper.setPosAndLastTickPos(player, newPos, newLastTickPos);
+        McHelper.setPosAndLastTickPos(player, newPos, newLastTickPos);
     
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,

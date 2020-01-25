@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.ducks.IEGlFrameBuffer;
+import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.GL30;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Framebuffer.class)
-public abstract class MixinGlFrameBuffer implements IEGlFrameBuffer {
+public abstract class MixinFrameBuffer implements IEFrameBuffer {
     
     private boolean isStencilBufferEnabled;
     

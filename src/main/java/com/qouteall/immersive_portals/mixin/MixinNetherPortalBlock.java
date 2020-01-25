@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(NetherPortalBlock.class)
-public class MixinPortalBlock {
+public class MixinNetherPortalBlock {
     
     @Inject(
         method = "createPortalAt",

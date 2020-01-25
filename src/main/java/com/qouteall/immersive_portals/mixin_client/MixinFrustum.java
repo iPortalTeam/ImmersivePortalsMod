@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.ducks.IEFrustumWithOrigin;
+import com.qouteall.immersive_portals.ducks.IEFrustum;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.render.Frustum;
@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 @Mixin(Frustum.class)
-public class MixinFrustumWithOrigin implements IEFrustumWithOrigin {
+public class MixinFrustum implements IEFrustum {
     @Shadow
     private double x;
     @Shadow

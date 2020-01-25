@@ -290,23 +290,6 @@ public class Helper {
         return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
     }
     
-    public static void setPosAndLastTickPos(
-        Entity entity,
-        Vec3d pos,
-        Vec3d lastTickPos
-    ) {
-        
-        
-        //NOTE do not call entity.setPosition() because it may tick the entity
-        entity.setPos(pos.x, pos.y, pos.z);
-        entity.lastRenderX = lastTickPos.x;
-        entity.lastRenderY = lastTickPos.y;
-        entity.lastRenderZ = lastTickPos.z;
-        entity.prevX = lastTickPos.x;
-        entity.prevY = lastTickPos.y;
-        entity.prevZ = lastTickPos.z;
-    }
-    
     public static WeakReference<MinecraftServer> refMinecraftServer;
     
     public static Runnable noException(Callable func) {

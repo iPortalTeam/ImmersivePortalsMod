@@ -1,6 +1,7 @@
-package com.qouteall.immersive_portals.portal;
+package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -12,18 +13,6 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
         super(entityRenderDispatcher_1);
     }
     
-    //
-//    @Override
-//    public boolean isVisible(
-//        Portal entity_1,
-//        VisibleRegion visibleRegion_1,
-//        double double_1,
-//        double double_2,
-//        double double_3
-//    ) {
-//        return true;
-//    }
-//
     @Override
     public void render(
         Portal portal,

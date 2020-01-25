@@ -25,7 +25,6 @@
     "MixinPlayerMoveC2SPacketBoth",
     "MixinPlayerMoveC2SPacketLookOnly",
     "MixinPlayerMoveC2SPacketPositionOnly",
-    "MixinProfileResultImpl",
     "MixinWorldRenderer",
     "MixinWorldRendererChunkInfo"
   ],
