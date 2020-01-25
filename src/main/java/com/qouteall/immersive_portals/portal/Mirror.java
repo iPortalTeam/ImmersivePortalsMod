@@ -34,13 +34,14 @@ public class Mirror extends Portal {
         this(entityType, world);
     }
     
-    public Vec3d getContentDirection() {
-        return getNormal();
+    @Override
+    public void tick() {
+        super.tick();
+        teleportable = false;
     }
     
-    @Override
-    public boolean isTeleportable() {
-        return false;
+    public Vec3d getContentDirection() {
+        return getNormal();
     }
     
 }

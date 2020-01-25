@@ -48,14 +48,6 @@ public class McHelper {
         return Helper.refMinecraftServer.get();
     }
     
-    public static <MSG> void sendToServer(MSG message) {
-        assert false;
-    }
-    
-    public static <MSG> void sendToPlayer(ServerPlayerEntity player, MSG message) {
-        assert false;
-    }
-    
     public static ServerWorld getOverWorldOnServer() {
         return getServer().getWorld(DimensionType.OVERWORLD);
     }

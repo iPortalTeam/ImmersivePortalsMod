@@ -39,6 +39,7 @@ public class Portal extends Entity {
     
     //additional properteis
     public boolean loadFewerChunks = true;
+    public boolean teleportable = true;
     public UUID specificPlayer;
     public SpecialPortalShape specialShape;
     
@@ -108,7 +109,7 @@ public class Portal extends Entity {
     }
     
     public boolean isTeleportable() {
-        return true;
+        return teleportable;
     }
     
     @Override
