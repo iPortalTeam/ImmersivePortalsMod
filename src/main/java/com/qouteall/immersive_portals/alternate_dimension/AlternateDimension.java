@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
-import com.qouteall.immersive_portals.ModMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
@@ -11,29 +10,64 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeSourceType;
+import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
+import net.minecraft.world.biome.source.VanillaLayeredBiomeSourceConfig;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorType;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
-import org.apache.commons.lang3.Validate;
+import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
 
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class AlternateDimension extends Dimension {
     
     public static final BlockPos SPAWN = new BlockPos(100, 50, 0);
     
     private static Random random = new Random();
+    Function<AlternateDimension, ChunkGenerator> chunkGeneratorFunction;
+    Supplier<DimensionType> dimensionTypeSupplier;
     
     public AlternateDimension(
         World worldIn,
-        DimensionType typeIn
+        DimensionType typeIn,
+        Function<AlternateDimension, ChunkGenerator> chunkGeneratorFunction_,
+        Supplier<DimensionType> dimensionTypeSupplier_
     ) {
         super(worldIn, typeIn, 0);
+        chunkGeneratorFunction = chunkGeneratorFunction_;
+        dimensionTypeSupplier = dimensionTypeSupplier_;
     }
     
     public ChunkGenerator<?> createChunkGenerator() {
+        return chunkGeneratorFunction.apply(this);
+    }
+    
+    public ChunkGenerator<?> getChunkGeneratorNormalBiome() {
+        OverworldChunkGeneratorConfig overworldChunkGeneratorConfig2 =
+            (OverworldChunkGeneratorConfig) ChunkGeneratorType.SURFACE.createSettings();
+        VanillaLayeredBiomeSourceConfig vanillaLayeredBiomeSourceConfig2 =
+            ((VanillaLayeredBiomeSourceConfig) BiomeSourceType.VANILLA_LAYERED.getConfig(this.world.getLevelProperties())).setGeneratorSettings(
+                overworldChunkGeneratorConfig2);
+        
+        VanillaLayeredBiomeSource newBiomeSource = BiomeSourceType.VANILLA_LAYERED.applyConfig(
+            vanillaLayeredBiomeSourceConfig2);
+        
+        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.withCenter(this.getForcedSpawnPoint());
+        return ChunkGeneratorType.FLOATING_ISLANDS.create(
+            this.world,
+            newBiomeSource,
+            generationSettings
+        );
+    }
+    
+    public ChunkGenerator<?> getChunkGeneratorFixedRandomBiome() {
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
@@ -97,8 +131,7 @@ public class AlternateDimension extends Dimension {
     
     @Override
     public DimensionType getType() {
-        Validate.notNull(ModMain.alternate);
-        return ModMain.alternate;
+        return dimensionTypeSupplier.get();
     }
     
     @Environment(EnvType.CLIENT)

@@ -37,7 +37,7 @@ public class MixinBackgroundRenderer {
     )
     private static Vec3d redirectCameraGetPos(Camera camera) {
         ClientWorld world = MinecraftClient.getInstance().world;
-        if (world != null && world.dimension.getType() == ModMain.alternate) {
+        if (world != null && world.dimension.getType() == ModMain.alternate1) {
             return new Vec3d(
                 camera.getPos().x,
                 Math.max(32.0, camera.getPos().y),

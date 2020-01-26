@@ -90,7 +90,7 @@ public class MixinClientWorld implements IEClientWorld {
     )
     private void onGetSkyDarknessHeight(CallbackInfoReturnable<Double> cir) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;
-        if (clientWorld.dimension.getType() == ModMain.alternate) {
+        if (clientWorld.dimension.getType() == ModMain.alternate1) {
             cir.setReturnValue(-100d);
             cir.cancel();
         }

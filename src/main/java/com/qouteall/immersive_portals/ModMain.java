@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensionInit;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
@@ -17,9 +17,6 @@ import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
-import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 public class ModMain implements ModInitializer {
     public static final Signal postClientTickSignal = new Signal();
@@ -29,7 +26,8 @@ public class ModMain implements ModInitializer {
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
     
-    public static FabricDimensionType alternate;
+    public static FabricDimensionType alternate1;
+    public static FabricDimensionType alternate2;
     
     @Override
     public void onInitialize() {
@@ -64,19 +62,8 @@ public class ModMain implements ModInitializer {
         
         ServerPerformanceAdjust.init();
         
-        alternate = FabricDimensionType.builder()
-            .factory(AlternateDimension::new)
-            .skyLight(true)
-            .defaultPlacer(
-                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-                    new BlockPattern.TeleportTarget(
-                        Vec3d.ZERO,
-                        Vec3d.ZERO,
-                        0
-                    )
-            )
-            .buildAndRegister(new Identifier("immersive_portals", "alternate1"));
-    
+        AlternateDimensionInit.initMyDimensions();
+        
         RequiemCompat.init();
     }
     
