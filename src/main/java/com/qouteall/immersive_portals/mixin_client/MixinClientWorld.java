@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEWorld;
@@ -90,7 +90,7 @@ public class MixinClientWorld implements IEClientWorld {
     )
     private void onGetSkyDarknessHeight(CallbackInfoReturnable<Double> cir) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;
-        if (clientWorld.dimension.getType() == ModMain.alternate1) {
+        if (clientWorld.dimension instanceof AlternateDimension) {
             cir.setReturnValue(-100d);
             cir.cancel();
         }

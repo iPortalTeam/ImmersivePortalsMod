@@ -25,6 +25,10 @@ public class WorldInfoSender {
                         player,
                         McHelper.getServer().getWorld(ModMain.alternate1)
                     );
+                    sendWorldInfo(
+                        player,
+                        McHelper.getServer().getWorld(ModMain.alternate2)
+                    );
                 }
             }
         });

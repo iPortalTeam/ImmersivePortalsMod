@@ -52,10 +52,10 @@ public class AlternateDimension extends Dimension {
         VanillaLayeredBiomeSourceConfig vanillaLayeredBiomeSourceConfig2 =
             ((VanillaLayeredBiomeSourceConfig) BiomeSourceType.VANILLA_LAYERED.getConfig(this.world.getLevelProperties())).setGeneratorSettings(
                 overworldChunkGeneratorConfig2);
-        
-        VanillaLayeredBiomeSource newBiomeSource = BiomeSourceType.VANILLA_LAYERED.applyConfig(
-            vanillaLayeredBiomeSourceConfig2);
-        
+    
+        VanillaLayeredBiomeSource newBiomeSource =
+            BiomeSourceType.VANILLA_LAYERED.applyConfig(vanillaLayeredBiomeSourceConfig2);
+    
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
@@ -81,6 +81,28 @@ public class AlternateDimension extends Dimension {
             ),
             generationSettings
         );
+    }
+    
+    public ChunkGenerator<?> getChunkGeneratorSpecial() {
+        
+        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.withCenter(this.getForcedSpawnPoint());
+        
+        
+        return new MyFloatingIslandChunkGenerator(
+            world,
+            new ChaosBiomeSource(world.getSeed()),
+            generationSettings
+        
+        );
+
+//        return ChunkGeneratorType.FLOATING_ISLANDS.create(
+//            this.world,
+//            new ChaosBiomeSource(world.getSeed()),
+//            generationSettings
+//        );
     }
     
     @Override

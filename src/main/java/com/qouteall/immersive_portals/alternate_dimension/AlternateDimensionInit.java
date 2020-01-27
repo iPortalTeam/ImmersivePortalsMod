@@ -39,5 +39,21 @@ public class AlternateDimensionInit {
                     )
             )
             .buildAndRegister(new Identifier("immersive_portals", "alternate2"));
+    
+        ModMain.alternate3 = FabricDimensionType.builder()
+            .factory((world, type) -> new AlternateDimension(
+                world, type, AlternateDimension::getChunkGeneratorSpecial,
+                () -> ModMain.alternate3
+            ))
+            .skyLight(true)
+            .defaultPlacer(
+                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+                    new BlockPattern.TeleportTarget(
+                        Vec3d.ZERO,
+                        Vec3d.ZERO,
+                        0
+                    )
+            )
+            .buildAndRegister(new Identifier("immersive_portals", "alternate3"));
     }
 }
