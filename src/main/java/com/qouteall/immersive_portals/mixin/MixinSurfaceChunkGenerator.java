@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(SurfaceChunkGenerator.class)
-public class MixinSurfaceChunkGenerator implements IESurfaceChunkGenerator {
+public abstract class MixinSurfaceChunkGenerator implements IESurfaceChunkGenerator {
     @Shadow
     @Final
     private int verticalNoiseResolution;
@@ -24,6 +24,17 @@ public class MixinSurfaceChunkGenerator implements IESurfaceChunkGenerator {
     @Final
     private int noiseSizeZ;
     
+    
+    @Shadow
+    protected abstract double sampleNoise(
+        int x,
+        int y,
+        int z,
+        double d,
+        double e,
+        double f,
+        double g
+    );
     
     @Override
     public int get_verticalNoiseResolution() {
@@ -48,5 +59,10 @@ public class MixinSurfaceChunkGenerator implements IESurfaceChunkGenerator {
     @Override
     public int get_noiseSizeZ() {
         return noiseSizeZ;
+    }
+    
+    @Override
+    public double sampleNoise_(int x, int y, int z, double d, double e, double f, double g) {
+        return sampleNoise(x, y, z, d, e, f, g);
     }
 }

@@ -46,7 +46,7 @@ public class AlternateDimension extends Dimension {
         return chunkGeneratorFunction.apply(this);
     }
     
-    public ChunkGenerator<?> getChunkGeneratorNormalBiome() {
+    public ChunkGenerator<?> getChunkGenerator2() {
         OverworldChunkGeneratorConfig overworldChunkGeneratorConfig2 =
             (OverworldChunkGeneratorConfig) ChunkGeneratorType.SURFACE.createSettings();
         VanillaLayeredBiomeSourceConfig vanillaLayeredBiomeSourceConfig2 =
@@ -67,7 +67,7 @@ public class AlternateDimension extends Dimension {
         );
     }
     
-    public ChunkGenerator<?> getChunkGeneratorFixedRandomBiome() {
+    public ChunkGenerator<?> getChunkGenerator1() {
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
@@ -83,7 +83,7 @@ public class AlternateDimension extends Dimension {
         );
     }
     
-    public ChunkGenerator<?> getChunkGeneratorSpecial() {
+    public ChunkGenerator<?> getChunkGenerator3() {
         
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
@@ -103,6 +103,19 @@ public class AlternateDimension extends Dimension {
 //            new ChaosBiomeSource(world.getSeed()),
 //            generationSettings
 //        );
+    }
+    
+    public ChunkGenerator<?> getChunkGenerator4() {
+        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.withCenter(this.getForcedSpawnPoint());
+        
+        return new MyKaleidoscopeGenerator(
+            world,
+            new ChaosBiomeSource(world.getSeed()),
+            generationSettings
+        );
     }
     
     @Override
