@@ -70,7 +70,7 @@ public class AlternateDimension extends Dimension {
     public ChunkGenerator<?> getChunkGenerator1() {
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
-        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
         return ChunkGeneratorType.FLOATING_ISLANDS.create(
             this.world,
@@ -87,7 +87,7 @@ public class AlternateDimension extends Dimension {
         
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
-        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
         
         
@@ -108,10 +108,10 @@ public class AlternateDimension extends Dimension {
     public ChunkGenerator<?> getChunkGenerator4() {
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
-        generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
-        
-        return new MyKaleidoscopeGenerator(
+    
+        return new ErrorTerrainGenerator(
             world,
             new ChaosBiomeSource(world.getSeed()),
             generationSettings

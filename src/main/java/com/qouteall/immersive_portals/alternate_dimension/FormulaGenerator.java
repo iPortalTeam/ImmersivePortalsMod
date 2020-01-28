@@ -40,59 +40,70 @@ public class FormulaGenerator {
         return x -> base.eval(a.eval(x), b.eval(x), c.eval(x));
     }
     
+    public static UniNumFunction addConstant(
+        UniNumFunction a
+    ) {
+        double v1 = a.eval(0);
+        double v2 = a.eval(0.5);
+        double v3 = a.eval(1);
+        double average = (v1 + v2 + v3) / 3;
+        double sub = average - 0.5;
+        if (sub == 0) {
+            return a;
+        }
+        return x -> a.eval(x) - sub;
+    }
+    
     public static UniNumFunction getRandomUniExpression(
         int seed
     ) {
-        int selector = seed % 77;
+        int selector = seed % 80;
         
-        if (selector < 5) {
-            int offset = seed % 73;
-            return x -> x + offset;
+        if (selector < 10) {
+            return x -> x;
         }
-        else if (selector < 14) {
-            int offset = seed % 47;
-            return x -> x - offset;
-        }
-        else if (selector < 21) {
-            int factor = (seed % 6) + 1;
+        else if (selector < 20) {
+            int factor = (seed % 7) + 1;
             return x -> x * factor;
         }
-        else if (selector < 28) {
-            int factor = (seed % 6) + 1;
+        else if (selector < 30) {
+            int factor = (seed % 7) + 1;
             return x -> x * -factor;
         }
-        else if (selector < 34) {
-            int factor = (seed % 6) + 1;
-            return x -> x * -factor;
-        }
-        else if (selector < 37) {
-            int divisor = (seed % 6) + 1;
+        else if (selector < 38) {
+            int divisor = (seed % 7) + 1;
             return x -> x / divisor;
         }
-        else if (selector < 40) {
+        else if (selector < 42) {
             return x -> x * x;
         }
         else if (selector < 48) {
-            return x -> Math.sin(x / 20.0);
+            return x -> Math.sin(x * 3);
         }
         else if (selector < 56) {
-            return x -> Math.cos(x / 30.0);
+            return x -> Math.cos(x * 7);
         }
         else if (selector < 60) {
             return Math::exp;
         }
-        else if (seed < 65) {
+        else if (selector < 65) {
             return x -> Math.sqrt(Math.abs(x));
         }
+        else if (selector < 70) {
+            return x -> Math.max(x, 0.5);
+        }
+        else if (selector < 76) {
+            return x -> Math.floor(x * 12);
+        }
         else {
-            return x -> x;
+            return x -> x * x * x;
         }
     }
     
     public static TriNumFunction getRandomTriExpression(
         int seed
     ) {
-        int selector = seed % 87;
+        int selector = seed % 90;
         
         if (selector < 30) {
             return (x, y, z) -> x + y + z;
@@ -104,7 +115,7 @@ public class FormulaGenerator {
             return (x, y, z) -> x * y - z;
         }
         else if (selector < 50) {
-            return (x, y, z) -> x * x - y * y + z;
+            return (x, y, z) -> x * x - y * y + z * z;
         }
         else if (selector < 55) {
             return (x, y, z) -> x * x + y * y + z * z;
@@ -112,14 +123,11 @@ public class FormulaGenerator {
         else if (selector < 60) {
             return (x, y, z) -> x + y * z;
         }
-        else if (selector < 65) {
-            return (x, y, z) -> x * y * z;
-        }
-        else if (selector < 70) {
+        else if (selector < 67) {
             return (x, y, z) -> x - y * z;
         }
-        else if (selector < 80) {
-            return (x, y, z) -> x * z - y;
+        else if (selector < 75) {
+            return (x, y, z) -> x * z + y * 2;
         }
         else {
             return (x, y, z) -> x * y * z;
@@ -131,11 +139,13 @@ public class FormulaGenerator {
         int nestingLayer
     ) {
         if (nestingLayer == 0) {
-            return mergeExpression(
-                getRandomTriExpression(random.nextInt()),
-                getRandomUniExpression(random.nextInt()),
-                getRandomUniExpression(random.nextInt()),
-                getRandomUniExpression(random.nextInt())
+            return addConstant(
+                mergeExpression(
+                    getRandomTriExpression(random.nextInt()),
+                    addConstant(getRandomUniExpression(random.nextInt())),
+                    addConstant(getRandomUniExpression(random.nextInt())),
+                    addConstant(getRandomUniExpression(random.nextInt()))
+                )
             );
         }
         
@@ -152,9 +162,9 @@ public class FormulaGenerator {
     ) {
         return nestExpression(
             getRandomTriExpression(random.nextInt()),
-            getComplexUniExpression(random, 0),
-            getComplexUniExpression(random, 0),
-            getComplexUniExpression(random, 0)
+            getComplexUniExpression(random, 2),
+            getComplexUniExpression(random, 3),
+            getComplexUniExpression(random, 2)
         );
     }
 }
