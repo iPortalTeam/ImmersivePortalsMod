@@ -56,7 +56,7 @@ public class MyKaleidoscopeGenerator extends FloatingIslandsChunkGenerator {
             
             initExpression(seed);
             
-            calculateAverage();
+            //calculateAverage();
         }
         
         private void initExpression(long seed) {
@@ -124,6 +124,11 @@ public class MyKaleidoscopeGenerator extends FloatingIslandsChunkGenerator {
         AIR = Blocks.AIR.getDefaultState();
     }
     
+    public static class TaskInfo {
+        double currAverage = 0;
+        boolean isInited = false;
+    }
+    
     
     @Override
     public void populateNoise(IWorld world, Chunk chunk) {
@@ -155,6 +160,8 @@ public class MyKaleidoscopeGenerator extends FloatingIslandsChunkGenerator {
             cache.get(new ChunkPos(regionX, regionZ))
         );
         
+        TaskInfo taskInfo = new TaskInfo();
+        
         for (int sectionY = 0; sectionY < 16; sectionY++) {
             ChunkSection section = protoChunk.getSection(sectionY);
             section.lock();
@@ -166,8 +173,13 @@ public class MyKaleidoscopeGenerator extends FloatingIslandsChunkGenerator {
                         int worldY = sectionY * 16 + localY;
                         int worldZ = pos.z * 16 + localZ;
                         
-                        BlockComposition composition =
-                            getBlockComposition(info, worldX, worldY, worldZ);
+                        BlockComposition composition = getBlockComposition(
+                            info,
+                            taskInfo,
+                            worldX,
+                            worldY,
+                            worldZ
+                        );
                         
                         BlockState currBlockState;
                         
@@ -199,34 +211,45 @@ public class MyKaleidoscopeGenerator extends FloatingIslandsChunkGenerator {
         
     }
     
+    public BlockComposition getBlockComposition(
+        RegionGenerationInfo info,
+        TaskInfo taskInfo,
+        int worldX,
+        int worldY,
+        int worldZ
+    ) {
+        BlockComposition composition = BlockComposition.air;
+        
+        if (worldY >= maxY) {
+            return composition;
+        }
+        
+        double currValue = info.calc(worldX, worldY, worldZ);
+        double splitPoint = taskInfo.currAverage;
+        //splitPoint *= Math.exp(Math.abs(worldY - averageY) / 16.0);
+        if (currValue > splitPoint) {
+            composition = BlockComposition.stone;
+        }
+        else {
+            composition = BlockComposition.air;
+        }
+        
+        if (taskInfo.isInited) {
+            double ratio = 0.02;
+            taskInfo.currAverage = taskInfo.currAverage * (1 - ratio) + currValue * ratio;
+        }
+        else {
+            taskInfo.currAverage = currValue;
+        }
+        
+        return composition;
+    }
+    
     enum BlockComposition {
         stone,
         water,
         air
     }
     
-    
-    private BlockComposition getBlockComposition(
-        RegionGenerationInfo info,
-        int worldX, int worldY, int worldZ
-    ) {
-        
-        if (worldY >= maxY) {
-            return BlockComposition.air;
-        }
-        
-        double value = info.calc(worldX, worldY, worldZ);
-        
-        double valve = info.singleAverage;
-        
-        valve *= Math.exp(Math.abs(worldY - averageY) / 32.0);
-        
-        if (value > valve) {
-            return BlockComposition.stone;
-        }
-        else {
-            return BlockComposition.air;
-        }
-    }
     
 }
