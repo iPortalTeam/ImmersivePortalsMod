@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.chunk_loading;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.MyNetwork;
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import net.minecraft.client.network.packet.GameStateChangeS2CPacket;
 import net.minecraft.client.network.packet.WorldTimeUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,14 +22,16 @@ public class WorldInfoSender {
                             McHelper.getServer().getWorld(DimensionType.OVERWORLD)
                         );
                     }
-                    sendWorldInfo(
-                        player,
-                        McHelper.getServer().getWorld(ModMain.alternate1)
-                    );
-                    sendWorldInfo(
-                        player,
-                        McHelper.getServer().getWorld(ModMain.alternate2)
-                    );
+    
+                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
+                        if (thisWorld.dimension instanceof AlternateDimension) {
+                            sendWorldInfo(
+                                player,
+                                thisWorld
+                            );
+                        }
+                    });
+    
                 }
             }
         });

@@ -262,14 +262,11 @@ public class NetherPortalGenerator {
     public static DimensionType getDestinationDimension(
         DimensionType fromDimension
     ) {
-        if (fromDimension == DimensionType.OVERWORLD) {
-            return DimensionType.THE_NETHER;
-        }
-        else if (fromDimension == DimensionType.THE_NETHER) {
+        if (fromDimension == DimensionType.THE_NETHER) {
             return DimensionType.OVERWORLD;
         }
         else {
-            return null;
+            return DimensionType.THE_NETHER;
         }
     }
     

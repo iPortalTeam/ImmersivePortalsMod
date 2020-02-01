@@ -3,14 +3,18 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
+import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -81,6 +85,20 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private boolean needsTerrainUpdate;
     
+    
+    @Shadow
+    private VertexBuffer lightSkyBuffer;
+    
+    @Shadow
+    @Final
+    private VertexFormat skyVertexFormat;
+    
+    @Shadow
+    @Final
+    private TextureManager textureManager;
+    
+    @Shadow
+    private VertexBuffer darkSkyBuffer;
     
     @Redirect(
         method = "render",
@@ -378,6 +396,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
+    
+        if (client.world.dimension instanceof AlternateDimension) {
+            AlternateSky.renderAlternateSky(matrixStack_1, float_1);
+        }
+    
         GL11.glCullFace(GL11.GL_BACK);
     }
     
@@ -472,6 +495,5 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             return original;
         }
     }
-    
     
 }

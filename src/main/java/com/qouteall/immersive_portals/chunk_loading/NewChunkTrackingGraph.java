@@ -27,8 +27,6 @@ public class NewChunkTrackingGraph {
     }
     
     public static class ChunkRecord {
-        //comparing to HashSet, ArrayList is more cache friendly
-        //use parallel array to avoid small object allocation
         public ArrayList<ServerPlayerEntity> watchingPlayers = new ArrayList<>();
         public LongList lastWatchTimeList = new LongArrayList();
         public IntList distanceToSourceList = new IntArrayList();
@@ -116,8 +114,6 @@ public class NewChunkTrackingGraph {
                         distanceToSource,
                         () -> beginWatchChunkSignal.emit(
                             player,
-                            //this allocation has a good change of being optimized
-                            //because this object will not be stored
                             new DimensionalChunkPos(
                                 dimension,
                                 x, z
