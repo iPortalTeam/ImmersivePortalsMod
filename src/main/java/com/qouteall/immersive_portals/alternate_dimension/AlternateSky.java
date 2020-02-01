@@ -1,74 +1,103 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.render.ShaderManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public class AlternateSky {
     public static void renderAlternateSky(MatrixStack matrixStack, float f) {
         ClientWorld world = MinecraftClient.getInstance().world;
-
-//        VertexBuffer.unbind();
         
+        if (shouldRenderBlackLid(world)) {
+            renderBlackLid(matrixStack);
+        }
+    }
+    
+    private static boolean shouldRenderBlackLid(ClientWorld world) {
+        List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) world).getGlobalPortals();
+        return globalPortals.stream().anyMatch(portal ->
+            portal.getY() > 128 && portal.dimensionTo == DimensionType.THE_END
+        );
+    }
+    
+    private static void renderBlackLid(MatrixStack matrixStack) {
         RenderSystem.disableTexture();
         RenderSystem.depthMask(false);
         RenderSystem.disableDepthTest();
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.enableAlphaTest();
+        RenderSystem.disableAlphaTest();
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableFog();
         RenderSystem.shadeModel(7425);
-        
-        Vec3d skyColor = world.method_23777(
-            MinecraftClient.getInstance().gameRenderer.getCamera().getBlockPos(),
-            f
-        );
-        float[] skyColor1 = world.dimension.getBackgroundColor(world.getSkyAngle(f), f);
         
         BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         
         bufferBuilder.begin(GL11.GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         
-        float topR = (float) skyColor.x;
-        float topG = (float) skyColor.y;
-        float topB = (float) skyColor.z;
-        float topA = 0;
-        float bottomR = 0;
-        float bottomG = 0;
-        float bottomB = 0;
-        float bottomA = 1f;
+        float colorR = 18 / 255.0f;
+        float colorG = 13 / 255.0f;
+        float colorB = 26 / 255.0f;
+        float colorA = 0;
         
-        bufferBuilder.vertex(1, 0, 0).color(bottomR, bottomG, bottomB, bottomA).next();
-        bufferBuilder.vertex(0, -1, 0).color(topR, topG, topB, topA).next();
-        bufferBuilder.vertex(0, 0, 1).color(bottomR, bottomG, bottomB, bottomA).next();
+        bufferBuilder.vertex(100, 0, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, -100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 0, 100).color(colorR, colorG, colorB, colorA).next();
         
-        bufferBuilder.vertex(0, 0, 1).color(bottomR, bottomG, bottomB, bottomA).next();
-        bufferBuilder.vertex(0, -1, 0).color(topR, topG, topB, topA).next();
-        bufferBuilder.vertex(-1, 0, 0).color(bottomR, bottomG, bottomB, bottomA).next();
+        bufferBuilder.vertex(0, 0, 100).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, -100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(-100, 0, 0).color(colorR, colorG, colorB, colorA).next();
         
-        bufferBuilder.vertex(-1, 0, 0).color(bottomR, bottomG, bottomB, bottomA).next();
-        bufferBuilder.vertex(0, -1, 0).color(topR, topG, topB, topA).next();
-        bufferBuilder.vertex(0, 0, -1).color(bottomR, bottomG, bottomB, bottomA).next();
+        bufferBuilder.vertex(-100, 0, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, -100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 0, -100).color(colorR, colorG, colorB, colorA).next();
         
-        bufferBuilder.vertex(0, 0, -1).color(bottomR, bottomG, bottomB, bottomA).next();
-        bufferBuilder.vertex(0, -1, 0).color(topR, topG, topB, topA).next();
-        bufferBuilder.vertex(1, 0, 0).color(bottomR, bottomG, bottomB, bottomA).next();
+        bufferBuilder.vertex(0, 0, -100).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, -100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(100, 0, 0).color(colorR, colorG, colorB, colorA).next();
+        
+        bufferBuilder.vertex(100, 0, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 0, 100).color(colorR, colorG, colorB, colorA).next();
+        
+        bufferBuilder.vertex(0, 0, 100).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(-100, 0, 0).color(colorR, colorG, colorB, colorA).next();
+        
+        bufferBuilder.vertex(-100, 0, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 0, -100).color(colorR, colorG, colorB, colorA).next();
+        
+        bufferBuilder.vertex(0, 0, -100).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(0, 100, 0).color(colorR, colorG, colorB, colorA).next();
+        bufferBuilder.vertex(100, 0, 0).color(colorR, colorG, colorB, colorA).next();
         
         bufferBuilder.end();
         
-        matrixStack.push();
-        matrixStack.translate(0, 0.3, 0);
         McHelper.runWithTransformation(matrixStack, () -> {
+            if (CGlobal.shaderManager == null) {
+                CGlobal.shaderManager = new ShaderManager();
+            }
+            
+            double y = MinecraftClient.getInstance().gameRenderer.getCamera().getPos().y;
+            
+            float origin = y > 256 ? (float) ((256.0 - y) / 256.0) : 0;
+            CGlobal.shaderManager.loadGradientSkyShader(origin);
             BufferRenderer.draw(bufferBuilder);
+            CGlobal.shaderManager.unloadShader();
         });
-        matrixStack.pop();
         
         //reset gl states
         RenderLayer.getBlockLayers().get(0).startDrawing();
