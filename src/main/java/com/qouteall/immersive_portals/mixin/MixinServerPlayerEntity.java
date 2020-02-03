@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.google.common.collect.HashMultimap;
+import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
@@ -12,6 +13,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -24,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Set;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
+public abstract class MixinServerPlayerEntity extends PlayerEntity implements IEServerPlayerEntity {
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
     @Shadow
@@ -32,21 +34,19 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     
     private HashMultimap<DimensionType, Entity> myRemovedEntities;
     
-    @Shadow
-    public abstract void method_18783(ServerWorld serverWorld_1);
+    public MixinServerPlayerEntity(
+        World world,
+        GameProfile profile
+    ) {
+        super(world, profile);
+        throw new IllegalStateException();
+    }
     
     @Shadow
     private boolean inTeleportationState;
     
-    @Override
-    public void setEnteredNetherPos(Vec3d pos) {
-        enteredNetherPos = pos;
-    }
-    
-    @Override
-    public void updateDimensionTravelAdvancements(ServerWorld fromWorld) {
-        method_18783(fromWorld);
-    }
+    @Shadow
+    protected abstract void dimensionChanged(ServerWorld targetWorld);
     
     @Inject(
         method = "Lnet/minecraft/server/network/ServerPlayerEntity;sendUnloadChunkPacket(Lnet/minecraft/util/math/ChunkPos;)V",
@@ -123,7 +123,27 @@ public abstract class MixinServerPlayerEntity implements IEServerPlayerEntity {
     }
     
     @Override
+    public void setEnteredNetherPos(Vec3d pos) {
+        enteredNetherPos = pos;
+    }
+    
+    @Override
+    public void updateDimensionTravelAdvancements(ServerWorld fromWorld) {
+        dimensionChanged(fromWorld);
+    }
+    
+    @Override
     public void setIsInTeleportationState(boolean arg) {
         inTeleportationState = arg;
+    }
+    
+    @Override
+    public void stopRidingWithoutTeleportRequest() {
+        super.stopRiding();
+    }
+    
+    @Override
+    public void startRidingWithoutTeleportRequest(Entity newVehicle) {
+        super.startRiding(newVehicle, true);
     }
 }

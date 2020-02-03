@@ -2,17 +2,16 @@ package com.qouteall.immersive_portals.compat;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.SGlobal;
+import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 
 import java.lang.reflect.Method;
@@ -70,7 +69,7 @@ public class RequiemCompat {
         if (possessedEntity != null) {
             if (possessedEntity.dimension != player.dimension) {
                 Helper.log("Move Requiem Possessed Entity at Client");
-                moveClientEntityAcrossDimension(
+                ClientTeleportationManager.moveClientEntityAcrossDimension(
                     possessedEntity,
                     ((ClientWorld) player.world),
                     player.getPos()
@@ -95,21 +94,6 @@ public class RequiemCompat {
                 );
             }
         }
-    }
-    
-    @Environment(EnvType.CLIENT)
-    private static void moveClientEntityAcrossDimension(
-        Entity entity,
-        ClientWorld newWorld,
-        Vec3d newPos
-    ) {
-        ClientWorld oldWorld = (ClientWorld) entity.world;
-        oldWorld.removeEntity(entity.getEntityId());
-        entity.removed = false;
-        entity.world = newWorld;
-        entity.dimension = newWorld.dimension.getType();
-        entity.updatePosition(newPos.x, newPos.y, newPos.z);
-        newWorld.addEntity(entity.getEntityId(), entity);
     }
     
     

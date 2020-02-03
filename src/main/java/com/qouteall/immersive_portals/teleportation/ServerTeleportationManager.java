@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -99,8 +100,7 @@ public class ServerTeleportationManager {
     ) {
         return canPlayerReachPos(player, dimensionBefore, posBefore) &&
             portalEntity instanceof Portal &&
-            ((Portal) portalEntity).getDistanceToPlane(posBefore) < 20 &&
-            !player.hasVehicle();
+            ((Portal) portalEntity).getDistanceToPlane(posBefore) < 20;
     }
     
     private boolean canPlayerReachPos(
@@ -179,22 +179,24 @@ public class ServerTeleportationManager {
         ServerWorld toWorld,
         Vec3d destination
     ) {
-        BlockPos oldPos = player.getBlockPos();
-        
-        teleportingEntities.add(player);
+        Entity vehicle = player.getVehicle();
+        if (vehicle != null) {
+            ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
+        }
     
-        //TODO fix travel when riding entity
-        player.detach();
+        BlockPos oldPos = player.getBlockPos();
+    
+        teleportingEntities.add(player);
     
         fromWorld.removePlayer(player);
         player.removed = false;
     
-        player.setPos(destination.x, destination.y, destination.z);
-        
+        player.updatePosition(destination.x, destination.y, destination.z);
+    
         player.world = toWorld;
         player.dimension = toWorld.dimension.getType();
         toWorld.onPlayerChangeDimension(player);
-        
+    
         toWorld.checkChunk(player);
     
         isFiringMyChangeDimensionEvent = true;
@@ -202,8 +204,23 @@ public class ServerTeleportationManager {
             player, toWorld
         );
         isFiringMyChangeDimensionEvent = false;
-        
+    
         player.interactionManager.setWorld(toWorld);
+    
+        if (vehicle != null) {
+            Vec3d vehiclePos = new Vec3d(
+                destination.x,
+                McHelper.getVehicleY(vehicle, player),
+                destination.z
+            );
+            changeEntityDimension(
+                vehicle,
+                toWorld.dimension.getType(),
+                vehiclePos
+            );
+            ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
+            McHelper.adjustVehicle(player);
+        }
     
         Helper.log(String.format(
             "%s teleported from %s %s to %s %s",
@@ -270,8 +287,8 @@ public class ServerTeleportationManager {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
-        
-        if (entity.hasVehicle() || !entity.getPassengerList().isEmpty()) {
+    
+        if (entity.hasVehicle() || doesEntityClutterContainPlayer(entity)) {
             return;
         }
         
@@ -299,20 +316,31 @@ public class ServerTeleportationManager {
         ServerWorld fromWorld = (ServerWorld) entity.world;
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
         entity.detach();
-        
-        Stream<ServerPlayerEntity> watchingPlayers = McHelper.getEntitiesNearby(
-            entity,
-            ServerPlayerEntity.class,
-            128
-        );
-        
+    
         fromWorld.removeEntity(entity);
         entity.removed = false;
     
-        entity.setPos(destination.x, destination.y, destination.z);
-        
+        entity.updatePosition(destination.x, destination.y, destination.z);
+    
         entity.world = toWorld;
         entity.dimension = toDimension;
         toWorld.onDimensionChanged(entity);
+    }
+    
+    private boolean doesEntityClutterContainPlayer(Entity entity) {
+        if (entity instanceof PlayerEntity) {
+            return true;
+        }
+        List<Entity> passengerList = entity.getPassengerList();
+        if (passengerList.isEmpty()) {
+            return false;
+        }
+        return passengerList.stream().anyMatch(this::doesEntityClutterContainPlayer);
+    }
+    
+    public boolean isJustTeleported(Entity entity, long valveTickTime) {
+        long currGameTime = McHelper.getServerGameTime();
+        Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
+        return currGameTime - lastTeleportGameTime < valveTickTime;
     }
 }

@@ -6,11 +6,11 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import java.util.List;
 
 public interface IEClientWorld {
-    public ClientPlayNetworkHandler getNetHandler();
+    ClientPlayNetworkHandler getNetHandler();
     
-    public void setNetHandler(ClientPlayNetworkHandler handler);
+    void setNetHandler(ClientPlayNetworkHandler handler);
     
-    public List<GlobalTrackedPortal> getGlobalPortals();
+    List<GlobalTrackedPortal> getGlobalPortals();
     
-    public void setGlobalPortals(List<GlobalTrackedPortal> arg);
+    void setGlobalPortals(List<GlobalTrackedPortal> arg);
 }

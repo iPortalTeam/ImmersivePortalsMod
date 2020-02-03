@@ -328,16 +328,6 @@ public class MyCommandClient {
                 return 0;
             })
         );
-        builder.then(CommandManager
-            .literal("reload_my_shader")
-            .executes(context -> {
-                MinecraftClient mc = MinecraftClient.getInstance();
-                mc.execute(() -> {
-                    CGlobal.shaderManager.loadShaders();
-                });
-                return 0;
-            })
-        );
         registerSwitchCommand(
             builder,
             "smooth_unload",

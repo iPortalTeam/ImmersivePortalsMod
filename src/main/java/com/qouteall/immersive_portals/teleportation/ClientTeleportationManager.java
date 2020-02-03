@@ -11,6 +11,8 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -25,6 +27,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
+@Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
     private long tickTimeForTeleportation = 0;
@@ -73,6 +76,7 @@ public class ClientTeleportationManager {
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
+    
     public void acceptSynchronizationDataFromServer(
         DimensionType dimension,
         Vec3d pos,
@@ -112,7 +116,7 @@ public class ClientTeleportationManager {
                     portal -> onEntityGoInsidePortal(mc.player, portal)
                 );
             }
-    
+            
             lastPlayerHeadPos = mc.player.getCameraPosVec(MyRenderHelper.partialTicks);
         }
     }
@@ -134,10 +138,6 @@ public class ClientTeleportationManager {
         
         DimensionType toDimension = portal.dimensionTo;
         
-        if (mc.player.hasPassengers() || mc.player.hasVehicle()) {
-            return;
-        }
-        
         Vec3d oldPos = player.getPos();
         
         Vec3d newPos = portal.applyTransformationToPoint(oldPos);
@@ -148,13 +148,13 @@ public class ClientTeleportationManager {
         
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
-    
+            
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
         
         player.updatePosition(newPos.x, newPos.y, newPos.z);
         McHelper.setPosAndLastTickPos(player, newPos, newLastTickPos);
-    
+        
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldPos,
@@ -162,9 +162,8 @@ public class ClientTeleportationManager {
         ));
         
         amendChunkEntityStatus(player);
-    
-        //is it necessary?
-        //doUpdateLight(player);
+        
+        McHelper.adjustVehicle(player);
     }
     
     private boolean isTeleportingFrequently() {
@@ -188,13 +187,14 @@ public class ClientTeleportationManager {
                 destination.y,
                 destination.z
             );
+            McHelper.adjustVehicle(player);
         }
         else {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
             
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }
-    
+        
         amendChunkEntityStatus(player);
     }
     
@@ -204,62 +204,76 @@ public class ClientTeleportationManager {
     private void changePlayerDimension(
         ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d destination
     ) {
-    
+        Entity vehicle = player.getVehicle();
+        player.detach();
+        
         DimensionType toDimension = toWorld.dimension.getType();
         DimensionType fromDimension = fromWorld.dimension.getType();
-    
+        
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
         ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
         ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
         ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
         ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
-    
+        
         fromWorld.removeEntity(player.getEntityId());
         player.removed = false;
         player.world = toWorld;
-    
+        
         player.dimension = toDimension;
         player.updatePosition(
             destination.x,
             destination.y,
             destination.z
         );//set pos and update bounding box
-    
+        
         toWorld.addPlayer(player.getEntityId(), player);
-    
+        
         mc.world = toWorld;
         ((IEMinecraftClient) mc).setWorldRenderer(
             CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
         );
         
         toWorld.setScoreboard(fromWorld.getScoreboard());
-    
+        
         if (mc.particleManager != null)
             mc.particleManager.setWorld(toWorld);
-    
+        
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
-    
+        
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
             .getDimensionRenderHelper(toDimension).lightmapTexture);
-    
-    
+        
+        if (vehicle != null) {
+            Vec3d vehiclePos = new Vec3d(
+                destination.x,
+                McHelper.getVehicleY(vehicle, player),
+                destination.z
+            );
+            moveClientEntityAcrossDimension(
+                vehicle, toWorld,
+                vehiclePos
+            );
+            player.startRiding(vehicle, true);
+        }
+        
         Helper.log(String.format(
             "Client Changed Dimension from %s to %s time: %s",
             fromDimension,
             toDimension,
             tickTimeForTeleportation
         ));
-    
+        
         //because the teleportation may happen before rendering
         //but after pre render info being updated
         MyRenderHelper.updatePreRenderInfo(MyRenderHelper.partialTicks);
-    
+        
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
-    
+        
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
-    
+        
         RequiemCompat.onPlayerTeleportedClient();
     }
     
@@ -310,4 +324,19 @@ public class ClientTeleportationManager {
             player.setVelocity(player.getVelocity().multiply(ratio));
         }
     }
+    
+    public static void moveClientEntityAcrossDimension(
+        Entity entity,
+        ClientWorld newWorld,
+        Vec3d newPos
+    ) {
+        ClientWorld oldWorld = (ClientWorld) entity.world;
+        oldWorld.removeEntity(entity.getEntityId());
+        entity.removed = false;
+        entity.world = newWorld;
+        entity.dimension = newWorld.dimension.getType();
+        entity.updatePosition(newPos.x, newPos.y, newPos.z);
+        newWorld.addEntity(entity.getEntityId(), entity);
+    }
+    
 }

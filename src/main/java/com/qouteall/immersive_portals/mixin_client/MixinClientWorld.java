@@ -25,11 +25,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(ClientWorld.class)
-public class MixinClientWorld implements IEClientWorld {
+public abstract class MixinClientWorld implements IEClientWorld {
     @Shadow
     @Final
     @Mutable
     private ClientPlayNetworkHandler netHandler;
+    
+    @Shadow
+    public abstract Entity getEntityById(int id);
     
     private List<GlobalTrackedPortal> globalTrackedPortals;
     
@@ -53,6 +56,7 @@ public class MixinClientWorld implements IEClientWorld {
         globalTrackedPortals = arg;
     }
     
+    //use my client chunk manager
     @Inject(
         method = "Lnet/minecraft/client/world/ClientWorld;<init>(Lnet/minecraft/client/network/ClientPlayNetworkHandler;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/dimension/DimensionType;ILnet/minecraft/util/profiler/Profiler;Lnet/minecraft/client/render/WorldRenderer;)V",
         at = @At("RETURN")
@@ -70,6 +74,18 @@ public class MixinClientWorld implements IEClientWorld {
         MyClientChunkManager chunkManager = new MyClientChunkManager(clientWorld, int_1);
         ((IEWorld) this).setChunkManager(chunkManager);
     }
+
+//    @Inject(
+//        method = "addEntityPrivate",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void onEntityAboutToBeAdded(int id, Entity entity, CallbackInfo ci) {
+//        if (getEntityById(id) != null) {
+//            Helper.err("Add duplicate entity in client " + id + entity);
+//            ci.cancel();
+//        }
+//    }
     
     //avoid entity duplicate when an entity travels
     @Inject(

@@ -104,7 +104,7 @@ public class MixinEntityTracker implements IEEntityTracker {
     public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
         //ignore the argument
     
-        McHelper.getCopiedPlayerList().forEach(this::updateCameraPosition);
+        McHelper.getRawPlayerList().forEach(this::updateCameraPosition);
         
     }
     

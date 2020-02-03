@@ -133,7 +133,7 @@ public abstract class MixinEntity implements IEEntity {
         cancellable = true
     )
     private void onIsFireImmune(CallbackInfoReturnable<Boolean> cir) {
-        if (collidingPortal == null) {
+        if (collidingPortal != null) {
             cir.setReturnValue(true);
             cir.cancel();
         }
@@ -169,7 +169,7 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private boolean redirectIsWet(Entity entity) {
-        if (collidingPortal == null) {
+        if (collidingPortal != null) {
             return true;
         }
         return entity.isWet();

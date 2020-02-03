@@ -40,6 +40,10 @@ public class McHelper {
         return new ArrayList<>(getServer().getPlayerManager().getPlayerList());
     }
     
+    public static List<ServerPlayerEntity> getRawPlayerList() {
+        return getServer().getPlayerManager().getPlayerList();
+    }
+    
     public static Vec3d lastTickPosOf(Entity entity) {
         return new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
     }
@@ -196,8 +200,8 @@ public class McHelper {
         Vec3d pos,
         Vec3d lastTickPos
     ) {
-        
-        
+    
+    
         //NOTE do not call entity.setPosition() because it may tick the entity
         entity.setPos(pos.x, pos.y, pos.z);
         entity.lastRenderX = lastTickPos.x;
@@ -206,5 +210,22 @@ public class McHelper {
         entity.prevX = lastTickPos.x;
         entity.prevY = lastTickPos.y;
         entity.prevZ = lastTickPos.z;
+    }
+    
+    public static double getVehicleY(Entity vehicle, Entity passenger) {
+        return passenger.getY() - vehicle.getMountedHeightOffset() - passenger.getHeightOffset();
+    }
+    
+    public static void adjustVehicle(Entity entity) {
+        Entity vehicle = entity.getVehicle();
+        if (vehicle == null) {
+            return;
+        }
+        
+        vehicle.updatePosition(
+            entity.getX(),
+            getVehicleY(vehicle, entity),
+            entity.getZ()
+        );
     }
 }
