@@ -33,6 +33,7 @@ public class ClientTeleportationManager {
     private long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     private Vec3d lastPlayerHeadPos = null;
+    private long teleportWhileRidingTime = 0;
     
     public ClientTeleportationManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
@@ -129,13 +130,18 @@ public class ClientTeleportationManager {
     }
     
     private void teleportPlayer(Portal portal) {
+        if (tickTimeForTeleportation - teleportWhileRidingTime < 20) {
+            //to make it not hacky we need to reconstruct the whole entity managing system
+            return;
+        }
         if (isTeleportingFrequently()) {
             Helper.err("The Player is Teleporting Frequently");
+        
         }
         lastTeleportGameTime = tickTimeForTeleportation;
-        
+    
         ClientPlayerEntity player = mc.player;
-        
+    
         DimensionType toDimension = portal.dimensionTo;
         
         Vec3d oldPos = player.getPos();
@@ -154,16 +160,20 @@ public class ClientTeleportationManager {
         
         player.updatePosition(newPos.x, newPos.y, newPos.z);
         McHelper.setPosAndLastTickPos(player, newPos, newLastTickPos);
-        
+    
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldPos,
             portal.getUuid()
         ));
-        
+    
         amendChunkEntityStatus(player);
-        
+    
         McHelper.adjustVehicle(player);
+    
+        if (player.getVehicle() != null) {
+            teleportWhileRidingTime = tickTimeForTeleportation;
+        }
     }
     
     private boolean isTeleportingFrequently() {

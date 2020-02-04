@@ -1,15 +1,18 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
 import net.minecraft.server.network.packet.TeleportConfirmC2SPacket;
+import net.minecraft.server.network.packet.VehicleMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.dimension.DimensionType;
@@ -150,50 +153,47 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             ci.cancel();
         }
     }
-
-//    //do not reject move when player is riding and entering portal
-//    //the client packet is not validated (validating it needs dimension info in packet)
-//    @Inject(
-//        method = "onVehicleMove",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(Lnet/minecraft/server/network/packet/VehicleMoveC2SPacket;)Z"
-//        ),
-//        cancellable = true
-//    )
-//    private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
-////        Helper.err("Client Sent Vanilla Vehicle Move Packet "+player);
-////        ci.cancel();
-//
-//        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
-//            ci.cancel();
-////            Entity entity = this.player.getRootVehicle();
-////
-////            double currX = entity.getX();
-////            double currY = entity.getY();
-////            double currZ = entity.getZ();
-////
-////            double newX = packet.getX();
-////            double newY = packet.getY();
-////            double newZ = packet.getZ();
-////
-////            float yaw = packet.getYaw();
-////            float pitch = packet.getPitch();
-////
-////            entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
-////
-////            this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
-////            this.player.method_7282(
-////                this.player.getX() - currX,
-////                this.player.getY() - currY,
-////                this.player.getZ() - currZ
-////            );
-////            ridingEntity = true;
-////            updatedRiddenX = entity.getX();
-////            updatedRiddenY = entity.getY();
-////            updatedRiddenZ = entity.getZ();
-//        }
-//    }
+    
+    //do not reject move when player is riding and entering portal
+    //the client packet is not validated (validating it needs dimension info in packet)
+    @Inject(
+        method = "onVehicleMove",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(Lnet/minecraft/server/network/packet/VehicleMoveC2SPacket;)Z"
+        ),
+        cancellable = true
+    )
+    private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
+        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 20)) {
+            Entity entity = this.player.getRootVehicle();
+            
+            if (entity != player) {
+                double currX = entity.getX();
+                double currY = entity.getY();
+                double currZ = entity.getZ();
+                
+                double newX = packet.getX();
+                double newY = packet.getY();
+                double newZ = packet.getZ();
+                
+                float yaw = packet.getYaw();
+                float pitch = packet.getPitch();
+                
+                entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
+                
+                this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
+                
+                ridingEntity = true;
+                updatedRiddenX = entity.getX();
+                updatedRiddenY = entity.getY();
+                updatedRiddenZ = entity.getZ();
+                
+            }
+            
+            ci.cancel();
+        }
+    }
     
     @Override
     public void cancelTeleportRequest() {

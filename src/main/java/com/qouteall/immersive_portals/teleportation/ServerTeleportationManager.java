@@ -32,6 +32,9 @@ public class ServerTeleportationManager {
             this, (this_, portal) ->
                 getEntitiesToTeleport(portal).forEach(entity -> {
                     if (!(entity instanceof ServerPlayerEntity)) {
+                        if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
+                            return;
+                        }
                         ModMain.serverTaskList.addTask(() -> {
                             teleportRegularEntity(entity, portal);
                             return true;
@@ -98,6 +101,9 @@ public class ServerTeleportationManager {
         Vec3d posBefore,
         Entity portalEntity
     ) {
+        if (player.getVehicle() != null) {
+            return true;
+        }
         return canPlayerReachPos(player, dimensionBefore, posBefore) &&
             portalEntity instanceof Portal &&
             ((Portal) portalEntity).getDistanceToPlane(posBefore) < 20;
@@ -138,6 +144,7 @@ public class ServerTeleportationManager {
             ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
         }
     
+        McHelper.adjustVehicle(player);
         ((IEServerPlayerEntity) player).setIsInTeleportationState(true);
         player.networkHandler.syncWithPlayerPosition();
     }
