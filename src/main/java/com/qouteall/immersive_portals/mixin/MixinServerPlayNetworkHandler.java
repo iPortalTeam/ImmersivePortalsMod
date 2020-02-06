@@ -165,30 +165,33 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         cancellable = true
     )
     private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
-        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 20)) {
+        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
-            
+        
             if (entity != player) {
                 double currX = entity.getX();
                 double currY = entity.getY();
                 double currZ = entity.getZ();
-                
+            
                 double newX = packet.getX();
                 double newY = packet.getY();
                 double newZ = packet.getZ();
+            
+                if (entity.getPos().squaredDistanceTo(
+                    newX, newY, newZ
+                ) < 256) {
+                    float yaw = packet.getYaw();
+                    float pitch = packet.getPitch();
                 
-                float yaw = packet.getYaw();
-                float pitch = packet.getPitch();
+                    entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
                 
-                entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
+                    this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
                 
-                this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
-                
-                ridingEntity = true;
-                updatedRiddenX = entity.getX();
-                updatedRiddenY = entity.getY();
-                updatedRiddenZ = entity.getZ();
-                
+                    ridingEntity = true;
+                    updatedRiddenX = entity.getX();
+                    updatedRiddenY = entity.getY();
+                    updatedRiddenZ = entity.getZ();
+                }
             }
             
             ci.cancel();

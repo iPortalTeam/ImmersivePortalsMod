@@ -134,10 +134,7 @@ public class ClientTeleportationManager {
             //to make it not hacky we need to reconstruct the whole entity managing system
             return;
         }
-        if (isTeleportingFrequently()) {
-            Helper.err("The Player is Teleporting Frequently");
         
-        }
         lastTeleportGameTime = tickTimeForTeleportation;
     
         ClientPlayerEntity player = mc.player;

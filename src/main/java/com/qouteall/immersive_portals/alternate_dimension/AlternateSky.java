@@ -26,6 +26,9 @@ public class AlternateSky {
     
     private static boolean shouldRenderBlackLid(ClientWorld world) {
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) world).getGlobalPortals();
+        if (globalPortals == null) {
+            return false;
+        }
         return globalPortals.stream().anyMatch(portal ->
             portal.getY() > 128 && portal.dimensionTo == DimensionType.THE_END
         );
