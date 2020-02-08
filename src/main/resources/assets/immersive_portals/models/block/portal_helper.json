@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_column",
+  "textures": {
+    "end": "immersive_portals:block/portal_helper",
+    "side": "immersive_portals:block/portal_helper"
+  }
+}

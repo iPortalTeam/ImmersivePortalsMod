@@ -12,6 +12,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -19,8 +21,8 @@ import net.minecraft.world.World;
 public class LoadingIndicatorEntity extends Entity {
     public static EntityType<LoadingIndicatorEntity> entityType;
     
-    private static final TrackedData<String> text = DataTracker.registerData(
-        LoadingIndicatorEntity.class, TrackedDataHandlerRegistry.STRING
+    private static final TrackedData<Text> text = DataTracker.registerData(
+        LoadingIndicatorEntity.class, TrackedDataHandlerRegistry.TEXT_COMPONENT
     );
     
     public boolean isAlive = false;
@@ -64,7 +66,7 @@ public class LoadingIndicatorEntity extends Entity {
     
     @Override
     protected void initDataTracker() {
-        getDataTracker().startTracking(text, "Loading...");
+        getDataTracker().startTracking(text, new LiteralText("Loading..."));
     }
     
     @Override
@@ -82,11 +84,11 @@ public class LoadingIndicatorEntity extends Entity {
         return MyNetwork.createStcSpawnEntity(this);
     }
     
-    public void setText(String str) {
+    public void setText(Text str) {
         getDataTracker().set(text, str);
     }
     
-    public String getText() {
+    public Text getText() {
         return getDataTracker().get(text);
     }
 }

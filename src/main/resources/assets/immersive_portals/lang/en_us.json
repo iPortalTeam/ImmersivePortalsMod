@@ -1,0 +1,5 @@
+{
+  "imm_ptl.searching_for_frame": "Searching for existing frame\nIn:%1$s\nAround:%2$s\nOf:%3$s\n%4$s",
+  "imm_ptl.generating_new_frame": "Existing Frame Cannot Be Found\nGenerating New Frame",
+  "block.immersive_portals.portal_helper": "Portal Helper"
+}

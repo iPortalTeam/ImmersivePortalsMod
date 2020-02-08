@@ -16,7 +16,15 @@ import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
+import net.minecraft.block.Block;
+import net.minecraft.block.Material;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class ModMain implements ModInitializer {
     public static final Signal postClientTickSignal = new Signal();
@@ -31,6 +39,11 @@ public class ModMain implements ModInitializer {
     public static FabricDimensionType alternate3;
     public static FabricDimensionType alternate4;
     public static FabricDimensionType alternate5;
+    
+    public static final Block portalHelperBlock =
+        new Block(FabricBlockSettings.of(Material.METAL).build());
+    private static final BlockItem portalHelperBlockItem =
+        new BlockItem(portalHelperBlock, new Item.Settings().group(ItemGroup.MISC));
     
     @Override
     public void onInitialize() {
@@ -68,6 +81,19 @@ public class ModMain implements ModInitializer {
         AlternateDimensionInit.initMyDimensions();
         
         RequiemCompat.init();
+        
+        Registry.register(
+            Registry.BLOCK,
+            new Identifier("immersive_portals", "portal_helper"),
+            portalHelperBlock
+        );
+        
+        Registry.register(
+            Registry.ITEM,
+            new Identifier("immersive_portals", "portal_helper"),
+            portalHelperBlockItem
+        );
+        
     }
     
 }

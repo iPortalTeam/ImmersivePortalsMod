@@ -1,12 +1,16 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalGenerator;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,19 +26,29 @@ public class MixinFlintAndSteelItem {
     ) {
         IWorld world = context.getWorld();
         if (!world.isClient()) {
-            BlockPos blockPos_1 = context.getBlockPos();
-            BlockPos firePos = blockPos_1.offset(context.getSide());
-            boolean generated =
+            BlockPos targetPos = context.getBlockPos();
+            Direction side = context.getSide();
+            BlockPos firePos = targetPos.offset(side);
+            Block targetBlock = world.getBlockState(targetPos).getBlock();
+            if (targetBlock == Blocks.OBSIDIAN) {
                 NewNetherPortalGenerator.onFireLit(((ServerWorld) world), firePos);
-            if (!generated) {
+            }
+            else if (targetBlock == Blocks.GLASS) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
-                    ((ServerWorld) world), context.getBlockPos(), context.getSide()
+                    ((ServerWorld) world), targetPos, side
                 );
-                if (mirror != null) {
-                    context.getStack().damage(1, context.getPlayer(),
-                        playerEntity_1x -> playerEntity_1x.sendToolBreakStatus(context.getHand())
-                    );
-                }
+            }
+            else if (targetBlock == ModMain.portalHelperBlock) {
+                boolean result = NewNetherPortalGenerator.activatePortalHelper(
+                    ((ServerWorld) world),
+                    firePos
+                );
+        
+            }
+            else {
+                context.getStack().damage(1, context.getPlayer(),
+                    playerEntity_1x -> playerEntity_1x.sendToolBreakStatus(context.getHand())
+                );
             }
         }
     }
