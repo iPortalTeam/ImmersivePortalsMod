@@ -30,6 +30,7 @@ public class ModMain implements ModInitializer {
     public static FabricDimensionType alternate2;
     public static FabricDimensionType alternate3;
     public static FabricDimensionType alternate4;
+    public static FabricDimensionType alternate5;
     
     @Override
     public void onInitialize() {

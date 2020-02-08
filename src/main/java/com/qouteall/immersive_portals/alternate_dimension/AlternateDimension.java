@@ -9,6 +9,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.source.BiomeSourceType;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSourceConfig;
@@ -97,12 +98,6 @@ public class AlternateDimension extends Dimension {
             generationSettings
         
         );
-
-//        return ChunkGeneratorType.FLOATING_ISLANDS.create(
-//            this.world,
-//            new ChaosBiomeSource(world.getSeed()),
-//            generationSettings
-//        );
     }
     
     public ChunkGenerator<?> getChunkGenerator4() {
@@ -117,6 +112,24 @@ public class AlternateDimension extends Dimension {
             generationSettings
         );
     }
+    
+    public ChunkGenerator<?> getChunkGenerator5() {
+        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
+        generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
+        generationSettings.withCenter(this.getForcedSpawnPoint());
+        
+        return new VoidChunkGenerator(
+            world,
+            BiomeSourceType.FIXED.applyConfig(
+                BiomeSourceType.FIXED.getConfig(world.getLevelProperties()).setBiome(
+                    Biomes.PLAINS
+                )
+            ),
+            generationSettings
+        );
+    }
+    
     
     @Override
     public BlockPos getSpawningBlockInChunk(ChunkPos chunkPos, boolean checkMobSpawnValidity) {
