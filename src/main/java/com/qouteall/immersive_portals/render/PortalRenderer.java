@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -60,9 +61,17 @@ public abstract class PortalRenderer {
     }
     
     public boolean shouldRenderPlayerItself() {
-        return isRendering() &&
-            mc.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension &&
-            getRenderingPortal().canRenderEntityInsideMe(MyRenderHelper.originalPlayerPos, -0.01);
+        if (!isRendering()) {
+            return false;
+        }
+        if (mc.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
+            Portal renderingPortal = getRenderingPortal();
+            return renderingPortal.canRenderEntityInsideMe(
+                MyRenderHelper.originalPlayerPos,
+                0
+            );
+        }
+        return false;
     }
     
     public boolean shouldRenderEntityNow(Entity entity) {
@@ -70,6 +79,9 @@ public abstract class PortalRenderer {
             return true;
         }
         if (isRendering()) {
+            if (entity instanceof ClientPlayerEntity) {
+                return shouldRenderPlayerItself();
+            }
             return getRenderingPortal().canRenderEntityInsideMe(entity.getPos(), -0.01);
         }
         return true;
