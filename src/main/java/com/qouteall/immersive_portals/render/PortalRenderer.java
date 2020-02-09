@@ -67,8 +67,10 @@ public abstract class PortalRenderer {
         if (mc.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
             Portal renderingPortal = getRenderingPortal();
             return renderingPortal.canRenderEntityInsideMe(
-                MyRenderHelper.originalPlayerPos,
-                0
+                MyRenderHelper.originalPlayerPos.add(
+                    0, mc.cameraEntity.getEyeY(), 0
+                ),
+                0.1
             );
         }
         return false;
@@ -82,7 +84,9 @@ public abstract class PortalRenderer {
             if (entity instanceof ClientPlayerEntity) {
                 return shouldRenderPlayerItself();
             }
-            return getRenderingPortal().canRenderEntityInsideMe(entity.getPos(), -0.01);
+            return getRenderingPortal().canRenderEntityInsideMe(
+                entity.getCameraPosVec(1), -0.01
+            );
         }
         return true;
     }
