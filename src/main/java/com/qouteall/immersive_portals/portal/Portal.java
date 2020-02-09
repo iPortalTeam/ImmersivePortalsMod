@@ -8,10 +8,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
@@ -163,6 +160,11 @@ public class Portal extends Entity {
             boundingBoxCache = getPortalCollisionBox();
         }
         return boundingBoxCache;
+    }
+    
+    @Override
+    public void move(MovementType type, Vec3d movement) {
+        //portal cannot be moved
     }
     
     @Environment(EnvType.CLIENT)
