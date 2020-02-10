@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.hooks;
+package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;

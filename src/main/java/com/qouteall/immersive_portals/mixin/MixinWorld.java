@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.hooks;
+package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.ducks.IEWorld;
 import net.minecraft.world.World;

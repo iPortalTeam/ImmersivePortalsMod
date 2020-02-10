@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.hooks;
+package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.ducks.IEMetricsData;
 import net.minecraft.util.MetricsData;

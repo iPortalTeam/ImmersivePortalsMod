@@ -2,10 +2,8 @@ package com.qouteall.immersive_portals.mixin.chunk_sync;
 
 import com.mojang.datafixers.util.Either;
 import com.qouteall.immersive_portals.SGlobal;
-import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.*;
@@ -18,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
-public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilChunkStorage {
+public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvilChunkStorage {
     @Shadow
     private int watchDistance;
     
@@ -92,23 +89,6 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
         //chunk data packet will be sent on ChunkDataSyncManager
     }
     
-    @Inject(
-        method = "unloadEntity",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onUnloadEntity(Entity entity, CallbackInfo ci) {
-        //when the player leave this dimension, do not stop tracking entities
-        if (entity instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) entity;
-            if (SGlobal.serverTeleportationManager.isTeleporting(player)) {
-                entityTrackers.remove(entity.getEntityId());
-                handlePlayerAddedOrRemoved(player, false);
-                ci.cancel();
-            }
-        }
-    }
-    
     //cancel vanilla packet sending
     @Redirect(
         method = "createTickingFuture",
@@ -149,12 +129,4 @@ public abstract class MixinThreadedAnvilChunkStorage implements IEThreadedAnvilC
             this.mainExecutor.send(ChunkTaskPrioritySystem.createMessage(chunkHolder, runnable));
         });
     }
-    
-    @Override
-    public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        entityTrackers.values().forEach(obj -> {
-            ((IEEntityTracker) obj).onPlayerRespawn(oldPlayer);
-        });
-    }
-    
 }
