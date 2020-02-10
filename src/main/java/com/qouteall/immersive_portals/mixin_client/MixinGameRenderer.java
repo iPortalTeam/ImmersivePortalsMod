@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.qouteall.immersive_portals.BlockManipulationClient;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
@@ -35,6 +36,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     @Final
     private MinecraftClient client;
+    
+    @Shadow
+    private int ticks;
     
     //may do teleportation here
     @Inject(method = "render", at = @At("HEAD"))
@@ -122,6 +126,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private void redirectUpdateTargetedEntity(GameRenderer gameRenderer, float tickDelta) {
         if (!CGlobal.renderer.isRendering()) {
             gameRenderer.updateTargetedEntity(tickDelta);
+            BlockManipulationClient.onPointedBlockUpdated(tickDelta);
         }
     }
     

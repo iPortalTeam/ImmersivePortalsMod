@@ -1,10 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.*;
 import com.qouteall.immersive_portals.portal.Portal;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -21,6 +18,7 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -41,12 +39,6 @@ public class MyGameRenderer {
         Vec3d oldCameraPos,
         ClientWorld oldWorld
     ) {
-//        BuiltChunkStorage chunkRenderDispatcher =
-//            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage();
-//        chunkRenderDispatcher.updateCameraPosition(
-//            mc.player.getX(), mc.player.getZ()
-//        );
-        
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
@@ -61,9 +53,10 @@ public class MyGameRenderer {
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(newWorldRenderer);
         ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
+        HitResult oldCrosshairTarget = mc.crosshairTarget;
     
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
-        
+    
         //switch
         ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
         mc.world = newWorld;
@@ -78,6 +71,9 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(newWorld.dimension.getType());
         ((IEParticleManager) mc.particleManager).mySetWorld(newWorld);
+        if (BlockManipulationClient.remotePointedBlockDim == newWorld.dimension.getType()) {
+            mc.crosshairTarget = BlockManipulationClient.remoteHitResult;
+        }
     
         mc.getProfiler().push("render_portal_content");
     
@@ -102,6 +98,7 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.popMatrix();
         ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
+        mc.crosshairTarget = oldCrosshairTarget;
     
         FogRendererContext.swappingManager.popSwapping();
     

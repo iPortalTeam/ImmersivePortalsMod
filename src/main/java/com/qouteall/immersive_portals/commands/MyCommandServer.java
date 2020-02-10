@@ -18,6 +18,7 @@ import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
 import net.minecraft.command.arguments.TextArgumentType;
 import net.minecraft.command.arguments.Vec3ArgumentType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -31,6 +32,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -170,9 +172,9 @@ public class MyCommandServer {
                                     portal.destination = Vec3ArgumentType.getVec3(
                                         context, "dest"
                                     );
-                                
+    
                                     reloadPortal(portal);
-                                
+    
                                     sendMessage(context, portal.toString());
                                 }
                                 catch (CommandSyntaxException ignored) {
@@ -204,7 +206,7 @@ public class MyCommandServer {
                             Vec3d pos = Vec3ArgumentType.getVec3(
                                 context, "dest"
                             );
-                        
+    
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             SGlobal.serverTeleportationManager.invokeTpmeCommand(
                                 player, dimension, pos
@@ -304,7 +306,7 @@ public class MyCommandServer {
                             DimensionType to = DimensionArgumentType.getDimensionArgument(
                                 context, "to"
                             );
-                        
+    
                             VerticalConnectingPortal.connect(
                                 from, VerticalConnectingPortal.ConnectorType.floor, to
                             );
@@ -333,7 +335,7 @@ public class MyCommandServer {
                             DimensionType to = DimensionArgumentType.getDimensionArgument(
                                 context, "to"
                             );
-                        
+    
                             VerticalConnectingPortal.connect(
                                 from, VerticalConnectingPortal.ConnectorType.ceil, to
                             );
@@ -355,7 +357,7 @@ public class MyCommandServer {
                         DimensionType dim = DimensionArgumentType.getDimensionArgument(
                             context, "dim"
                         );
-                    
+    
                         VerticalConnectingPortal.removeConnectingPortal(
                             VerticalConnectingPortal.ConnectorType.floor, dim
                         );
@@ -376,7 +378,7 @@ public class MyCommandServer {
                         DimensionType dim = DimensionArgumentType.getDimensionArgument(
                             context, "dim"
                         );
-                    
+    
                         VerticalConnectingPortal.removeConnectingPortal(
                             VerticalConnectingPortal.ConnectorType.ceil, dim
                         );
@@ -456,15 +458,22 @@ public class MyCommandServer {
         return 0;
     }
     
-    private static Portal getPlayerPointingPortal(
+    public static Portal getPlayerPointingPortal(
         ServerPlayerEntity player
     ) {
-        Vec3d from = player.getCameraPosVec(1);
-        Vec3d to = from.add(player.getRotationVector().multiply(100));
-        Pair<Portal, Vec3d> result = McHelper.getEntitiesNearby(
+        return getPlayerPointingPortalRaw(player, 1, 100)
+            .map(Pair::getFirst).orElse(null);
+    }
+    
+    public static Optional<Pair<Portal, Vec3d>> getPlayerPointingPortalRaw(
+        PlayerEntity player, float tickDelta, double maxDistance
+    ) {
+        Vec3d from = player.getCameraPosVec(tickDelta);
+        Vec3d to = from.add(player.getRotationVec(tickDelta).multiply(maxDistance));
+        return McHelper.getEntitiesNearby(
             player,
             Portal.class,
-            100
+            maxDistance
         ).map(
             portal -> new Pair<Portal, Vec3d>(
                 portal, portal.rayTrace(from, to)
@@ -475,15 +484,8 @@ public class MyCommandServer {
             Comparator.comparingDouble(
                 portalAndHitPos -> portalAndHitPos.getSecond().squaredDistanceTo(from)
             )
-        ).orElse(null);
-        if (result != null) {
-            return result.getFirst();
-        }
-        else {
-            return null;
-        }
+        );
     }
-    
     
     private static Portal completeBiWayPortal(
         Portal portal, Consumer<Portal> removalInformer
