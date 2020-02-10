@@ -31,17 +31,21 @@ public class ServerTeleportationManager {
         Portal.serverPortalTickSignal.connectWithWeakRef(
             this, (this_, portal) ->
                 getEntitiesToTeleport(portal).forEach(entity -> {
-                    if (!(entity instanceof ServerPlayerEntity)) {
-                        if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
-                            return;
-                        }
-                        ModMain.serverTaskList.addTask(() -> {
-                            teleportRegularEntity(entity, portal);
-                            return true;
-                        });
-                    }
+                    tryToTeleportRegularEntity(portal, entity);
                 })
         );
+    }
+    
+    public void tryToTeleportRegularEntity(Portal portal, Entity entity) {
+        if (!(entity instanceof ServerPlayerEntity)) {
+            if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
+                return;
+            }
+            ModMain.serverTaskList.addTask(() -> {
+                teleportRegularEntity(entity, portal);
+                return true;
+            });
+        }
     }
     
     public static Stream<Entity> getEntitiesToTeleport(Portal portal) {
@@ -261,9 +265,9 @@ public class ServerTeleportationManager {
     private void tick() {
         teleportingEntities = new HashSet<>();
         long tickTimeNow = McHelper.getServerGameTime();
+        ArrayList<ServerPlayerEntity> copiedPlayerList =
+            McHelper.getCopiedPlayerList();
         if (tickTimeNow % 10 == 7) {
-            ArrayList<ServerPlayerEntity> copiedPlayerList =
-                McHelper.getCopiedPlayerList();
             for (ServerPlayerEntity player : copiedPlayerList) {
                 if (!player.notInAnyWorld) {
                     Long lastTeleportGameTime =
@@ -278,6 +282,24 @@ public class ServerTeleportationManager {
                 }
             }
         }
+        copiedPlayerList.forEach(player -> {
+            McHelper.getEntitiesNearby(
+                player,
+                Entity.class,
+                32
+            ).filter(
+                entity -> !(entity instanceof ServerPlayerEntity)
+            ).forEach(entity -> {
+                McHelper.getGlobalPortals(entity.world).stream()
+                    .filter(
+                        globalPortal -> globalPortal.shouldEntityTeleport(entity)
+                    )
+                    .findFirst()
+                    .ifPresent(
+                        globalPortal -> tryToTeleportRegularEntity(globalPortal, entity)
+                    );
+            });
+        });
     }
     
     public boolean isTeleporting(ServerPlayerEntity entity) {
