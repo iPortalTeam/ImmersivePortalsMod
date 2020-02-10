@@ -10,7 +10,6 @@
     "MixinEntity",
     "MixinEntityTracker",
     "MixinEntityTrackerEntry",
-    "MixinFireBlock",
     "MixinFlintAndSteelItem",
     "MixinMetricsData",
     "MixinMinecraftServer",
