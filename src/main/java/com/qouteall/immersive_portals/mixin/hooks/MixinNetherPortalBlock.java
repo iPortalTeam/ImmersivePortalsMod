@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin.hooks;
 
 import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.util.math.BlockPos;

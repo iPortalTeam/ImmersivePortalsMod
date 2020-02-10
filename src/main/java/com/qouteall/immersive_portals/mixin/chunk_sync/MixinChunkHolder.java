@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin.chunk_sync;
 
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;

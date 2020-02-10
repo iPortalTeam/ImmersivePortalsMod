@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin.collision;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEEntity;

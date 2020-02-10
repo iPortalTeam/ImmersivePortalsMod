@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;

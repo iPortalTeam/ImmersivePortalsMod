@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.google.common.collect.HashMultimap;
 import com.mojang.authlib.GameProfile;

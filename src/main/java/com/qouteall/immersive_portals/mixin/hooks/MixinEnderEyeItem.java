@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.immersive_portals.mixin.hooks;
 
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
