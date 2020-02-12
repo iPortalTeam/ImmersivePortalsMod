@@ -15,6 +15,7 @@ import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.PlayerActionC2SPacket;
+import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
@@ -42,6 +43,8 @@ public class MyNetwork {
         new Identifier("immersive_portals", "upd_glb_ptl");
     public static final Identifier id_ctsPlayerAction =
         new Identifier("immersive_portals", "player_action");
+    public static final Identifier id_ctsRightClick =
+        new Identifier("immersive_portals", "right_click");
     
     static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
@@ -73,6 +76,11 @@ public class MyNetwork {
             id_ctsPlayerAction,
             MyNetwork::processCtsPlayerAction
         );
+        ServerSidePacketRegistry.INSTANCE.register(
+            id_ctsRightClick,
+            MyNetwork::processCtsRightClick
+        );
+    
     }
     
     public static CustomPayloadS2CPacket createRedirectedMessage(
@@ -200,7 +208,25 @@ public class MyNetwork {
             throw new IllegalStateException(e);
         }
         ModMain.serverTaskList.addTask(() -> {
-            BlockManipulationServer.processPlayerAction(
+            BlockManipulationServer.processBreakBlock(
+                dimension, packet,
+                ((ServerPlayerEntity) context.getPlayer())
+            );
+            return true;
+        });
+    }
+    
+    private static void processCtsRightClick(PacketContext context, PacketByteBuf buf) {
+        DimensionType dimension = DimensionType.byRawId(buf.readInt());
+        PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket();
+        try {
+            packet.read(buf);
+        }
+        catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        ModMain.serverTaskList.addTask(() -> {
+            BlockManipulationServer.processRightClickBlock(
                 dimension, packet,
                 ((ServerPlayerEntity) context.getPlayer())
             );

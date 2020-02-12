@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin_client.block_manipulation;
 
 import com.qouteall.immersive_portals.BlockManipulationClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,6 +33,22 @@ public class MixinMinecraftClient_B {
     private void onDoAttack(CallbackInfo ci) {
         if (BlockManipulationClient.isPointingToRemoteBlock()) {
             BlockManipulationClient.myAttackBlock();
+            ci.cancel();
+        }
+    }
+    
+    @Inject(
+        method = "doItemUse",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/util/hit/HitResult;getType()Lnet/minecraft/util/hit/HitResult$Type;"
+        ),
+        cancellable = true
+    )
+    private void onDoItemUse(CallbackInfo ci) {
+        if (BlockManipulationClient.isPointingToRemoteBlock()) {
+            //TODO support offhand
+            BlockManipulationClient.myItemUse(Hand.MAIN_HAND);
             ci.cancel();
         }
     }

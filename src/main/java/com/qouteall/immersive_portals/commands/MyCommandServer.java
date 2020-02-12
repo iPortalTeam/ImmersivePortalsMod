@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
@@ -33,6 +34,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -478,10 +480,13 @@ public class MyCommandServer {
             maxDistance
         );
         if (includeGlobalPortal) {
-            portalStream = Streams.concat(
-                portalStream,
-                McHelper.getGlobalPortals(player.world).stream()
-            );
+            List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(player.world);
+            if (globalPortals != null) {
+                portalStream = Streams.concat(
+                    portalStream,
+                    globalPortals.stream()
+                );
+            }
         }
         return portalStream.map(
             portal -> new Pair<Portal, Vec3d>(

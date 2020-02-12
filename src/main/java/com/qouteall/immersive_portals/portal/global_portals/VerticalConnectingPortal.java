@@ -117,11 +117,19 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     ) {
         ServerWorld endWorld = McHelper.getServer().getWorld(dimension);
         GlobalPortalStorage storage = GlobalPortalStorage.get(endWorld);
-        
+    
         storage.data.removeIf(
             portal -> portal instanceof VerticalConnectingPortal && predicate.test(portal)
         );
-        
+    
         storage.onDataChanged();
+    }
+    
+    public static VerticalConnectingPortal getConnectingPortal(
+        World world, ConnectorType type
+    ) {
+        return (VerticalConnectingPortal) McHelper.getGlobalPortals(world).stream()
+            .filter(getPredicate(type))
+            .findFirst().orElse(null);
     }
 }

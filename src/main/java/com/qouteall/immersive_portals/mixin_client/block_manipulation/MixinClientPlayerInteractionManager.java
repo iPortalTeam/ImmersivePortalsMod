@@ -6,7 +6,9 @@ import com.qouteall.immersive_portals.ducks.IEClientPlayerInteractionManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.packet.PlayerActionC2SPacket;
+import net.minecraft.server.network.packet.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Final;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerInteractionManager.class)
@@ -47,4 +50,29 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
             ci.cancel();
         }
     }
+    
+    @Redirect(
+        method = "interactBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
+        )
+    )
+    private void redirectSendPacketOnInteractBlock(
+        ClientPlayNetworkHandler clientPlayNetworkHandler,
+        Packet<?> packet
+    ) {
+        if (BlockManipulationClient.isContextSwitched) {
+            clientPlayNetworkHandler.sendPacket(
+                MyNetworkClient.createCtsRightClick(
+                    BlockManipulationClient.remotePointedDim,
+                    ((PlayerInteractBlockC2SPacket) packet)
+                )
+            );
+        }
+        else {
+            clientPlayNetworkHandler.sendPacket(packet);
+        }
+    }
+    
 }

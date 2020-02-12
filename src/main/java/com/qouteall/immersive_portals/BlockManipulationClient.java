@@ -7,7 +7,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -136,6 +139,16 @@ public class BlockManipulationClient {
                 );
             }
         );
+    
+        if (remoteHitResult.getPos().y < 0.1) {
+            remoteHitResult = new BlockHitResult(
+                remoteHitResult.getPos(),
+                Direction.DOWN,
+                ((BlockHitResult) remoteHitResult).getBlockPos(),
+                ((BlockHitResult) remoteHitResult).isInsideBlock()
+            );
+        }
+    
         if (remoteHitResult != null) {
             mc.crosshairTarget = null;
             remotePointedDim = portal.dimensionTo;
@@ -175,10 +188,15 @@ public class BlockManipulationClient {
         ClientWorld oldWorld = mc.world;
         mc.world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
         isContextSwitched = true;
-        boolean result = mc.interactionManager.updateBlockBreakingProgress(blockPos, direction);
-        mc.world = oldWorld;
-        isContextSwitched = false;
-        return result;
+    
+        try {
+            return mc.interactionManager.updateBlockBreakingProgress(blockPos, direction);
+        }
+        finally {
+            mc.world = oldWorld;
+            isContextSwitched = false;
+        }
+    
     }
     
     public static void myAttackBlock() {
@@ -187,17 +205,101 @@ public class BlockManipulationClient {
         ClientWorld targetWorld =
             CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
         BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
-        
+    
         if (targetWorld.isAir(blockPos)) {
             return;
         }
-        
+    
         ClientWorld oldWorld = mc.world;
-        
+    
         mc.world = targetWorld;
         isContextSwitched = true;
-        mc.interactionManager.attackBlock(blockPos, ((BlockHitResult) remoteHitResult).getSide());
-        mc.world = oldWorld;
-        isContextSwitched = false;
+    
+        try {
+            mc.interactionManager.attackBlock(
+                blockPos,
+                ((BlockHitResult) remoteHitResult).getSide()
+            );
+        }
+        finally {
+            mc.world = oldWorld;
+            isContextSwitched = false;
+        }
+    
     }
+    
+    //too lazy to rewrite the whole interaction system so hack there and here
+    public static void myItemUse(Hand hand) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ClientWorld targetWorld =
+            CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+        
+        ItemStack itemStack = mc.player.getStackInHand(hand);
+        BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
+        
+        Pair<BlockHitResult, DimensionType> result =
+            BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
+        blockHitResult = result.getLeft();
+        targetWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(result.getRight());
+        remoteHitResult = blockHitResult;
+        remotePointedDim = result.getRight();
+        
+        int i = itemStack.getCount();
+        ActionResult actionResult2 = myInteractBlock(hand, mc, targetWorld, blockHitResult);
+        if (actionResult2.isAccepted()) {
+            if (actionResult2.shouldSwingHand()) {
+                mc.player.swingHand(hand);
+                if (!itemStack.isEmpty() && (itemStack.getCount() != i || mc.interactionManager.hasCreativeInventory())) {
+                    mc.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
+                }
+            }
+            
+            return;
+        }
+        
+        if (actionResult2 == ActionResult.FAIL) {
+            return;
+        }
+        
+        if (!itemStack.isEmpty()) {
+            ActionResult actionResult3 = mc.interactionManager.interactItem(
+                mc.player,
+                targetWorld,
+                hand
+            );
+            if (actionResult3.isAccepted()) {
+                if (actionResult3.shouldSwingHand()) {
+                    mc.player.swingHand(hand);
+                }
+                
+                mc.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
+                return;
+            }
+        }
+    }
+    
+    private static ActionResult myInteractBlock(
+        Hand hand,
+        MinecraftClient mc,
+        ClientWorld targetWorld,
+        BlockHitResult blockHitResult
+    ) {
+        ClientWorld oldWorld = mc.world;
+        
+        try {
+            mc.player.world = targetWorld;
+            mc.world = targetWorld;
+            isContextSwitched = true;
+            
+            return mc.interactionManager.interactBlock(
+                mc.player, targetWorld, hand, blockHitResult
+            );
+        }
+        finally {
+            mc.player.world = oldWorld;
+            mc.world = oldWorld;
+            isContextSwitched = false;
+        }
+    }
+    
 }
