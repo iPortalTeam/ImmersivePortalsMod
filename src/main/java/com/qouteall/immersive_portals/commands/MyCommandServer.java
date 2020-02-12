@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.commands;
 
+import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -36,6 +37,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MyCommandServer {
     public static void register(
@@ -461,20 +463,27 @@ public class MyCommandServer {
     public static Portal getPlayerPointingPortal(
         ServerPlayerEntity player
     ) {
-        return getPlayerPointingPortalRaw(player, 1, 100)
+        return getPlayerPointingPortalRaw(player, 1, 100, false)
             .map(Pair::getFirst).orElse(null);
     }
     
     public static Optional<Pair<Portal, Vec3d>> getPlayerPointingPortalRaw(
-        PlayerEntity player, float tickDelta, double maxDistance
+        PlayerEntity player, float tickDelta, double maxDistance, boolean includeGlobalPortal
     ) {
         Vec3d from = player.getCameraPosVec(tickDelta);
         Vec3d to = from.add(player.getRotationVec(tickDelta).multiply(maxDistance));
-        return McHelper.getEntitiesNearby(
+        Stream<Portal> portalStream = McHelper.getEntitiesNearby(
             player,
             Portal.class,
             maxDistance
-        ).map(
+        );
+        if (includeGlobalPortal) {
+            portalStream = Streams.concat(
+                portalStream,
+                McHelper.getGlobalPortals(player.world).stream()
+            );
+        }
+        return portalStream.map(
             portal -> new Pair<Portal, Vec3d>(
                 portal, portal.rayTrace(from, to)
             )

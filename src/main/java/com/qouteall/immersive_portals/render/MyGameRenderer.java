@@ -71,7 +71,7 @@ public class MyGameRenderer {
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(newWorld.dimension.getType());
         ((IEParticleManager) mc.particleManager).mySetWorld(newWorld);
-        if (BlockManipulationClient.remotePointedBlockDim == newWorld.dimension.getType()) {
+        if (BlockManipulationClient.remotePointedDim == newWorld.dimension.getType()) {
             mc.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
     

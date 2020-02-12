@@ -14,6 +14,7 @@ import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.network.packet.PlayerActionC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
@@ -39,6 +40,8 @@ public class MyNetwork {
         new Identifier("immersive_portals", "indicator");
     public static final Identifier id_stcUpdateGlobalPortal =
         new Identifier("immersive_portals", "upd_glb_ptl");
+    public static final Identifier id_ctsPlayerAction =
+        new Identifier("immersive_portals", "player_action");
     
     static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
@@ -65,6 +68,10 @@ public class MyNetwork {
         ServerSidePacketRegistry.INSTANCE.register(
             id_ctsTeleport,
             MyNetwork::processCtsTeleport
+        );
+        ServerSidePacketRegistry.INSTANCE.register(
+            id_ctsPlayerAction,
+            MyNetwork::processCtsPlayerAction
         );
     }
     
@@ -181,5 +188,23 @@ public class MyNetwork {
         buf.writeCompoundTag(storage.toTag(new CompoundTag()));
         
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
+    }
+    
+    private static void processCtsPlayerAction(PacketContext context, PacketByteBuf buf) {
+        DimensionType dimension = DimensionType.byRawId(buf.readInt());
+        PlayerActionC2SPacket packet = new PlayerActionC2SPacket();
+        try {
+            packet.read(buf);
+        }
+        catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        ModMain.serverTaskList.addTask(() -> {
+            BlockManipulationServer.processPlayerAction(
+                dimension, packet,
+                ((ServerPlayerEntity) context.getPlayer())
+            );
+            return true;
+        });
     }
 }

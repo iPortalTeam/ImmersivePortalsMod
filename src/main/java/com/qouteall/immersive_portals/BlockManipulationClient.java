@@ -7,6 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -18,15 +19,16 @@ import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.dimension.DimensionType;
 
 public class BlockManipulationClient {
-    public static DimensionType remotePointedBlockDim;
+    public static DimensionType remotePointedDim;
     public static HitResult remoteHitResult;
+    public static boolean isContextSwitched = false;
     
     public static boolean isPointingToRemoteBlock() {
-        return remotePointedBlockDim != null;
+        return remotePointedDim != null;
     }
     
     public static void onPointedBlockUpdated(float partialTicks) {
-        remotePointedBlockDim = null;
+        remotePointedDim = null;
         remoteHitResult = null;
         
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -35,7 +37,7 @@ public class BlockManipulationClient {
         float reachDistance = mc.interactionManager.getReachDistance();
         
         MyCommandServer.getPlayerPointingPortalRaw(
-            mc.player, partialTicks, reachDistance
+            mc.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
             double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
             if (distanceToPortalPointing < getCurrentTargetDistane()) {
@@ -136,7 +138,66 @@ public class BlockManipulationClient {
         );
         if (remoteHitResult != null) {
             mc.crosshairTarget = null;
-            remotePointedBlockDim = portal.dimensionTo;
+            remotePointedDim = portal.dimensionTo;
         }
+    }
+    
+    public static void myHandleBlockBreaking(boolean isKeyPressed) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        
+        if (!mc.player.isUsingItem()) {
+            if (isKeyPressed && isPointingToRemoteBlock()) {
+                BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
+                BlockPos blockPos = blockHitResult.getBlockPos();
+                ClientWorld remoteWorld =
+                    CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+                if (!remoteWorld.getBlockState(blockPos).isAir()) {
+                    Direction direction = blockHitResult.getSide();
+                    if (myUpdateBlockBreakingProgress(mc, blockPos, direction)) {
+                        mc.particleManager.addBlockBreakingParticles(blockPos, direction);
+                        mc.player.swingHand(Hand.MAIN_HAND);
+                    }
+                }
+                
+            }
+            else {
+                mc.interactionManager.cancelBlockBreaking();
+            }
+        }
+    }
+    
+    //hacky switch
+    public static boolean myUpdateBlockBreakingProgress(
+        MinecraftClient mc,
+        BlockPos blockPos,
+        Direction direction
+    ) {
+        ClientWorld oldWorld = mc.world;
+        mc.world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+        isContextSwitched = true;
+        boolean result = mc.interactionManager.updateBlockBreakingProgress(blockPos, direction);
+        mc.world = oldWorld;
+        isContextSwitched = false;
+        return result;
+    }
+    
+    public static void myAttackBlock() {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        
+        ClientWorld targetWorld =
+            CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+        BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
+        
+        if (targetWorld.isAir(blockPos)) {
+            return;
+        }
+        
+        ClientWorld oldWorld = mc.world;
+        
+        mc.world = targetWorld;
+        isContextSwitched = true;
+        mc.interactionManager.attackBlock(blockPos, ((BlockHitResult) remoteHitResult).getSide());
+        mc.world = oldWorld;
+        isContextSwitched = false;
     }
 }

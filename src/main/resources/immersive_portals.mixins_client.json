@@ -3,6 +3,8 @@
   "package": "com.qouteall.immersive_portals.mixin_client",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "block_manipulation/MixinClientPlayerInteractionManager",
+    "block_manipulation/MixinMinecraftClient_B",
     "MixinBackgroundRenderer",
     "MixinBlockEntityRenderDispatcher",
     "MixinBossBarHud",

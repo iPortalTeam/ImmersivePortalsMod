@@ -21,6 +21,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
+import net.minecraft.server.network.packet.PlayerActionC2SPacket;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
@@ -262,5 +263,20 @@ public class MyNetworkClient {
         
             ((IEClientWorld) world).setGlobalPortals(portals);
         });
+    }
+    
+    public static CustomPayloadC2SPacket createCtsPlayerAction(
+        DimensionType dimension,
+        PlayerActionC2SPacket packet
+    ) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(dimension.getRawId());
+        try {
+            packet.write(buf);
+        }
+        catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return new CustomPayloadC2SPacket(MyNetwork.id_ctsPlayerAction, buf);
     }
 }
