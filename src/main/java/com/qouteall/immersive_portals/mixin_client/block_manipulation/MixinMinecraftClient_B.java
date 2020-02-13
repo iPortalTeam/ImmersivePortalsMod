@@ -12,7 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinMinecraftClient_B {
     @Inject(
         method = "handleBlockBreaking",
-        at = @At("HEAD"),
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"
+        ),
         cancellable = true
     )
     private void onHandleBlockBreaking(boolean isKeyPressed, CallbackInfo ci) {

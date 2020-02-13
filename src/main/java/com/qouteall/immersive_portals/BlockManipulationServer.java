@@ -163,13 +163,6 @@ public class BlockManipulationServer {
         ServerWorld world = McHelper.getServer().getWorld(dimension);
         
         doProcessRightClick(dimension, player, hand, blockHitResult);
-
-//        Pair<BlockHitResult, DimensionType> corrected =
-//            getHitResultForPlacing(world, blockHitResult);
-//        BlockHitResult targetBlockHitResult = corrected.getLeft();
-//        DimensionType targetDimension = corrected.getRight();
-//
-//        doProcessRightClick(targetDimension, player, hand, targetBlockHitResult);
     }
     
     public static void doProcessRightClick(

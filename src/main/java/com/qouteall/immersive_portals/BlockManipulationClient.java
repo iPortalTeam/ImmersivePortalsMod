@@ -226,6 +226,7 @@ public class BlockManipulationClient {
             isContextSwitched = false;
         }
     
+        mc.player.swingHand(Hand.MAIN_HAND);
     }
     
     //too lazy to rewrite the whole interaction system so hack there and here
