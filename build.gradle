@@ -42,6 +42,8 @@ dependencies {
 	//modImplementation "io.github.Ladysnake:Requiem:1.1.4"
 	//modImplementation "io.github.Ladysnake:Requiem:1.1.4:api"
 
+	//used for building mod
+	compile files('ofstuff_pre1.jar')
 }
 
 processResources {

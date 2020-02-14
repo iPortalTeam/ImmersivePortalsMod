@@ -4,7 +4,7 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.optifine_compatibility.BuiltChunkNeighborFix;
+import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.WorldRenderer;
@@ -91,14 +91,14 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         if (!isRenderingPortal) {
             if (shouldUpdateMainPresetNeighbor) {
                 shouldUpdateMainPresetNeighbor = false;
-                BuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+                OFBuiltChunkNeighborFix.updateNeighbor(this, preset.data);
                 preset.isNeighborUpdated = true;
             }
         }
         
         if (!preset.isNeighborUpdated) {
             preset.isNeighborUpdated = true;
-            BuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+            OFBuiltChunkNeighborFix.updateNeighbor(this, preset.data);
             if (isRenderingPortal) {
                 shouldUpdateMainPresetNeighbor = true;
             }
@@ -148,7 +148,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     //copy because private
-    public int getChunkIndex(int int_1, int int_2, int int_3) {
+    private int getChunkIndex(int int_1, int int_2, int int_3) {
         return (int_3 * this.sizeY + int_2) * this.sizeX + int_1;
     }
     

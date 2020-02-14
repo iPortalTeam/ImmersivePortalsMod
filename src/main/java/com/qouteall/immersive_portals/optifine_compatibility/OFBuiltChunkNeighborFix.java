@@ -10,7 +10,7 @@ import net.minecraft.util.math.Direction;
 
 import java.lang.reflect.Method;
 
-public class BuiltChunkNeighborFix {
+public class OFBuiltChunkNeighborFix {
     private static Method method_setRenderChunkNeighbour;
     
     public static void init() {
