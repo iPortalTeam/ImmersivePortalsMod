@@ -75,9 +75,19 @@ public class NewNetherPortalGenerator {
             //this side frame
             blockPos -> NetherPortalMatcher.isObsidian(fromWorld, blockPos),
             //other side area
-            toWorld::isAir,
+            blockPos -> {
+                if (!toWorld.isChunkLoaded(blockPos)) {
+                    return true;
+                }
+                return toWorld.isAir(blockPos);
+            },
             //other side frame
-            blockPos -> NetherPortalMatcher.isObsidian(toWorld, blockPos),
+            blockPos -> {
+                if (!toWorld.isChunkLoaded(blockPos)) {
+                    return false;
+                }
+                return NetherPortalMatcher.isObsidian(toWorld, blockPos);
+            },
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
             NewNetherPortalGenerator::generatePortalEntities,
             new TranslatableText(Items.OBSIDIAN.getTranslationKey())

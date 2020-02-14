@@ -24,6 +24,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.lwjgl.opengl.GL11;
 
+import java.util.function.Predicate;
+
 public class MyGameRenderer {
     private MinecraftClient mc = MinecraftClient.getInstance();
     private double[] clipPlaneEquation;
@@ -228,12 +230,23 @@ public class MyGameRenderer {
     public void pruneVisibleChunks(ObjectList<?> visibleChunks, int renderDistance) {
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         double range = ((renderDistance * 16) / 3) * ((renderDistance * 16) / 3);
-        
-        visibleChunks.removeIf(obj -> {
+    
+        Predicate<Object> predicate = obj -> {
             ChunkBuilder.BuiltChunk builtChunk = ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
             Vec3d center = builtChunk.boundingBox.getCenter();
             return center.squaredDistanceTo(cameraPos) > range;
-        });
+        };
+    
+        int pruneIndex = visibleChunks.size();
+        for (int i = 0; i < visibleChunks.size(); i++) {
+            Object obj = visibleChunks.get(i);
+            if (predicate.test(obj)) {
+                pruneIndex = i;
+                break;
+            }
+        }
+    
+        visibleChunks.removeElements(pruneIndex, visibleChunks.size());
     }
     
 }
