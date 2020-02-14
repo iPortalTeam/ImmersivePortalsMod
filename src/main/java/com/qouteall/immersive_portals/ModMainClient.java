@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.optifine_compatibility.BuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -103,6 +104,7 @@ public class ModMainClient implements ClientModInitializer {
         OFInterface.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
     
         if (OFInterface.isOptifinePresent) {
+            BuiltChunkNeighborFix.init();
 //            OFInterfaceInitializer.init();
         }
     

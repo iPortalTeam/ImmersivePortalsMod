@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals;
 
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
-import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.BiConsumer;
@@ -33,9 +32,6 @@ public class OFInterface {
     };
     
     public static BooleanSupplier shouldDisableFog = returnFalse;
-    
-    public static Consumer<BuiltChunkStorage> updateChunkRendererNeighbours = (a) -> {
-    };
     
     public static Consumer<Object> createNewRenderInfosNormal = (a) -> {
     };

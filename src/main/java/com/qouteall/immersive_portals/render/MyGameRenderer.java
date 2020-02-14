@@ -39,6 +39,13 @@ public class MyGameRenderer {
         Vec3d oldCameraPos,
         ClientWorld oldWorld
     ) {
+        if (CGlobal.useHackedChunkRenderDispatcher) {
+            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage().updateCameraPosition(
+                mc.cameraEntity.getX(),
+                mc.cameraEntity.getZ()
+            );
+        }
+    
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());

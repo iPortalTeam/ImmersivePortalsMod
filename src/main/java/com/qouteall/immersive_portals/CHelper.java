@@ -10,6 +10,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -88,6 +89,22 @@ public class CHelper {
             Helper.err("OpenGL Error" + errorCode);
             new Throwable().printStackTrace();
             reportedErrorNum++;
+        }
+    }
+    
+    public static void whatever(
+        int north,
+        int south,
+        int west,
+        int east,
+        ChunkBuilder.BuiltChunk[] renderChunkNeighbours
+    ) {
+        if (renderChunkNeighbours[north] == null ||
+            renderChunkNeighbours[south] == null ||
+            renderChunkNeighbours[west] == null ||
+            renderChunkNeighbours[east] == null
+        ) {
+            Helper.log("ouch");
         }
     }
 }

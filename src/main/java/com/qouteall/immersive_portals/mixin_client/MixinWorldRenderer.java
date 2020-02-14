@@ -467,18 +467,19 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    @ModifyVariable(
-        method = "updateChunks",
-        at = @At("HEAD")
-    )
-    private long modifyLimitTime(long limitTime) {
-        if (CGlobal.renderer.isRendering()) {
-            return 0;
-        }
-        else {
-            return limitTime;
-        }
-    }
+    //for optifine compat
+//    @ModifyVariable(
+//        method = "updateChunks",
+//        at = @At("HEAD")
+//    )
+//    private long modifyLimitTime(long limitTime) {
+//        if (CGlobal.renderer.isRendering()) {
+//            return 0;
+//        }
+//        else {
+//            return limitTime;
+//        }
+//    }
     
     //rebuild less chunk in render thread while rendering portal to reduce lag spike
     //minecraft has two places rebuilding chunks in render thread

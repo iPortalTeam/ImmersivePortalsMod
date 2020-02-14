@@ -1,8 +1,10 @@
 package com.qouteall.immersive_portals.render;
 
 import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.optifine_compatibility.BuiltChunkNeighborFix;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.WorldRenderer;
@@ -10,11 +12,9 @@ import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,17 +33,12 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             this.data = data;
             this.isNeighborUpdated = isNeighborUpdated;
         }
-    
-        public void updateNeighbor(
-            TriConsumer<ChunkBuilder.BuiltChunk, Direction, ChunkBuilder.BuiltChunk> func
-        ) {
-            //for optifine
-        }
     }
     
     private ChunkBuilder factory;
     private Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
     private Map<ChunkPos, Preset> presets = new HashMap<>();
+    private boolean shouldUpdateMainPresetNeighbor = true;
     
     public MyBuiltChunkStorage(
         ChunkBuilder chunkBuilder_1,
@@ -79,14 +74,35 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             MathHelper.floorDiv((int) playerX, 16),
             MathHelper.floorDiv((int) playerZ, 16)
         );
-        
+    
         Preset preset = presets.computeIfAbsent(
             cameraChunkPos,
             whatever -> myCreatePreset(playerX, playerZ)
         );
         preset.lastActiveTime = System.nanoTime();
-        
+    
         this.chunks = preset.data;
+    
+        manageNeighbor(preset);
+    }
+    
+    private void manageNeighbor(Preset preset) {
+        boolean isRenderingPortal = CGlobal.renderer.isRendering();
+        if (!isRenderingPortal) {
+            if (shouldUpdateMainPresetNeighbor) {
+                shouldUpdateMainPresetNeighbor = false;
+                BuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+                preset.isNeighborUpdated = true;
+            }
+        }
+        
+        if (!preset.isNeighborUpdated) {
+            preset.isNeighborUpdated = true;
+            BuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+            if (isRenderingPortal) {
+                shouldUpdateMainPresetNeighbor = true;
+            }
+        }
     }
     
     @Override
@@ -95,9 +111,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             new BlockPos(int_1 * 16, int_2 * 16, int_3 * 16)
         );
         builtChunk.scheduleRebuild(boolean_1);
-    
-        //is it necessary?
-        //super.scheduleRebuild(int_1,int_2,int_3,boolean_1);
     }
     
     private Preset myCreatePreset(double playerXCoord, double playerZCoord) {
@@ -119,12 +132,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 
                 for (int cy = 0; cy < this.sizeY; ++cy) {
                     int py = cy * 16;
-                    
-                    int index = this.getChunkIndex(
-                        cx,
-                        cy,
-                        cz
-                    );
+    
+                    int index = this.getChunkIndex(cx, cy, cz);
                     Validate.isTrue(px % 16 == 0);
                     Validate.isTrue(py % 16 == 0);
                     Validate.isTrue(pz % 16 == 0);
@@ -139,7 +148,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     //copy because private
-    private int getChunkIndex(int int_1, int int_2, int int_3) {
+    public int getChunkIndex(int int_1, int int_2, int int_3) {
         return (int_3 * this.sizeY + int_2) * this.sizeX + int_1;
     }
     
@@ -239,5 +248,21 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     public int getManagedChunkNum() {
         return builtChunkMap.size();
+    }
+    
+    public ChunkBuilder.BuiltChunk myGetRenderChunkRaw(
+        BlockPos pos, ChunkBuilder.BuiltChunk[] chunks
+    ) {
+        int i = MathHelper.floorDiv(pos.getX(), 16);
+        int j = MathHelper.floorDiv(pos.getY(), 16);
+        int k = MathHelper.floorDiv(pos.getZ(), 16);
+        if (j >= 0 && j < this.sizeY) {
+            i = MathHelper.floorMod(i, this.sizeX);
+            k = MathHelper.floorMod(k, this.sizeZ);
+            return chunks[this.getChunkIndex(i, j, k)];
+        }
+        else {
+            return null;
+        }
     }
 }
