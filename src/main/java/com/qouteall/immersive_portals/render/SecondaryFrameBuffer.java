@@ -12,6 +12,10 @@ public class SecondaryFrameBuffer {
         Framebuffer mainFrameBuffer = MinecraftClient.getInstance().getFramebuffer();
         int width = mainFrameBuffer.viewportWidth;
         int height = mainFrameBuffer.viewportHeight;
+        prepare(width, height);
+    }
+    
+    public void prepare(int width, int height) {
         if (fb == null) {
             fb = new Framebuffer(
                 width, height,
@@ -28,4 +32,6 @@ public class SecondaryFrameBuffer {
             Helper.log("Deferred buffer resized");
         }
     }
+    
+    
 }

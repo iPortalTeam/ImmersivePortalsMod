@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
@@ -342,6 +343,21 @@ public class MyCommandClient {
             builder,
             "gl_check_error",
             cond -> CGlobal.doCheckGlError = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "far_scenery",
+            cond -> FarSceneryRenderer.isFarSceneryEnabled = cond
+        );
+        builder.then(CommandManager
+            .literal("update_far_scenery")
+            .executes(context -> {
+                MinecraftClient mc = MinecraftClient.getInstance();
+                mc.execute(() -> {
+                    FarSceneryRenderer.updateFarScenery(200);
+                });
+                return 0;
+            })
         );
     
         dispatcher.register(builder);

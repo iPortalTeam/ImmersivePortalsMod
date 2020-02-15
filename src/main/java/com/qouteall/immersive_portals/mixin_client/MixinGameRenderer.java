@@ -40,6 +40,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     private int ticks;
     
+    @Shadow
+    private boolean renderingPanorama;
+    
     //may do teleportation here
     @Inject(method = "render", at = @At("HEAD"))
     private void onFarBeforeRendering(
@@ -153,5 +156,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Override
     public void setCamera(Camera camera_) {
         camera = camera_;
+    }
+    
+    @Override
+    public void setIsRenderingPanorama(boolean cond) {
+        renderingPanorama = cond;
     }
 }

@@ -13,4 +13,6 @@ public interface IEGameRenderer {
     void setDoRenderHand(boolean e);
     
     void setCamera(Camera camera);
+    
+    void setIsRenderingPanorama(boolean cond);
 }

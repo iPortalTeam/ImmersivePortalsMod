@@ -173,7 +173,6 @@ public abstract class PortalRenderer {
     
         MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
         
-        
         assert cameraEntity.world == mc.world;
         
         Vec3d oldPos = cameraEntity.getPos();

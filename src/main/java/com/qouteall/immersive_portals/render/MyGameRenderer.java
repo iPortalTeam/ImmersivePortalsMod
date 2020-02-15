@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.*;
+import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.portal.Portal;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -147,6 +148,10 @@ public class MyGameRenderer {
     //invoke this before rendering portal
     //its result depends on camra pos
     private double[] calcClipPlaneEquation() {
+        if (FarSceneryRenderer.isRendering()) {
+            return FarSceneryRenderer.getCullingEquation();
+        }
+    
         Portal portal = CGlobal.renderer.getRenderingPortal();
     
         Vec3d planeNormal = portal.getContentDirection();
@@ -154,7 +159,7 @@ public class MyGameRenderer {
         Vec3d portalPos = portal.destination
             .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
             .subtract(mc.gameRenderer.getCamera().getPos());
-        
+    
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
         double c = planeNormal.multiply(-1).dotProduct(portalPos);

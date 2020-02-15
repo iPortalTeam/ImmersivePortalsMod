@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -118,6 +119,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean isTranslucent = renderLayer_1 == RenderLayer.getTranslucent();
         if (isTranslucent) {
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+            FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
         }
         renderLayer(
             renderLayer_1, matrices,

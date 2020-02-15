@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.portal.*;
@@ -110,7 +111,9 @@ public class ModMainClient implements ClientModInitializer {
         }
     
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
-        
+    
         SatinCompatibility.init();
+    
+        FarSceneryRenderer.init();
     }
 }

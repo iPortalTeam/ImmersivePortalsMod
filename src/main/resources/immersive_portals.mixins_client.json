@@ -6,6 +6,7 @@
     "debug/MixinBuiltChunk",
     "block_manipulation/MixinClientPlayerInteractionManager",
     "block_manipulation/MixinMinecraftClient_B",
+    "far_scenery/MixinGameRenderer_F",
     "MixinBackgroundRenderer",
     "MixinBlockEntityRenderDispatcher",
     "MixinBossBarHud",

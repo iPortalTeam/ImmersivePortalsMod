@@ -221,13 +221,13 @@ public class NewNetherPortalGenerator {
         
         McHelper.performSplitedFindingTaskOnServer(
             iterator,
-            Objects::nonNull,
+            shape -> shape != null && (fromWorld != toWorld || !shape.anchor.equals(foundShape.anchor)),
             (i) -> {
                 boolean isIntact = foundShape.isPortalIntact(
                     thisSideAreaPredicate,
                     thisSideFramePredicate
                 );
-                
+        
                 if (!isIntact) {
                     Helper.log("Nether Portal Generation Aborted");
                     indicatorEntity.remove();
