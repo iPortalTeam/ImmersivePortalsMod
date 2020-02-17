@@ -193,24 +193,6 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("switch_to_normal_renderer")
-            .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    CGlobal.useCompatibilityRenderer = false;
-                });
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("switch_to_compatibility_renderer")
-            .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    CGlobal.useCompatibilityRenderer = true;
-                });
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
             .literal("report_server_entities")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
@@ -232,20 +214,6 @@ public class MyCommandClient {
             .executes(context -> {
                 String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
                 context.getSource().getPlayer().sendMessage(new LiteralText(str));
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("render_debug_enable")
-            .executes(context -> {
-                CGlobal.isRenderDebugMode = true;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("render_debug_disable")
-            .executes(context -> {
-                CGlobal.isRenderDebugMode = false;
                 return 0;
             })
         );
@@ -275,20 +243,6 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("debug_mirror_mode_enable")
-            .executes(context -> {
-                CGlobal.debugMirrorMode = true;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("debug_mirror_mode_disable")
-            .executes(context -> {
-                CGlobal.debugMirrorMode = false;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
             .literal("vanilla_chunk_culling_enable")
             .executes(context -> {
                 MinecraftClient.getInstance().chunkCullingEnabled = true;
@@ -299,6 +253,34 @@ public class MyCommandClient {
             .literal("vanilla_chunk_culling_disable")
             .executes(context -> {
                 MinecraftClient.getInstance().chunkCullingEnabled = false;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("render_mode_normal")
+            .executes(context -> {
+                CGlobal.renderMode = CGlobal.RenderMode.normal;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("render_mode_compatibility")
+            .executes(context -> {
+                CGlobal.renderMode = CGlobal.RenderMode.compatibility;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("render_mode_debug")
+            .executes(context -> {
+                CGlobal.renderMode = CGlobal.RenderMode.debug;
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("render_mode_none")
+            .executes(context -> {
+                CGlobal.renderMode = CGlobal.RenderMode.none;
                 return 0;
             })
         );
@@ -331,11 +313,6 @@ public class MyCommandClient {
         );
         registerSwitchCommand(
             builder,
-            "smooth_unload",
-            cond -> CGlobal.smoothUnload = cond
-        );
-        registerSwitchCommand(
-            builder,
             "render_fewer_on_fast_graphic",
             cond -> CGlobal.renderFewerInFastGraphic = cond
         );
@@ -348,6 +325,11 @@ public class MyCommandClient {
             builder,
             "far_scenery",
             cond -> FarSceneryRenderer.isFarSceneryEnabled = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "smooth_chunk_unload",
+            cond -> CGlobal.smoothChunkUnload = cond
         );
         builder.then(CommandManager
             .literal("update_far_scenery")

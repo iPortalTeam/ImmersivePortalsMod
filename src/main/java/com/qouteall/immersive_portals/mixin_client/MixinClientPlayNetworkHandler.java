@@ -161,13 +161,13 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         cancellable = true
     )
     private void onOnUnload(UnloadChunkS2CPacket packet, CallbackInfo ci) {
-        if (CGlobal.smoothUnload) {
+        if (CGlobal.smoothChunkUnload) {
             DimensionalChunkPos pos = new DimensionalChunkPos(
                 world.dimension.getType(),
                 packet.getX(),
                 packet.getZ()
             );
-            
+        
             WorldRenderer worldRenderer =
                 CGlobal.clientWorldLoader.getWorldRenderer(world.dimension.getType());
             BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage();

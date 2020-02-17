@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
+import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
@@ -56,24 +57,35 @@ public class ModMainClient implements ClientModInitializer {
             return;
         }
         if (OFInterface.isShaders.getAsBoolean()) {
-//            if (CGlobal.isRenderDebugMode) {
-//                switchRenderer(OFGlobal.rendererDebugWithShader);
-//            }
-//            else {
-//                switchRenderer(OFGlobal.rendererMixed);
-//            }
+            switch (CGlobal.renderMode) {
+                case normal:
+                    switchRenderer(OFGlobal.rendererMixed);
+                    break;
+                case compatibility:
+                    switchRenderer(OFGlobal.rendererDeferred);
+                    break;
+                case debug:
+                    switchRenderer(OFGlobal.rendererDebugWithShader);
+                    break;
+                case none:
+                    switchRenderer(CGlobal.rendererDummy);
+                    break;
+            }
         }
         else {
-            if (CGlobal.useCompatibilityRenderer) {
-                switchRenderer(CGlobal.rendererUsingFrameBuffer);
-            }
-            else {
-                if (CGlobal.isRenderDebugMode) {
-                    switchRenderer(CGlobal.rendererDebug);
-                }
-                else {
+            switch (CGlobal.renderMode) {
+                case normal:
                     switchRenderer(CGlobal.rendererUsingStencil);
-                }
+                    break;
+                case compatibility:
+                    switchRenderer(CGlobal.rendererUsingFrameBuffer);
+                    break;
+                case debug:
+                    //TODO add debug renderer for non shader mode
+                    break;
+                case none:
+                    switchRenderer(CGlobal.rendererDummy);
+                    break;
             }
         }
     }

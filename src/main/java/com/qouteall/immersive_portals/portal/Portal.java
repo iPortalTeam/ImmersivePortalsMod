@@ -156,6 +156,12 @@ public class Portal extends Entity {
     
     @Override
     public Box getBoundingBox() {
+        if (axisW == null) {
+            //avoid npe with pehkui
+            //pehkui will invoke this when axisW is not initialized
+            boundingBoxCache = null;
+            return new Box(0, 0, 0, 0, 0, 0);
+        }
         if (boundingBoxCache == null) {
             boundingBoxCache = getPortalCollisionBox();
         }
