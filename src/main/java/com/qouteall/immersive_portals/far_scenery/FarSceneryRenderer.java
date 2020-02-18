@@ -2,15 +2,10 @@ package com.qouteall.immersive_portals.far_scenery;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ducks.IEGameRenderer;
-import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -18,7 +13,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import static org.lwjgl.opengl.GL11.GL_QUADS;
@@ -35,10 +29,10 @@ public class FarSceneryRenderer {
     private static SecondaryFrameBuffer[] fbSet1;
     private static SecondaryFrameBuffer[] fbSet2;
     private static State state = State.notReady;
-    private static boolean isRenderingScenery = false;
+    public static boolean isRenderingScenery = false;
     private static double[] cullingEquation;
     private static Vec3d boxCenter = Vec3d.ZERO;
-    private static double currDistance = 100;
+    public static double currDistance = 100;
     private static MyTaskList.MyTask renderingTask;
     
     public static boolean isFarSceneryEnabled = false;
@@ -62,6 +56,10 @@ public class FarSceneryRenderer {
     }
     
     public static void resetRenderingTask(SecondaryFrameBuffer[] frameBufferSet) {
+        for (SecondaryFrameBuffer fb : frameBufferSet) {
+            fb.prepare(1000, 1000);
+        }
+    
         Vec3d currCameraPos = mc.gameRenderer.getCamera().getPos();
         renderingTask = FaceRenderingTask.createFarSceneryRenderingTask(
             currCameraPos,
@@ -72,73 +70,73 @@ public class FarSceneryRenderer {
         );
         boxCenter = currCameraPos;
     }
-    
-    public static void updateFarScenery(
-        double distance
-    ) {
-        boxCenter = mc.gameRenderer.getCamera().getPos();
-        currDistance = distance;
-        
-        for (SecondaryFrameBuffer buffer : fbSet1) {
-            buffer.prepare(1000, 1000);
-        }
-        
-        for (Direction direction : Direction.values()) {
-            renderFarSceneryFace(direction, distance);
-        }
-    }
-    
-    private static void renderFarSceneryFace(
-        Direction direction,
-        double distance
-    ) {
-        SecondaryFrameBuffer buffer = fbSet1[direction.ordinal()];
-        
-        Framebuffer oldFrameBuffer = mc.getFramebuffer();
-        
-        ((IEMinecraftClient) mc).setFrameBuffer(buffer.fb);
-        buffer.fb.beginWrite(true);
-        
-        GlStateManager.clearColor(1, 0, 1, 1);
-        GlStateManager.clearDepth(1);
-        GlStateManager.clear(
-            GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
-            MinecraftClient.IS_SYSTEM_MAC
-        );
-        
-        doRenderFarScenery(direction);
-        
-        ((IEMinecraftClient) mc).setFrameBuffer(oldFrameBuffer);
-        oldFrameBuffer.beginWrite(true);
-    }
-    
-    private static void doRenderFarScenery(
-        Direction direction
-    ) {
-        Vec3d viewDirection = new Vec3d(direction.getVector());
-        
-        ClientPlayerEntity player = mc.player;
-        float oldYaw = player.yaw;
-        float oldPitch = player.pitch;
-        
-        setPlayerRotation(direction, player);
-        updateCullingEquation(currDistance, direction);
-        
-        isRenderingScenery = true;
-        ((IEGameRenderer) mc.gameRenderer).setIsRenderingPanorama(true);
-        CGlobal.myGameRenderer.renderWorld(
-            MyRenderHelper.partialTicks,
-            mc.worldRenderer,
-            mc.world,
-            mc.gameRenderer.getCamera().getPos(),
-            mc.world
-        );
-        isRenderingScenery = false;
-        ((IEGameRenderer) mc.gameRenderer).setIsRenderingPanorama(false);
-        
-        player.yaw = oldYaw;
-        player.pitch = oldPitch;
-    }
+
+//    public static void updateFarScenery(
+//        double distance
+//    ) {
+//        boxCenter = mc.gameRenderer.getCamera().getPos();
+//        currDistance = distance;
+//
+//        for (SecondaryFrameBuffer buffer : fbSet1) {
+//            buffer.prepare(1000, 1000);
+//        }
+//
+//        for (Direction direction : Direction.values()) {
+//            renderFarSceneryFace(direction, distance);
+//        }
+//    }
+//
+//    private static void renderFarSceneryFace(
+//        Direction direction,
+//        double distance
+//    ) {
+//        SecondaryFrameBuffer buffer = fbSet1[direction.ordinal()];
+//
+//        Framebuffer oldFrameBuffer = mc.getFramebuffer();
+//
+//        ((IEMinecraftClient) mc).setFrameBuffer(buffer.fb);
+//        buffer.fb.beginWrite(true);
+//
+//        GlStateManager.clearColor(1, 0, 1, 1);
+//        GlStateManager.clearDepth(1);
+//        GlStateManager.clear(
+//            GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
+//            MinecraftClient.IS_SYSTEM_MAC
+//        );
+//
+//        doRenderFarScenery(direction);
+//
+//        ((IEMinecraftClient) mc).setFrameBuffer(oldFrameBuffer);
+//        oldFrameBuffer.beginWrite(true);
+//    }
+//
+//    private static void doRenderFarScenery(
+//        Direction direction
+//    ) {
+//        Vec3d viewDirection = new Vec3d(direction.getVector());
+//
+//        ClientPlayerEntity player = mc.player;
+//        float oldYaw = player.yaw;
+//        float oldPitch = player.pitch;
+//
+//        setPlayerRotation(direction, player);
+//        updateCullingEquation(currDistance, direction);
+//
+//        isRenderingScenery = true;
+//        ((IEGameRenderer) mc.gameRenderer).setIsRenderingPanorama(true);
+//        CGlobal.myGameRenderer.renderWorld(
+//            MyRenderHelper.partialTicks,
+//            mc.worldRenderer,
+//            mc.world,
+//            mc.gameRenderer.getCamera().getPos(),
+//            mc.world
+//        );
+//        isRenderingScenery = false;
+//        ((IEGameRenderer) mc.gameRenderer).setIsRenderingPanorama(false);
+//
+//        player.yaw = oldYaw;
+//        player.pitch = oldPitch;
+//    }
     
     public static void setPlayerRotation(
         Direction direction,
@@ -209,21 +207,21 @@ public class FarSceneryRenderer {
             -offsetToCamera.x, -offsetToCamera.y, -offsetToCamera.z
         );
         matrixStack.scale((float) distance, (float) distance, (float) distance);
-        
+    
         RenderSystem.enableTexture();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.disableCull();
-        //RenderSystem.enableBlend();
-        RenderSystem.disableBlend();
+        RenderSystem.enableBlend();
+//        RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableAlphaTest();
         RenderSystem.disableFog();
         RenderSystem.shadeModel(7425);
-        
+    
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
-        
+    
         bufferBuilder.begin(GL_QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
         bufferBuilder.vertex(-1.0D, -1.0D, 1.0D).texture(1.0F, 0.0F)
             .color(255, 255, 255, 255).next();
@@ -327,7 +325,7 @@ public class FarSceneryRenderer {
         GlStateManager.texParameter(3553, 10243, 10496);
     }
     
-    public static void onAfterTranslucentRendering(
+    public static void onBeforeTranslucentRendering(
         MatrixStack matrixStack
     ) {
         if (!isFarSceneryEnabled) {

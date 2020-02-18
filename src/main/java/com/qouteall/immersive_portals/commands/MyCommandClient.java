@@ -331,16 +331,16 @@ public class MyCommandClient {
             "smooth_chunk_unload",
             cond -> CGlobal.smoothChunkUnload = cond
         );
-        builder.then(CommandManager
-            .literal("update_far_scenery")
-            .executes(context -> {
-                MinecraftClient mc = MinecraftClient.getInstance();
-                mc.execute(() -> {
-                    FarSceneryRenderer.updateFarScenery(200);
-                });
-                return 0;
-            })
-        );
+//        builder.then(CommandManager
+//            .literal("update_far_scenery")
+//            .executes(context -> {
+//                MinecraftClient mc = MinecraftClient.getInstance();
+//                mc.execute(() -> {
+//                    FarSceneryRenderer.updateFarScenery(200);
+//                });
+//                return 0;
+//            })
+//        );
     
         dispatcher.register(builder);
     

@@ -16,6 +16,7 @@ import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
@@ -81,8 +82,10 @@ public class FaceRenderingTask {
         RenderScheduler scheduler = new RenderScheduler();
         return composeTask(
             () -> {
+                FarSceneryRenderer.isRenderingScenery = true;
             },
             () -> {
+                FarSceneryRenderer.isRenderingScenery = false;
             },
             Arrays.stream(Direction.values())
                 .map(direction -> createRenderFaceTask(
@@ -114,6 +117,7 @@ public class FaceRenderingTask {
             modelViewMatrix.peek().getModel(),
             projectionMatrix.peek().getModel()
         );
+        frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
         
         frameBuffer.fb.beginWrite(true);
         
@@ -127,7 +131,8 @@ public class FaceRenderingTask {
             new BlockPos(cameraPos),
             farDistanceChunks,
             builtChunk -> frustum.isVisible(builtChunk.boundingBox),
-            direction.ordinal()
+            direction.ordinal(),
+            builtChunk -> shouldRenderInFarScenery(builtChunk, cameraPos, nearPlaneDistance)
         );
         
         return composeTask(
@@ -214,6 +219,8 @@ public class FaceRenderingTask {
     }
     
     private static void beginRenderLayer(RenderLayer renderLayer) {
+        renderLayer.startDrawing();
+    
         //TODO translucent sort
     }
     
@@ -230,6 +237,10 @@ public class FaceRenderingTask {
         Vec3d cameraPos,
         MatrixStack matrixStack
     ) {
+        if (builtChunk.needsRebuild()) {
+            //builtChunk.scheduleRebuild(((IEWorldRenderer) mc.worldRenderer).getChunkBuilder());
+            return;
+        }
         if (builtChunk.getData().isEmpty(renderLayer)) {
             return;
         }
@@ -247,4 +258,31 @@ public class FaceRenderingTask {
         matrixStack.pop();
     }
     
+    public static boolean shouldRenderInFarScenery(
+        ChunkBuilder.BuiltChunk builtChunk,
+        Vec3d cameraPos,
+        double nearPlaneDistance
+    ) {
+        Box boundingBox = builtChunk.boundingBox;
+        return Math.abs(boundingBox.x1 - cameraPos.x) >= nearPlaneDistance ||
+            Math.abs(boundingBox.x2 - cameraPos.x) >= nearPlaneDistance ||
+            Math.abs(boundingBox.y1 - cameraPos.y) >= nearPlaneDistance ||
+            Math.abs(boundingBox.y2 - cameraPos.y) >= nearPlaneDistance ||
+            Math.abs(boundingBox.z1 - cameraPos.z) >= nearPlaneDistance ||
+            Math.abs(boundingBox.z2 - cameraPos.z) >= nearPlaneDistance;
+    }
+    
+    public static boolean shouldRenderInNearScenery(
+        ChunkBuilder.BuiltChunk builtChunk,
+        Vec3d cameraPos,
+        double nearPlaneDistance
+    ) {
+        Box boundingBox = builtChunk.boundingBox;
+        return Math.abs(boundingBox.x1 - cameraPos.x) <= nearPlaneDistance ||
+            Math.abs(boundingBox.x2 - cameraPos.x) <= nearPlaneDistance ||
+            Math.abs(boundingBox.y1 - cameraPos.y) <= nearPlaneDistance ||
+            Math.abs(boundingBox.y2 - cameraPos.y) <= nearPlaneDistance ||
+            Math.abs(boundingBox.z1 - cameraPos.z) <= nearPlaneDistance ||
+            Math.abs(boundingBox.z2 - cameraPos.z) <= nearPlaneDistance;
+    }
 }

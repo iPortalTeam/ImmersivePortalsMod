@@ -18,7 +18,8 @@ public class SectionRenderListPropagator {
         BlockPos cameraPos,
         int renderDistance,
         Predicate<ChunkBuilder.BuiltChunk> isInFrustum,
-        int uniqueInt
+        int uniqueInt,
+        Predicate<ChunkBuilder.BuiltChunk> filter
     ) {
         List<ChunkBuilder.BuiltChunk> result = new ArrayList<>();
         
@@ -34,13 +35,15 @@ public class SectionRenderListPropagator {
         
         while (!queue.isEmpty()) {
             ChunkBuilder.BuiltChunk curr = queue.poll();
-            result.add(curr);
-            
+            if (filter.test(curr)) {
+                result.add(curr);
+            }
+    
             for (Direction direction : Direction.values()) {
                 ChunkBuilder.BuiltChunk adjacentChunk = getAdjacentChunk(
                     cameraPos, curr, direction, renderDistance, chunks
                 );
-                
+        
                 if (adjacentChunk != null) {
                     if (visitAndGetIsNewlyVisiting.test(adjacentChunk)) {
                         if (isInFrustum.test(curr)) {

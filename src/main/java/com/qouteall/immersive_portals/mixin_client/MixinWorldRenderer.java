@@ -101,6 +101,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private VertexBuffer darkSkyBuffer;
     
+    @Shadow
+    private ChunkBuilder chunkBuilder;
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -119,6 +122,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean isTranslucent = renderLayer_1 == RenderLayer.getTranslucent();
         if (isTranslucent) {
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+            FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
         }
         renderLayer(
             renderLayer_1, matrices,
@@ -126,7 +130,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         );
         if (isTranslucent) {
             CGlobal.renderer.onAfterTranslucentRendering(matrices);
-            FarSceneryRenderer.onAfterTranslucentRendering(matrices);
+    
         }
         
     }
@@ -441,6 +445,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void setVisibleChunks(ObjectList l) {
         visibleChunks = l;
+    }
+    
+    @Override
+    public ChunkBuilder getChunkBuilder() {
+        return chunkBuilder;
     }
     
     //update builtChunkStorage every frame
