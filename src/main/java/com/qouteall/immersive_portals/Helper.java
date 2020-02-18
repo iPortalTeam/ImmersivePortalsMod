@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
@@ -485,5 +486,19 @@ public class Helper {
         catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+    
+    //ObjectList does not override removeIf() so its complexity is O(n^2)
+    //this is O(n)
+    public static <T> void removeIf(ObjectList<T> list, Predicate<T> predicate) {
+        int placingIndex = 0;
+        for (int i = 0; i < list.size(); i++) {
+            T curr = list.get(i);
+            if (!predicate.test(curr)) {
+                list.set(placingIndex, curr);
+                placingIndex += 1;
+            }
+        }
+        list.removeElements(placingIndex, list.size());
     }
 }

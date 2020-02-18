@@ -3,6 +3,8 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.*;
+import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
+import com.qouteall.immersive_portals.far_scenery.FaceRenderingTask;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.portal.Portal;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -35,6 +37,19 @@ public class MyGameRenderer {
     
     }
     
+    public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
+        if (CGlobal.renderer.isRendering()) {
+            if (CGlobal.renderFewerInFastGraphic) {
+                if (!MinecraftClient.getInstance().options.fancyGraphics) {
+                    CGlobal.myGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
+                }
+            }
+        }
+        else if (FSRenderingContext.isFarSceneryEnabled) {
+            CGlobal.myGameRenderer.pruneVisibleChunksForNearScenery(visibleChunks);
+        }
+    }
+    
     public void renderWorld(
         float partialTicks,
         WorldRenderer newWorldRenderer,
@@ -48,13 +63,13 @@ public class MyGameRenderer {
                 mc.cameraEntity.getZ()
             );
         }
-    
+        
         IEGameRenderer ieGameRenderer = (IEGameRenderer) mc.gameRenderer;
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
         Camera newCamera = new Camera();
-    
+        
         //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
         LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
@@ -64,9 +79,9 @@ public class MyGameRenderer {
         OFInterface.createNewRenderInfosNormal.accept(newWorldRenderer);
         ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
         HitResult oldCrosshairTarget = mc.crosshairTarget;
-    
+        
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
-    
+        
         //switch
         ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
         mc.world = newWorld;
@@ -84,9 +99,9 @@ public class MyGameRenderer {
         if (BlockManipulationClient.remotePointedDim == newWorld.dimension.getType()) {
             mc.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
-    
+        
         mc.getProfiler().push("render_portal_content");
-    
+        
         //invoke it!
         OFInterface.beforeRenderCenter.accept(partialTicks);
         mc.gameRenderer.renderWorld(
@@ -96,7 +111,7 @@ public class MyGameRenderer {
         OFInterface.afterRenderCenter.run();
         
         mc.getProfiler().pop();
-    
+        
         //recover
         ((IEMinecraftClient) mc).setWorldRenderer(oldWorldRenderer);
         mc.world = oldWorld;
@@ -109,9 +124,9 @@ public class MyGameRenderer {
         GlStateManager.popMatrix();
         ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
         mc.crosshairTarget = oldCrosshairTarget;
-    
+        
         FogRendererContext.swappingManager.popSwapping();
-    
+        
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
         ((IECamera) mc.gameRenderer.getCamera()).resetState(oldCameraPos, oldWorld);
     }
@@ -148,7 +163,7 @@ public class MyGameRenderer {
     //invoke this before rendering portal
     //its result depends on camra pos
     private double[] calcClipPlaneEquation() {
-        if (FarSceneryRenderer.isRendering()) {
+        if (FSRenderingContext.isRenderingScenery) {
             return FarSceneryRenderer.getCullingEquation();
         }
     
@@ -232,26 +247,37 @@ public class MyGameRenderer {
     //because if it's pruned there these chunks will be rebuilt
     //then it will generate lag when player cross the portal by building chunks
     //we want the far chunks to be built but not rendered
-    public void pruneVisibleChunks(ObjectList<?> visibleChunks, int renderDistance) {
+    public void pruneVisibleChunksInFastGraphics(ObjectList<?> visibleChunks) {
+        int renderDistance = mc.options.viewDistance;
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         double range = ((renderDistance * 16) / 3) * ((renderDistance * 16) / 3);
-    
-        Predicate<Object> predicate = obj -> {
-            ChunkBuilder.BuiltChunk builtChunk = ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+        
+        Predicate<ChunkBuilder.BuiltChunk> builtChunkPredicate = (builtChunk) -> {
             Vec3d center = builtChunk.boundingBox.getCenter();
             return center.squaredDistanceTo(cameraPos) > range;
         };
+        
+        pruneVisibleChunks(
+            (ObjectList<Object>) visibleChunks,
+            builtChunkPredicate
+        );
+    }
     
-        int pruneIndex = visibleChunks.size();
-        for (int i = 0; i < visibleChunks.size(); i++) {
-            Object obj = visibleChunks.get(i);
-            if (predicate.test(obj)) {
-                pruneIndex = i;
-                break;
-            }
-        }
+    public void pruneVisibleChunksForNearScenery(ObjectList<?> visibleChunks) {
+        pruneVisibleChunks(
+            ((ObjectList<Object>) visibleChunks),
+            builtChunk -> !FaceRenderingTask.shouldRenderInNearScenery(builtChunk)
+        );
+    }
     
-        visibleChunks.removeElements(pruneIndex, visibleChunks.size());
+    private static void pruneVisibleChunks(
+        ObjectList<Object> visibleChunks,
+        Predicate<ChunkBuilder.BuiltChunk> builtChunkPredicate
+    ) {
+        Helper.removeIf(
+            visibleChunks,
+            obj -> builtChunkPredicate.test(((IEWorldRendererChunkInfo) obj).getBuiltChunk())
+        );
     }
     
 }

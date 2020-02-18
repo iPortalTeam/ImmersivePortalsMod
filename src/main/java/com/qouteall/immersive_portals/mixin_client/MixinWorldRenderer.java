@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
+import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
@@ -186,15 +187,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         double double_3,
         CallbackInfo ci
     ) {
+        ObjectList<?> visibleChunks = this.visibleChunks;
+        if (renderLayer_1 == RenderLayer.getSolid()) {
+            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
+        }
+    
         if (CGlobal.renderer.isRendering()) {
-            if (CGlobal.renderFewerInFastGraphic) {
-                if (renderLayer_1 == RenderLayer.getSolid()) {
-                    if (!MinecraftClient.getInstance().options.fancyGraphics) {
-                        CGlobal.myGameRenderer.pruneVisibleChunks(visibleChunks, renderDistance);
-                    }
-                }
-            }
-            
             CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
             if (MyRenderHelper.isRenderingMirror()) {

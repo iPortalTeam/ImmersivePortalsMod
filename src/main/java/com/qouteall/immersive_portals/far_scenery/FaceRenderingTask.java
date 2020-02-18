@@ -82,10 +82,12 @@ public class FaceRenderingTask {
         RenderScheduler scheduler = new RenderScheduler();
         return composeTask(
             () -> {
-                FarSceneryRenderer.isRenderingScenery = true;
+                FSRenderingContext.isRenderingScenery = true;
+                FSRenderingContext.cameraPos = cameraPos;
+                FSRenderingContext.nearPlaneDistance = nearPlaneDistance;
             },
             () -> {
-                FarSceneryRenderer.isRenderingScenery = false;
+                FSRenderingContext.isRenderingScenery = false;
             },
             Arrays.stream(Direction.values())
                 .map(direction -> createRenderFaceTask(
@@ -132,13 +134,14 @@ public class FaceRenderingTask {
             farDistanceChunks,
             builtChunk -> frustum.isVisible(builtChunk.boundingBox),
             direction.ordinal(),
-            builtChunk -> shouldRenderInFarScenery(builtChunk, cameraPos, nearPlaneDistance)
+            builtChunk -> shouldRenderInFarScenery(builtChunk)
         );
         
         return composeTask(
             () -> {
                 frameBuffer.fb.beginWrite(true);
                 pushProjectionMatrix(projectionMatrix);
+                FarSceneryRenderer.updateCullingEquation(nearPlaneDistance, direction);
             },
             () -> {
                 mc.getFramebuffer().beginWrite(true);
@@ -259,10 +262,10 @@ public class FaceRenderingTask {
     }
     
     public static boolean shouldRenderInFarScenery(
-        ChunkBuilder.BuiltChunk builtChunk,
-        Vec3d cameraPos,
-        double nearPlaneDistance
+        ChunkBuilder.BuiltChunk builtChunk
     ) {
+        Vec3d cameraPos = FSRenderingContext.cameraPos;
+        double nearPlaneDistance = FSRenderingContext.nearPlaneDistance;
         Box boundingBox = builtChunk.boundingBox;
         return Math.abs(boundingBox.x1 - cameraPos.x) >= nearPlaneDistance ||
             Math.abs(boundingBox.x2 - cameraPos.x) >= nearPlaneDistance ||
@@ -273,16 +276,16 @@ public class FaceRenderingTask {
     }
     
     public static boolean shouldRenderInNearScenery(
-        ChunkBuilder.BuiltChunk builtChunk,
-        Vec3d cameraPos,
-        double nearPlaneDistance
+        ChunkBuilder.BuiltChunk builtChunk
     ) {
+        Vec3d cameraPos = FSRenderingContext.cameraPos;
+        double nearPlaneDistance = FSRenderingContext.nearPlaneDistance;
         Box boundingBox = builtChunk.boundingBox;
-        return Math.abs(boundingBox.x1 - cameraPos.x) <= nearPlaneDistance ||
-            Math.abs(boundingBox.x2 - cameraPos.x) <= nearPlaneDistance ||
-            Math.abs(boundingBox.y1 - cameraPos.y) <= nearPlaneDistance ||
-            Math.abs(boundingBox.y2 - cameraPos.y) <= nearPlaneDistance ||
-            Math.abs(boundingBox.z1 - cameraPos.z) <= nearPlaneDistance ||
+        return Math.abs(boundingBox.x1 - cameraPos.x) <= nearPlaneDistance &&
+            Math.abs(boundingBox.x2 - cameraPos.x) <= nearPlaneDistance &&
+            Math.abs(boundingBox.y1 - cameraPos.y) <= nearPlaneDistance &&
+            Math.abs(boundingBox.y2 - cameraPos.y) <= nearPlaneDistance &&
+            Math.abs(boundingBox.z1 - cameraPos.z) <= nearPlaneDistance &&
             Math.abs(boundingBox.z2 - cameraPos.z) <= nearPlaneDistance;
     }
 }

@@ -15,7 +15,7 @@ public class RenderScheduler {
     
     private boolean shouldRenderNextSection() {
         long currTime = System.nanoTime();
-        long valve = Helper.secondToNano(1.0 / 120);
+        long valve = Helper.secondToNano(1.0 / 300);
         return currTime - startTime > valve;
     }
     
