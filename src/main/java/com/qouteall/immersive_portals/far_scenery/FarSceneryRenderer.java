@@ -61,7 +61,7 @@ public class FarSceneryRenderer {
         renderingTask = FaceRenderingTask.createFarSceneryRenderingTask(
             currCameraPos,
             mc.world.dimension.getType(),
-            64,
+            100,
             mc.options.viewDistance,
             frameBufferSet
         );
@@ -272,13 +272,13 @@ public class FarSceneryRenderer {
         if (state == State.presenting1AndRendering2) {
             renderFarSceneryBox(
                 matrixStack, FSRenderingContext.nearPlaneDistance,
-                currCameraPos.subtract(FSRenderingContext.cameraPos), fbSet2
+                currCameraPos.subtract(FSRenderingContext.cameraPos), fbSet1
             );
         }
         else if (state == State.presenting2AndRendering1) {
             renderFarSceneryBox(
                 matrixStack, FSRenderingContext.nearPlaneDistance,
-                currCameraPos.subtract(FSRenderingContext.cameraPos), fbSet1
+                currCameraPos.subtract(FSRenderingContext.cameraPos), fbSet2
             );
         }
     }
@@ -291,6 +291,7 @@ public class FarSceneryRenderer {
         else if (state == State.notReadyAndRendering1) {
             boolean succeeded = renderingTask.runAndGetIsSucceeded();
             if (succeeded) {
+                FaceRenderingTask.scheduler.onRenderSucceeded();
                 state = State.presenting1AndRendering2;
                 resetRenderingTask(fbSet2);
             }
@@ -298,6 +299,7 @@ public class FarSceneryRenderer {
         else if (state == State.presenting1AndRendering2) {
             boolean succeeded = renderingTask.runAndGetIsSucceeded();
             if (succeeded) {
+                FaceRenderingTask.scheduler.onRenderSucceeded();
                 state = State.presenting2AndRendering1;
                 resetRenderingTask(fbSet1);
             }
@@ -305,6 +307,7 @@ public class FarSceneryRenderer {
         else if (state == State.presenting2AndRendering1) {
             boolean succeeded = renderingTask.runAndGetIsSucceeded();
             if (succeeded) {
+                FaceRenderingTask.scheduler.onRenderSucceeded();
                 state = State.presenting1AndRendering2;
                 resetRenderingTask(fbSet2);
             }

@@ -439,6 +439,10 @@ public class Helper {
         return (long) (second * 1000000000L);
     }
     
+    public static double nanoToSecond(long nano) {
+        return nano / 1000000000.0;
+    }
+    
     public enum BatchTestResult {
         all_true,
         all_false,
@@ -500,5 +504,47 @@ public class Helper {
             }
         }
         list.removeElements(placingIndex, list.size());
+    }
+    
+    public static <T, S> Stream<S> wrapAdjacentAndMap(
+        Stream<T> stream,
+        BiFunction<T, T, S> function
+    ) {
+        Iterator<T> iterator = stream.iterator();
+        return Streams.stream(new Iterator<S>() {
+            private boolean isBuffered = false;
+            private T buffer;
+            
+            private void fillBuffer() {
+                if (!isBuffered) {
+                    assert iterator.hasNext();
+                    isBuffered = true;
+                    buffer = iterator.next();
+                }
+            }
+            
+            private T takeBuffer() {
+                assert isBuffered;
+                isBuffered = false;
+                return buffer;
+            }
+            
+            @Override
+            public boolean hasNext() {
+                if (!iterator.hasNext()) {
+                    return false;
+                }
+                fillBuffer();
+                return iterator.hasNext();
+            }
+            
+            @Override
+            public S next() {
+                fillBuffer();
+                T a = takeBuffer();
+                fillBuffer();
+                return function.apply(a, buffer);
+            }
+        });
     }
 }

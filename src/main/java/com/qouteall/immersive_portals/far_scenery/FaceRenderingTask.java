@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals.far_scenery;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.ducks.IECamera;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class FaceRenderingTask {
+    public static RenderScheduler scheduler = new RenderScheduler();
+    
     //compose some small tasks into a big task
     //when running the composed task, firstly invoke preparation func
     //then invoke the small tasks
@@ -39,8 +43,8 @@ public class FaceRenderingTask {
         Iterator<MyTaskList.MyTask> subTasks,
         BooleanSupplier shouldCancelTask
     ) {
-        PeekableIterator<MyTaskList.MyTask> subTaskIterator =
-            new PeekableIterator<>(subTasks);
+        PeekingIterator<MyTaskList.MyTask> subTaskIterator =
+            Iterators.peekingIterator(subTasks);
         
         return () -> {
             if (shouldCancelTask.getAsBoolean()) {
@@ -79,12 +83,13 @@ public class FaceRenderingTask {
         int farDistanceChunks,
         SecondaryFrameBuffer[] frameBuffersByFace
     ) {
-        RenderScheduler scheduler = new RenderScheduler();
+        scheduler.onRenderLaunch();
         return composeTask(
             () -> {
                 FSRenderingContext.isRenderingScenery = true;
                 FSRenderingContext.cameraPos = cameraPos;
                 FSRenderingContext.nearPlaneDistance = nearPlaneDistance;
+                scheduler.onRenderPassStart();
             },
             () -> {
                 FSRenderingContext.isRenderingScenery = false;
@@ -279,7 +284,7 @@ public class FaceRenderingTask {
         ChunkBuilder.BuiltChunk builtChunk
     ) {
         Vec3d cameraPos = FSRenderingContext.cameraPos;
-        double nearPlaneDistance = FSRenderingContext.nearPlaneDistance;
+        double nearPlaneDistance = FSRenderingContext.nearPlaneDistance + 16;
         Box boundingBox = builtChunk.boundingBox;
         return Math.abs(boundingBox.x1 - cameraPos.x) <= nearPlaneDistance &&
             Math.abs(boundingBox.x2 - cameraPos.x) <= nearPlaneDistance &&
