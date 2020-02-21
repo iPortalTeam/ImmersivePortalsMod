@@ -249,7 +249,7 @@ public class FormulaGenerator {
         return nestExpression(
             triFuncSelector.select(random),
             getComplexUniExpression(random, 2),
-            getComplexUniExpression(random, 3),
+            getComplexUniExpression(random, 2),
             getComplexUniExpression(random, 2)
         );
     }

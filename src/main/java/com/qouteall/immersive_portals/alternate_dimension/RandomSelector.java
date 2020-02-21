@@ -54,8 +54,9 @@ public class RandomSelector<T> {
         public Builder() {
         }
         
-        public void add(int weight, A element) {
+        public Builder<A> add(int weight, A element) {
             data.add(new Pair<>(element, weight));
+            return this;
         }
         
         public RandomSelector<A> build() {

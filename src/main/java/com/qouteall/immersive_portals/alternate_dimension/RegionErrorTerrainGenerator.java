@@ -1,18 +1,31 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.world.biome.source.SeedMixer;
 
 import java.util.Arrays;
 import java.util.Random;
 
 class RegionErrorTerrainGenerator {
+    public static interface Composition {
+        BlockState generate(
+            int worldY,
+            double funcValue,
+            double middle,
+            double upMiddle,
+            double downMiddle,
+            int worldX,
+            int worldZ
+        );
+    }
+    
     private int regionX;
     private int regionZ;
     private FormulaGenerator.TriNumFunction expression;
-    private double b1;
-    private double b2;
     private double middle;
-    private int compositionType;
+    private double upMiddle;
+    private double downMiddle;
+    Composition composition;
     
     public RegionErrorTerrainGenerator(
         int regionX_,
@@ -24,7 +37,9 @@ class RegionErrorTerrainGenerator {
         
         initExpression(seed);
         
-        calculateMiddle();
+        middle = calcMiddle(0.4, 0.5);
+        upMiddle = calcMiddle(1.0, 1.0);
+        downMiddle = calcMiddle(0.0, 0);
     }
     
     private void initExpression(long seed) {
@@ -35,25 +50,25 @@ class RegionErrorTerrainGenerator {
         );
         Random random = new Random(realSeed);
         expression = FormulaGenerator.getRandomTriCompositeExpression(random);
-        
-        compositionType = (int) (realSeed % 5);
+    
+        composition = ErrorTerrainComposition.selector.select(random);
     }
     
-    private void calculateMiddle() {
+    private double calcMiddle(double lowerHeight, double upperHeight) {
         double[] arr = new double[8];
-        double b = 0.4;
-        double t = 0.5;
-        arr[0] = expression.eval(0, b, 0);
-        arr[1] = expression.eval(0, b, 1);
-        arr[2] = expression.eval(0, t, 0);
-        arr[3] = expression.eval(0, t, 1);
-        arr[4] = expression.eval(1, b, 0);
-        arr[5] = expression.eval(1, b, 1);
-        arr[6] = expression.eval(1, t, 0);
-        arr[7] = expression.eval(1, t, 1);
+        double zero = 0.2;
+        double one = 0.8;
+        arr[0] = expression.eval(zero, lowerHeight, zero);
+        arr[1] = expression.eval(zero, lowerHeight, one);
+        arr[2] = expression.eval(zero, upperHeight, zero);
+        arr[3] = expression.eval(zero, upperHeight, one);
+        arr[4] = expression.eval(one, lowerHeight, zero);
+        arr[5] = expression.eval(one, lowerHeight, one);
+        arr[6] = expression.eval(one, upperHeight, zero);
+        arr[7] = expression.eval(one, upperHeight, one);
         Arrays.sort(arr);
         
-        middle = arr[4];
+        return arr[4];
     }
     
     private double calc(int worldX, int worldY, int worldZ) {
@@ -68,89 +83,22 @@ class RegionErrorTerrainGenerator {
         );
     }
     
-    public ErrorTerrainGenerator.BlockComposition getBlockComposition(
-        ErrorTerrainGenerator.TaskInfo taskInfo,
+    public BlockState getBlockComposition(
         int worldX,
         int worldY,
         int worldZ
     ) {
         if (worldY >= ErrorTerrainGenerator.maxY) {
-            return ErrorTerrainGenerator.BlockComposition.air;
+            return ErrorTerrainComposition.air;
         }
         
         double currValue = calc(worldX, worldY, worldZ);
         
-        switch (compositionType) {
-            case 0:
-            case 1:
-            case 2:
-                return solidType(worldY, currValue);
-            case 3:
-                return hollowType(worldY, currValue);
-            case 4:
-            default:
-                return wateryType(worldY, currValue);
-        }
+        return composition.generate(
+            worldY, currValue,
+            middle, upMiddle, downMiddle,
+            worldX, worldZ
+        );
     }
     
-    private ErrorTerrainGenerator.BlockComposition solidType(int worldY, double currValue) {
-        double splitPoint = middle;
-        splitPoint *= Math.exp(Math.abs(worldY - ErrorTerrainGenerator.averageY) / 32.0);
-        
-        splitPoint *= Math.max(
-            0.7,
-            30.0 / Math.max(1, Math.min(worldY, ErrorTerrainGenerator.maxY - worldY))
-        );
-        
-        if (currValue > splitPoint) {
-            return ErrorTerrainGenerator.BlockComposition.stone;
-        }
-        else {
-            return ErrorTerrainGenerator.BlockComposition.air;
-        }
-    }
-    
-    private ErrorTerrainGenerator.BlockComposition hollowType(int worldY, double currValue) {
-        double splitPoint = middle;
-        splitPoint *= Math.exp(Math.abs(worldY - ErrorTerrainGenerator.averageY) / 32.0);
-        
-        splitPoint *= Math.max(
-            0.7,
-            30.0 / Math.max(1, Math.min(worldY, ErrorTerrainGenerator.maxY - worldY))
-        );
-        
-        if (currValue > splitPoint) {
-            if (currValue > splitPoint + 2) {
-                return ErrorTerrainGenerator.BlockComposition.air;
-            }
-            else {
-                return ErrorTerrainGenerator.BlockComposition.stone;
-            }
-        }
-        else {
-            return ErrorTerrainGenerator.BlockComposition.air;
-        }
-    }
-    
-    private ErrorTerrainGenerator.BlockComposition wateryType(int worldY, double currValue) {
-        double splitPoint = middle;
-        splitPoint *= Math.exp(Math.abs(worldY - ErrorTerrainGenerator.averageY) / 16.0);
-        
-        splitPoint *= Math.max(
-            0.7,
-            30.0 / Math.max(1, Math.min(worldY, ErrorTerrainGenerator.maxY - worldY))
-        );
-        
-        if (currValue > splitPoint) {
-            if (((int) currValue) % 23 == 0) {
-                return ErrorTerrainGenerator.BlockComposition.water;
-            }
-            else {
-                return ErrorTerrainGenerator.BlockComposition.stone;
-            }
-        }
-        else {
-            return ErrorTerrainGenerator.BlockComposition.air;
-        }
-    }
 }

@@ -121,7 +121,7 @@ public class PortalPlaceholderBlock extends Block {
         BlockPos blockPos_1,
         BlockPos blockPos_2
     ) {
-        if (!iWorld_1.isClient()) {
+        if (iWorld_1 instanceof ServerWorld) {
             ServerWorld serverWorld = (ServerWorld) iWorld_1;
             portalBlockUpdateSignal.emit(serverWorld, blockPos_1);
         }

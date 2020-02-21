@@ -103,6 +103,9 @@ public class Portal extends Entity {
                 specialShape = null;
             }
         }
+        if (compoundTag.contains("teleportable")) {
+            teleportable = compoundTag.getBoolean("teleportable");
+        }
     }
     
     public boolean isTeleportable() {
@@ -126,6 +129,8 @@ public class Portal extends Entity {
         if (specialShape != null) {
             compoundTag.put("specialShape", specialShape.writeToTag());
         }
+    
+        compoundTag.putBoolean("teleportable", teleportable);
     }
     
     @Override
