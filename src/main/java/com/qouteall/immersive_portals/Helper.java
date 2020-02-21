@@ -472,11 +472,18 @@ public class Helper {
         Stream<A> stream,
         BiFunction<B, A, B> func
     ) {
-        SimpleBox<B> bBox = new SimpleBox<>(start);
-        stream.forEach(a -> {
-            bBox.obj = func.apply(bBox.obj, a);
-        });
-        return bBox.obj;
+        return stream.reduce(
+            start,
+            func,
+            (a, b) -> {
+                throw new IllegalStateException("combiner should only be used in parallel");
+            }
+        );
+//        SimpleBox<B> bBox = new SimpleBox<>(start);
+//        stream.forEach(a -> {
+//            bBox.obj = func.apply(bBox.obj, a);
+//        });
+//        return bBox.obj;
     }
     
     public static interface ExceptionalSupplier<T> {
@@ -537,7 +544,7 @@ public class Helper {
                 fillBuffer();
                 return iterator.hasNext();
             }
-            
+    
             @Override
             public S next() {
                 fillBuffer();
@@ -546,5 +553,36 @@ public class Helper {
                 return function.apply(a, buffer);
             }
         });
+    }
+    
+    //map and reduce at the same time
+    public static <A, B> Stream<B> mapReduce(
+        Stream<A> stream,
+        BiFunction<B, A, B> func,
+        SimpleBox<B> startValue
+    ) {
+        return stream.map(a -> {
+            startValue.obj = func.apply(startValue.obj, a);
+            return startValue.obj;
+        });
+    }
+    
+    //another implementation using mapReduce but creates more garbage objects
+    public static <T, S> Stream<S> wrapAdjacentAndMap1(
+        Stream<T> stream,
+        BiFunction<T, T, S> function
+    ) {
+        Iterator<T> iterator = stream.iterator();
+        if (!iterator.hasNext()) {
+            return Stream.empty();
+        }
+        T firstValue = iterator.next();
+        Stream<T> newStream = Streams.stream(iterator);
+        return mapReduce(
+            newStream,
+            (Pair<T, S> lastPair, T curr) ->
+                new Pair<T, S>(curr, function.apply(lastPair.getLeft(), curr)),
+            new SimpleBox<>(new Pair<T, S>(firstValue, null))
+        ).map(pair -> pair.getRight());
     }
 }

@@ -1,19 +1,71 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
 import java.util.Random;
+import java.util.function.Function;
 
 public class FormulaGenerator {
+    
     public static interface TriNumFunction {
         double eval(double x, double y, double z);
-    }
-    
-    public static interface BiNumFunction {
-        double eval(double x, double y);
     }
     
     public static interface UniNumFunction {
         double eval(double x);
     }
+    
+    private static RandomSelector<Function<Random, UniNumFunction>> uniFuncSelector;
+    private static RandomSelector<TriNumFunction> triFuncSelector;
+    
+    public static void init() {
+        initUniFuncSelector();
+        initTriFuncSelector();
+    }
+    
+    private static void initUniFuncSelector() {
+        RandomSelector.Builder<Function<Random, UniNumFunction>> builder = new RandomSelector.Builder<>();
+        
+        Function<Function<Double, UniNumFunction>, Function<Random, UniNumFunction>> applyRandomArg =
+            arged -> random -> arged.apply(random.nextDouble());
+        Function<UniNumFunction, Function<Random, UniNumFunction>> noRandomArg =
+            func -> random -> func;
+        
+        builder.add(30, noRandomArg.apply(x -> x));
+        builder.add(30, noRandomArg.apply(x -> -x));
+        builder.add(30, noRandomArg.apply(x -> x * x));
+        builder.add(30, noRandomArg.apply(x -> x * x * x));
+        builder.add(10, noRandomArg.apply(x -> Math.sin(x * 3)));
+        builder.add(10, noRandomArg.apply(x -> Math.cos(x * 7)));
+        builder.add(10, noRandomArg.apply(x -> Math.exp(x * 3)));
+        builder.add(10, noRandomArg.apply(x -> Math.abs(x)));
+        builder.add(10, noRandomArg.apply(x -> Math.sqrt(Math.abs(x))));
+        builder.add(100, applyRandomArg.apply(arg -> x -> x * arg));
+        builder.add(50, applyRandomArg.apply(arg -> x -> x / Math.max(arg, 0.0001)));
+        builder.add(10, applyRandomArg.apply(arg -> x -> Math.max(x, arg)));
+        builder.add(10, applyRandomArg.apply(arg -> x -> Math.floor(x * arg * 23)));
+        
+        uniFuncSelector = builder.build();
+    }
+    
+    private static void initTriFuncSelector() {
+        RandomSelector.Builder<TriNumFunction> builder = new RandomSelector.Builder<>();
+        
+        builder.add(100, (x, y, z) -> x + y + z);
+        builder.add(50, (x, y, z) -> x * y * z);
+        builder.add(10, (x, y, z) -> x * y + z);
+        builder.add(10, (x, y, z) -> x + y * z);
+        builder.add(10, (x, y, z) -> x * z + y);
+        builder.add(10, (x, y, z) -> x + y + z);
+        builder.add(10, (x, y, z) -> x * x + y * y + z * z);
+        builder.add(10, (x, y, z) -> x + y * y + z * z);
+        builder.add(10, (x, y, z) -> x * x + y + z * z);
+        builder.add(10, (x, y, z) -> x * x + y * y + z);
+        builder.add(10, (x, y, z) -> -x * x + y * y + z * z);
+        builder.add(10, (x, y, z) -> x * x - y * y + z * z);
+        builder.add(10, (x, y, z) -> x * x + y * y - z * z);
+        
+        triFuncSelector = builder.build();
+    }
+    
     
     public static UniNumFunction nestExpression(
         UniNumFunction inner,
@@ -54,7 +106,7 @@ public class FormulaGenerator {
         return x -> a.eval(x) - sub;
     }
     
-    public static UniNumFunction getRandomUniExpression(
+    public static UniNumFunction getRandomUniExpressionOld(
         int seed
     ) {
         int selector = seed % 80;
@@ -100,7 +152,7 @@ public class FormulaGenerator {
         }
     }
     
-    public static TriNumFunction getRandomTriExpression(
+    public static TriNumFunction getRandomTriExpressionOld(
         int seed
     ) {
         int selector = seed % 90;
@@ -134,6 +186,40 @@ public class FormulaGenerator {
         }
     }
     
+    public static UniNumFunction getComplexUniExpressionOld(
+        Random random,
+        int nestingLayer
+    ) {
+        if (nestingLayer == 0) {
+            return addConstant(
+                mergeExpression(
+                    getRandomTriExpressionOld(random.nextInt()),
+                    addConstant(getRandomUniExpressionOld(random.nextInt())),
+                    addConstant(getRandomUniExpressionOld(random.nextInt())),
+                    addConstant(getRandomUniExpressionOld(random.nextInt()))
+                )
+            );
+        }
+        
+        return mergeExpression(
+            getRandomTriExpressionOld(random.nextInt()),
+            getComplexUniExpressionOld(random, nestingLayer - 1),
+            getComplexUniExpressionOld(random, nestingLayer - 1),
+            getComplexUniExpressionOld(random, nestingLayer - 1)
+        );
+    }
+    
+    public static TriNumFunction getRandomTriCompositeExpressionOld(
+        Random random
+    ) {
+        return nestExpression(
+            getRandomTriExpressionOld(random.nextInt()),
+            getComplexUniExpressionOld(random, 2),
+            getComplexUniExpressionOld(random, 3),
+            getComplexUniExpressionOld(random, 2)
+        );
+    }
+    
     public static UniNumFunction getComplexUniExpression(
         Random random,
         int nestingLayer
@@ -141,16 +227,16 @@ public class FormulaGenerator {
         if (nestingLayer == 0) {
             return addConstant(
                 mergeExpression(
-                    getRandomTriExpression(random.nextInt()),
-                    addConstant(getRandomUniExpression(random.nextInt())),
-                    addConstant(getRandomUniExpression(random.nextInt())),
-                    addConstant(getRandomUniExpression(random.nextInt()))
+                    triFuncSelector.select(random),
+                    addConstant(uniFuncSelector.select(random).apply(random)),
+                    addConstant(uniFuncSelector.select(random).apply(random)),
+                    addConstant(uniFuncSelector.select(random).apply(random))
                 )
             );
         }
         
         return mergeExpression(
-            getRandomTriExpression(random.nextInt()),
+            triFuncSelector.select(random),
             getComplexUniExpression(random, nestingLayer - 1),
             getComplexUniExpression(random, nestingLayer - 1),
             getComplexUniExpression(random, nestingLayer - 1)
@@ -161,7 +247,7 @@ public class FormulaGenerator {
         Random random
     ) {
         return nestExpression(
-            getRandomTriExpression(random.nextInt()),
+            triFuncSelector.select(random),
             getComplexUniExpression(random, 2),
             getComplexUniExpression(random, 3),
             getComplexUniExpression(random, 2)

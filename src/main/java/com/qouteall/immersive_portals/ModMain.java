@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensionInit;
+import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
@@ -87,13 +88,14 @@ public class ModMain implements ModInitializer {
             new Identifier("immersive_portals", "portal_helper"),
             portalHelperBlock
         );
-        
+    
         Registry.register(
             Registry.ITEM,
             new Identifier("immersive_portals", "portal_helper"),
             portalHelperBlockItem
         );
-        
+    
+        FormulaGenerator.init();
     }
     
 }

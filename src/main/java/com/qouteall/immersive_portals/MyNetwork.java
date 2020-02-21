@@ -28,23 +28,23 @@ import java.util.UUID;
 
 public class MyNetwork {
     public static final Identifier id_ctsTeleport =
-        new Identifier("immersive_portals", "teleport");
+        new Identifier("imm_ptl", "teleport");
     public static final Identifier id_stcCustom =
-        new Identifier("immersive_portals", "stc_custom");
+        new Identifier("imm_ptl", "stc_custom");
     public static final Identifier id_stcSpawnEntity =
-        new Identifier("immersive_portals", "spawn_entity");
+        new Identifier("imm_ptl", "spawn_entity");
     public static final Identifier id_stcDimensionConfirm =
-        new Identifier("immersive_portals", "dim_confirm");
+        new Identifier("imm_ptl", "dim_confirm");
     public static final Identifier id_stcRedirected =
-        new Identifier("immersive_portals", "redirected");
+        new Identifier("imm_ptl", "rd");
     public static final Identifier id_stcSpawnLoadingIndicator =
-        new Identifier("immersive_portals", "indicator");
+        new Identifier("imm_ptl", "indicator");
     public static final Identifier id_stcUpdateGlobalPortal =
-        new Identifier("immersive_portals", "upd_glb_ptl");
+        new Identifier("imm_ptl", "upd_glb_ptl");
     public static final Identifier id_ctsPlayerAction =
-        new Identifier("immersive_portals", "player_action");
+        new Identifier("imm_ptl", "player_action");
     public static final Identifier id_ctsRightClick =
-        new Identifier("immersive_portals", "right_click");
+        new Identifier("imm_ptl", "right_click");
     
     static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
         DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());

@@ -211,9 +211,9 @@ public class ServerTeleportationManager {
         toWorld.checkChunk(player);
     
         isFiringMyChangeDimensionEvent = true;
-        McHelper.getServer().getPlayerManager().sendWorldInfo(
-            player, toWorld
-        );
+//        McHelper.getServer().getPlayerManager().sendWorldInfo(
+//            player, toWorld
+//        );
         isFiringMyChangeDimensionEvent = false;
     
         player.interactionManager.setWorld(toWorld);
