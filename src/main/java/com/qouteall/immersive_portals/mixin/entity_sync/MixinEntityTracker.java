@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.entity_sync;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
@@ -118,6 +119,16 @@ public class MixinEntityTracker implements IEEntityTracker {
         IEThreadedAnvilChunkStorage storage = McHelper.getIEStorage(entity.dimension);
         
         if (player != this.entity) {
+            if (entity.dimension != entity.world.dimension.getType()) {
+                Helper.err(String.format(
+                    "Entity dimension field abnormal. Force corrected. %s %s %s",
+                    entity,
+                    entity.dimension,
+                    entity.world.dimension.getType()
+                ));
+                entity.dimension = entity.world.dimension.getType();
+            }
+    
             Vec3d relativePos = (player.getPos()).subtract(this.entry.getLastPos());
             int maxWatchDistance = Math.min(
                 this.maxDistance,

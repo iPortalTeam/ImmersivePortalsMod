@@ -6,8 +6,12 @@ import com.google.common.cache.LoadingCache;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructureStart;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.math.BlockBox;
@@ -36,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     private final BlockState AIR;
@@ -141,17 +146,18 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         
     }
     
-    //generate more orewwwwww
+    //generate more ore
     @Override
     public void generateFeatures(ChunkRegion region) {
         try {
             super.generateFeatures(region);
+    
         }
         catch (Throwable throwable) {
             Helper.err("Force ignore exception while generating feature " + throwable);
         }
-        
-        for (int pass = 0; pass < 1; pass++) {
+    
+        for (int pass = 0; pass < 2; pass++) {
             int centerChunkX = region.getCenterChunkX();
             int centerChunkZ = region.getCenterChunkZ();
             int x = centerChunkX * 16;
@@ -160,7 +166,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
             Biome biome = this.getDecorationBiome(region.getBiomeAccess(), blockPos.add(8, 8, 8));
             ChunkRandom chunkRandom = new ChunkRandom();
             long currSeed = chunkRandom.setSeed(region.getSeed() + pass, x, z);
-            
+        
             generateFeatureForStep(
                 region, centerChunkX, centerChunkZ,
                 blockPos, biome, chunkRandom, currSeed,
@@ -259,10 +265,10 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
             return 0.05;
         }
         if (structureFeature instanceof WoodlandMansionFeature) {
-            return 1;
+            return 0.1;
         }
         if (structureFeature instanceof EndCityFeature) {
-            return 1;
+            return 0.1;
         }
         return 0.3;
     }
@@ -271,6 +277,51 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     public void populateEntities(ChunkRegion region) {
         super.populateEntities(region);
         
-        //TODO move villagers to safe place
+        saveVillagers(region);
+    }
+    
+    //make end city and woodland mansion be able to generate
+    @Override
+    public int getHeightOnGround(int x, int z, Heightmap.Type heightmapType) {
+        return 64;
+    }
+    
+    //newly generated villagers usually fall into void or suffocate in wall
+    private void saveVillagers(ChunkRegion region) {
+        Identifier villagerId = EntityType.getId(EntityType.VILLAGER);
+        
+        ProtoChunk centerChunk = (ProtoChunk) region.getChunk(
+            region.getCenterChunkX(),
+            region.getCenterChunkZ()
+        );
+        
+        centerChunk.getEntities().stream()
+            .filter(compoundTag ->
+                villagerId.toString().equals(compoundTag.getString("id"))
+            )
+            .forEach(villagerTag -> {
+                ListTag posTag = villagerTag.getList("Pos", 6);
+                BlockPos villagerBlockPos = new BlockPos(
+                    posTag.getDouble(0),
+                    posTag.getDouble(1),
+                    posTag.getDouble(2)
+                );
+                
+                IntStream.range(-32, 64)
+                    .mapToObj(yOffset -> villagerBlockPos.add(0, yOffset, 0))
+                    .filter(
+                        pos -> region.getBlockState(pos).isAir() &&
+                            region.getBlockState(pos.add(0, 1, 0)).isAir() &&
+                            !region.getBlockState(pos.add(0, -1, 0)).isAir()
+                    )
+                    .findFirst()
+                    .ifPresent(pos -> {
+                        posTag.set(0, DoubleTag.of(pos.getX()));
+                        posTag.set(1, DoubleTag.of(pos.getY()));
+                        posTag.set(2, DoubleTag.of(pos.getZ()));
+                    });
+                
+                
+            });
     }
 }

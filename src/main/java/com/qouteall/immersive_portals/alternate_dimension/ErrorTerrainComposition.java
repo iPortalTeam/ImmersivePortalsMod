@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.MathHelper;
@@ -129,9 +130,14 @@ public class ErrorTerrainComposition {
         );
         if (funcValue > splitPoint) {
             if (((int) funcValue) % 17 == 0) {
-                return Registry.BLOCK.getRandom(new Random(
+                Block randomBlock = Registry.BLOCK.getRandom(new Random(
                     SeedMixer.mixSeed(worldX, SeedMixer.mixSeed(worldY, worldZ))
-                )).getDefaultState();
+                ));
+                //player should not get beacon so easily
+                if (randomBlock == Blocks.BEACON) {
+                    randomBlock = Blocks.AIR;
+                }
+                return randomBlock.getDefaultState();
             }
         }
         return air;
