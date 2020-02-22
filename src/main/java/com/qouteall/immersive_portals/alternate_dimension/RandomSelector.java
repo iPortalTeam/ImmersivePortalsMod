@@ -26,7 +26,7 @@ public class RandomSelector<T> {
     }
     
     public T select(Random random) {
-        int randomValue = random.nextInt() % weightSum;
+        int randomValue = random.nextInt(weightSum);
         
         return selectByRandomValue(randomValue);
     }

@@ -10,7 +10,10 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Final;
@@ -19,6 +22,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -74,18 +78,6 @@ public abstract class MixinClientWorld implements IEClientWorld {
         MyClientChunkManager chunkManager = new MyClientChunkManager(clientWorld, int_1);
         ((IEWorld) this).setChunkManager(chunkManager);
     }
-
-//    @Inject(
-//        method = "addEntityPrivate",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void onEntityAboutToBeAdded(int id, Entity entity, CallbackInfo ci) {
-//        if (getEntityById(id) != null) {
-//            Helper.err("Add duplicate entity in client " + id + entity);
-//            ci.cancel();
-//        }
-//    }
     
     //avoid entity duplicate when an entity travels
     @Inject(
@@ -109,6 +101,23 @@ public abstract class MixinClientWorld implements IEClientWorld {
         if (clientWorld.dimension instanceof AlternateDimension) {
             cir.setReturnValue(-100d);
             cir.cancel();
+        }
+    }
+    
+    //avoid dark sky in alternate dimension when player is in end biome
+    @Redirect(
+        method = "method_23777",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/world/ClientWorld;getBiome(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome;"
+        )
+    )
+    private Biome redirectGetBiomeInSkyRendering(ClientWorld world, BlockPos pos) {
+        if (world.dimension instanceof AlternateDimension) {
+            return Biomes.PLAINS;
+        }
+        else {
+            return world.getBiome(pos);
         }
     }
 }

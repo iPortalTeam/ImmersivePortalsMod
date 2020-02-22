@@ -6,12 +6,8 @@ import com.google.common.cache.LoadingCache;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructureStart;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.math.BlockBox;
@@ -40,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     private final BlockState AIR;
@@ -151,18 +146,19 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     public void generateFeatures(ChunkRegion region) {
         try {
             super.generateFeatures(region);
-    
+        
         }
         catch (Throwable throwable) {
             Helper.err("Force ignore exception while generating feature " + throwable);
         }
     
+        int centerChunkX = region.getCenterChunkX();
+        int centerChunkZ = region.getCenterChunkZ();
+        int x = centerChunkX * 16;
+        int z = centerChunkZ * 16;
+        BlockPos blockPos = new BlockPos(x, 0, z);
+    
         for (int pass = 0; pass < 2; pass++) {
-            int centerChunkX = region.getCenterChunkX();
-            int centerChunkZ = region.getCenterChunkZ();
-            int x = centerChunkX * 16;
-            int z = centerChunkZ * 16;
-            BlockPos blockPos = new BlockPos(x, 0, z);
             Biome biome = this.getDecorationBiome(region.getBiomeAccess(), blockPos.add(8, 8, 8));
             ChunkRandom chunkRandom = new ChunkRandom();
             long currSeed = chunkRandom.setSeed(region.getSeed() + pass, x, z);
@@ -172,8 +168,15 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                 blockPos, biome, chunkRandom, currSeed,
                 GenerationStep.Feature.UNDERGROUND_ORES
             );
-            
         }
+    
+        SimpleSpawnerFeature.instance.generate(
+            region,
+            this,
+            random,
+            blockPos,
+            null
+        );
     }
     
     private void generateFeatureForStep(
@@ -210,8 +213,10 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         ChunkGenerator<?> chunkGenerator,
         StructureManager structureManager
     ) {
+        random.setSeed(chunk.getPos().x, chunk.getPos().z);
+    
         Iterator var5 = Feature.STRUCTURES.values().iterator();
-        
+    
         while (var5.hasNext()) {
             StructureFeature<?> structureFeature = (StructureFeature) var5.next();
             if (chunkGenerator.getBiomeSource().hasStructureFeature(structureFeature)) {
@@ -276,8 +281,6 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     @Override
     public void populateEntities(ChunkRegion region) {
         super.populateEntities(region);
-        
-        saveVillagers(region);
     }
     
     //make end city and woodland mansion be able to generate
@@ -286,42 +289,4 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         return 64;
     }
     
-    //newly generated villagers usually fall into void or suffocate in wall
-    private void saveVillagers(ChunkRegion region) {
-        Identifier villagerId = EntityType.getId(EntityType.VILLAGER);
-        
-        ProtoChunk centerChunk = (ProtoChunk) region.getChunk(
-            region.getCenterChunkX(),
-            region.getCenterChunkZ()
-        );
-        
-        centerChunk.getEntities().stream()
-            .filter(compoundTag ->
-                villagerId.toString().equals(compoundTag.getString("id"))
-            )
-            .forEach(villagerTag -> {
-                ListTag posTag = villagerTag.getList("Pos", 6);
-                BlockPos villagerBlockPos = new BlockPos(
-                    posTag.getDouble(0),
-                    posTag.getDouble(1),
-                    posTag.getDouble(2)
-                );
-                
-                IntStream.range(-32, 64)
-                    .mapToObj(yOffset -> villagerBlockPos.add(0, yOffset, 0))
-                    .filter(
-                        pos -> region.getBlockState(pos).isAir() &&
-                            region.getBlockState(pos.add(0, 1, 0)).isAir() &&
-                            !region.getBlockState(pos.add(0, -1, 0)).isAir()
-                    )
-                    .findFirst()
-                    .ifPresent(pos -> {
-                        posTag.set(0, DoubleTag.of(pos.getX()));
-                        posTag.set(1, DoubleTag.of(pos.getY()));
-                        posTag.set(2, DoubleTag.of(pos.getZ()));
-                    });
-                
-                
-            });
-    }
 }

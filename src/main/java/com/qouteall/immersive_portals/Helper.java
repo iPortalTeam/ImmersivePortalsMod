@@ -585,4 +585,9 @@ public class Helper {
             new SimpleBox<>(new Pair<T, S>(firstValue, null))
         ).map(pair -> pair.getRight());
     }
+    
+    public static <T> T makeIntoExpression(T t, Consumer<T> func) {
+        func.accept(t);
+        return t;
+    }
 }
