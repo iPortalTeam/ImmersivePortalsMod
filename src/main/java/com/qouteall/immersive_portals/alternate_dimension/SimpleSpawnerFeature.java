@@ -16,6 +16,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.mob.SkeletonEntity;
 import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -65,7 +66,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     private static RandomSelector<BiFunction<World, Random, Entity>> entitySelector =
         new RandomSelector.Builder<BiFunction<World, Random, Entity>>()
             .add(10, SimpleSpawnerFeature::randomMonster)
-            .add(30, SimpleSpawnerFeature::randomRidingMonster)
+            .add(50, SimpleSpawnerFeature::randomRidingMonster)
             .build();
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
@@ -85,6 +86,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, EntityType.CAVE_SPIDER)
             .add(10, EntityType.GIANT)
             .add(10, EntityType.MAGMA_CUBE)
+            .add(10, EntityType.GUARDIAN)
             .build();
     
     private static RandomSelector<EntityType<?>> vehicleTypeSelector =
@@ -117,10 +119,10 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         DefaultFeatureConfig config
     ) {
         ChunkPos chunkPos = new ChunkPos(pos);
-        
-        random.setSeed(chunkPos.toLong());
-        
-        for (int pass = 0; pass < 1; pass++) {
+    
+        random.setSeed(chunkPos.toLong() + random.nextInt(2333));
+    
+        if (random.nextDouble() < 0.03) {
             generateOnce(world, random, chunkPos);
         }
         
@@ -147,12 +149,37 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     public void generateOnce(IWorld world, Random random, ChunkPos chunkPos) {
         int height = heightSelector.select(random).apply(random);
-        BlockPos spawnerPos = chunkPos.toBlockPos(
+        BlockPos randomPos = chunkPos.toBlockPos(
             random.nextInt(16),
             height,
             random.nextInt(16)
         );
-        
+        BlockPos spawnerPos = randomPos;
+
+//        boolean shouldFloat = random.nextDouble() < 0.2;
+//        if (!shouldFloat) {
+//            spawnerPos = NetherPortalMatcher.fromNearToFarWithinHeightLimit(
+//                randomPos,
+//                32,
+//                new IntegerAABBInclusive(
+//                    chunkPos.toBlockPos(0, 0, 0),
+//                    chunkPos.toBlockPos(15, 255, 15)
+//                )
+//            ).filter(
+//                blockPos -> !world.isAir(blockPos)
+//            ).findFirst().orElse(randomPos);
+//        }
+    
+        for (int dx = -7; dx <= 7; dx++) {
+            for (int dz = -7; dz <= 7; dz++) {
+                world.setBlockState(
+                    spawnerPos.add(dx, -1, dz),
+                    Blocks.SPONGE.getDefaultState(),
+                    2
+                );
+            }
+        }
+    
         BlockState spawnerShieldBlock = spawnerShieldSelector.select(random);
         for (BlockPos shieldPos : shieldPoses) {
             world.setBlockState(
@@ -192,7 +219,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             //Helper.err("No Spawner Block Entity???");
             return;
         }
-        
+    
         MobSpawnerBlockEntity mobSpawner = (MobSpawnerBlockEntity) blockEntity;
         Entity spawnedEntity = entitySelector.select(random).apply(world.getWorld(), random);
         Validate.isTrue(!spawnedEntity.hasVehicle());
@@ -203,6 +230,10 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             new MobSpawnerEntry(100, tag)
         );
         mobSpawner.getLogic().setEntityId(spawnedEntity.getType());
+    
+        CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
+        logicTag.putShort("RequiredPlayerRange", (short) 64);
+        mobSpawner.getLogic().deserialize(logicTag);
     }
     
     private static Entity randomMonster(World world, Random random) {
@@ -219,6 +250,11 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         }
         if (entity instanceof LivingEntity) {
             entityPostprocessorSelector.select(random).accept(random, ((LivingEntity) entity));
+        }
+        if (entity instanceof SkeletonEntity) {
+            ItemStack stack = new ItemStack(() -> Items.BOW);
+            entity.equipStack(EquipmentSlot.MAINHAND, stack);
+            entity.equipStack(EquipmentSlot.OFFHAND, stack.copy());
         }
         return entity;
     }
@@ -300,8 +336,9 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<ItemStack> filledTreasureSelector =
         new RandomSelector.Builder<ItemStack>()
-            .add(10, new ItemStack(() -> Items.DIRT, 64))
-            .add(10, new ItemStack(() -> Items.SAND, 64))
+            .add(20, new ItemStack(() -> Items.DIRT, 64))
+            .add(20, new ItemStack(() -> Items.SAND, 64))
+            .add(20, new ItemStack(() -> Items.TERRACOTTA, 64))
             .add(10, new ItemStack(() -> Items.GRAVEL, 64))
             .add(10, new ItemStack(() -> Items.GLASS, 64))
             .add(10, new ItemStack(() -> Items.COBBLESTONE, 64))
@@ -317,13 +354,48 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, new ItemStack(() -> Items.GRASS_PATH, 64))
             .add(10, new ItemStack(() -> Items.FLOWER_POT, 64))
             .add(10, new ItemStack(() -> Items.FLETCHING_TABLE, 64))
+            .add(10, new ItemStack(() -> Items.BRICK_STAIRS, 64))
+            .add(10, new ItemStack(() -> Items.COBWEB, 64))
+            .add(10, new ItemStack(() -> Items.GRASS, 64))
+            .add(10, new ItemStack(() -> Items.BELL, 64))
+            .add(10, new ItemStack(() -> Items.JUNGLE_FENCE_GATE, 64))
+            .add(10, new ItemStack(() -> Items.LILY_PAD, 64))
+            .add(10, new ItemStack(() -> Items.JUKEBOX, 64))
+            .add(10, new ItemStack(() -> Items.LEAD, 64))
+            .add(10, new ItemStack(() -> Items.DRIED_KELP, 64))
+            .add(10, new ItemStack(() -> Items.SPIDER_EYE, 64))
+            .add(10, new ItemStack(() -> Items.LECTERN, 64))
             .add(10, new ItemStack(() -> Items.FARMLAND, 64))
+            .add(10, new ItemStack(() -> Items.END_STONE_BRICK_STAIRS, 64))
+            .add(10, new ItemStack(() -> Items.STRIPPED_OAK_WOOD, 64))
+            .add(10, new ItemStack(() -> Items.ENCHANTING_TABLE, 64))
+            .add(10, new ItemStack(() -> Items.ENDER_CHEST, 64))
+            .add(10, new ItemStack(() -> Items.PACKED_ICE, 64))
+            .add(10, new ItemStack(() -> Items.FERN, 64))
+            .add(10, new ItemStack(() -> Items.DEAD_BUSH, 64))
+            .add(10, new ItemStack(() -> Items.SEAGRASS, 64))
+            .add(10, new ItemStack(() -> Items.CACTUS, 64))
+            .add(10, new ItemStack(() -> Items.VINE, 64))
             .add(10, new ItemStack(() -> Items.DIAMOND_HOE, 1))
             .add(10, new ItemStack(() -> Items.FLINT_AND_STEEL, 1))
             .add(10, new ItemStack(() -> Items.COMPASS, 1))
+            .add(10, new ItemStack(() -> Items.ACACIA_BOAT, 1))
+            .add(10, new ItemStack(() -> Items.CARROT_ON_A_STICK, 1))
+            .add(10, new ItemStack(() -> Items.PUFFERFISH_BUCKET, 1))
+            .add(10, new ItemStack(() -> Items.MILK_BUCKET, 1))
+            .add(10, new ItemStack(() -> Items.LEATHER_HORSE_ARMOR, 1))
+            .add(10, new ItemStack(() -> Items.LEATHER_BOOTS, 1))
             .add(10, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.ENCHANTED_BOOK, 1),
                 itemStack -> itemStack.addEnchantment(Enchantments.BINDING_CURSE, 1)
+            ))
+            .add(10, Helper.makeIntoExpression(
+                new ItemStack(() -> Items.WOODEN_PICKAXE, 1),
+                itemStack -> itemStack.addEnchantment(Enchantments.UNBREAKING, 5)
+            ))
+            .add(10, Helper.makeIntoExpression(
+                new ItemStack(() -> Items.GOLDEN_AXE, 1),
+                itemStack -> itemStack.addEnchantment(Enchantments.EFFICIENCY, 10)
             ))
             .add(10, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.POTION, 1),

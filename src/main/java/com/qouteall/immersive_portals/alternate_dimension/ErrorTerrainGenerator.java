@@ -261,21 +261,21 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     
     private static double getProbability(StructureFeature<?> structureFeature) {
         if (structureFeature instanceof StrongholdFeature) {
-            return 0.02;
+            return 0.015;
         }
         if (structureFeature instanceof MineshaftFeature) {
-            return 0.02;
+            return 0.015;
         }
         if (structureFeature instanceof OceanMonumentFeature) {
-            return 0.05;
+            return 0.03;
         }
         if (structureFeature instanceof WoodlandMansionFeature) {
-            return 0.1;
+            return 0.08;
         }
         if (structureFeature instanceof EndCityFeature) {
             return 0.1;
         }
-        return 0.3;
+        return 0.15;
     }
     
     @Override

@@ -177,13 +177,13 @@ public class ErrorTerrainComposition {
     
     public static final RandomSelector<RegionErrorTerrainGenerator.Composition> selector =
         new RandomSelector.Builder<RegionErrorTerrainGenerator.Composition>()
-            .add(10, mountain)
+            .add(25, mountain)
             .add(40, classicalSolid)
             .add(50, classicalHollow)
             .add(10, classicalWatery)
             .add(10, newSolid)
             .add(30, floatingSea)
-            .add(5, treasured)
+            .add(3, treasured)
             .add(20, layeredHollow)
             .build();
 }
