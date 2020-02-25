@@ -129,6 +129,8 @@ public class ModMainClient implements ClientModInitializer {
     
         MyConfigClient config = MyConfigClient.readConfigFromFile();
         MyConfigClient.onConfigChanged(config);
+    
+        //ClientPosSync.init();
     }
     
 }

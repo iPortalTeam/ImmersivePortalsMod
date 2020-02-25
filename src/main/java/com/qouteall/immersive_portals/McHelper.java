@@ -221,11 +221,23 @@ public class McHelper {
         if (vehicle == null) {
             return;
         }
-        
+    
         vehicle.updatePosition(
             entity.getX(),
             getVehicleY(vehicle, entity),
             entity.getZ()
         );
+    }
+    
+    public static void checkDimension(Entity entity) {
+        if (entity.dimension != entity.world.dimension.getType()) {
+            Helper.err(String.format(
+                "Entity dimension field abnormal. Force corrected. %s %s %s",
+                entity,
+                entity.dimension,
+                entity.world.dimension.getType()
+            ));
+            entity.dimension = entity.world.dimension.getType();
+        }
     }
 }

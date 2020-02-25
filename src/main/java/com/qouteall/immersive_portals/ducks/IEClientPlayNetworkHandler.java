@@ -10,4 +10,6 @@ public interface IEClientPlayNetworkHandler {
     Map getPlayerListEntries();
     
     void setPlayerListEntries(Map value);
+    
+    void initScreenIfNecessary();
 }

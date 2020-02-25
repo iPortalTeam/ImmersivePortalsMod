@@ -132,14 +132,14 @@ public class ServerTeleportationManager {
         return a.squaredDistanceTo(b) < 20 * 20;
     }
     
-    private void teleportPlayer(
+    public void teleportPlayer(
         ServerPlayerEntity player,
         DimensionType dimensionTo,
         Vec3d newPos
     ) {
         ServerWorld fromWorld = (ServerWorld) player.world;
         ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
-    
+        
         if (player.dimension == dimensionTo) {
             player.updatePosition(newPos.x, newPos.y, newPos.z);
         }
@@ -147,7 +147,7 @@ public class ServerTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, newPos);
             ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
         }
-    
+        
         McHelper.adjustVehicle(player);
         ((IEServerPlayerEntity) player).setIsInTeleportationState(true);
         player.networkHandler.syncWithPlayerPosition();
@@ -234,12 +234,12 @@ public class ServerTeleportationManager {
         }
     
         Helper.log(String.format(
-            "%s teleported from %s %s to %s %s",
+            "%s :: (%s %s %s %s)->(%s %s %s %s)",
             player.getName().asString(),
             fromWorld.dimension.getType(),
-            oldPos,
+            oldPos.getX(), oldPos.getY(), oldPos.getZ(),
             toWorld.dimension.getType(),
-            player.getBlockPos()
+            (int) player.getX(), (int) player.getY(), (int) player.getZ()
         ));
     
         //this is used for the advancement of "we need to go deeper"
@@ -264,24 +264,24 @@ public class ServerTeleportationManager {
     
     private void tick() {
         teleportingEntities = new HashSet<>();
-        long tickTimeNow = McHelper.getServerGameTime();
+//        long tickTimeNow = McHelper.getServerGameTime();
         ArrayList<ServerPlayerEntity> copiedPlayerList =
             McHelper.getCopiedPlayerList();
-        if (tickTimeNow % 10 == 7) {
-            for (ServerPlayerEntity player : copiedPlayerList) {
-                if (!player.notInAnyWorld) {
-                    Long lastTeleportGameTime =
-                        this.lastTeleportGameTime.getOrDefault(player, 0L);
-                    if (tickTimeNow - lastTeleportGameTime > 60) {
-                        sendPositionConfirmMessage(player);
-                        ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
-                    }
-                    else {
-                        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
-                    }
-                }
-            }
-        }
+//        if (tickTimeNow % 10 == 7) {
+//            for (ServerPlayerEntity player : copiedPlayerList) {
+//                if (!player.notInAnyWorld) {
+//                    Long lastTeleportGameTime =
+//                        this.lastTeleportGameTime.getOrDefault(player, 0L);
+//                    if (tickTimeNow - lastTeleportGameTime > 60) {
+//                        sendPositionConfirmMessage(player);
+//                        //((IEServerPlayerEntity) player).setIsInTeleportationState(false);
+//                    }
+//                    else {
+//                        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
+//                    }
+//                }
+//            }
+//        }
         copiedPlayerList.forEach(player -> {
             McHelper.getEntitiesNearby(
                 player,

@@ -362,18 +362,20 @@ public class Helper {
                 return new Pair<>(aIterator.next(), bIterator.next());
             }
         };
-        
+    
         return Streams.stream(iterator);
     }
     
     public static void log(Object str) {
         LOGGER.info("[Portal] " + str);
-        //System.out.println(str);
     }
     
     public static void err(Object str) {
         LOGGER.error("[Portal] " + str);
-        //System.err.println(str);
+    }
+    
+    public static void dbg(Object str) {
+        LOGGER.debug("[Portal] " + str);
     }
     
     public static Vec3d[] eightVerticesOf(Box box) {

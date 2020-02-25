@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin_client;
+package com.qouteall.immersive_portals.mixin_client.sync;
 
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.CGlobal;
@@ -102,7 +102,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         DimensionType playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         assert playerDimension != null;
         ClientWorld world = client.world;
-        
+
         if (world != null) {
             if (world.dimension != null) {
                 if (world.dimension.getType() != playerDimension) {
@@ -207,14 +207,22 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                         ChunkSectionPos.from(pos.x, y, pos.z), true
                     );
                 }
-                
+    
                 world1.getLightingProvider().setLightEnabled(pos.getChunkPos(), false);
     
                 profiler.pop();
-                
+    
                 return true;
             });
             ci.cancel();
+        }
+    }
+    
+    @Override
+    public void initScreenIfNecessary() {
+        if (!this.positionLookSetup) {
+            this.positionLookSetup = true;
+            this.client.openScreen((Screen) null);
         }
     }
 }

@@ -33,6 +33,7 @@ public class ClientTeleportationManager {
     private long lastTeleportGameTime = 0;
     private Vec3d lastPlayerHeadPos = null;
     private long teleportWhileRidingTime = 0;
+    private long teleportTickTimeLimit = 0;
     
     public ClientTeleportationManager() {
         ModMain.preRenderSignal.connectWithWeakRef(
@@ -129,11 +130,14 @@ public class ClientTeleportationManager {
     }
     
     private void teleportPlayer(Portal portal) {
+        if (tickTimeForTeleportation <= teleportTickTimeLimit) {
+            return;
+        }
         if (tickTimeForTeleportation - teleportWhileRidingTime < 20) {
             //to make it not hacky we need to reconstruct the whole entity managing system
             return;
         }
-        
+    
         lastTeleportGameTime = tickTimeForTeleportation;
     
         ClientPlayerEntity player = mc.player;
@@ -204,10 +208,7 @@ public class ClientTeleportationManager {
         amendChunkEntityStatus(player);
     }
     
-    /**
-     * {@link ClientPlayNetworkHandler#onPlayerRespawn(PlayerRespawnS2CPacket)}
-     */
-    private void changePlayerDimension(
+    public void changePlayerDimension(
         ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d destination
     ) {
         Entity vehicle = player.getVehicle();
@@ -345,4 +346,7 @@ public class ClientTeleportationManager {
         newWorld.addEntity(entity.getEntityId(), entity);
     }
     
+    public void disableTeleportFor2Seconds() {
+        teleportTickTimeLimit = tickTimeForTeleportation + 40;
+    }
 }
