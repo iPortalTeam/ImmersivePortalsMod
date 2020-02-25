@@ -46,6 +46,7 @@ public class ModMain implements ModInitializer {
     private static final BlockItem portalHelperBlockItem =
         new BlockItem(portalHelperBlock, new Item.Settings().group(ItemGroup.MISC));
     
+    
     @Override
     public void onInitialize() {
         Helper.log("initializing common");
@@ -88,14 +89,16 @@ public class ModMain implements ModInitializer {
             new Identifier("immersive_portals", "portal_helper"),
             portalHelperBlock
         );
-    
+        
         Registry.register(
             Registry.ITEM,
             new Identifier("immersive_portals", "portal_helper"),
             portalHelperBlockItem
         );
-    
+        
         FormulaGenerator.init();
+        
+        SatinCompatibility.init();
     }
     
 }

@@ -1,5 +1,8 @@
 {
   "imm_ptl.searching_for_frame": "Searching for existing frame\nIn:%1$s\nAround:%2$s\nOf:%3$s\n%4$s",
   "imm_ptl.generating_new_frame": "Existing Frame Cannot Be Found\nGenerating New Frame",
-  "block.immersive_portals.portal_helper": "Portal Helper"
+  "block.immersive_portals.portal_helper": "Portal Helper",
+  "imm_ptl.max_portal_layer": "Max Portal Layer",
+  "imm_ptl.compatibility_render_mode": "Compatibility Render Mode",
+  "imm_ptl.check_gl_error": "Check OpenGL Error"
 }

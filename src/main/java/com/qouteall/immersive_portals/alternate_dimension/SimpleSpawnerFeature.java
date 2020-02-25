@@ -59,14 +59,14 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<Function<Random, Integer>> heightSelector =
         new RandomSelector.Builder<Function<Random, Integer>>()
-            .add(10, random -> (int) (random.nextDouble() * 50))
+            .add(30, random -> (int) (random.nextDouble() * 50))
             .add(10, random -> random.nextInt(140) + 1)
             .build();
     
     private static RandomSelector<BiFunction<World, Random, Entity>> entitySelector =
         new RandomSelector.Builder<BiFunction<World, Random, Entity>>()
             .add(10, SimpleSpawnerFeature::randomMonster)
-            .add(50, SimpleSpawnerFeature::randomRidingMonster)
+            .add(60, SimpleSpawnerFeature::randomRidingMonster)
             .build();
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
@@ -131,16 +131,16 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     }
     
     private static final BlockPos[] shieldPoses = new BlockPos[]{
-        new BlockPos(0, -1, 0),
+        new BlockPos(0, -2, 0),
+        new BlockPos(1, -1, 0),
+        new BlockPos(-1, -1, 0),
+        new BlockPos(0, -1, 1),
+        new BlockPos(0, -1, -1),
         new BlockPos(1, 0, 0),
         new BlockPos(-1, 0, 0),
         new BlockPos(0, 0, 1),
         new BlockPos(0, 0, -1),
-        new BlockPos(1, 1, 0),
-        new BlockPos(-1, 1, 0),
-        new BlockPos(0, 1, 1),
-        new BlockPos(0, 1, -1),
-        new BlockPos(0, 2, 0),
+        new BlockPos(0, 1, 0),
     };
     
     private static List<Block> shulkerBoxes = Registry.BLOCK.stream()
@@ -149,31 +149,16 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     public void generateOnce(IWorld world, Random random, ChunkPos chunkPos) {
         int height = heightSelector.select(random).apply(random);
-        BlockPos randomPos = chunkPos.toBlockPos(
+        BlockPos spawnerPos = chunkPos.toBlockPos(
             random.nextInt(16),
             height,
             random.nextInt(16)
         );
-        BlockPos spawnerPos = randomPos;
-
-//        boolean shouldFloat = random.nextDouble() < 0.2;
-//        if (!shouldFloat) {
-//            spawnerPos = NetherPortalMatcher.fromNearToFarWithinHeightLimit(
-//                randomPos,
-//                32,
-//                new IntegerAABBInclusive(
-//                    chunkPos.toBlockPos(0, 0, 0),
-//                    chunkPos.toBlockPos(15, 255, 15)
-//                )
-//            ).filter(
-//                blockPos -> !world.isAir(blockPos)
-//            ).findFirst().orElse(randomPos);
-//        }
     
         for (int dx = -7; dx <= 7; dx++) {
             for (int dz = -7; dz <= 7; dz++) {
                 world.setBlockState(
-                    spawnerPos.add(dx, -1, dz),
+                    spawnerPos.add(dx, -2, dz),
                     Blocks.SPONGE.getDefaultState(),
                     2
                 );
@@ -191,8 +176,8 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         
         world.setBlockState(spawnerPos, Blocks.SPAWNER.getDefaultState(), 2);
         initSpawnerBlockEntity(world, random, spawnerPos);
-        
-        BlockPos shulkerBoxPos = spawnerPos.up();
+    
+        BlockPos shulkerBoxPos = spawnerPos.down();
         initShulkerBoxTreasure(world, random, shulkerBoxPos);
     }
     
@@ -233,6 +218,9 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
         CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
         logicTag.putShort("RequiredPlayerRange", (short) 64);
+        //logicTag.putShort("MinSpawnDelay",(short) 10);
+        //logicTag.putShort("MaxSpawnDelay",(short) 100);
+        //logicTag.putShort("MaxNearbyEntities",(short) 200);
         mobSpawner.getLogic().deserialize(logicTag);
     }
     

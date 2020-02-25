@@ -24,7 +24,7 @@ dependencies {
 
 	//Deps required for optifabric
 	compile 'org.zeroturnaround:zt-zip:1.13'
-	compile ('net.fabricmc:stitch:0.2.1.61') {
+	compile('net.fabricmc:stitch:0.2.1.61') {
 		transitive = false
 	}
 
@@ -44,6 +44,12 @@ dependencies {
 
 	//used for building mod
 	compile files('ofstuff_pre1.jar')
+
+	modApi "me.shedaniel.cloth:config-2:2.9.3"
+	modImplementation "io.github.prospector:modmenu:1.10.1+build.30"
+
+	include "me.shedaniel.cloth:config-2:2.9.3"
+	include "io.github.prospector:modmenu:1.10.1+build.30"
 }
 
 processResources {
@@ -99,7 +105,7 @@ publishing {
 	}
 }
 
-repositories{
+repositories {
 	flatDir {
 		dirs 'deps'
 	}
@@ -109,5 +115,8 @@ repositories{
 	maven {
 		name = 'JitPack'
 		url = 'https://jitpack.io'
+	}
+	maven {
+		url = 'https://maven.fabricmc.net'
 	}
 }

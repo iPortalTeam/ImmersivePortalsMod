@@ -6,13 +6,13 @@ import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.portal.Portal;
-import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
+import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
-import net.minecraft.server.network.packet.TeleportConfirmC2SPacket;
-import net.minecraft.server.network.packet.VehicleMoveC2SPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.dimension.DimensionType;
@@ -56,7 +56,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
-        method = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;onPlayerMove(Lnet/minecraft/server/network/packet/PlayerMoveC2SPacket;)V",
+        method = "onPlayerMove",
         at = @At(
             value = "INVOKE",
             shift = At.Shift.AFTER,
@@ -160,7 +160,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onVehicleMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(Lnet/minecraft/server/network/packet/VehicleMoveC2SPacket;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(Lnet/minecraft/network/packet/c2s/play/VehicleMoveC2SPacket;)Z"
         ),
         cancellable = true
     )

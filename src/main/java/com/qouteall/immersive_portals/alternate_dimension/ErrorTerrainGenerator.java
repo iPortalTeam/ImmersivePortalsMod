@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.qouteall.immersive_portals.Helper;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.structure.StructureManager;
@@ -146,7 +147,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     public void generateFeatures(ChunkRegion region) {
         try {
             super.generateFeatures(region);
-        
+    
         }
         catch (Throwable throwable) {
             Helper.err("Force ignore exception while generating feature " + throwable);
@@ -221,7 +222,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
             StructureFeature<?> structureFeature = (StructureFeature) var5.next();
             if (chunkGenerator.getBiomeSource().hasStructureFeature(structureFeature)) {
                 StructureStart structureStart = chunk.getStructureStart(structureFeature.getName());
-                int i = structureStart != null ? structureStart.method_23676() : 0;
+                int i = structureStart != null ? structureStart.getReferences() : 0;
                 ChunkRandom chunkRandom = new ChunkRandom();
                 ChunkPos chunkPos = chunk.getPos();
                 StructureStart structureStart2 = StructureStart.DEFAULT;
@@ -281,6 +282,38 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     @Override
     public void populateEntities(ChunkRegion region) {
         super.populateEntities(region);
+        
+    }
+    
+    @Override
+    public void buildSurface(ChunkRegion chunkRegion, Chunk chunk) {
+        super.buildSurface(chunkRegion, chunk);
+        avoidSandLag(chunkRegion);
+    }
+    
+    private static void avoidSandLag(ChunkRegion region) {
+        Chunk centerChunk = region.getChunk(region.getCenterChunkX(), region.getCenterChunkZ());
+        BlockPos.Mutable temp = new BlockPos.Mutable();
+        for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 16; x++) {
+                boolean isLastAir = true;
+                for (int y = 0; y < 100; y++) {
+                    temp.set(x, y, z);
+                    BlockState blockState = centerChunk.getBlockState(temp);
+                    Block block = blockState.getBlock();
+                    if (block == Blocks.SAND || block == Blocks.GRAVEL) {
+                        if (isLastAir) {
+                            centerChunk.setBlockState(
+                                temp,
+                                Blocks.SANDSTONE.getDefaultState(),
+                                true
+                            );
+                        }
+                    }
+                    isLastAir = blockState.isAir();
+                }
+            }
+        }
     }
     
     //make end city and woodland mansion be able to generate

@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
-import net.minecraft.server.network.packet.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
     private DimensionType playerDimension;
     
     @Inject(
-        method = "Lnet/minecraft/server/network/packet/PlayerMoveC2SPacket;read(Lnet/minecraft/util/PacketByteBuf;)V",
+        method = "read",
         at = @At("HEAD")
     )
     private void onRead(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
@@ -22,7 +22,7 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
     }
     
     @Inject(
-        method = "Lnet/minecraft/server/network/packet/PlayerMoveC2SPacket;write(Lnet/minecraft/util/PacketByteBuf;)V",
+        method = "write",
         at = @At("HEAD")
     )
     private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {

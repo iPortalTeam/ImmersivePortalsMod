@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
-import net.minecraft.client.network.packet.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +24,7 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/network/packet/PlayerPositionLookS2CPacket;read(Lnet/minecraft/util/PacketByteBuf;)V",
+        method = "read",
         at = @At("HEAD")
     )
     private void onRead(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
@@ -32,7 +32,7 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
     }
     
     @Inject(
-        method = "Lnet/minecraft/client/network/packet/PlayerPositionLookS2CPacket;write(Lnet/minecraft/util/PacketByteBuf;)V",
+        method = "write",
         at = @At("HEAD")
     )
     private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {

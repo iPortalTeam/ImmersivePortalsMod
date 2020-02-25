@@ -129,7 +129,7 @@ public class ErrorTerrainComposition {
             worldY > 32 ? upMiddle : downMiddle
         );
         if (funcValue > splitPoint) {
-            if (((int) funcValue) % 17 == 0) {
+            if (((int) funcValue) % 37 == 0) {
                 Block randomBlock = Registry.BLOCK.getRandom(new Random(
                     SeedMixer.mixSeed(worldX, SeedMixer.mixSeed(worldY, worldZ))
                 ));
@@ -184,6 +184,6 @@ public class ErrorTerrainComposition {
             .add(10, newSolid)
             .add(30, floatingSea)
             .add(3, treasured)
-            .add(20, layeredHollow)
+            .add(15, layeredHollow)
             .build();
 }

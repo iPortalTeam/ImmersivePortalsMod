@@ -486,15 +486,24 @@ public class Helper {
 //        return bBox.obj;
     }
     
-    public static interface ExceptionalSupplier<T> {
-        T supply() throws Exception;
-    }
-    
-    public static <T> T noError(ExceptionalSupplier<T> func) {
+    public static <T> T noError(Callable<T> func) {
         try {
-            return func.supply();
+            return func.call();
         }
         catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    
+    public static interface ExceptionalRunnable {
+        void run() throws Throwable;
+    }
+    
+    public static void noError(ExceptionalRunnable runnable) {
+        try {
+            runnable.run();
+        }
+        catch (Throwable e) {
             throw new IllegalStateException(e);
         }
     }

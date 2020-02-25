@@ -122,10 +122,13 @@ public class ModMainClient implements ClientModInitializer {
             OFInterfaceInitializer.init();
         }
     
+    
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     
-        SatinCompatibility.init();
-    
         FarSceneryRenderer.init();
+    
+        MyConfigClient config = MyConfigClient.readConfigFromFile();
+        MyConfigClient.onConfigChanged(config);
     }
+    
 }
