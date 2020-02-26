@@ -47,7 +47,7 @@ public class NetherPortalMatcher {
     //detect frame from inner pos
     
     public static final int maxFrameSize = 40;
-    public static final int findingRadius = 150;
+    public static final int findingRadius = 250;
     public static final IntegerAABBInclusive heightLimitOverworld = new IntegerAABBInclusive(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 254, Integer.MAX_VALUE)
@@ -262,7 +262,7 @@ public class NetherPortalMatcher {
         Helper.log("Generated Portal On Ground");
     
         IntegerAABBInclusive biggerArea = getAirCubeOnSolidGround(
-            areaSize.add(6, 0, 6), world, searchingCenter,
+            areaSize.add(5, 0, 5), world, searchingCenter,
             heightLimit, findingRadius
         );
         return pushDownBox(world, biggerArea.getSubBoxInCenter(areaSize));

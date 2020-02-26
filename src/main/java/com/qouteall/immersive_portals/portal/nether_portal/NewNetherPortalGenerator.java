@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
+import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -8,10 +9,8 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -24,6 +23,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class NewNetherPortalGenerator {
     public static class Info {
@@ -64,7 +65,7 @@ public class NewNetherPortalGenerator {
             firePos,
             toWorld,
             NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius,
+            NetherPortalMatcher.findingRadius / 5,
             (fromPos1) -> NetherPortalGenerator.mapPosition(
                 fromPos1,
                 fromWorld.dimension.getType(),
@@ -89,8 +90,7 @@ public class NewNetherPortalGenerator {
                 return NetherPortalMatcher.isObsidian(toWorld, blockPos);
             },
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
-            NewNetherPortalGenerator::generatePortalEntities,
-            new TranslatableText(Items.OBSIDIAN.getTranslationKey())
+            NewNetherPortalGenerator::generatePortalEntities
         );
         return thisSideShape != null;
     }
@@ -105,8 +105,8 @@ public class NewNetherPortalGenerator {
             firePos,
             fromWorld,
             NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius,
-            
+            NetherPortalMatcher.findingRadius / 5,
+    
             //this side area
             (fromPos1) -> NetherPortalGenerator.getRandomShift().add(fromPos1),
             //this side frame
@@ -126,8 +126,7 @@ public class NewNetherPortalGenerator {
                         fromWorld.setBlockState(blockPos, Blocks.AIR.getDefaultState());
                     }
                 });
-            },
-            new TranslatableText(ModMain.portalHelperBlock.getTranslationKey())
+            }
         );
         return thisSideShape.obj != null;
     }
@@ -145,8 +144,7 @@ public class NewNetherPortalGenerator {
         Predicate<BlockPos> otherSideAreaPredicate,
         Predicate<BlockPos> otherSideFramePredicate,
         Consumer<NetherPortalShape> newFrameGeneratedFunc,
-        Consumer<Info> portalEntityGeneratingFunc,
-        Text frameBlockText
+        Consumer<Info> portalEntityGeneratingFunc
     ) {
         DimensionType fromDimension = fromWorld.dimension.getType();
         DimensionType toDimension = toWorld.dimension.getType();
@@ -182,26 +180,27 @@ public class NewNetherPortalGenerator {
             );
             return null;
         }
-        
+    
         BlockPos toPos = positionMapping.apply(fromPos);
-        
+    
         //avoid blockpos object creation
         BlockPos.Mutable temp = new BlockPos.Mutable();
-        
+    
         IntegerAABBInclusive toWorldHeightLimit =
             NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
-        
+    
+        Stream<BlockPos> blockPosStream = fromNearToFarColumned(
+            toWorld,
+            toPos.getX(), toPos.getZ(),
+            existingFrameSearchingRadius
+        );
         Iterator<NetherPortalShape> iterator =
-            NetherPortalMatcher.fromNearToFarWithinHeightLimit(
-                toPos,
-                existingFrameSearchingRadius,
-                toWorldHeightLimit
-            ).map(
+            blockPosStream.map(
                 blockPos -> {
                     if (!otherSideAreaPredicate.test(blockPos)) {
                         return null;
                     }
-                    
+                
                     return foundShape.matchShape(
                         otherSideAreaPredicate,
                         otherSideFramePredicate,
@@ -227,22 +226,19 @@ public class NewNetherPortalGenerator {
                     thisSideAreaPredicate,
                     thisSideFramePredicate
                 );
-        
+    
                 if (!isIntact) {
                     Helper.log("Nether Portal Generation Aborted");
                     indicatorEntity.remove();
                     return false;
                 }
                 
-                double progress = i / 20000000.0;
-                
                 indicatorEntity.setText(
                     new TranslatableText(
                         "imm_ptl.searching_for_frame",
                         toWorld.dimension.getType().toString(),
                         String.format("%s %s %s", fromPos.getX(), fromPos.getY(), fromPos.getZ()),
-                        frameBlockText,
-                        new LiteralText((int) (progress * 100) + "%")
+                        new LiteralText(Integer.toString(i / 1000) + "k")
                     )
                 );
                 
@@ -409,10 +405,43 @@ public class NewNetherPortalGenerator {
         portalArray[1].destination = portalArray[1].getPos().add(offset);
         portalArray[2].destination = portalArray[2].getPos().subtract(offset);
         portalArray[3].destination = portalArray[3].getPos().subtract(offset);
-        
+    
         fromWorld1.spawnEntity(portalArray[0]);
         fromWorld1.spawnEntity(portalArray[1]);
         toWorld.spawnEntity(portalArray[2]);
         toWorld.spawnEntity(portalArray[3]);
+    }
+    
+    private static Stream<BlockPos> fromNearToFarColumned(
+        ServerWorld world,
+        int x,
+        int z,
+        int range
+    ) {
+        int height = world.getEffectiveHeight();
+        
+        BlockPos.Mutable columnPos = new BlockPos.Mutable();
+        BlockPos.Mutable temp = new BlockPos.Mutable();
+        
+        return IntStream.range(0, range).boxed()
+            .flatMap(layer ->
+                Streams.concat(
+                    IntStream.range(0, layer * 2 + 1)
+                        .mapToObj(i -> columnPos.set(layer, 0, i - layer)),
+                    IntStream.range(0, layer * 2 + 1)
+                        .mapToObj(i -> columnPos.set(-layer, 0, i - layer)),
+                    IntStream.range(0, layer * 2 - 1)
+                        .mapToObj(i -> columnPos.set(i - layer + 1, 0, layer)),
+                    IntStream.range(0, layer * 2 - 1)
+                        .mapToObj(i -> columnPos.set(i - layer + 1, 0, -layer))
+                ).map(
+                    columnPos_ -> columnPos.set(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
+                ).flatMap(
+                    columnPos_ -> world.isChunkLoaded(columnPos_) ?
+                        IntStream.range(3, height - 3)
+                            .mapToObj(y -> temp.set(columnPos.getX(), y, columnPos.getZ())) :
+                        Stream.empty()
+                )
+            );
     }
 }

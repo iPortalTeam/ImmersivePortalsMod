@@ -43,7 +43,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     private boolean renderingPanorama;
     
-    //may do teleportation here
     @Inject(method = "render", at = @At("HEAD"))
     private void onFarBeforeRendering(
         float partialTicks,

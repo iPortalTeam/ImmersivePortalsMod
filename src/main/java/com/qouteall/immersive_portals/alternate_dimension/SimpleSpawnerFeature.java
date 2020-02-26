@@ -22,6 +22,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.util.math.BlockPos;
@@ -210,9 +211,9 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         Validate.isTrue(!spawnedEntity.hasVehicle());
         CompoundTag tag = new CompoundTag();
         spawnedEntity.saveToTag(tag);
-        tag.remove("Pos");
-        tag.remove("UUIDMost");
-        tag.remove("UUIDLeast");
+    
+        removeUnnecessaryTag(tag);
+    
         mobSpawner.getLogic().setSpawnEntry(
             new MobSpawnerEntry(100, tag)
         );
@@ -224,6 +225,18 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         //logicTag.putShort("MaxSpawnDelay",(short) 100);
         //logicTag.putShort("MaxNearbyEntities",(short) 200);
         mobSpawner.getLogic().deserialize(logicTag);
+    }
+    
+    private static void removeUnnecessaryTag(CompoundTag tag) {
+        tag.remove("Pos");
+        tag.remove("UUIDMost");
+        tag.remove("UUIDLeast");
+        tag.getKeys().forEach(key -> {
+            Tag currTag = tag.get(key);
+            if (currTag instanceof CompoundTag) {
+                removeUnnecessaryTag(((CompoundTag) currTag));
+            }
+        });
     }
     
     private static Entity randomMonster(World world, Random random) {
