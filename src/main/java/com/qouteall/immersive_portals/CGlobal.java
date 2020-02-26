@@ -45,5 +45,6 @@ public class CGlobal {
     public static boolean renderFewerInFastGraphic = true;
     public static boolean doCheckGlError = false;
     public static boolean smoothChunkUnload = true;
+    public static boolean earlyClientLightUpdate = true;
     
 }

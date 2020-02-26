@@ -105,6 +105,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private ChunkBuilder chunkBuilder;
     
+    @Shadow
+    protected abstract void updateChunks(long limitTime);
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -476,7 +479,23 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //for optifine compat
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;updateChunks(J)V"
+        )
+    )
+    private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
+        if (CGlobal.renderer.isRendering()) {
+            updateChunks(0);
+        }
+        else {
+            updateChunks(limitTime);
+        }
+    }
+
+//    //removed because conflict with optifine
 //    @ModifyVariable(
 //        method = "updateChunks",
 //        at = @At("HEAD")
@@ -505,5 +524,28 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             return original;
         }
     }
+
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/world/chunk/light/LightingProvider;doLightUpdates(IZZ)I"
+//        )
+//    )
+//    private int redirectDoLightUpdates(
+//        LightingProvider lightingProvider,
+//        int maxUpdateCount,
+//        boolean doSkylight,
+//        boolean skipEdgeLightPropagation
+//    ) {
+//        if (CGlobal.renderer.isRendering()) {
+//            return lightingProvider.doLightUpdates(
+//                30, doSkylight, skipEdgeLightPropagation
+//            );
+//        }
+//        return lightingProvider.doLightUpdates(
+//            maxUpdateCount, doSkylight, skipEdgeLightPropagation
+//        );
+//    }
     
 }

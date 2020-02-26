@@ -139,7 +139,7 @@ public class MyRenderHelper {
             matrixStack,
             () -> {
                 shaderManager.loadContentShaderAndShaderVars(0);
-            
+    
                 if (OFInterface.isShaders.getAsBoolean()) {
                     GlStateManager.viewport(
                         0,
@@ -148,20 +148,20 @@ public class MyRenderHelper {
                         PortalRenderer.mc.getFramebuffer().viewportHeight
                     );
                 }
-            
+    
                 GlStateManager.enableTexture();
                 GlStateManager.activeTexture(GL13.GL_TEXTURE0);
-            
+    
                 GlStateManager.bindTexture(textureProvider.colorAttachment);
                 GlStateManager.texParameter(3553, 10241, 9729);
                 GlStateManager.texParameter(3553, 10240, 9729);
                 GlStateManager.texParameter(3553, 10242, 10496);
                 GlStateManager.texParameter(3553, 10243, 10496);
-            
+    
                 ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
-            
+    
                 shaderManager.unloadShader();
-            
+    
                 OFInterface.resetViewport.run();
             }
         );
@@ -346,5 +346,20 @@ public class MyRenderHelper {
             0 - 2 * z * x, 0 - 2 * z * y, 1 - 2 * z * z, 0,
             0, 0, 0, 1
         };
+    }
+    
+    public static void earlyUpdateLight() {
+        CGlobal.clientWorldLoader.clientWorldMap.values().forEach(
+            world -> {
+                if (world != MinecraftClient.getInstance().world) {
+                    int updateNum = world.getChunkManager().getLightingProvider().doLightUpdates(
+                        1000, true, true
+                    );
+//                    if (updateNum != 1000) {
+//                        Helper.log("light update " + updateNum);
+//                    }
+                }
+            }
+        );
     }
 }

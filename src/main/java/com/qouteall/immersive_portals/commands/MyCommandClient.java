@@ -337,16 +337,11 @@ public class MyCommandClient {
             "update_far_scenery",
             cond -> FarSceneryRenderer.shouldUpdateFarScenery = cond
         );
-//        builder.then(CommandManager
-//            .literal("update_far_scenery")
-//            .executes(context -> {
-//                MinecraftClient mc = MinecraftClient.getInstance();
-//                mc.execute(() -> {
-//                    FarSceneryRenderer.updateFarScenery(200);
-//                });
-//                return 0;
-//            })
-//        );
+        registerSwitchCommand(
+            builder,
+            "early_light_update",
+            cond -> CGlobal.earlyClientLightUpdate = cond
+        );
     
         dispatcher.register(builder);
     

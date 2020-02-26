@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.my_util.ObjectBuffer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
@@ -39,6 +40,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
     private Map<ChunkPos, Preset> presets = new HashMap<>();
     private boolean shouldUpdateMainPresetNeighbor = true;
+    private ObjectBuffer<ChunkBuilder.BuiltChunk> builtChunkBuffer;
     
     public MyBuiltChunkStorage(
         ChunkBuilder chunkBuilder_1,
@@ -48,10 +50,22 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     ) {
         super(chunkBuilder_1, world_1, int_1, worldRenderer_1);
         factory = chunkBuilder_1;
-        
+    
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
         );
+    
+        builtChunkBuffer = new ObjectBuffer<>(
+            sizeX * sizeY * sizeZ,
+            () -> factory.new BuiltChunk(),
+            ChunkBuilder.BuiltChunk::delete
+        );
+    
+        ModMain.preRenderSignal.connectWithWeakRef(this, (this_) -> {
+            MinecraftClient.getInstance().getProfiler().push("reserve");
+            this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 70);
+            MinecraftClient.getInstance().getProfiler().pop();
+        });
     }
     
     @Override
@@ -66,10 +80,13 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
         builtChunkMap.clear();
         presets.clear();
+        builtChunkBuffer.destroyAll();
     }
     
     @Override
     public void updateCameraPosition(double playerX, double playerZ) {
+        MinecraftClient.getInstance().getProfiler().push("built_chunk_storage");
+    
         ChunkPos cameraChunkPos = new ChunkPos(
             MathHelper.floorDiv((int) playerX, 16),
             MathHelper.floorDiv((int) playerZ, 16)
@@ -83,7 +100,11 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
         this.chunks = preset.data;
     
+        MinecraftClient.getInstance().getProfiler().push("neighbor");
         manageNeighbor(preset);
+        MinecraftClient.getInstance().getProfiler().pop();
+    
+        MinecraftClient.getInstance().getProfiler().pop();
     }
     
     private void manageNeighbor(Preset preset) {
@@ -175,12 +196,16 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         return builtChunkMap.computeIfAbsent(
             basePos.toImmutable(),
             whatever -> {
-                ChunkBuilder.BuiltChunk builtChunk = factory.new BuiltChunk();
+                //MinecraftClient.getInstance().getProfiler().push("new_built_chunk");
+                //ChunkBuilder.BuiltChunk builtChunk = factory.new BuiltChunk();
+                //MinecraftClient.getInstance().getProfiler().swap("set_origin");
+    
+                ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
+    
                 builtChunk.setOrigin(
-                    basePos.getX(),
-                    basePos.getY(),
-                    basePos.getZ()
+                    basePos.getX(), basePos.getY(), basePos.getZ()
                 );
+                //MinecraftClient.getInstance().getProfiler().pop();
                 return builtChunk;
             }
         );
@@ -216,7 +241,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
         chunksToDelete.forEach(
             builtChunk -> {
-                builtChunk.delete();
+                builtChunkBuffer.returnObject(builtChunk);
+                //builtChunk.delete();
                 ChunkBuilder.BuiltChunk removed =
                     builtChunkMap.remove(builtChunk.getOrigin());
                 if (removed == null) {

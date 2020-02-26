@@ -181,7 +181,7 @@ public class NewChunkTrackingGraph {
     
     private static long getUnloadTimeValve() {
         if (ServerPerformanceAdjust.getIsServerLagging()) {
-            return 41;
+            return 50;
         }
         return 15 * 20;
     }

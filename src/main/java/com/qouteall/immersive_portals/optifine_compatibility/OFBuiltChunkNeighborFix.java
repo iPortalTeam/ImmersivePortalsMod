@@ -35,16 +35,15 @@ public class OFBuiltChunkNeighborFix {
         MinecraftClient.getInstance().getProfiler().push("neighbor");
         
         try {
-            for (ChunkBuilder.BuiltChunk renderChunk : chunks) {
-                for (int l = 0; l < Direction.values().length; ++l) {
-                    Direction facing = Direction.values()[l];
+            for (int l = 0; l < Direction.values().length; ++l) {
+                Direction facing = Direction.values()[l];
+                for (int i = 0, chunksLength = chunks.length; i < chunksLength; i++) {
+                    ChunkBuilder.BuiltChunk renderChunk = chunks[i];
                     BlockPos neighborPos = renderChunk.getNeighborPosition(facing);
                     ChunkBuilder.BuiltChunk neighbour =
                         storage.myGetRenderChunkRaw(neighborPos, chunks);
                     method_setRenderChunkNeighbour.invoke(
-                        renderChunk,
-                        facing,
-                        neighbour
+                        renderChunk, facing, neighbour
                     );
                 }
             }

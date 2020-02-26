@@ -107,7 +107,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         double double_6 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.getZ() : 0.0D;
         float float_3 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y_ROT) ? this.player.yaw : 0.0F;
         float float_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X_ROT) ? this.player.pitch : 0.0F;
-        this.requestedTeleportPos = new Vec3d(double_1, double_2, double_3);
+        //this.requestedTeleportPos = new Vec3d(double_1, double_2, double_3);
         if (++this.requestedTeleportId == Integer.MAX_VALUE) {
             this.requestedTeleportId = 0;
         }

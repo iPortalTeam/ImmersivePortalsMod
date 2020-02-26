@@ -153,7 +153,7 @@ public class ServerTeleportationManager {
         }
         
         McHelper.adjustVehicle(player);
-        ((IEServerPlayerEntity) player).setIsInTeleportationState(true);
+        //((IEServerPlayerEntity) player).setIsInTeleportationState(true);
         player.networkHandler.syncWithPlayerPosition();
     }
     
@@ -280,7 +280,7 @@ public class ServerTeleportationManager {
                         this.lastTeleportGameTime.getOrDefault(player, 0L);
                     if (tickTimeNow - lastTeleportGameTime > 60) {
                         sendPositionConfirmMessage(player);
-                        ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
+                        //((IEServerPlayerEntity) player).setIsInTeleportationState(false);
                     }
                     else {
                         ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();

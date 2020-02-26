@@ -37,8 +37,6 @@ public class MyNetwork {
         new Identifier("imm_ptl", "dim_confirm");
     public static final Identifier id_stcRedirected =
         new Identifier("imm_ptl", "rd");
-    public static final Identifier id_stcSpawnLoadingIndicator =
-        new Identifier("imm_ptl", "indicator");
     public static final Identifier id_stcUpdateGlobalPortal =
         new Identifier("imm_ptl", "upd_glb_ptl");
     public static final Identifier id_ctsPlayerAction =
@@ -171,18 +169,6 @@ public class MyNetwork {
         entity.toTag(tag);
         buf.writeCompoundTag(tag);
         return new CustomPayloadS2CPacket(id_stcSpawnEntity, buf);
-    }
-    
-    public static CustomPayloadS2CPacket createSpawnLoadingIndicator(
-        DimensionType dimensionType,
-        Vec3d pos
-    ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimensionType.getRawId());
-        buf.writeDouble(pos.x);
-        buf.writeDouble(pos.y);
-        buf.writeDouble(pos.z);
-        return new CustomPayloadS2CPacket(id_stcSpawnLoadingIndicator, buf);
     }
     
     public static CustomPayloadS2CPacket createGlobalPortalUpdate(

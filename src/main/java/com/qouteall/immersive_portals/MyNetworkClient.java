@@ -176,11 +176,6 @@ public class MyNetworkClient {
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcSpawnLoadingIndicator,
-            MyNetworkClient::processSpawnLoadingIndicator
-        );
-    
-        ClientSidePacketRegistry.INSTANCE.register(
             MyNetwork.id_stcUpdateGlobalPortal,
             MyNetworkClient::processGlobalPortalUpdate
         );
@@ -258,10 +253,10 @@ public class MyNetworkClient {
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
-        
+    
             List<GlobalTrackedPortal> portals =
                 GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
-        
+    
             ((IEClientWorld) world).setGlobalPortals(portals);
         });
     }
@@ -275,7 +270,7 @@ public class MyNetworkClient {
         try {
             packet.write(buf);
         }
-    
+
         catch (IOException e) {
             throw new IllegalStateException(e);
         }

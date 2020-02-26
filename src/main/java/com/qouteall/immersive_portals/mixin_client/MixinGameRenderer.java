@@ -53,6 +53,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     ) {
         MyRenderHelper.updatePreRenderInfo(partialTicks);
         ModMain.preRenderSignal.emit();
+        if (CGlobal.earlyClientLightUpdate) {
+            MyRenderHelper.earlyUpdateLight();
+        }
     }
     
     //before rendering world (not triggered when rendering portal)
