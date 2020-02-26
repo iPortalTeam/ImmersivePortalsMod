@@ -66,10 +66,17 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     )
     private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         DimensionType packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
-        
+    
         assert packetDimension != null;
-        
+    
+        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
+            cancelTeleportRequest();
+        }
+    
         if (player.dimension != packetDimension) {
+            SGlobal.serverTeleportationManager.acceptDubiousMovePacket(
+                player, packet, packetDimension
+            );
             ci.cancel();
         }
     }
@@ -88,10 +95,11 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         float float_2,
         Set<PlayerPositionLookS2CPacket.Flag> set_1
     ) {
-        Helper.log(String.format("request teleport %s in %s to %s %s %s",
+        Helper.log(String.format("request teleport %s %s (%d %d %d)->(%d %d %d)",
             player.getName().asString(),
             player.dimension,
-            double_1, double_2, double_3
+            (int) player.getX(), (int) player.getY(), (int) player.getZ(),
+            (int) double_1, (int) double_2, (int) double_3
         ));
     
         double double_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0D;
@@ -132,6 +140,9 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         WorldView worldView_1
     ) {
+        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
+            return true;
+        }
         boolean portalsNearby = !player.world.getEntities(
             Portal.class,
             player.getBoundingBox().expand(4),
@@ -167,26 +178,26 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
         if (SGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
-        
+    
             if (entity != player) {
                 double currX = entity.getX();
                 double currY = entity.getY();
                 double currZ = entity.getZ();
-            
+        
                 double newX = packet.getX();
                 double newY = packet.getY();
                 double newZ = packet.getZ();
-            
+        
                 if (entity.getPos().squaredDistanceTo(
                     newX, newY, newZ
                 ) < 256) {
                     float yaw = packet.getYaw();
                     float pitch = packet.getPitch();
-                
+            
                     entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
-                
+            
                     this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
-                
+            
                     ridingEntity = true;
                     updatedRiddenX = entity.getX();
                     updatedRiddenY = entity.getY();

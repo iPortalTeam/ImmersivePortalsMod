@@ -18,6 +18,7 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.Objects;
 import java.util.Optional;
 
+@Deprecated
 public class ClientPosSync {
     /**
      * {@link ClientPlayNetworkHandler#onPlayerPositionLook(PlayerPositionLookS2CPacket)}

@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin_client.sync;
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
@@ -102,7 +103,11 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         DimensionType playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         assert playerDimension != null;
         ClientWorld world = client.world;
-
+    
+        if (client.player != null) {
+            McHelper.checkDimension(client.player);
+        }
+    
         if (world != null) {
             if (world.dimension != null) {
                 if (world.dimension.getType() != playerDimension) {
@@ -167,7 +172,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                 packet.getX(),
                 packet.getZ()
             );
-        
+    
             WorldRenderer worldRenderer =
                 CGlobal.clientWorldLoader.getWorldRenderer(world.dimension.getType());
             BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage();

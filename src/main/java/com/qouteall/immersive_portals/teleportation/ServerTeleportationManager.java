@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -113,19 +114,22 @@ public class ServerTeleportationManager {
             ((Portal) portalEntity).getDistanceToPlane(posBefore) < 20;
     }
     
-    private boolean canPlayerReachPos(
+    public static boolean canPlayerReachPos(
         ServerPlayerEntity player,
         DimensionType dimension,
         Vec3d pos
     ) {
-        return player.dimension == dimension ?
-            isClose(pos, player.getPos())
-            :
-            McHelper.getServerPortalsNearby(player, 20)
-                .anyMatch(
-                    portal -> portal.dimensionTo == dimension &&
-                        portal.getDistanceToNearestPointInPortal(portal.reverseTransformPoint(pos)) < 20
-                );
+        Vec3d playerPos = player.getPos();
+        if (player.dimension == dimension) {
+            if (playerPos.squaredDistanceTo(pos) < 256) {
+                return true;
+            }
+        }
+        return McHelper.getServerPortalsNearby(player, 20)
+            .filter(portal -> portal.dimensionTo == dimension)
+            .map(portal -> portal.applyTransformationToPoint(playerPos))
+            .anyMatch(mappedPos -> mappedPos.squaredDistanceTo(pos) < 256);
+        
     }
     
     private static boolean isClose(Vec3d a, Vec3d b) {
@@ -209,12 +213,12 @@ public class ServerTeleportationManager {
         toWorld.onPlayerChangeDimension(player);
     
         toWorld.checkChunk(player);
-    
-        isFiringMyChangeDimensionEvent = true;
+
+//        isFiringMyChangeDimensionEvent = true;
 //        McHelper.getServer().getPlayerManager().sendWorldInfo(
 //            player, toWorld
 //        );
-        isFiringMyChangeDimensionEvent = false;
+//        isFiringMyChangeDimensionEvent = false;
     
         player.interactionManager.setWorld(toWorld);
     
@@ -251,6 +255,8 @@ public class ServerTeleportationManager {
         ((IEServerPlayerEntity) player).updateDimensionTravelAdvancements(fromWorld);
     
         RequiemCompat.onPlayerTeleportedServer(player);
+    
+        GlobalPortalStorage.onPlayerLoggedIn(player);
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {
@@ -264,24 +270,24 @@ public class ServerTeleportationManager {
     
     private void tick() {
         teleportingEntities = new HashSet<>();
-//        long tickTimeNow = McHelper.getServerGameTime();
+        long tickTimeNow = McHelper.getServerGameTime();
         ArrayList<ServerPlayerEntity> copiedPlayerList =
             McHelper.getCopiedPlayerList();
-//        if (tickTimeNow % 10 == 7) {
-//            for (ServerPlayerEntity player : copiedPlayerList) {
-//                if (!player.notInAnyWorld) {
-//                    Long lastTeleportGameTime =
-//                        this.lastTeleportGameTime.getOrDefault(player, 0L);
-//                    if (tickTimeNow - lastTeleportGameTime > 60) {
-//                        sendPositionConfirmMessage(player);
-//                        //((IEServerPlayerEntity) player).setIsInTeleportationState(false);
-//                    }
-//                    else {
-//                        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
-//                    }
-//                }
-//            }
-//        }
+        if (tickTimeNow % 10 == 7) {
+            for (ServerPlayerEntity player : copiedPlayerList) {
+                if (!player.notInAnyWorld) {
+                    Long lastTeleportGameTime =
+                        this.lastTeleportGameTime.getOrDefault(player, 0L);
+                    if (tickTimeNow - lastTeleportGameTime > 60) {
+                        sendPositionConfirmMessage(player);
+                        ((IEServerPlayerEntity) player).setIsInTeleportationState(false);
+                    }
+                    else {
+                        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
+                    }
+                }
+            }
+        }
         copiedPlayerList.forEach(player -> {
             McHelper.getEntitiesNearby(
                 player,
@@ -371,5 +377,23 @@ public class ServerTeleportationManager {
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
         return currGameTime - lastTeleportGameTime < valveTickTime;
+    }
+    
+    public void acceptDubiousMovePacket(
+        ServerPlayerEntity player,
+        PlayerMoveC2SPacket packet,
+        DimensionType dimension
+    ) {
+        double x = packet.getX(player.getX());
+        double y = packet.getY(player.getY());
+        double z = packet.getZ(player.getZ());
+        Vec3d newPos = new Vec3d(x, y, z);
+        if (canPlayerReachPos(player, dimension, newPos)) {
+            teleportPlayer(player, dimension, newPos);
+            Helper.log("accepted dubious move packet");
+        }
+        else {
+            Helper.log("dubious move packet is dubious");
+        }
     }
 }

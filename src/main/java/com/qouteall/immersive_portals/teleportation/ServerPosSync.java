@@ -12,6 +12,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
+@Deprecated
 public class ServerPosSync {
     /**
      * {@link ServerPlayNetworkHandler#onPlayerMove(PlayerMoveC2SPacket)}

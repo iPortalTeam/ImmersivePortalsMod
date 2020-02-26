@@ -55,15 +55,13 @@ public class MyNetwork {
         );
         UUID portalEntityId = buf.readUuid();
         
-        ModMain.serverTaskList.addTask(() -> {
+        McHelper.getServer().execute(() -> {
             SGlobal.serverTeleportationManager.onPlayerTeleportedInClient(
                 (ServerPlayerEntity) context.getPlayer(),
                 dimensionBefore,
                 posBefore,
                 portalEntityId
             );
-            
-            return true;
         });
     }
     

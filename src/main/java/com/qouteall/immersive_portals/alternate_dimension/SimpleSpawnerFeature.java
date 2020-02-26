@@ -211,6 +211,8 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         CompoundTag tag = new CompoundTag();
         spawnedEntity.saveToTag(tag);
         tag.remove("Pos");
+        tag.remove("UUIDMost");
+        tag.remove("UUIDLeast");
         mobSpawner.getLogic().setSpawnEntry(
             new MobSpawnerEntry(100, tag)
         );
