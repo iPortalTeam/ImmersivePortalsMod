@@ -11,24 +11,33 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class WorldInfoSender {
     public static void init() {
         ModMain.postServerTickSignal.connect(() -> {
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
+                    Set<DimensionType> visibleDimensions = getVisibleDimensions(player);
+    
                     if (player.dimension != DimensionType.OVERWORLD) {
-                        sendWorldInfo(
-                            player,
-                            McHelper.getServer().getWorld(DimensionType.OVERWORLD)
-                        );
+                        if (visibleDimensions.contains(DimensionType.OVERWORLD)) {
+                            sendWorldInfoIfVisible(
+                                player,
+                                McHelper.getServer().getWorld(DimensionType.OVERWORLD)
+                            );
+                        }
                     }
     
                     McHelper.getServer().getWorlds().forEach(thisWorld -> {
                         if (thisWorld.dimension instanceof AlternateDimension) {
-                            sendWorldInfo(
-                                player,
-                                thisWorld
-                            );
+                            if (visibleDimensions.contains(thisWorld.dimension.getType())) {
+                                sendWorldInfoIfVisible(
+                                    player,
+                                    thisWorld
+                                );
+                            }
                         }
                     });
     
@@ -38,7 +47,7 @@ public class WorldInfoSender {
     }
     
     //send the daytime and weather info to player when player is in nether
-    public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
+    public static void sendWorldInfoIfVisible(ServerPlayerEntity player, ServerWorld world) {
         DimensionType remoteDimension = world.dimension.getType();
         
         player.networkHandler.sendPacket(
@@ -53,7 +62,7 @@ public class WorldInfoSender {
                 )
             )
         );
-    
+        
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
         if (world.isRaining()) {
             player.networkHandler.sendPacket(
@@ -89,5 +98,11 @@ public class WorldInfoSender {
                 )
             );
         }
+    }
+    
+    public static Set<DimensionType> getVisibleDimensions(ServerPlayerEntity player) {
+        return ChunkVisibilityManager.getChunkLoaders(player)
+            .map(chunkLoader -> chunkLoader.center.dimension)
+            .collect(Collectors.toSet());
     }
 }

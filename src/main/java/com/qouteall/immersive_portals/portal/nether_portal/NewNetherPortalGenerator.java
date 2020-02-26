@@ -200,7 +200,7 @@ public class NewNetherPortalGenerator {
                     if (!otherSideAreaPredicate.test(blockPos)) {
                         return null;
                     }
-                
+    
                     return foundShape.matchShape(
                         otherSideAreaPredicate,
                         otherSideFramePredicate,
