@@ -6,10 +6,7 @@ import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongList;
-import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
@@ -93,6 +90,9 @@ public class NewChunkTrackingGraph {
     
     private static final Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
     
+    public static final ArrayList<ChunkVisibilityManager.ChunkLoader>
+        additionalChunkLoaders = new ArrayList<>();
+    
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
@@ -154,7 +154,7 @@ public class NewChunkTrackingGraph {
         McHelper.getServer().getWorlds().forEach(world -> {
     
             LongSortedSet currentLoadedChunks = getChunkRecordMap(world.dimension.getType()).keySet();
-            
+    
             currentLoadedChunks.forEach(
                 (long longChunkPos) -> ((IEServerWorld) world).setChunkForcedWithoutImmediateLoading(
                     ChunkPos.getPackedX(longChunkPos),
@@ -162,11 +162,25 @@ public class NewChunkTrackingGraph {
                     true
                 )
             );
-            
+    
+            LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
+            additionalChunkLoaders.forEach(chunkLoader -> chunkLoader.foreachChunkPos(
+                (dim, x, z, dis) -> {
+                    if (world.dimension.getType() == dim) {
+                        additionalLoadedChunks.add(ChunkPos.toLong(x, z));
+                        ((IEServerWorld) world).setChunkForcedWithoutImmediateLoading(
+                            x, z, true
+                        );
+                    }
+                }
+            ));
+    
             LongList chunksToUnload = new LongArrayList();
             //I can't use filter here because it will box Long
             world.getForcedChunks().forEach((long longChunkPos) -> {
-                if (!currentLoadedChunks.contains(longChunkPos)) {
+                if (!currentLoadedChunks.contains(longChunkPos) &&
+                    !additionalLoadedChunks.contains(longChunkPos)
+                ) {
                     chunksToUnload.add(longChunkPos);
                 }
             });
@@ -246,6 +260,7 @@ public class NewChunkTrackingGraph {
     
     public static void cleanup() {
         data.clear();
+        additionalChunkLoaders.clear();
     }
     
     public static Stream<ServerPlayerEntity> getPlayersViewingChunk(

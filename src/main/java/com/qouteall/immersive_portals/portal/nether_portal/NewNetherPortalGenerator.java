@@ -4,6 +4,9 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
+import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -13,6 +16,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
@@ -170,7 +174,7 @@ public class NewNetherPortalGenerator {
         BlockPos fromPos = foundShape.innerAreaBox.getCenter();
         
         Vec3d indicatorPos = foundShape.innerAreaBox.getCenterVec();
-        
+    
         boolean isOtherGenerationRunning = McHelper.getEntitiesNearby(
             fromWorld, indicatorPos, LoadingIndicatorEntity.class, 1
         ).findAny().isPresent();
@@ -181,14 +185,99 @@ public class NewNetherPortalGenerator {
             return null;
         }
     
+        LoadingIndicatorEntity indicatorEntity =
+            LoadingIndicatorEntity.entityType.create(fromWorld);
+        indicatorEntity.isAlive = true;
+        indicatorEntity.updatePosition(
+            indicatorPos.x, indicatorPos.y, indicatorPos.z
+        );
+        fromWorld.spawnEntity(indicatorEntity);
+    
         BlockPos toPos = positionMapping.apply(fromPos);
     
+        int loaderRadius = Math.floorDiv(existingFrameSearchingRadius, 16) + 1;
+        ChunkVisibilityManager.ChunkLoader chunkLoader = new ChunkVisibilityManager.ChunkLoader(
+            new DimensionalChunkPos(
+                toDimension, new ChunkPos(toPos)
+            ),
+            loaderRadius
+        );
+    
+        NewChunkTrackingGraph.additionalChunkLoaders.add(chunkLoader);
+    
+        ModMain.serverTaskList.addTask(() -> {
+            int[] loadedChunkNum = {0};
+            chunkLoader.foreachChunkPos((dim, x, z, dist) -> {
+                if (toWorld.isChunkLoaded(x, z)) {
+                    loadedChunkNum[0] += 1;
+                }
+            });
+        
+            int allChunksNeedsLoading = (loaderRadius * 2 + 1) * (loaderRadius * 2 + 1);
+        
+            if (allChunksNeedsLoading > loadedChunkNum[0]) {
+                indicatorEntity.setText(new TranslatableText(
+                    "imm_ptl.loading_chunks", loadedChunkNum[0], allChunksNeedsLoading
+                ));
+                return false;
+            }
+            else {
+            
+                startSearchingPortalFrame(
+                    fromWorld,
+                    toWorld,
+                    existingFrameSearchingRadius,
+                    airCubeSearchingRadius,
+                    thisSideAreaPredicate,
+                    thisSideFramePredicate,
+                    otherSideAreaPredicate,
+                    otherSideFramePredicate,
+                    newFrameGeneratedFunc,
+                    portalEntityGeneratingFunc,
+                    fromDimension,
+                    toDimension,
+                    foundShape,
+                    fromPos,
+                    toPos,
+                    indicatorEntity,
+                    () -> {
+                        indicatorEntity.remove();
+                        NewChunkTrackingGraph.additionalChunkLoaders.remove(chunkLoader);
+                    }
+                );
+            
+                return true;
+            }
+        });
+    
+        return foundShape;
+    }
+    
+    private static void startSearchingPortalFrame(
+        ServerWorld fromWorld,
+        ServerWorld toWorld,
+        int existingFrameSearchingRadius,
+        int airCubeSearchingRadius,
+        Predicate<BlockPos> thisSideAreaPredicate,
+        Predicate<BlockPos> thisSideFramePredicate,
+        Predicate<BlockPos> otherSideAreaPredicate,
+        Predicate<BlockPos> otherSideFramePredicate,
+        Consumer<NetherPortalShape> newFrameGeneratedFunc,
+        Consumer<Info> portalEntityGeneratingFunc,
+        DimensionType fromDimension,
+        DimensionType toDimension,
+        NetherPortalShape foundShape,
+        BlockPos fromPos,
+        BlockPos toPos, LoadingIndicatorEntity indicatorEntity,
+        Runnable finishBehavior
+    ) {
+        
         //avoid blockpos object creation
         BlockPos.Mutable temp = new BlockPos.Mutable();
-    
+        
         IntegerAABBInclusive toWorldHeightLimit =
             NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
-    
+        
         Stream<BlockPos> blockPosStream = fromNearToFarColumned(
             toWorld,
             toPos.getX(), toPos.getZ(),
@@ -210,14 +299,6 @@ public class NewNetherPortalGenerator {
                 }
             ).iterator();
         
-        LoadingIndicatorEntity indicatorEntity =
-            LoadingIndicatorEntity.entityType.create(fromWorld);
-        indicatorEntity.isAlive = true;
-        indicatorEntity.updatePosition(
-            indicatorPos.x, indicatorPos.y, indicatorPos.z
-        );
-        fromWorld.spawnEntity(indicatorEntity);
-        
         McHelper.performSplitedFindingTaskOnServer(
             iterator,
             shape -> shape != null && (fromWorld != toWorld || !shape.anchor.equals(foundShape.anchor)),
@@ -229,7 +310,7 @@ public class NewNetherPortalGenerator {
     
                 if (!isIntact) {
                     Helper.log("Nether Portal Generation Aborted");
-                    indicatorEntity.remove();
+                    finishBehavior.run();
                     return false;
                 }
                 
@@ -278,14 +359,12 @@ public class NewNetherPortalGenerator {
                         fromDimension, toDimension, foundShape, toShape
                     );
                     portalEntityGeneratingFunc.accept(info);
-                    indicatorEntity.remove();
+                    finishBehavior.run();
                     
                     return true;
                 });
             }
         );
-        
-        return foundShape;
     }
     
     private static void embodyNewFrame(
@@ -437,10 +516,9 @@ public class NewNetherPortalGenerator {
                 ).map(
                     columnPos_ -> columnPos.set(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
                 ).flatMap(
-                    columnPos_ -> world.isChunkLoaded(columnPos_) ?
+                    columnPos_ ->
                         IntStream.range(3, height - 3)
-                            .mapToObj(y -> temp.set(columnPos.getX(), y, columnPos.getZ())) :
-                        Stream.empty()
+                            .mapToObj(y -> temp.set(columnPos.getX(), y, columnPos.getZ()))
                 )
             );
     }

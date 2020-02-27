@@ -83,7 +83,7 @@ public class McHelper {
         Consumer<T> onFound,
         Runnable onNotFound
     ) {
-        final long timeValve = (1000000000L / 40);
+        final long timeValve = (1000000000L / 50);
         int[] countStorage = new int[1];
         countStorage[0] = 0;
         ModMain.serverTaskList.addTask(() -> {
