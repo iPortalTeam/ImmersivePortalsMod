@@ -37,6 +37,8 @@ import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.lang.ref.Reference;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -343,9 +345,27 @@ public class MyCommandClient {
             cond -> CGlobal.earlyClientLightUpdate = cond
         );
     
+        builder.then(CommandManager
+            .literal("print_class_path")
+            .executes(context -> {
+                printClassPath();
+                return 0;
+            })
+        );
+    
         dispatcher.register(builder);
     
         Helper.log("Successfully initialized command /immersive_portals_debug");
+    }
+    
+    private static void printClassPath() {
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        
+        URL[] urls = ((URLClassLoader) cl).getURLs();
+        
+        for (URL url : urls) {
+            System.out.println(url.getFile());
+        }
     }
     
     private static void registerSwitchCommand(

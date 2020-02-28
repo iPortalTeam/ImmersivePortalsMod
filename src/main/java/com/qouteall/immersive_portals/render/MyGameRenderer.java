@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.*;
+import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.*;
 import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
 import com.qouteall.immersive_portals.far_scenery.FaceRenderingTask;

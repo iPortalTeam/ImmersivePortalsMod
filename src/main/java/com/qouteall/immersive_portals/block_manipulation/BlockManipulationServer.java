@@ -1,5 +1,8 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.block_manipulation;
 
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;

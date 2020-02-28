@@ -1,5 +1,6 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.block_manipulation;
 
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;

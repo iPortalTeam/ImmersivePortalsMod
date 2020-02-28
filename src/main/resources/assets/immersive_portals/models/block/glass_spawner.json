@@ -1,7 +1,0 @@
-{
-  "parent": "block/cube_column",
-  "textures": {
-    "end": "immersive_portals:block/glass_spawner",
-    "side": "immersive_portals:block/glass_spawner"
-  }
-}

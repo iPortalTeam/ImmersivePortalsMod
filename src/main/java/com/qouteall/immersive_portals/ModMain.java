@@ -97,8 +97,6 @@ public class ModMain implements ModInitializer {
         );
         
         FormulaGenerator.init();
-        
-        SatinCompatibility.init();
     }
     
 }

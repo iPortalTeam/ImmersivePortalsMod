@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.*;
-import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
@@ -47,36 +46,7 @@ public class ClientTeleportationManager {
     private static void tick(ClientTeleportationManager this_) {
         this_.tickTimeForTeleportation++;
         this_.slowDownPlayerIfCollidingWithPortal();
-        
-        updateLight();
     }
-    
-    //fix light issue https://github.com/qouteall/ImmersivePortalsMod/issues/45
-    //it's not an elegant solution
-    //the issue could be caused by other things
-    //TODO move this to another class
-    private static void updateLight() {
-        ClientWorld world = MinecraftClient.getInstance().world;
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (world == null) {
-            return;
-        }
-        if (player == null) {
-            return;
-        }
-        if (world.getTime() % 233 == 34) {
-            doUpdateLight(player);
-        }
-    }
-    
-    private static void doUpdateLight(ClientPlayerEntity player) {
-        MinecraftClient.getInstance().getProfiler().push("my_light_update");
-        MyClientChunkManager.updateLightStatus(player.world.getChunk(
-            player.chunkX, player.chunkZ
-        ));
-        MinecraftClient.getInstance().getProfiler().pop();
-    }
-    
     
     public void acceptSynchronizationDataFromServer(
         DimensionType dimension,
@@ -133,10 +103,6 @@ public class ClientTeleportationManager {
         if (tickTimeForTeleportation <= teleportTickTimeLimit) {
             return;
         }
-        if (tickTimeForTeleportation - teleportWhileRidingTime < 20) {
-            //to make it not hacky we need to reconstruct the whole entity managing system
-            return;
-        }
     
         lastTeleportGameTime = tickTimeForTeleportation;
     
@@ -172,12 +138,12 @@ public class ClientTeleportationManager {
         McHelper.adjustVehicle(player);
     
         if (player.getVehicle() != null) {
-            teleportWhileRidingTime = tickTimeForTeleportation;
+            disableTeleportFor(40);
         }
     }
     
     private boolean isTeleportingFrequently() {
-        if (tickTimeForTeleportation - lastTeleportGameTime <= 2) {
+        if (tickTimeForTeleportation - lastTeleportGameTime <= 20) {
             return true;
         }
         else {
@@ -346,7 +312,7 @@ public class ClientTeleportationManager {
         newWorld.addEntity(entity.getEntityId(), entity);
     }
     
-    public void disableTeleportFor2Seconds() {
-        teleportTickTimeLimit = tickTimeForTeleportation + 40;
+    public void disableTeleportFor(int ticks) {
+        teleportTickTimeLimit = tickTimeForTeleportation + ticks;
     }
 }

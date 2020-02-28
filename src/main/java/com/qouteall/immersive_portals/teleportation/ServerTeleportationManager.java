@@ -49,7 +49,7 @@ public class ServerTeleportationManager {
         }
     }
     
-    public static Stream<Entity> getEntitiesToTeleport(Portal portal) {
+    private static Stream<Entity> getEntitiesToTeleport(Portal portal) {
         return portal.world.getEntities(
             Entity.class,
             portal.getBoundingBox().expand(2),
@@ -82,12 +82,14 @@ public class ServerTeleportationManager {
                 Helper.err(player.toString() + "is teleporting frequently");
             }
     
-            DimensionType dimensionTo = ((Portal) portalEntity).dimensionTo;
-            Vec3d newPos = ((Portal) portalEntity).applyTransformationToPoint(posBefore);
+            Portal portal = (Portal) portalEntity;
+    
+            DimensionType dimensionTo = portal.dimensionTo;
+            Vec3d newPos = portal.applyTransformationToPoint(posBefore);
     
             teleportPlayer(player, dimensionTo, newPos);
     
-            ((Portal) portalEntity).onEntityTeleportedOnServer(player);
+            portal.onEntityTeleportedOnServer(player);
         }
         else {
             Helper.err(String.format(
@@ -129,11 +131,6 @@ public class ServerTeleportationManager {
             .filter(portal -> portal.dimensionTo == dimension)
             .map(portal -> portal.applyTransformationToPoint(playerPos))
             .anyMatch(mappedPos -> mappedPos.squaredDistanceTo(pos) < 256);
-        
-    }
-    
-    private static boolean isClose(Vec3d a, Vec3d b) {
-        return a.squaredDistanceTo(b) < 20 * 20;
     }
     
     public void teleportPlayer(
@@ -153,7 +150,6 @@ public class ServerTeleportationManager {
         }
         
         McHelper.adjustVehicle(player);
-        //((IEServerPlayerEntity) player).setIsInTeleportationState(true);
         player.networkHandler.syncWithPlayerPosition();
     }
     
@@ -213,12 +209,6 @@ public class ServerTeleportationManager {
         toWorld.onPlayerChangeDimension(player);
     
         toWorld.checkChunk(player);
-
-//        isFiringMyChangeDimensionEvent = true;
-//        McHelper.getServer().getPlayerManager().sendWorldInfo(
-//            player, toWorld
-//        );
-//        isFiringMyChangeDimensionEvent = false;
     
         player.interactionManager.setWorld(toWorld);
     
@@ -280,7 +270,6 @@ public class ServerTeleportationManager {
                         this.lastTeleportGameTime.getOrDefault(player, 0L);
                     if (tickTimeNow - lastTeleportGameTime > 60) {
                         sendPositionConfirmMessage(player);
-                        //((IEServerPlayerEntity) player).setIsInTeleportationState(false);
                     }
                     else {
                         ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
