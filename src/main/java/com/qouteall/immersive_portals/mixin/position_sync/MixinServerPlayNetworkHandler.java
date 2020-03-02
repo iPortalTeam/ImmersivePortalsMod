@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
@@ -69,12 +69,12 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
         assert packetDimension != null;
     
-        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
+        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
             cancelTeleportRequest();
         }
     
         if (player.dimension != packetDimension) {
-            SGlobal.serverTeleportationManager.acceptDubiousMovePacket(
+            Global.serverTeleportationManager.acceptDubiousMovePacket(
                 player, packet, packetDimension
             );
             ci.cancel();
@@ -140,7 +140,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         WorldView worldView_1
     ) {
-        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
+        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
         }
         boolean portalsNearby = !player.world.getEntities(
@@ -176,14 +176,14 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         cancellable = true
     )
     private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
-        if (SGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
+        if (Global.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
-    
+        
             if (entity != player) {
                 double currX = entity.getX();
                 double currY = entity.getY();
                 double currZ = entity.getZ();
-        
+            
                 double newX = packet.getX();
                 double newY = packet.getY();
                 double newZ = packet.getZ();

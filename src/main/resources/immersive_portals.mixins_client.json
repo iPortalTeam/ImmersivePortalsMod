@@ -27,6 +27,7 @@
     "MixinFrameBuffer",
     "MixinFrustum",
     "MixinGameRenderer",
+    "MixinGlStateManager",
     "MixinMatrix4f",
     "MixinMinecraftClient",
     "MixinParticleManager",

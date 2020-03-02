@@ -206,9 +206,11 @@ public class MyNetworkClient {
             ));
             return;
         }
-        
+    
         processRedirectedPacket(dimension, packet);
     }
+    
+    private static int reportedError = 0;
     
     private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -216,29 +218,33 @@ public class MyNetworkClient {
             ClientWorld packetWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
             
             assert packetWorld != null;
-    
+            
             assert packetWorld.getChunkManager() instanceof MyClientChunkManager;
-    
+            
             ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
-    
+            
             if ((netHandler).getWorld() != packetWorld) {
                 ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
                 Helper.err("The world field of client net handler is wrong");
             }
-    
+            
             ClientWorld originalWorld = mc.world;
             //some packet handling may use mc.world so switch it
             mc.world = packetWorld;
             ((IEParticleManager) mc.particleManager).mySetWorld(packetWorld);
-    
+            
             try {
                 packet.apply(netHandler);
             }
             catch (Throwable e) {
-                throw new IllegalStateException(
-                    "handling packet in " + dimension,
-                    e
-                );
+                if (reportedError < 200) {
+                    reportedError += 1;
+                }
+                else {
+                    throw new IllegalStateException(
+                        "handling packet in " + dimension, e
+                    );
+                }
             }
             finally {
                 mc.world = originalWorld;

@@ -77,7 +77,7 @@ public class CHelper {
     }
     
     public static void checkGlError() {
-        if (!CGlobal.doCheckGlError) {
+        if (!Global.doCheckGlError) {
             return;
         }
         if (reportedErrorNum > 100) {

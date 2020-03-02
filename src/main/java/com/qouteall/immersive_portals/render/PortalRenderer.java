@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public abstract class PortalRenderer {
     
     public static final MinecraftClient mc = MinecraftClient.getInstance();
-    protected Supplier<Integer> maxPortalLayer = () -> CGlobal.maxPortalLayer;
+    protected Supplier<Integer> maxPortalLayer = () -> Global.maxPortalLayer;
     protected Stack<Portal> portalLayers = new Stack<>();
     
     //this WILL be called when rendering portal

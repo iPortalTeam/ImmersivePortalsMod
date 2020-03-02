@@ -57,7 +57,7 @@ public class ModMainClient implements ClientModInitializer {
             return;
         }
         if (OFInterface.isShaders.getAsBoolean()) {
-            switch (CGlobal.renderMode) {
+            switch (Global.renderMode) {
                 case normal:
                     switchRenderer(OFGlobal.rendererMixed);
                     break;
@@ -73,7 +73,7 @@ public class ModMainClient implements ClientModInitializer {
             }
         }
         else {
-            switch (CGlobal.renderMode) {
+            switch (Global.renderMode) {
                 case normal:
                     switchRenderer(CGlobal.rendererUsingStencil);
                     break;
@@ -127,8 +127,7 @@ public class ModMainClient implements ClientModInitializer {
     
         FarSceneryRenderer.init();
     
-        MyConfigClient config = MyConfigClient.readConfigFromFile();
-        MyConfigClient.onConfigChanged(config);
+        MyConfig.onConfigChanged(MyConfig.readConfigFromFile());
     
         DubiousLightUpdate.init();
     }

@@ -60,28 +60,28 @@ public class ModMain implements ModInitializer {
         GlobalTrackedPortal.init();
         BorderPortal.init();
         VerticalConnectingPortal.init();
-        
+    
         LoadingIndicatorEntity.init();
-        
+    
         PortalPlaceholderBlock.init();
-        
+    
         MyNetwork.init();
-        
+    
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
-        
-        SGlobal.serverTeleportationManager = new ServerTeleportationManager();
-        SGlobal.chunkDataSyncManager = new ChunkDataSyncManager();
-        
+    
+        Global.serverTeleportationManager = new ServerTeleportationManager();
+        Global.chunkDataSyncManager = new ChunkDataSyncManager();
+    
         NewChunkTrackingGraph.init();
-        
+    
         WorldInfoSender.init();
-        
+    
         ServerPerformanceAdjust.init();
-        
+    
         AlternateDimensionInit.initMyDimensions();
-        
+    
         RequiemCompat.init();
         
         Registry.register(

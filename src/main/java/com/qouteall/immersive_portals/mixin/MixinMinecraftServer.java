@@ -6,6 +6,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.MyConfig;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
 import net.minecraft.server.MinecraftServer;
@@ -31,6 +32,10 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     @Final
     private MetricsData metricsData;
     
+    @Shadow
+    @Final
+    private File gameDir;
+    
     @Inject(
         method = "Lnet/minecraft/server/MinecraftServer;<init>(Ljava/io/File;Ljava/net/Proxy;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/server/command/CommandManager;Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;Lcom/mojang/authlib/minecraft/MinecraftSessionService;Lcom/mojang/authlib/GameProfileRepository;Lnet/minecraft/util/UserCache;Lnet/minecraft/server/WorldGenerationProgressListenerFactory;Ljava/lang/String;)V",
         at = @At("RETURN")
@@ -49,6 +54,8 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         CallbackInfo ci
     ) {
         Helper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
+        
+        MyConfig.onConfigChanged(MyConfig.readConfigFromFile());
     }
     
     @Inject(

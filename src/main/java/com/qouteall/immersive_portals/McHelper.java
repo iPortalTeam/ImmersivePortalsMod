@@ -10,6 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
@@ -239,5 +241,16 @@ public class McHelper {
             ));
             entity.dimension = entity.world.dimension.getType();
         }
+    }
+    
+    public static WorldChunk getServerChunkIfPresent(
+        DimensionType dimension,
+        int x, int z
+    ) {
+        ChunkHolder chunkHolder_ = getIEStorage(dimension).getChunkHolder_(ChunkPos.toLong(x, z));
+        if (chunkHolder_ == null) {
+            return null;
+        }
+        return chunkHolder_.getWorldChunk();
     }
 }

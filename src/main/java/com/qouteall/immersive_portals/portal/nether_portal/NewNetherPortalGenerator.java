@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
@@ -208,7 +209,8 @@ public class NewNetherPortalGenerator {
         ModMain.serverTaskList.addTask(() -> {
             int[] loadedChunkNum = {0};
             chunkLoader.foreachChunkPos((dim, x, z, dist) -> {
-                if (toWorld.isChunkLoaded(x, z)) {
+                WorldChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
+                if (chunk != null) {
                     loadedChunkNum[0] += 1;
                 }
             });

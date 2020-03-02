@@ -307,7 +307,7 @@ public class ServerTeleportationManager {
     
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
-        if (currGameTime - lastTeleportGameTime < 5) {
+        if (currGameTime - lastTeleportGameTime < 2) {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);

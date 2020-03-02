@@ -16,7 +16,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> {
-            MyConfigClient currConfig = MyConfigClient.readConfigFromFile();
+            MyConfig currConfig = MyConfig.readConfigFromFile();
             
             ConfigBuilder builder = ConfigBuilder.create();
             ConfigCategory category = builder.getOrCreateCategory("imm_ptl.main_category");
@@ -33,18 +33,25 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.check_gl_error",
                 currConfig.doCheckGlError
             ).setDefaultValue(false).build();
+            IntegerSliderEntry entryPortalSearchingRange = builder.entryBuilder().startIntSlider(
+                "imm_ptl.portal_searching_range",
+                currConfig.portalSearchingRange,
+                32, 1000
+            ).setDefaultValue(128).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
+            category.addEntry(entryPortalSearchingRange);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
-                    MyConfigClient newConfigObject = new MyConfigClient();
+                    MyConfig newConfigObject = new MyConfig();
                     newConfigObject.maxPortalLayer = entryMaxPortalLayer.getValue();
                     newConfigObject.compatibilityRenderMode = entryCompatibilityRenderMode.getValue();
                     newConfigObject.doCheckGlError = entryCheckGlError.getValue();
-                    MyConfigClient.saveConfigFile(newConfigObject);
-                    MyConfigClient.onConfigChanged(newConfigObject);
+                    newConfigObject.portalSearchingRange = entryPortalSearchingRange.getValue();
+                    MyConfig.saveConfigFile(newConfigObject);
+                    MyConfig.onConfigChanged(newConfigObject);
                 })
                 .build();
         };

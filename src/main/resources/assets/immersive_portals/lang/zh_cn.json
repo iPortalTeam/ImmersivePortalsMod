@@ -5,5 +5,6 @@
   "block.immersive_portals.portal_helper": "滑稽",
   "imm_ptl.max_portal_layer": "渲染递归上限",
   "imm_ptl.compatibility_render_mode": "兼容性渲染模式",
-  "imm_ptl.check_gl_error": "检测OpenGL异常"
+  "imm_ptl.check_gl_error": "检测OpenGL异常",
+  "imm_ptl.portal_searching_range": "地狱传送门生成搜索范围"
 }
