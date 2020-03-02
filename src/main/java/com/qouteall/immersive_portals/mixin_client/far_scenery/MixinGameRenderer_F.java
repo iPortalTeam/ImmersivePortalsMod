@@ -13,7 +13,7 @@ public class MixinGameRenderer_F {
     private boolean renderingPanorama;
     
     @Redirect(
-        method = "method_22973",
+        method = "getBasicProjectionMatrix",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/util/math/Matrix4f;viewboxMatrix(DFFF)Lnet/minecraft/client/util/math/Matrix4f;"

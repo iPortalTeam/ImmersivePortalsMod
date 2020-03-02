@@ -1,0 +1,8 @@
+AlternateDimension modifyFogColor
+SimpleSpawnerFeature piglin
+ClientWorldLoader ()->profiler
+NewNetherPortalGenerator effectiveHeight
+MixinEntity remove burn
+MixinClientWorld change constructor
+MixinServerPlayNetworkHandler isPlayerNotCollidingWithBlocks
+MixinGameRenderer_F getBasicProjectionMatrix

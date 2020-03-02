@@ -53,10 +53,10 @@ public class AlternateDimension extends Dimension {
         VanillaLayeredBiomeSourceConfig vanillaLayeredBiomeSourceConfig2 =
             ((VanillaLayeredBiomeSourceConfig) BiomeSourceType.VANILLA_LAYERED.getConfig(this.world.getLevelProperties())).setGeneratorSettings(
                 overworldChunkGeneratorConfig2);
-    
+        
         VanillaLayeredBiomeSource newBiomeSource =
             BiomeSourceType.VANILLA_LAYERED.applyConfig(vanillaLayeredBiomeSourceConfig2);
-    
+        
         FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
@@ -105,7 +105,7 @@ public class AlternateDimension extends Dimension {
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
-    
+        
         return new ErrorTerrainGenerator(
             world,
             new ChaosBiomeSource(world.getSeed()),
@@ -153,18 +153,13 @@ public class AlternateDimension extends Dimension {
         return true;
     }
     
-    @Environment(EnvType.CLIENT)
     @Override
-    public Vec3d getFogColor(float celestialAngle, float partialTicks) {
-        float f = MathHelper.cos(celestialAngle * ((float) Math.PI * 2F)) * 2.0F + 0.5F;
-        f = MathHelper.clamp(f, 0.0F, 1.0F);
-        float f1 = 0.7529412F;
-        float f2 = 0.84705883F;
-        float f3 = 1.0F;
-        f1 = f1 * (f * 0.94F + 0.06F);
-        f2 = f2 * (f * 0.94F + 0.06F);
-        f3 = f3 * (f * 0.91F + 0.09F);
-        return new Vec3d((double) f1, (double) f2, (double) f3);
+    public Vec3d modifyFogColor(Vec3d vec3d, float tickDelta) {
+        return vec3d.multiply(
+            (double) (tickDelta * 0.94F + 0.06F),
+            (double) (tickDelta * 0.94F + 0.06F),
+            (double) (tickDelta * 0.91F + 0.09F)
+        );
     }
     
     @Override

@@ -92,7 +92,7 @@ public class ClientWorldLoader {
         renderHelperMap.clear();
         
         isInitialized = false;
-    
+        
         ModMain.clientTaskList.forceClearTasks();
     }
     
@@ -118,7 +118,7 @@ public class ClientWorldLoader {
         if (!clientWorldMap.containsKey(dimension)) {
             return createFakedClientWorld(dimension);
         }
-    
+        
         return getWorld(dimension);
     }
     
@@ -165,7 +165,7 @@ public class ClientWorldLoader {
         
         //TODO get load distance
         int chunkLoadDistance = 3;
-    
+        
         WorldRenderer worldRenderer = new WorldRenderer(mc, mc.getBufferBuilders());
         
         ClientWorld newWorld;
@@ -191,7 +191,7 @@ public class ClientWorldLoader {
                 ),
                 dimension,
                 chunkLoadDistance,
-                mc.getProfiler(),
+                () -> mc.getProfiler(),
                 worldRenderer
             );
         }

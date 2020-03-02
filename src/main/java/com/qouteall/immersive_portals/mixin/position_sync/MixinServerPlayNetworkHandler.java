@@ -40,7 +40,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     private int ticks;
     
     @Shadow
-    protected abstract boolean method_20630(WorldView worldView_1);
+    protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView_1);
     
     @Shadow
     private boolean ridingEntity;
@@ -133,7 +133,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onPlayerMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;method_20630(Lnet/minecraft/world/WorldView;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks(Lnet/minecraft/world/WorldView;)Z"
         )
     )
     private boolean onCheckPlayerCollision(
@@ -151,7 +151,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (portalsNearby) {
             return true;
         }
-        return method_20630(worldView_1);
+        return isPlayerNotCollidingWithBlocks(worldView_1);
     }
     
     @Inject(

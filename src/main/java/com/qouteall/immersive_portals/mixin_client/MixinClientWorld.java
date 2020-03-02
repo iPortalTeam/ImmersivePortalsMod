@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Mixin(ClientWorld.class)
 public abstract class MixinClientWorld implements IEClientWorld {
@@ -62,20 +63,20 @@ public abstract class MixinClientWorld implements IEClientWorld {
     
     //use my client chunk manager
     @Inject(
-        method = "Lnet/minecraft/client/world/ClientWorld;<init>(Lnet/minecraft/client/network/ClientPlayNetworkHandler;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/dimension/DimensionType;ILnet/minecraft/util/profiler/Profiler;Lnet/minecraft/client/render/WorldRenderer;)V",
+        method = "<init>",
         at = @At("RETURN")
     )
     void onConstructed(
-        ClientPlayNetworkHandler clientPlayNetworkHandler_1,
-        LevelInfo levelInfo_1,
-        DimensionType dimensionType_1,
-        int int_1,
-        Profiler profiler_1,
-        WorldRenderer worldRenderer_1,
+        ClientPlayNetworkHandler clientPlayNetworkHandler,
+        LevelInfo levelInfo,
+        DimensionType dimensionType,
+        int chunkLoadDistance,
+        Supplier<Profiler> supplier,
+        WorldRenderer worldRenderer,
         CallbackInfo ci
     ) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;
-        MyClientChunkManager chunkManager = new MyClientChunkManager(clientWorld, int_1);
+        MyClientChunkManager chunkManager = new MyClientChunkManager(clientWorld, chunkLoadDistance);
         ((IEWorld) this).setChunkManager(chunkManager);
     }
     

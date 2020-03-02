@@ -497,7 +497,7 @@ public class NewNetherPortalGenerator {
         int z,
         int range
     ) {
-        int height = world.getEffectiveHeight();
+        int height = world.dimension.getType() == DimensionType.THE_NETHER ? 128 : 256;
         
         BlockPos.Mutable columnPos = new BlockPos.Mutable();
         BlockPos.Mutable temp = new BlockPos.Mutable();

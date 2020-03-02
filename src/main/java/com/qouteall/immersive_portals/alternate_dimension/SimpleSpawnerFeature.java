@@ -73,7 +73,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
         new RandomSelector.Builder<EntityType<?>>()
             .add(10, EntityType.ZOMBIE)
-            .add(10, EntityType.ZOMBIE_PIGMAN)
+            .add(10, EntityType.PIGLIN)
             .add(10, EntityType.ZOMBIE_VILLAGER)
             .add(10, EntityType.HUSK)
             .add(10, EntityType.DROWNED)

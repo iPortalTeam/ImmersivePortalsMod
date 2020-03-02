@@ -39,9 +39,6 @@ public abstract class MixinEntity implements IEEntity {
     public abstract void setBoundingBox(Box box_1);
     
     @Shadow
-    protected abstract void burn(int int_1);
-    
-    @Shadow
     public DimensionType dimension;
     
     @Shadow
@@ -112,21 +109,6 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
-    //don't burn when jumping into end portal
-    @Redirect(
-        method = "move",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;burn(I)V"
-        )
-    )
-    private void redirectBurn(Entity entity, int int_1) {
-        if (!CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
-            burn(int_1);
-        }
-    }
-    
-    
     @Inject(
         method = "isFireImmune",
         at = @At("HEAD"),
@@ -145,17 +127,6 @@ public abstract class MixinEntity implements IEEntity {
         cancellable = true
     )
     private void onSetOnFireFor(int int_1, CallbackInfo ci) {
-        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
-            ci.cancel();
-        }
-    }
-    
-    @Inject(
-        method = "burn",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onBurn(int int_1, CallbackInfo ci) {
         if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
             ci.cancel();
         }
