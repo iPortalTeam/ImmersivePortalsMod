@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.google.common.collect.HashMultimap;
 import com.mojang.authlib.GameProfile;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -85,7 +85,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         DimensionType dimensionType_1,
         CallbackInfoReturnable<Entity> cir
     ) {
-        SGlobal.chunkDataSyncManager.onPlayerRespawn((ServerPlayerEntity) (Object) this);
+        Global.chunkDataSyncManager.onPlayerRespawn((ServerPlayerEntity) (Object) this);
     }
     
     /**

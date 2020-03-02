@@ -55,7 +55,7 @@ public class MyNetwork {
         UUID portalEntityId = buf.readUuid();
         
         McHelper.getServer().execute(() -> {
-            SGlobal.serverTeleportationManager.onPlayerTeleportedInClient(
+            Global.serverTeleportationManager.onPlayerTeleportedInClient(
                 (ServerPlayerEntity) context.getPlayer(),
                 dimensionBefore,
                 posBefore,

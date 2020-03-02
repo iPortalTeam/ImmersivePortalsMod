@@ -47,7 +47,7 @@ public class NetherPortalMatcher {
     //detect frame from inner pos
     
     public static final int maxFrameSize = 40;
-    public static final int findingRadius = 128;
+    public static int findingRadius = 128;
     public static final IntegerAABBInclusive heightLimitOverworld = new IntegerAABBInclusive(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 254, Integer.MAX_VALUE)
@@ -513,4 +513,5 @@ public class NetherPortalMatcher {
         
         return airCube.getMoved(new Vec3i(0, -downShift, 0));
     }
+    
 }

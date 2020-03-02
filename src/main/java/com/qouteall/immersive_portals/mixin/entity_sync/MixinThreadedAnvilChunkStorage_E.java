@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.entity_sync;
 
-import com.qouteall.immersive_portals.SGlobal;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -32,7 +32,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         //when the player leave this dimension, do not stop tracking entities
         if (entity instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) entity;
-            if (SGlobal.serverTeleportationManager.isTeleporting(player)) {
+            if (Global.serverTeleportationManager.isTeleporting(player)) {
                 entityTrackers.remove(entity.getEntityId());
                 handlePlayerAddedOrRemoved(player, false);
                 ci.cancel();

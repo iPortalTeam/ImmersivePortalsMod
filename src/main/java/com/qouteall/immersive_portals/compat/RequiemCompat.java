@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.compat;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -87,7 +87,7 @@ public class RequiemCompat {
         if (possessedEntity != null) {
             if (possessedEntity.dimension != player.dimension) {
                 Helper.log("Move Requiem Posessed Entity at Server");
-                SGlobal.serverTeleportationManager.changeEntityDimension(
+                Global.serverTeleportationManager.changeEntityDimension(
                     possessedEntity,
                     player.dimension,
                     player.getPos()

@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.MyNetwork;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.network.Packet;
 import net.minecraft.server.PlayerManager;
@@ -34,12 +34,12 @@ public class MixinPlayerManager {
         boolean boolean_1,
         CallbackInfoReturnable<ServerPlayerEntity> cir
     ) {
-        SGlobal.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
+        Global.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
     }
     
     @Inject(method = "sendWorldInfo", at = @At("RETURN"))
     private void onSendWorldInfo(ServerPlayerEntity player, ServerWorld world, CallbackInfo ci) {
-        if (!SGlobal.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
+        if (!Global.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
             GlobalPortalStorage.onPlayerLoggedIn(player);
         }
     }

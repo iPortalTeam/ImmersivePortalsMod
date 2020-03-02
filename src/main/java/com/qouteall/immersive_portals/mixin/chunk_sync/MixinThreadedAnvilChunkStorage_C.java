@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.chunk_sync;
 
 import com.mojang.datafixers.util.Either;
-import com.qouteall.immersive_portals.SGlobal;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.Packet;
@@ -120,8 +120,8 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
         future.thenAcceptAsync((either) -> {
             either.mapLeft((worldChunk) -> {
                 this.totalChunksLoadedCount.getAndIncrement();
-                
-                SGlobal.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
+    
+                Global.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
                 
                 return Either.left(worldChunk);
             });

@@ -6,9 +6,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEEntity;
@@ -156,14 +156,14 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_enable")
             .executes(context -> {
-                SGlobal.isChunkLoadingMultiThreaded = true;
+                Global.isChunkLoadingMultiThreaded = true;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("multithreaded_chunk_loading_disable")
             .executes(context -> {
-                SGlobal.isChunkLoadingMultiThreaded = false;
+                Global.isChunkLoadingMultiThreaded = false;
                 return 0;
             })
         );
@@ -262,28 +262,28 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("render_mode_normal")
             .executes(context -> {
-                CGlobal.renderMode = CGlobal.RenderMode.normal;
+                Global.renderMode = Global.RenderMode.normal;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("render_mode_compatibility")
             .executes(context -> {
-                CGlobal.renderMode = CGlobal.RenderMode.compatibility;
+                Global.renderMode = Global.RenderMode.compatibility;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("render_mode_debug")
             .executes(context -> {
-                CGlobal.renderMode = CGlobal.RenderMode.debug;
+                Global.renderMode = Global.RenderMode.debug;
                 return 0;
             })
         );
         builder = builder.then(CommandManager
             .literal("render_mode_none")
             .executes(context -> {
-                CGlobal.renderMode = CGlobal.RenderMode.none;
+                Global.renderMode = Global.RenderMode.none;
                 return 0;
             })
         );
@@ -322,7 +322,7 @@ public class MyCommandClient {
         registerSwitchCommand(
             builder,
             "gl_check_error",
-            cond -> CGlobal.doCheckGlError = cond
+            cond -> Global.doCheckGlError = cond
         );
         registerSwitchCommand(
             builder,
@@ -449,7 +449,7 @@ public class MyCommandClient {
     }
     
     private static int setMaxPortalLayer(int m) {
-        CGlobal.maxPortalLayer = m;
+        Global.maxPortalLayer = m;
         return 0;
     }
     

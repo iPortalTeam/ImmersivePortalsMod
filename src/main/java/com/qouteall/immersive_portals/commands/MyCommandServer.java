@@ -7,10 +7,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.SGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
@@ -212,7 +212,7 @@ public class MyCommandServer {
                             );
     
                             ServerPlayerEntity player = context.getSource().getPlayer();
-                            SGlobal.serverTeleportationManager.invokeTpmeCommand(
+                            Global.serverTeleportationManager.invokeTpmeCommand(
                                 player, dimension, pos
                             );
                             return 0;

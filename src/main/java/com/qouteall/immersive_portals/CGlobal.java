@@ -10,12 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CGlobal {
-    public static enum RenderMode {
-        normal,
-        compatibility,
-        debug,
-        none
-    }
     
     public static PortalRenderer renderer;
     public static RendererUsingStencil rendererUsingStencil;
@@ -28,14 +22,11 @@ public class CGlobal {
     public static ClientTeleportationManager clientTeleportationManager;
     public static ShaderManager shaderManager;
     
-    public static int maxPortalLayer = 5;
     public static int maxIdleChunkRendererNum = 500;
     
     public static WeakReference<Frustum> currentFrustumCuller;
     
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
-    
-    public static RenderMode renderMode = RenderMode.normal;
     
     public static boolean doUseAdvancedFrustumCulling = true;
     public static boolean useHackedChunkRenderDispatcher = true;
@@ -43,7 +34,6 @@ public class CGlobal {
     public static boolean useFrontCulling = true;
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     public static boolean renderFewerInFastGraphic = true;
-    public static boolean doCheckGlError = false;
     public static boolean smoothChunkUnload = true;
     public static boolean earlyClientLightUpdate = true;
     

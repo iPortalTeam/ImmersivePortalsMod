@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 
-public class SGlobal {
+public class Global {
     
     public static ChunkDataSyncManager chunkDataSyncManager;
     
@@ -13,4 +13,17 @@ public class SGlobal {
     public static boolean isChunkLoadingMultiThreaded = true;
     
     public static Gson gson = new Gson();
+    
+    public static int maxPortalLayer = 5;
+    
+    public static RenderMode renderMode = RenderMode.normal;
+    
+    public static boolean doCheckGlError = false;
+    
+    public static enum RenderMode {
+        normal,
+        compatibility,
+        debug,
+        none
+    }
 }
