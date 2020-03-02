@@ -37,8 +37,8 @@ import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.lang.ref.Reference;
-import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -359,13 +359,13 @@ public class MyCommandClient {
     }
     
     private static void printClassPath() {
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        
-        URL[] urls = ((URLClassLoader) cl).getURLs();
-        
-        for (URL url : urls) {
-            System.out.println(url.getFile());
-        }
+        System.out.println(
+            Arrays.stream(
+                ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs()
+            ).map(
+                url -> "\"" + url.getFile().substring(1).replace("%20", " ") + "\""
+            ).collect(Collectors.joining(",\n"))
+        );
     }
     
     private static void registerSwitchCommand(
