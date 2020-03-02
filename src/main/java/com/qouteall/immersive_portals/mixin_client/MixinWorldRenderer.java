@@ -22,7 +22,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -199,7 +198,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
             if (MyRenderHelper.isRenderingMirror()) {
-                GL11.glCullFace(GL11.GL_FRONT);
+                MyRenderHelper.applyMirrorFaceCulling();
             }
         }
     }
@@ -218,7 +217,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         if (CGlobal.renderer.isRendering()) {
             CGlobal.myGameRenderer.endCulling();
-            GL11.glCullFace(GL11.GL_BACK);
+            MyRenderHelper.recoverFaceCulling();
         }
     }
     
@@ -276,9 +275,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             float_1,
             matrixStack_1, vertexConsumerProvider_1
         );
+    
     }
     
-    //render weather in correct transformation
     @Inject(
         method = "render",
         at = @At(
@@ -303,7 +302,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //render weather in correct transformation
     @Inject(
         method = "render",
         at = @At(
@@ -336,7 +334,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             target = "Lnet/minecraft/entity/Entity;isGlowing()Z"
         )
     )
-    private boolean doNotRenderGlowingWhenRenderingPortal(Entity entity) {
+    private boolean redirectGlowing(Entity entity) {
         if (CGlobal.renderer.isRendering()) {
             return false;
         }
@@ -397,7 +395,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     
         if (MyRenderHelper.isRenderingMirror()) {
-            GL11.glCullFace(GL11.GL_FRONT);
+            MyRenderHelper.applyMirrorFaceCulling();
         }
     }
     
@@ -408,12 +406,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             AlternateSky.renderAlternateSky(matrixStack_1, float_1);
         }
     
-        GL11.glCullFace(GL11.GL_BACK);
+        MyRenderHelper.recoverFaceCulling();
     }
     
-    @Inject(
-        method = "render", at = @At("HEAD")
-    )
+    @Inject(method = "render", at = @At("HEAD"))
     private void onBeforeRender(
         MatrixStack matrices,
         float tickDelta,
@@ -494,20 +490,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             updateChunks(limitTime);
         }
     }
-
-//    //removed because conflict with optifine
-//    @ModifyVariable(
-//        method = "updateChunks",
-//        at = @At("HEAD")
-//    )
-//    private long modifyLimitTime(long limitTime) {
-//        if (CGlobal.renderer.isRendering()) {
-//            return 0;
-//        }
-//        else {
-//            return limitTime;
-//        }
-//    }
     
     //rebuild less chunk in render thread while rendering portal to reduce lag spike
     //minecraft has two places rebuilding chunks in render thread
@@ -524,28 +506,18 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             return original;
         }
     }
-
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/world/chunk/light/LightingProvider;doLightUpdates(IZZ)I"
-//        )
-//    )
-//    private int redirectDoLightUpdates(
-//        LightingProvider lightingProvider,
-//        int maxUpdateCount,
-//        boolean doSkylight,
-//        boolean skipEdgeLightPropagation
-//    ) {
-//        if (CGlobal.renderer.isRendering()) {
-//            return lightingProvider.doLightUpdates(
-//                30, doSkylight, skipEdgeLightPropagation
-//            );
-//        }
-//        return lightingProvider.doLightUpdates(
-//            maxUpdateCount, doSkylight, skipEdgeLightPropagation
-//        );
-//    }
     
+    
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw(Lnet/minecraft/client/render/RenderLayer;)V"
+        )
+    )
+    private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
+        MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingMirror();
+        immediate.draw(layer);
+        MyRenderHelper.shouldForceDisableCull = false;
+    }
 }

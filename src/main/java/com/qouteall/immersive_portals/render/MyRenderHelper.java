@@ -55,26 +55,28 @@ public class MyRenderHelper {
     public static Vec3d lastCameraPos = Vec3d.ZERO;
     public static Vec3d cameraPosDelta = Vec3d.ZERO;
     
+    public static boolean shouldForceDisableCull = false;
+    
     public static void updatePreRenderInfo(
         float partialTicks_
     ) {
         Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
-    
+        
         if (cameraEntity == null) {
             return;
         }
-    
+        
         MyRenderHelper.originalPlayerDimension = cameraEntity.dimension;
         MyRenderHelper.originalPlayerPos = cameraEntity.getPos();
         MyRenderHelper.originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         MyRenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
         partialTicks = partialTicks_;
-    
+        
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
-    
+        
         FogRendererContext.update();
     }
     
@@ -355,11 +357,17 @@ public class MyRenderHelper {
                     int updateNum = world.getChunkManager().getLightingProvider().doLightUpdates(
                         1000, true, true
                     );
-//                    if (updateNum != 1000) {
-//                        Helper.log("light update " + updateNum);
-//                    }
                 }
             }
         );
     }
+    
+    public static void applyMirrorFaceCulling() {
+        glCullFace(GL_FRONT);
+    }
+    
+    public static void recoverFaceCulling() {
+        glCullFace(GL_BACK);
+    }
+    
 }

@@ -11,8 +11,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WorldInfoSender {
     public static void init() {
@@ -101,8 +103,15 @@ public class WorldInfoSender {
     }
     
     public static Set<DimensionType> getVisibleDimensions(ServerPlayerEntity player) {
-        return ChunkVisibilityManager.getChunkLoaders(player)
-            .map(chunkLoader -> chunkLoader.center.dimension)
-            .collect(Collectors.toSet());
+        return Stream.concat(
+            ChunkVisibilityManager.getChunkLoaders(player)
+                .map(chunkLoader -> chunkLoader.center.dimension),
+            Optional.ofNullable(McHelper.getGlobalPortals(player.world))
+                .map(p ->
+                    p.stream().map(
+                        p1 -> p1.dimensionTo
+                    )
+                ).orElse(Stream.empty())
+        ).collect(Collectors.toSet());
     }
 }
