@@ -251,7 +251,7 @@ public class NetherPortalMatcher {
     ) {
         IntegerAABBInclusive aboveLavaLake = getAirCubeOnGround(
             areaSize.add(20, 20, 20), world, searchingCenter,
-            heightLimit, findingRadius / 4,
+            heightLimit, findingRadius,
             blockPos -> isLavaLake(world, blockPos)
         );
         if (aboveLavaLake != null) {
@@ -265,6 +265,9 @@ public class NetherPortalMatcher {
             areaSize.add(5, 0, 5), world, searchingCenter,
             heightLimit, findingRadius
         );
+        if (biggerArea == null) {
+            return null;
+        }
         return pushDownBox(world, biggerArea.getSubBoxInCenter(areaSize));
     }
     
