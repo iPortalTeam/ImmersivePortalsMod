@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -49,8 +49,8 @@ public class GlobalPortalStorage extends PersistentState {
     
     public void onDataChanged() {
         setDirty(true);
-        
-        CustomPayloadS2CPacket packet = MyNetwork.createGlobalPortalUpdate(this);
+    
+        Packet packet = MyNetwork.createGlobalPortalUpdate(this);
         McHelper.getCopiedPlayerList().forEach(
             player -> player.networkHandler.sendPacket(packet)
         );

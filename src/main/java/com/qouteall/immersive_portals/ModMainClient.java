@@ -13,7 +13,6 @@ import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity
 import com.qouteall.immersive_portals.render.*;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import com.qouteall.modloader_agnostic_api.MyNetworkClient;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -22,10 +21,9 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
 
-public class ModMainClient implements ClientModInitializer {
-    
+public class ModMainClient {
     public static void initPortalRenderers() {
-    
+        
         Arrays.stream(new EntityType<?>[]{
             Portal.entityType,
             NetherPortalEntity.entityType,
@@ -98,14 +96,13 @@ public class ModMainClient implements ClientModInitializer {
         }
     }
     
-    @Override
-    public void onInitializeClient() {
+    public static void init() {
         Helper.log("initializing client");
-    
+        
         initPortalRenderers();
-    
+        
         MyNetworkClient.init();
-    
+        
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.rendererUsingStencil = new RendererUsingStencil();
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
@@ -115,22 +112,20 @@ public class ModMainClient implements ClientModInitializer {
             CGlobal.myGameRenderer = new MyGameRenderer();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
-    
+        
         OFInterface.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
-    
+        
         if (OFInterface.isOptifinePresent) {
             OFBuiltChunkNeighborFix.init();
             OFInterfaceInitializer.init();
         }
-    
-    
+        
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
-    
+        
         FarSceneryRenderer.init();
-    
+        
         MyConfig.onConfigChanged(MyConfig.readConfigFromFile());
-    
+        
         DubiousLightUpdate.init();
     }
-    
 }

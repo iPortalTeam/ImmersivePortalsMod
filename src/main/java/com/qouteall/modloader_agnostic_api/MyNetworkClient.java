@@ -42,6 +42,33 @@ import java.util.stream.Collectors;
 @Environment(EnvType.CLIENT)
 public class MyNetworkClient {
     
+    public static void init() {
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcCustom,
+            MyNetworkClient::handleCustomPacketStc
+        );
+        
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcSpawnEntity,
+            MyNetworkClient::processStcSpawnEntity
+        );
+        
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcDimensionConfirm,
+            MyNetworkClient::processStcDimensionConfirm
+        );
+        
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcRedirected,
+            MyNetworkClient::processRedirectedMessage
+        );
+        
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcUpdateGlobalPortal,
+            MyNetworkClient::processGlobalPortalUpdate
+        );
+    }
+    
     @Deprecated
     private static void handleCustomPacketStc(PacketContext context, PacketByteBuf buf) {
         ByteBuffer byteBuffer = buf.nioBuffer();
@@ -56,20 +83,6 @@ public class MyNetworkClient {
         catch (IOException | ClassNotFoundException | ClassCastException e) {
             throw new IllegalArgumentException(e);
         }
-    }
-    
-    public static CustomPayloadC2SPacket createCtsTeleport(
-        DimensionType dimensionBefore,
-        Vec3d posBefore,
-        UUID portalEntityId
-    ) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimensionBefore.getRawId());
-        buf.writeDouble(posBefore.x);
-        buf.writeDouble(posBefore.y);
-        buf.writeDouble(posBefore.z);
-        buf.writeUuid(portalEntityId);
-        return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
     }
     
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
@@ -152,35 +165,6 @@ public class MyNetworkClient {
             
             world.addEntity(233333333, indicator);
         });
-    }
-    
-    public static void init() {
-        
-        
-        ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcCustom,
-            MyNetworkClient::handleCustomPacketStc
-        );
-        
-        ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcSpawnEntity,
-            MyNetworkClient::processStcSpawnEntity
-        );
-        
-        ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcDimensionConfirm,
-            MyNetworkClient::processStcDimensionConfirm
-        );
-        
-        ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcRedirected,
-            MyNetworkClient::processRedirectedMessage
-        );
-        
-        ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcUpdateGlobalPortal,
-            MyNetworkClient::processGlobalPortalUpdate
-        );
     }
     
     public static void processRedirectedMessage(
@@ -269,7 +253,7 @@ public class MyNetworkClient {
         });
     }
     
-    public static CustomPayloadC2SPacket createCtsPlayerAction(
+    public static Packet createCtsPlayerAction(
         DimensionType dimension,
         PlayerActionC2SPacket packet
     ) {
@@ -278,14 +262,14 @@ public class MyNetworkClient {
         try {
             packet.write(buf);
         }
-
+        
         catch (IOException e) {
             throw new IllegalStateException(e);
         }
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsPlayerAction, buf);
     }
     
-    public static CustomPayloadC2SPacket createCtsRightClick(
+    public static Packet createCtsRightClick(
         DimensionType dimension,
         PlayerInteractBlockC2SPacket packet
     ) {
@@ -299,5 +283,19 @@ public class MyNetworkClient {
             throw new IllegalStateException(e);
         }
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsRightClick, buf);
+    }
+    
+    public static Packet createCtsTeleport(
+        DimensionType dimensionBefore,
+        Vec3d posBefore,
+        UUID portalEntityId
+    ) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(dimensionBefore.getRawId());
+        buf.writeDouble(posBefore.x);
+        buf.writeDouble(posBefore.y);
+        buf.writeDouble(posBefore.z);
+        buf.writeUuid(portalEntityId);
+        return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
     }
 }

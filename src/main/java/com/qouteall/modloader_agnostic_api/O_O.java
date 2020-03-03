@@ -9,7 +9,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
 
-public class MAA {
+public class O_O {
     @Environment(EnvType.CLIENT)
     public static void onPlayerChangeDimensionClient(
         DimensionType from, DimensionType to

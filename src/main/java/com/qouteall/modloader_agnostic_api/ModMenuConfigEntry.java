@@ -1,5 +1,6 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.modloader_agnostic_api;
 
+import com.qouteall.immersive_portals.MyConfig;
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;

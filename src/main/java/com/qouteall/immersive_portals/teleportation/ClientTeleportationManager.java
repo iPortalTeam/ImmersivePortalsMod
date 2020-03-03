@@ -9,8 +9,8 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import com.qouteall.modloader_agnostic_api.MAA;
 import com.qouteall.modloader_agnostic_api.MyNetworkClient;
+import com.qouteall.modloader_agnostic_api.O_O;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -191,7 +191,7 @@ public class ClientTeleportationManager {
         ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
         ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
     
-        MAA.segregateClientEntity(fromWorld, player);
+        O_O.segregateClientEntity(fromWorld, player);
     
         player.world = toWorld;
     
@@ -248,7 +248,7 @@ public class ClientTeleportationManager {
         
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
     
-        MAA.onPlayerChangeDimensionClient(fromDimension, toDimension);
+        O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);
     }
     
     private void amendChunkEntityStatus(Entity entity) {
@@ -305,7 +305,7 @@ public class ClientTeleportationManager {
         Vec3d newPos
     ) {
         ClientWorld oldWorld = (ClientWorld) entity.world;
-        MAA.segregateClientEntity(oldWorld, entity);
+        O_O.segregateClientEntity(oldWorld, entity);
         entity.world = newWorld;
         entity.dimension = newWorld.dimension.getType();
         entity.updatePosition(newPos.x, newPos.y, newPos.z);

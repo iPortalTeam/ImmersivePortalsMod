@@ -17,9 +17,7 @@ import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import com.qouteall.modloader_agnostic_api.MyNetwork;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.item.BlockItem;
@@ -27,29 +25,26 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.dimension.DimensionType;
 
-public class ModMain implements ModInitializer {
+public class ModMain {
     public static final Signal postClientTickSignal = new Signal();
     public static final Signal postServerTickSignal = new Signal();
     public static final Signal preRenderSignal = new Signal();
     public static final MyTaskList clientTaskList = new MyTaskList();
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
-    
-    public static FabricDimensionType alternate1;
-    public static FabricDimensionType alternate2;
-    public static FabricDimensionType alternate3;
-    public static FabricDimensionType alternate4;
-    public static FabricDimensionType alternate5;
-    
     public static final Block portalHelperBlock =
         new Block(FabricBlockSettings.of(Material.METAL).build());
     private static final BlockItem portalHelperBlockItem =
         new BlockItem(portalHelperBlock, new Item.Settings().group(ItemGroup.MISC));
+    public static DimensionType alternate1;
+    public static DimensionType alternate2;
+    public static DimensionType alternate3;
+    public static DimensionType alternate4;
+    public static DimensionType alternate5;
     
-    
-    @Override
-    public void onInitialize() {
+    public static void init() {
         Helper.log("initializing common");
         
         Portal.init();
@@ -61,28 +56,28 @@ public class ModMain implements ModInitializer {
         GlobalTrackedPortal.init();
         BorderPortal.init();
         VerticalConnectingPortal.init();
-    
+        
         LoadingIndicatorEntity.init();
-    
+        
         PortalPlaceholderBlock.init();
-    
+        
         MyNetwork.init();
-    
+        
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
-    
+        
         Global.serverTeleportationManager = new ServerTeleportationManager();
         Global.chunkDataSyncManager = new ChunkDataSyncManager();
-    
+        
         NewChunkTrackingGraph.init();
-    
+        
         WorldInfoSender.init();
-    
+        
         ServerPerformanceAdjust.init();
-    
+        
         AlternateDimensionInit.initMyDimensions();
-    
+        
         RequiemCompat.init();
         
         Registry.register(
@@ -99,5 +94,4 @@ public class ModMain implements ModInitializer {
         
         FormulaGenerator.init();
     }
-    
 }
