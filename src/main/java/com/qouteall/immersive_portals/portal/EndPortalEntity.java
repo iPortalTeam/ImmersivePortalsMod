@@ -1,38 +1,25 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.McHelper;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 public class EndPortalEntity extends Portal {
     public static EntityType<EndPortalEntity> entityType;
-    
-    public static void init() {
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "end_portal"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType.EntityFactory<EndPortalEntity>) EndPortalEntity::new
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-    }
     
     public EndPortalEntity(
         EntityType<?> entityType_1,

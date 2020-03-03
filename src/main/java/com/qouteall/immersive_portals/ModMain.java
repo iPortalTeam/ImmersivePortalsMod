@@ -1,30 +1,19 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensionInit;
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
-import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.portal.*;
-import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
-import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
-import com.qouteall.modloader_agnostic_api.MyNetwork;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.minecraft.block.Block;
-import net.minecraft.block.Material;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
 public class ModMain {
@@ -34,10 +23,10 @@ public class ModMain {
     public static final MyTaskList clientTaskList = new MyTaskList();
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
-    public static final Block portalHelperBlock =
-        new Block(FabricBlockSettings.of(Material.METAL).build());
-    private static final BlockItem portalHelperBlockItem =
-        new BlockItem(portalHelperBlock, new Item.Settings().group(ItemGroup.MISC));
+    
+    public static Block portalHelperBlock;
+    public static BlockItem portalHelperBlockItem;
+    
     public static DimensionType alternate1;
     public static DimensionType alternate2;
     public static DimensionType alternate3;
@@ -47,19 +36,6 @@ public class ModMain {
     public static void init() {
         Helper.log("initializing common");
         
-        Portal.init();
-        NetherPortalEntity.init();
-        NewNetherPortalEntity.init();
-        EndPortalEntity.init();
-        Mirror.init();
-        BreakableMirror.init();
-        GlobalTrackedPortal.init();
-        BorderPortal.init();
-        VerticalConnectingPortal.init();
-        
-        LoadingIndicatorEntity.init();
-        
-        PortalPlaceholderBlock.init();
         
         MyNetwork.init();
         
@@ -76,22 +52,18 @@ public class ModMain {
         
         ServerPerformanceAdjust.init();
         
-        AlternateDimensionInit.initMyDimensions();
-        
-        RequiemCompat.init();
-        
-        Registry.register(
-            Registry.BLOCK,
-            new Identifier("immersive_portals", "portal_helper"),
-            portalHelperBlock
-        );
-        
-        Registry.register(
-            Registry.ITEM,
-            new Identifier("immersive_portals", "portal_helper"),
-            portalHelperBlockItem
-        );
-        
         FormulaGenerator.init();
+        
+        PortalPlaceholderBlock.portalBlockUpdateSignal.connect((world, pos) -> {
+            McHelper.getEntitiesNearby(
+                world,
+                new Vec3d(pos),
+                NewNetherPortalEntity.class,
+                20
+            ).forEach(
+                NewNetherPortalEntity::notifyToCheckIntegrity
+            );
+        });
     }
+    
 }

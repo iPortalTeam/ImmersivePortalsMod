@@ -1,4 +1,4 @@
-package com.qouteall.modloader_agnostic_api;
+package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;

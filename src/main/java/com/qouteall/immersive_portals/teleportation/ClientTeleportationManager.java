@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.*;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
@@ -9,8 +11,6 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import com.qouteall.modloader_agnostic_api.MyNetworkClient;
-import com.qouteall.modloader_agnostic_api.O_O;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

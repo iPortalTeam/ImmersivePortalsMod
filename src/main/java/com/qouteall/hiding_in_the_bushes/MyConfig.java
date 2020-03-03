@@ -1,5 +1,7 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.FabricLoader;

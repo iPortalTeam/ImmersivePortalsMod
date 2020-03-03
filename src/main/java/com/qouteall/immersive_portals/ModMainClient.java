@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.hiding_in_the_bushes.MyConfig;
+import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
@@ -12,7 +14,6 @@ import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.render.*;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
-import com.qouteall.modloader_agnostic_api.MyNetworkClient;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;

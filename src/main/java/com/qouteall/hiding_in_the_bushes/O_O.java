@@ -1,6 +1,5 @@
-package com.qouteall.modloader_agnostic_api;
+package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.immersive_portals.compat.RequiemCompat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
@@ -22,7 +21,7 @@ public class O_O {
         ClientWorld fromWorld,
         Entity entity
     ) {
-        ((IEClientWorldMAA) fromWorld).removeEntityWhilstMaintainingCapability(entity);
+        ((IEClientWorld_MA) fromWorld).removeEntityWhilstMaintainingCapability(entity);
         entity.removed = false;
     }
     

@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.entity_sync;
 
-import com.qouteall.modloader_agnostic_api.MyNetwork;
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;

@@ -2,35 +2,17 @@ package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class BorderPortal extends GlobalTrackedPortal {
     public static EntityType<BorderPortal> entityType;
-    
-    public static void init() {
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "border_portal"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                BorderPortal::new
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-    }
     
     public BorderPortal(
         EntityType<?> entityType_1,

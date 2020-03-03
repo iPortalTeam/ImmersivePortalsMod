@@ -17,21 +17,21 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.qouteall.modloader_agnostic_api.ModEntry"
+      "com.qouteall.hiding_in_the_bushes.ModEntry"
     ],
     "client": [
-      "com.qouteall.modloader_agnostic_api.ModEntryClient"
+      "com.qouteall.hiding_in_the_bushes.ModEntryClient"
     ],
     "server": [
-      "com.qouteall.modloader_agnostic_api.ModEntryDedicatedServer"
+      "com.qouteall.hiding_in_the_bushes.ModEntryDedicatedServer"
     ],
     "modmenu": [
-      "com.qouteall.modloader_agnostic_api.ModMenuConfigEntry"
+      "com.qouteall.hiding_in_the_bushes.ModMenuConfigEntry"
     ]
   },
   "mixins": [
     "immersive_portals.mixins.json",
-    "immersive_portals.mixins_maa.json",
+    "immersive_portals.mixins_ma.json",
     {
       "config": "immersive_portals.mixins_client.json",
       "environment": "client"

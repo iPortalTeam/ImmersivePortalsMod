@@ -4,16 +4,10 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import java.util.UUID;
@@ -33,31 +27,6 @@ public class NewNetherPortalEntity extends Portal {
         World world_1
     ) {
         super(entityType_1, world_1);
-    }
-    
-    public static void init() {
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "nether_portal_new"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType<NewNetherPortalEntity> type, World world1) ->
-                    new NewNetherPortalEntity(type, world1)
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-        
-        PortalPlaceholderBlock.portalBlockUpdateSignal.connect((world, pos) -> {
-            McHelper.getEntitiesNearby(
-                world,
-                new Vec3d(pos),
-                NewNetherPortalEntity.class,
-                20
-            ).forEach(
-                NewNetherPortalEntity::notifyToCheckIntegrity
-            );
-        });
     }
     
     @Override
@@ -103,7 +72,7 @@ public class NewNetherPortalEntity extends Portal {
         Helper.log("Broke " + this);
     }
     
-    private void notifyToCheckIntegrity() {
+    public void notifyToCheckIntegrity() {
         isNotified = true;
     }
     
