@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.qouteall.modloader_agnostic_api.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinClientWorld_MAA"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

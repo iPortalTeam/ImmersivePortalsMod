@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.my_util.SignalArged;
+import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;

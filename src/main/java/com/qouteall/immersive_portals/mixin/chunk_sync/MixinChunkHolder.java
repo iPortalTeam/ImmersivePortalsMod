@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.mixin.chunk_sync;
 
-import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEChunkHolder;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.minecraft.network.Packet;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.util.math.ChunkPos;

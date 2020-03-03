@@ -1,5 +1,8 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.modloader_agnostic_api;
 
+import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationServer;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;

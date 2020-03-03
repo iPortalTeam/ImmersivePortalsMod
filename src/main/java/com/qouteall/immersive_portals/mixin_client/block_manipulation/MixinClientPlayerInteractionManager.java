@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin_client.block_manipulation;
 
-import com.qouteall.immersive_portals.MyNetworkClient;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IEClientPlayerInteractionManager;
+import com.qouteall.modloader_agnostic_api.MyNetworkClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
