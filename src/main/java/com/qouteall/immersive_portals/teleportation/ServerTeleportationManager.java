@@ -1,19 +1,19 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.hiding_in_the_bushes.RequiemCompat;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
-import com.qouteall.modloader_agnostic_api.MAA;
-import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -200,7 +200,7 @@ public class ServerTeleportationManager {
     
         teleportingEntities.add(player);
     
-        MAA.segregateServerPlayer(fromWorld, player);
+        O_O.segregateServerPlayer(fromWorld, player);
     
         player.updatePosition(destination.x, destination.y, destination.z);
     
@@ -250,7 +250,7 @@ public class ServerTeleportationManager {
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {
-        CustomPayloadS2CPacket packet = MyNetwork.createStcDimensionConfirm(
+        Packet packet = MyNetwork.createStcDimensionConfirm(
             player.dimension,
             player.getPos()
         );
@@ -341,7 +341,7 @@ public class ServerTeleportationManager {
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
         entity.detach();
     
-        MAA.segregateServerEntity(fromWorld, entity);
+        O_O.segregateServerEntity(fromWorld, entity);
     
         entity.updatePosition(destination.x, destination.y, destination.z);
     

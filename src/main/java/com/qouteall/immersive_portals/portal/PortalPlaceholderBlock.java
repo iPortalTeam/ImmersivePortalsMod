@@ -3,25 +3,20 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.EntityType;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.IWorld;
@@ -58,27 +53,7 @@ public class PortalPlaceholderBlock extends Block {
     
     public static final SignalBiArged<ServerWorld, BlockPos> portalBlockUpdateSignal = new SignalBiArged<>();
     
-    public static final PortalPlaceholderBlock instance =
-        new PortalPlaceholderBlock(
-            FabricBlockSettings.of(Material.PORTAL)
-                .noCollision()
-                .sounds(BlockSoundGroup.GLASS)
-                .strength(99999, 0)
-                .lightLevel(15)
-                .ticksRandomly()
-                .nonOpaque()
-                .dropsNothing()
-                .build()
-        );
-    
-    public static void init() {
-        Registry.register(
-            Registry.BLOCK,
-            //the id is not appropriate because I did not implement end portal when making this block
-            new Identifier("immersive_portals", "nether_portal_block"),
-            instance
-        );
-    }
+    public static PortalPlaceholderBlock instance;
     
     public PortalPlaceholderBlock(Settings properties) {
         super(properties);

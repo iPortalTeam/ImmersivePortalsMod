@@ -1,9 +1,9 @@
 {
   "required": true,
-  "package": "com.qouteall.modloader_agnostic_api.mixin",
+  "package": "com.qouteall.hiding_in_the_bushes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinClientWorld_MAA"
+    "MixinClientWorld_MA"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.hiding_in_the_bushes;
 
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;

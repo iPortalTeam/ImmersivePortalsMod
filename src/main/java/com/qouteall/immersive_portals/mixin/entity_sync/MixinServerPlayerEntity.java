@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.google.common.collect.HashMultimap;
 import com.mojang.authlib.GameProfile;
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
-import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;

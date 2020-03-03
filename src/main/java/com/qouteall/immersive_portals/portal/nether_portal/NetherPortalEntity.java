@@ -3,18 +3,12 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -31,31 +25,6 @@ public class NetherPortalEntity extends Portal {
     
     private boolean isNotified = true;
     private boolean shouldBreakNetherPortal = false;
-    
-    public static void init() {
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "monitoring_nether_portal"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType.EntityFactory<NetherPortalEntity>) NetherPortalEntity::new
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-    
-    
-        PortalPlaceholderBlock.portalBlockUpdateSignal.connect((world, pos) -> {
-            McHelper.getEntitiesNearby(
-                world,
-                new Vec3d(pos),
-                NetherPortalEntity.class,
-                20
-            ).forEach(
-                NetherPortalEntity::notifyToCheckIntegrity
-            );
-        });
-    }
     
     public NetherPortalEntity(
         EntityType type,

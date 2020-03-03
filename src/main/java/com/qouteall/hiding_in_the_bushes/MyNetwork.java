@@ -1,4 +1,4 @@
-package com.qouteall.modloader_agnostic_api;
+package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
@@ -48,25 +48,6 @@ public class MyNetwork {
     public static final Identifier id_ctsRightClick =
         new Identifier("imm_ptl", "right_click");
     
-    static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
-        DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
-        Vec3d posBefore = new Vec3d(
-            buf.readDouble(),
-            buf.readDouble(),
-            buf.readDouble()
-        );
-        UUID portalEntityId = buf.readUuid();
-        
-        McHelper.getServer().execute(() -> {
-            Global.serverTeleportationManager.onPlayerTeleportedInClient(
-                (ServerPlayerEntity) context.getPlayer(),
-                dimensionBefore,
-                posBefore,
-                portalEntityId
-            );
-        });
-    }
-    
     public static void init() {
         ServerSidePacketRegistry.INSTANCE.register(
             id_ctsTeleport,
@@ -83,7 +64,7 @@ public class MyNetwork {
     
     }
     
-    public static CustomPayloadS2CPacket createRedirectedMessage(
+    public static Packet createRedirectedMessage(
         DimensionType dimension,
         Packet packet
     ) {
@@ -122,7 +103,7 @@ public class MyNetwork {
         player.networkHandler.sendPacket(createRedirectedMessage(dimension, packet));
     }
     
-    public static CustomPayloadS2CPacket createStcDimensionConfirm(
+    public static Packet createStcDimensionConfirm(
         DimensionType dimensionType,
         Vec3d pos
     ) {
@@ -137,7 +118,7 @@ public class MyNetwork {
     //you can input a lambda expression and it will be invoked remotely
     //but java serialization is not stable
     @Deprecated
-    public static CustomPayloadS2CPacket createCustomPacketStc(
+    public static Packet createCustomPacketStc(
         ICustomStcPacket serializable
     ) {
         //it copies the data twice but as the packet is small it's of no problem
@@ -161,7 +142,7 @@ public class MyNetwork {
     }
     
     //NOTE my packet is redirected but I cannot get the packet handler info here
-    public static CustomPayloadS2CPacket createStcSpawnEntity(
+    public static Packet createStcSpawnEntity(
         Entity entity
     ) {
         EntityType entityType = entity.getType();
@@ -175,7 +156,7 @@ public class MyNetwork {
         return new CustomPayloadS2CPacket(id_stcSpawnEntity, buf);
     }
     
-    public static CustomPayloadS2CPacket createGlobalPortalUpdate(
+    public static Packet createGlobalPortalUpdate(
         GlobalPortalStorage storage
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -184,6 +165,25 @@ public class MyNetwork {
         buf.writeCompoundTag(storage.toTag(new CompoundTag()));
         
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
+    }
+    
+    private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
+        DimensionType dimensionBefore = DimensionType.byRawId(buf.readInt());
+        Vec3d posBefore = new Vec3d(
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble()
+        );
+        UUID portalEntityId = buf.readUuid();
+        
+        McHelper.getServer().execute(() -> {
+            Global.serverTeleportationManager.onPlayerTeleportedInClient(
+                (ServerPlayerEntity) context.getPlayer(),
+                dimensionBefore,
+                posBefore,
+                portalEntityId
+            );
+        });
     }
     
     private static void processCtsPlayerAction(PacketContext context, PacketByteBuf buf) {

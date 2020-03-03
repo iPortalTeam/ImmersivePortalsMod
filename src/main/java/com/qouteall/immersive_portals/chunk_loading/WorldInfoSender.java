@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
-import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;

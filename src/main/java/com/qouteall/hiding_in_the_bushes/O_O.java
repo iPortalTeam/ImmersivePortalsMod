@@ -1,6 +1,5 @@
-package com.qouteall.modloader_agnostic_api;
+package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.immersive_portals.compat.RequiemCompat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
@@ -9,7 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
 
-public class MAA {
+public class O_O {
     @Environment(EnvType.CLIENT)
     public static void onPlayerChangeDimensionClient(
         DimensionType from, DimensionType to
@@ -22,7 +21,7 @@ public class MAA {
         ClientWorld fromWorld,
         Entity entity
     ) {
-        ((IEClientWorldMAA) fromWorld).removeEntityWhilstMaintainingCapability(entity);
+        ((IEClientWorld_MA) fromWorld).removeEntityWhilstMaintainingCapability(entity);
         entity.removed = false;
     }
     
