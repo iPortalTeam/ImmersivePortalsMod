@@ -107,7 +107,7 @@ public class ChunkVisibilityManager {
         Portal portal,
         ServerPlayerEntity player
     ) {
-        int renderDistance = ServerPerformanceAdjust.getGeneralLoadingDistance();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         double distance = portal.getDistanceToNearestPointInPortal(player.getPos());
         return new ChunkLoader(
             new DimensionalChunkPos(
@@ -119,7 +119,7 @@ public class ChunkVisibilityManager {
     }
     
     private static ChunkLoader portalIndirectLoader(Portal portal) {
-        int renderDistance = ServerPerformanceAdjust.getGeneralLoadingDistance();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -135,7 +135,7 @@ public class ChunkVisibilityManager {
     ) {
         int renderDistance = Math.max(
             2,
-            ServerPerformanceAdjust.getGeneralLoadingDistance() -
+            McHelper.getRenderDistanceOnServer() -
                 Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.getPos()), 16)
         );
     
@@ -155,7 +155,7 @@ public class ChunkVisibilityManager {
         GlobalTrackedPortal outerPortal,
         GlobalTrackedPortal remotePortal
     ) {
-        int renderDistance = ServerPerformanceAdjust.getGeneralLoadingDistance() / 2;
+        int renderDistance = McHelper.getRenderDistanceOnServer() / 2;
         return new ChunkLoader(
             new DimensionalChunkPos(
                 remotePortal.dimensionTo,
