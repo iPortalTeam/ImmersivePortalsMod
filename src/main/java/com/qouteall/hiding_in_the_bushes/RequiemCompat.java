@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.compat;
+package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;

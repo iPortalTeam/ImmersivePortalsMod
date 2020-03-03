@@ -1,7 +1,8 @@
 package com.qouteall.immersive_portals.teleportation;
 
+import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.*;
-import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
@@ -179,28 +180,28 @@ public class ClientTeleportationManager {
     ) {
         Entity vehicle = player.getVehicle();
         player.detach();
-        
+    
         DimensionType toDimension = toWorld.dimension.getType();
         DimensionType fromDimension = fromWorld.dimension.getType();
-        
+    
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
         ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
         ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
         ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
         ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
-        
-        fromWorld.removeEntity(player.getEntityId());
-        player.removed = false;
+    
+        O_O.segregateClientEntity(fromWorld, player);
+    
         player.world = toWorld;
-        
+    
         player.dimension = toDimension;
         player.updatePosition(
             destination.x,
             destination.y,
             destination.z
         );//set pos and update bounding box
-        
+    
         toWorld.addPlayer(player.getEntityId(), player);
         
         mc.world = toWorld;
@@ -246,8 +247,8 @@ public class ClientTeleportationManager {
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
         
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
-        
-        RequiemCompat.onPlayerTeleportedClient();
+    
+        O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);
     }
     
     private void amendChunkEntityStatus(Entity entity) {
@@ -304,8 +305,7 @@ public class ClientTeleportationManager {
         Vec3d newPos
     ) {
         ClientWorld oldWorld = (ClientWorld) entity.world;
-        oldWorld.removeEntity(entity.getEntityId());
-        entity.removed = false;
+        O_O.segregateClientEntity(oldWorld, entity);
         entity.world = newWorld;
         entity.dimension = newWorld.dimension.getType();
         entity.updatePosition(newPos.x, newPos.y, newPos.z);

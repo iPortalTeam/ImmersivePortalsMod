@@ -3,20 +3,15 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class BreakableMirror extends Mirror {
@@ -24,20 +19,6 @@ public class BreakableMirror extends Mirror {
     public static EntityType<BreakableMirror> entityType;
     
     public IntegerAABBInclusive wallArea;
-    
-    public static void init() {
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "breakable_mirror"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType<BreakableMirror> type, World world1) ->
-                    new BreakableMirror(type, world1)
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-    }
     
     public BreakableMirror(EntityType<?> entityType_1, World world_1) {
         super(entityType_1, world_1);

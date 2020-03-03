@@ -1,0 +1,43 @@
+package com.qouteall.hiding_in_the_bushes;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.dimension.DimensionType;
+
+public class O_O {
+    @Environment(EnvType.CLIENT)
+    public static void onPlayerChangeDimensionClient(
+        DimensionType from, DimensionType to
+    ) {
+        RequiemCompat.onPlayerTeleportedClient();
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static void segregateClientEntity(
+        ClientWorld fromWorld,
+        Entity entity
+    ) {
+        ((IEClientWorld_MA) fromWorld).removeEntityWhilstMaintainingCapability(entity);
+        entity.removed = false;
+    }
+    
+    public static void segregateServerEntity(
+        ServerWorld fromWorld,
+        Entity entity
+    ) {
+        fromWorld.removeEntity(entity);
+        entity.removed = false;
+    }
+    
+    public static void segregateServerPlayer(
+        ServerWorld fromWorld,
+        ServerPlayerEntity player
+    ) {
+        fromWorld.removePlayer(player);
+        player.removed = false;
+    }
+}

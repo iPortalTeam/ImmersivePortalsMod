@@ -1,8 +1,9 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.immersive_portals.Helper;
 import net.fabricmc.api.DedicatedServerModInitializer;
 
-public class ModMainDedicatedServer implements DedicatedServerModInitializer {
+public class ModEntryDedicatedServer implements DedicatedServerModInitializer {
     
     @Override
     public void onInitializeServer() {

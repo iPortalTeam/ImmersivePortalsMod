@@ -1,10 +1,7 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.MyNetwork;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCategory;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -14,8 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class LoadingIndicatorEntity extends Entity {
@@ -26,19 +21,6 @@ public class LoadingIndicatorEntity extends Entity {
     );
     
     public boolean isAlive = false;
-    
-    public static void init() {
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "loading_indicator"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).build()
-        );
-    }
     
     public LoadingIndicatorEntity(World world) {
         this(entityType, world);

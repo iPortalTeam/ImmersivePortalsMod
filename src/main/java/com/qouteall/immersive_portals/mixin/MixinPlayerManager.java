@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.network.Packet;
 import net.minecraft.server.PlayerManager;

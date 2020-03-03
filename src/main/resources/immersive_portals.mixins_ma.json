@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.qouteall.hiding_in_the_bushes.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinClientWorld_MA"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
