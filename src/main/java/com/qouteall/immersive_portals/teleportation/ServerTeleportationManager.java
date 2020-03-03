@@ -3,12 +3,13 @@ package com.qouteall.immersive_portals.teleportation;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.compat.RequiemCompat;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
+import com.qouteall.modloader_agnostic_api.MAA;
+import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -199,8 +200,7 @@ public class ServerTeleportationManager {
     
         teleportingEntities.add(player);
     
-        fromWorld.removePlayer(player);
-        player.removed = false;
+        MAA.segregateServerPlayer(fromWorld, player);
     
         player.updatePosition(destination.x, destination.y, destination.z);
     
@@ -341,8 +341,7 @@ public class ServerTeleportationManager {
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
         entity.detach();
     
-        fromWorld.removeEntity(entity);
-        entity.removed = false;
+        MAA.segregateServerEntity(fromWorld, entity);
     
         entity.updatePosition(destination.x, destination.y, destination.z);
     

@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPo
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
+import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;

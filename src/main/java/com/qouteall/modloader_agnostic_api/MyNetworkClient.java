@@ -1,5 +1,7 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.modloader_agnostic_api;
 
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;

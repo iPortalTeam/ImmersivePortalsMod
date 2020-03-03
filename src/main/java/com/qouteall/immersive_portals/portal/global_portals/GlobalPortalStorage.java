@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.MyNetwork;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
+import com.qouteall.modloader_agnostic_api.MyNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
