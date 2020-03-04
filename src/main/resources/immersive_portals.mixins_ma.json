@@ -3,7 +3,10 @@
   "package": "com.qouteall.hiding_in_the_bushes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinClientWorld_MA"
+    "alternate_dimension/MixinMobSpawnerLogic",
+    "MixinClientWorld_MA",
+    "MixinPlayerManager_MA",
+    "MixinServerPlayerEntity_MA"
   ],
   "injectors": {
     "defaultRequire": 1

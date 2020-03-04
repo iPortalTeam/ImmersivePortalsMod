@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.alternate_dimension;
+package com.qouteall.hiding_in_the_bushes.mixin.alternate_dimension;
 
 import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import net.minecraft.entity.SpawnType;

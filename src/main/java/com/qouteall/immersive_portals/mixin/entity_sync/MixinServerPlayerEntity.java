@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin.entity_sync;
 import com.google.common.collect.HashMultimap;
 import com.mojang.authlib.GameProfile;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,7 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Set;
 
@@ -80,13 +78,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         }
     }
     
-    @Inject(method = "changeDimension", at = @At("HEAD"))
-    private void onChangeDimensionByVanilla(
-        DimensionType dimensionType_1,
-        CallbackInfoReturnable<Entity> cir
-    ) {
-        Global.chunkDataSyncManager.onPlayerRespawn((ServerPlayerEntity) (Object) this);
-    }
+    
     
     /**
      * @author qouteall

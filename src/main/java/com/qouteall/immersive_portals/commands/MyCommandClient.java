@@ -15,6 +15,7 @@ import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
+import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
@@ -311,6 +312,34 @@ public class MyCommandClient {
                         false
                     );
                 });
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("uniform_report_textured")
+            .executes(context -> {
+                UniformReport.launchUniformReport(
+                    new String[]{
+                        "gbuffers_textured", "gbuffers_textured_lit"
+                    },
+                    s -> context.getSource().sendFeedback(
+                        new LiteralText(s), true
+                    )
+                );
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("uniform_report_terrain")
+            .executes(context -> {
+                UniformReport.launchUniformReport(
+                    new String[]{
+                        "gbuffers_terrain", "gbuffers_terrain_solid"
+                    },
+                    s -> context.getSource().sendFeedback(
+                        new LiteralText(s), true
+                    )
+                );
                 return 0;
             })
         );

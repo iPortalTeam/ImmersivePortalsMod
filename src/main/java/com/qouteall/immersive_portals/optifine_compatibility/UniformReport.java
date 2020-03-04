@@ -12,6 +12,7 @@ import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -137,5 +138,21 @@ public class UniformReport {
         uniformInfos.stream().forEach(uniformInfo -> {
             uniformInfo.report(output);
         });
+    }
+    
+    public static void launchUniformReport(String[] programNames, Consumer<String> output) {
+        Predicate<String> namePredicate = name -> Arrays.asList(programNames).contains(name);
+        OFGlobal.debugFunc = program -> {
+            String name = program.getName();
+            if (namePredicate.test(name)) {
+                reportUniforms(
+                    program.getId(),
+                    output
+                );
+                OFGlobal.debugFunc = p -> {
+                };
+                
+            }
+        };
     }
 }
