@@ -30,7 +30,13 @@ import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
-import net.minecraft.world.gen.feature.*;
+import net.minecraft.world.gen.feature.EndCityFeature;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.MineshaftFeature;
+import net.minecraft.world.gen.feature.OceanMonumentFeature;
+import net.minecraft.world.gen.feature.StrongholdFeature;
+import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.feature.WoodlandMansionFeature;
 
 import java.util.BitSet;
 import java.util.Iterator;
