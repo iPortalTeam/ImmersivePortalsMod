@@ -63,6 +63,7 @@ public class NetherPortalMatcher {
         return dimension == DimensionType.THE_NETHER ? heightLimitNether : heightLimitOverworld;
     }
     
+    @Deprecated
     //return null for no legal obsidian frame
     public static ObsidianFrame detectFrameFromInnerPos(
         IWorld world,
@@ -98,6 +99,7 @@ public class NetherPortalMatcher {
         return new ObsidianFrame(normalAxis, innerArea);
     }
     
+    @Deprecated
     public static ObsidianFrame detectFrameFromInnerPos(
         IWorld world,
         BlockPos innerPos,
@@ -425,6 +427,7 @@ public class NetherPortalMatcher {
     //detect existing obsidian frame
     
     //@Nullable
+    @Deprecated
     public static ObsidianFrame findEmptyObsidianFrame(
         IWorld world,
         BlockPos searchingCenter,

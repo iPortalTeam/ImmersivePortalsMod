@@ -4,16 +4,12 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
-import com.qouteall.immersive_portals.chunk_loading.ServerPerformanceAdjust;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
-import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
-import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
 public class ModMain {
@@ -50,20 +46,8 @@ public class ModMain {
         
         WorldInfoSender.init();
         
-        ServerPerformanceAdjust.init();
-        
         FormulaGenerator.init();
         
-        PortalPlaceholderBlock.portalBlockUpdateSignal.connect((world, pos) -> {
-            McHelper.getEntitiesNearby(
-                world,
-                new Vec3d(pos),
-                NewNetherPortalEntity.class,
-                20
-            ).forEach(
-                NewNetherPortalEntity::notifyToCheckIntegrity
-            );
-        });
     }
     
 }

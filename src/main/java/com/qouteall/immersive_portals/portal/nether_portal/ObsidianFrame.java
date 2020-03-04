@@ -7,6 +7,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+@Deprecated
 public class ObsidianFrame {
     
     public final Direction.Axis normalAxis;

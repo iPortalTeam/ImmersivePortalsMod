@@ -6,7 +6,6 @@ import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
@@ -156,16 +155,6 @@ public class MyRegistry {
                 EntityCategory.MISC,
                 (EntityType<Portal> type, World world1) ->
                     new Portal(type, world1)
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-        NetherPortalEntity.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "monitoring_nether_portal"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType.EntityFactory<NetherPortalEntity>) NetherPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()

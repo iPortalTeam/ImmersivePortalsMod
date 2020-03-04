@@ -10,7 +10,6 @@ import com.qouteall.immersive_portals.portal.*;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
 import com.qouteall.immersive_portals.render.*;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
@@ -27,7 +26,6 @@ public class ModMainClient {
         
         Arrays.stream(new EntityType<?>[]{
             Portal.entityType,
-            NetherPortalEntity.entityType,
             NewNetherPortalEntity.entityType,
             EndPortalEntity.entityType,
             Mirror.entityType,
