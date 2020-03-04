@@ -150,28 +150,29 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
     @Environment(EnvType.CLIENT)
     private void addSoundAndParticle() {
         Random random = world.getRandom();
-        
-        double particleNumber = random.nextDouble() * width * height / 20;
-        for (int i = 0; i < (int) particleNumber + 1; i++) {
-            double px = (random.nextDouble() * 2 - 1) * (width / 2);
-            double py = (random.nextDouble() * 2 - 1) * (height / 2);
-            
-            Vec3d pos = getPointInPlane(px, py);
-            
-            double speedMultiplier = 20;
-            
-            double vx = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
-            double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
-            double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
-            
-            world.addParticle(
-                ParticleTypes.PORTAL,
-                pos.x, pos.y, pos.z,
-                vx, vy, vz
-            );
+
+        for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
+            if (random.nextInt(8) == 0) {
+                double px = (random.nextDouble() * 2 - 1) * (width / 2);
+                double py = (random.nextDouble() * 2 - 1) * (height / 2);
+                
+                Vec3d pos = getPointInPlane(px, py);
+                
+                double speedMultiplier = 20;
+                
+                double vx = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+                double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+                double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+                
+                world.addParticle(
+                    ParticleTypes.PORTAL,
+                    pos.x, pos.y, pos.z,
+                    vx, vy, vz
+                );
+            }
         }
         
-        if (random.nextInt(100) == 0) {
+        if (random.nextInt(400) == 0) {
             world.playSound(
                 getX(),
                 getY(),
