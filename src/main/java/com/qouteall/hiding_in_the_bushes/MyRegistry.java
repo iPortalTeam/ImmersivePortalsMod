@@ -1,8 +1,13 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
-import com.qouteall.immersive_portals.portal.*;
+import com.qouteall.immersive_portals.portal.BreakableMirror;
+import com.qouteall.immersive_portals.portal.EndPortalEntity;
+import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.Mirror;
+import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;

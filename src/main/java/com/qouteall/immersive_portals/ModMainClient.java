@@ -3,18 +3,24 @@ package com.qouteall.immersive_portals;
 import com.qouteall.hiding_in_the_bushes.MyConfig;
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
-import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
-import com.qouteall.immersive_portals.portal.*;
+import com.qouteall.immersive_portals.portal.BreakableMirror;
+import com.qouteall.immersive_portals.portal.EndPortalEntity;
+import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.Mirror;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
-import com.qouteall.immersive_portals.render.*;
+import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
+import com.qouteall.immersive_portals.render.MyGameRenderer;
+import com.qouteall.immersive_portals.render.PortalEntityRenderer;
+import com.qouteall.immersive_portals.render.PortalRenderer;
+import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
+import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import org.apache.commons.lang3.Validate;
@@ -111,15 +117,6 @@ public class ModMainClient {
             CGlobal.myGameRenderer = new MyGameRenderer();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
-        
-        OFInterface.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
-        
-        if (OFInterface.isOptifinePresent) {
-            OFBuiltChunkNeighborFix.init();
-            OFInterfaceInitializer.init();
-        }
-        
-        Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
         
         FarSceneryRenderer.init();
         

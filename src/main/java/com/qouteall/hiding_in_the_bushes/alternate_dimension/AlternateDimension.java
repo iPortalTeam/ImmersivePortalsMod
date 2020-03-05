@@ -1,5 +1,9 @@
-package com.qouteall.immersive_portals.alternate_dimension;
+package com.qouteall.hiding_in_the_bushes.alternate_dimension;
 
+import com.qouteall.immersive_portals.alternate_dimension.ChaosBiomeSource;
+import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
+import com.qouteall.immersive_portals.alternate_dimension.MyFloatingIslandChunkGenerator;
+import com.qouteall.immersive_portals.alternate_dimension.VoidChunkGenerator;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;

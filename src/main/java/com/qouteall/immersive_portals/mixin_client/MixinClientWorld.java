@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEWorld;

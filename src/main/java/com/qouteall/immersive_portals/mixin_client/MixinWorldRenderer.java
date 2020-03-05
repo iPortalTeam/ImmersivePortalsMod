@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
