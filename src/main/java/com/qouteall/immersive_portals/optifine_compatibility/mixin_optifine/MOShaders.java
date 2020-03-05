@@ -57,7 +57,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-@Mixin(value = Shaders.class,remap = false)
+@Mixin(value = Shaders.class, remap = false)
 public abstract class MOShaders {
     @Shadow
     static MinecraftClient mc;

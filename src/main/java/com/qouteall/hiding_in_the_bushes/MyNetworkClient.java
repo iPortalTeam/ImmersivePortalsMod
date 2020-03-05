@@ -2,6 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
@@ -105,7 +106,8 @@ public class MyNetworkClient {
             return;
         }
         
-        MinecraftClient.getInstance().execute(() -> {
+        //without this delay it will flash? or it's random?
+        ModMain.clientTaskList.addTask(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
             if (world.getEntityById(entityId) != null) {
@@ -115,7 +117,7 @@ public class MyNetworkClient {
                     entityType.get().getTranslationKey(),
                     compoundTag
                 ));
-                return;
+                return true;
             }
             
             Entity entity = entityType.get().create(
@@ -126,7 +128,7 @@ public class MyNetworkClient {
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
             
-            return;
+            return true;
         });
     }
     

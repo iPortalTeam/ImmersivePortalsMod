@@ -15,7 +15,16 @@ import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_ALWAYS;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_RANGE;
+import static org.lwjgl.opengl.GL11.GL_EQUAL;
+import static org.lwjgl.opengl.GL11.GL_INCR;
+import static org.lwjgl.opengl.GL11.GL_KEEP;
+import static org.lwjgl.opengl.GL11.GL_LEQUAL;
+import static org.lwjgl.opengl.GL11.GL_LESS;
+import static org.lwjgl.opengl.GL11.GL_REPLACE;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 
 //NOTE do not use glDisable(GL_DEPTH_TEST), use GlStateManager.disableDepthTest() instead
 //because GlStateManager will cache its state. Do not make its cache not synchronized
@@ -85,6 +94,9 @@ public class RendererUsingStencil extends PortalRenderer {
         MatrixStack matrixStack
     ) {
         int outerPortalStencilValue = getPortalLayer();
+        
+        //test
+        //CGlobal.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
     
         mc.getProfiler().push("render_view_area");
         boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePassed(() -> {

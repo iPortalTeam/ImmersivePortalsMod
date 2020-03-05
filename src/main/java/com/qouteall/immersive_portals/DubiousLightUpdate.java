@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
@@ -28,10 +27,10 @@ public class DubiousLightUpdate {
     }
     
     private static void doUpdateLight(ClientPlayerEntity player) {
-        MinecraftClient.getInstance().getProfiler().push("my_light_update");
-        MyClientChunkManager.updateLightStatus(player.world.getChunk(
-            player.chunkX, player.chunkZ
-        ));
-        MinecraftClient.getInstance().getProfiler().pop();
+//        MinecraftClient.getInstance().getProfiler().push("my_light_update");
+//        MyClientChunkManager.updateLightStatus(player.world.getChunk(
+//            player.chunkX, player.chunkZ
+//        ));
+//        MinecraftClient.getInstance().getProfiler().pop();
     }
 }

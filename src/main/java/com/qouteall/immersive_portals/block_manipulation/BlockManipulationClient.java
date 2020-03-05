@@ -44,7 +44,7 @@ public class BlockManipulationClient {
             mc.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
             double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
-            if (distanceToPortalPointing < getCurrentTargetDistane()) {
+            if (distanceToPortalPointing < getCurrentTargetDistance()) {
                 updateTargetedBlockThroughPortal(
                     cameraPos,
                     mc.player.getRotationVec(partialTicks),
@@ -57,7 +57,7 @@ public class BlockManipulationClient {
         });
     }
     
-    private static double getCurrentTargetDistane() {
+    private static double getCurrentTargetDistance() {
         MinecraftClient mc = MinecraftClient.getInstance();
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         
