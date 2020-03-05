@@ -91,7 +91,7 @@ public class MyNetworkClient {
         int dimId = buf.readInt();
         DimensionType dimensionType = DimensionType.byRawId(dimId);
         CompoundTag compoundTag = buf.readCompoundTag();
-    
+        
         if (dimensionType == null) {
             Helper.err(String.format(
                 "Invalid dimension for spawning entity %s %s %s",
@@ -104,7 +104,7 @@ public class MyNetworkClient {
             Helper.err("unknown entity type " + entityTypeString);
             return;
         }
-    
+        
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
@@ -125,7 +125,7 @@ public class MyNetworkClient {
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
-        
+            
             return;
         });
     }
@@ -160,7 +160,9 @@ public class MyNetworkClient {
                 return;
             }
             
-            LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(world);
+            LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(
+                LoadingIndicatorEntity.entityType, world
+            );
             indicator.updatePosition(pos.x, pos.y, pos.z);
             
             world.addEntity(233333333, indicator);
@@ -181,7 +183,7 @@ public class MyNetworkClient {
         catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-    
+        
         if (dimension == null) {
             Helper.err(String.format(
                 "Invalid redirected packet %s %s \nRegistered dimensions %s",
@@ -192,7 +194,7 @@ public class MyNetworkClient {
             ));
             return;
         }
-    
+        
         processRedirectedPacket(dimension, packet);
     }
     
@@ -245,10 +247,10 @@ public class MyNetworkClient {
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
-    
+            
             List<GlobalTrackedPortal> portals =
                 GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
-    
+            
             ((IEClientWorld) world).setGlobalPortals(portals);
         });
     }

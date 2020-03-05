@@ -40,4 +40,16 @@ public class O_O {
         fromWorld.removePlayer(player);
         player.removed = false;
     }
+    
+    public static void onPlayerTravelOnServer(
+        ServerPlayerEntity player,
+        DimensionType from,
+        DimensionType to
+    ) {
+        RequiemCompat.onPlayerTeleportedServer(player);
+    }
+    
+    public static void loadConfigFabric() {
+        MyConfig.onConfigChanged(MyConfig.readConfigFromFile());
+    }
 }

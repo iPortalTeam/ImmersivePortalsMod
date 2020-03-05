@@ -14,6 +14,8 @@ public class ModEntryClient implements ClientModInitializer {
     public void onInitializeClient() {
         ModMainClient.init();
     
+        MyRegistry.initPortalRenderers();
+    
         OFInterface.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
     
         if (OFInterface.isOptifinePresent) {

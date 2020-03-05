@@ -10,9 +10,9 @@ public class ModEntry implements ModInitializer {
         ModMain.init();
         RequiemCompat.init();
     
-        MyRegistry.registerEntities();
-        MyRegistry.registerMyDimensions();
-        MyRegistry.registerBlocks();
+        MyRegistry.registerEntitiesFabric();
+        MyRegistry.registerMyDimensionsFabric();
+        MyRegistry.registerBlocksFabric();
     }
     
 }

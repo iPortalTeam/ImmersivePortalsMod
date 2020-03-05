@@ -12,7 +12,12 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
+import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
+import com.qouteall.immersive_portals.render.PortalEntityRenderer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
@@ -29,9 +34,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
+
+import java.util.Arrays;
 
 public class MyRegistry {
-    public static void registerMyDimensions() {
+    public static void registerMyDimensionsFabric() {
         ModMain.alternate1 = FabricDimensionType.builder()
             .factory((world, type) -> new AlternateDimension(
                 world, type, AlternateDimension::getChunkGenerator1,
@@ -113,7 +121,7 @@ public class MyRegistry {
             .buildAndRegister(new Identifier("immersive_portals", "alternate5"));
     }
     
-    public static void registerBlocks() {
+    public static void registerBlocksFabric() {
         PortalPlaceholderBlock.instance = new PortalPlaceholderBlock(
             FabricBlockSettings.of(Material.PORTAL)
                 .noCollision()
@@ -152,7 +160,7 @@ public class MyRegistry {
         );
     }
     
-    public static void registerEntities() {
+    public static void registerEntitiesFabric() {
         Portal.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "portal"),
@@ -248,5 +256,33 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).build()
         );
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static void initPortalRenderers() {
+        
+        Arrays.stream(new EntityType<?>[]{
+            Portal.entityType,
+            NewNetherPortalEntity.entityType,
+            EndPortalEntity.entityType,
+            Mirror.entityType,
+            BreakableMirror.entityType,
+            GlobalTrackedPortal.entityType,
+            BorderPortal.entityType,
+            VerticalConnectingPortal.entityType
+        }).peek(
+            Validate::notNull
+        ).forEach(
+            entityType -> EntityRendererRegistry.INSTANCE.register(
+                entityType,
+                (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+            )
+        );
+    
+        EntityRendererRegistry.INSTANCE.register(
+            LoadingIndicatorEntity.entityType,
+            (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
+        );
+    
     }
 }

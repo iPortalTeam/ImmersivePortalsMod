@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "alternate_dimension/MixinMobSpawnerLogic",
-    "MixinClientWorld_MA",
     "MixinPlayerManager_MA",
     "MixinServerPlayerEntity_MA"
   ],

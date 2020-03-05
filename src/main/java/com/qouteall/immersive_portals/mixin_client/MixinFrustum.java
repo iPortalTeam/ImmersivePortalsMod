@@ -122,7 +122,7 @@ public class MixinFrustum implements IEFrustum {
     }
     
     @Inject(
-        method = "isVisible(DDDDDD)Z",
+        method = "Lnet/minecraft/client/render/Frustum;isVisible(DDDDDD)Z",
         at = @At("HEAD"),
         cancellable = true
     )

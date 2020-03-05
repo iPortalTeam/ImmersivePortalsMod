@@ -373,7 +373,7 @@ public class MyCommandClient {
             "early_light_update",
             cond -> CGlobal.earlyClientLightUpdate = cond
         );
-    
+        
         builder.then(CommandManager
             .literal("print_class_path")
             .executes(context -> {
@@ -381,9 +381,9 @@ public class MyCommandClient {
                 return 0;
             })
         );
-    
+        
         dispatcher.register(builder);
-    
+        
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
@@ -443,7 +443,7 @@ public class MyCommandClient {
                 ));
             }
         );
-    
+        
         str.append("Server Chunks:\n");
         McHelper.getServer().getWorlds().forEach(
             world -> {
@@ -485,7 +485,7 @@ public class MyCommandClient {
     private static int listNearbyPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity playerServer = context.getSource().getPlayer();
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
-    
+        
         McHelper.serverLog(playerServer, "Server Portals");
         McHelper.serverLog(
             playerServer,
@@ -495,7 +495,7 @@ public class MyCommandClient {
                 )
             )
         );
-    
+        
         McHelper.serverLog(playerServer, "Client Portals");
         McHelper.serverLog(
             playerServer,
@@ -522,7 +522,7 @@ public class MyCommandClient {
                 Vec3d toPos = playerEntity.getPos();
                 DimensionType toDimension = player.dimension;
                 
-                Portal portal = new Portal(fromWorld);
+                Portal portal = new Portal(Portal.entityType, fromWorld);
                 portal.setPos(fromPos.x, fromPos.y, fromPos.z);
                 
                 portal.axisH = new Vec3d(0, 1, 0);
@@ -560,7 +560,7 @@ public class MyCommandClient {
         
         ServerPlayerEntity playerMP = context.getSource().getPlayer();
         ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
-    
+        
         McHelper.serverLog(
             playerMP,
             "On Server " + playerMP.dimension + " " + playerMP.getBlockPos()

@@ -42,6 +42,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MyCommandServer {
+    public static void registerClientDebugCommand(
+        CommandDispatcher<ServerCommandSource> dispatcher
+    ) {
+        MyCommandClient.register(dispatcher);
+    }
+    
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {

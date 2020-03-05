@@ -52,12 +52,6 @@ public class Portal extends Entity {
         super(entityType_1, world_1);
     }
     
-    public Portal(
-        World world
-    ) {
-        this(entityType, world);
-    }
-    
     @Override
     protected void initDataTracker() {
         //do nothing

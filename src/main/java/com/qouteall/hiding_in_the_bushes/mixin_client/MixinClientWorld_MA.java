@@ -1,4 +1,4 @@
-package com.qouteall.hiding_in_the_bushes.mixin;
+package com.qouteall.hiding_in_the_bushes.mixin_client;
 
 import com.qouteall.hiding_in_the_bushes.IEClientWorld_MA;
 import net.minecraft.client.world.ClientWorld;
