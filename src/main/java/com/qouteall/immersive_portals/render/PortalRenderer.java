@@ -66,6 +66,9 @@ public abstract class PortalRenderer {
     }
     
     public boolean shouldRenderPlayerItself() {
+        if (!Global.renderYourselfInPortal) {
+            return false;
+        }
         if (!isRendering()) {
             return false;
         }

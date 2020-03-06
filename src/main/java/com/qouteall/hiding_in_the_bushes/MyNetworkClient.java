@@ -2,13 +2,13 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import io.netty.buffer.Unpooled;
@@ -107,7 +107,7 @@ public class MyNetworkClient {
         }
         
         //without this delay it will flash? or it's random?
-        ModMain.clientTaskList.addTask(() -> {
+        MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
             if (world.getEntityById(entityId) != null) {
@@ -117,7 +117,7 @@ public class MyNetworkClient {
                     entityType.get().getTranslationKey(),
                     compoundTag
                 ));
-                return true;
+                return;
             }
             
             Entity entity = entityType.get().create(
@@ -127,8 +127,15 @@ public class MyNetworkClient {
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
+    
+            //test
+            if (entity instanceof Portal) {
+                CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+                    ((Portal) entity).dimensionTo
+                );
+            }
             
-            return true;
+            return;
         });
     }
     

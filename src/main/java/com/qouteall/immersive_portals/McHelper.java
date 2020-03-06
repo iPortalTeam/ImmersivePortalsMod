@@ -22,6 +22,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,9 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class McHelper {
+    
+    public static WeakReference<MinecraftServer> refMinecraftServer =
+        new WeakReference<>(null);
     
     public static IEThreadedAnvilChunkStorage getIEStorage(DimensionType dimension) {
         return (IEThreadedAnvilChunkStorage) (
@@ -51,7 +55,7 @@ public class McHelper {
     }
     
     public static MinecraftServer getServer() {
-        return Helper.refMinecraftServer.get();
+        return refMinecraftServer.get();
     }
     
     public static ServerWorld getOverWorldOnServer() {

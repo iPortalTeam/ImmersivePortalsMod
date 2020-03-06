@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.block_manipulation;
 
+import com.qouteall.immersive_portals.Global;
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,7 +13,7 @@ public class HandReachTweak {
     
     public static double getActualHandReachMultiplier(PlayerEntity playerEntity) {
         double multiplier = playerEntity.getAttributeInstance(handReachMultiplier).getValue();
-        if (playerEntity.isCreative()) {
+        if (Global.longerReachInCreative && playerEntity.isCreative()) {
             return multiplier * 10;
         }
         else {

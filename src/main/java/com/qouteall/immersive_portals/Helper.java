@@ -5,7 +5,6 @@ import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 import java.util.Set;
@@ -295,8 +293,6 @@ public class Helper {
         return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
     }
     
-    public static WeakReference<MinecraftServer> refMinecraftServer;
-    
     public static Runnable noException(Callable func) {
         return () -> {
             try {
@@ -366,7 +362,7 @@ public class Helper {
                 return new Pair<>(aIterator.next(), bIterator.next());
             }
         };
-    
+        
         return Streams.stream(iterator);
     }
     
@@ -559,7 +555,7 @@ public class Helper {
                 fillBuffer();
                 return iterator.hasNext();
             }
-    
+            
             @Override
             public S next() {
                 fillBuffer();

@@ -6,7 +6,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
@@ -57,7 +57,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         String string_1,
         CallbackInfo ci
     ) {
-        Helper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
+        McHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
     
         O_O.loadConfigFabric();
     }

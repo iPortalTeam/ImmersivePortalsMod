@@ -18,6 +18,8 @@ public class MyConfig {
     public boolean compatibilityRenderMode = false;
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
+    public boolean longerReachInCreative = true;
+    public boolean renderYourselfInPortal = true;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -72,5 +74,7 @@ public class MyConfig {
         Global.doCheckGlError = config.doCheckGlError;
         Global.maxPortalLayer = config.maxPortalLayer;
         NetherPortalMatcher.findingRadius = config.portalSearchingRange;
+        Global.longerReachInCreative = config.longerReachInCreative;
+        Global.renderYourselfInPortal = config.renderYourselfInPortal;
     }
 }
