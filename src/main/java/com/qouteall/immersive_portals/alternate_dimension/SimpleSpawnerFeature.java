@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.alternate_dimension;
 
 import com.mojang.datafixers.Dynamic;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -403,6 +404,10 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.POTION, 1),
                 itemStack -> PotionUtil.setPotion(itemStack, Potions.MUNDANE)
+            ))
+            .add(50, Helper.makeIntoExpression(
+                new ItemStack(() -> Items.POTION, 1),
+                itemStack -> PotionUtil.setPotion(itemStack, HandReachTweak.longerReachPotion)
             ))
             .build();
     

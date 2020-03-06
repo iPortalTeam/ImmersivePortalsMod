@@ -13,6 +13,7 @@ public class ModEntry implements ModInitializer {
         MyRegistry.registerEntitiesFabric();
         MyRegistry.registerMyDimensionsFabric();
         MyRegistry.registerBlocksFabric();
+        MyRegistry.registerEffectAndPotion();
     }
     
 }

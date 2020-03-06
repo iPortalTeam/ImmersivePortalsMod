@@ -2,6 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
@@ -26,9 +27,14 @@ import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.potion.Potion;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -260,7 +266,7 @@ public class MyRegistry {
     
     @Environment(EnvType.CLIENT)
     public static void initPortalRenderers() {
-        
+    
         Arrays.stream(new EntityType<?>[]{
             Portal.entityType,
             NewNetherPortalEntity.entityType,
@@ -284,5 +290,33 @@ public class MyRegistry {
             (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
         );
     
+    }
+    
+    public static void registerEffectAndPotion() {
+        StatusEffect.class.hashCode();
+        HandReachTweak.longerReachEffect = HandReachTweak.statusEffectConstructor.apply(
+            StatusEffectType.BENEFICIAL, 0)
+            .addAttributeModifier(
+                HandReachTweak.handReachMultiplierAttribute,
+                "91AEAA56-2333-2333-2333-2F7F68070635",
+                0.5,
+                EntityAttributeModifier.Operation.MULTIPLY_TOTAL
+            );
+        Registry.register(
+            Registry.STATUS_EFFECT,
+            new Identifier("immersive_portals", "longer_reach"),
+            HandReachTweak.longerReachEffect
+        );
+        
+        HandReachTweak.longerReachPotion = new Potion(
+            new StatusEffectInstance(
+                HandReachTweak.longerReachEffect, 3600, 1
+            )
+        );
+        Registry.register(
+            Registry.POTION,
+            new Identifier("immersive_portals", "longer_reach_potion"),
+            HandReachTweak.longerReachPotion
+        );
     }
 }

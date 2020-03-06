@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
-import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
@@ -47,8 +46,6 @@ public class ModMain {
         WorldInfoSender.init();
         
         FormulaGenerator.init();
-    
-        HandReachTweak.init();
     }
     
 }
