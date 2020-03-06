@@ -43,7 +43,7 @@ public class ModMainClient {
                     switchRenderer(CGlobal.rendererUsingFrameBuffer);
                     break;
                 case debug:
-                    //TODO add debug renderer for non shader mode
+                    switchRenderer(CGlobal.rendererDebug);
                     break;
                 case none:
                     switchRenderer(CGlobal.rendererDummy);

@@ -66,8 +66,6 @@ public class McHelper {
         ServerPlayerEntity player,
         String text
     ) {
-        //Helper.log(text);
-        
         player.sendMessage(new LiteralText(text));
     }
     

@@ -50,7 +50,7 @@ public class ClassicalPortalConverter {
         converterMap.put(
             Blocks.END_PORTAL,
             (oldWorld, player, portalBlockPos) -> {
-                
+                //TODO finish it
             }
         );
     }

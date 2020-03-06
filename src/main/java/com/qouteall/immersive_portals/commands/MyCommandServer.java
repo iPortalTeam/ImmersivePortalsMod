@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.SpecialPortalShape;
+import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
@@ -85,6 +86,15 @@ public class MyCommandServer {
             .literal("border_remove")
             .executes(context -> {
                 BorderPortal.removeBorderPortal(context.getSource().getWorld());
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("fill_border_with_barrier")
+            .executes(context -> {
+                BorderBarrierFiller.onCommandExecuted(
+                    context.getSource().getPlayer()
+                );
                 return 0;
             })
         );

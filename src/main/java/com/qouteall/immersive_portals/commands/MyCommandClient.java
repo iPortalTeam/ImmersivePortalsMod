@@ -373,7 +373,12 @@ public class MyCommandClient {
             "early_light_update",
             cond -> CGlobal.earlyClientLightUpdate = cond
         );
-        
+        registerSwitchCommand(
+            builder,
+            "super_advanced_frustum_culling",
+            cond -> CGlobal.useSuperAdvancedFrustumCulling = cond
+        );
+    
         builder.then(CommandManager
             .literal("print_class_path")
             .executes(context -> {
@@ -381,7 +386,7 @@ public class MyCommandClient {
                 return 0;
             })
         );
-        
+    
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");
