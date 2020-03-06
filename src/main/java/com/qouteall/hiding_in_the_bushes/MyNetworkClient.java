@@ -128,7 +128,7 @@ public class MyNetworkClient {
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
     
-            //test
+            //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {
                 CGlobal.clientWorldLoader.getOrCreateFakedWorld(
                     ((Portal) entity).dimensionTo

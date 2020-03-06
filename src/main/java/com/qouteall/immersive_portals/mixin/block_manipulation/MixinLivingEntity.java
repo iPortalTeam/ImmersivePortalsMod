@@ -18,6 +18,6 @@ public abstract class MixinLivingEntity {
         at = @At("TAIL")
     )
     private void onInitAttributes(CallbackInfo ci) {
-        getAttributes().register(HandReachTweak.handReachMultiplier);
+        getAttributes().register(HandReachTweak.handReachMultiplierAttribute);
     }
 }

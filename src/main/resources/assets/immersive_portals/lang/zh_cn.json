@@ -6,5 +6,12 @@
   "imm_ptl.max_portal_layer": "渲染递归上限",
   "imm_ptl.compatibility_render_mode": "兼容性渲染模式",
   "imm_ptl.check_gl_error": "检测OpenGL异常",
-  "imm_ptl.portal_searching_range": "地狱传送门生成搜索范围"
+  "imm_ptl.portal_searching_range": "地狱传送门生成搜索范围",
+  "imm_ptl.long_reach_in_creative": "创造模式下触及范围更大",
+  "imm_ptl.render_yourself_in_portal": "在传送门中渲染自己",
+  "effect.immersive_portals.longer_reach": "触及范围增大",
+  "item.minecraft.potion.effect.longer_reach_potion": "触及范围增大药水",
+  "item.minecraft.splash_potion.effect.longer_reach_potion": "触及范围增大喷溅药水",
+  "item.minecraft.lingering_potion.effect.longer_reach_potion": "触及范围增大滞留药水",
+  "attribute.name.imm_ptl.hand_reach_multiplier": "触及范围"
 }
