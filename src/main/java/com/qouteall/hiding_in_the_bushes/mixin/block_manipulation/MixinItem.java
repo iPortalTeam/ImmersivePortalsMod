@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.block_manipulation;
+package com.qouteall.hiding_in_the_bushes.mixin.block_manipulation;
 
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import net.minecraft.entity.player.PlayerEntity;
@@ -34,10 +34,12 @@ public class MixinItem {
     
     @ModifyConstant(
         method = "rayTrace",
-        constant = @Constant(doubleValue = 5.0D)
+        constant = @Constant(doubleValue = 5.0D),
+        require = 0
     )
     private static double modifyHandReach(double original) {
         double multiplier = HandReachTweak.getActualHandReachMultiplier(argPlayer.get());
         return original * multiplier;
     }
+    
 }

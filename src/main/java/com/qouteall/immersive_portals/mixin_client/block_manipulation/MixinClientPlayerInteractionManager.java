@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client.block_manipulation;
 
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.ducks.IEClientPlayerInteractionManager;
@@ -84,8 +85,10 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
         cancellable = true
     )
     private void onHasExtendedReach(CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(false);
-        cir.cancel();
+        if (Global.longerReachInCreative) {
+            cir.setReturnValue(false);
+            cir.cancel();
+        }
     }
     
     @Inject(
