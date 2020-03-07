@@ -44,7 +44,7 @@ public class BlockManipulationClient {
             mc.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
             double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
-            if (distanceToPortalPointing < getCurrentTargetDistance()) {
+            if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
                 updateTargetedBlockThroughPortal(
                     cameraPos,
                     mc.player.getRotationVec(partialTicks),

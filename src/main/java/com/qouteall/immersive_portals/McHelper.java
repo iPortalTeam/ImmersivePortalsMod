@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -177,8 +178,9 @@ public class McHelper {
     
     public static Stream<Portal> getServerPortalsNearby(Entity center, double range) {
         List<GlobalTrackedPortal> globalPortals = GlobalPortalStorage.get(((ServerWorld) center.world)).data;
-        Stream<Portal> nearbyPortals = McHelper.getEntitiesNearby(
-            center,
+        Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
+            center.world,
+            center.getPos(),
             Portal.class,
             range
         );
@@ -256,4 +258,17 @@ public class McHelper {
         return chunkHolder_.getWorldChunk();
     }
     
+    public static <ENTITY extends Entity> Stream<ENTITY> getServerEntitiesNearbyWithoutLoadingChunk(
+        World world,
+        Vec3d center,
+        Class<ENTITY> entityClass,
+        double range
+    ) {
+        Box box = new Box(center, center).expand(range);
+        return (Stream) ((IEServerWorld) world).getEntitiesWithoutImmediateChunkLoading(
+            entityClass,
+            box,
+            e -> true
+        ).stream();
+    }
 }

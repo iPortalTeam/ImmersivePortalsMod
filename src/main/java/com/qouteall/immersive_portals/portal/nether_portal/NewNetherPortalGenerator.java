@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -96,7 +97,7 @@ public class NewNetherPortalGenerator {
                 return O_O.isObsidian(toWorld, blockPos);
             },
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
-            NewNetherPortalGenerator::generatePortalEntities
+            info -> generatePortalEntities(info, NewNetherPortalEntity.entityType)
         );
         return thisSideShape != null;
     }
@@ -393,8 +394,8 @@ public class NewNetherPortalGenerator {
     //create portal entity and generate obsidian blocks and placeholder blocks
     //the portal blocks will be placed on both sides because the obsidian may break while generating
     //executed on server main thread
-    private static void generatePortalEntities(
-        Info info
+    public static void generatePortalEntities(
+        Info info, EntityType<NewNetherPortalEntity> entityType
     ) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
         ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
@@ -403,10 +404,10 @@ public class NewNetherPortalGenerator {
         fillInPlaceHolderBlocks(toWorld, info.toShape);
         
         NewNetherPortalEntity[] portalArray = new NewNetherPortalEntity[]{
-            NewNetherPortalEntity.entityType.create(fromWorld),
-            NewNetherPortalEntity.entityType.create(fromWorld),
-            NewNetherPortalEntity.entityType.create(toWorld),
-            NewNetherPortalEntity.entityType.create(toWorld)
+            entityType.create(fromWorld),
+            entityType.create(fromWorld),
+            entityType.create(toWorld),
+            entityType.create(toWorld)
         };
         
         info.fromShape.initPortalPosAxisShape(

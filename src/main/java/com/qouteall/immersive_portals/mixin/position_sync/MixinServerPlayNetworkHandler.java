@@ -2,10 +2,10 @@ package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
-import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
@@ -143,11 +143,10 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
         }
-        boolean portalsNearby = !player.world.getEntities(
-            Portal.class,
-            player.getBoundingBox().expand(4),
-            e -> true
-        ).isEmpty();
+        boolean portalsNearby = McHelper.getServerPortalsNearby(
+            player,
+            5
+        ).findAny().isPresent();
         if (portalsNearby) {
             return true;
         }

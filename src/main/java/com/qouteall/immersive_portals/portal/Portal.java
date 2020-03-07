@@ -110,6 +110,9 @@ public class Portal extends Entity {
     }
     
     public boolean isCullable() {
+        if (specialShape == null) {
+            initDefaultCullableRange();
+        }
         return cullableXStart != cullableXEnd;
     }
     
