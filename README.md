@@ -41,7 +41,7 @@ Sometimes contents between two layers will not be covered by portal area)
 When rendering portals, it will do advanced frustum culling to improve performance.
 
 For example, when rendering this scene
-![](https://i.ibb.co/nrpxQZk/2020-03-06-22-00-40.png)
+![](https://i.ibb.co/ykrDqxv/2020-03-06-21-59-27.png)
 
 The sections behind the portal will be culled
 ![](https://i.ibb.co/N25Y3hB/2020-03-06-21-59-37.png)
