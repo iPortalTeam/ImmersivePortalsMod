@@ -37,7 +37,7 @@ public class Portal extends Entity {
     public boolean loadFewerChunks = true;
     public boolean teleportable = true;
     public UUID specificPlayer;
-    public SpecialPortalShape specialShape;
+    public GeometryPortalShape specialShape;
     
     private Box boundingBoxCache;
     private Vec3d normal;
@@ -80,7 +80,7 @@ public class Portal extends Entity {
             specificPlayer = compoundTag.getUuid("specificPlayer");
         }
         if (compoundTag.contains("specialShape")) {
-            specialShape = new SpecialPortalShape(
+            specialShape = new GeometryPortalShape(
                 compoundTag.getList("specialShape", 6)
             );
             if (specialShape.triangles.isEmpty()) {

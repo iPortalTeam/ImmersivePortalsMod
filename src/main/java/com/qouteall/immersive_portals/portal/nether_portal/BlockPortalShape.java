@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NetherPortalShape {
+public class BlockPortalShape {
     public BlockPos anchor;
     public Set<BlockPos> area;
     public IntegerAABBInclusive innerAreaBox;
@@ -29,20 +29,20 @@ public class NetherPortalShape {
     public Set<BlockPos> frameAreaWithoutCorner;
     public Set<BlockPos> frameAreaWithCorner;
     
-    public NetherPortalShape(
+    public BlockPortalShape(
         Set<BlockPos> area, Direction.Axis axis
     ) {
         this.area = area;
         this.axis = axis;
         
         calcAnchor();
-    
+        
         calcFrameArea();
-    
+        
         calcAreaBox();
     }
     
-    public NetherPortalShape(
+    public BlockPortalShape(
         CompoundTag tag
     ) {
         this(
@@ -146,7 +146,7 @@ public class NetherPortalShape {
     }
     
     //null for not found
-    public static NetherPortalShape findArea(
+    public static BlockPortalShape findArea(
         BlockPos startingPos,
         Direction.Axis axis,
         Predicate<BlockPos> isAir,
@@ -165,8 +165,8 @@ public class NetherPortalShape {
             area
         );
         
-        NetherPortalShape result =
-            new NetherPortalShape(area, axis);
+        BlockPortalShape result =
+            new BlockPortalShape(area, axis);
         
         if (!result.isFrameIntact(isObsidian)) {
             return null;
@@ -201,7 +201,7 @@ public class NetherPortalShape {
     }
     
     //return null for not match
-    public NetherPortalShape matchShape(
+    public BlockPortalShape matchShape(
         Predicate<BlockPos> isAir,
         Predicate<BlockPos> isObsidian,
         BlockPos newAnchor,
@@ -244,11 +244,11 @@ public class NetherPortalShape {
         return getShapeWithMovedAnchor(newAnchor);
     }
     
-    public NetherPortalShape getShapeWithMovedAnchor(
+    public BlockPortalShape getShapeWithMovedAnchor(
         BlockPos newAnchor
     ) {
         BlockPos offset = newAnchor.subtract(anchor);
-        return new NetherPortalShape(
+        return new BlockPortalShape(
             area.stream().map(
                 blockPos -> blockPos.add(offset)
             ).collect(Collectors.toSet()),
@@ -290,7 +290,7 @@ public class NetherPortalShape {
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
     
-        SpecialPortalShape shape = new SpecialPortalShape();
+        GeometryPortalShape shape = new GeometryPortalShape();
         Vec3d offset = new Vec3d(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()

@@ -24,7 +24,7 @@ import java.util.UUID;
 public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
     public static EntityType<NewNetherPortalEntity> entityType;
     
-    public NetherPortalShape netherPortalShape;
+    public BlockPortalShape blockPortalShape;
     public UUID reversePortalId;
     public boolean unbreakable = false;
     
@@ -43,14 +43,14 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
         if (world.isClient) {
             return super.isPortalValid();
         }
-        return super.isPortalValid() && netherPortalShape != null && reversePortalId != null;
+        return super.isPortalValid() && blockPortalShape != null && reversePortalId != null;
     }
     
     @Override
     protected void readCustomDataFromTag(CompoundTag compoundTag) {
         super.readCustomDataFromTag(compoundTag);
         if (compoundTag.contains("netherPortalShape")) {
-            netherPortalShape = new NetherPortalShape(compoundTag.getCompound("netherPortalShape"));
+            blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
         reversePortalId = compoundTag.getUuid("reversePortalId");
         unbreakable = compoundTag.getBoolean("unbreakable");
@@ -59,8 +59,8 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
     @Override
     protected void writeCustomDataToTag(CompoundTag compoundTag) {
         super.writeCustomDataToTag(compoundTag);
-        if (netherPortalShape != null) {
-            compoundTag.put("netherPortalShape", netherPortalShape.toTag());
+        if (blockPortalShape != null) {
+            compoundTag.put("netherPortalShape", blockPortalShape.toTag());
         }
         compoundTag.putUuid("reversePortalId", reversePortalId);
         compoundTag.putBoolean("unbreakable", unbreakable);
@@ -70,8 +70,8 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
     private void breakPortalOnThisSide() {
         assert shouldBreakNetherPortal;
         assert !removed;
-        
-        netherPortalShape.area.forEach(
+    
+        blockPortalShape.area.forEach(
             blockPos -> {
                 if (world.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance) {
                     world.setBlockState(
@@ -137,12 +137,12 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
     
     private boolean isPortalIntactOnThisSide() {
         assert McHelper.getServer() != null;
-        
-        return netherPortalShape.area.stream()
+    
+        return blockPortalShape.area.stream()
             .allMatch(blockPos ->
                 world.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance
             ) &&
-            netherPortalShape.frameAreaWithoutCorner.stream()
+            blockPortalShape.frameAreaWithoutCorner.stream()
                 .allMatch(blockPos ->
                     O_O.isObsidian(world, blockPos)
                 );

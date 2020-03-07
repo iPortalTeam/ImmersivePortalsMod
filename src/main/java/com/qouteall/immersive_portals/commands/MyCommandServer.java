@@ -11,8 +11,8 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -541,7 +541,7 @@ public class MyCommandServer {
         newPortal.axisH = portal.axisH.multiply(-1);
     
         if (portal.specialShape != null) {
-            newPortal.specialShape = new SpecialPortalShape();
+            newPortal.specialShape = new GeometryPortalShape();
             initFlippedShape(newPortal, portal.specialShape);
         }
     
@@ -581,7 +581,7 @@ public class MyCommandServer {
         newPortal.axisH = portal.axisH.multiply(-1);
     
         if (portal.specialShape != null) {
-            newPortal.specialShape = new SpecialPortalShape();
+            newPortal.specialShape = new GeometryPortalShape();
             initFlippedShape(newPortal, portal.specialShape);
         }
     
@@ -597,9 +597,9 @@ public class MyCommandServer {
         return newPortal;
     }
     
-    private static void initFlippedShape(Portal newPortal, SpecialPortalShape specialShape) {
+    private static void initFlippedShape(Portal newPortal, GeometryPortalShape specialShape) {
         newPortal.specialShape.triangles = specialShape.triangles.stream()
-            .map(triangle -> new SpecialPortalShape.TriangleInPlane(
+            .map(triangle -> new GeometryPortalShape.TriangleInPlane(
                 triangle.x1,
                 -triangle.y1,
                 triangle.x2,

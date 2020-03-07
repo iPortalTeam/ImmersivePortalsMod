@@ -7,7 +7,7 @@ import net.minecraft.nbt.ListTag;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpecialPortalShape {
+public class GeometryPortalShape {
     public static class TriangleInPlane {
         public double x1;
         public double y1;
@@ -74,11 +74,11 @@ public class SpecialPortalShape {
     
     public List<TriangleInPlane> triangles;
     
-    public SpecialPortalShape() {
+    public GeometryPortalShape() {
         triangles = new ArrayList<>();
     }
     
-    public SpecialPortalShape(ListTag tag) {
+    public GeometryPortalShape(ListTag tag) {
         triangles = new ArrayList<>();
         
         int size = tag.size();

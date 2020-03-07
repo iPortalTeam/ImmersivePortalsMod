@@ -5,9 +5,9 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.SpecialPortalShape;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -84,9 +84,9 @@ public class ViewAreaRenderer {
         Vec3d posInPlayerCoordinate,
         Vec3d offset
     ) {
-        SpecialPortalShape specialShape = portal.specialShape;
-        
-        for (SpecialPortalShape.TriangleInPlane triangle : specialShape.triangles) {
+        GeometryPortalShape specialShape = portal.specialShape;
+    
+        for (GeometryPortalShape.TriangleInPlane triangle : specialShape.triangles) {
             putIntoLocalVertex(
                 vertexOutput, portal, offset, posInPlayerCoordinate,
                 triangle.x1, triangle.y1
