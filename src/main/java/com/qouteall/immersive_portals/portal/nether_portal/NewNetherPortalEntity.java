@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.IBreakablePortal;
@@ -143,7 +144,7 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
             ) &&
             netherPortalShape.frameAreaWithoutCorner.stream()
                 .allMatch(blockPos ->
-                    world.getBlockState(blockPos).getBlock() == Blocks.OBSIDIAN
+                    O_O.isObsidian(world, blockPos)
                 );
     }
     

@@ -80,7 +80,7 @@ public class ModMainClient {
     
         O_O.loadConfigFabric();
     
-        DubiousLightUpdate.init();
+        DubiousThings.init();
     }
     
 }
