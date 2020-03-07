@@ -67,7 +67,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         
         ModMain.preRenderSignal.connectWithWeakRef(this, (this_) -> {
             MinecraftClient.getInstance().getProfiler().push("reserve");
-            this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 70);
+            this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 100);
             MinecraftClient.getInstance().getProfiler().pop();
         });
     }
@@ -137,9 +137,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             new BlockPos(int_1 * 16, int_2 * 16, int_3 * 16)
         );
         builtChunk.scheduleRebuild(boolean_1);
-//        MinecraftClient.getInstance().execute(() -> {
-//
-//        });
     }
     
     private Preset myCreatePreset(double playerXCoord, double playerZCoord) {
@@ -204,10 +201,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         return builtChunkMap.computeIfAbsent(
             basePos.toImmutable(),
             whatever -> {
-                //MinecraftClient.getInstance().getProfiler().push("new_built_chunk");
-                //ChunkBuilder.BuiltChunk builtChunk = factory.new BuiltChunk();
-                //MinecraftClient.getInstance().getProfiler().swap("set_origin");
-                
                 ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
                 
                 builtChunk.setOrigin(
@@ -237,7 +230,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             if (preset.data == this.chunks) {
                 return false;
             }
-            return currentTime - preset.lastActiveTime > Helper.secondToNano(10);
+            return currentTime - preset.lastActiveTime > Helper.secondToNano(20);
         });
         
         Set<ChunkBuilder.BuiltChunk> activeBuiltChunks = getAllActiveBuiltChunks();

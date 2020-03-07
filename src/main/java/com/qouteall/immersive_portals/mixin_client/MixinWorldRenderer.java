@@ -1,9 +1,11 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
@@ -30,6 +32,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -404,6 +407,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
+    
+            //fix sky abnormal with optifine and fog disabled
+            if (OFInterface.isFogDisabled.getAsBoolean()) {
+                GL11.glEnable(GL11.GL_FOG);
+            }
         }
     
         if (MyRenderHelper.isRenderingMirror()) {
@@ -416,6 +424,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
         if (client.world.dimension instanceof AlternateDimension) {
             AlternateSky.renderAlternateSky(matrixStack_1, float_1);
+        }
+    
+        if (CGlobal.renderer.isRendering()) {
+            //fix sky abnormal with optifine and fog disabled
+            GlStateManager.enableFog();
+            GlStateManager.disableFog();
         }
     
         MyRenderHelper.recoverFaceCulling();

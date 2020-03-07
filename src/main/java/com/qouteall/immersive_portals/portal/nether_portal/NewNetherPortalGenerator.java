@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.google.common.collect.Streams;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -79,7 +80,7 @@ public class NewNetherPortalGenerator {
             //this side area
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
             //this side frame
-            blockPos -> NetherPortalMatcher.isObsidian(fromWorld, blockPos),
+            blockPos -> O_O.isObsidian(fromWorld, blockPos),
             //other side area
             blockPos -> {
                 if (!toWorld.isChunkLoaded(blockPos)) {
@@ -92,7 +93,7 @@ public class NewNetherPortalGenerator {
                 if (!toWorld.isChunkLoaded(blockPos)) {
                     return false;
                 }
-                return NetherPortalMatcher.isObsidian(toWorld, blockPos);
+                return O_O.isObsidian(toWorld, blockPos);
             },
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
             NewNetherPortalGenerator::generatePortalEntities
