@@ -309,6 +309,32 @@ public class NetherPortalShape {
         }
     
         portal.specialShape = shape;
+    
+        initCullableRange(portal);
     }
     
+    private void initCullableRange(Portal portal) {
+        IntegerAABBInclusive expandedRectangle = Helper.expandRectangle(
+            anchor,
+            blockPos -> area.contains(blockPos),
+            axis
+        );
+        Vec3d offset = new Vec3d(
+            Direction.get(Direction.AxisDirection.POSITIVE, axis)
+                .getVector()
+        ).multiply(0.5);
+        Vec3d p1 = new Vec3d(expandedRectangle.l).add(offset);
+        Vec3d p2 = new Vec3d(expandedRectangle.h).add(1, 1, 1).add(offset);
+        Vec3d center = portal.getPos();
+        double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
+        double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
+        double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
+        double p2LocalY = p2.subtract(center).dotProduct(portal.axisH);
+        portal.initCullableRange(
+            p1LocalX,
+            p2LocalX,
+            p1LocalY,
+            p2LocalY
+        );
+    }
 }

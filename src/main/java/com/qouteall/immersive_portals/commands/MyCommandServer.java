@@ -534,19 +534,26 @@ public class MyCommandServer {
         newPortal.destination = portal.getPos();
         newPortal.loadFewerChunks = portal.loadFewerChunks;
         newPortal.specificPlayer = portal.specificPlayer;
-        
+    
         newPortal.width = portal.width;
         newPortal.height = portal.height;
         newPortal.axisW = portal.axisW;
         newPortal.axisH = portal.axisH.multiply(-1);
-        
+    
         if (portal.specialShape != null) {
             newPortal.specialShape = new SpecialPortalShape();
             initFlippedShape(newPortal, portal.specialShape);
         }
-        
+    
+        newPortal.initCullableRange(
+            portal.cullableXStart,
+            portal.cullableXEnd,
+            -portal.cullableYStart,
+            -portal.cullableYEnd
+        );
+    
         toWorld.spawnEntity(newPortal);
-        
+    
         return newPortal;
     }
     
@@ -567,19 +574,26 @@ public class MyCommandServer {
         newPortal.destination = portal.destination;
         newPortal.loadFewerChunks = portal.loadFewerChunks;
         newPortal.specificPlayer = portal.specificPlayer;
-        
+    
         newPortal.width = portal.width;
         newPortal.height = portal.height;
         newPortal.axisW = portal.axisW;
         newPortal.axisH = portal.axisH.multiply(-1);
-        
+    
         if (portal.specialShape != null) {
             newPortal.specialShape = new SpecialPortalShape();
             initFlippedShape(newPortal, portal.specialShape);
         }
-        
+    
+        newPortal.initCullableRange(
+            portal.cullableXStart,
+            portal.cullableXEnd,
+            -portal.cullableYStart,
+            -portal.cullableYEnd
+        );
+    
         world.spawnEntity(newPortal);
-        
+    
         return newPortal;
     }
     

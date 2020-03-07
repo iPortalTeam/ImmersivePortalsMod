@@ -38,10 +38,15 @@ public class FrustumCuller {
         if (CGlobal.renderer.isRendering()) {
             Portal portal = CGlobal.renderer.getRenderingPortal();
             currentState = State.cullingInPortal;
-            
+    
+            Vec3d portalOriginInLocalCoordinate = portal.destination.add(
+                -cameraX,
+                -cameraY,
+                -cameraZ
+            );
             downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
-                portal,
-                portal.destination.add(-cameraX, -cameraY, -cameraZ)
+                portalOriginInLocalCoordinate,
+                portal.getFourVerticesRelativeToCenter(0)
             );
         }
         else {
@@ -49,8 +54,8 @@ public class FrustumCuller {
                 currentState = State.none;
                 return;
             }
-            
-            Portal portal = getCurrentNearestVisiblePortal();
+    
+            Portal portal = getCurrentNearestVisibleCullablePortal();
             if (portal != null) {
                 currentState = State.cullingOutsidePortal;
                 
@@ -61,8 +66,8 @@ public class FrustumCuller {
                     -cameraZ
                 );
                 downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
-                    portal,
-                    portalOriginInLocalCoordinate
+                    portalOriginInLocalCoordinate,
+                    portal.getFourVerticesCullableRelativeToCenter(0)
                 );
                 nearPlanePosInLocalCoordinate = portalOriginInLocalCoordinate;
                 nearPlaneNormal = portal.getNormal().multiply(-1);
@@ -138,10 +143,9 @@ public class FrustumCuller {
     }
     
     public Vec3d[] getDownLeftUpRightPlaneNormals(
-        Portal portal,
-        Vec3d portalOriginInLocalCoordinate
+        Vec3d portalOriginInLocalCoordinate,
+        Vec3d[] fourVertices
     ) {
-        Vec3d[] fourVertices = portal.getFourVerticesRelativeToCenter(0);
         Vec3d[] relativeVertices = {
             fourVertices[0].add(portalOriginInLocalCoordinate),
             fourVertices[1].add(portalOriginInLocalCoordinate),
@@ -246,10 +250,12 @@ public class FrustumCuller {
             testBoxAllTrue(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, downPlane));
     }
     
-    private static Portal getCurrentNearestVisiblePortal() {
+    private static Portal getCurrentNearestVisibleCullablePortal() {
         Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
         return CHelper.getClientNearbyPortals(10).filter(
             portal -> portal.isInFrontOfPortal(cameraPos)
+        ).filter(
+            Portal::isCullable
         ).min(
             Comparator.comparingDouble(portal -> portal.getDistanceToNearestPointInPortal(cameraPos))
         ).orElse(null);

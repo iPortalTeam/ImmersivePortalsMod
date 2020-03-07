@@ -260,6 +260,23 @@ public class Helper {
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     
+    public static IntegerAABBInclusive expandRectangle(
+        BlockPos startingPos,
+        Predicate<BlockPos> blockPosPredicate, Direction.Axis axis
+    ) {
+        IntegerAABBInclusive wallArea = new IntegerAABBInclusive(startingPos, startingPos);
+        
+        for (Direction direction : getAnotherFourDirections(axis)) {
+            
+            wallArea = expandArea(
+                wallArea,
+                blockPosPredicate,
+                direction
+            );
+        }
+        return wallArea;
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         
