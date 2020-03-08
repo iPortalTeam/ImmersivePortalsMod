@@ -17,7 +17,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +33,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         public long lastActiveTime;
         public boolean isMainPreset;
         public boolean isNeighborUpdated;
-    
+        
         public Preset(ChunkBuilder.BuiltChunk[] data, boolean isNeighborUpdated) {
             this.data = data;
             this.isNeighborUpdated = isNeighborUpdated;
@@ -50,20 +54,20 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     ) {
         super(chunkBuilder_1, world_1, int_1, worldRenderer_1);
         factory = chunkBuilder_1;
-    
+        
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
         );
-    
+        
         builtChunkBuffer = new ObjectBuffer<>(
             sizeX * sizeY * sizeZ,
             () -> factory.new BuiltChunk(),
             ChunkBuilder.BuiltChunk::delete
         );
-    
+        
         ModMain.preRenderSignal.connectWithWeakRef(this, (this_) -> {
             MinecraftClient.getInstance().getProfiler().push("reserve");
-            this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 70);
+            this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 100);
             MinecraftClient.getInstance().getProfiler().pop();
         });
     }
@@ -86,24 +90,24 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     @Override
     public void updateCameraPosition(double playerX, double playerZ) {
         MinecraftClient.getInstance().getProfiler().push("built_chunk_storage");
-    
+        
         ChunkPos cameraChunkPos = new ChunkPos(
             MathHelper.floorDiv((int) playerX, 16),
             MathHelper.floorDiv((int) playerZ, 16)
         );
-    
+        
         Preset preset = presets.computeIfAbsent(
             cameraChunkPos,
             whatever -> myCreatePreset(playerX, playerZ)
         );
         preset.lastActiveTime = System.nanoTime();
-    
+        
         this.chunks = preset.data;
-    
+        
         MinecraftClient.getInstance().getProfiler().push("neighbor");
         manageNeighbor(preset);
         MinecraftClient.getInstance().getProfiler().pop();
-    
+        
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
@@ -128,6 +132,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     @Override
     public void scheduleRebuild(int int_1, int int_2, int int_3, boolean boolean_1) {
+        //this method may get called by another thread?
         ChunkBuilder.BuiltChunk builtChunk = provideBuiltChunk(
             new BlockPos(int_1 * 16, int_2 * 16, int_3 * 16)
         );
@@ -153,7 +158,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 
                 for (int cy = 0; cy < this.sizeY; ++cy) {
                     int py = cy * 16;
-    
+                    
                     int index = this.getChunkIndex(cx, cy, cz);
                     Validate.isTrue(px % 16 == 0);
                     Validate.isTrue(py % 16 == 0);
@@ -196,12 +201,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         return builtChunkMap.computeIfAbsent(
             basePos.toImmutable(),
             whatever -> {
-                //MinecraftClient.getInstance().getProfiler().push("new_built_chunk");
-                //ChunkBuilder.BuiltChunk builtChunk = factory.new BuiltChunk();
-                //MinecraftClient.getInstance().getProfiler().swap("set_origin");
-    
                 ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
-    
+                
                 builtChunk.setOrigin(
                     basePos.getX(), basePos.getY(), basePos.getZ()
                 );
@@ -222,23 +223,23 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     private void purge() {
         MinecraftClient.getInstance().getProfiler().push("my_built_chunk_storage_purge");
-    
+        
         long currentTime = System.nanoTime();
         presets.entrySet().removeIf(entry -> {
             Preset preset = entry.getValue();
             if (preset.data == this.chunks) {
                 return false;
             }
-            return currentTime - preset.lastActiveTime > Helper.secondToNano(10);
+            return currentTime - preset.lastActiveTime > Helper.secondToNano(20);
         });
-    
+        
         Set<ChunkBuilder.BuiltChunk> activeBuiltChunks = getAllActiveBuiltChunks();
-    
+        
         List<ChunkBuilder.BuiltChunk> chunksToDelete = builtChunkMap
             .values().stream().filter(
                 builtChunk -> !activeBuiltChunks.contains(builtChunk)
             ).collect(Collectors.toList());
-    
+        
         chunksToDelete.forEach(
             builtChunk -> {
                 builtChunkBuffer.returnObject(builtChunk);
@@ -250,7 +251,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 }
             }
         );
-    
+        
         MinecraftClient.getInstance().getProfiler().pop();
     }
     

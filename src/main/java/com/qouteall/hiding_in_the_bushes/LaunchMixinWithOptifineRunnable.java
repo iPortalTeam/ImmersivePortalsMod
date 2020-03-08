@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.optifine_compatibility;
+package com.qouteall.hiding_in_the_bushes;
 
 import net.fabricmc.loader.FabricLoader;
 import org.spongepowered.asm.mixin.Mixins;

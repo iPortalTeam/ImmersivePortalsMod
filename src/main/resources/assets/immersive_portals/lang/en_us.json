@@ -6,5 +6,12 @@
   "imm_ptl.max_portal_layer": "Max Portal Layer",
   "imm_ptl.compatibility_render_mode": "Compatibility Render Mode",
   "imm_ptl.check_gl_error": "Check OpenGL Error",
-  "imm_ptl.portal_searching_range": "Nether Portal Searching Range"
+  "imm_ptl.portal_searching_range": "Nether Portal Searching Range",
+  "imm_ptl.long_reach_in_creative": "Longer Hand Reach in Creative",
+  "imm_ptl.render_yourself_in_portal": "Render Yourself in Portal",
+  "effect.immersive_portals.longer_reach": "Longer Hand Reach",
+  "item.minecraft.potion.effect.longer_reach_potion": "Potion of Longer Hand Reach",
+  "item.minecraft.splash_potion.effect.longer_reach_potion": "Splash Potion of Longer Hand Reach",
+  "item.minecraft.lingering_potion.effect.longer_reach_potion": "Lingering Potion of Longer Hand Reach",
+  "attribute.name.imm_ptl.hand_reach_multiplier": "Hand Reach"
 }

@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.minecraft.block.Blocks;
@@ -63,6 +64,7 @@ public class NetherPortalMatcher {
         return dimension == DimensionType.THE_NETHER ? heightLimitNether : heightLimitOverworld;
     }
     
+    @Deprecated
     //return null for no legal obsidian frame
     public static ObsidianFrame detectFrameFromInnerPos(
         IWorld world,
@@ -98,6 +100,7 @@ public class NetherPortalMatcher {
         return new ObsidianFrame(normalAxis, innerArea);
     }
     
+    @Deprecated
     public static ObsidianFrame detectFrameFromInnerPos(
         IWorld world,
         BlockPos innerPos,
@@ -124,7 +127,7 @@ public class NetherPortalMatcher {
                 )
             ).allMatch(
                 box -> box.stream().allMatch(
-                    blockPos -> isObsidian(world, blockPos)
+                    blockPos -> O_O.isObsidian(world, blockPos)
                 )
             );
     }
@@ -225,10 +228,6 @@ public class NetherPortalMatcher {
             ),
             predicate
         );
-    }
-    
-    public static boolean isObsidian(IWorld world, BlockPos obsidianPos) {
-        return world.getBlockState(obsidianPos) == Blocks.OBSIDIAN.getDefaultState();
     }
     
     private static boolean isAir(IWorld world, BlockPos pos) {
@@ -425,6 +424,7 @@ public class NetherPortalMatcher {
     //detect existing obsidian frame
     
     //@Nullable
+    @Deprecated
     public static ObsidianFrame findEmptyObsidianFrame(
         IWorld world,
         BlockPos searchingCenter,
@@ -464,6 +464,7 @@ public class NetherPortalMatcher {
         return result.orElse(null);
     }
     
+    @Deprecated
     private static boolean isAirOnObsidian(
         IWorld world,
         BlockPos blockPos,
@@ -471,11 +472,11 @@ public class NetherPortalMatcher {
         Direction obsidianFace2
     ) {
         return world.isAir(blockPos) &&
-            isObsidian(
+            O_O.isObsidian(
                 world,
                 blockPos.add(obsidianFace1.getVector())
             ) &&
-            isObsidian(
+            O_O.isObsidian(
                 world,
                 blockPos.add(obsidianFace2.getVector())
             );

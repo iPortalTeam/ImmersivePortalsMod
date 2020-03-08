@@ -1,11 +1,12 @@
 package com.qouteall.immersive_portals.mixin;
 
+import com.google.gson.JsonElement;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
-import com.qouteall.hiding_in_the_bushes.MyConfig;
-import com.qouteall.immersive_portals.Helper;
+import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
@@ -14,6 +15,7 @@ import net.minecraft.server.WorldGenerationProgressListenerFactory;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
+import net.minecraft.world.level.LevelGeneratorType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,6 +38,8 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     @Final
     private File gameDir;
     
+    private boolean portal_areAllWorldsLoaded;
+    
     @Inject(
         method = "Lnet/minecraft/server/MinecraftServer;<init>(Ljava/io/File;Ljava/net/Proxy;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/server/command/CommandManager;Lcom/mojang/authlib/yggdrasil/YggdrasilAuthenticationService;Lcom/mojang/authlib/minecraft/MinecraftSessionService;Lcom/mojang/authlib/GameProfileRepository;Lnet/minecraft/util/UserCache;Lnet/minecraft/server/WorldGenerationProgressListenerFactory;Ljava/lang/String;)V",
         at = @At("RETURN")
@@ -53,9 +57,9 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         String string_1,
         CallbackInfo ci
     ) {
-        Helper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
-        
-        MyConfig.onConfigChanged(MyConfig.readConfigFromFile());
+        McHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
+    
+        O_O.loadConfigFabric();
     }
     
     @Inject(
@@ -75,8 +79,28 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         ModMain.serverTaskList.forceClearTasks();
     }
     
+    @Inject(
+        method = "loadWorld",
+        at = @At("RETURN")
+    )
+    private void onFinishedLoadingAllWorlds(
+        String name,
+        String serverName,
+        long seed,
+        LevelGeneratorType generatorType,
+        JsonElement generatorSettings,
+        CallbackInfo ci
+    ) {
+        portal_areAllWorldsLoaded = true;
+    }
+    
     @Override
     public MetricsData getMetricsDataNonClientOnly() {
         return metricsData;
+    }
+    
+    @Override
+    public boolean portal_getAreAllWorldsLoaded() {
+        return portal_areAllWorldsLoaded;
     }
 }

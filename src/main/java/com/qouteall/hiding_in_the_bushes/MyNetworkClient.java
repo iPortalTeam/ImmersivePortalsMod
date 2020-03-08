@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import io.netty.buffer.Unpooled;
@@ -91,7 +92,7 @@ public class MyNetworkClient {
         int dimId = buf.readInt();
         DimensionType dimensionType = DimensionType.byRawId(dimId);
         CompoundTag compoundTag = buf.readCompoundTag();
-    
+        
         if (dimensionType == null) {
             Helper.err(String.format(
                 "Invalid dimension for spawning entity %s %s %s",
@@ -104,7 +105,8 @@ public class MyNetworkClient {
             Helper.err("unknown entity type " + entityTypeString);
             return;
         }
-    
+        
+        //without this delay it will flash? or it's random?
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
             
@@ -125,7 +127,14 @@ public class MyNetworkClient {
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
-        
+    
+            //do not create client world while rendering or gl states will be disturbed
+            if (entity instanceof Portal) {
+                CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+                    ((Portal) entity).dimensionTo
+                );
+            }
+            
             return;
         });
     }
@@ -160,7 +169,9 @@ public class MyNetworkClient {
                 return;
             }
             
-            LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(world);
+            LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(
+                LoadingIndicatorEntity.entityType, world
+            );
             indicator.updatePosition(pos.x, pos.y, pos.z);
             
             world.addEntity(233333333, indicator);
@@ -181,7 +192,7 @@ public class MyNetworkClient {
         catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-    
+        
         if (dimension == null) {
             Helper.err(String.format(
                 "Invalid redirected packet %s %s \nRegistered dimensions %s",
@@ -192,7 +203,7 @@ public class MyNetworkClient {
             ));
             return;
         }
-    
+        
         processRedirectedPacket(dimension, packet);
     }
     
@@ -245,10 +256,10 @@ public class MyNetworkClient {
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
-    
+            
             List<GlobalTrackedPortal> portals =
                 GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
-    
+            
             ((IEClientWorld) world).setGlobalPortals(portals);
         });
     }

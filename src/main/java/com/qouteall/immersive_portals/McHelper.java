@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -22,6 +23,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +33,9 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class McHelper {
+    
+    public static WeakReference<MinecraftServer> refMinecraftServer =
+        new WeakReference<>(null);
     
     public static IEThreadedAnvilChunkStorage getIEStorage(DimensionType dimension) {
         return (IEThreadedAnvilChunkStorage) (
@@ -51,7 +56,7 @@ public class McHelper {
     }
     
     public static MinecraftServer getServer() {
-        return Helper.refMinecraftServer.get();
+        return refMinecraftServer.get();
     }
     
     public static ServerWorld getOverWorldOnServer() {
@@ -62,8 +67,6 @@ public class McHelper {
         ServerPlayerEntity player,
         String text
     ) {
-        //Helper.log(text);
-        
         player.sendMessage(new LiteralText(text));
     }
     
@@ -175,8 +178,9 @@ public class McHelper {
     
     public static Stream<Portal> getServerPortalsNearby(Entity center, double range) {
         List<GlobalTrackedPortal> globalPortals = GlobalPortalStorage.get(((ServerWorld) center.world)).data;
-        Stream<Portal> nearbyPortals = McHelper.getEntitiesNearby(
-            center,
+        Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
+            center.world,
+            center.getPos(),
             Portal.class,
             range
         );
@@ -249,5 +253,19 @@ public class McHelper {
             return null;
         }
         return chunkHolder_.getWorldChunk();
+    }
+    
+    public static <ENTITY extends Entity> Stream<ENTITY> getServerEntitiesNearbyWithoutLoadingChunk(
+        World world,
+        Vec3d center,
+        Class<ENTITY> entityClass,
+        double range
+    ) {
+        Box box = new Box(center, center).expand(range);
+        return (Stream) ((IEServerWorld) world).getEntitiesWithoutImmediateChunkLoading(
+            entityClass,
+            box,
+            e -> true
+        ).stream();
     }
 }

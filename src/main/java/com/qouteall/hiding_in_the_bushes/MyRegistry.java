@@ -1,14 +1,24 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
-import com.qouteall.immersive_portals.portal.*;
+import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
+import com.qouteall.immersive_portals.portal.BreakableMirror;
+import com.qouteall.immersive_portals.portal.EndPortalEntity;
+import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
+import com.qouteall.immersive_portals.portal.Mirror;
+import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
+import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
+import com.qouteall.immersive_portals.render.PortalEntityRenderer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
@@ -17,17 +27,25 @@ import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.potion.Potion;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
+
+import java.util.Arrays;
 
 public class MyRegistry {
-    public static void registerMyDimensions() {
+    public static void registerMyDimensionsFabric() {
         ModMain.alternate1 = FabricDimensionType.builder()
             .factory((world, type) -> new AlternateDimension(
                 world, type, AlternateDimension::getChunkGenerator1,
@@ -109,7 +127,7 @@ public class MyRegistry {
             .buildAndRegister(new Identifier("immersive_portals", "alternate5"));
     }
     
-    public static void registerBlocks() {
+    public static void registerBlocksFabric() {
         PortalPlaceholderBlock.instance = new PortalPlaceholderBlock(
             FabricBlockSettings.of(Material.PORTAL)
                 .noCollision()
@@ -148,7 +166,7 @@ public class MyRegistry {
         );
     }
     
-    public static void registerEntities() {
+    public static void registerEntitiesFabric() {
         Portal.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "portal"),
@@ -156,16 +174,6 @@ public class MyRegistry {
                 EntityCategory.MISC,
                 (EntityType<Portal> type, World world1) ->
                     new Portal(type, world1)
-            ).size(
-                new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
-        );
-        NetherPortalEntity.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "monitoring_nether_portal"),
-            FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
-                (EntityType.EntityFactory<NetherPortalEntity>) NetherPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
@@ -253,6 +261,62 @@ public class MyRegistry {
             ).size(
                 new EntityDimensions(1, 1, true)
             ).build()
+        );
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static void initPortalRenderers() {
+    
+        Arrays.stream(new EntityType<?>[]{
+            Portal.entityType,
+            NewNetherPortalEntity.entityType,
+            EndPortalEntity.entityType,
+            Mirror.entityType,
+            BreakableMirror.entityType,
+            GlobalTrackedPortal.entityType,
+            BorderPortal.entityType,
+            VerticalConnectingPortal.entityType
+        }).peek(
+            Validate::notNull
+        ).forEach(
+            entityType -> EntityRendererRegistry.INSTANCE.register(
+                entityType,
+                (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+            )
+        );
+    
+        EntityRendererRegistry.INSTANCE.register(
+            LoadingIndicatorEntity.entityType,
+            (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
+        );
+    
+    }
+    
+    public static void registerEffectAndPotion() {
+        StatusEffect.class.hashCode();
+        HandReachTweak.longerReachEffect = HandReachTweak.statusEffectConstructor.apply(
+            StatusEffectType.BENEFICIAL, 0)
+            .addAttributeModifier(
+                HandReachTweak.handReachMultiplierAttribute,
+                "91AEAA56-2333-2333-2333-2F7F68070635",
+                0.5,
+                EntityAttributeModifier.Operation.MULTIPLY_TOTAL
+            );
+        Registry.register(
+            Registry.STATUS_EFFECT,
+            new Identifier("immersive_portals", "longer_reach"),
+            HandReachTweak.longerReachEffect
+        );
+        
+        HandReachTweak.longerReachPotion = new Potion(
+            new StatusEffectInstance(
+                HandReachTweak.longerReachEffect, 3600, 1
+            )
+        );
+        Registry.register(
+            Registry.POTION,
+            new Identifier("immersive_portals", "longer_reach_potion"),
+            HandReachTweak.longerReachPotion
         );
     }
 }

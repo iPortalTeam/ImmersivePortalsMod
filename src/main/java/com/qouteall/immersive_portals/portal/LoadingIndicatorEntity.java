@@ -22,10 +22,6 @@ public class LoadingIndicatorEntity extends Entity {
     
     public boolean isAlive = false;
     
-    public LoadingIndicatorEntity(World world) {
-        this(entityType, world);
-    }
-    
     public LoadingIndicatorEntity(EntityType type, World world) {
         super(type, world);
     }

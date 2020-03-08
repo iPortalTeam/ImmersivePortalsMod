@@ -5,15 +5,17 @@ import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 import java.util.Set;
@@ -212,21 +214,21 @@ public class Helper {
             )
         };
     }
-    
-    public static BatchTestResult batchTest(
-        Vec3d[] testObjs,
-        Predicate<Vec3d> predicate
-    ) {
-        assert testObjs.length == 8;
-        boolean firstResult = predicate.test(testObjs[0]);
-        for (int i = 1; i < testObjs.length; i++) {
-            boolean thisResult = predicate.test(testObjs[i]);
-            if (thisResult != firstResult) {
-                return BatchTestResult.both;
-            }
-        }
-        return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
-    }
+
+//    public static BatchTestResult batchTest(
+//        Vec3d[] testObjs,
+//        Predicate<Vec3d> predicate
+//    ) {
+//        assert testObjs.length == 8;
+//        boolean firstResult = predicate.test(testObjs[0]);
+//        for (int i = 1; i < testObjs.length; i++) {
+//            boolean thisResult = predicate.test(testObjs[i]);
+//            if (thisResult != firstResult) {
+//                return BatchTestResult.both;
+//            }
+//        }
+//        return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
+//    }
     
     @Deprecated
     public static Pair<Direction.Axis, Direction.Axis> getPerpendicularAxis(Direction facing) {
@@ -256,6 +258,23 @@ public class Helper {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
         Vec3d shrinkVec = new Vec3d(direction.getVector()).multiply(size);
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
+    }
+    
+    public static IntegerAABBInclusive expandRectangle(
+        BlockPos startingPos,
+        Predicate<BlockPos> blockPosPredicate, Direction.Axis axis
+    ) {
+        IntegerAABBInclusive wallArea = new IntegerAABBInclusive(startingPos, startingPos);
+        
+        for (Direction direction : getAnotherFourDirections(axis)) {
+            
+            wallArea = expandArea(
+                wallArea,
+                blockPosPredicate,
+                direction
+            );
+        }
+        return wallArea;
     }
     
     public static class SimpleBox<T> {
@@ -290,8 +309,6 @@ public class Helper {
         Vec3d lastTickPos = McHelper.lastTickPosOf(entity);
         return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
     }
-    
-    public static WeakReference<MinecraftServer> refMinecraftServer;
     
     public static Runnable noException(Callable func) {
         return () -> {
@@ -362,7 +379,7 @@ public class Helper {
                 return new Pair<>(aIterator.next(), bIterator.next());
             }
         };
-    
+        
         return Streams.stream(iterator);
     }
     
@@ -443,12 +460,6 @@ public class Helper {
     
     public static double nanoToSecond(long nano) {
         return nano / 1000000000.0;
-    }
-    
-    public enum BatchTestResult {
-        all_true,
-        all_false,
-        both
     }
     
     public static IntegerAABBInclusive expandArea(
@@ -555,7 +566,7 @@ public class Helper {
                 fillBuffer();
                 return iterator.hasNext();
             }
-    
+            
             @Override
             public S next() {
                 fillBuffer();

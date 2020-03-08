@@ -14,12 +14,12 @@ public class RendererDebug extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-    
+        renderPortals(matrixStack);
     }
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        renderPortals(matrixStack);
+    
     }
     
     @Override

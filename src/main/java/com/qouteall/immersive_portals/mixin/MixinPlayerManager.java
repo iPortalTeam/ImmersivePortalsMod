@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
@@ -23,19 +22,6 @@ public class MixinPlayerManager {
     @Shadow
     @Final
     private List<ServerPlayerEntity> players;
-    
-    @Inject(
-        method = "respawnPlayer(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/dimension/DimensionType;Z)Lnet/minecraft/server/network/ServerPlayerEntity;",
-        at = @At("HEAD")
-    )
-    private void onPlayerRespawn(
-        ServerPlayerEntity oldPlayer,
-        DimensionType dimensionType_1,
-        boolean boolean_1,
-        CallbackInfoReturnable<ServerPlayerEntity> cir
-    ) {
-        Global.chunkDataSyncManager.onPlayerRespawn(oldPlayer);
-    }
     
     @Inject(method = "sendWorldInfo", at = @At("RETURN"))
     private void onSendWorldInfo(ServerPlayerEntity player, ServerWorld world, CallbackInfo ci) {

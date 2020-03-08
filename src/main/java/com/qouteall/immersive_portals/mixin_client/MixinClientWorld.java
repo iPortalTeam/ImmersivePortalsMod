@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEWorld;
@@ -10,7 +10,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -106,19 +105,35 @@ public abstract class MixinClientWorld implements IEClientWorld {
     }
     
     //avoid dark sky in alternate dimension when player is in end biome
+//    @Redirect(
+//        method = "method_23777",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/world/ClientWorld;getBiome(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome;"
+//        )
+//    )
+//    private Biome redirectGetBiomeInSkyRendering(ClientWorld world, BlockPos pos) {
+//        if (world.dimension instanceof AlternateDimension) {
+//            return Biomes.PLAINS;
+//        }
+//        else {
+//            return world.getBiome(pos);
+//        }
+//    }
     @Redirect(
         method = "method_23777",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientWorld;getBiome(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome;"
+            target = "Lnet/minecraft/world/biome/Biome;getSkyColor()I"
         )
     )
-    private Biome redirectGetBiomeInSkyRendering(ClientWorld world, BlockPos pos) {
-        if (world.dimension instanceof AlternateDimension) {
-            return Biomes.PLAINS;
+    private int redirectBiomeGetSkyColor(Biome biome) {
+        ClientWorld this_ = (ClientWorld) ((Object) this);
+        if (this_.dimension instanceof AlternateDimension) {
+            return Biomes.PLAINS.getSkyColor();
         }
         else {
-            return world.getBiome(pos);
+            return biome.getSkyColor();
         }
     }
 }

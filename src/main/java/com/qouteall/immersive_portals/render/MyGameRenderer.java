@@ -1,9 +1,19 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.*;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
-import com.qouteall.immersive_portals.ducks.*;
+import com.qouteall.immersive_portals.ducks.IECamera;
+import com.qouteall.immersive_portals.ducks.IEGameRenderer;
+import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
+import com.qouteall.immersive_portals.ducks.IEParticleManager;
+import com.qouteall.immersive_portals.ducks.IEPlayerListEntry;
+import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
 import com.qouteall.immersive_portals.far_scenery.FaceRenderingTask;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
@@ -220,14 +230,18 @@ public class MyGameRenderer {
     }
     
     public void resetFog() {
+        if (OFInterface.isFogDisabled.getAsBoolean()) {
+            return;
+        }
+    
         Camera camera = mc.gameRenderer.getCamera();
         float g = mc.gameRenderer.getViewDistance();
-        
+    
         Vec3d cameraPos = camera.getPos();
         double d = cameraPos.getX();
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
-        
+    
         boolean bl2 = mc.world.dimension.isFogThick(
             MathHelper.floor(d),
             MathHelper.floor(e)
@@ -239,7 +253,6 @@ public class MyGameRenderer {
             Math.max(g - 16.0F, 32.0F),
             bl2
         );
-        
     }
     
     //render fewer chunks when rendering portal

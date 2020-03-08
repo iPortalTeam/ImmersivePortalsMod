@@ -3,7 +3,8 @@
   "package": "com.qouteall.immersive_portals.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "alternate_dimension/MixinMobSpawnerLogic",
+    "block_manipulation/MixinLivingEntity",
+    "block_manipulation/MixinStatusEffect",
     "chunk_sync/MixinChunkHolder",
     "chunk_sync/MixinChunkTicketManager",
     "chunk_sync/MixinThreadedAnvilChunkStorage_C",

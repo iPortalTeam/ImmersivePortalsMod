@@ -34,11 +34,22 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.lang.ref.WeakReference;
 import java.nio.FloatBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_BACK;
+import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
+import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_SMOOTH;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glCullFace;
 
 public class MyRenderHelper {
     //switching context is really bug-prone
@@ -351,6 +362,10 @@ public class MyRenderHelper {
     }
     
     public static void earlyUpdateLight() {
+        if(CGlobal.clientWorldLoader==null){
+            return;
+        }
+        
         CGlobal.clientWorldLoader.clientWorldMap.values().forEach(
             world -> {
                 if (world != MinecraftClient.getInstance().world) {

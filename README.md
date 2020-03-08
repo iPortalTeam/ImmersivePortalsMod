@@ -37,12 +37,31 @@ To avoid this I additionally render a small pyramid-shaped hood around camera in
 That method is not perfect with world wrapping portal.
 Sometimes contents between two layers will not be covered by portal area)
 
-Another issue is front culling.
-When rendering portal content, all pixels between camera and
-portal plane should be culled or it will block the view.
-I do culling in fragment shader.
-(Minecraft still uses old non-programmable graphic pipeline
-and I use glClipPlane which is equivalent as culling in fragment shader)
+#### Advanced Frustum Culling
+When rendering portals, it will do advanced frustum culling to improve performance.
+
+For example, when rendering this scene
+![](https://i.ibb.co/ykrDqxv/2020-03-06-21-59-27.png)
+
+The sections behind the portal will be culled
+![](https://i.ibb.co/N25Y3hB/2020-03-06-21-59-37.png)
+
+The sections out of portal view will be culled
+![](https://i.ibb.co/sFGMwCd/2020-03-06-21-59-43.png)
+
+Without advanced frustum culling:
+![](https://i.ibb.co/k6nvDbf/2020-03-06-22-00-05.png)
+![](https://i.ibb.co/wY5sYXM/2020-03-06-21-59-56.png)
+
+
+#### Front Culling
+
+When rendering portal content, everything in front of the portal 
+ plane will be culled pixel-wise.
+
+These pixels will block the portal view if not being culled
+![](https://i.ibb.co/4Yf48sq/2020-03-06-22-00-16.png)
+![](https://i.ibb.co/nrpxQZk/2020-03-06-22-00-40.png)
 
 There is another culling method using oblique projection.
 http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
@@ -50,10 +69,6 @@ But oblique projection won't work when the angle between culling plane normal wi
  view vector is not bigger than 90 degree.
 
 (Rendering portals and mirrors with ray tracing is much simpler than in rasterization.)
-
-And this mod has more advanced frustum culling for portal rendering which improves performance.
-![](https://i.ibb.co/tHJv6ZH/2019-09-05-17-10-47.png)
-![](https://i.ibb.co/y8JVVxH/2019-09-05-17-10-53.png)
 
 ### Portal entity
 A portal entity is one-way and one-faced.

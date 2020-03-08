@@ -2,17 +2,12 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Objects;
@@ -107,7 +102,7 @@ public class ChunkVisibilityManager {
         Portal portal,
         ServerPlayerEntity player
     ) {
-        int renderDistance = ServerPerformanceAdjust.getGeneralLoadingDistance();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         double distance = portal.getDistanceToNearestPointInPortal(player.getPos());
         return new ChunkLoader(
             new DimensionalChunkPos(
@@ -119,7 +114,7 @@ public class ChunkVisibilityManager {
     }
     
     private static ChunkLoader portalIndirectLoader(Portal portal) {
-        int renderDistance = ServerPerformanceAdjust.getGeneralLoadingDistance();
+        int renderDistance = McHelper.getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -135,7 +130,7 @@ public class ChunkVisibilityManager {
     ) {
         int renderDistance = Math.max(
             2,
-            ServerPerformanceAdjust.getGeneralLoadingDistance() -
+            McHelper.getRenderDistanceOnServer() -
                 Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.getPos()), 16)
         );
     
@@ -155,7 +150,7 @@ public class ChunkVisibilityManager {
         GlobalTrackedPortal outerPortal,
         GlobalTrackedPortal remotePortal
     ) {
-        int renderDistance = ServerPerformanceAdjust.getGeneralLoadingDistance() / 2;
+        int renderDistance = McHelper.getRenderDistanceOnServer() / 2;
         return new ChunkLoader(
             new DimensionalChunkPos(
                 remotePortal.dimensionTo,
@@ -189,7 +184,7 @@ public class ChunkVisibilityManager {
         return Streams.concat(
             Stream.of(playerDirectLoader(player)),
     
-            getEntitiesNearbyWithoutLoadingChunk(
+            McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
                 player.world,
                 player.getPos(),
                 Portal.class,
@@ -200,7 +195,7 @@ public class ChunkVisibilityManager {
                 portal -> Streams.concat(
                     Stream.of(portalDirectLoader(portal, player)),
     
-                    getEntitiesNearbyWithoutLoadingChunk(
+                    McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
                         McHelper.getServer().getWorld(portal.dimensionTo),
                         portal.destination,
                         Portal.class,
@@ -238,20 +233,6 @@ public class ChunkVisibilityManager {
                     )
                 )
         ).distinct();
-    }
-    
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearbyWithoutLoadingChunk(
-        World world,
-        Vec3d center,
-        Class<ENTITY> entityClass,
-        double range
-    ) {
-        Box box = new Box(center, center).expand(range);
-        return (Stream) ((IEServerWorld) world).getEntitiesWithoutImmediateChunkLoading(
-            entityClass,
-            box,
-            e -> true
-        ).stream();
     }
     
 }

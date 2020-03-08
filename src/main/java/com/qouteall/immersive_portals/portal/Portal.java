@@ -37,10 +37,15 @@ public class Portal extends Entity {
     public boolean loadFewerChunks = true;
     public boolean teleportable = true;
     public UUID specificPlayer;
-    public SpecialPortalShape specialShape;
+    public GeometryPortalShape specialShape;
     
     private Box boundingBoxCache;
     private Vec3d normal;
+    
+    public double cullableXStart = 0;
+    public double cullableXEnd = 0;
+    public double cullableYStart = 0;
+    public double cullableYEnd = 0;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -50,12 +55,6 @@ public class Portal extends Entity {
         World world_1
     ) {
         super(entityType_1, world_1);
-    }
-    
-    public Portal(
-        World world
-    ) {
-        this(entityType, world);
     }
     
     @Override
@@ -81,7 +80,7 @@ public class Portal extends Entity {
             specificPlayer = compoundTag.getUuid("specificPlayer");
         }
         if (compoundTag.contains("specialShape")) {
-            specialShape = new SpecialPortalShape(
+            specialShape = new GeometryPortalShape(
                 compoundTag.getList("specialShape", 6)
             );
             if (specialShape.triangles.isEmpty()) {
@@ -91,6 +90,30 @@ public class Portal extends Entity {
         if (compoundTag.contains("teleportable")) {
             teleportable = compoundTag.getBoolean("teleportable");
         }
+        if (compoundTag.contains("cullableXStart")) {
+            cullableXStart = compoundTag.getDouble("cullableXStart");
+            cullableXEnd = compoundTag.getDouble("cullableXEnd");
+            cullableYStart = compoundTag.getDouble("cullableYStart");
+            cullableYEnd = compoundTag.getDouble("cullableYEnd");
+        }
+        else {
+            if (specialShape != null) {
+                cullableXStart = 0;
+                cullableXEnd = 0;
+                cullableYStart = 0;
+                cullableYEnd = 0;
+            }
+            else {
+                initDefaultCullableRange();
+            }
+        }
+    }
+    
+    public boolean isCullable() {
+        if (specialShape == null) {
+            initDefaultCullableRange();
+        }
+        return cullableXStart != cullableXEnd;
     }
     
     public boolean isTeleportable() {
@@ -106,16 +129,43 @@ public class Portal extends Entity {
         compoundTag.putInt("dimensionTo", dimensionTo.getRawId());
         Helper.putVec3d(compoundTag, "destination", destination);
         compoundTag.putBoolean("loadFewerChunks", loadFewerChunks);
-    
+        
         if (specificPlayer != null) {
             compoundTag.putUuid("specificPlayer", specificPlayer);
         }
-    
+        
         if (specialShape != null) {
             compoundTag.put("specialShape", specialShape.writeToTag());
         }
-    
+        
         compoundTag.putBoolean("teleportable", teleportable);
+        
+        if (specialShape == null) {
+            initDefaultCullableRange();
+        }
+        compoundTag.putDouble("cullableXStart", cullableXStart);
+        compoundTag.putDouble("cullableXEnd", cullableXEnd);
+        compoundTag.putDouble("cullableYStart", cullableYStart);
+        compoundTag.putDouble("cullableYEnd", cullableYEnd);
+    }
+    
+    public void initDefaultCullableRange() {
+        cullableXStart = -(width / 2);
+        cullableXEnd = (width / 2);
+        cullableYStart = -(height / 2);
+        cullableYEnd = (height / 2);
+    }
+    
+    public void initCullableRange(
+        double cullableXStart,
+        double cullableXEnd,
+        double cullableYStart,
+        double cullableYEnd
+    ) {
+        this.cullableXStart = Math.min(cullableXStart, cullableXEnd);
+        this.cullableXEnd = Math.max(cullableXStart, cullableXEnd);
+        this.cullableYStart = Math.min(cullableYStart, cullableYEnd);
+        this.cullableYEnd = Math.max(cullableYStart, cullableYEnd);
     }
     
     @Override
@@ -125,11 +175,6 @@ public class Portal extends Entity {
     
     @Override
     public void tick() {
-//        if (boundingBoxCache == null) {
-//            boundingBoxCache = getPortalCollisionBox();
-//        }
-//        setBoundingBox(boundingBoxCache);
-    
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
             tickClient();
@@ -360,6 +405,30 @@ public class Portal extends Entity {
             height / 2 - shrinkFactor
         );
     
+        return vertices;
+    }
+    
+    //3  2
+    //1  0
+    public Vec3d[] getFourVerticesCullableRelativeToCenter(double shrinkFactor) {
+        Vec3d[] vertices = new Vec3d[4];
+        vertices[0] = getPointInPlaneRelativeToCenter(
+            cullableXEnd - shrinkFactor,
+            cullableYStart + shrinkFactor
+        );
+        vertices[1] = getPointInPlaneRelativeToCenter(
+            cullableXStart + shrinkFactor,
+            cullableYStart + shrinkFactor
+        );
+        vertices[2] = getPointInPlaneRelativeToCenter(
+            cullableXEnd - shrinkFactor,
+            cullableYEnd - shrinkFactor
+        );
+        vertices[3] = getPointInPlaneRelativeToCenter(
+            cullableXStart + shrinkFactor,
+            cullableYEnd - shrinkFactor
+        );
+        
         return vertices;
     }
     

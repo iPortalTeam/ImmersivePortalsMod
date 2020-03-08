@@ -1,21 +1,30 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.IBreakablePortal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.Random;
 import java.util.UUID;
 
-public class NewNetherPortalEntity extends Portal {
+public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
     public static EntityType<NewNetherPortalEntity> entityType;
     
-    public NetherPortalShape netherPortalShape;
+    public BlockPortalShape blockPortalShape;
     public UUID reversePortalId;
     public boolean unbreakable = false;
     
@@ -34,14 +43,14 @@ public class NewNetherPortalEntity extends Portal {
         if (world.isClient) {
             return super.isPortalValid();
         }
-        return super.isPortalValid() && netherPortalShape != null && reversePortalId != null;
+        return super.isPortalValid() && blockPortalShape != null && reversePortalId != null;
     }
     
     @Override
     protected void readCustomDataFromTag(CompoundTag compoundTag) {
         super.readCustomDataFromTag(compoundTag);
         if (compoundTag.contains("netherPortalShape")) {
-            netherPortalShape = new NetherPortalShape(compoundTag.getCompound("netherPortalShape"));
+            blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
         reversePortalId = compoundTag.getUuid("reversePortalId");
         unbreakable = compoundTag.getBoolean("unbreakable");
@@ -50,8 +59,8 @@ public class NewNetherPortalEntity extends Portal {
     @Override
     protected void writeCustomDataToTag(CompoundTag compoundTag) {
         super.writeCustomDataToTag(compoundTag);
-        if (netherPortalShape != null) {
-            compoundTag.put("netherPortalShape", netherPortalShape.toTag());
+        if (blockPortalShape != null) {
+            compoundTag.put("netherPortalShape", blockPortalShape.toTag());
         }
         compoundTag.putUuid("reversePortalId", reversePortalId);
         compoundTag.putBoolean("unbreakable", unbreakable);
@@ -61,18 +70,23 @@ public class NewNetherPortalEntity extends Portal {
     private void breakPortalOnThisSide() {
         assert shouldBreakNetherPortal;
         assert !removed;
-        
-        netherPortalShape.area.forEach(
-            blockPos -> world.setBlockState(
-                blockPos, Blocks.AIR.getDefaultState()
-            )
+    
+        blockPortalShape.area.forEach(
+            blockPos -> {
+                if (world.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance) {
+                    world.setBlockState(
+                        blockPos, Blocks.AIR.getDefaultState()
+                    );
+                }
+            }
         );
         this.remove();
         
         Helper.log("Broke " + this);
     }
     
-    public void notifyToCheckIntegrity() {
+    @Override
+    public void notifyPlaceholderUpdate() {
         isNotified = true;
     }
     
@@ -88,19 +102,20 @@ public class NewNetherPortalEntity extends Portal {
         super.tick();
         
         if (world.isClient) {
-            return;
+            addSoundAndParticle();
         }
-        if (unbreakable) {
-            return;
+        else {
+            if (!unbreakable) {
+                if (isNotified) {
+                    isNotified = false;
+                    checkPortalIntegrity();
+                }
+                if (shouldBreakNetherPortal) {
+                    breakPortalOnThisSide();
+                }
+            }
         }
         
-        if (isNotified) {
-            isNotified = false;
-            checkPortalIntegrity();
-        }
-        if (shouldBreakNetherPortal) {
-            breakPortalOnThisSide();
-        }
     }
     
     private void checkPortalIntegrity() {
@@ -120,16 +135,56 @@ public class NewNetherPortalEntity extends Portal {
         }
     }
     
-    private boolean isPortalIntactOnThisSide() {
+    protected boolean isPortalIntactOnThisSide() {
         assert McHelper.getServer() != null;
-        
-        return netherPortalShape.area.stream()
+    
+        return blockPortalShape.area.stream()
             .allMatch(blockPos ->
                 world.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance
             ) &&
-            netherPortalShape.frameAreaWithoutCorner.stream()
+            blockPortalShape.frameAreaWithoutCorner.stream()
                 .allMatch(blockPos ->
-                    world.getBlockState(blockPos).getBlock() == Blocks.OBSIDIAN
+                    O_O.isObsidian(world, blockPos)
                 );
     }
+    
+    @Environment(EnvType.CLIENT)
+    protected void addSoundAndParticle() {
+        Random random = world.getRandom();
+        
+        for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
+            if (random.nextInt(8) == 0) {
+                double px = (random.nextDouble() * 2 - 1) * (width / 2);
+                double py = (random.nextDouble() * 2 - 1) * (height / 2);
+                
+                Vec3d pos = getPointInPlane(px, py);
+                
+                double speedMultiplier = 20;
+                
+                double vx = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+                double vy = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+                double vz = speedMultiplier * ((double) random.nextFloat() - 0.5D) * 0.5D;
+                
+                world.addParticle(
+                    ParticleTypes.PORTAL,
+                    pos.x, pos.y, pos.z,
+                    vx, vy, vz
+                );
+            }
+        }
+        
+        if (random.nextInt(400) == 0) {
+            world.playSound(
+                getX(),
+                getY(),
+                getZ(),
+                SoundEvents.BLOCK_PORTAL_AMBIENT,
+                SoundCategory.BLOCKS,
+                0.5F,
+                random.nextFloat() * 0.4F + 0.8F,
+                false
+            );
+        }
+    }
+    
 }

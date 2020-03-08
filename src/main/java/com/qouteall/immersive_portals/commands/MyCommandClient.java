@@ -15,6 +15,7 @@ import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
+import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
@@ -314,6 +315,34 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder = builder.then(CommandManager
+            .literal("uniform_report_textured")
+            .executes(context -> {
+                UniformReport.launchUniformReport(
+                    new String[]{
+                        "gbuffers_textured", "gbuffers_textured_lit"
+                    },
+                    s -> context.getSource().sendFeedback(
+                        new LiteralText(s), true
+                    )
+                );
+                return 0;
+            })
+        );
+        builder = builder.then(CommandManager
+            .literal("uniform_report_terrain")
+            .executes(context -> {
+                UniformReport.launchUniformReport(
+                    new String[]{
+                        "gbuffers_terrain", "gbuffers_terrain_solid"
+                    },
+                    s -> context.getSource().sendFeedback(
+                        new LiteralText(s), true
+                    )
+                );
+                return 0;
+            })
+        );
         registerSwitchCommand(
             builder,
             "render_fewer_on_fast_graphic",
@@ -344,6 +373,11 @@ public class MyCommandClient {
             "early_light_update",
             cond -> CGlobal.earlyClientLightUpdate = cond
         );
+        registerSwitchCommand(
+            builder,
+            "super_advanced_frustum_culling",
+            cond -> CGlobal.useSuperAdvancedFrustumCulling = cond
+        );
     
         builder.then(CommandManager
             .literal("print_class_path")
@@ -354,7 +388,7 @@ public class MyCommandClient {
         );
     
         dispatcher.register(builder);
-    
+        
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
@@ -414,7 +448,7 @@ public class MyCommandClient {
                 ));
             }
         );
-    
+        
         str.append("Server Chunks:\n");
         McHelper.getServer().getWorlds().forEach(
             world -> {
@@ -456,7 +490,7 @@ public class MyCommandClient {
     private static int listNearbyPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity playerServer = context.getSource().getPlayer();
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
-    
+        
         McHelper.serverLog(playerServer, "Server Portals");
         McHelper.serverLog(
             playerServer,
@@ -466,7 +500,7 @@ public class MyCommandClient {
                 )
             )
         );
-    
+        
         McHelper.serverLog(playerServer, "Client Portals");
         McHelper.serverLog(
             playerServer,
@@ -493,7 +527,7 @@ public class MyCommandClient {
                 Vec3d toPos = playerEntity.getPos();
                 DimensionType toDimension = player.dimension;
                 
-                Portal portal = new Portal(fromWorld);
+                Portal portal = new Portal(Portal.entityType, fromWorld);
                 portal.setPos(fromPos.x, fromPos.y, fromPos.z);
                 
                 portal.axisH = new Vec3d(0, 1, 0);
@@ -531,7 +565,7 @@ public class MyCommandClient {
         
         ServerPlayerEntity playerMP = context.getSource().getPlayer();
         ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
-    
+        
         McHelper.serverLog(
             playerMP,
             "On Server " + playerMP.dimension + " " + playerMP.getBlockPos()

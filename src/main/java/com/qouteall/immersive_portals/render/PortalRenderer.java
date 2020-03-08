@@ -1,7 +1,12 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.*;
+import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -61,6 +66,9 @@ public abstract class PortalRenderer {
     }
     
     public boolean shouldRenderPlayerItself() {
+        if (!Global.renderYourselfInPortal) {
+            return false;
+        }
         if (!isRendering()) {
             return false;
         }
@@ -113,6 +121,12 @@ public abstract class PortalRenderer {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
+    
+        //test
+//        boolean worldLoaded = CGlobal.clientWorldLoader.clientWorldMap.containsKey(portal.dimensionTo);
+//        if (!worldLoaded) {
+//            return;
+//        }
     
         Vec3d thisTickEyePos = getRoughTestCameraPos();
     

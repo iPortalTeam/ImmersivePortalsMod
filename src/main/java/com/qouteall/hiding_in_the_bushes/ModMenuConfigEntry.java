@@ -38,10 +38,20 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.portalSearchingRange,
                 32, 1000
             ).setDefaultValue(128).build();
+            BooleanListEntry entryLongerReachInCreative = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.long_reach_in_creative",
+                currConfig.longerReachInCreative
+            ).setDefaultValue(true).build();
+            BooleanListEntry entryRenderYourselfInPortal = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.render_yourself_in_portal",
+                currConfig.renderYourselfInPortal
+            ).setDefaultValue(true).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
             category.addEntry(entryPortalSearchingRange);
+            category.addEntry(entryLongerReachInCreative);
+            category.addEntry(entryRenderYourselfInPortal);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -50,6 +60,8 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.compatibilityRenderMode = entryCompatibilityRenderMode.getValue();
                     newConfigObject.doCheckGlError = entryCheckGlError.getValue();
                     newConfigObject.portalSearchingRange = entryPortalSearchingRange.getValue();
+                    newConfigObject.longerReachInCreative = entryLongerReachInCreative.getValue();
+                    newConfigObject.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
                     MyConfig.saveConfigFile(newConfigObject);
                     MyConfig.onConfigChanged(newConfigObject);
                 })

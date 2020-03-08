@@ -13,12 +13,33 @@ import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.expr.IExpressionBool;
-import net.optifine.shaders.*;
-import net.optifine.shaders.config.*;
-import net.optifine.shaders.uniform.*;
+import net.optifine.shaders.FlipTextures;
+import net.optifine.shaders.ICustomTexture;
+import net.optifine.shaders.IShaderPack;
+import net.optifine.shaders.Program;
+import net.optifine.shaders.ProgramStack;
+import net.optifine.shaders.Programs;
+import net.optifine.shaders.Shaders;
+import net.optifine.shaders.config.PropertyDefaultFastFancyOff;
+import net.optifine.shaders.config.PropertyDefaultTrueFalse;
+import net.optifine.shaders.config.ScreenShaderOptions;
+import net.optifine.shaders.config.ShaderOption;
+import net.optifine.shaders.config.ShaderProfile;
+import net.optifine.shaders.uniform.CustomUniforms;
+import net.optifine.shaders.uniform.ShaderUniform1f;
+import net.optifine.shaders.uniform.ShaderUniform1i;
+import net.optifine.shaders.uniform.ShaderUniform2i;
+import net.optifine.shaders.uniform.ShaderUniform3f;
+import net.optifine.shaders.uniform.ShaderUniform4f;
+import net.optifine.shaders.uniform.ShaderUniform4i;
+import net.optifine.shaders.uniform.ShaderUniformM4;
+import net.optifine.shaders.uniform.ShaderUniforms;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GLCapabilities;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -36,8 +57,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-@Pseudo
-@Mixin(targets = "net.optifine.shaders.Shaders")
+@Mixin(value = Shaders.class, remap = false)
 public abstract class MOShaders {
     @Shadow
     static MinecraftClient mc;

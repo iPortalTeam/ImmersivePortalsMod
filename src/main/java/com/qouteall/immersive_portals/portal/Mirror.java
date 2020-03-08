@@ -11,10 +11,6 @@ public class Mirror extends Portal {
         super(entityType_1, world_1);
     }
     
-    public Mirror(World world) {
-        this(entityType, world);
-    }
-    
     @Override
     public void tick() {
         super.tick();

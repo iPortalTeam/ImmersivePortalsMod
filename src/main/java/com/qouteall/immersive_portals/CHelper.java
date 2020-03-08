@@ -10,6 +10,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.text.LiteralText;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -91,4 +92,9 @@ public class CHelper {
         }
     }
     
+    public static void printChat(String str) {
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
+            new LiteralText(str)
+        );
+    }
 }

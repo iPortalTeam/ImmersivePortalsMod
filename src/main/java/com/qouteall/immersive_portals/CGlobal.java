@@ -1,11 +1,15 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.render.*;
+import com.qouteall.immersive_portals.render.MyGameRenderer;
+import com.qouteall.immersive_portals.render.PortalRenderer;
+import com.qouteall.immersive_portals.render.RendererDebug;
+import com.qouteall.immersive_portals.render.RendererDummy;
+import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
+import com.qouteall.immersive_portals.render.RendererUsingStencil;
+import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
-import net.minecraft.client.render.Frustum;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,8 +28,6 @@ public class CGlobal {
     
     public static int maxIdleChunkRendererNum = 500;
     
-    public static WeakReference<Frustum> currentFrustumCuller;
-    
     public static Map<DimensionType, Integer> renderInfoNumMap = new ConcurrentHashMap<>();
     
     public static boolean doUseAdvancedFrustumCulling = true;
@@ -36,5 +38,5 @@ public class CGlobal {
     public static boolean renderFewerInFastGraphic = true;
     public static boolean smoothChunkUnload = true;
     public static boolean earlyClientLightUpdate = true;
-    
+    public static boolean useSuperAdvancedFrustumCulling = true;
 }
