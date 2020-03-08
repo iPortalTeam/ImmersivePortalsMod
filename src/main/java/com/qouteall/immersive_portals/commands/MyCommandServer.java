@@ -62,11 +62,11 @@ public class MyCommandServer {
             .then(CommandManager
                 .argument("x1", IntegerArgumentType.integer())
                 .then(CommandManager
-                    .argument("y1", IntegerArgumentType.integer())
+                    .argument("z1", IntegerArgumentType.integer())
                     .then(CommandManager
                         .argument("x2", IntegerArgumentType.integer())
                         .then(CommandManager
-                            .argument("y2", IntegerArgumentType.integer())
+                            .argument("z2", IntegerArgumentType.integer())
                             .executes(context -> {
                                 BorderPortal.setBorderPortal(
                                     context.getSource().getWorld(),
