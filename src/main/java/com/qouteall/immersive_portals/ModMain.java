@@ -31,20 +31,28 @@ public class ModMain {
     
     public static void init() {
         Helper.log("initializing common");
-        
+    
         MyNetwork.init();
-        
+    
+        Helper.log("Network initialized");
+    
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
-        
+    
         Global.serverTeleportationManager = new ServerTeleportationManager();
         Global.chunkDataSyncManager = new ChunkDataSyncManager();
-        
+    
+        Helper.log("Global objects initialized");
+    
         NewChunkTrackingGraph.init();
-        
+    
+        Helper.log("Chunk tracking graph initialized");
+    
         WorldInfoSender.init();
-        
+    
+        Helper.log("World info sender initialized");
+    
         FormulaGenerator.init();
     }
     

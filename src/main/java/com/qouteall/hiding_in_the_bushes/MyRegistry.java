@@ -13,12 +13,7 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
-import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
-import com.qouteall.immersive_portals.render.PortalEntityRenderer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
@@ -40,9 +35,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
-
-import java.util.Arrays;
 
 public class MyRegistry {
     public static void registerMyDimensionsFabric() {
@@ -178,6 +170,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         NewNetherPortalEntity.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "nether_portal_new"),
@@ -189,6 +182,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         EndPortalEntity.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "end_portal"),
@@ -199,6 +193,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         Mirror.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "mirror"),
@@ -210,6 +205,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         BreakableMirror.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "breakable_mirror"),
@@ -221,6 +217,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         GlobalTrackedPortal.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "global_tracked_portal"),
@@ -231,6 +228,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         BorderPortal.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "border_portal"),
@@ -241,6 +239,7 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
         VerticalConnectingPortal.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "end_floor_portal"),
@@ -262,34 +261,6 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).build()
         );
-    }
-    
-    @Environment(EnvType.CLIENT)
-    public static void initPortalRenderers() {
-    
-        Arrays.stream(new EntityType<?>[]{
-            Portal.entityType,
-            NewNetherPortalEntity.entityType,
-            EndPortalEntity.entityType,
-            Mirror.entityType,
-            BreakableMirror.entityType,
-            GlobalTrackedPortal.entityType,
-            BorderPortal.entityType,
-            VerticalConnectingPortal.entityType
-        }).peek(
-            Validate::notNull
-        ).forEach(
-            entityType -> EntityRendererRegistry.INSTANCE.register(
-                entityType,
-                (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
-            )
-        );
-    
-        EntityRendererRegistry.INSTANCE.register(
-            LoadingIndicatorEntity.entityType,
-            (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
-        );
-    
     }
     
     public static void registerEffectAndPotion() {
