@@ -35,6 +35,10 @@
     {
       "config": "immersive_portals.mixins_client.json",
       "environment": "client"
+    },
+    {
+      "config": "immersive_portals.mixins_ma_client.json",
+      "environment": "client"
     }
   ],
   "depends": {
