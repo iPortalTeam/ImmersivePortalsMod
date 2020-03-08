@@ -132,7 +132,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                 while (listIterator.hasNext()) {
                     int n = listIterator.nextIndex();
                     ConfiguredCarver<?> configuredCarver = (ConfiguredCarver) listIterator.next();
-                    chunkRandom.setStructureSeed(this.seed + (long) n, cx, cz);
+                    chunkRandom.setCarverSeed(this.seed + (long) n, cx, cz);
                     boolean shouldCarve = configuredCarver.shouldCarve(chunkRandom, cx, cz);
                     if (shouldCarve) {
                         //carve more
@@ -168,7 +168,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         for (int pass = 0; pass < 2; pass++) {
             Biome biome = this.getDecorationBiome(region.getBiomeAccess(), blockPos.add(8, 8, 8));
             ChunkRandom chunkRandom = new ChunkRandom();
-            long currSeed = chunkRandom.setSeed(region.getSeed() + pass, x, z);
+            long currSeed = chunkRandom.setPopulationSeed(region.getSeed() + pass, x, z);
         
             generateFeatureForStep(
                 region, centerChunkX, centerChunkZ,
@@ -220,7 +220,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         ChunkGenerator<?> chunkGenerator,
         StructureManager structureManager
     ) {
-        random.setSeed(chunk.getPos().x, chunk.getPos().z);
+        random.setTerrainSeed(chunk.getPos().x, chunk.getPos().z);
     
         Iterator var5 = Feature.STRUCTURES.values().iterator();
     

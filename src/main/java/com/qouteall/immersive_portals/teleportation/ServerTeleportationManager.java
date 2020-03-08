@@ -200,7 +200,7 @@ public class ServerTeleportationManager {
             ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
         }
         
-        BlockPos oldPos = player.getBlockPos();
+        BlockPos oldPos = new BlockPos(player.getPos());
         
         teleportingEntities.add(player);
         

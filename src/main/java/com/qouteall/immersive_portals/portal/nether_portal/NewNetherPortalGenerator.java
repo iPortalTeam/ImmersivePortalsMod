@@ -428,7 +428,7 @@ public class NewNetherPortalGenerator {
         portalArray[2].dimensionTo = info.from;
         portalArray[3].dimensionTo = info.from;
     
-        Vec3d offset = new Vec3d(info.toShape.innerAreaBox.l.subtract(
+        Vec3d offset = Vec3d.method_24954(info.toShape.innerAreaBox.l.subtract(
             info.fromShape.innerAreaBox.l
         ));
         portalArray[0].destination = portalArray[0].getPos().add(offset);
@@ -481,7 +481,7 @@ public class NewNetherPortalGenerator {
         portalArray[2].dimensionTo = info.from;
         portalArray[3].dimensionTo = info.from;
         
-        Vec3d offset = new Vec3d(info.toShape.innerAreaBox.l.subtract(
+        Vec3d offset = Vec3d.method_24954(info.toShape.innerAreaBox.l.subtract(
             info.fromShape.innerAreaBox.l
         ));
         portalArray[0].destination = portalArray[0].getPos().add(offset);

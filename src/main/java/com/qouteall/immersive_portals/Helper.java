@@ -256,7 +256,7 @@ public class Helper {
     
     public static Box getBoxSurface(Box box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
-        Vec3d shrinkVec = new Vec3d(direction.getVector()).multiply(size);
+        Vec3d shrinkVec =  Vec3d.method_24954(direction.getVector()).multiply(size);
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     

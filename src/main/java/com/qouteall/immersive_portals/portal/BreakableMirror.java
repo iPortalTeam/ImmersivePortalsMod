@@ -105,7 +105,7 @@ public class BreakableMirror extends Mirror {
         ).add(
             0.5, 0.5, 0.5
         ).add(
-            new Vec3d(facing.getVector()).multiply(0.5)
+             Vec3d.method_24954(facing.getVector()).multiply(0.5)
         );
         breakableMirror.updatePosition(
             pos.x, pos.y, pos.z
@@ -120,10 +120,10 @@ public class BreakableMirror extends Mirror {
         float width = Helper.getCoordinate(wallArea.getSize(), wAxis);
         int height = Helper.getCoordinate(wallArea.getSize(), hAxis);
         
-        breakableMirror.axisW = new Vec3d(
+        breakableMirror.axisW =  Vec3d.method_24954(
             Direction.get(Direction.AxisDirection.POSITIVE, wAxis).getVector()
         );
-        breakableMirror.axisH = new Vec3d(
+        breakableMirror.axisH = Vec3d.method_24954(
             Direction.get(Direction.AxisDirection.POSITIVE, hAxis).getVector()
         );
         breakableMirror.width = width;

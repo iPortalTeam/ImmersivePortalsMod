@@ -256,23 +256,23 @@ public class Portal extends Entity {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         Direction.Axis wAxis = anotherTwoAxis.getLeft();
         Direction.Axis hAxis = anotherTwoAxis.getRight();
-    
+        
         float width = (float) Helper.getCoordinate(portalSize, wAxis);
         float height = (float) Helper.getCoordinate(portalSize, hAxis);
-    
-        Vec3d wAxisVec = new Vec3d(Helper.getUnitFromAxis(wAxis));
-        Vec3d hAxisVec = new Vec3d(Helper.getUnitFromAxis(hAxis));
-    
+        
+        Vec3d wAxisVec = Vec3d.method_24954(Helper.getUnitFromAxis(wAxis));
+        Vec3d hAxisVec = Vec3d.method_24954(Helper.getUnitFromAxis(hAxis));
+        
         portals[0].updatePosition(center1.x, center1.y, center1.z);
         portals[1].updatePosition(center1.x, center1.y, center1.z);
         portals[2].updatePosition(center2.x, center2.y, center2.z);
         portals[3].updatePosition(center2.x, center2.y, center2.z);
-    
+        
         portals[0].destination = center2;
         portals[1].destination = center2;
         portals[2].destination = center1;
         portals[3].destination = center1;
-    
+        
         assert portals[0].dimension == dimension1;
         assert portals[1].dimension == dimension1;
         assert portals[2].dimension == dimension2;
@@ -404,7 +404,7 @@ public class Portal extends Entity {
             -width / 2 + shrinkFactor,
             height / 2 - shrinkFactor
         );
-    
+        
         return vertices;
     }
     
@@ -457,20 +457,20 @@ public class Portal extends Entity {
     
     public boolean isPointInPortalProjection(Vec3d pos) {
         Vec3d offset = pos.subtract(getPos());
-    
+        
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
-    
+        
         boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.1) &&
             Math.abs(yInPlane) < (height / 2 + 0.1);
-    
+        
         if (roughResult && specialShape != null) {
             return specialShape.triangles.stream()
                 .anyMatch(triangle ->
                     triangle.isPointInTriangle(xInPlane, yInPlane)
                 );
         }
-    
+        
         return roughResult;
     }
     

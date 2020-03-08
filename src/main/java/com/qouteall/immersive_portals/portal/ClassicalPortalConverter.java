@@ -120,7 +120,7 @@ public class ClassicalPortalConverter {
         Function<ServerWorld, Predicate<BlockPos>> portalFrame,
         EntityType<NewNetherPortalEntity> entityType
     ) {
-        BlockPos playerPos = player.getBlockPos();
+        BlockPos playerPos = new BlockPos(player.getPos());
         BlockPos.Mutable temp = new BlockPos.Mutable();
         Predicate<BlockPos> portalBodyPredicate = portalBody.apply(((ServerWorld) player.world));
         Predicate<BlockPos> portalFramePredicate = portalFrame.apply(((ServerWorld) player.world));

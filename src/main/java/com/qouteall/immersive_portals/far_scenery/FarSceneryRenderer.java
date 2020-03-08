@@ -105,7 +105,7 @@ public class FarSceneryRenderer {
     }
     
     public static void updateCullingEquation(double distance, Direction direction) {
-        Vec3d planeNormal = new Vec3d(direction.getVector());
+        Vec3d planeNormal =  Vec3d.method_24954(direction.getVector());
         Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
         
         Vec3d portalPos = planeNormal.multiply(distance);

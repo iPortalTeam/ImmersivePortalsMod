@@ -46,10 +46,10 @@ dependencies {
 	compile files('ofstuff_pre1.jar')
 
 	modApi "me.shedaniel.cloth:config-2:2.9.3"
-	modImplementation "io.github.prospector:modmenu:1.10.1+build.30"
+	modImplementation "io.github.prospector:modmenu:1.10.2+build.1"
 
-	include "me.shedaniel.cloth:config-2:2.9.3"
-	include "io.github.prospector:modmenu:1.10.1+build.30"
+	//include "me.shedaniel.cloth:config-2:3.0.1"
+	//include "io.github.prospector:modmenu:1.10.2+build.1"
 }
 
 processResources {

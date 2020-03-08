@@ -62,7 +62,7 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
-        Vec3d pos = new Vec3d(requestPos);
+        Vec3d pos = Vec3d.method_24954(requestPos);
         Vec3d playerPos = player.getPos();
         double multiplier = HandReachTweak.getActualHandReachMultiplier(player);
         double distanceSquare = 6 * 6 * multiplier * multiplier;

@@ -16,7 +16,7 @@ public class MixinNetherPortalBlock {
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onCreatePortal(
+    private static void onCreatePortal(
         IWorld iWorld_1,
         BlockPos blockPos_1,
         CallbackInfoReturnable<Boolean> cir

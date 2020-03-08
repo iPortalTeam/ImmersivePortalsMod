@@ -285,19 +285,19 @@ public class BlockPortalShape {
             wDirection = anotherFourDirections[1];
             hDirection = anotherFourDirections[0];
         }
-        portal.axisW = new Vec3d(wDirection.getVector());
-        portal.axisH = new Vec3d(hDirection.getVector());
+        portal.axisW =  Vec3d.method_24954(wDirection.getVector());
+        portal.axisH =  Vec3d.method_24954(hDirection.getVector());
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
     
         GeometryPortalShape shape = new GeometryPortalShape();
-        Vec3d offset = new Vec3d(
+        Vec3d offset = Vec3d.method_24954(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
         for (BlockPos blockPos : area) {
-            Vec3d p1 = new Vec3d(blockPos).add(offset);
-            Vec3d p2 = new Vec3d(blockPos).add(1, 1, 1).add(offset);
+            Vec3d p1 = Vec3d.method_24954(blockPos).add(offset);
+            Vec3d p2 = Vec3d.method_24954(blockPos).add(1, 1, 1).add(offset);
             double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
             double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
             double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
@@ -319,12 +319,12 @@ public class BlockPortalShape {
             blockPos -> area.contains(blockPos),
             axis
         );
-        Vec3d offset = new Vec3d(
+        Vec3d offset = Vec3d.method_24954(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
-        Vec3d p1 = new Vec3d(expandedRectangle.l).add(offset);
-        Vec3d p2 = new Vec3d(expandedRectangle.h).add(1, 1, 1).add(offset);
+        Vec3d p1 = Vec3d.method_24954(expandedRectangle.l).add(offset);
+        Vec3d p2 = Vec3d.method_24954(expandedRectangle.h).add(1, 1, 1).add(offset);
         Vec3d center = portal.getPos();
         double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
         double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);

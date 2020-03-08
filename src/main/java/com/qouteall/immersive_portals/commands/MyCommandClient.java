@@ -29,6 +29,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
@@ -202,7 +203,7 @@ public class MyCommandClient {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 List<Entity> entities = player.world.getEntities(
                     Entity.class,
-                    new Box(player.getBlockPos()).expand(32),
+                    new Box(player.getPos(),player.getPos()).expand(32),
                     e -> true
                 );
                 McHelper.serverLog(player, entities.toString());
@@ -308,7 +309,7 @@ public class MyCommandClient {
                 MinecraftClient mc = MinecraftClient.getInstance();
                 mc.execute(() -> {
                     mc.world.getChunkManager().getLightingProvider().updateSectionStatus(
-                        ChunkSectionPos.from(mc.player.getBlockPos()),
+                        ChunkSectionPos.from(new BlockPos(mc.player.getPos())),
                         false
                     );
                 });
@@ -568,11 +569,11 @@ public class MyCommandClient {
         
         McHelper.serverLog(
             playerMP,
-            "On Server " + playerMP.dimension + " " + playerMP.getBlockPos()
+            "On Server " + playerMP.dimension + " " + playerMP.getPos()
         );
         McHelper.serverLog(
             playerMP,
-            "On Client " + playerSP.dimension + " " + playerSP.getBlockPos()
+            "On Client " + playerSP.dimension + " " + playerSP.getPos()
         );
         return 0;
     }
