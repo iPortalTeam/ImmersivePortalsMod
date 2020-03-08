@@ -26,7 +26,8 @@
     "MixinProfilerSystem",
     "MixinServerChunkManager",
     "MixinServerWorld",
-    "MixinWorld"
+    "MixinWorld",
+    "MixinFabricEventFactory"
   ],
   "injectors": {
     "defaultRequire": 1

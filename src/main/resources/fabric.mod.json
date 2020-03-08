@@ -3,12 +3,12 @@
   "id": "immersive_portals",
   "version": "0.17",
   "name": "Immersive Portals",
-  "description": "See through nether portals and end portal. Go inside portal seamlessly. Mirrors. World Wrapping. Vertical Dimension Connection. Alternate Dimensions. Hand Reach Tweak. ",
+  "description": "See through nether portals. Go inside portal seamlessly. Use portals to distort the space.",
   "authors": [
     "qouteall"
   ],
   "contact": {
-    "homepage": "https://discord.gg/BZxgURK",
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod",
     "sources": "https://github.com/qouteall/ImmersivePortalsMod",
     "issues": "https://github.com/qouteall/ImmersivePortalsMod/issues"
   },
@@ -34,10 +34,6 @@
     "immersive_portals.mixins_ma.json",
     {
       "config": "immersive_portals.mixins_client.json",
-      "environment": "client"
-    },
-    {
-      "config": "immersive_portals.mixins_ma_client.json",
       "environment": "client"
     }
   ],
