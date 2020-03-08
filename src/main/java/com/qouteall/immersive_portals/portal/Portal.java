@@ -3,10 +3,6 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
@@ -177,7 +173,7 @@ public class Portal extends Entity {
     public void tick() {
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
-            tickClient();
+            //TODO implement player-only portal
         }
         else {
             if (!isPortalValid()) {
@@ -206,17 +202,6 @@ public class Portal extends Entity {
     @Override
     public void move(MovementType type, Vec3d movement) {
         //portal cannot be moved
-    }
-    
-    @Environment(EnvType.CLIENT)
-    private void tickClient() {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null) {
-            if (!canBeSeenByPlayer(player)) {
-                //removed in client but not in server
-                remove();
-            }
-        }
     }
     
     public boolean isPortalValid() {
