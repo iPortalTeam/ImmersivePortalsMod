@@ -246,27 +246,26 @@ public class ViewAreaRenderer {
     ) {
         Vec3d projected = portal.getPointInPortalProjection(cameraPos).subtract(cameraPos);
         Vec3d normal = portal.getNormal();
-        
-        final double boxRadius = 1;
+    
+        final double boxRadius = 1.5;
         final double correctionFactor = 0;
-        Vec3d correction = normal.multiply(correctionFactor);
-        
+    
         Vec3d dx = portal.axisW.multiply(boxRadius);
         Vec3d dy = portal.axisH.multiply(boxRadius);
-        
-        Vec3d a = projected.add(dx).add(dy).add(correction);
-        Vec3d b = projected.subtract(dx).add(dy).add(correction);
-        Vec3d c = projected.subtract(dx).subtract(dy).add(correction);
-        Vec3d d = projected.add(dx).subtract(dy).add(correction);
+    
+        Vec3d a = projected.add(dx).add(dy);
+        Vec3d b = projected.subtract(dx).add(dy);
+        Vec3d c = projected.subtract(dx).subtract(dy);
+        Vec3d d = projected.add(dx).subtract(dy);
     
         Vec3d mid = projected.add(normal.multiply(-0.5));
-        
+    
         Consumer<Vec3d> compactVertexOutput = vertexOutput;
-        
+    
         compactVertexOutput.accept(b);
         compactVertexOutput.accept(mid);
         compactVertexOutput.accept(a);
-        
+    
         compactVertexOutput.accept(c);
         compactVertexOutput.accept(mid);
         compactVertexOutput.accept(b);

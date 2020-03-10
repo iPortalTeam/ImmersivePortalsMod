@@ -184,21 +184,21 @@ public abstract class PortalRenderer {
     
         assert cameraEntity.world == mc.world;
     
-        Vec3d oldPos = cameraEntity.getPos();
-        Vec3d oldLastTickPos = McHelper.lastTickPosOf(cameraEntity);
+        Vec3d oldEyePos = McHelper.getEyePos(cameraEntity);
+        Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
         DimensionType oldDimension = cameraEntity.dimension;
         ClientWorld oldWorld = ((ClientWorld) cameraEntity.world);
     
         Vec3d oldCameraPos = camera.getPos();
     
-        Vec3d newPos = portal.transformationPointRough(oldPos);
-        Vec3d newLastTickPos = portal.transformationPointRough(oldLastTickPos);
+        Vec3d newEyePos = portal.transformPoint(oldEyePos);
+        Vec3d newLastTickEyePos = portal.transformPoint(oldLastTickEyePos);
         DimensionType newDimension = portal.dimensionTo;
         ClientWorld newWorld =
             CGlobal.clientWorldLoader.getOrCreateFakedWorld(newDimension);
         //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
     
-        McHelper.setPosAndLastTickPos(cameraEntity, newPos, newLastTickPos);
+        McHelper.setEyePos(cameraEntity, newEyePos, newLastTickEyePos);
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         mc.world = newWorld;
@@ -211,7 +211,7 @@ public abstract class PortalRenderer {
         cameraEntity.dimension = oldDimension;
         cameraEntity.world = oldWorld;
         mc.world = oldWorld;
-        McHelper.setPosAndLastTickPos(cameraEntity, oldPos, oldLastTickPos);
+        McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
         
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();

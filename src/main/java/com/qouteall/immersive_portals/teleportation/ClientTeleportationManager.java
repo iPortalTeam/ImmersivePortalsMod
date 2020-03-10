@@ -116,10 +116,10 @@ public class ClientTeleportationManager {
     
         DimensionType toDimension = portal.dimensionTo;
     
-        Vec3d oldPos = player.getPos();
+        Vec3d oldEyePos = McHelper.getEyePos(player);
     
-        Vec3d newPos = portal.transformationPointRough(oldPos);
-        Vec3d newLastTickPos = portal.transformationPointRough(McHelper.lastTickPosOf(player));
+        Vec3d newEyePos = portal.transformPoint(oldEyePos);
+        Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
     
         ClientWorld fromWorld = mc.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
@@ -127,15 +127,15 @@ public class ClientTeleportationManager {
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
         
-            changePlayerDimension(player, fromWorld, toWorld, newPos);
+            changePlayerDimension(player, fromWorld, toWorld, newEyePos);
         }
-        
-        player.updatePosition(newPos.x, newPos.y, newPos.z);
-        McHelper.setPosAndLastTickPos(player, newPos, newLastTickPos);
+    
+        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
+        McHelper.updateBoundingBox(player);
     
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
-            oldPos,
+            oldEyePos,
             portal.getUuid()
         ));
     
@@ -181,7 +181,7 @@ public class ClientTeleportationManager {
     }
     
     public void changePlayerDimension(
-        ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d destination
+        ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d newEyePos
     ) {
         Entity vehicle = player.getVehicle();
         player.detach();
@@ -201,21 +201,18 @@ public class ClientTeleportationManager {
         player.world = toWorld;
     
         player.dimension = toDimension;
-        player.updatePosition(
-            destination.x,
-            destination.y,
-            destination.z
-        );//set pos and update bounding box
+        McHelper.setEyePos(player, newEyePos, newEyePos);
+        McHelper.updateBoundingBox(player);
     
         toWorld.addPlayer(player.getEntityId(), player);
-        
+    
         mc.world = toWorld;
         ((IEMinecraftClient) mc).setWorldRenderer(
             CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
         );
-        
+    
         toWorld.setScoreboard(fromWorld.getScoreboard());
-        
+    
         if (mc.particleManager != null)
             mc.particleManager.setWorld(toWorld);
         
@@ -227,9 +224,9 @@ public class ClientTeleportationManager {
         
         if (vehicle != null) {
             Vec3d vehiclePos = new Vec3d(
-                destination.x,
+                newEyePos.x,
                 McHelper.getVehicleY(vehicle, player),
-                destination.z
+                newEyePos.z
             );
             moveClientEntityAcrossDimension(
                 vehicle, toWorld,
@@ -304,6 +301,7 @@ public class ClientTeleportationManager {
         }
     }
     
+    //foot pos, not eye pos
     public static void moveClientEntityAcrossDimension(
         Entity entity,
         ClientWorld newWorld,

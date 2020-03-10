@@ -69,7 +69,7 @@ public class ServerTeleportationManager {
     public void onPlayerTeleportedInClient(
         ServerPlayerEntity player,
         DimensionType dimensionBefore,
-        Vec3d posBefore,
+        Vec3d oldEyePos,
         UUID portalId
     ) {
         ServerWorld originalWorld = McHelper.getServer().getWorld(dimensionBefore);
@@ -81,18 +81,18 @@ public class ServerTeleportationManager {
                 ).findFirst().orElse(null);
         }
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
-        
-        if (canPlayerTeleport(player, dimensionBefore, posBefore, portalEntity)) {
+    
+        if (canPlayerTeleport(player, dimensionBefore, oldEyePos, portalEntity)) {
             if (isTeleporting(player)) {
                 Helper.err(player.toString() + "is teleporting frequently");
             }
-            
+        
             Portal portal = (Portal) portalEntity;
-            
+        
             DimensionType dimensionTo = portal.dimensionTo;
-            Vec3d newPos = portal.transformationPointRough(posBefore);
-            
-            teleportPlayer(player, dimensionTo, newPos);
+            Vec3d newEyePos = portal.transformPoint(oldEyePos);
+        
+            teleportPlayer(player, dimensionTo, newEyePos);
             
             portal.onEntityTeleportedOnServer(player);
         }
@@ -134,23 +134,24 @@ public class ServerTeleportationManager {
         }
         return McHelper.getServerPortalsNearby(player, 20)
             .filter(portal -> portal.dimensionTo == dimension)
-            .map(portal -> portal.transformationPointRough(playerPos))
+            .map(portal -> portal.transformPointRough(playerPos))
             .anyMatch(mappedPos -> mappedPos.squaredDistanceTo(pos) < 256);
     }
     
     public void teleportPlayer(
         ServerPlayerEntity player,
         DimensionType dimensionTo,
-        Vec3d newPos
+        Vec3d newEyePos
     ) {
         ServerWorld fromWorld = (ServerWorld) player.world;
         ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
         
         if (player.dimension == dimensionTo) {
-            player.updatePosition(newPos.x, newPos.y, newPos.z);
+            McHelper.setEyePos(player, newEyePos, newEyePos);
+            McHelper.updateBoundingBox(player);
         }
         else {
-            changePlayerDimension(player, fromWorld, toWorld, newPos);
+            changePlayerDimension(player, fromWorld, toWorld, newEyePos);
             ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
         }
         
@@ -193,39 +194,40 @@ public class ServerTeleportationManager {
         ServerPlayerEntity player,
         ServerWorld fromWorld,
         ServerWorld toWorld,
-        Vec3d destination
+        Vec3d newEyePos
     ) {
         Entity vehicle = player.getVehicle();
         if (vehicle != null) {
             ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
         }
-        
+    
         BlockPos oldPos = player.getBlockPos();
-        
+    
         teleportingEntities.add(player);
-        
+    
         O_O.segregateServerPlayer(fromWorld, player);
-        
-        player.updatePosition(destination.x, destination.y, destination.z);
-        
+    
+        McHelper.setEyePos(player, newEyePos, newEyePos);
+        McHelper.updateBoundingBox(player);
+    
         player.world = toWorld;
         player.dimension = toWorld.dimension.getType();
         toWorld.onPlayerChangeDimension(player);
-        
+    
         toWorld.checkChunk(player);
-        
+    
         player.interactionManager.setWorld(toWorld);
-        
+    
         if (vehicle != null) {
             Vec3d vehiclePos = new Vec3d(
-                destination.x,
+                newEyePos.x,
                 McHelper.getVehicleY(vehicle, player),
-                destination.z
+                newEyePos.z
             );
             changeEntityDimension(
                 vehicle,
                 toWorld.dimension.getType(),
-                vehiclePos
+                vehiclePos.add(0, vehicle.getStandingEyeHeight(), 0)
             );
             ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
             McHelper.adjustVehicle(player);
@@ -253,7 +255,6 @@ public class ServerTeleportationManager {
             ((IEServerPlayerEntity) player).setEnteredNetherPos(player.getPos());
         }
         ((IEServerPlayerEntity) player).updateDimensionTravelAdvancements(fromWorld);
-        
         
         
         GlobalPortalStorage.onPlayerLoggedIn(player);
@@ -314,28 +315,28 @@ public class ServerTeleportationManager {
     private void teleportRegularEntity(Entity entity, Portal portal) {
         assert entity.dimension == portal.dimension;
         assert !(entity instanceof ServerPlayerEntity);
-        
+    
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
         if (currGameTime - lastTeleportGameTime < 2) {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
-        
+    
         if (entity.hasVehicle() || doesEntityClutterContainPlayer(entity)) {
             return;
         }
     
-        Vec3d newPos = portal.transformationPointRough(entity.getPos());
-        
+        Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(entity));
+    
         if (portal.dimensionTo != entity.dimension) {
-            changeEntityDimension(entity, portal.dimensionTo, newPos);
+            changeEntityDimension(entity, portal.dimensionTo, newEyePos);
         }
-        
+    
         entity.updatePosition(
-            newPos.x, newPos.y, newPos.z
+            newEyePos.x, newEyePos.y, newEyePos.z
         );
-        
+    
         portal.onEntityTeleportedOnServer(entity);
     }
     
@@ -345,16 +346,17 @@ public class ServerTeleportationManager {
     public void changeEntityDimension(
         Entity entity,
         DimensionType toDimension,
-        Vec3d destination
+        Vec3d newEyePos
     ) {
         ServerWorld fromWorld = (ServerWorld) entity.world;
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
         entity.detach();
-        
+    
         O_O.segregateServerEntity(fromWorld, entity);
-        
-        entity.updatePosition(destination.x, destination.y, destination.z);
-        
+    
+        McHelper.setEyePos(entity, newEyePos, newEyePos);
+        McHelper.updateBoundingBox(entity);
+    
         entity.world = toWorld;
         entity.dimension = toDimension;
         toWorld.onDimensionChanged(entity);

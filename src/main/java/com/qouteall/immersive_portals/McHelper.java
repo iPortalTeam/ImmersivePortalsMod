@@ -290,4 +290,8 @@ public class McHelper {
             e -> true
         ).stream();
     }
+    
+    public static void updateBoundingBox(Entity player) {
+        player.updatePosition(player.getX(), player.getY(), player.getZ());
+    }
 }
