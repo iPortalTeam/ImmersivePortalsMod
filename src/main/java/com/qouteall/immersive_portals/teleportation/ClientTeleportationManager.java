@@ -115,18 +115,18 @@ public class ClientTeleportationManager {
         ClientPlayerEntity player = mc.player;
     
         DimensionType toDimension = portal.dimensionTo;
-        
+    
         Vec3d oldPos = player.getPos();
-        
-        Vec3d newPos = portal.applyTransformationToPoint(oldPos);
-        Vec3d newLastTickPos = portal.applyTransformationToPoint(McHelper.lastTickPosOf(player));
-        
+    
+        Vec3d newPos = portal.transformationPointRough(oldPos);
+        Vec3d newLastTickPos = portal.transformationPointRough(McHelper.lastTickPosOf(player));
+    
         ClientWorld fromWorld = mc.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
-        
+    
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
-            
+        
             changePlayerDimension(player, fromWorld, toWorld, newPos);
         }
         

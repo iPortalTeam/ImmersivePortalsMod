@@ -122,12 +122,6 @@ public abstract class PortalRenderer {
             return;
         }
     
-        //test
-//        boolean worldLoaded = CGlobal.clientWorldLoader.clientWorldMap.containsKey(portal.dimensionTo);
-//        if (!worldLoaded) {
-//            return;
-//        }
-    
         Vec3d thisTickEyePos = getRoughTestCameraPos();
     
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
@@ -136,6 +130,7 @@ public abstract class PortalRenderer {
         
         if (isRendering()) {
             //avoid rendering reverse portal inside portal
+            //TODO render portal area with correct culling
             Portal outerPortal = portalLayers.peek();
             if (!outerPortal.canRenderPortalInsideMe(portal)) {
                 return;
@@ -186,23 +181,23 @@ public abstract class PortalRenderer {
         }
     
         MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
-        
+    
         assert cameraEntity.world == mc.world;
-        
+    
         Vec3d oldPos = cameraEntity.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         DimensionType oldDimension = cameraEntity.dimension;
         ClientWorld oldWorld = ((ClientWorld) cameraEntity.world);
-        
+    
         Vec3d oldCameraPos = camera.getPos();
-        
-        Vec3d newPos = portal.applyTransformationToPoint(oldPos);
-        Vec3d newLastTickPos = portal.applyTransformationToPoint(oldLastTickPos);
+    
+        Vec3d newPos = portal.transformationPointRough(oldPos);
+        Vec3d newLastTickPos = portal.transformationPointRough(oldLastTickPos);
         DimensionType newDimension = portal.dimensionTo;
         ClientWorld newWorld =
             CGlobal.clientWorldLoader.getOrCreateFakedWorld(newDimension);
         //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
-        
+    
         McHelper.setPosAndLastTickPos(cameraEntity, newPos, newLastTickPos);
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;

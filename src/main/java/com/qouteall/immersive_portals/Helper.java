@@ -214,21 +214,6 @@ public class Helper {
             )
         };
     }
-
-//    public static BatchTestResult batchTest(
-//        Vec3d[] testObjs,
-//        Predicate<Vec3d> predicate
-//    ) {
-//        assert testObjs.length == 8;
-//        boolean firstResult = predicate.test(testObjs[0]);
-//        for (int i = 1; i < testObjs.length; i++) {
-//            boolean thisResult = predicate.test(testObjs[i]);
-//            if (thisResult != firstResult) {
-//                return BatchTestResult.both;
-//            }
-//        }
-//        return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
-//    }
     
     @Deprecated
     public static Pair<Direction.Axis, Direction.Axis> getPerpendicularAxis(Direction facing) {
@@ -612,4 +597,5 @@ public class Helper {
         func.accept(t);
         return t;
     }
+    
 }

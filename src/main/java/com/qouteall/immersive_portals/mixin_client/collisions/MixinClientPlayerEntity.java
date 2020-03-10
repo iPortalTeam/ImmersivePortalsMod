@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin_client;
+package com.qouteall.immersive_portals.mixin_client.collisions;
 
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -20,16 +20,4 @@ public class MixinClientPlayerEntity {
             cir.setReturnValue(false);
         }
     }
-    
-    //use portal culled collision box
-//    @Redirect(
-//        method = "cannotFitAt",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/network/ClientPlayerEntity;getBoundingBox()Lnet/minecraft/util/math/Box;"
-//        )
-//    )
-//    private Box redirectGetBoundingBox(ClientPlayerEntity clientPlayerEntity) {
-//        return CollisionHelper.getActiveCollisionBox(clientPlayerEntity);
-//    }
 }

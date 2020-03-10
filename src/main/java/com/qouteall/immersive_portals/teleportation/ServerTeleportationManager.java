@@ -90,7 +90,7 @@ public class ServerTeleportationManager {
             Portal portal = (Portal) portalEntity;
             
             DimensionType dimensionTo = portal.dimensionTo;
-            Vec3d newPos = portal.applyTransformationToPoint(posBefore);
+            Vec3d newPos = portal.transformationPointRough(posBefore);
             
             teleportPlayer(player, dimensionTo, newPos);
             
@@ -134,7 +134,7 @@ public class ServerTeleportationManager {
         }
         return McHelper.getServerPortalsNearby(player, 20)
             .filter(portal -> portal.dimensionTo == dimension)
-            .map(portal -> portal.applyTransformationToPoint(playerPos))
+            .map(portal -> portal.transformationPointRough(playerPos))
             .anyMatch(mappedPos -> mappedPos.squaredDistanceTo(pos) < 256);
     }
     
@@ -325,8 +325,8 @@ public class ServerTeleportationManager {
         if (entity.hasVehicle() || doesEntityClutterContainPlayer(entity)) {
             return;
         }
-        
-        Vec3d newPos = portal.applyTransformationToPoint(entity.getPos());
+    
+        Vec3d newPos = portal.transformationPointRough(entity.getPos());
         
         if (portal.dimensionTo != entity.dimension) {
             changeEntityDimension(entity, portal.dimensionTo, newPos);

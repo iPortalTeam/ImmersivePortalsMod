@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.commands;
 
 import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -17,6 +18,7 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
 import net.minecraft.command.arguments.TextArgumentType;
@@ -30,6 +32,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -180,7 +183,7 @@ public class MyCommandServer {
                 ).then(
                     CommandManager.argument(
                         "dest",
-                        Vec3ArgumentType.vec3()
+                        Vec3ArgumentType.vec3(false)
                     ).executes(
                         context -> processPortalTargetedCommand(
                             context,
@@ -206,6 +209,105 @@ public class MyCommandServer {
                 )
             )
         );
+    
+        builder.then(CommandManager
+            .literal("set_portal_rotation")
+            .then(
+                CommandManager.argument(
+                    "rotatingAxis",
+                    Vec3ArgumentType.vec3(false)
+                ).then(
+                    CommandManager.argument(
+                        "angleDegrees",
+                        DoubleArgumentType.doubleArg()
+                    ).executes(
+                        context -> processPortalTargetedCommand(
+                            context,
+                            portal -> {
+                                try {
+                                    Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
+                                        context, "rotatingAxis"
+                                    );
+                                
+                                    double angleDegrees = DoubleArgumentType.getDouble(
+                                        context, "angleDegrees"
+                                    );
+                                
+                                    portal.rotation = new Quaternion(
+                                        new Vector3f(
+                                            (float) rotatingAxis.x,
+                                            (float) rotatingAxis.y,
+                                            (float) rotatingAxis.z
+                                        ),
+                                        (float) angleDegrees,
+                                        true
+                                    );
+                                
+                                    portal.updateCache();
+                                
+                                    reloadPortal(portal);
+                                
+                                
+                                }
+                                catch (CommandSyntaxException ignored) {
+                                    ignored.printStackTrace();
+                                }
+                            }
+                        )
+                    )
+                )
+            )
+        );
+
+//        builder.then(CommandManager
+//            .literal("rotate_portal")
+//            .then(
+//                CommandManager.argument(
+//                    "rotatingAxis",
+//                    Vec3ArgumentType.vec3(false)
+//                ).then(
+//                    CommandManager.argument(
+//                        "angleDegrees",
+//                        DoubleArgumentType.doubleArg()
+//                    ).executes(
+//                        context -> processPortalTargetedCommand(
+//                            context,
+//                            portal -> {
+//                                try {
+//                                    Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
+//                                        context, "rotatingAxis"
+//                                    );
+//
+//                                    double angleDegrees = DoubleArgumentType.getDouble(
+//                                        context, "angleDegrees"
+//                                    );
+//
+//                                    Quaternion rotation = new Quaternion(
+//                                        new Vector3f(
+//                                            (float) rotatingAxis.x,
+//                                            (float) rotatingAxis.y,
+//                                            (float) rotatingAxis.z
+//                                        ),
+//                                        (float) angleDegrees,
+//                                        true
+//                                    );
+//                                    MatrixStack matrixStack = new MatrixStack();
+//                                    matrixStack.multiply(rotation);
+//                                    portal.axisW=matrixStack.peek().getModel().
+//
+//                                    reloadPortal(portal);
+//
+//
+//                                }
+//                                catch (CommandSyntaxException ignored) {
+//                                    ignored.printStackTrace();
+//                                }
+//                            }
+//                        )
+//                    )
+//                )
+//            )
+//        );
     
     
         builder.then(CommandManager
@@ -552,6 +654,8 @@ public class MyCommandServer {
             -portal.cullableYEnd
         );
     
+        newPortal.rotation = portal.rotation;
+    
         toWorld.spawnEntity(newPortal);
     
         return newPortal;
@@ -591,6 +695,8 @@ public class MyCommandServer {
             -portal.cullableYStart,
             -portal.cullableYEnd
         );
+    
+        newPortal.rotation = portal.rotation;
     
         world.spawnEntity(newPortal);
     

@@ -87,10 +87,10 @@ public class BlockManipulationClient {
     ) {
         MinecraftClient mc = MinecraftClient.getInstance();
         
-        Vec3d from = portal.applyTransformationToPoint(
+        Vec3d from = portal.transformPoint(
             cameraPos.add(viewVector.multiply(beginDistance))
         );
-        Vec3d to = portal.applyTransformationToPoint(
+        Vec3d to = portal.transformPoint(
             cameraPos.add(viewVector.multiply(endDistance))
         );
         
