@@ -655,13 +655,8 @@ public class Helper {
             // and normalize the result.
             
             Quaternion result = quaternionNumAdd(
-                v0.copy(),
-                quaternionScale(
-                    quaternionNumAdd(
-                        v1.copy(), quaternionScale(v0.copy(), -1)
-                    ),
-                    t
-                )
+                quaternionScale(v0, 1 - t),
+                quaternionScale(v1, t)
             );
             result.normalize();
             return result;
@@ -672,27 +667,29 @@ public class Helper {
         double theta = theta_0 * t;          // theta = angle between v0 and result
         double sin_theta = Math.sin(theta);     // compute this value only once
         double sin_theta_0 = Math.sin(theta_0); // compute this value only once
-        
+    
         double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
         double s1 = sin_theta / sin_theta_0;
-        
+    
         return quaternionNumAdd(
             quaternionScale(v0, (float) s0),
             quaternionScale(v1, (float) s1)
         );
     }
     
-    public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
-        Vector3f vector3f = new Vector3f(vec);
-        vector3f.rotate(rotation);
-        return new Vec3d(vector3f);
-    }
-    
-    public static boolean isClose(Quaternion a, Quaternion b) {
+    public static boolean isClose(Quaternion a, Quaternion b, float valve) {
+        a.normalize();
+        b.normalize();
         float da = a.getA() - b.getA();
         float db = a.getB() - b.getB();
         float dc = a.getC() - b.getC();
         float dd = a.getD() - b.getD();
-        return da * da + db * db + dc * dc + dd * dd < 0.05f;
+        return da * da + db * db + dc * dc + dd * dd < valve;
+    }
+    
+    public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
+        Vector3f vector3f = new Vector3f(vec);
+        vector3f.rotate(rotation);
+        return new Vec3d(vector3f);
     }
 }

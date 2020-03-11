@@ -7,11 +7,15 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.ducks.IEMatrix4f;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.Matrix3f;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -105,10 +109,10 @@ public abstract class PortalRenderer {
         assert mc.cameraEntity.dimension == mc.world.dimension.getType();
     
         //currently does not support nested portal rendering in mirror
-        if (MyRenderHelper.isRenderingMirror()) {
-            return;
-        }
-        
+//        if (MyRenderHelper.isRenderingMirror()) {
+//            return;
+//        }
+    
         for (Portal portal : getPortalsNearbySorted()) {
             renderPortalIfRoughCheckPassed(portal, matrixStack);
         }
@@ -247,7 +251,14 @@ public abstract class PortalRenderer {
                 rot.conjugate();
                 matrixStack.multiply(rot);
             }
+            else if (portal instanceof Mirror) {
+                float[] arr =
+                    TransformationManager.getMirrorTransformation(portal.getNormal());
+                Matrix4f matrix = new Matrix4f();
+                ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
+                matrixStack.peek().getModel().multiply(matrix);
+                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+            }
         });
-        //TODO move mirror transformation to here
     }
 }

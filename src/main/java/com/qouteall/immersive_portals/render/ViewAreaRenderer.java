@@ -129,7 +129,7 @@ public class ViewAreaRenderer {
         Vec3d[] backFace = Arrays.stream(portal.getFourVerticesLocal(0))
             .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
             .toArray(Vec3d[]::new);
-
+    
         putIntoQuad(
             vertexOutput,
             frontFace[0],
@@ -194,7 +194,7 @@ public class ViewAreaRenderer {
         if (OFInterface.isShaders.getAsBoolean()) {
             fogColor = Vec3d.ZERO;
         }
-        
+    
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         buildPortalViewAreaTrianglesBuffer(
@@ -206,14 +206,22 @@ public class ViewAreaRenderer {
             portal instanceof Mirror ? 0 : 0.45F
         );
     
+        boolean shouldReverseCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
+        if (shouldReverseCull) {
+            MyRenderHelper.applyMirrorFaceCulling();
+        }
+    
         McHelper.runWithTransformation(
             matrixStack,
             () -> tessellator.draw()
         );
-        
-        GlStateManager.enableCull();
+    
+        if (shouldReverseCull) {
+            MyRenderHelper.recoverFaceCulling();
+        }
+    
         GlStateManager.enableTexture();
-        
+    
         MinecraftClient.getInstance().getProfiler().pop();
     }
     

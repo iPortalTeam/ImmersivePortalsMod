@@ -224,7 +224,7 @@ public class MyCommandServer {
                                 try {
                                     Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
                                         context, "rotatingAxis"
-                                    );
+                                    ).normalize();
     
                                     double angleDegrees = DoubleArgumentType.getDouble(
                                         context, "angleDegrees"
@@ -253,57 +253,50 @@ public class MyCommandServer {
                 )
             )
         );
-
-//        builder.then(CommandManager
-//            .literal("rotate_portal")
-//            .then(
-//                CommandManager.argument(
-//                    "rotatingAxis",
-//                    Vec3ArgumentType.vec3(false)
-//                ).then(
-//                    CommandManager.argument(
-//                        "angleDegrees",
-//                        DoubleArgumentType.doubleArg()
-//                    ).executes(
-//                        context -> processPortalTargetedCommand(
-//                            context,
-//                            portal -> {
-//                                try {
-//                                    Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
-//                                        context, "rotatingAxis"
-//                                    );
-//
-//                                    double angleDegrees = DoubleArgumentType.getDouble(
-//                                        context, "angleDegrees"
-//                                    );
-//
-//                                    Quaternion rotation = new Quaternion(
-//                                        new Vector3f(
-//                                            (float) rotatingAxis.x,
-//                                            (float) rotatingAxis.y,
-//                                            (float) rotatingAxis.z
-//                                        ),
-//                                        (float) angleDegrees,
-//                                        true
-//                                    );
-//                                    MatrixStack matrixStack = new MatrixStack();
-//                                    matrixStack.multiply(rotation);
-//                                    portal.axisW=matrixStack.peek().getModel().
-//
-//                                    reloadPortal(portal);
-//
-//
-//                                }
-//                                catch (CommandSyntaxException ignored) {
-//                                    ignored.printStackTrace();
-//                                }
-//                            }
-//                        )
-//                    )
-//                )
-//            )
-//        );
     
+        builder.then(CommandManager
+            .literal("rotate_portal_body")
+            .then(
+                CommandManager.argument(
+                    "rotatingAxis",
+                    Vec3ArgumentType.vec3(false)
+                ).then(
+                    CommandManager.argument(
+                        "angleDegrees",
+                        DoubleArgumentType.doubleArg()
+                    ).executes(
+                        context -> processPortalTargetedCommand(
+                            context,
+                            portal -> {
+                                try {
+                                    Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
+                                        context, "rotatingAxis"
+                                    ).normalize();
+                                
+                                    double angleDegrees = DoubleArgumentType.getDouble(
+                                        context, "angleDegrees"
+                                    );
+                                
+                                    PortalManipulation.rotatePortalBody(
+                                        portal,
+                                        new Quaternion(
+                                            new Vector3f(rotatingAxis),
+                                            (float) angleDegrees,
+                                            true
+                                        )
+                                    );
+                                
+                                    reloadPortal(portal);
+                                }
+                                catch (CommandSyntaxException ignored) {
+                                    ignored.printStackTrace();
+                                }
+                            }
+                        )
+                    )
+                )
+            )
+        );
     
         builder.then(CommandManager
             .literal("tpme")

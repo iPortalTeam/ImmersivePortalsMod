@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -62,18 +63,22 @@ public class PortalManipulation {
         );
         
         if (portal.rotation != null) {
-            newPortal.axisW = Helper.getRotated(portal.rotation, newPortal.axisW);
-            newPortal.axisH = Helper.getRotated(portal.rotation, newPortal.axisH);
-            
+            rotatePortalBody(newPortal, portal.rotation);
+    
             newPortal.rotation = portal.rotation.copy();
             newPortal.rotation.conjugate();
         }
-        
+    
         newPortal.motionAffinity = portal.motionAffinity;
-        
+    
         world.spawnEntity(newPortal);
-        
+    
         return newPortal;
+    }
+    
+    public static void rotatePortalBody(Portal newPortal, Quaternion rotation) {
+        newPortal.axisW = Helper.getRotated(rotation, newPortal.axisW);
+        newPortal.axisH = Helper.getRotated(rotation, newPortal.axisH);
     }
     
     public static Portal doCompleteBiFacedPortal(Portal portal, EntityType<Portal> entityType) {

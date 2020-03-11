@@ -103,11 +103,6 @@ public class FrustumCuller {
             return false;
         }
         
-        //TODO implement frustum culling for mirror
-        if (MyRenderHelper.isRenderingMirror()) {
-            return false;
-        }
-        
         Box boxInLocalCoordinate = boxInLocalCoordinateSupplier.get();
         
         Vec3d leftPlane = getLeftPlane();

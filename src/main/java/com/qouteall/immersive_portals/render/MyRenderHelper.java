@@ -345,4 +345,14 @@ public class MyRenderHelper {
         glCullFace(GL_BACK);
     }
     
+    public static boolean isRenderingOddNumberOfMirrors() {
+        Stack<Portal> portalLayers = CGlobal.renderer.portalLayers;
+        int number = 0;
+        for (Portal portal : portalLayers) {
+            if (portal instanceof Mirror) {
+                number++;
+            }
+        }
+        return number % 2 == 1;
+    }
 }

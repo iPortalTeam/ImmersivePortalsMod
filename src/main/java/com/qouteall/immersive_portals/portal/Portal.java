@@ -463,7 +463,7 @@ public class Portal extends Entity {
     }
     
     //Server side does not have Matrix3f
-    public Vec3d transformPointRough(Vec3d pos) {
+    public final Vec3d transformPointRough(Vec3d pos) {
         Vec3d offset = destination.subtract(getPos());
         return pos.add(offset);
     }
@@ -475,9 +475,7 @@ public class Portal extends Entity {
     
         Vec3d localPos = pos.subtract(getPos());
     
-        Vector3f temp = new Vector3f(localPos);
-        temp.rotate(rotation);
-        return new Vec3d(temp).add(destination);
+        return transformLocalVec(localPos).add(destination);
     }
     
     public Vec3d transformLocalVec(Vec3d localVec) {

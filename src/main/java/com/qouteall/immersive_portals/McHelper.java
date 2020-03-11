@@ -294,4 +294,8 @@ public class McHelper {
     public static void updateBoundingBox(Entity player) {
         player.updatePosition(player.getX(), player.getY(), player.getZ());
     }
+    
+    public static void test() {
+    
+    }
 }
