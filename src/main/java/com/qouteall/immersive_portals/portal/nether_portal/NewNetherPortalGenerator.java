@@ -97,7 +97,7 @@ public class NewNetherPortalGenerator {
                 return O_O.isObsidian(toWorld, blockPos);
             },
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
-            info -> generatePortalEntities(info, NewNetherPortalEntity.entityType)
+            info -> generateNetherPortalEntities(info, NewNetherPortalEntity.entityType)
         );
         return thisSideShape != null;
     }
@@ -394,7 +394,7 @@ public class NewNetherPortalGenerator {
     //create portal entity and generate obsidian blocks and placeholder blocks
     //the portal blocks will be placed on both sides because the obsidian may break while generating
     //executed on server main thread
-    public static void generatePortalEntities(
+    public static void generateNetherPortalEntities(
         Info info, EntityType<NewNetherPortalEntity> entityType
     ) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);

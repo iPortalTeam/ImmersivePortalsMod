@@ -76,7 +76,7 @@ public class BlockManipulationServer {
             20
         ).anyMatch(portal ->
             portal.dimensionTo == dimension &&
-                portal.applyTransformationToPoint(playerPos).squaredDistanceTo(pos) < distanceSquare
+                portal.transformPointRough(playerPos).squaredDistanceTo(pos) < distanceSquare
         );
     }
     

@@ -138,7 +138,7 @@ public class ChunkVisibilityManager {
             new DimensionalChunkPos(
                 portal.dimensionTo,
                 new ChunkPos(new BlockPos(
-                    portal.applyTransformationToPoint(player.getPos())
+                    portal.transformPointRough(player.getPos())
                 ))
             ),
             renderDistance
@@ -155,8 +155,8 @@ public class ChunkVisibilityManager {
             new DimensionalChunkPos(
                 remotePortal.dimensionTo,
                 new ChunkPos(new BlockPos(
-                    remotePortal.applyTransformationToPoint(
-                        outerPortal.applyTransformationToPoint(player.getPos())
+                    remotePortal.transformPointRough(
+                        outerPortal.transformPointRough(player.getPos())
                     )
                 ))
             ),
@@ -223,7 +223,7 @@ public class ChunkVisibilityManager {
                         ).filter(
                             remotePortal ->
                                 remotePortal.getDistanceToNearestPointInPortal(
-                                    portal.applyTransformationToPoint(player.getPos())
+                                    portal.transformPointRough(player.getPos())
                                 ) < 64
                         ).map(
                             remotePortal -> globalPortalIndirectLoader(

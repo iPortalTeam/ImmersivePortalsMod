@@ -12,6 +12,7 @@ import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.TransformationManager;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -212,7 +213,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (CGlobal.renderer.isRendering()) {
             CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
-            if (MyRenderHelper.isRenderingMirror()) {
+            if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
         }
@@ -407,31 +408,46 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
-    
+        
             //fix sky abnormal with optifine and fog disabled
             if (OFInterface.isFogDisabled.getAsBoolean()) {
                 GL11.glEnable(GL11.GL_FOG);
             }
         }
     
-        if (MyRenderHelper.isRenderingMirror()) {
+        if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
             MyRenderHelper.applyMirrorFaceCulling();
+        }
+    }
+    
+    //fix sun abnormal with optifine and fog disabled
+    @Inject(
+        method = "renderSky",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/render/WorldRenderer;SUN:Lnet/minecraft/util/Identifier;"
+        )
+    )
+    private void onStartRenderingSun(MatrixStack matrixStack, float f, CallbackInfo ci) {
+        if (OFInterface.isFogDisabled.getAsBoolean()) {
+            GL11.glDisable(GL11.GL_FOG);
         }
     }
     
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-    
+        
         if (client.world.dimension instanceof AlternateDimension) {
             AlternateSky.renderAlternateSky(matrixStack_1, float_1);
         }
-    
+        
         if (CGlobal.renderer.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
+            GL11.glDisable(GL11.GL_FOG);
             GlStateManager.enableFog();
             GlStateManager.disableFog();
         }
-    
+        
         MyRenderHelper.recoverFaceCulling();
     }
     
@@ -447,7 +463,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        MyRenderHelper.setupTransformationForMirror(camera, matrices);
+        TransformationManager.processTransformation(camera, matrices);
     }
     
     @Override
@@ -542,7 +558,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
-        MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingMirror();
+        MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
         immediate.draw(layer);
         MyRenderHelper.shouldForceDisableCull = false;
     }

@@ -17,8 +17,22 @@ public class Mirror extends Portal {
         teleportable = false;
     }
     
+    @Override
     public Vec3d getContentDirection() {
         return getNormal();
+    }
+    
+    @Override
+    public Vec3d transformPoint(Vec3d pos) {
+        Vec3d localPos = pos.subtract(getPos());
+        
+        return transformLocalVec(localPos).add(destination);
+    }
+    
+    @Override
+    public Vec3d transformLocalVec(Vec3d localVec) {
+        double len = localVec.dotProduct(getNormal());
+        return localVec.add(getNormal().multiply(len * -2));
     }
     
 }

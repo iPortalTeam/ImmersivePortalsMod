@@ -215,6 +215,25 @@ public class McHelper {
         entity.prevZ = lastTickPos.z;
     }
     
+    public static Vec3d getEyePos(Entity entity) {
+        float eyeHeight = entity.getStandingEyeHeight();
+        return entity.getPos().add(0, eyeHeight, 0);
+    }
+    
+    public static Vec3d getLastTickEyePos(Entity entity) {
+        float eyeHeight = entity.getStandingEyeHeight();
+        return lastTickPosOf(entity).add(0, eyeHeight, 0);
+    }
+    
+    public static void setEyePos(Entity entity, Vec3d eyePos, Vec3d lastTickEyePos) {
+        float eyeHeight = entity.getStandingEyeHeight();
+        setPosAndLastTickPos(
+            entity,
+            eyePos.add(0, -eyeHeight, 0),
+            lastTickEyePos.add(0, -eyeHeight, 0)
+        );
+    }
+    
     public static double getVehicleY(Entity vehicle, Entity passenger) {
         return passenger.getY() - vehicle.getMountedHeightOffset() - passenger.getHeightOffset();
     }
@@ -224,7 +243,7 @@ public class McHelper {
         if (vehicle == null) {
             return;
         }
-    
+        
         vehicle.updatePosition(
             entity.getX(),
             getVehicleY(vehicle, entity),
@@ -267,5 +286,13 @@ public class McHelper {
             box,
             e -> true
         ).stream();
+    }
+    
+    public static void updateBoundingBox(Entity player) {
+        player.updatePosition(player.getX(), player.getY(), player.getZ());
+    }
+    
+    public static void test() {
+    
     }
 }

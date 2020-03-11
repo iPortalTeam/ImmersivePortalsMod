@@ -3,12 +3,14 @@ package com.qouteall.immersive_portals;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.logging.log4j.LogManager;
@@ -214,21 +216,6 @@ public class Helper {
             )
         };
     }
-
-//    public static BatchTestResult batchTest(
-//        Vec3d[] testObjs,
-//        Predicate<Vec3d> predicate
-//    ) {
-//        assert testObjs.length == 8;
-//        boolean firstResult = predicate.test(testObjs[0]);
-//        for (int i = 1; i < testObjs.length; i++) {
-//            boolean thisResult = predicate.test(testObjs[i]);
-//            if (thisResult != firstResult) {
-//                return BatchTestResult.both;
-//            }
-//        }
-//        return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
-//    }
     
     @Deprecated
     public static Pair<Direction.Axis, Direction.Axis> getPerpendicularAxis(Direction facing) {
@@ -276,6 +263,7 @@ public class Helper {
         }
         return wallArea;
     }
+    
     
     public static class SimpleBox<T> {
         public T obj;
@@ -611,5 +599,97 @@ public class Helper {
     public static <T> T makeIntoExpression(T t, Consumer<T> func) {
         func.accept(t);
         return t;
+    }
+    
+    //NOTE this will mutate a and return a
+    public static Quaternion quaternionNumAdd(Quaternion a, Quaternion b) {
+        //TODO correct wrong parameter name for yarn
+        a.set(
+            a.getB() + b.getB(),
+            a.getC() + b.getC(),
+            a.getD() + b.getD(),
+            a.getA() + b.getA()
+        );
+        return a;
+    }
+    
+    //NOTE this will mutate a and reutrn a
+    public static Quaternion quaternionScale(Quaternion a, float scale) {
+        a.set(
+            a.getB() * scale,
+            a.getC() * scale,
+            a.getD() * scale,
+            a.getA() * scale
+        );
+        return a;
+    }
+    
+    //NOTE parameter will be mutated
+    //https://en.wikipedia.org/wiki/Slerp
+    public static Quaternion interpolateQuaternion(
+        Quaternion v0,
+        Quaternion v1,
+        float t
+    ) {
+        v0.normalize();
+        v1.normalize();
+        
+        // Compute the cosine of the angle between the two vectors.
+        double dot = v0.getA() * v1.getA() +
+            v0.getB() * v1.getB() +
+            v0.getC() * v1.getC() +
+            v0.getD() * v1.getD();
+        
+        // If the dot product is negative, slerp won't take
+        // the shorter path. Note that v1 and -v1 are equivalent when
+        // the negation is applied to all four components. Fix by
+        // reversing one quaternion.
+        if (dot < 0.0f) {
+            v1.scale(-1);
+            dot = -dot;
+        }
+        
+        double DOT_THRESHOLD = 0.9995;
+        if (dot > DOT_THRESHOLD) {
+            // If the inputs are too close for comfort, linearly interpolate
+            // and normalize the result.
+            
+            Quaternion result = quaternionNumAdd(
+                quaternionScale(v0, 1 - t),
+                quaternionScale(v1, t)
+            );
+            result.normalize();
+            return result;
+        }
+        
+        // Since dot is in range [0, DOT_THRESHOLD], acos is safe
+        double theta_0 = Math.acos(dot);        // theta_0 = angle between input vectors
+        double theta = theta_0 * t;          // theta = angle between v0 and result
+        double sin_theta = Math.sin(theta);     // compute this value only once
+        double sin_theta_0 = Math.sin(theta_0); // compute this value only once
+    
+        double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
+        double s1 = sin_theta / sin_theta_0;
+    
+        return quaternionNumAdd(
+            quaternionScale(v0, (float) s0),
+            quaternionScale(v1, (float) s1)
+        );
+    }
+    
+    public static boolean isClose(Quaternion a, Quaternion b, float valve) {
+        a.normalize();
+        b.normalize();
+        float da = a.getA() - b.getA();
+        float db = a.getB() - b.getB();
+        float dc = a.getC() - b.getC();
+        float dd = a.getD() - b.getD();
+        return da * da + db * db + dc * dc + dd * dd < valve;
+    }
+    
+    public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
+        Vector3f vector3f = new Vector3f(vec);
+        vector3f.rotate(rotation);
+        return new Vec3d(vector3f);
     }
 }

@@ -140,7 +140,7 @@ public class ClassicalPortalConverter {
             player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_failed"));
         }
         else {
-            NewNetherPortalGenerator.generatePortalEntities(
+            NewNetherPortalGenerator.generateNetherPortalEntities(
                 new NewNetherPortalGenerator.Info(
                     oldWorld.dimension.getType(),
                     player.dimension,

@@ -183,7 +183,7 @@ public class MyGameRenderer {
         Vec3d planeNormal = portal.getContentDirection();
     
         Vec3d portalPos = portal.destination
-            .subtract(portal.getNormal().multiply(-0.01))//avoid z fighting
+            .subtract(portal.getContentDirection().multiply(0.01))//avoid z fighting
             .subtract(mc.gameRenderer.getCamera().getPos());
     
         //equation: planeNormal * p + c > 0

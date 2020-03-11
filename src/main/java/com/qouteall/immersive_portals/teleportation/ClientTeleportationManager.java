@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.TransformationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -31,6 +32,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
+
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
@@ -50,9 +53,9 @@ public class ClientTeleportationManager {
         );
     }
     
-    private static void tick(ClientTeleportationManager this_) {
-        this_.tickTimeForTeleportation++;
-        this_.slowDownPlayerIfCollidingWithPortal();
+    private void tick() {
+        tickTimeForTeleportation++;
+        changePlayerMotionIfCollidingWithPortal();
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -116,33 +119,37 @@ public class ClientTeleportationManager {
         ClientPlayerEntity player = mc.player;
     
         DimensionType toDimension = portal.dimensionTo;
-        
-        Vec3d oldPos = player.getPos();
-        
-        Vec3d newPos = portal.applyTransformationToPoint(oldPos);
-        Vec3d newLastTickPos = portal.applyTransformationToPoint(McHelper.lastTickPosOf(player));
-        
+    
+        Vec3d oldEyePos = McHelper.getEyePos(player);
+    
+        Vec3d newEyePos = portal.transformPoint(oldEyePos);
+        Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
+    
         ClientWorld fromWorld = mc.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
-        
+    
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
-            
-            changePlayerDimension(player, fromWorld, toWorld, newPos);
-        }
         
-        player.updatePosition(newPos.x, newPos.y, newPos.z);
-        McHelper.setPosAndLastTickPos(player, newPos, newLastTickPos);
+            changePlayerDimension(player, fromWorld, toWorld, newEyePos);
+        }
+    
+        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
+        McHelper.updateBoundingBox(player);
     
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
-            oldPos,
+            oldEyePos,
             portal.getUuid()
         ));
     
         amendChunkEntityStatus(player);
     
         McHelper.adjustVehicle(player);
+    
+        player.setVelocity(portal.transformLocalVec(player.getVelocity()));
+    
+        TransformationManager.onClientPlayerTeleported(portal);
     
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
@@ -182,7 +189,7 @@ public class ClientTeleportationManager {
     }
     
     public void changePlayerDimension(
-        ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d destination
+        ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d newEyePos
     ) {
         Entity vehicle = player.getVehicle();
         player.detach();
@@ -202,21 +209,18 @@ public class ClientTeleportationManager {
         player.world = toWorld;
     
         player.dimension = toDimension;
-        player.updatePosition(
-            destination.x,
-            destination.y,
-            destination.z
-        );//set pos and update bounding box
+        McHelper.setEyePos(player, newEyePos, newEyePos);
+        McHelper.updateBoundingBox(player);
     
         toWorld.addPlayer(player.getEntityId(), player);
-        
+    
         mc.world = toWorld;
         ((IEMinecraftClient) mc).setWorldRenderer(
             CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
         );
-        
+    
         toWorld.setScoreboard(fromWorld.getScoreboard());
-        
+    
         if (mc.particleManager != null)
             mc.particleManager.setWorld(toWorld);
         
@@ -228,9 +232,9 @@ public class ClientTeleportationManager {
         
         if (vehicle != null) {
             Vec3d vehiclePos = new Vec3d(
-                destination.x,
+                newEyePos.x,
                 McHelper.getVehicleY(vehicle, player),
-                destination.z
+                newEyePos.z
             );
             moveClientEntityAcrossDimension(
                 vehicle, toWorld,
@@ -286,25 +290,38 @@ public class ClientTeleportationManager {
         }
     }
     
-    private void slowDownPlayerIfCollidingWithPortal() {
-        boolean collidingWithPortal = !mc.player.world.getEntities(
+    private void changePlayerMotionIfCollidingWithPortal() {
+        ClientPlayerEntity player = mc.player;
+        List<Portal> portals = player.world.getEntities(
             Portal.class,
-            mc.player.getBoundingBox().expand(1),
+            player.getBoundingBox().expand(0.5),
             e -> !(e instanceof Mirror)
-        ).isEmpty();
+        );
         
-        if (collidingWithPortal) {
-            slowDownIfTooFast(mc.player, 0.7);
+        if (!portals.isEmpty()) {
+            Portal portal = portals.get(0);
+            if (portal.motionAffinity > 0) {
+                changeMotion(player, portal);
+            }
+            else if (portal.motionAffinity < 0) {
+                if (player.getVelocity().length() > 0.7) {
+                    changeMotion(player, portal);
+                }
+            }
         }
     }
     
-    //if player is falling through looping portals, make it slower
-    private void slowDownIfTooFast(ClientPlayerEntity player, double ratio) {
-        if (player.getVelocity().length() > 0.7) {
-            player.setVelocity(player.getVelocity().multiply(ratio));
-        }
+    private void changeMotion(Entity player, Portal portal) {
+        Vec3d velocity = player.getVelocity();
+        Vec3d velocityOnNormal =
+            portal.getNormal().multiply(velocity.dotProduct(portal.getNormal()));
+        player.setVelocity(
+            velocity.subtract(velocityOnNormal)
+                .add(velocityOnNormal.multiply(1 + portal.motionAffinity))
+        );
     }
     
+    //foot pos, not eye pos
     public static void moveClientEntityAcrossDimension(
         Entity entity,
         ClientWorld newWorld,
