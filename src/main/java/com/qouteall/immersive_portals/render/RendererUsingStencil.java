@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -169,8 +168,8 @@ public class RendererUsingStencil extends PortalRenderer {
     
         RenderSystem.enableDepthTest();
         GlStateManager.depthMask(true);
-        
-        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
+    
+        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true);
         
         GlStateManager.enableBlend();
     
@@ -222,10 +221,10 @@ public class RendererUsingStencil extends PortalRenderer {
     
         //only draw in portalView area
         GL11.glStencilFunc(GL_LEQUAL, thisPortalStencilValue, 0xFF);
-        
+    
         //do not manipulate color packetBuffer
         GL11.glColorMask(false, false, false, false);
-        
+    
         //do manipulate the depth packetBuffer
         GL11.glDepthMask(true);
     
@@ -233,8 +232,8 @@ public class RendererUsingStencil extends PortalRenderer {
     
         GlStateManager.enableDepthTest();
     
-        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
-        
+        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false);
+    
         GL11.glColorMask(true, true, true, true);
     }
     
@@ -269,14 +268,5 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager.enableDepthTest();
     }
     
-    public void renderViewArea(Portal portal, MatrixStack matrixStack) {
-        Entity renderViewEntity = mc.cameraEntity;
-        
-        if (!portal.isInFrontOfPortal(renderViewEntity.getPos())) {
-            return;
-        }
-        
-        renderPortalViewAreaToStencil(portal, matrixStack);
-    }
     
 }

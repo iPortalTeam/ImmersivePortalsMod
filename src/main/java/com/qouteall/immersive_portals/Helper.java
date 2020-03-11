@@ -680,6 +680,9 @@ public class Helper {
     public static boolean isClose(Quaternion a, Quaternion b, float valve) {
         a.normalize();
         b.normalize();
+        if (a.getA() * b.getA() < 0) {
+            a.scale(-1);
+        }
         float da = a.getA() - b.getA();
         float db = a.getB() - b.getB();
         float dc = a.getC() - b.getC();

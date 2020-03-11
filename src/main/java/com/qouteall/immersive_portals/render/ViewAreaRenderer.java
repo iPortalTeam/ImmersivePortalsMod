@@ -169,7 +169,8 @@ public class ViewAreaRenderer {
     
     public static void drawPortalViewTriangle(
         Portal portal,
-        MatrixStack matrixStack
+        MatrixStack matrixStack,
+        boolean doCulling
     ) {
         MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
         
@@ -210,6 +211,12 @@ public class ViewAreaRenderer {
         if (shouldReverseCull) {
             MyRenderHelper.applyMirrorFaceCulling();
         }
+        if (doCulling) {
+            if (CGlobal.renderer.isRendering()) {
+                CGlobal.myGameRenderer.updateCullingPlane(matrixStack);
+                CGlobal.myGameRenderer.startCulling();
+            }
+        }
     
         McHelper.runWithTransformation(
             matrixStack,
@@ -218,6 +225,11 @@ public class ViewAreaRenderer {
     
         if (shouldReverseCull) {
             MyRenderHelper.recoverFaceCulling();
+        }
+        if (doCulling) {
+            if (CGlobal.renderer.isRendering()) {
+                CGlobal.myGameRenderer.endCulling();
+            }
         }
     
         GlStateManager.enableTexture();

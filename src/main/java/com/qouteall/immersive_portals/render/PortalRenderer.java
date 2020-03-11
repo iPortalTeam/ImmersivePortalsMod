@@ -132,17 +132,28 @@ public abstract class PortalRenderer {
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }
-        
+    
         if (isRendering()) {
-            //avoid rendering reverse portal inside portal
-            //TODO render portal area with correct culling
             Portal outerPortal = portalLayers.peek();
-            if (!outerPortal.canRenderPortalInsideMe(portal)) {
+            if (isReversePortal(portal, outerPortal)) {
                 return;
             }
         }
-        
+    
         doRenderPortal(portal, matrixStack);
+    }
+    
+    private static boolean isReversePortal(Portal currPortal, Portal outerPortal) {
+        if (currPortal.dimension != outerPortal.dimensionTo) {
+            return false;
+        }
+        if (currPortal.dimensionTo != outerPortal.dimension) {
+            return false;
+        }
+        if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
+            return false;
+        }
+        return !outerPortal.canRenderEntityInsideMe(currPortal.getPos(), 0.1);
     }
     
     private Vec3d getRoughTestCameraPos() {

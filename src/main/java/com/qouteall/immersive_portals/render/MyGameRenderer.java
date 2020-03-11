@@ -202,7 +202,6 @@ public class MyGameRenderer {
         return clipPlaneEquation;
     }
     
-    
     public void renderPlayerItself(Runnable doRenderEntity) {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();

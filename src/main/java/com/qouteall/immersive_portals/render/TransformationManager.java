@@ -152,22 +152,24 @@ public class TransformationManager {
             Quaternion currentCameraRotation =
                 getFinalRotation(getCameraRotation(player.pitch, player.yaw));
             
-            Quaternion transformedRotation =
+            Quaternion visualRotation =
                 currentCameraRotation.copy();
             Quaternion b = portal.rotation.copy();
             b.conjugate();
-            transformedRotation.hamiltonProduct(b);
-            
+            visualRotation.hamiltonProduct(b);
+    
             Vec3d oldViewVector = player.getRotationVec(MyRenderHelper.partialTicks);
             Vec3d newViewVector = portal.transformLocalVec(oldViewVector);
-            
+    
             player.yaw = getYawFromViewVector(newViewVector);
             player.prevYaw = player.yaw;
             player.pitch = getPitchFromViewVector(newViewVector);
             player.prevPitch = player.pitch;
-            
-            if (!Helper.isClose(currentCameraRotation, transformedRotation, 0.001f)) {
-                inertialRotation = transformedRotation;
+    
+            Quaternion newCameraRotation = getCameraRotation(player.pitch, player.yaw);
+    
+            if (!Helper.isClose(newCameraRotation, visualRotation, 0.001f)) {
+                inertialRotation = visualRotation;
                 interpolationStartTime = System.nanoTime();
                 interpolationEndTime = interpolationStartTime +
                     Helper.secondToNano(1);
@@ -175,7 +177,7 @@ public class TransformationManager {
             else {
 //                Helper.log("avoided");
             }
-            
+    
             updateCamera(client);
         }
     }
