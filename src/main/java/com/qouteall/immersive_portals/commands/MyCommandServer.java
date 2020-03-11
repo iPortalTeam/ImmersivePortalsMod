@@ -12,8 +12,8 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -31,10 +31,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
@@ -42,7 +40,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MyCommandServer {
@@ -243,8 +240,6 @@ public class MyCommandServer {
                                         true
                                     );
     
-                                    portal.updateCache();
-    
                                     reloadPortal(portal);
     
     
@@ -345,9 +340,16 @@ public class MyCommandServer {
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
-                    Portal result = completeBiWayPortal(
-                        portal,
+                    PortalManipulation.removeOverlappedPortals(
+                        McHelper.getServer().getWorld(portal.dimensionTo),
+                        portal.destination,
+                        portal.transformLocalVec(portal.getNormal().multiply(-1)),
                         p -> sendMessage(context, "Removed " + p)
+                    );
+    
+                    Portal result = PortalManipulation.doCompleteBiWayPortal(
+                        portal,
+                        Portal.entityType
                     );
                     sendMessage(context, "Added " + result);
                 }
@@ -359,9 +361,16 @@ public class MyCommandServer {
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal -> {
-                    Portal result = completeBiFacedPortal(
-                        portal,
+                    PortalManipulation.removeOverlappedPortals(
+                        ((ServerWorld) portal.world),
+                        portal.getPos(),
+                        portal.getNormal().multiply(-1),
                         p -> sendMessage(context, "Removed " + p)
+                    );
+    
+                    Portal result = PortalManipulation.doCompleteBiFacedPortal(
+                        portal,
+                        Portal.entityType
                     );
                     sendMessage(context, "Added " + result);
                 }
@@ -373,10 +382,10 @@ public class MyCommandServer {
             .executes(context -> processPortalTargetedCommand(
                 context,
                 portal ->
-                    completeBiWayBiFacedPortal(
+                    PortalManipulation.completeBiWayBiFacedPortal(
                         portal,
                         p -> sendMessage(context, "Removed " + p),
-                        p -> sendMessage(context, "Added " + p)
+                        p -> sendMessage(context, "Added " + p), Portal.entityType
                     )
             ))
         );
@@ -387,25 +396,7 @@ public class MyCommandServer {
                 context,
                 portal -> {
                     Consumer<Portal> removalInformer = p -> sendMessage(context, "Removed " + p);
-                    removeOverlappedPortals(
-                        portal.world,
-                        portal.getPos(),
-                        portal.getNormal().multiply(-1),
-                        removalInformer
-                    );
-                    ServerWorld toWorld = McHelper.getServer().getWorld(portal.dimensionTo);
-                    removeOverlappedPortals(
-                        toWorld,
-                        portal.destination,
-                        portal.getNormal().multiply(-1),
-                        removalInformer
-                    );
-                    removeOverlappedPortals(
-                        toWorld,
-                        portal.destination,
-                        portal.getNormal(),
-                        removalInformer
-                    );
+                    PortalManipulation.removeConnectedPortals(portal, removalInformer);
                 }
             ))
         );
@@ -537,6 +528,7 @@ public class MyCommandServer {
                 return false;
             }
             portal.removed = false;
+            portal.updateCache();
             portal.world.spawnEntity(portal);
             return true;
         });
@@ -617,143 +609,6 @@ public class MyCommandServer {
                 portalAndHitPos -> portalAndHitPos.getSecond().squaredDistanceTo(from)
             )
         );
-    }
-    
-    private static Portal completeBiWayPortal(
-        Portal portal, Consumer<Portal> removalInformer
-    ) {
-        ServerWorld toWorld = McHelper.getServer().getWorld(portal.dimensionTo);
-        removeOverlappedPortals(
-            toWorld,
-            portal.destination,
-            portal.getNormal().multiply(-1),
-            removalInformer
-        );
-        
-        Portal newPortal = Portal.entityType.create(toWorld);
-        newPortal.dimensionTo = portal.dimension;
-        newPortal.updatePosition(portal.destination.x, portal.destination.y, portal.destination.z);
-        newPortal.destination = portal.getPos();
-        newPortal.loadFewerChunks = portal.loadFewerChunks;
-        newPortal.specificPlayer = portal.specificPlayer;
-    
-        newPortal.width = portal.width;
-        newPortal.height = portal.height;
-        newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH.multiply(-1);
-    
-        if (portal.specialShape != null) {
-            newPortal.specialShape = new GeometryPortalShape();
-            initFlippedShape(newPortal, portal.specialShape);
-        }
-    
-        newPortal.initCullableRange(
-            portal.cullableXStart,
-            portal.cullableXEnd,
-            -portal.cullableYStart,
-            -portal.cullableYEnd
-        );
-    
-        if (portal.rotation != null) {
-            newPortal.axisW = Helper.getRotated(portal.rotation, newPortal.axisW);
-            newPortal.axisH = Helper.getRotated(portal.rotation, newPortal.axisH);
-        
-            newPortal.rotation = portal.rotation.copy();
-            newPortal.rotation.conjugate();
-        }
-    
-        toWorld.spawnEntity(newPortal);
-    
-        return newPortal;
-    }
-    
-    private static Portal completeBiFacedPortal(
-        Portal portal, Consumer<Portal> removalInformer
-    ) {
-        ServerWorld world = ((ServerWorld) portal.world);
-        removeOverlappedPortals(
-            world,
-            portal.getPos(),
-            portal.getNormal().multiply(-1),
-            removalInformer
-        );
-        
-        Portal newPortal = Portal.entityType.create(world);
-        newPortal.dimensionTo = portal.dimensionTo;
-        newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
-        newPortal.destination = portal.destination;
-        newPortal.loadFewerChunks = portal.loadFewerChunks;
-        newPortal.specificPlayer = portal.specificPlayer;
-    
-        newPortal.width = portal.width;
-        newPortal.height = portal.height;
-        newPortal.axisW = portal.axisW;
-        newPortal.axisH = portal.axisH.multiply(-1);
-    
-        if (portal.specialShape != null) {
-            newPortal.specialShape = new GeometryPortalShape();
-            initFlippedShape(newPortal, portal.specialShape);
-        }
-    
-        newPortal.initCullableRange(
-            portal.cullableXStart,
-            portal.cullableXEnd,
-            -portal.cullableYStart,
-            -portal.cullableYEnd
-        );
-    
-        newPortal.rotation = portal.rotation;
-//        if (portal.rotation != null) {
-//            newPortal.rotation = portal.rotation.copy();
-//            newPortal.rotation.conjugate();
-//        }
-    
-        world.spawnEntity(newPortal);
-    
-        return newPortal;
-    }
-    
-    private static void initFlippedShape(Portal newPortal, GeometryPortalShape specialShape) {
-        newPortal.specialShape.triangles = specialShape.triangles.stream()
-            .map(triangle -> new GeometryPortalShape.TriangleInPlane(
-                triangle.x1,
-                -triangle.y1,
-                triangle.x2,
-                -triangle.y2,
-                triangle.x3,
-                -triangle.y3
-            )).collect(Collectors.toList());
-    }
-    
-    private static void completeBiWayBiFacedPortal(
-        Portal portal, Consumer<Portal> removalInformer,
-        Consumer<Portal> addingInformer
-    ) {
-        Portal oppositeFacedPortal = completeBiFacedPortal(portal, removalInformer);
-        Portal r1 = completeBiWayPortal(portal, removalInformer);
-        Portal r2 = completeBiWayPortal(oppositeFacedPortal, removalInformer);
-        addingInformer.accept(oppositeFacedPortal);
-        addingInformer.accept(r1);
-        addingInformer.accept(r2);
-    }
-    
-    private static void removeOverlappedPortals(
-        World world,
-        Vec3d pos,
-        Vec3d normal,
-        Consumer<Portal> informer
-    ) {
-        world.getEntities(
-            Portal.class,
-            new Box(
-                pos.add(0.5, 0.5, 0.5),
-                pos.subtract(0.5, 0.5, 0.5)
-            ),
-            p -> p.getNormal().dotProduct(normal) > 0.5
-        ).forEach(e -> {
-            e.remove();
-            informer.accept(e);
-        });
     }
     
 }

@@ -32,6 +32,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.List;
+
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
     MinecraftClient mc = MinecraftClient.getInstance();
@@ -50,9 +52,9 @@ public class ClientTeleportationManager {
         );
     }
     
-    private static void tick(ClientTeleportationManager this_) {
-        this_.tickTimeForTeleportation++;
-        this_.slowDownPlayerIfCollidingWithPortal();
+    private void tick() {
+        tickTimeForTeleportation++;
+        changePlayerMotionIfCollidingWithPortal();
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -287,23 +289,35 @@ public class ClientTeleportationManager {
         }
     }
     
-    private void slowDownPlayerIfCollidingWithPortal() {
-        boolean collidingWithPortal = !mc.player.world.getEntities(
+    private void changePlayerMotionIfCollidingWithPortal() {
+        ClientPlayerEntity player = mc.player;
+        List<Portal> portals = player.world.getEntities(
             Portal.class,
-            mc.player.getBoundingBox().expand(1),
+            player.getBoundingBox().expand(0.5),
             e -> !(e instanceof Mirror)
-        ).isEmpty();
+        );
         
-        if (collidingWithPortal) {
-            slowDownIfTooFast(mc.player, 0.7);
+        if (!portals.isEmpty()) {
+            Portal portal = portals.get(0);
+            if (portal.motionAffinity > 0) {
+                changeMotion(player, portal);
+            }
+            else if (portal.motionAffinity < 0) {
+                if (player.getVelocity().length() > 0.7) {
+                    changeMotion(player, portal);
+                }
+            }
         }
     }
     
-    //if player is falling through looping portals, make it slower
-    private void slowDownIfTooFast(ClientPlayerEntity player, double ratio) {
-        if (player.getVelocity().length() > 0.7) {
-            player.setVelocity(player.getVelocity().multiply(ratio));
-        }
+    private void changeMotion(Entity player, Portal portal) {
+        Vec3d velocity = player.getVelocity();
+        Vec3d velocityOnNormal =
+            portal.getNormal().multiply(velocity.dotProduct(portal.getNormal()));
+        player.setVelocity(
+            velocity.subtract(velocityOnNormal)
+                .add(velocityOnNormal.multiply(1 + portal.motionAffinity))
+        );
     }
     
     //foot pos, not eye pos

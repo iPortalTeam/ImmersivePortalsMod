@@ -125,17 +125,6 @@ public class Portal extends Entity {
         }
     }
     
-    public boolean isCullable() {
-        if (specialShape == null) {
-            initDefaultCullableRange();
-        }
-        return cullableXStart != cullableXEnd;
-    }
-    
-    public boolean isTeleportable() {
-        return teleportable;
-    }
-    
     @Override
     protected void writeCustomDataToTag(CompoundTag compoundTag) {
         compoundTag.putDouble("width", width);
@@ -172,9 +161,22 @@ public class Portal extends Entity {
         compoundTag.putDouble("motionAffinity", motionAffinity);
     }
     
-    @Deprecated
-    public void updateCache() {
+    public boolean isCullable() {
+        if (specialShape == null) {
+            initDefaultCullableRange();
+        }
+        return cullableXStart != cullableXEnd;
+    }
     
+    public boolean isTeleportable() {
+        return teleportable;
+    }
+    
+    public void updateCache() {
+        boundingBoxCache = null;
+        normal = null;
+        getBoundingBox();
+        getNormal();
     }
     
     public void initDefaultCullableRange() {

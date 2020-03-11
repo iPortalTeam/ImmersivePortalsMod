@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -40,18 +39,21 @@ public class TransformationManager {
     public static Quaternion getFinalRotation(Quaternion cameraRotation) {
         double progress = (System.nanoTime() - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
-        
+    
         if (progress < 0 || progress >= 1) {
             return cameraRotation;
         }
-        
-        return CHelper.interpolateQuaternion(
-            inertialRotation, cameraRotation, (float) progress
+    
+        progress = mapProgress(progress);
+    
+        return Helper.interpolateQuaternion(
+            inertialRotation.copy(), cameraRotation, (float) progress
         );
     }
     
     private static double mapProgress(double progress) {
-        return Math.sqrt(1 - (1 - progress) * (1 - progress));
+        return Math.sin(progress * (Math.PI / 2));
+        //return Math.sqrt(1 - (1 - progress) * (1 - progress));
     }
     
     public static Quaternion getCameraRotation(float pitch, float yaw) {
@@ -137,20 +139,26 @@ public class TransformationManager {
             Quaternion b = portal.rotation.copy();
             b.conjugate();
             transformedRotation.hamiltonProduct(b);
-            
+    
             Vec3d oldViewVector = player.getRotationVec(MyRenderHelper.partialTicks);
             Vec3d newViewVector = portal.transformLocalVec(oldViewVector);
-            
+    
             player.yaw = getYawFromViewVector(newViewVector);
             player.prevYaw = player.yaw;
             player.pitch = getPitchFromViewVector(newViewVector);
             player.prevPitch = player.pitch;
-            
-            inertialRotation = transformedRotation;
-            interpolationStartTime = System.nanoTime();
-            interpolationEndTime = interpolationStartTime +
-                Helper.secondToNano(2);
-            
+    
+            Quaternion newCameraRotation = getCameraRotation(player.pitch, player.yaw);
+            if (!Helper.isClose(newCameraRotation, transformedRotation)) {
+                inertialRotation = transformedRotation;
+                interpolationStartTime = System.nanoTime();
+                interpolationEndTime = interpolationStartTime +
+                    Helper.secondToNano(1);
+            }
+            else {
+                Helper.log("avoided");
+            }
+    
             updateCamera(client);
         }
     }
