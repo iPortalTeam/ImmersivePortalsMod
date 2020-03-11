@@ -46,7 +46,7 @@ public class FrustumCuller {
             );
             downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                 portalOriginInLocalCoordinate,
-                portal.getFourVerticesRelativeToCenter(0)
+                portal.getFourVerticesLocalRotated(0)
             );
         }
         else {
@@ -67,7 +67,7 @@ public class FrustumCuller {
                 );
                 downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                     portalOriginInLocalCoordinate,
-                    portal.getFourVerticesCullableRelativeToCenter(0)
+                    portal.getFourVerticesLocalCullable(0)
                 );
                 nearPlanePosInLocalCoordinate = portalOriginInLocalCoordinate;
                 nearPlaneNormal = portal.getNormal().multiply(-1);

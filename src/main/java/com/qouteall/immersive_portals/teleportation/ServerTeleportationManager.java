@@ -337,6 +337,8 @@ public class ServerTeleportationManager {
             newEyePos.x, newEyePos.y, newEyePos.z
         );
     
+        entity.setVelocity(portal.transformLocalVec(entity.getVelocity()));
+    
         portal.onEntityTeleportedOnServer(entity);
     }
     

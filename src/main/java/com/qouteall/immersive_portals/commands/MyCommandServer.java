@@ -228,11 +228,11 @@ public class MyCommandServer {
                                     Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
                                         context, "rotatingAxis"
                                     );
-                                
+    
                                     double angleDegrees = DoubleArgumentType.getDouble(
                                         context, "angleDegrees"
                                     );
-                                
+    
                                     portal.rotation = new Quaternion(
                                         new Vector3f(
                                             (float) rotatingAxis.x,
@@ -242,12 +242,12 @@ public class MyCommandServer {
                                         (float) angleDegrees,
                                         true
                                     );
-                                
+    
                                     portal.updateCache();
-                                
+    
                                     reloadPortal(portal);
-                                
-                                
+    
+    
                                 }
                                 catch (CommandSyntaxException ignored) {
                                     ignored.printStackTrace();
@@ -532,7 +532,7 @@ public class MyCommandServer {
         
         Helper.SimpleBox<Integer> counter = new Helper.SimpleBox<>(0);
         ModMain.serverTaskList.addTask(() -> {
-            if (counter.obj < 3) {
+            if (counter.obj < 2) {
                 counter.obj++;
                 return false;
             }
@@ -654,7 +654,13 @@ public class MyCommandServer {
             -portal.cullableYEnd
         );
     
-        newPortal.rotation = portal.rotation;
+        if (portal.rotation != null) {
+            newPortal.axisW = Helper.getRotated(portal.rotation, newPortal.axisW);
+            newPortal.axisH = Helper.getRotated(portal.rotation, newPortal.axisH);
+        
+            newPortal.rotation = portal.rotation.copy();
+            newPortal.rotation.conjugate();
+        }
     
         toWorld.spawnEntity(newPortal);
     
@@ -697,6 +703,10 @@ public class MyCommandServer {
         );
     
         newPortal.rotation = portal.rotation;
+//        if (portal.rotation != null) {
+//            newPortal.rotation = portal.rotation.copy();
+//            newPortal.rotation.conjugate();
+//        }
     
         world.spawnEntity(newPortal);
     

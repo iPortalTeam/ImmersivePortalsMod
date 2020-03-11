@@ -15,6 +15,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -225,17 +226,28 @@ public abstract class PortalRenderer {
     ) {
         GlStateManager.enableAlphaTest();
         GlStateManager.enableCull();
-        
+    
         WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
         ClientWorld destClientWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
-        
+    
         CHelper.checkGlError();
-        
+    
         CGlobal.myGameRenderer.renderWorld(
             MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
     
         CHelper.checkGlError();
-        
+    
+    }
+    
+    public void applyAdditionalTransformations(MatrixStack matrixStack) {
+        portalLayers.forEach(portal -> {
+            if (portal.rotation != null) {
+                Quaternion rot = portal.rotation.copy();
+                rot.conjugate();
+                matrixStack.multiply(rot);
+            }
+        });
+        //TODO move mirror transformation to here
     }
 }

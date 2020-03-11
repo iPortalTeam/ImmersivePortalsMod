@@ -47,6 +47,8 @@ public class Portal extends Entity {
     
     public Quaternion rotation;
     
+    public double motionAffinity = 0;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -115,6 +117,12 @@ public class Portal extends Entity {
                 compoundTag.getFloat("rotationA")
             );
         }
+        if (compoundTag.contains("motionAffinity")) {
+            motionAffinity = compoundTag.getDouble("motionAffinity");
+        }
+        else {
+            motionAffinity = -0.3;
+        }
     }
     
     public boolean isCullable() {
@@ -161,6 +169,7 @@ public class Portal extends Entity {
             compoundTag.putDouble("rotationC", rotation.getC());
             compoundTag.putDouble("rotationD", rotation.getD());
         }
+        compoundTag.putDouble("motionAffinity", motionAffinity);
     }
     
     @Deprecated
@@ -357,7 +366,7 @@ public class Portal extends Entity {
     }
     
     public Vec3d getContentDirection() {
-        return getNormal().multiply(-1);
+        return transformLocalVec(getNormal().multiply(-1));
     }
     
     public double getDistanceToPlane(
@@ -394,7 +403,7 @@ public class Portal extends Entity {
     
     //3  2
     //1  0
-    public Vec3d[] getFourVerticesRelativeToCenter(double shrinkFactor) {
+    public Vec3d[] getFourVerticesLocal(double shrinkFactor) {
         Vec3d[] vertices = new Vec3d[4];
         vertices[0] = getPointInPlaneRelativeToCenter(
             width / 2 - shrinkFactor,
@@ -412,13 +421,24 @@ public class Portal extends Entity {
             -width / 2 + shrinkFactor,
             height / 2 - shrinkFactor
         );
-    
+        
         return vertices;
     }
     
     //3  2
     //1  0
-    public Vec3d[] getFourVerticesCullableRelativeToCenter(double shrinkFactor) {
+    public Vec3d[] getFourVerticesLocalRotated(double shrinkFactor) {
+        Vec3d[] fourVerticesLocal = getFourVerticesLocal(shrinkFactor);
+        fourVerticesLocal[0] = transformLocalVec(fourVerticesLocal[0]);
+        fourVerticesLocal[1] = transformLocalVec(fourVerticesLocal[1]);
+        fourVerticesLocal[2] = transformLocalVec(fourVerticesLocal[2]);
+        fourVerticesLocal[3] = transformLocalVec(fourVerticesLocal[3]);
+        return fourVerticesLocal;
+    }
+    
+    //3  2
+    //1  0
+    public Vec3d[] getFourVerticesLocalCullable(double shrinkFactor) {
         Vec3d[] vertices = new Vec3d[4];
         vertices[0] = getPointInPlaneRelativeToCenter(
             cullableXEnd - shrinkFactor,
@@ -436,7 +456,7 @@ public class Portal extends Entity {
             cullableXStart + shrinkFactor,
             cullableYEnd - shrinkFactor
         );
-    
+        
         return vertices;
     }
     
@@ -450,13 +470,22 @@ public class Portal extends Entity {
         if (rotation == null) {
             return transformPointRough(pos);
         }
-        
+    
         Vec3d localPos = pos.subtract(getPos());
-        
+    
         Vector3f temp = new Vector3f(localPos);
         temp.rotate(rotation);
-        
         return new Vec3d(temp).add(destination);
+    }
+    
+    public Vec3d transformLocalVec(Vec3d localVec) {
+        if (rotation == null) {
+            return localVec;
+        }
+        
+        Vector3f temp = new Vector3f(localVec);
+        temp.rotate(rotation);
+        return new Vec3d(temp);
     }
     
     public Vec3d getCullingPoint() {

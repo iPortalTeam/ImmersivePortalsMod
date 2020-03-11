@@ -3,12 +3,14 @@ package com.qouteall.immersive_portals;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.logging.log4j.LogManager;
@@ -596,6 +598,12 @@ public class Helper {
     public static <T> T makeIntoExpression(T t, Consumer<T> func) {
         func.accept(t);
         return t;
+    }
+    
+    public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
+        Vector3f vector3f = new Vector3f(vec);
+        vector3f.rotate(rotation);
+        return new Vec3d(vector3f);
     }
     
 }

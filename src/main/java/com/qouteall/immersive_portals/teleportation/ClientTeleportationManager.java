@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.TransformationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -142,6 +143,10 @@ public class ClientTeleportationManager {
         amendChunkEntityStatus(player);
     
         McHelper.adjustVehicle(player);
+    
+        player.setVelocity(portal.transformLocalVec(player.getVelocity()));
+    
+        TransformationManager.onClientPlayerTeleported(portal);
     
         if (player.getVehicle() != null) {
             disableTeleportFor(40);

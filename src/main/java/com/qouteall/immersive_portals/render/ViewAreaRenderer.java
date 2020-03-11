@@ -40,7 +40,7 @@ public class ViewAreaRenderer {
         );
     
         if (portal.specialShape == null) {
-            generateTriangleBiLayered(
+            generateTriangle(
                 vertexOutput,
                 portal,
                 layerWidth,
@@ -48,7 +48,7 @@ public class ViewAreaRenderer {
             );
         }
         else {
-            generateTriangleSpecialBiLayered(
+            generateTriangleSpecial(
                 vertexOutput,
                 portal,
                 layerWidth,
@@ -61,7 +61,7 @@ public class ViewAreaRenderer {
         }
     }
     
-    private static void generateTriangleSpecialBiLayered(
+    private static void generateTriangleSpecial(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
         float layerWidth,
@@ -71,11 +71,6 @@ public class ViewAreaRenderer {
             vertexOutput, portal, posInPlayerCoordinate,
             Vec3d.ZERO
         );
-
-//        generateTriangleSpecialWithOffset(
-//            vertexOutput, portal, posInPlayerCoordinate,
-//            portal.getNormal().multiply(-layerWidth)
-//        );
     }
     
     private static void generateTriangleSpecialWithOffset(
@@ -119,7 +114,7 @@ public class ViewAreaRenderer {
         );
     }
     
-    private static void generateTriangleBiLayered(
+    private static void generateTriangle(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
         float layerWidth,
@@ -127,22 +122,14 @@ public class ViewAreaRenderer {
     ) {
         Vec3d layerOffsest = portal.getNormal().multiply(-layerWidth);
         
-        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
+        Vec3d[] frontFace = Arrays.stream(portal.getFourVerticesLocal(0))
             .map(pos -> pos.add(posInPlayerCoordinate))
             .toArray(Vec3d[]::new);
         
-        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesRelativeToCenter(0))
+        Vec3d[] backFace = Arrays.stream(portal.getFourVerticesLocal(0))
             .map(pos -> pos.add(posInPlayerCoordinate).add(layerOffsest))
             .toArray(Vec3d[]::new);
 
-//        putIntoQuad(
-//            vertexOutput,
-//            backFace[0],
-//            backFace[2],
-//            backFace[3],
-//            backFace[1]
-//        );
-        
         putIntoQuad(
             vertexOutput,
             frontFace[0],
