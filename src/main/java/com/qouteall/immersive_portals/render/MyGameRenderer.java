@@ -265,6 +265,7 @@ public class MyGameRenderer {
             Math.max(g - 16.0F, 32.0F),
             bl2
         );
+        BackgroundRenderer.setFogBlack();
     }
     
     public void resetDiffuseLighting(MatrixStack matrixStack) {
