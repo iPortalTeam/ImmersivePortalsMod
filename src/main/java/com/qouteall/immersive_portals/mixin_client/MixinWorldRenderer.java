@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
@@ -562,21 +561,21 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         immediate.draw(layer);
         MyRenderHelper.shouldForceDisableCull = false;
     }
-    
-    //test
-    @Redirect(
-        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V"
-        )
-    )
-    private void onCloudEnableDepthTest() {
-        if (CGlobal.renderer.isRendering()) {
-            McHelper.test();
-        }
-        else {
-            RenderSystem.enableDepthTest();
-        }
-    }
+
+//    //test
+//    @Redirect(
+//        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V"
+//        )
+//    )
+//    private void onCloudEnableDepthTest() {
+//        if (CGlobal.renderer.isRendering()) {
+//            McHelper.test();
+//        }
+//        else {
+//            RenderSystem.enableDepthTest();
+//        }
+//    }
 }

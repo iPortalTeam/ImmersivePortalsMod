@@ -168,36 +168,27 @@ public class ViewAreaRenderer {
     public static void drawPortalViewTriangle(
         Portal portal,
         MatrixStack matrixStack,
-        boolean doCulling
+        boolean doFrontCulling,
+        boolean doFaceCulling
     ) {
-        //test
-//        if (CGlobal.renderer.isRendering()) {
-//            return;
-//        }
     
         MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
     
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
     
-        Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
+        Vec3d fogColor = getCurrentFogColor(portal);
     
-        FogRendererContext.swappingManager.swapAndInvoke(
-            portal.dimensionTo,
-            () -> {
-                boxOfFogColor.obj = FogRendererContext.getCurrentFogColor.get();
-            }
-        );
-    
-        Vec3d fogColor = boxOfFogColor.obj;
-        
-        GlStateManager.enableCull();
-        GlStateManager.disableTexture();
-        //GL11.glDisable(GL_CLIP_PLANE0);
-        
-        if (OFInterface.isShaders.getAsBoolean()) {
-            fogColor = Vec3d.ZERO;
+        if (doFaceCulling) {
+            GlStateManager.enableCull();
         }
+        else {
+            GlStateManager.disableCull();
+        }
+    
+        GlStateManager.disableTexture();
+        CGlobal.myGameRenderer.endCulling();
+//        GL11.glDisable(GL_CLIP_PLANE0);
     
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -214,7 +205,7 @@ public class ViewAreaRenderer {
         if (shouldReverseCull) {
             MyRenderHelper.applyMirrorFaceCulling();
         }
-        if (doCulling) {
+        if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
                 CGlobal.myGameRenderer.updateCullingPlane(matrixStack);
                 CGlobal.myGameRenderer.startCulling();
@@ -229,7 +220,7 @@ public class ViewAreaRenderer {
         if (shouldReverseCull) {
             MyRenderHelper.recoverFaceCulling();
         }
-        if (doCulling) {
+        if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
                 CGlobal.myGameRenderer.endCulling();
             }
@@ -238,6 +229,24 @@ public class ViewAreaRenderer {
         GlStateManager.enableTexture();
     
         MinecraftClient.getInstance().getProfiler().pop();
+    }
+    
+    private static Vec3d getCurrentFogColor(Portal portal) {
+        Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
+        
+        FogRendererContext.swappingManager.swapAndInvoke(
+            portal.dimensionTo,
+            () -> {
+                boxOfFogColor.obj = FogRendererContext.getCurrentFogColor.get();
+            }
+        );
+        
+        Vec3d fogColor = boxOfFogColor.obj;
+        
+        if (OFInterface.isShaders.getAsBoolean()) {
+            fogColor = Vec3d.ZERO;
+        }
+        return fogColor;
     }
     
     

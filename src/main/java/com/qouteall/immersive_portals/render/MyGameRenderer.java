@@ -24,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -269,7 +270,7 @@ public class MyGameRenderer {
     }
     
     public void resetDiffuseLighting(MatrixStack matrixStack) {
-    
+        DiffuseLighting.enableForLevel(matrixStack.peek().getModel());
     }
     
     //render fewer chunks when rendering portal

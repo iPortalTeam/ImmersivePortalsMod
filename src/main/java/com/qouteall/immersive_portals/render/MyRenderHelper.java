@@ -167,7 +167,7 @@ public class MyRenderHelper {
                 GlStateManager.texParameter(3553, 10242, 10496);
                 GlStateManager.texParameter(3553, 10243, 10496);
     
-                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false);
+                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
     
                 shaderManager.unloadShader();
     

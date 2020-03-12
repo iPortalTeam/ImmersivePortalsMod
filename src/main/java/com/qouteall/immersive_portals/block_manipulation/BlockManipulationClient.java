@@ -151,8 +151,10 @@ public class BlockManipulationClient {
         }
     
         if (remoteHitResult != null) {
-            mc.crosshairTarget = null;
-            remotePointedDim = portal.dimensionTo;
+            if (!world.getBlockState(((BlockHitResult) remoteHitResult).getBlockPos()).isAir()) {
+                mc.crosshairTarget = null;
+                remotePointedDim = portal.dimensionTo;
+            }
         }
     }
     
