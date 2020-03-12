@@ -94,7 +94,7 @@ public class MyGameRenderer {
         
         //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
-        LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
+        LightmapTextureManager oldLightmap = mc.gameRenderer.getLightmapTextureManager();
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
