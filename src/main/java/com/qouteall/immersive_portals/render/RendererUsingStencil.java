@@ -44,7 +44,10 @@ public class RendererUsingStencil extends PortalRenderer {
     private void doPortalRendering(MatrixStack matrixStack) {
         mc.getProfiler().swap("render_portal_total");
         renderPortals(matrixStack);
-        if (!isRendering()) {
+        if (isRendering()) {
+            setStencilStateForWorldRendering();
+        }
+        else {
             myFinishRendering();
         }
     }
@@ -177,8 +180,8 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager.enableDepthTest();
     
         setStencilStateForWorldRendering();
-        
-        //do not manipulate color packetBuffer
+    
+        //do not manipulate color buffer
         GL11.glColorMask(false, false, false, false);
         
         //save the state
@@ -213,16 +216,15 @@ public class RendererUsingStencil extends PortalRenderer {
     
         setStencilStateForWorldRendering();
     
-        //do not manipulate color packetBuffer
+        //do not manipulate color buffer
         GL11.glColorMask(false, false, false, false);
     
-        //do manipulate the depth packetBuffer
+        //do manipulate the depth buffer
         GL11.glDepthMask(true);
     
         GL20.glUseProgram(0);
     
         GlStateManager.enableDepthTest();
-//        GlStateManager.disableDepthTest();
     
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
     

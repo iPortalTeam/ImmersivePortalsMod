@@ -188,7 +188,6 @@ public class ViewAreaRenderer {
     
         GlStateManager.disableTexture();
         CGlobal.myGameRenderer.endCulling();
-//        GL11.glDisable(GL_CLIP_PLANE0);
     
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
