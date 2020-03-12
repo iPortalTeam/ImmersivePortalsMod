@@ -5,4 +5,10 @@ import net.minecraft.util.math.Vec3d;
 
 public interface IECamera {
     void resetState(Vec3d pos, ClientWorld currWorld);
+    
+    float getCameraY();
+    
+    float getLastCameraY();
+    
+    void setCameraY(float cameraY, float lastCameraY);
 }

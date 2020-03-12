@@ -14,12 +14,10 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class ViewAreaRenderer {
@@ -172,8 +170,13 @@ public class ViewAreaRenderer {
         MatrixStack matrixStack,
         boolean doCulling
     ) {
+        //test
+//        if (CGlobal.renderer.isRendering()) {
+//            return;
+//        }
+    
         MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
-        
+    
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
     
@@ -190,7 +193,7 @@ public class ViewAreaRenderer {
         
         GlStateManager.enableCull();
         GlStateManager.disableTexture();
-        GL11.glDisable(GL_CLIP_PLANE0);
+        //GL11.glDisable(GL_CLIP_PLANE0);
         
         if (OFInterface.isShaders.getAsBoolean()) {
             fogColor = Vec3d.ZERO;

@@ -32,6 +32,7 @@
     "MixinMinecraftClient",
     "MixinParticleManager",
     "MixinPlayerListEntry",
+    "MixinQuaternion",
     "MixinWorldRenderer",
     "MixinWorldRendererChunkInfo"
   ],

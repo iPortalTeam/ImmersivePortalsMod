@@ -108,11 +108,6 @@ public abstract class PortalRenderer {
         assert mc.cameraEntity.world == mc.world;
         assert mc.cameraEntity.dimension == mc.world.dimension.getType();
     
-        //currently does not support nested portal rendering in mirror
-//        if (MyRenderHelper.isRenderingMirror()) {
-//            return;
-//        }
-    
         for (Portal portal : getPortalsNearbySorted()) {
             renderPortalIfRoughCheckPassed(portal, matrixStack);
         }
@@ -139,6 +134,7 @@ public abstract class PortalRenderer {
                 return;
             }
         }
+    
     
         doRenderPortal(portal, matrixStack);
     }

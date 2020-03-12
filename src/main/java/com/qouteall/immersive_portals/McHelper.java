@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
@@ -296,6 +297,21 @@ public class McHelper {
     }
     
     public static void test() {
-    
+        GlStateManager.enableDepthTest();
+//        GlStateManager.enableBlend();
+//        GlStateManager.disableBlend();
+//        GlStateManager.enableBlend();
+//        GlStateManager.enableFog();
+//        GlStateManager.colorMask(true,true,true,false);
+//        GlStateManager.depthMask(true);
+        //DiffuseLighting.disable();
+        //GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+        //CGlobal.myGameRenderer.endCulling();
+        //GlStateManager.disableCull();
+        //RenderSystem.disableTexture();
+        //RenderSystem.enableDepthTest();
+        //RenderSystem.enableTexture();
+        //RenderSystem.disableDepthTest();
+        //CGlobal.myGameRenderer.endCulling();
     }
 }

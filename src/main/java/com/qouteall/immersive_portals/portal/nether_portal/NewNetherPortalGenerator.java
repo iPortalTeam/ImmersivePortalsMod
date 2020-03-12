@@ -72,7 +72,7 @@ public class NewNetherPortalGenerator {
             firePos,
             toWorld,
             NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius / 5,
+            NetherPortalMatcher.findingRadius,
             (fromPos1) -> NetherPortalGenerator.mapPosition(
                 fromPos1,
                 fromWorld.dimension.getType(),
@@ -112,7 +112,7 @@ public class NewNetherPortalGenerator {
             firePos,
             fromWorld,
             NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius / 5,
+            NetherPortalMatcher.findingRadius,
     
             //this side area
             (fromPos1) -> NetherPortalGenerator.getRandomShift().add(fromPos1),

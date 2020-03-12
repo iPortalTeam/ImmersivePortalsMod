@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
@@ -408,7 +409,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
-        
+    
             //fix sky abnormal with optifine and fog disabled
             if (OFInterface.isFogDisabled.getAsBoolean()) {
                 GL11.glEnable(GL11.GL_FOG);
@@ -549,7 +550,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    
     @Redirect(
         method = "render",
         at = @At(
@@ -561,5 +561,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
         immediate.draw(layer);
         MyRenderHelper.shouldForceDisableCull = false;
+    }
+    
+    //test
+    @Redirect(
+        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V"
+        )
+    )
+    private void onCloudEnableDepthTest() {
+        if (CGlobal.renderer.isRendering()) {
+            McHelper.test();
+        }
+        else {
+            RenderSystem.enableDepthTest();
+        }
     }
 }

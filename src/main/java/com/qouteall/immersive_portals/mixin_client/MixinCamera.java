@@ -25,6 +25,13 @@ public abstract class MixinCamera implements IECamera {
     private BlockView area;
     @Shadow
     private Entity focusedEntity;
+    @Shadow
+    private float cameraY;
+    @Shadow
+    private float lastCameraY;
+    
+    @Shadow
+    protected abstract void setPos(net.minecraft.util.math.Vec3d vec3d_1);
     
     @Inject(
         method = "getSubmergedFluidState",
@@ -36,15 +43,6 @@ public abstract class MixinCamera implements IECamera {
             cir.setReturnValue(Fluids.EMPTY.getDefaultState());
             cir.cancel();
         }
-    }
-    
-    @Shadow
-    protected abstract void setPos(net.minecraft.util.math.Vec3d vec3d_1);
-    
-    @Override
-    public void resetState(Vec3d pos, ClientWorld currWorld) {
-        setPos(pos);
-        area = currWorld;
     }
     
     @Inject(method = "clipToSpace", at = @At("HEAD"), cancellable = true)
@@ -60,4 +58,25 @@ public abstract class MixinCamera implements IECamera {
         lastClipSpaceResult = cir.getReturnValue();
     }
     
+    @Override
+    public void resetState(Vec3d pos, ClientWorld currWorld) {
+        setPos(pos);
+        area = currWorld;
+    }
+    
+    @Override
+    public float getCameraY() {
+        return cameraY;
+    }
+    
+    @Override
+    public float getLastCameraY() {
+        return lastCameraY;
+    }
+    
+    @Override
+    public void setCameraY(float cameraY_, float lastCameraY_) {
+        cameraY = cameraY_;
+        lastCameraY = lastCameraY_;
+    }
 }
