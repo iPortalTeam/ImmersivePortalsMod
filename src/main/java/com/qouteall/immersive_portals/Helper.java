@@ -625,6 +625,7 @@ public class Helper {
     }
     
     //a quaternion is a 4d vector on 4d sphere
+    //this method may mutate argument but will not change rotation
     public static Quaternion interpolateQuaternion(
         Quaternion v0,
         Quaternion v1,
@@ -637,11 +638,11 @@ public class Helper {
             v0.getB() * v1.getB() +
             v0.getC() * v1.getC() +
             v0.getD() * v1.getD();
-
-//        if (dot < 0.0f) {
-//            v1.scale(-1);
-//            dot = -dot;
-//        }
+    
+        if (dot < 0.0f) {
+            v0.scale(-1);
+            dot = -dot;
+        }
     
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
@@ -649,8 +650,8 @@ public class Helper {
             // and normalize the result.
         
             Quaternion result = quaternionNumAdd(
-                quaternionScale(v0, 1 - t),
-                quaternionScale(v1, t)
+                quaternionScale(v0.copy(), 1 - t),
+                quaternionScale(v1.copy(), t)
             );
             result.normalize();
             return result;
@@ -666,8 +667,8 @@ public class Helper {
         double s1 = sin_theta / sin_theta_0;
     
         return quaternionNumAdd(
-            quaternionScale(v0, (float) s0),
-            quaternionScale(v1, (float) s1)
+            quaternionScale(v0.copy(), (float) s0),
+            quaternionScale(v1.copy(), (float) s1)
         );
     }
     

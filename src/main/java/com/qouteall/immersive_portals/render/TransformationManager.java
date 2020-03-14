@@ -58,7 +58,7 @@ public class TransformationManager {
         progress = mapProgress(progress);
         
         return Helper.interpolateQuaternion(
-            inertialRotation.copy(), cameraRotation.copy(), (float) progress
+            inertialRotation, cameraRotation.copy(), (float) progress
         );
     }
     

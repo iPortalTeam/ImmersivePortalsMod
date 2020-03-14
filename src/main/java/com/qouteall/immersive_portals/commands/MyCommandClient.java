@@ -155,20 +155,6 @@ public class MyCommandClient {
             })
         );
         builder = builder.then(CommandManager
-            .literal("multithreaded_chunk_loading_enable")
-            .executes(context -> {
-                Global.isChunkLoadingMultiThreaded = true;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("multithreaded_chunk_loading_disable")
-            .executes(context -> {
-                Global.isChunkLoadingMultiThreaded = false;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
             .literal("hacked_chunk_render_dispatcher_enable")
             .executes(context -> {
                 CGlobal.useHackedChunkRenderDispatcher = true;

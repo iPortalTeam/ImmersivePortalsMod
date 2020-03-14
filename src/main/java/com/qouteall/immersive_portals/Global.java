@@ -10,8 +10,6 @@ public class Global {
     
     public static ServerTeleportationManager serverTeleportationManager;
     
-    public static boolean isChunkLoadingMultiThreaded = true;
-    
     public static Gson gson = new Gson();
     
     public static int maxPortalLayer = 5;

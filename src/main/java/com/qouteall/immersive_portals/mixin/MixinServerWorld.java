@@ -11,7 +11,6 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ForcedChunkState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
@@ -30,59 +29,6 @@ public abstract class MixinServerWorld implements IEServerWorld {
     
     @Shadow
     public abstract ServerChunkManager getChunkManager();
-
-//    /**
-//     * @author qouteall
-//     * @reason
-//     */
-//    @Overwrite
-//    public boolean setChunkForced(int x, int z, boolean forced) {
-//        ForcedChunkState forcedChunkState =
-//            (ForcedChunkState)this.getPersistentStateManager()
-//                .getOrCreate(ForcedChunkState::new, "chunks");
-//        ChunkPos chunkPos = new ChunkPos(x, z);
-//        long chunkPosLong = chunkPos.toLong();
-//        boolean shouldUpdate;
-//        if (forced) {
-//            shouldUpdate = forcedChunkState.getChunks().add(chunkPosLong);
-////            if (shouldUpdate) {
-////                this.getChunk(x, z);
-////            }
-//        } else {
-//            shouldUpdate = forcedChunkState.getChunks().remove(chunkPosLong);
-//        }
-//
-//        forcedChunkState.setDirty(shouldUpdate);
-//        if (shouldUpdate) {
-//            this.getChunkManager().setChunkForced(chunkPos, forced);
-//        }
-//
-//        return shouldUpdate;
-//    }
-    
-    @Override
-    public void updateLoadingStatus(int x, int z, boolean forced) {
-        ForcedChunkState forcedChunkState = (ForcedChunkState) this.getPersistentStateManager().getOrCreate(
-            ForcedChunkState::new,
-            "chunks"
-        );
-        ChunkPos chunkPos = new ChunkPos(x, z);
-        long l = chunkPos.toLong();
-        boolean bl2;
-        if (forced) {
-            bl2 = forcedChunkState.getChunks().add(l);
-        }
-        else {
-            bl2 = forcedChunkState.getChunks().remove(l);
-        }
-        
-        forcedChunkState.setDirty(bl2);
-        if (bl2) {
-            this.getChunkManager().setChunkForced(chunkPos, forced);
-        }
-        
-        
-    }
     
     @Override
     public <T extends Entity> List<T> getEntitiesWithoutImmediateChunkLoading(

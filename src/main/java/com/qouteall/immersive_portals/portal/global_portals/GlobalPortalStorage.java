@@ -3,7 +3,9 @@ package com.qouteall.immersive_portals.portal.global_portals;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +14,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
@@ -24,6 +27,15 @@ import java.util.List;
 public class GlobalPortalStorage extends PersistentState {
     public List<GlobalTrackedPortal> data;
     public WeakReference<ServerWorld> world;
+    private int version = 1;
+    
+    public static void init() {
+        ModMain.postServerTickSignal.connect(() -> {
+            McHelper.getServer().getWorlds().forEach(world1 -> {
+                GlobalPortalStorage.get(world1).upgradeDataIfNecessary();
+            });
+        });
+    }
     
     public GlobalPortalStorage(String string_1, ServerWorld world_) {
         super(string_1);
@@ -57,21 +69,25 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Override
-    public void fromTag(CompoundTag var1) {
+    public void fromTag(CompoundTag tag) {
         
         ServerWorld currWorld = world.get();
         Validate.notNull(currWorld);
-        List<GlobalTrackedPortal> newData = getPortalsFromTag(var1, currWorld);
+        List<GlobalTrackedPortal> newData = getPortalsFromTag(tag, currWorld);
+        
+        if (tag.contains("version")) {
+            version = tag.getInt("version");
+        }
         
         data = newData;
     }
     
     public static List<GlobalTrackedPortal> getPortalsFromTag(
-        CompoundTag var1,
+        CompoundTag tag,
         World currWorld
     ) {
         /**{@link CompoundTag#getType()}*/
-        ListTag listTag = var1.getList("data", 10);
+        ListTag listTag = tag.getList("data", 10);
         
         List<GlobalTrackedPortal> newData = new ArrayList<>();
         
@@ -103,9 +119,9 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Override
-    public CompoundTag toTag(CompoundTag var1) {
+    public CompoundTag toTag(CompoundTag tag) {
         if (data == null) {
-            return var1;
+            return tag;
         }
         
         ListTag listTag = new ListTag();
@@ -114,18 +130,20 @@ public class GlobalPortalStorage extends PersistentState {
         
         for (GlobalTrackedPortal portal : data) {
             Validate.isTrue(portal.world == currWorld);
-            CompoundTag tag = new CompoundTag();
-            portal.toTag(tag);
-            tag.putString(
+            CompoundTag portalTag = new CompoundTag();
+            portal.toTag(portalTag);
+            portalTag.putString(
                 "entity_type",
                 EntityType.getId(portal.getType()).toString()
             );
-            listTag.add(tag);
+            listTag.add(portalTag);
         }
         
-        var1.put("data", listTag);
+        tag.put("data", listTag);
         
-        return var1;
+        tag.putInt("version", version);
+        
+        return tag;
     }
     
     public static GlobalPortalStorage get(
@@ -135,5 +153,28 @@ public class GlobalPortalStorage extends PersistentState {
             () -> new GlobalPortalStorage("global_portal", world),
             "global_portal"
         );
+    }
+    
+    public void upgradeDataIfNecessary() {
+        if (version <= 1) {
+            upgradeData(world.get());
+            version = 2;
+            setDirty(true);
+        }
+    }
+    
+    private static void upgradeData(ServerWorld world) {
+        LongOpenHashSet forcedChunks = new LongOpenHashSet();
+        forcedChunks.addAll(world.getForcedChunks());
+        
+        forcedChunks.forEach((long curr) -> {
+            world.setChunkForced(
+                ChunkPos.getPackedX(curr),
+                ChunkPos.getPackedZ(curr),
+                false
+            );
+        });
+        
+        Helper.log("World info upgraded for " + world.dimension.getType());
     }
 }
