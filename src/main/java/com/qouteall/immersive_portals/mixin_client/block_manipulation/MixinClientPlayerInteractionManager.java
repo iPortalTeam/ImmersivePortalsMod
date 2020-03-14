@@ -94,7 +94,8 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
     @Inject(
         method = "getReachDistance",
         at = @At("RETURN"),
-        cancellable = true
+        cancellable = true,
+        require = 0
     )
     private void onGetReachDistance(CallbackInfoReturnable<Float> cir) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;

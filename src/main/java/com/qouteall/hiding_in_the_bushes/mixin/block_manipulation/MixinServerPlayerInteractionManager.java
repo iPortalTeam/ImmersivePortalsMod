@@ -15,7 +15,8 @@ public class MixinServerPlayerInteractionManager {
     
     @ModifyConstant(
         method = "processBlockBreakingAction",
-        constant = @Constant(doubleValue = 36.0D)
+        constant = @Constant(doubleValue = 36.0D),
+        require = 0
     )
     private double modifyBreakBlockRangeSquare(double a) {
         double multiplier = HandReachTweak.getActualHandReachMultiplier(player);

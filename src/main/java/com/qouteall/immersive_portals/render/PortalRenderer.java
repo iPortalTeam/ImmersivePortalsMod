@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -253,19 +252,17 @@ public abstract class PortalRenderer {
     
     public void applyAdditionalTransformations(MatrixStack matrixStack) {
         portalLayers.forEach(portal -> {
-            if (portal.rotation != null) {
+            if (portal instanceof Mirror) {
+                Matrix4f matrix = TransformationManager.getMirrorTransformation(portal.getNormal());
+                matrixStack.peek().getModel().multiply(matrix);
+                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+            }
+            else if (portal.rotation != null) {
                 Quaternion rot = portal.rotation.copy();
                 rot.conjugate();
                 matrixStack.multiply(rot);
             }
-            else if (portal instanceof Mirror) {
-                float[] arr =
-                    TransformationManager.getMirrorTransformation(portal.getNormal());
-                Matrix4f matrix = new Matrix4f();
-                ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
-                matrixStack.peek().getModel().multiply(matrix);
-                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
-            }
         });
     }
+    
 }

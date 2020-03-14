@@ -76,5 +76,9 @@ public class MyConfig {
         NetherPortalMatcher.findingRadius = config.portalSearchingRange;
         Global.longerReachInCreative = config.longerReachInCreative;
         Global.renderYourselfInPortal = config.renderYourselfInPortal;
+    
+        if (ModEntry.isReachEntityAttributesPresent) {
+            Global.longerReachInCreative = false;
+        }
     }
 }

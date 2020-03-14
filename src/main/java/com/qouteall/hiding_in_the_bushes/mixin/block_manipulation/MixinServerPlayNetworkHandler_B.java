@@ -14,7 +14,8 @@ public class MixinServerPlayNetworkHandler_B {
     
     @ModifyConstant(
         method = "onPlayerInteractBlock",
-        constant = @Constant(doubleValue = 64.0D)
+        constant = @Constant(doubleValue = 64.0D),
+        require = 0
     )
     private double modifyPlacingBlockRangeSquared(double original) {
         double multiplier = HandReachTweak.getActualHandReachMultiplier(player);

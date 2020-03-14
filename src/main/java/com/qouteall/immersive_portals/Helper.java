@@ -624,8 +624,7 @@ public class Helper {
         return a;
     }
     
-    //NOTE parameter will be mutated
-    //https://en.wikipedia.org/wiki/Slerp
+    //a quaternion is a 4d vector on 4d sphere
     public static Quaternion interpolateQuaternion(
         Quaternion v0,
         Quaternion v1,
@@ -633,27 +632,22 @@ public class Helper {
     ) {
         v0.normalize();
         v1.normalize();
-        
-        // Compute the cosine of the angle between the two vectors.
+    
         double dot = v0.getA() * v1.getA() +
             v0.getB() * v1.getB() +
             v0.getC() * v1.getC() +
             v0.getD() * v1.getD();
-        
-        // If the dot product is negative, slerp won't take
-        // the shorter path. Note that v1 and -v1 are equivalent when
-        // the negation is applied to all four components. Fix by
-        // reversing one quaternion.
-        if (dot < 0.0f) {
-            v1.scale(-1);
-            dot = -dot;
-        }
-        
+
+//        if (dot < 0.0f) {
+//            v1.scale(-1);
+//            dot = -dot;
+//        }
+    
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
             // If the inputs are too close for comfort, linearly interpolate
             // and normalize the result.
-            
+        
             Quaternion result = quaternionNumAdd(
                 quaternionScale(v0, 1 - t),
                 quaternionScale(v1, t)
