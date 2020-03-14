@@ -9,6 +9,8 @@
     "chunk_sync/MixinChunkTicketManager",
     "chunk_sync/MixinThreadedAnvilChunkStorage_C",
     "collision/MixinEntity",
+    "collision/MixinProjectile",
+    "collision/MixinThrownEntity",
     "entity_sync/MixinEntityTracker",
     "entity_sync/MixinEntityTrackerEntry",
     "entity_sync/MixinServerPlayerEntity",
