@@ -64,6 +64,7 @@ public class MyRenderHelper {
     
     public static boolean shouldForceDisableCull = false;
     public static long renderStartNanoTime;
+    public static double viewBobFactor;
     
     public static void updatePreRenderInfo(
         float partialTicks_
@@ -88,6 +89,23 @@ public class MyRenderHelper {
         FogRendererContext.update();
     
         renderStartNanoTime = System.nanoTime();
+    
+        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(partialTicks_);
+        double minPortalDistance = CHelper.getClientNearbyPortals(10)
+            .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
+            .min(Double::compareTo).orElse(1.0);
+        if (minPortalDistance < 1) {
+            if (minPortalDistance > 0.5) {
+                viewBobFactor = (minPortalDistance - 0.5) * 2;
+            }
+            else {
+                viewBobFactor = 0;
+            }
+        }
+        else {
+            viewBobFactor = 1;
+        }
+    
     }
     
     public static void onTotalRenderEnd() {
