@@ -8,12 +8,14 @@ import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -231,10 +233,23 @@ public class ViewAreaRenderer {
     }
     
     private static Vec3d getCurrentFogColor(Portal portal) {
+        DimensionType dimension = portal.dimensionTo;
+        
+        //for Altius
+        if (portal instanceof VerticalConnectingPortal) {
+            if (dimension == DimensionType.THE_NETHER) {
+                return getFogColorOf(DimensionType.OVERWORLD);
+            }
+        }
+        
+        return getFogColorOf(dimension);
+    }
+    
+    private static Vec3d getFogColorOf(DimensionType dimension) {
         Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
         
         FogRendererContext.swappingManager.swapAndInvoke(
-            portal.dimensionTo,
+            dimension,
             () -> {
                 boxOfFogColor.obj = FogRendererContext.getCurrentFogColor.get();
             }

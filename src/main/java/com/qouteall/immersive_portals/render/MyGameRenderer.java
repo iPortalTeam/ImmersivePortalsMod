@@ -37,12 +37,13 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
 import java.util.function.Predicate;
 
 public class MyGameRenderer {
-    private MinecraftClient mc = MinecraftClient.getInstance();
+    private static MinecraftClient mc = MinecraftClient.getInstance();
     private double[] clipPlaneEquation;
     
     public MyGameRenderer() {
@@ -310,6 +311,26 @@ public class MyGameRenderer {
             visibleChunks,
             obj -> builtChunkPredicate.test(((IEWorldRendererChunkInfo) obj).getBuiltChunk())
         );
+    }
+    
+    public static void renderSkyFor(
+        DimensionType dimension,
+        MatrixStack matrixStack,
+        float partialTicks
+    ) {
+        ClientWorld newWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+        WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
+        
+        ClientWorld oldWorld = mc.world;
+        WorldRenderer oldWorldRenderer = mc.worldRenderer;
+        
+        mc.world = newWorld;
+        ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
+        
+        newWorldRenderer.renderSky(matrixStack, partialTicks);
+        
+        mc.world = oldWorld;
+        ((IEMinecraftClient) mc).setWorldRenderer(oldWorldRenderer);
     }
     
 }

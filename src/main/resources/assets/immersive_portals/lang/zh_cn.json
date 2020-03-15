@@ -14,5 +14,6 @@
   "item.minecraft.potion.effect.longer_reach_potion": "触及范围增大药水",
   "item.minecraft.splash_potion.effect.longer_reach_potion": "触及范围增大喷溅药水",
   "item.minecraft.lingering_potion.effect.longer_reach_potion": "触及范围增大滞留药水",
-  "attribute.name.imm_ptl.hand_reach_multiplier": "触及范围"
+  "attribute.name.imm_ptl.hand_reach_multiplier": "触及范围",
+  "generator.imm_ptl_altius": "纵深世界"
 }
