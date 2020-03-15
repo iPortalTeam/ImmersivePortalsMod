@@ -13,6 +13,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.source.BiomeSourceType;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
@@ -24,9 +25,11 @@ import net.minecraft.world.gen.chunk.ChunkGeneratorType;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
 
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class AlternateDimension extends Dimension {
     
@@ -53,15 +56,16 @@ public class AlternateDimension extends Dimension {
     
     public ChunkGenerator<?> getChunkGenerator2() {
         OverworldChunkGeneratorConfig overworldChunkGeneratorConfig2 =
-            (OverworldChunkGeneratorConfig) ChunkGeneratorType.SURFACE.createSettings();
+            new OverworldChunkGeneratorConfig();
         VanillaLayeredBiomeSourceConfig vanillaLayeredBiomeSourceConfig2 =
-            ((VanillaLayeredBiomeSourceConfig) BiomeSourceType.VANILLA_LAYERED.getConfig(this.world.getLevelProperties())).setGeneratorSettings(
-                overworldChunkGeneratorConfig2);
+            ((VanillaLayeredBiomeSourceConfig) BiomeSourceType.VANILLA_LAYERED.getConfig(
+                this.world.getLevelProperties().getSeed()
+            )).setGeneratorConfig(overworldChunkGeneratorConfig2);
         
         VanillaLayeredBiomeSource newBiomeSource =
             BiomeSourceType.VANILLA_LAYERED.applyConfig(vanillaLayeredBiomeSourceConfig2);
         
-        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.AIR.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
@@ -73,24 +77,30 @@ public class AlternateDimension extends Dimension {
     }
     
     public ChunkGenerator<?> getChunkGenerator1() {
-        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
         return ChunkGeneratorType.FLOATING_ISLANDS.create(
             this.world,
             BiomeSourceType.FIXED.applyConfig(
-                BiomeSourceType.FIXED.getConfig(world.getLevelProperties()).setBiome(
-                    Registry.BIOME.getRandom(random)
+                BiomeSourceType.FIXED.getConfig(world.getLevelProperties().getSeed()).setBiome(
+                    getRandomBiome()
                 )
             ),
             generationSettings
         );
     }
     
+    private Biome getRandomBiome() {
+        List<Biome> list = Registry.BIOME.stream().collect(Collectors.toList());
+        int index = random.nextInt(list.size());
+        return list.get(index);
+    }
+    
     public ChunkGenerator<?> getChunkGenerator3() {
         
-        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
@@ -105,7 +115,7 @@ public class AlternateDimension extends Dimension {
     }
     
     public ChunkGenerator<?> getChunkGenerator4() {
-        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
@@ -118,7 +128,7 @@ public class AlternateDimension extends Dimension {
     }
     
     public ChunkGenerator<?> getChunkGenerator5() {
-        FloatingIslandsChunkGeneratorConfig generationSettings = ChunkGeneratorType.FLOATING_ISLANDS.createSettings();
+        FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
         generationSettings.withCenter(this.getForcedSpawnPoint());
@@ -126,7 +136,7 @@ public class AlternateDimension extends Dimension {
         return new VoidChunkGenerator(
             world,
             BiomeSourceType.FIXED.applyConfig(
-                BiomeSourceType.FIXED.getConfig(world.getLevelProperties()).setBiome(
+                BiomeSourceType.FIXED.getConfig(world.getLevelProperties().getSeed()).setBiome(
                     Biomes.PLAINS
                 )
             ),

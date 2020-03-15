@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin;
 
-import com.google.gson.JsonElement;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
@@ -15,7 +14,7 @@ import net.minecraft.server.WorldGenerationProgressListenerFactory;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
-import net.minecraft.world.level.LevelGeneratorType;
+import net.minecraft.world.level.LevelGeneratorOptions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -87,8 +86,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         String name,
         String serverName,
         long seed,
-        LevelGeneratorType generatorType,
-        JsonElement generatorSettings,
+        LevelGeneratorOptions levelGeneratorOptions,
         CallbackInfo ci
     ) {
         portal_areAllWorldsLoaded = true;

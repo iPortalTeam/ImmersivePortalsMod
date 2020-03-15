@@ -15,9 +15,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
-import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.level.LevelGeneratorType;
 import net.minecraft.world.level.LevelInfo;
 import org.apache.commons.lang3.Validate;
 
@@ -204,11 +202,7 @@ public class ClientWorldLoader {
             newWorld = new ClientWorld(
                 newNetworkHandler,
                 new LevelInfo(
-                    0L,
-                    GameMode.CREATIVE,
-                    true,
-                    isHardCore,
-                    LevelGeneratorType.FLAT
+                    mc.world.getLevelProperties()
                 ),
                 dimension,
                 chunkLoadDistance,

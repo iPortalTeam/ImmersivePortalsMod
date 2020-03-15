@@ -10,11 +10,13 @@ import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.SkeletonEntity;
@@ -29,6 +31,7 @@ import net.minecraft.potion.Potions;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.MobSpawnerEntry;
 import net.minecraft.world.World;
@@ -422,7 +425,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
                 ItemStack stack = new ItemStack(() -> Items.LINGERING_POTION, 1);
                 ArrayList<StatusEffectInstance> effects = new ArrayList<>();
                 effects.add(new StatusEffectInstance(
-                    Registry.STATUS_EFFECT.getRandom(random),
+                    ((SimpleRegistry<StatusEffect>) Registry.STATUS_EFFECT).getRandom(random),
                     1200, 4
                 ));
                 PotionUtil.setCustomPotionEffects(stack, effects);
@@ -430,7 +433,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             })
             .add(10, random -> {
                 ItemStack stack = new ItemStack(() -> Items.ENCHANTED_BOOK, 1);
-                stack.addEnchantment(Registry.ENCHANTMENT.getRandom(random), 5);
+                stack.addEnchantment(((SimpleRegistry<Enchantment>) Registry.ENCHANTMENT).getRandom(random), 5);
                 return stack;
             })
             .build();
@@ -450,4 +453,5 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
                 );
             })
             .build();
+    
 }

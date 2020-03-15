@@ -46,7 +46,7 @@ public class MixinEnderEyeItem {
                 );
                 Block.pushEntitiesUpBeforeBlockChange(blockState, blockState_2, world, blockPos);
                 world.setBlockState(blockPos, blockState_2, 2);
-                world.updateHorizontalAdjacent(blockPos, Blocks.END_PORTAL_FRAME);
+                world.updateComparators(blockPos, Blocks.END_PORTAL_FRAME);
                 itemUsageContext.getStack().decrement(1);
                 world.playLevelEvent(1503, blockPos, 0);
                 BlockPattern.Result pattern =
