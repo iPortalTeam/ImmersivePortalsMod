@@ -290,4 +290,13 @@ public class NewChunkTrackingGraph {
             )
         ));
     }
+    
+    public static boolean shouldLoadDimension(DimensionType dimension) {
+        if (!data.containsKey(dimension)) {
+            return false;
+        }
+        Long2ObjectLinkedOpenHashMap<ChunkRecord> map =
+            data.get(dimension);
+        return !map.isEmpty();
+    }
 }

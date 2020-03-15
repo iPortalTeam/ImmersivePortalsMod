@@ -627,22 +627,19 @@ public class Helper {
     //a quaternion is a 4d vector on 4d sphere
     //this method may mutate argument but will not change rotation
     public static Quaternion interpolateQuaternion(
-        Quaternion v0,
-        Quaternion v1,
+        Quaternion a,
+        Quaternion b,
         float t
     ) {
-        v0.normalize();
-        v1.normalize();
+        a.normalize();
+        b.normalize();
     
-        double dot = v0.getA() * v1.getA() +
-            v0.getB() * v1.getB() +
-            v0.getC() * v1.getC() +
-            v0.getD() * v1.getD();
-    
-        if (dot < 0.0f) {
-            v0.scale(-1);
-            dot = -dot;
-        }
+        double dot = dotProduct4d(a, b);
+
+//        if (dot < 0.0f) {
+//            a.scale(-1);
+//            dot = -dot;
+//        }
     
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
@@ -650,26 +647,32 @@ public class Helper {
             // and normalize the result.
         
             Quaternion result = quaternionNumAdd(
-                quaternionScale(v0.copy(), 1 - t),
-                quaternionScale(v1.copy(), t)
+                quaternionScale(a.copy(), 1 - t),
+                quaternionScale(b.copy(), t)
             );
             result.normalize();
             return result;
         }
-        
-        // Since dot is in range [0, DOT_THRESHOLD], acos is safe
-        double theta_0 = Math.acos(dot);        // theta_0 = angle between input vectors
-        double theta = theta_0 * t;          // theta = angle between v0 and result
-        double sin_theta = Math.sin(theta);     // compute this value only once
-        double sin_theta_0 = Math.sin(theta_0); // compute this value only once
     
-        double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
+        double theta_0 = Math.acos(dot);
+        double theta = theta_0 * t;
+        double sin_theta = Math.sin(theta);
+        double sin_theta_0 = Math.sin(theta_0);
+    
+        double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;
         double s1 = sin_theta / sin_theta_0;
     
         return quaternionNumAdd(
-            quaternionScale(v0.copy(), (float) s0),
-            quaternionScale(v1.copy(), (float) s1)
+            quaternionScale(a.copy(), (float) s0),
+            quaternionScale(b.copy(), (float) s1)
         );
+    }
+    
+    public static double dotProduct4d(Quaternion a, Quaternion b) {
+        return a.getA() * b.getA() +
+            a.getB() * b.getB() +
+            a.getC() * b.getC() +
+            a.getD() * b.getD();
     }
     
     public static boolean isClose(Quaternion a, Quaternion b, float valve) {

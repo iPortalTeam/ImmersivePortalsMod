@@ -9,6 +9,7 @@
   "imm_ptl.portal_searching_range": "地狱传送门生成搜索范围",
   "imm_ptl.long_reach_in_creative": "创造模式下触及范围更大",
   "imm_ptl.render_yourself_in_portal": "在传送门中渲染自己",
+  "imm_ptl.active_loading": "完全加载仅传送门可视区块",
   "effect.immersive_portals.longer_reach": "触及范围增大",
   "item.minecraft.potion.effect.longer_reach_potion": "触及范围增大药水",
   "item.minecraft.splash_potion.effect.longer_reach_potion": "触及范围增大喷溅药水",

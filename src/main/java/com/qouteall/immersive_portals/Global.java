@@ -22,6 +22,8 @@ public class Global {
     
     public static boolean renderYourselfInPortal = true;
     
+    public static boolean activeLoading = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

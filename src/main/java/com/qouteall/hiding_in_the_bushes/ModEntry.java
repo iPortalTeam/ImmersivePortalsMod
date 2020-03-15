@@ -7,8 +7,6 @@ import net.fabricmc.loader.FabricLoader;
 
 public class ModEntry implements ModInitializer {
     
-    public static boolean isReachEntityAttributesPresent;
-    
     @Override
     public void onInitialize() {
         ModMain.init();
@@ -21,18 +19,25 @@ public class ModEntry implements ModInitializer {
         Helper.log("Entities Registered");
     
         MyRegistry.registerMyDimensionsFabric();
-        
+    
         Helper.log("Dimensions Registered");
-        
+    
         MyRegistry.registerBlocksFabric();
-        
+    
         Helper.log("Blocks Registered");
-        
+    
         MyRegistry.registerEffectAndPotion();
-        
+    
         Helper.log("Status Effects Registered");
-        
-        isReachEntityAttributesPresent = FabricLoader.INSTANCE.isModLoaded("reach-entity-attributes");
+    
+        O_O.isReachEntityAttributesPresent = FabricLoader.INSTANCE.isModLoaded(
+            "reach-entity-attributes");
+        if (O_O.isReachEntityAttributesPresent) {
+            Helper.log("Reach entity attributes mod is present");
+        }
+        else {
+            Helper.log("Reach entity attributes mod is not present");
+        }
     }
     
 }
