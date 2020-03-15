@@ -30,9 +30,38 @@ public abstract class MixinServerWorld implements IEServerWorld {
     
     @Shadow
     public abstract ServerChunkManager getChunkManager();
+
+//    /**
+//     * @author qouteall
+//     * @reason
+//     */
+//    @Overwrite
+//    public boolean setChunkForced(int x, int z, boolean forced) {
+//        ForcedChunkState forcedChunkState =
+//            (ForcedChunkState)this.getPersistentStateManager()
+//                .getOrCreate(ForcedChunkState::new, "chunks");
+//        ChunkPos chunkPos = new ChunkPos(x, z);
+//        long chunkPosLong = chunkPos.toLong();
+//        boolean shouldUpdate;
+//        if (forced) {
+//            shouldUpdate = forcedChunkState.getChunks().add(chunkPosLong);
+////            if (shouldUpdate) {
+////                this.getChunk(x, z);
+////            }
+//        } else {
+//            shouldUpdate = forcedChunkState.getChunks().remove(chunkPosLong);
+//        }
+//
+//        forcedChunkState.setDirty(shouldUpdate);
+//        if (shouldUpdate) {
+//            this.getChunkManager().setChunkForced(chunkPos, forced);
+//        }
+//
+//        return shouldUpdate;
+//    }
     
     @Override
-    public void setChunkForcedWithoutImmediateLoading(int x, int z, boolean forced) {
+    public void updateLoadingStatus(int x, int z, boolean forced) {
         ForcedChunkState forcedChunkState = (ForcedChunkState) this.getPersistentStateManager().getOrCreate(
             ForcedChunkState::new,
             "chunks"

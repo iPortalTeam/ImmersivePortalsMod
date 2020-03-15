@@ -160,7 +160,7 @@ public class NewChunkTrackingGraph {
             LongSortedSet currentLoadedChunks = getChunkRecordMap(world.dimension.getType()).keySet();
     
             currentLoadedChunks.forEach(
-                (long longChunkPos) -> ((IEServerWorld) world).setChunkForcedWithoutImmediateLoading(
+                (long longChunkPos) -> ((IEServerWorld) world).updateLoadingStatus(
                     ChunkPos.getPackedX(longChunkPos),
                     ChunkPos.getPackedZ(longChunkPos),
                     true
@@ -172,7 +172,7 @@ public class NewChunkTrackingGraph {
                 (dim, x, z, dis) -> {
                     if (world.dimension.getType() == dim) {
                         additionalLoadedChunks.add(ChunkPos.toLong(x, z));
-                        ((IEServerWorld) world).setChunkForcedWithoutImmediateLoading(
+                        ((IEServerWorld) world).updateLoadingStatus(
                             x, z, true
                         );
                     }

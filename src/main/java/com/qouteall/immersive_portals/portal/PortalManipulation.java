@@ -65,7 +65,7 @@ public class PortalManipulation {
         if (portal.rotation != null) {
             rotatePortalBody(newPortal, portal.rotation);
     
-            newPortal.rotation = portal.rotation.copy();
+            newPortal.rotation = new Quaternion(portal.rotation);
             newPortal.rotation.conjugate();
         }
     

@@ -18,7 +18,7 @@ public class DimensionRenderHelper {
         if (mc.world == world) {
             IEGameRenderer gameRenderer = (IEGameRenderer) mc.gameRenderer;
         
-            lightmapTexture = gameRenderer.getLightmapTextureManager();
+            lightmapTexture = mc.gameRenderer.getLightmapTextureManager();
         }
         else {
             lightmapTexture = new LightmapTextureManager(mc.gameRenderer, mc);
@@ -29,9 +29,8 @@ public class DimensionRenderHelper {
         lightmapTexture.tick();
     }
     
-    //TODO cleanup it
     public void cleanUp() {
-        if (world != mc.world) {
+        if (lightmapTexture != mc.gameRenderer.getLightmapTextureManager()) {
             lightmapTexture.close();
         }
     }

@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -108,11 +107,6 @@ public abstract class PortalRenderer {
         assert mc.cameraEntity.world == mc.world;
         assert mc.cameraEntity.dimension == mc.world.dimension.getType();
     
-        //currently does not support nested portal rendering in mirror
-//        if (MyRenderHelper.isRenderingMirror()) {
-//            return;
-//        }
-    
         for (Portal portal : getPortalsNearbySorted()) {
             renderPortalIfRoughCheckPassed(portal, matrixStack);
         }
@@ -132,17 +126,29 @@ public abstract class PortalRenderer {
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }
-        
+    
         if (isRendering()) {
-            //avoid rendering reverse portal inside portal
-            //TODO render portal area with correct culling
             Portal outerPortal = portalLayers.peek();
-            if (!outerPortal.canRenderPortalInsideMe(portal)) {
+            if (isReversePortal(portal, outerPortal)) {
                 return;
             }
         }
-        
+    
+    
         doRenderPortal(portal, matrixStack);
+    }
+    
+    private static boolean isReversePortal(Portal currPortal, Portal outerPortal) {
+        if (currPortal.dimension != outerPortal.dimensionTo) {
+            return false;
+        }
+        if (currPortal.dimensionTo != outerPortal.dimension) {
+            return false;
+        }
+        if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
+            return false;
+        }
+        return !outerPortal.canRenderEntityInsideMe(currPortal.getPos(), 0.1);
     }
     
     private Vec3d getRoughTestCameraPos() {
@@ -246,19 +252,17 @@ public abstract class PortalRenderer {
     
     public void applyAdditionalTransformations(MatrixStack matrixStack) {
         portalLayers.forEach(portal -> {
-            if (portal.rotation != null) {
+            if (portal instanceof Mirror) {
+                Matrix4f matrix = TransformationManager.getMirrorTransformation(portal.getNormal());
+                matrixStack.peek().getModel().multiply(matrix);
+                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+            }
+            else if (portal.rotation != null) {
                 Quaternion rot = portal.rotation.copy();
                 rot.conjugate();
                 matrixStack.multiply(rot);
             }
-            else if (portal instanceof Mirror) {
-                float[] arr =
-                    TransformationManager.getMirrorTransformation(portal.getNormal());
-                Matrix4f matrix = new Matrix4f();
-                ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
-                matrixStack.peek().getModel().multiply(matrix);
-                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
-            }
         });
     }
+    
 }

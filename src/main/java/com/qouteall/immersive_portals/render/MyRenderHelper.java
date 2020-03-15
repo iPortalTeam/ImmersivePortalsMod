@@ -48,7 +48,7 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glCullFace;
 
 public class MyRenderHelper {
-    //switching context is really bug-prone
+    
     public static DimensionType originalPlayerDimension;
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;
@@ -63,6 +63,7 @@ public class MyRenderHelper {
     public static Vec3d cameraPosDelta = Vec3d.ZERO;
     
     public static boolean shouldForceDisableCull = false;
+    public static long renderStartNanoTime;
     
     public static void updatePreRenderInfo(
         float partialTicks_
@@ -79,12 +80,14 @@ public class MyRenderHelper {
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         MyRenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
         partialTicks = partialTicks_;
-        
+    
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
-        
+    
         FogRendererContext.update();
+    
+        renderStartNanoTime = System.nanoTime();
     }
     
     public static void onTotalRenderEnd() {
@@ -167,7 +170,7 @@ public class MyRenderHelper {
                 GlStateManager.texParameter(3553, 10242, 10496);
                 GlStateManager.texParameter(3553, 10243, 10496);
     
-                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
+                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
     
                 shaderManager.unloadShader();
     

@@ -408,7 +408,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
-        
+    
             //fix sky abnormal with optifine and fog disabled
             if (OFInterface.isFogDisabled.getAsBoolean()) {
                 GL11.glEnable(GL11.GL_FOG);
@@ -549,7 +549,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    
     @Redirect(
         method = "render",
         at = @At(
@@ -562,4 +561,21 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         immediate.draw(layer);
         MyRenderHelper.shouldForceDisableCull = false;
     }
+
+//    //test
+//    @Redirect(
+//        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V"
+//        )
+//    )
+//    private void onCloudEnableDepthTest() {
+//        if (CGlobal.renderer.isRendering()) {
+//            McHelper.test();
+//        }
+//        else {
+//            RenderSystem.enableDepthTest();
+//        }
+//    }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public interface IEServerWorld {
-    void setChunkForcedWithoutImmediateLoading(
+    void updateLoadingStatus(
         int x, int z, boolean forced
     );
     

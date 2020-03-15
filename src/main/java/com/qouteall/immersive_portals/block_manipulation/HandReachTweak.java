@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.block_manipulation;
 
+import com.qouteall.hiding_in_the_bushes.ModEntry;
 import com.qouteall.immersive_portals.Global;
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -24,6 +25,9 @@ public class HandReachTweak {
     public static Potion longerReachPotion;
     
     public static double getActualHandReachMultiplier(PlayerEntity playerEntity) {
+        if (ModEntry.isReachEntityAttributesPresent) {
+            return 1;
+        }
         double multiplier = playerEntity.getAttributeInstance(handReachMultiplierAttribute).getValue();
         if (Global.longerReachInCreative && playerEntity.isCreative()) {
             return multiplier * 10;

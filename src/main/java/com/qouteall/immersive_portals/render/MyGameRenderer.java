@@ -24,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -61,6 +62,16 @@ public class MyGameRenderer {
         }
     }
     
+    private Camera getNewCamera() {
+        IECamera oldCamera = (IECamera) mc.gameRenderer.getCamera();
+        Camera newCamera = new Camera();
+        ((IECamera) newCamera).setCameraY(
+            oldCamera.getCameraY(),
+            oldCamera.getLastCameraY()
+        );
+        return newCamera;
+    }
+    
     public void renderWorld(
         float partialTicks,
         WorldRenderer newWorldRenderer,
@@ -79,17 +90,18 @@ public class MyGameRenderer {
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(newWorld.dimension.getType());
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
-        Camera newCamera = new Camera();
+        Camera newCamera = getNewCamera();
         
         //store old state
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
-        LightmapTextureManager oldLightmap = ieGameRenderer.getLightmapTextureManager();
+        LightmapTextureManager oldLightmap = mc.gameRenderer.getLightmapTextureManager();
         GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = mc.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(newWorldRenderer);
         ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
         HitResult oldCrosshairTarget = mc.crosshairTarget;
+        Camera oldCamera = mc.gameRenderer.getCamera();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
@@ -110,6 +122,7 @@ public class MyGameRenderer {
         if (BlockManipulationClient.remotePointedDim == newWorld.dimension.getType()) {
             mc.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
+        ieGameRenderer.setCamera(newCamera);
         
         mc.getProfiler().push("render_portal_content");
         
@@ -135,11 +148,12 @@ public class MyGameRenderer {
         GlStateManager.popMatrix();
         ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
         mc.crosshairTarget = oldCrosshairTarget;
+        ieGameRenderer.setCamera(oldCamera);
         
         FogRendererContext.swappingManager.popSwapping();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
-        ((IECamera) mc.gameRenderer.getCamera()).resetState(oldCameraPos, oldWorld);
+        //((IECamera) mc.gameRenderer.getCamera()).resetState(oldCameraPos, oldWorld);
     }
     
     public void endCulling() {
@@ -202,7 +216,6 @@ public class MyGameRenderer {
         return clipPlaneEquation;
     }
     
-    
     public void renderPlayerItself(Runnable doRenderEntity) {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) mc.worldRenderer).getEntityRenderDispatcher();
@@ -246,13 +259,18 @@ public class MyGameRenderer {
             MathHelper.floor(d),
             MathHelper.floor(e)
         ) || mc.inGameHud.getBossBarHud().shouldThickenFog();
-        
+    
         BackgroundRenderer.applyFog(
             camera,
             BackgroundRenderer.FogType.FOG_TERRAIN,
             Math.max(g - 16.0F, 32.0F),
             bl2
         );
+        BackgroundRenderer.setFogBlack();
+    }
+    
+    public void resetDiffuseLighting(MatrixStack matrixStack) {
+        DiffuseLighting.enableForLevel(matrixStack.peek().getModel());
     }
     
     //render fewer chunks when rendering portal

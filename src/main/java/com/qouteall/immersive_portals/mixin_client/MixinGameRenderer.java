@@ -136,11 +136,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     }
     
     @Override
-    public LightmapTextureManager getLightmapTextureManager() {
-        return lightmapTextureManager;
-    }
-    
-    @Override
     public void setLightmapTextureManager(LightmapTextureManager manager) {
         lightmapTextureManager = manager;
     }

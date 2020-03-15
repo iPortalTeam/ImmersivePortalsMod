@@ -39,6 +39,7 @@ public class Portal extends Entity {
     
     private Box boundingBoxCache;
     private Vec3d normal;
+    private Vec3d contentDirection;
     
     public double cullableXStart = 0;
     public double cullableXEnd = 0;
@@ -175,8 +176,10 @@ public class Portal extends Entity {
     public void updateCache() {
         boundingBoxCache = null;
         normal = null;
+        contentDirection = null;
         getBoundingBox();
         getNormal();
+        getContentDirection();
     }
     
     public void initDefaultCullableRange() {
@@ -362,13 +365,17 @@ public class Portal extends Entity {
     //Geometry----------
     
     public Vec3d getNormal() {
-        if (normal == null)
+        if (normal == null) {
             normal = axisW.crossProduct(axisH).normalize();
+        }
         return normal;
     }
     
     public Vec3d getContentDirection() {
-        return transformLocalVec(getNormal().multiply(-1));
+        if (contentDirection == null) {
+            contentDirection = transformLocalVec(getNormal().multiply(-1));
+        }
+        return contentDirection;
     }
     
     public double getDistanceToPlane(

@@ -75,7 +75,7 @@ public class RendererDebug extends PortalRenderer {
             GlStateManager.enableDepthTest();
             GlStateManager.depthMask(false);
             //GL20.glUseProgram(0);
-            ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack);
+            ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, true);
             GlStateManager.depthMask(true);
         });
     }

@@ -4,8 +4,6 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.LightmapTextureManager;
 
 public interface IEGameRenderer {
-    LightmapTextureManager getLightmapTextureManager();
-    
     void setLightmapTextureManager(LightmapTextureManager manager);
     
     boolean getDoRenderHand();

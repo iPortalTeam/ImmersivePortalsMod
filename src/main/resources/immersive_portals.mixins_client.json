@@ -32,10 +32,12 @@
     "MixinMinecraftClient",
     "MixinParticleManager",
     "MixinPlayerListEntry",
+    "MixinQuaternion",
     "MixinWorldRenderer",
     "MixinWorldRendererChunkInfo"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "priority": 1001
 }
