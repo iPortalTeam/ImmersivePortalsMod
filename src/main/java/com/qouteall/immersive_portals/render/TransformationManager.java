@@ -58,7 +58,7 @@ public class TransformationManager {
         progress = mapProgress(progress);
         
         return Helper.interpolateQuaternion(
-            inertialRotation.copy(), cameraRotation.copy(), (float) progress
+            inertialRotation, cameraRotation.copy(), (float) progress
         );
     }
     
@@ -131,6 +131,9 @@ public class TransformationManager {
     
             if (!Helper.isClose(newCameraRotation, visualRotation, 0.001f)) {
                 inertialRotation = visualRotation;
+                if (Helper.dotProduct4d(inertialRotation, newCameraRotation) < 0) {
+                    inertialRotation.scale(-1);
+                }
                 interpolationStartTime = MyRenderHelper.renderStartNanoTime;
                 interpolationEndTime = interpolationStartTime +
                     Helper.secondToNano(1);

@@ -10,8 +10,6 @@ public class Global {
     
     public static ServerTeleportationManager serverTeleportationManager;
     
-    public static boolean isChunkLoadingMultiThreaded = true;
-    
     public static Gson gson = new Gson();
     
     public static int maxPortalLayer = 5;
@@ -23,6 +21,8 @@ public class Global {
     public static boolean longerReachInCreative = true;
     
     public static boolean renderYourselfInPortal = true;
+    
+    public static boolean activeLoading = true;
     
     public static enum RenderMode {
         normal,

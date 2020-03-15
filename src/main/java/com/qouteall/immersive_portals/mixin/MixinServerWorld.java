@@ -1,8 +1,12 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.google.common.collect.Lists;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
@@ -11,13 +15,14 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ForcedChunkState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -30,58 +35,29 @@ public abstract class MixinServerWorld implements IEServerWorld {
     
     @Shadow
     public abstract ServerChunkManager getChunkManager();
-
-//    /**
-//     * @author qouteall
-//     * @reason
-//     */
-//    @Overwrite
-//    public boolean setChunkForced(int x, int z, boolean forced) {
-//        ForcedChunkState forcedChunkState =
-//            (ForcedChunkState)this.getPersistentStateManager()
-//                .getOrCreate(ForcedChunkState::new, "chunks");
-//        ChunkPos chunkPos = new ChunkPos(x, z);
-//        long chunkPosLong = chunkPos.toLong();
-//        boolean shouldUpdate;
-//        if (forced) {
-//            shouldUpdate = forcedChunkState.getChunks().add(chunkPosLong);
-////            if (shouldUpdate) {
-////                this.getChunk(x, z);
-////            }
-//        } else {
-//            shouldUpdate = forcedChunkState.getChunks().remove(chunkPosLong);
-//        }
-//
-//        forcedChunkState.setDirty(shouldUpdate);
-//        if (shouldUpdate) {
-//            this.getChunkManager().setChunkForced(chunkPos, forced);
-//        }
-//
-//        return shouldUpdate;
-//    }
     
-    @Override
-    public void updateLoadingStatus(int x, int z, boolean forced) {
-        ForcedChunkState forcedChunkState = (ForcedChunkState) this.getPersistentStateManager().getOrCreate(
-            ForcedChunkState::new,
-            "chunks"
-        );
-        ChunkPos chunkPos = new ChunkPos(x, z);
-        long l = chunkPos.toLong();
-        boolean bl2;
-        if (forced) {
-            bl2 = forcedChunkState.getChunks().add(l);
+    private static LongSortedSet dummy;
+    
+    static {
+        dummy = new LongLinkedOpenHashSet();
+        dummy.add(23333);
+    }
+    
+    //in vanilla if a dimension has no player and no forced chunks then it will not tick
+    @Redirect(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/world/ServerWorld;getForcedChunks()Lit/unimi/dsi/fastutil/longs/LongSet;"
+        )
+    )
+    private LongSet redirectGetForcedChunks(ServerWorld world) {
+        if (NewChunkTrackingGraph.shouldLoadDimension(world.dimension.getType())) {
+            return dummy;
         }
         else {
-            bl2 = forcedChunkState.getChunks().remove(l);
+            return world.getForcedChunks();
         }
-        
-        forcedChunkState.setDirty(bl2);
-        if (bl2) {
-            this.getChunkManager().setChunkForced(chunkPos, forced);
-        }
-        
-        
     }
     
     @Override

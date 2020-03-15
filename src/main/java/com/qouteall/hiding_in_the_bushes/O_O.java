@@ -12,6 +12,8 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 
 public class O_O {
+    public static boolean isReachEntityAttributesPresent;
+    
     @Environment(EnvType.CLIENT)
     public static void onPlayerChangeDimensionClient(
         DimensionType from, DimensionType to

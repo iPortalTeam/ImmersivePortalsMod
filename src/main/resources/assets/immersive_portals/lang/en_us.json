@@ -9,6 +9,7 @@
   "imm_ptl.portal_searching_range": "Nether Portal Searching Range",
   "imm_ptl.long_reach_in_creative": "Longer Hand Reach in Creative",
   "imm_ptl.render_yourself_in_portal": "Render Yourself in Portal",
+  "imm_ptl.active_loading": "Actively Load Remote Chunks",
   "effect.immersive_portals.longer_reach": "Longer Hand Reach",
   "item.minecraft.potion.effect.longer_reach_potion": "Potion of Longer Hand Reach",
   "item.minecraft.splash_potion.effect.longer_reach_potion": "Splash Potion of Longer Hand Reach",

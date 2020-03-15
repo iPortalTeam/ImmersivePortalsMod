@@ -46,12 +46,17 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.render_yourself_in_portal",
                 currConfig.renderYourselfInPortal
             ).setDefaultValue(true).build();
+            BooleanListEntry entryActiveLoading = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.active_loading",
+                currConfig.activeLoading
+            ).setDefaultValue(true).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
             category.addEntry(entryPortalSearchingRange);
             category.addEntry(entryLongerReachInCreative);
             category.addEntry(entryRenderYourselfInPortal);
+            category.addEntry(entryActiveLoading);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -62,6 +67,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.portalSearchingRange = entryPortalSearchingRange.getValue();
                     newConfigObject.longerReachInCreative = entryLongerReachInCreative.getValue();
                     newConfigObject.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
+                    newConfigObject.activeLoading = entryActiveLoading.getValue();
                     MyConfig.saveConfigFile(newConfigObject);
                     MyConfig.onConfigChanged(newConfigObject);
                 })

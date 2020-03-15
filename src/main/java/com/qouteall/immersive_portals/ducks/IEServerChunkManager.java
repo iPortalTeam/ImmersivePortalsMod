@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals.ducks;
 
-public interface IEServerChunkManager {
+import net.minecraft.server.world.ChunkTicketManager;
 
+public interface IEServerChunkManager {
+    ChunkTicketManager getTicketManager();
 }

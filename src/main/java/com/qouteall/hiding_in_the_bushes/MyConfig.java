@@ -20,6 +20,7 @@ public class MyConfig {
     public int portalSearchingRange = 128;
     public boolean longerReachInCreative = true;
     public boolean renderYourselfInPortal = true;
+    public boolean activeLoading = true;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -77,8 +78,10 @@ public class MyConfig {
         Global.longerReachInCreative = config.longerReachInCreative;
         Global.renderYourselfInPortal = config.renderYourselfInPortal;
     
-        if (ModEntry.isReachEntityAttributesPresent) {
+        if (O_O.isReachEntityAttributesPresent) {
             Global.longerReachInCreative = false;
         }
+    
+        Global.activeLoading = config.activeLoading;
     }
 }
