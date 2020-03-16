@@ -336,7 +336,6 @@ public class ViewAreaRenderer {
         Vec3d projected,
         Vec3d normal
     ) {
-//        renderHood(portal, vertexOutput, projected, normal, 1.5);
         renderHood(portal, vertexOutput, projected, normal, 0.4);
     }
     
@@ -349,31 +348,29 @@ public class ViewAreaRenderer {
     ) {
         Vec3d dx = portal.axisW.multiply(boxRadius);
         Vec3d dy = portal.axisH.multiply(boxRadius);
-        
+    
         Vec3d a = projected.add(dx).add(dy);
         Vec3d b = projected.subtract(dx).add(dy);
         Vec3d c = projected.subtract(dx).subtract(dy);
         Vec3d d = projected.add(dx).subtract(dy);
-        
+    
         Vec3d mid = projected.add(normal.multiply(-0.5));
-        
-        Consumer<Vec3d> compactVertexOutput = vertexOutput;
-        
-        compactVertexOutput.accept(b);
-        compactVertexOutput.accept(mid);
-        compactVertexOutput.accept(a);
-        
-        compactVertexOutput.accept(c);
-        compactVertexOutput.accept(mid);
-        compactVertexOutput.accept(b);
-        
-        compactVertexOutput.accept(d);
-        compactVertexOutput.accept(mid);
-        compactVertexOutput.accept(c);
-        
-        compactVertexOutput.accept(a);
-        compactVertexOutput.accept(mid);
-        compactVertexOutput.accept(d);
+    
+        vertexOutput.accept(b);
+        vertexOutput.accept(mid);
+        vertexOutput.accept(a);
+    
+        vertexOutput.accept(c);
+        vertexOutput.accept(mid);
+        vertexOutput.accept(b);
+    
+        vertexOutput.accept(d);
+        vertexOutput.accept(mid);
+        vertexOutput.accept(c);
+    
+        vertexOutput.accept(a);
+        vertexOutput.accept(mid);
+        vertexOutput.accept(d);
     }
     
     
