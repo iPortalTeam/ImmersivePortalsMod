@@ -45,8 +45,8 @@ dependencies {
 	//used for building mod
 	compile files('ofstuff_pre1.jar')
 
-	modApi "me.shedaniel.cloth:config-2:2.9.3"
-	modImplementation "io.github.prospector:modmenu:1.10.2+build.1"
+	modApi "me.shedaniel.cloth:config-2:2.11.2"
+	modImplementation "io.github.prospector:modmenu:1.10.2+build.31"
 
 	//include "me.shedaniel.cloth:config-2:3.0.1"
 	//include "io.github.prospector:modmenu:1.10.2+build.1"
