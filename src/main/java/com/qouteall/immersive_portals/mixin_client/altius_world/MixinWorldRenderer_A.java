@@ -1,11 +1,11 @@
 package com.qouteall.immersive_portals.mixin_client.altius_world;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -21,9 +21,10 @@ public class MixinWorldRenderer_A {
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
         if (CGlobal.renderer.isRendering()) {
-            if (CGlobal.renderer.getRenderingPortal() instanceof VerticalConnectingPortal) {
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            if (renderingPortal instanceof VerticalConnectingPortal) {
                 MyGameRenderer.renderSkyFor(
-                    DimensionType.OVERWORLD,
+                    renderingPortal.dimensionTo,
                     matrixStack, f
                 );
                 return;

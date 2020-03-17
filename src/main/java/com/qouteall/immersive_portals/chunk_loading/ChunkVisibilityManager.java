@@ -209,9 +209,6 @@ public class ChunkVisibilityManager {
             ),
             
             getGlobalPortals(player.dimension)
-                .filter(portal ->
-                    portal.getDistanceToNearestPointInPortal(player.getPos()) < 128
-                )
                 .flatMap(
                     portal -> Streams.concat(
                         Stream.of(globalPortalDirectLoader(

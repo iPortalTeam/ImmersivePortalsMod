@@ -281,16 +281,13 @@ public class ViewAreaRenderer {
     }
     
     private static Vec3d getCurrentFogColor(Portal portal) {
-        DimensionType dimension = portal.dimensionTo;
         
         //for Altius
         if (portal instanceof VerticalConnectingPortal) {
-            if (dimension == DimensionType.THE_NETHER) {
-                return getFogColorOf(DimensionType.OVERWORLD);
-            }
+            return getFogColorOf(MyRenderHelper.originalPlayerDimension);
         }
-        
-        return getFogColorOf(dimension);
+    
+        return getFogColorOf(portal.dimensionTo);
     }
     
     private static Vec3d getFogColorOf(DimensionType dimension) {
