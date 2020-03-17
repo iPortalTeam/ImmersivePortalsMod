@@ -21,6 +21,7 @@ import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -31,8 +32,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -330,6 +333,60 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder.then(CommandManager
+            .literal("erase_chunk")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+    
+                eraseChunk(new ChunkPos(player.getBlockPos()), player.world, 0, 256);
+    
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("erase_chunk_large")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+    
+                ChunkPos center = new ChunkPos(player.getBlockPos());
+    
+                for (int dx = -4; dx <= 4; dx++) {
+                    for (int dz = -4; dz <= 4; dz++) {
+                        eraseChunk(
+                            new ChunkPos(
+                                player.chunkX + dx,
+                                player.chunkZ + dz
+                            ),
+                            player.world, 0, 256
+                        );
+                    }
+                }
+    
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("erase_chunk_large_middle")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+            
+                ChunkPos center = new ChunkPos(player.getBlockPos());
+            
+                for (int dx = -4; dx <= 4; dx++) {
+                    for (int dz = -4; dz <= 4; dz++) {
+                        eraseChunk(
+                            new ChunkPos(
+                                player.chunkX + dx,
+                                player.chunkZ + dz
+                            ),
+                            player.world, 64, 128
+                        );
+                    }
+                }
+            
+                return 0;
+            })
+        );
         registerSwitchCommand(
             builder,
             "render_fewer_on_fast_graphic",
@@ -375,8 +432,23 @@ public class MyCommandClient {
         );
     
         dispatcher.register(builder);
-        
+    
         Helper.log("Successfully initialized command /immersive_portals_debug");
+    }
+    
+    public static void eraseChunk(ChunkPos chunkPos, World world, int yStart, int yEnd) {
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = yStart; y < yEnd; y++) {
+                    world.setBlockState(
+                        chunkPos.toBlockPos(
+                            x, y, z
+                        ),
+                        Blocks.AIR.getDefaultState()
+                    );
+                }
+            }
+        }
     }
     
     private static void printClassPath() {

@@ -20,6 +20,7 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.Untracker;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
@@ -64,6 +65,7 @@ public class MyRenderHelper {
     
     public static boolean shouldForceDisableCull = false;
     public static long renderStartNanoTime;
+    public static double viewBobFactor;
     
     public static void updatePreRenderInfo(
         float partialTicks_
@@ -88,6 +90,36 @@ public class MyRenderHelper {
         FogRendererContext.update();
     
         renderStartNanoTime = System.nanoTime();
+    
+        updateViewBobbingFactor(cameraEntity);
+    
+    }
+    
+    private static void updateViewBobbingFactor(Entity cameraEntity) {
+        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(partialTicks);
+        double minPortalDistance = CHelper.getClientNearbyPortals(10)
+            .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
+            .min(Double::compareTo).orElse(1.0);
+        if (minPortalDistance < 1) {
+            if (minPortalDistance > 0.5) {
+                setViewBobFactor((minPortalDistance - 0.5) * 2);
+            }
+            else {
+                setViewBobFactor(0);
+            }
+        }
+        else {
+            setViewBobFactor(1);
+        }
+    }
+    
+    private static void setViewBobFactor(double arg) {
+        if (arg < viewBobFactor) {
+            viewBobFactor = arg;
+        }
+        else {
+            viewBobFactor = MathHelper.lerp(0.1, viewBobFactor, arg);
+        }
     }
     
     public static void onTotalRenderEnd() {

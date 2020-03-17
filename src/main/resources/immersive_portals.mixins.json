@@ -3,6 +3,11 @@
   "package": "com.qouteall.immersive_portals.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "altius_world/MixinChunkGenerator",
+    "altius_world/MixinLevelGeneratorType",
+    "altius_world/MixinMinecraftServer_A",
+    "altius_world/MixinOverworldDimension",
+    "altius_world/MixinSurfaceChunkGenerator",
     "block_manipulation/MixinLivingEntity",
     "block_manipulation/MixinStatusEffect",
     "chunk_sync/MixinChunkHolder",

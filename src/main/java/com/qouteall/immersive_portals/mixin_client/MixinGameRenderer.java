@@ -135,6 +135,22 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
+    //View bobbing will make the camera pos offset to actuall camera pos
+    //Teleportation is based on camera pos. If the teleportation is incorrect
+    //then rendering will have problem
+    //So smoothly disable view bobbing when player is near a portal
+    @Redirect(
+        method = "bobView",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V"
+        )
+    )
+    private void redirectBobViewTranslate(MatrixStack matrixStack, double x, double y, double z) {
+        double viewBobFactor = MyRenderHelper.viewBobFactor;
+        matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
+    }
+    
     @Override
     public void setLightmapTextureManager(LightmapTextureManager manager) {
         lightmapTextureManager = manager;
