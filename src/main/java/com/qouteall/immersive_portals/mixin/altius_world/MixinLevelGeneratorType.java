@@ -7,6 +7,19 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LevelGeneratorType.class)
 public class MixinLevelGeneratorType {
+//    @Inject(
+//        method = "getTypeFromName",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private static void onGetTypeForName(String name, CallbackInfoReturnable<LevelGeneratorType> cir) {
+//        if (name.equals("imm_ptl_altius")) {
+//            Helper.log("Upgraded level type info");
+//            cir.setReturnValue(LevelGeneratorType.DEFAULT);
+//        }
+//    }
+    
+    
     @Invoker("<init>")
     private static LevelGeneratorType construct(
         int id, String name, String storedName, int version

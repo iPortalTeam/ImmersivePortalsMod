@@ -324,15 +324,6 @@ public class ViewAreaRenderer {
         Vec3d projected = portal.getPointInPortalProjection(cameraPos).subtract(cameraPos);
         Vec3d normal = portal.getNormal();
     
-        renderAdditionalBox(portal, vertexOutput, projected, normal);
-    }
-    
-    private static void renderAdditionalBox(
-        Portal portal,
-        Consumer<Vec3d> vertexOutput,
-        Vec3d projected,
-        Vec3d normal
-    ) {
         renderHood(portal, vertexOutput, projected, normal, 0.4);
     }
     
