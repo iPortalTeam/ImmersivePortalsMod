@@ -13,24 +13,24 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(WorldRenderer.class)
 public class MixinWorldRenderer_A {
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V"
-        )
-    )
-    private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
-        if (CGlobal.renderer.isRendering()) {
-            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
-            if (renderingPortal instanceof VerticalConnectingPortal) {
-                MyGameRenderer.renderSkyFor(
-                    MyRenderHelper.originalPlayerDimension,
-                    matrixStack, f
-                );
-                return;
-            }
-        }
-        worldRenderer.renderSky(matrixStack, f);
-    }
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/WorldRenderer;renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V"
+//        )
+//    )
+//    private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
+//        if (CGlobal.renderer.isRendering()) {
+//            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+//            if (renderingPortal instanceof VerticalConnectingPortal) {
+//                MyGameRenderer.renderSkyFor(
+//                    MyRenderHelper.originalPlayerDimension,
+//                    matrixStack, f
+//                );
+//                return;
+//            }
+//        }
+//        worldRenderer.renderSky(matrixStack, f);
+//    }
 }

@@ -314,28 +314,31 @@ public class MyGameRenderer {
         );
     }
     
+    @Deprecated
     public static void renderSkyFor(
         DimensionType dimension,
         MatrixStack matrixStack,
         float partialTicks
     ) {
-        ClientWorld newWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
-        WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
-
-        ClientWorld oldWorld = mc.world;
-        WorldRenderer oldWorldRenderer = mc.worldRenderer;
-        FogRendererContext.swappingManager.pushSwapping(dimension);
-        CGlobal.myGameRenderer.resetFog();
-
-        mc.world = newWorld;
-        ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
-
-        newWorldRenderer.renderSky(matrixStack, partialTicks);
-
-        mc.world = oldWorld;
-        ((IEMinecraftClient) mc).setWorldRenderer(oldWorldRenderer);
-        FogRendererContext.swappingManager.popSwapping();
-        CGlobal.myGameRenderer.resetFog();
+//        ClientWorld newWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+//        WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
+//
+//        ClientWorld oldWorld = mc.world;
+//        WorldRenderer oldWorldRenderer = mc.worldRenderer;
+//        FogRendererContext.swappingManager.pushSwapping(dimension);
+//        CGlobal.myGameRenderer.resetFog();
+//
+//        mc.world = newWorld;
+//        ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
+//
+//        newWorldRenderer.renderSky(matrixStack, partialTicks);
+//
+//        mc.world = oldWorld;
+//        ((IEMinecraftClient) mc).setWorldRenderer(oldWorldRenderer);
+//        FogRendererContext.swappingManager.popSwapping();
+//        CGlobal.myGameRenderer.resetFog();
+        
+        mc.worldRenderer.renderSky(matrixStack,partialTicks);
     }
     
 }
