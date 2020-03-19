@@ -10,22 +10,22 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(OverworldDimension.class)
 public class MixinOverworldDimension {
-    //Altius overworld is mostly the same as default
-    //TODO support other world gen mods
-    @Redirect(
-        method = "createChunkGenerator",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/LevelProperties;getGeneratorType()Lnet/minecraft/world/level/LevelGeneratorType;"
-        )
-    )
-    private LevelGeneratorType redirectGetGeneratorType(LevelProperties levelProperties) {
-        LevelGeneratorType generatorType = levelProperties.getGeneratorType();
-        if (generatorType != AltiusGeneratorType.generatorType) {
-            return generatorType;
-        }
-        else {
-            return LevelGeneratorType.DEFAULT;
-        }
-    }
+//    //Altius overworld is mostly the same as default
+//    //TODO support other world gen mods
+//    @Redirect(
+//        method = "createChunkGenerator",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/world/level/LevelProperties;getGeneratorType()Lnet/minecraft/world/level/LevelGeneratorType;"
+//        )
+//    )
+//    private LevelGeneratorType redirectGetGeneratorType(LevelProperties levelProperties) {
+//        LevelGeneratorType generatorType = levelProperties.getGeneratorType();
+//        if (generatorType != AltiusGeneratorType.generatorType) {
+//            return generatorType;
+//        }
+//        else {
+//            return LevelGeneratorType.DEFAULT;
+//        }
+//    }
 }

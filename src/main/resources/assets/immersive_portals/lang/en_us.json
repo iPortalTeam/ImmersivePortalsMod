@@ -15,5 +15,13 @@
   "item.minecraft.splash_potion.effect.longer_reach_potion": "Splash Potion of Longer Hand Reach",
   "item.minecraft.lingering_potion.effect.longer_reach_potion": "Lingering Potion of Longer Hand Reach",
   "attribute.name.imm_ptl.hand_reach_multiplier": "Hand Reach",
-  "generator.imm_ptl_altius": "Altius"
+  "imm_ptl.altius_screen_button": "Dimension Stack",
+  "imm_ptl.altius_screen": "Dimension Stack (Immersive Portals)",
+  "imm_ptl.altius_toggle_true": "Dimension Stack Enabled",
+  "imm_ptl.altius_toggle_false": "Dimension Stack Disabled",
+  "imm_ptl.back_to_create_world": "Back",
+  "imm_ptl.add_dimension": "Add Dimension",
+  "imm_ptl.remove_dimension": "Remove Dimension",
+  "imm_ptl.confirm_select_dimension": "Confirm",
+  "imm_ptl.select_dimension": "Select a Dimension"
 }

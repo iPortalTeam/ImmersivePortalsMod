@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LevelGeneratorType.class)
 public class MixinLevelGeneratorType {
+    
     @Invoker("<init>")
     private static LevelGeneratorType construct(
         int id, String name, String storedName, int version
@@ -15,6 +16,6 @@ public class MixinLevelGeneratorType {
     }
     
     static {
-        AltiusGeneratorType.constructor = MixinLevelGeneratorType::construct;
+//        AltiusGeneratorType.constructor = MixinLevelGeneratorType::construct;
     }
 }

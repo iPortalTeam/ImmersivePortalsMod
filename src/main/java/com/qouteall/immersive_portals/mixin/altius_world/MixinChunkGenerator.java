@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.qouteall.immersive_portals.altius_world.AltiusGeneratorType;
+import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -43,8 +44,7 @@ public class MixinChunkGenerator {
     }
     
     private boolean shouldLock() {
-        LevelGeneratorType genType = world.getLevelProperties().getGeneratorType();
-        return genType == AltiusGeneratorType.generatorType;
+        return AltiusInfo.isAltius();
     }
     
     static {

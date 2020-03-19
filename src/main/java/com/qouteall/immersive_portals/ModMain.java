@@ -59,7 +59,7 @@ public class ModMain {
     
         GlobalPortalStorage.init();
     
-        AltiusGeneratorType.init();
+        //AltiusGeneratorType.init();
     }
     
 }

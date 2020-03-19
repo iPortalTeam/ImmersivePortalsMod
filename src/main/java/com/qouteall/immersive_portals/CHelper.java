@@ -8,6 +8,8 @@ import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.LiteralText;
@@ -15,6 +17,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -96,6 +99,115 @@ public class CHelper {
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
             new LiteralText(str)
         );
+    }
+    
+    public static class Rect {
+        public float xMin;
+        public float yMin;
+        public float xMax;
+        public float yMax;
+        
+        public Rect(float xMin, float yMin, float xMax, float yMax) {
+            this.xMin = xMin;
+            this.yMin = yMin;
+            this.xMax = xMax;
+            this.yMax = yMax;
+        }
+        
+        public void grow(float delta) {
+            xMin -= delta;
+            xMax += delta;
+            yMin -= delta;
+            yMax += delta;
+        }
+        
+        public static Rect of(Screen screen) {
+            return new Rect(
+                0, 0,
+                screen.width, screen.height
+            );
+        }
+
+//        public static Rect of(AbstractButtonWidget widget) {
+//            return new Rect(
+//                widget.x,widget.y,
+//                widget.x+widget.getWidth(),
+//                widget.y+widget.
+//            )
+//        }
+    }
+    
+    public static interface LayoutFunc {
+        public void apply(int from, int to);
+    }
+    
+    public static class LayoutElement {
+        public boolean fixedLength;
+        //if fixed, this length. if not fixed, this is weight
+        public int length;
+        public LayoutFunc apply;
+        
+        public LayoutElement(boolean fixedLength, int length, LayoutFunc apply) {
+            this.fixedLength = fixedLength;
+            this.length = length;
+            this.apply = apply;
+        }
+        
+        public static LayoutElement blankSpace(int length) {
+            return new LayoutElement(true, length, (a, b) -> {
+            });
+        }
+        
+        public static LayoutElement layoutX(ButtonWidget widget, int widthRatio) {
+            return new LayoutElement(
+                false,
+                widthRatio,
+                (a, b) -> {
+                    widget.x = a;
+                    widget.setWidth(b - a);
+                }
+            );
+        }
+        
+        public static LayoutElement layoutY(ButtonWidget widget, int height) {
+            return new LayoutElement(
+                true,
+                height,
+                (a, b) -> {
+                    widget.y = a;
+                }
+            );
+        }
+    }
+    
+    public static void layout(
+        int from, int to,
+        LayoutElement... elements
+    ) {
+        int totalEscalateWeight = Arrays.stream(elements)
+            .filter(e -> !e.fixedLength)
+            .mapToInt(e -> e.length)
+            .sum();
+        
+        int totalFixedLen = Arrays.stream(elements)
+            .filter(e -> e.fixedLength)
+            .mapToInt(e -> e.length)
+            .sum();
+        
+        int totalEscalateLen = (to - from - totalFixedLen);
+        
+        int currCoordinate = from;
+        for (LayoutElement element : elements) {
+            int currLen;
+            if (element.fixedLength) {
+                currLen = element.length;
+            }
+            else {
+                currLen = element.length * totalEscalateLen / totalEscalateWeight;
+            }
+            element.apply.apply(currCoordinate, currCoordinate + currLen);
+            currCoordinate += currLen;
+        }
     }
     
 }

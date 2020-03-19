@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +25,7 @@ public class MixinWorldRenderer_A {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             if (renderingPortal instanceof VerticalConnectingPortal) {
                 MyGameRenderer.renderSkyFor(
-                    renderingPortal.dimensionTo,
+                    MyRenderHelper.originalPlayerDimension,
                     matrixStack, f
                 );
                 return;
