@@ -338,7 +338,7 @@ public class MyCommandClient {
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
     
-                eraseChunk(new ChunkPos(player.getBlockPos()), player.world, 0, 256);
+                eraseChunk(new ChunkPos(new BlockPos(player.getPos())), player.world, 0, 256);
     
                 return 0;
             })
@@ -348,7 +348,7 @@ public class MyCommandClient {
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
     
-                ChunkPos center = new ChunkPos(player.getBlockPos());
+                ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
     
                 for (int dx = -4; dx <= 4; dx++) {
                     for (int dz = -4; dz <= 4; dz++) {
@@ -370,7 +370,7 @@ public class MyCommandClient {
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
             
-                ChunkPos center = new ChunkPos(player.getBlockPos());
+                ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
             
                 for (int dx = -4; dx <= 4; dx++) {
                     for (int dz = -4; dz <= 4; dz++) {

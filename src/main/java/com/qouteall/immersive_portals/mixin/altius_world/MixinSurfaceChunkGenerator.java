@@ -50,8 +50,8 @@ public abstract class MixinSurfaceChunkGenerator<T extends ChunkGeneratorConfig>
         int i = chunk.getPos().getStartX();
         int j = chunk.getPos().getStartZ();
         T chunkGeneratorConfig = this.getConfig();
-        int minY = chunkGeneratorConfig.getMinY();
-        int maxY = chunkGeneratorConfig.getMaxY();
+        int minY = chunkGeneratorConfig.getBedrockFloorY();
+        int maxY = chunkGeneratorConfig.getBedrockCeilingY();
         Iterator iterator = BlockPos.iterate(i, 0, j, i + 15, 0, j + 15).iterator();
         
         while (true) {
