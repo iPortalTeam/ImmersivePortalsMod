@@ -21,6 +21,7 @@ import org.lwjgl.opengl.GL11;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -243,7 +244,7 @@ public class Helper {
     
     public static Box getBoxSurface(Box box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
-        Vec3d shrinkVec =  Vec3d.method_24954(direction.getVector()).multiply(size);
+        Vec3d shrinkVec = Vec3d.method_24954(direction.getVector()).multiply(size);
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     
@@ -633,19 +634,19 @@ public class Helper {
     ) {
         a.normalize();
         b.normalize();
-    
+        
         double dot = dotProduct4d(a, b);
 
 //        if (dot < 0.0f) {
 //            a.scale(-1);
 //            dot = -dot;
 //        }
-    
+        
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
             // If the inputs are too close for comfort, linearly interpolate
             // and normalize the result.
-        
+            
             Quaternion result = quaternionNumAdd(
                 quaternionScale(a.copy(), 1 - t),
                 quaternionScale(b.copy(), t)
@@ -653,15 +654,15 @@ public class Helper {
             result.normalize();
             return result;
         }
-    
+        
         double theta_0 = Math.acos(dot);
         double theta = theta_0 * t;
         double sin_theta = Math.sin(theta);
         double sin_theta_0 = Math.sin(theta_0);
-    
+        
         double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;
         double s1 = sin_theta / sin_theta_0;
-    
+        
         return quaternionNumAdd(
             quaternionScale(a.copy(), (float) s0),
             quaternionScale(b.copy(), (float) s1)
@@ -692,5 +693,14 @@ public class Helper {
         Vector3f vector3f = new Vector3f(vec);
         vector3f.rotate(rotation);
         return new Vec3d(vector3f);
+    }
+    
+    public static void putUuid(CompoundTag tag, String key, UUID uuid) {
+        tag.putLong(key + "Most", uuid.getMostSignificantBits());
+        tag.putLong(key + "Least", uuid.getLeastSignificantBits());
+    }
+    
+    public static UUID getUuid(CompoundTag tag, String key) {
+        return new UUID(tag.getLong(key + "Most"), tag.getLong(key + "Least"));
     }
 }

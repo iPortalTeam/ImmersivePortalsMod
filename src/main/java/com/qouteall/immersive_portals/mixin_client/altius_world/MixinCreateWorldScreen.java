@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin_client.altius_world;
 
-import com.google.gson.JsonElement;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.altius_world.AltiusScreen;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
@@ -12,13 +11,17 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CreateWorldScreen.class)
-public class MixinCreateWorldScreen extends Screen {
+public abstract class MixinCreateWorldScreen extends Screen {
+    @Shadow
+    public abstract void removed();
+    
     private ButtonWidget altiusButton;
     private AltiusScreen altiusScreen;
     
@@ -68,16 +71,19 @@ public class MixinCreateWorldScreen extends Screen {
         method = "createLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/LevelInfo;setGeneratorOptions(Lcom/google/gson/JsonElement;)Lnet/minecraft/world/level/LevelInfo;"
+            target = "Lnet/minecraft/client/MinecraftClient;startIntegratedServer(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;)V"
         )
     )
-    private LevelInfo redirectOnCreateLevel(
-        LevelInfo levelInfo, JsonElement generatorOptions
+    private void redirectOnCreateLevel(
+        MinecraftClient minecraftClient,
+        String name,
+        String displayName,
+        LevelInfo levelInfo
     ) {
         AltiusInfo info = altiusScreen.getAltiusInfo();
         ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
-    
-        return levelInfo.setGeneratorOptions(generatorOptions);
+        
+        minecraftClient.startIntegratedServer(name, displayName, levelInfo);
     }
     
     private void openAltiusScreen() {

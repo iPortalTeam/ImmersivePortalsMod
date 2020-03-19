@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.altius_world;
 
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -80,7 +79,7 @@ public class AltiusScreen extends Screen {
         );
     }
     
-    @Nullable
+    //nullable
     public AltiusInfo getAltiusInfo() {
         if (isEnabled) {
             return new AltiusInfo(
@@ -162,7 +161,7 @@ public class AltiusScreen extends Screen {
         super.render(mouseX, mouseY, delta);
         
         this.drawCenteredString(
-            this.font, this.title.asFormattedString(), this.width / 2, 20, -1
+            this.textRenderer, this.title.asFormattedString(), this.width / 2, 20, -1
         );
         
         

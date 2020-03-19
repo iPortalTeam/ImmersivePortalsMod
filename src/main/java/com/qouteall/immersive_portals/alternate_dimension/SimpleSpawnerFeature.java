@@ -149,7 +149,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     };
     
     private static List<Block> shulkerBoxes = Registry.BLOCK.stream()
-        .filter(block -> block.getMaterial(block.getDefaultState()) == Material.SHULKER_BOX)
+        .filter(block -> block.getDefaultState().getMaterial() == Material.SHULKER_BOX)
         .collect(Collectors.toList());
     
     public void generateOnce(IWorld world, Random random, ChunkPos chunkPos) {

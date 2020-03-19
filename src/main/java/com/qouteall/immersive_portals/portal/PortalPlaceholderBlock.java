@@ -7,7 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityContext;
-import net.minecraft.entity.EntityType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -130,7 +129,6 @@ public class PortalPlaceholderBlock extends Block {
         //nothing
     }
     
-   
     //---------These are copied from BlockBarrier
     @Override
     public boolean isTranslucent(
@@ -154,16 +152,6 @@ public class PortalPlaceholderBlock extends Block {
         BlockPos blockPos_1
     ) {
         return 1.0F;
-    }
-    
-    @Override
-    public boolean allowsSpawning(
-        BlockState blockState_1,
-        BlockView blockView_1,
-        BlockPos blockPos_1,
-        EntityType<?> entityType_1
-    ) {
-        return false;
     }
     
 }

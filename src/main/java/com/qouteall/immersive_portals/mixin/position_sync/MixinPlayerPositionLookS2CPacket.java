@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

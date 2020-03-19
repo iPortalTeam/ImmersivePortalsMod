@@ -52,7 +52,7 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
         if (compoundTag.contains("netherPortalShape")) {
             blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
-        reversePortalId = compoundTag.getUuidOld("reversePortalId");
+        reversePortalId = Helper.getUuid(compoundTag,"reversePortalId");
         unbreakable = compoundTag.getBoolean("unbreakable");
     }
     
@@ -62,7 +62,7 @@ public class NewNetherPortalEntity extends Portal implements IBreakablePortal {
         if (blockPortalShape != null) {
             compoundTag.put("netherPortalShape", blockPortalShape.toTag());
         }
-        compoundTag.putUuidOld("reversePortalId", reversePortalId);
+        Helper.putUuid(compoundTag,"reversePortalId", reversePortalId);
         compoundTag.putBoolean("unbreakable", unbreakable);
     }
     

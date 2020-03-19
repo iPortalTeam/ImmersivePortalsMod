@@ -80,7 +80,7 @@ public class Portal extends Entity {
             loadFewerChunks = true;
         }
         if (compoundTag.contains("specificPlayer")) {
-            specificPlayer = compoundTag.getUuidOld("specificPlayer");
+            specificPlayer = Helper.getUuid(compoundTag,"specificPlayer");
         }
         if (compoundTag.contains("specialShape")) {
             specialShape = new GeometryPortalShape(
@@ -137,7 +137,7 @@ public class Portal extends Entity {
         compoundTag.putBoolean("loadFewerChunks", loadFewerChunks);
     
         if (specificPlayer != null) {
-            compoundTag.putUuidOld("specificPlayer", specificPlayer);
+            Helper.putUuid(compoundTag,"specificPlayer", specificPlayer);
         }
     
         if (specialShape != null) {

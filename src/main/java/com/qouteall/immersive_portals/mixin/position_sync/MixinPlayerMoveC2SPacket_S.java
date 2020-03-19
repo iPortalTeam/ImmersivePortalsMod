@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
