@@ -143,6 +143,7 @@ public class CHelper {
     
     public static class LayoutElement {
         public boolean fixedLength;
+        //if fixed, this length. if not fixed, this is weight
         public int length;
         public LayoutFunc apply;
         

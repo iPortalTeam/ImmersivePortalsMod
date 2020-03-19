@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.qouteall.immersive_portals.altius_world.AltiusGeneratorType;
+import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ServerWorld;
@@ -25,9 +26,9 @@ public abstract class MixinMinecraftServer_A {
         WorldGenerationProgressListener worldGenerationProgressListener,
         CallbackInfo ci
     ) {
-        LevelGeneratorType genType = getWorld(DimensionType.OVERWORLD).getLevelProperties().getGeneratorType();
-        if (genType == AltiusGeneratorType.generatorType) {
-            AltiusGeneratorType.initializePortalsIfNecessary();
+        AltiusInfo info = AltiusInfo.getInfoFromServer();
+        if (info != null) {
+            info.createPortals();
         }
     }
 }

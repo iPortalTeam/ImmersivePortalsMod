@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.altius_world;
 
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -10,6 +11,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class AltiusScreen extends Screen {
     Screen parent;
@@ -28,7 +30,7 @@ public class AltiusScreen extends Screen {
         this.parent = parent;
         
         toggleButton = new ButtonWidget(
-            this.width / 2 - 75, 20, 150, 20,
+            0, 0, 150, 20,
             I18n.translate("imm_ptl.toggle_altius"),
             (buttonWidget) -> {
                 setEnabled(!isEnabled);
@@ -36,21 +38,21 @@ public class AltiusScreen extends Screen {
         );
         
         backButton = new ButtonWidget(
-            this.width / 2 - 154, this.height - 28, 72, 20,
+            0, 0, 72, 20,
             I18n.translate("imm_ptl.back_to_create_world"),
             (buttonWidget) -> {
                 MinecraftClient.getInstance().openScreen(parent);
             }
         );
         addDimensionButton = new ButtonWidget(
-            this.width / 2 - 76, height - 28, 72, 20,
+            0, 0, 72, 20,
             I18n.translate("imm_ptl.add_dimension"),
             (buttonWidget) -> {
                 onAddDimension();
             }
         );
         removeDimensionButton = new ButtonWidget(
-            this.width / 2 + 4, height - 28, 72, 20,
+            0, 0, 72, 20,
             I18n.translate("imm_ptl.remove_dimension"),
             (buttonWidget) -> {
                 onRemoveDimension();
@@ -76,6 +78,20 @@ public class AltiusScreen extends Screen {
         dimListWidget.terms.add(
             new DimTermWidget(DimensionType.THE_NETHER, dimListWidget, callback)
         );
+    }
+    
+    @Nullable
+    public AltiusInfo getAltiusInfo() {
+        if (isEnabled) {
+            return new AltiusInfo(
+                dimListWidget.terms.stream().map(
+                    w -> w.dimension
+                ).collect(Collectors.toList())
+            );
+        }
+        else {
+            return null;
+        }
     }
     
     @Override

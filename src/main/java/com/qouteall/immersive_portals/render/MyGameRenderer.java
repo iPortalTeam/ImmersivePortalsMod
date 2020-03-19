@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
@@ -192,15 +193,15 @@ public class MyGameRenderer {
         if (FSRenderingContext.isRenderingScenery) {
             return FarSceneryRenderer.getCullingEquation();
         }
-    
+        
         Portal portal = CGlobal.renderer.getRenderingPortal();
-    
+        
         Vec3d planeNormal = portal.getContentDirection();
-    
+        
         Vec3d portalPos = portal.destination
             .subtract(portal.getContentDirection().multiply(0.01))//avoid z fighting
             .subtract(mc.gameRenderer.getCamera().getPos());
-    
+        
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c
         double c = planeNormal.multiply(-1).dotProduct(portalPos);
@@ -229,14 +230,14 @@ public class MyGameRenderer {
         Vec3d oldPos = player.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(player);
         GameMode oldGameMode = playerListEntry.getGameMode();
-    
+        
         McHelper.setPosAndLastTickPos(
             player, MyRenderHelper.originalPlayerPos, MyRenderHelper.originalPlayerLastTickPos
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
         doRenderEntity.run();
-    
+        
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos
         );
@@ -247,20 +248,20 @@ public class MyGameRenderer {
         if (OFInterface.isFogDisabled.getAsBoolean()) {
             return;
         }
-    
+        
         Camera camera = mc.gameRenderer.getCamera();
         float g = mc.gameRenderer.getViewDistance();
-    
+        
         Vec3d cameraPos = camera.getPos();
         double d = cameraPos.getX();
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
-    
+        
         boolean bl2 = mc.world.dimension.isFogThick(
             MathHelper.floor(d),
             MathHelper.floor(e)
         ) || mc.inGameHud.getBossBarHud().shouldThickenFog();
-    
+        
         BackgroundRenderer.applyFog(
             camera,
             BackgroundRenderer.FogType.FOG_TERRAIN,
@@ -320,17 +321,21 @@ public class MyGameRenderer {
     ) {
         ClientWorld newWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
         WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
-        
+
         ClientWorld oldWorld = mc.world;
         WorldRenderer oldWorldRenderer = mc.worldRenderer;
-        
+        FogRendererContext.swappingManager.pushSwapping(dimension);
+        CGlobal.myGameRenderer.resetFog();
+
         mc.world = newWorld;
         ((IEMinecraftClient) mc).setWorldRenderer(newWorldRenderer);
-        
+
         newWorldRenderer.renderSky(matrixStack, partialTicks);
-        
+
         mc.world = oldWorld;
         ((IEMinecraftClient) mc).setWorldRenderer(oldWorldRenderer);
+        FogRendererContext.swappingManager.popSwapping();
+        CGlobal.myGameRenderer.resetFog();
     }
     
 }

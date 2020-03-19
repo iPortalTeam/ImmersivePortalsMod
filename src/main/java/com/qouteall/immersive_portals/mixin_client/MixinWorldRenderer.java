@@ -444,8 +444,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (CGlobal.renderer.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
             GL11.glDisable(GL11.GL_FOG);
-            GlStateManager.enableFog();
-            GlStateManager.disableFog();
+            RenderSystem.enableFog();
+            RenderSystem.disableFog();
         }
         
         MyRenderHelper.recoverFaceCulling();

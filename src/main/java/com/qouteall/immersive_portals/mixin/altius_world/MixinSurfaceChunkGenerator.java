@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.qouteall.immersive_portals.altius_world.AltiusGeneratorType;
+import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -36,8 +37,7 @@ public abstract class MixinSurfaceChunkGenerator<T extends ChunkGeneratorConfig>
         cancellable = true
     )
     private void onBuildBedrock(Chunk chunk, Random random, CallbackInfo ci) {
-        LevelGeneratorType generatorType = world.getLevelProperties().getGeneratorType();
-        if (generatorType == AltiusGeneratorType.generatorType) {
+        if (AltiusInfo.isAltius()) {
             buildAltiusBedrock(chunk, random);
             ci.cancel();
         }
