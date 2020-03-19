@@ -281,6 +281,9 @@ public class ServerTeleportationManager {
                         this.lastTeleportGameTime.getOrDefault(player, 0L);
                     if (tickTimeNow - lastTeleportGameTime > 60) {
                         sendPositionConfirmMessage(player);
+                        
+                        //for vanilla nether portal cooldown to work normally
+                        player.onTeleportationDone();
                     }
                     else {
                         ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
