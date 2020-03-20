@@ -41,6 +41,8 @@ public class ClientWorldLoader {
     
     private boolean isHardCore = false;
     
+    public boolean isClientRemoteTicking = false;
+    
     public ClientWorldLoader() {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
@@ -51,6 +53,7 @@ public class ClientWorldLoader {
     
     private void tick() {
         if (CGlobal.isClientRemoteTickingEnabled) {
+            isClientRemoteTicking = true;
             clientWorldMap.values().forEach(world -> {
                 if (mc.world != world) {
                     tickRemoteWorld(world);
@@ -61,6 +64,7 @@ public class ClientWorldLoader {
                     worldRenderer.tick();
                 }
             });
+            isClientRemoteTicking = false;
         }
     
         boolean lightmapTextureConflict = false;
