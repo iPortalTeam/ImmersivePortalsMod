@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
@@ -32,7 +32,7 @@ public class BorderPortal extends GlobalTrackedPortal {
             portal -> portal instanceof BorderPortal
         );
         
-        IntegerAABBInclusive box = new IntegerAABBInclusive(
+        IntBox box = new IntBox(
             new BlockPos(x1, 0, y1),
             new BlockPos(x2, 256, y2)
         ).getSorted();

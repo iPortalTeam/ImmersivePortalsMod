@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.nbt.CompoundTag;
@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 public class BlockPortalShape {
     public BlockPos anchor;
     public Set<BlockPos> area;
-    public IntegerAABBInclusive innerAreaBox;
-    public IntegerAABBInclusive totalAreaBox;
+    public IntBox innerAreaBox;
+    public IntBox totalAreaBox;
     public Direction.Axis axis;
     public Set<BlockPos> frameAreaWithoutCorner;
     public Set<BlockPos> frameAreaWithCorner;
@@ -101,14 +101,14 @@ public class BlockPortalShape {
     
     public void calcAreaBox() {
         innerAreaBox = Helper.reduceWithDifferentType(
-            new IntegerAABBInclusive(anchor, anchor),
+            new IntBox(anchor, anchor),
             area.stream(),
-            IntegerAABBInclusive::getExpanded
+            IntBox::getExpanded
         );
         totalAreaBox = Helper.reduceWithDifferentType(
-            new IntegerAABBInclusive(anchor, anchor),
+            new IntBox(anchor, anchor),
             frameAreaWithoutCorner.stream(),
-            IntegerAABBInclusive::getExpanded
+            IntBox::getExpanded
         );
     }
     
@@ -314,7 +314,7 @@ public class BlockPortalShape {
     }
     
     private void initCullableRange(Portal portal) {
-        IntegerAABBInclusive expandedRectangle = Helper.expandRectangle(
+        IntBox expandedRectangle = Helper.expandRectangle(
             anchor,
             blockPos -> area.contains(blockPos),
             axis

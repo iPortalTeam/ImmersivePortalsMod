@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.portal.global_portals;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -24,7 +24,7 @@ public class BorderBarrierFiller {
         ServerPlayerEntity player
     ) {
         ServerWorld world = (ServerWorld) player.world;
-        IntegerAABBInclusive borderBox = getBorderBox(world);
+        IntBox borderBox = getBorderBox(world);
         if (borderBox == null) {
             McHelper.serverLog(
                 player,
@@ -52,7 +52,7 @@ public class BorderBarrierFiller {
         }
     }
     
-    private static IntegerAABBInclusive getBorderBox(ServerWorld world) {
+    private static IntBox getBorderBox(ServerWorld world) {
         List<BorderPortal> borderPortals = McHelper.getGlobalPortals(world).stream().filter(
             p -> p instanceof BorderPortal
         ).map(
@@ -73,7 +73,7 @@ public class BorderBarrierFiller {
             )
         );
         
-        return new IntegerAABBInclusive(
+        return new IntBox(
             new BlockPos(
                 floatBox.x1 - 1, -1, floatBox.z1 - 1
             ),
@@ -85,7 +85,7 @@ public class BorderBarrierFiller {
     
     private static void startFillingBorder(
         ServerWorld world,
-        IntegerAABBInclusive borderBox,
+        IntBox borderBox,
         ServerPlayerEntity informer
     ) {
         Supplier<IntStream> xStream = () -> IntStream.range(

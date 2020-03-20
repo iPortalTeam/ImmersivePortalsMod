@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
@@ -13,19 +13,19 @@ public class ObsidianFrame {
     public final Direction.Axis normalAxis;
     
     //this box does not contain obsidian frame
-    public final IntegerAABBInclusive boxWithoutObsidian;
+    public final IntBox boxWithoutObsidian;
     
     public ObsidianFrame(
         Direction.Axis normalAxis,
-        IntegerAABBInclusive boxWithoutObsidian
+        IntBox boxWithoutObsidian
     ) {
         this.normalAxis = normalAxis;
         this.boxWithoutObsidian = boxWithoutObsidian;
     }
     
-    public static IntegerAABBInclusive expandToIncludeObsidianBlocks(
+    public static IntBox expandToIncludeObsidianBlocks(
         Direction.Axis axisOfNormal,
-        IntegerAABBInclusive boxInsideObsidianFrame
+        IntBox boxInsideObsidianFrame
     ) {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(
             axisOfNormal
@@ -36,9 +36,9 @@ public class ObsidianFrame {
             .getExpanded(anotherTwoAxis.getRight(), 1);
     }
     
-    public static IntegerAABBInclusive shrinkToExcludeObsidianBlocks(
+    public static IntBox shrinkToExcludeObsidianBlocks(
         Direction.Axis axisOfNormal,
-        IntegerAABBInclusive boxInsideObsidianFrame
+        IntBox boxInsideObsidianFrame
     ) {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(
             axisOfNormal
@@ -64,7 +64,7 @@ public class ObsidianFrame {
     public static ObsidianFrame fromTag(CompoundTag tag) {
         return new ObsidianFrame(
             Direction.Axis.values()[tag.getInt("normalAxis")],
-            new IntegerAABBInclusive(
+            new IntBox(
                 new BlockPos(
                     tag.getInt("boxXL"),
                     tag.getInt("boxYL"),

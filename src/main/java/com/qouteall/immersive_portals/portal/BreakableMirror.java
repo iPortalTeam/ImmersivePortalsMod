@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -18,7 +18,7 @@ public class BreakableMirror extends Mirror {
     
     public static EntityType<BreakableMirror> entityType;
     
-    public IntegerAABBInclusive wallArea;
+    public IntBox wallArea;
     
     public BreakableMirror(EntityType<?> entityType_1, World world_1) {
         super(entityType_1, world_1);
@@ -27,7 +27,7 @@ public class BreakableMirror extends Mirror {
     @Override
     protected void readCustomDataFromTag(CompoundTag tag) {
         super.readCustomDataFromTag(tag);
-        wallArea = new IntegerAABBInclusive(
+        wallArea = new IntBox(
             new BlockPos(
                 tag.getInt("boxXL"),
                 tag.getInt("boxYL"),
@@ -91,7 +91,7 @@ public class BreakableMirror extends Mirror {
             return null;
         }
     
-        IntegerAABBInclusive wallArea = Helper.expandRectangle(
+        IntBox wallArea = Helper.expandRectangle(
             glassPos,
             blockPos -> isGlass(world, blockPos),
             facing.getAxis()
@@ -146,7 +146,7 @@ public class BreakableMirror extends Mirror {
         ).filter(
             mirror1 -> mirror1.getNormal().dotProduct(newMirror.getNormal()) > 0.5
         ).filter(
-            mirror1 -> IntegerAABBInclusive.getIntersect(
+            mirror1 -> IntBox.getIntersect(
                 mirror1.wallArea, newMirror.wallArea
             ) != null
         ).filter(

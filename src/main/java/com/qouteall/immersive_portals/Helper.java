@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
@@ -247,11 +247,11 @@ public class Helper {
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     
-    public static IntegerAABBInclusive expandRectangle(
+    public static IntBox expandRectangle(
         BlockPos startingPos,
         Predicate<BlockPos> blockPosPredicate, Direction.Axis axis
     ) {
-        IntegerAABBInclusive wallArea = new IntegerAABBInclusive(startingPos, startingPos);
+        IntBox wallArea = new IntBox(startingPos, startingPos);
         
         for (Direction direction : getAnotherFourDirections(axis)) {
             
@@ -450,14 +450,14 @@ public class Helper {
         return nano / 1000000000.0;
     }
     
-    public static IntegerAABBInclusive expandArea(
-        IntegerAABBInclusive originalArea,
+    public static IntBox expandArea(
+        IntBox originalArea,
         Predicate<BlockPos> predicate,
         Direction direction
     ) {
-        IntegerAABBInclusive currentBox = originalArea;
+        IntBox currentBox = originalArea;
         for (int i = 1; i < 42; i++) {
-            IntegerAABBInclusive expanded = currentBox.getExpanded(direction, 1);
+            IntBox expanded = currentBox.getExpanded(direction, 1);
             if (expanded.getSurfaceLayer(direction).stream().allMatch(predicate)) {
                 currentBox = expanded;
             }

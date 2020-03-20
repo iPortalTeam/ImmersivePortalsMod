@@ -9,7 +9,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.BlockState;
@@ -269,7 +269,7 @@ public class NewNetherPortalGenerator {
         //avoid blockpos object creation
         BlockPos.Mutable temp = new BlockPos.Mutable();
         
-        IntegerAABBInclusive toWorldHeightLimit =
+        IntBox toWorldHeightLimit =
             NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
         
         Stream<BlockPos> blockPosStream = fromNearToFarColumned(
@@ -334,7 +334,7 @@ public class NewNetherPortalGenerator {
                 
                 ModMain.serverTaskList.addTask(() -> {
                     
-                    IntegerAABBInclusive airCubePlacement =
+                    IntBox airCubePlacement =
                         NetherPortalGenerator.findAirCubePlacement(
                             toWorld, toPos, toWorldHeightLimit,
                             foundShape.axis, foundShape.totalAreaBox.getSize(),
