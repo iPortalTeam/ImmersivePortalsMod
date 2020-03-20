@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.google.common.collect.Streams;
 import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -71,8 +72,8 @@ public class NewNetherPortalGenerator {
             fromWorld,
             firePos,
             toWorld,
-            NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius / 2,
+            Global.netherPortalFindingRadius,
+            Global.netherPortalFindingRadius,
             (fromPos1) -> NetherPortalGenerator.mapPosition(
                 fromPos1,
                 fromWorld.dimension.getType(),
@@ -105,8 +106,8 @@ public class NewNetherPortalGenerator {
             fromWorld,
             firePos,
             fromWorld,
-            NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius,
+            Global.netherPortalFindingRadius,
+            Global.netherPortalFindingRadius,
             (fromPos1) -> NetherPortalGenerator.getRandomShift().add(fromPos1),
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
             blockPos -> fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,

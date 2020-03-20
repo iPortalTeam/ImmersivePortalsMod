@@ -18,8 +18,8 @@ public class IntegerAABBInclusive {
     public final BlockPos h;
     
     public IntegerAABBInclusive(BlockPos l, BlockPos h) {
-        this.l = l;
-        this.h = h;
+        this.l = l.toImmutable();
+        this.h = h.toImmutable();
     }
     
     public static IntegerAABBInclusive getBoxByBasePointAndSize(

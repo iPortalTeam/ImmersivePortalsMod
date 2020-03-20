@@ -24,6 +24,8 @@ public class Global {
     
     public static boolean activeLoading = true;
     
+    public static int netherPortalFindingRadius = 128;
+    
     public static enum RenderMode {
         normal,
         compatibility,

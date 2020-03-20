@@ -2,7 +2,6 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -74,7 +73,7 @@ public class MyConfig {
         }
         Global.doCheckGlError = config.doCheckGlError;
         Global.maxPortalLayer = config.maxPortalLayer;
-        NetherPortalMatcher.findingRadius = config.portalSearchingRange;
+        Global.netherPortalFindingRadius = config.portalSearchingRange;
         Global.longerReachInCreative = config.longerReachInCreative;
         Global.renderYourselfInPortal = config.renderYourselfInPortal;
     
