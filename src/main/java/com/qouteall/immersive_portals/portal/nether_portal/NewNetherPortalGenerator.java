@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.google.common.collect.Streams;
 import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -484,7 +485,7 @@ public class NewNetherPortalGenerator {
         toWorld.spawnEntity(portalArray[3]);
     }
     
-    private static Stream<BlockPos> fromNearToFarColumned(
+    public static Stream<BlockPos> fromNearToFarColumned(
         ServerWorld world,
         int x,
         int z,

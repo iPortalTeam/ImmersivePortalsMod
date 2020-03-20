@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
@@ -702,5 +702,12 @@ public class Helper {
     
     public static UUID getUuid(CompoundTag tag, String key) {
         return new UUID(tag.getLong(key + "Most"), tag.getLong(key + "Least"));
+    }
+    
+    public static Quaternion ortholize(Quaternion quaternion) {
+        if (quaternion.getA() < 0) {
+            quaternion.scale(-1);
+        }
+        return quaternion;
     }
 }

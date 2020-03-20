@@ -16,7 +16,6 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -221,8 +220,6 @@ public class ServerTeleportationManager {
         if (vehicle != null) {
             ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
         }
-        
-        BlockPos oldPos = player.getBlockPos();
         
         
         Vec3d oldPos = player.getPos();
