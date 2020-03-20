@@ -8,7 +8,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.BlockState;
@@ -71,8 +71,8 @@ public class NewNetherPortalGenerator {
             fromWorld,
             firePos,
             toWorld,
-            NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius,
+            Global.netherPortalFindingRadius,
+            Global.netherPortalFindingRadius,
             (fromPos1) -> NetherPortalGenerator.mapPosition(
                 fromPos1,
                 fromWorld.dimension.getType(),
@@ -84,16 +84,10 @@ public class NewNetherPortalGenerator {
             blockPos -> O_O.isObsidian(fromWorld, blockPos),
             //other side area
             blockPos -> {
-                if (!toWorld.isChunkLoaded(blockPos)) {
-                    return true;
-                }
                 return toWorld.isAir(blockPos);
             },
             //other side frame
             blockPos -> {
-                if (!toWorld.isChunkLoaded(blockPos)) {
-                    return false;
-                }
                 return O_O.isObsidian(toWorld, blockPos);
             },
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
@@ -111,16 +105,11 @@ public class NewNetherPortalGenerator {
             fromWorld,
             firePos,
             fromWorld,
-            NetherPortalMatcher.findingRadius,
-            NetherPortalMatcher.findingRadius,
-    
-            //this side area
+            Global.netherPortalFindingRadius,
+            Global.netherPortalFindingRadius,
             (fromPos1) -> NetherPortalGenerator.getRandomShift().add(fromPos1),
-            //this side frame
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
-            //that side area
             blockPos -> fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,
-            //that side frame
             fromWorld::isAir,
             blockPos -> fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,
             (toShape) -> {
@@ -279,7 +268,7 @@ public class NewNetherPortalGenerator {
         //avoid blockpos object creation
         BlockPos.Mutable temp = new BlockPos.Mutable();
         
-        IntegerAABBInclusive toWorldHeightLimit =
+        IntBox toWorldHeightLimit =
             NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
     
         Stream<BlockPos> blockPosStream = fromNearToFarColumned(
@@ -344,7 +333,7 @@ public class NewNetherPortalGenerator {
                 
                 ModMain.serverTaskList.addTask(() -> {
                     
-                    IntegerAABBInclusive airCubePlacement =
+                    IntBox airCubePlacement =
                         NetherPortalGenerator.findAirCubePlacement(
                             toWorld, toPos, toWorldHeightLimit,
                             foundShape.axis, foundShape.totalAreaBox.getSize(),

@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -26,15 +26,15 @@ public class NetherPortalGenerator {
         );
     }
     
-    public static IntegerAABBInclusive findAirCubePlacement(
+    public static IntBox findAirCubePlacement(
         ServerWorld toWorld,
         BlockPos mappedPosInOtherDimension,
-        IntegerAABBInclusive heightLimit,
+        IntBox heightLimit,
         Direction.Axis axis,
         BlockPos neededAreaSize,
         int findingRadius
     ) {
-        IntegerAABBInclusive foundAirCube =
+        IntBox foundAirCube =
             axis == Direction.Axis.Y ?
                 NetherPortalMatcher.findHorizontalPortalPlacement(
                     neededAreaSize, toWorld, mappedPosInOtherDimension,
@@ -58,7 +58,7 @@ public class NetherPortalGenerator {
             Helper.err("No place to put portal? " +
                 "Force placed portal. It will occupy normal blocks.");
             
-            foundAirCube = IntegerAABBInclusive.getBoxByBasePointAndSize(
+            foundAirCube = IntBox.getBoxByBasePointAndSize(
                 neededAreaSize,
                 mappedPosInOtherDimension
             );

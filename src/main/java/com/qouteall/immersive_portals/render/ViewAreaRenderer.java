@@ -18,7 +18,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -136,19 +135,19 @@ public class ViewAreaRenderer {
         float layerWidth,
         Vec3d posInPlayerCoordinate
     ) {
-        Vec3d v0 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v0 = portal.getPointInPlaneLocal(
             portal.width / 2 - (double) 0,
             -portal.height / 2 + (double) 0
         );
-        Vec3d v1 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v1 = portal.getPointInPlaneLocal(
             -portal.width / 2 + (double) 0,
             -portal.height / 2 + (double) 0
         );
-        Vec3d v2 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v2 = portal.getPointInPlaneLocal(
             portal.width / 2 - (double) 0,
             portal.height / 2 - (double) 0
         );
-        Vec3d v3 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v3 = portal.getPointInPlaneLocal(
             -portal.width / 2 + (double) 0,
             portal.height / 2 - (double) 0
         );
@@ -176,19 +175,19 @@ public class ViewAreaRenderer {
         
         final double r = 1000;
         
-        Vec3d v0 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v0 = portal.getPointInPlaneLocalClamped(
             r + cameraLocalX,
             -r + cameraLocalY
         );
-        Vec3d v1 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v1 = portal.getPointInPlaneLocalClamped(
             -r + cameraLocalX,
             -r + cameraLocalY
         );
-        Vec3d v2 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v2 = portal.getPointInPlaneLocalClamped(
             r + cameraLocalX,
             r + cameraLocalY
         );
-        Vec3d v3 = portal.getPointInPlaneRelativeToCenter(
+        Vec3d v3 = portal.getPointInPlaneLocalClamped(
             -r + cameraLocalX,
             r + cameraLocalY
         );

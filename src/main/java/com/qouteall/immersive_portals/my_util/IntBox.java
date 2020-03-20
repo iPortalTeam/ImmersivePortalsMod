@@ -12,28 +12,28 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class IntegerAABBInclusive {
+public class IntBox {
     
     public final BlockPos l;
     public final BlockPos h;
     
-    public IntegerAABBInclusive(BlockPos l, BlockPos h) {
-        this.l = l;
-        this.h = h;
+    public IntBox(BlockPos l, BlockPos h) {
+        this.l = l.toImmutable();
+        this.h = h.toImmutable();
     }
     
-    public static IntegerAABBInclusive getBoxByBasePointAndSize(
+    public static IntBox getBoxByBasePointAndSize(
         BlockPos areaSize,
         BlockPos blockPos
     ) {
-        return new IntegerAABBInclusive(
+        return new IntBox(
             blockPos,
             blockPos.add(areaSize).add(-1, -1, -1)
         );
     }
     
-    public IntegerAABBInclusive getSorted() {
-        return new IntegerAABBInclusive(
+    public IntBox getSorted() {
+        return new IntBox(
             Helper.min(l, h),
             Helper.max(l, h)
         );
@@ -45,16 +45,16 @@ public class IntegerAABBInclusive {
             l.getZ() <= h.getZ();
     }
     
-    public IntegerAABBInclusive expandOrShrink(Vec3i offset) {
+    public IntBox expandOrShrink(Vec3i offset) {
         assert isSorted();
         
-        return new IntegerAABBInclusive(
+        return new IntBox(
             l.subtract(offset),
             h.add(offset)
         );
     }
     
-    public IntegerAABBInclusive getExpanded(Direction.Axis axis, int n) {
+    public IntBox getExpanded(Direction.Axis axis, int n) {
         assert isSorted();
         
         return expandOrShrink(
@@ -67,15 +67,15 @@ public class IntegerAABBInclusive {
         );
     }
     
-    public IntegerAABBInclusive getExpanded(Direction direction, int n) {
+    public IntBox getExpanded(Direction direction, int n) {
         if (direction.getDirection() == Direction.AxisDirection.POSITIVE) {
-            return new IntegerAABBInclusive(
+            return new IntBox(
                 l,
                 h.add(Helper.scale(direction.getVector(), n))
             );
         }
         else {
-            return new IntegerAABBInclusive(
+            return new IntBox(
                 l.add(Helper.scale(direction.getVector(), n)),
                 h
             );
@@ -106,14 +106,14 @@ public class IntegerAABBInclusive {
         return h.add(1, 1, 1).subtract(l);
     }
     
-    public IntegerAABBInclusive getSurfaceLayer(
+    public IntBox getSurfaceLayer(
         Direction.Axis axis,
         Direction.AxisDirection axisDirection
     ) {
         assert isSorted();
         
         if (axisDirection == Direction.AxisDirection.NEGATIVE) {
-            IntegerAABBInclusive result = new IntegerAABBInclusive(
+            IntBox result = new IntBox(
                 l,
                 new BlockPos(
                     (axis == Direction.Axis.X ? l : h).getX(),
@@ -125,7 +125,7 @@ public class IntegerAABBInclusive {
             return result;
         }
         else {
-            IntegerAABBInclusive result = new IntegerAABBInclusive(
+            IntBox result = new IntBox(
                 new BlockPos(
                     (axis == Direction.Axis.X ? h : l).getX(),
                     (axis == Direction.Axis.Y ? h : l).getY(),
@@ -138,7 +138,7 @@ public class IntegerAABBInclusive {
         }
     }
     
-    public IntegerAABBInclusive getSurfaceLayer(
+    public IntBox getSurfaceLayer(
         Direction facing
     ) {
         return getSurfaceLayer(
@@ -148,14 +148,14 @@ public class IntegerAABBInclusive {
     }
     
     //@Nullable
-    public static IntegerAABBInclusive getIntersect(
-        IntegerAABBInclusive a,
-        IntegerAABBInclusive b
+    public static IntBox getIntersect(
+        IntBox a,
+        IntBox b
     ) {
         assert a.isSorted();
         assert b.isSorted();
         
-        IntegerAABBInclusive intersected = new IntegerAABBInclusive(
+        IntBox intersected = new IntBox(
             Helper.max(a.l, b.l),
             Helper.min(a.h, b.h)
         );
@@ -168,11 +168,11 @@ public class IntegerAABBInclusive {
         }
     }
     
-    public IntegerAABBInclusive map(
+    public IntBox map(
         Function<BlockPos, BlockPos> func1,
         Function<BlockPos, BlockPos> func2
     ) {
-        return new IntegerAABBInclusive(
+        return new IntBox(
             func1.apply(l),
             func2.apply(h)
         );
@@ -190,22 +190,22 @@ public class IntegerAABBInclusive {
         );
     }
     
-    public IntegerAABBInclusive getAdjusted(
+    public IntBox getAdjusted(
         int dxa, int dya, int dza,
         int dxb, int dyb, int dzb
     ) {
-        return new IntegerAABBInclusive(
+        return new IntBox(
             l.add(dxa, dya, dza),
             h.add(dxb, dyb, dzb)
         );
     }
     
     public Stream<BlockPos> forSixSurfaces(
-        Function<Stream<IntegerAABBInclusive>, Stream<IntegerAABBInclusive>> mapper
+        Function<Stream<IntBox>, Stream<IntBox>> mapper
     ) {
         assert isSorted();
         
-        IntegerAABBInclusive[] array = {
+        IntBox[] array = {
             getSurfaceLayer(Direction.DOWN),
             getSurfaceLayer(Direction.NORTH).getAdjusted(
                 0, 1, 0,
@@ -230,27 +230,27 @@ public class IntegerAABBInclusive {
         };
         
         return mapper.apply(
-            Arrays.stream(array).filter(IntegerAABBInclusive::isSorted)
+            Arrays.stream(array).filter(IntBox::isSorted)
         ).flatMap(
-            IntegerAABBInclusive::stream
+            IntBox::stream
         );
     }
     
-    public IntegerAABBInclusive getMoved(Vec3i offset) {
-        return new IntegerAABBInclusive(
+    public IntBox getMoved(Vec3i offset) {
+        return new IntBox(
             l.add(offset),
             h.add(offset)
         );
     }
     
-    public static IntegerAABBInclusive getContainingBox(
-        IntegerAABBInclusive box1,
-        IntegerAABBInclusive box2
+    public static IntBox getContainingBox(
+        IntBox box1,
+        IntBox box2
     ) {
         assert box1.isSorted();
         assert box2.isSorted();
         
-        return new IntegerAABBInclusive(
+        return new IntBox(
             Helper.min(
                 box1.l,
                 box2.l
@@ -262,7 +262,7 @@ public class IntegerAABBInclusive {
         );
     }
     
-    public IntegerAABBInclusive getSubBoxInCenter(BlockPos subBoxSize) {
+    public IntBox getSubBoxInCenter(BlockPos subBoxSize) {
         BlockPos thisSize = getSize();
         assert thisSize.getX() >= subBoxSize.getX();
         assert thisSize.getY() >= subBoxSize.getY();
@@ -298,8 +298,8 @@ public class IntegerAABBInclusive {
         );
     }
     
-    public IntegerAABBInclusive getExpanded(BlockPos newPoint) {
-        return new IntegerAABBInclusive(
+    public IntBox getExpanded(BlockPos newPoint) {
+        return new IntBox(
             Helper.min(
                 l,
                 newPoint

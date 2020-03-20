@@ -113,44 +113,44 @@ public class ClientTeleportationManager {
         if (tickTimeForTeleportation <= teleportTickTimeLimit) {
             return;
         }
-    
+        
         lastTeleportGameTime = tickTimeForTeleportation;
-    
+        
         ClientPlayerEntity player = mc.player;
-    
+        
         DimensionType toDimension = portal.dimensionTo;
-    
+        
         Vec3d oldEyePos = McHelper.getEyePos(player);
-    
+        
         Vec3d newEyePos = portal.transformPoint(oldEyePos);
         Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
-    
+        
         ClientWorld fromWorld = mc.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
-    
+        
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
-        
+            
             changePlayerDimension(player, fromWorld, toWorld, newEyePos);
         }
-    
+        
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
-    
+        
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldEyePos,
             portal.getUuid()
         ));
-    
+        
         amendChunkEntityStatus(player);
-    
+        
         McHelper.adjustVehicle(player);
-    
+        
         player.setVelocity(portal.transformLocalVec(player.getVelocity()));
-    
+        
         TransformationManager.onClientPlayerTeleported(portal);
-    
+        
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
         }
@@ -185,6 +185,9 @@ public class ClientTeleportationManager {
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }
         
+        lastPlayerHeadPos = null;
+        disableTeleportFor(20);
+        
         amendChunkEntityStatus(player);
     }
     
@@ -193,34 +196,34 @@ public class ClientTeleportationManager {
     ) {
         Entity vehicle = player.getVehicle();
         player.detach();
-    
+        
         DimensionType toDimension = toWorld.dimension.getType();
         DimensionType fromDimension = fromWorld.dimension.getType();
-    
+        
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
         ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
         ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
         ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
         ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
-    
+        
         O_O.segregateClientEntity(fromWorld, player);
-    
+        
         player.world = toWorld;
-    
+        
         player.dimension = toDimension;
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
-    
+        
         toWorld.addPlayer(player.getEntityId(), player);
-    
+        
         mc.world = toWorld;
         ((IEMinecraftClient) mc).setWorldRenderer(
             CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
         );
-    
+        
         toWorld.setScoreboard(fromWorld.getScoreboard());
-    
+        
         if (mc.particleManager != null)
             mc.particleManager.setWorld(toWorld);
         
@@ -257,7 +260,7 @@ public class ClientTeleportationManager {
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
         
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
-    
+        
         O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);
     }
     

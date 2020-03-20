@@ -103,11 +103,11 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         DimensionType playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         assert playerDimension != null;
         ClientWorld world = client.world;
-    
+        
         if (client.player != null) {
             McHelper.checkDimension(client.player);
         }
-    
+        
         if (world != null) {
             if (world.dimension != null) {
                 if (world.dimension.getType() != playerDimension) {
@@ -122,7 +122,9 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                 }
             }
         }
-    
+        
+        CGlobal.clientTeleportationManager.disableTeleportFor(20);
+        
     }
     
     private boolean isReProcessingPassengerPacket;
@@ -172,7 +174,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                 packet.getX(),
                 packet.getZ()
             );
-    
+            
             WorldRenderer worldRenderer =
                 CGlobal.clientWorldLoader.getWorldRenderer(world.dimension.getType());
             BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage();
@@ -194,16 +196,16 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             counter[0] = (int) (Math.random() * 200);
             ModMain.clientTaskList.addTask(() -> {
                 ClientWorld world1 = CGlobal.clientWorldLoader.getWorld(pos.dimension);
-        
+                
                 if (world1.getChunkManager().isChunkLoaded(pos.x, pos.z)) {
                     return true;
                 }
-        
+                
                 if (counter[0] > 0) {
                     counter[0]--;
                     return false;
                 }
-    
+                
                 Profiler profiler = MinecraftClient.getInstance().getProfiler();
                 profiler.push("delayed_unload");
                 
@@ -212,11 +214,11 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                         ChunkSectionPos.from(pos.x, y, pos.z), true
                     );
                 }
-    
+                
                 world1.getLightingProvider().setLightEnabled(pos.getChunkPos(), false);
-    
+                
                 profiler.pop();
-    
+                
                 return true;
             });
             ci.cancel();

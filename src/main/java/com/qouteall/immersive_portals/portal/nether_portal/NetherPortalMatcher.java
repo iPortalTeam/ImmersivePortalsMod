@@ -2,8 +2,9 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -13,7 +14,6 @@ import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -25,20 +25,20 @@ public class NetherPortalMatcher {
     public static Stream<BlockPos> fromNearToFarWithinHeightLimit(
         BlockPos searchingCenter,
         int maxRadius,
-        IntegerAABBInclusive heightLimit
+        IntBox heightLimit
     ) {
         return IntStream
             .range(0, maxRadius)
             .boxed()
             .flatMap(
-                r -> new IntegerAABBInclusive(
+                r -> new IntBox(
                     new BlockPos(-r, -r, -r),
                     new BlockPos(r, r, r)
                 ).getMoved(
                     searchingCenter
                 ).forSixSurfaces(
                     stream -> stream.map(
-                        box -> IntegerAABBInclusive.getIntersect(box, heightLimit)
+                        box -> IntBox.getIntersect(box, heightLimit)
                     ).filter(Objects::nonNull)
                 )
             );
@@ -48,17 +48,16 @@ public class NetherPortalMatcher {
     //detect frame from inner pos
     
     public static final int maxFrameSize = 40;
-    public static int findingRadius = 128;
-    public static final IntegerAABBInclusive heightLimitOverworld = new IntegerAABBInclusive(
+    public static final IntBox heightLimitOverworld = new IntBox(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 254, Integer.MAX_VALUE)
     );
-    public static final IntegerAABBInclusive heightLimitNether = new IntegerAABBInclusive(
+    public static final IntBox heightLimitNether = new IntBox(
         new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
         new BlockPos(Integer.MAX_VALUE, 126, Integer.MAX_VALUE)
     );
     
-    public static IntegerAABBInclusive getHeightLimit(
+    public static IntBox getHeightLimit(
         DimensionType dimension
     ) {
         return dimension == DimensionType.THE_NETHER ? heightLimitNether : heightLimitOverworld;
@@ -70,7 +69,7 @@ public class NetherPortalMatcher {
         IWorld world,
         BlockPos innerPos,
         Direction.Axis normalAxis,
-        Predicate<IntegerAABBInclusive> innerAreaFilter
+        Predicate<IntBox> innerAreaFilter
     ) {
         if (!isAirOrFire(world, innerPos)) {
             return null;
@@ -78,7 +77,7 @@ public class NetherPortalMatcher {
         
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         
-        IntegerAABBInclusive innerArea = detectInnerArea(
+        IntBox innerArea = detectInnerArea(
             world,
             innerPos,
             normalAxis,
@@ -92,7 +91,7 @@ public class NetherPortalMatcher {
         if (!innerAreaFilter.test(innerArea)) {
             return null;
         }
-    
+        
         if (!isObsidianFrameIntact(world, normalAxis, innerArea)) {
             return null;
         }
@@ -114,7 +113,7 @@ public class NetherPortalMatcher {
     public static boolean isObsidianFrameIntact(
         IWorld world,
         Direction.Axis normalAxis,
-        IntegerAABBInclusive innerArea
+        IntBox innerArea
     ) {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         
@@ -132,25 +131,25 @@ public class NetherPortalMatcher {
             );
     }
     
-    private static IntegerAABBInclusive detectInnerArea(
+    private static IntBox detectInnerArea(
         IWorld world,
         BlockPos innerPos,
         Direction.Axis normalAxis,
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis
     ) {
-        IntegerAABBInclusive stick1 = detectStick(
+        IntBox stick1 = detectStick(
             world, innerPos, anotherTwoAxis.getLeft(),
             blockPos -> isAirOrFire(world, blockPos), 1
         );
         if (stick1 == null) return null;
         
-        IntegerAABBInclusive stick2 = detectStick(
+        IntBox stick2 = detectStick(
             world, innerPos, anotherTwoAxis.getRight(),
             blockPos -> isAirOrFire(world, blockPos), 1
         );
         if (stick2 == null) return null;
         
-        IntegerAABBInclusive innerArea = IntegerAABBInclusive.getContainingBox(stick1, stick2);
+        IntBox innerArea = IntBox.getContainingBox(stick1, stick2);
         
         assert Math.abs(Helper.getCoordinate(innerArea.getSize(), normalAxis)) == 1;
         
@@ -174,7 +173,7 @@ public class NetherPortalMatcher {
     }
     
     //@Nullable
-    private static IntegerAABBInclusive detectStick(
+    private static IntBox detectStick(
         IWorld world,
         BlockPos center,
         Direction.Axis axis,
@@ -211,7 +210,7 @@ public class NetherPortalMatcher {
         if (stickLength < minLength) {
             return null;
         }
-        return new IntegerAABBInclusive(lowExtremity, highExtremity);
+        return new IntBox(lowExtremity, highExtremity);
     }
     
     //@Nullable
@@ -241,28 +240,28 @@ public class NetherPortalMatcher {
     //------------------------------------------------------------
     //detect air cube on ground
     
-    static IntegerAABBInclusive findVerticalPortalPlacement(
+    static IntBox findVerticalPortalPlacement(
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit,
+        IntBox heightLimit,
         int findingRadius
     ) {
-        IntegerAABBInclusive aboveLavaLake = getAirCubeOnGround(
+        IntBox aboveLavaLake = getAirCubeOnGround(
             areaSize.add(20, 20, 20), world, searchingCenter,
-            heightLimit, findingRadius,
+            heightLimit, findingRadius / 8,
             blockPos -> isLavaLake(world, blockPos)
         );
         if (aboveLavaLake != null) {
             Helper.log("Generated Portal Above Lava Lake");
             return aboveLavaLake.getSubBoxInCenter(areaSize);
         }
-    
+        
         Helper.log("Generated Portal On Ground");
-    
-        IntegerAABBInclusive biggerArea = getAirCubeOnSolidGround(
+        
+        IntBox biggerArea = getAirCubeOnSolidGround(
             areaSize.add(5, 0, 5), world, searchingCenter,
-            heightLimit, findingRadius
+            heightLimit, findingRadius / 8
         );
         if (biggerArea == null) {
             return null;
@@ -278,24 +277,24 @@ public class NetherPortalMatcher {
             world.getBlockState(blockPos.add(-5, 0, -5)).getBlock() == Blocks.LAVA;
     }
     
-    private static IntegerAABBInclusive getAirCubeOnGround(
+    private static IntBox getAirCubeOnGround(
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit,
+        IntBox heightLimit,
         int findingRadius,
         Predicate<BlockPos> groundBlockLimit
     ) {
-        return fromNearToFarWithinHeightLimit(
-            searchingCenter,
-            findingRadius,
-            heightLimit
+        return NewNetherPortalGenerator.fromNearToFarColumned(
+            ((ServerWorld) world),
+            searchingCenter.getX(), searchingCenter.getZ(),
+            findingRadius
         ).filter(
             blockPos -> isAirOnGround(world, blockPos)
         ).filter(
             blockPos -> groundBlockLimit.test(blockPos.add(0, -1, 0))
         ).map(
-            basePoint -> IntegerAABBInclusive.getBoxByBasePointAndSize(
+            basePoint -> IntBox.getBoxByBasePointAndSize(
                 areaSize,
                 basePoint.subtract(new Vec3i(-areaSize.getX() / 2, 0, -areaSize.getZ() / 2))
             )
@@ -304,17 +303,17 @@ public class NetherPortalMatcher {
         ).findFirst().orElse(null);
     }
     
-    private static IntegerAABBInclusive getAirCubeOnSolidGround(
+    private static IntBox getAirCubeOnSolidGround(
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit,
+        IntBox heightLimit,
         int findingRadius
     ) {
-        return fromNearToFarWithinHeightLimit(
-            searchingCenter,
-            findingRadius,
-            heightLimit
+        return NewNetherPortalGenerator.fromNearToFarColumned(
+            ((ServerWorld) world),
+            searchingCenter.getX(), searchingCenter.getZ(),
+            findingRadius
         ).filter(
             blockPos -> isAirOnGround(world, blockPos)
         ).filter(
@@ -323,52 +322,53 @@ public class NetherPortalMatcher {
                 blockPos.add(areaSize.getX() - 1, 0, areaSize.getZ() - 1)
             )
         ).map(
-            basePoint -> IntegerAABBInclusive.getBoxByBasePointAndSize(areaSize, basePoint)
+            basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
         ).filter(
             box -> isAllAir(world, box)
         ).findFirst().orElse(null);
     }
     
     //make it possibly generate above ground
-    static IntegerAABBInclusive findHorizontalPortalPlacement(
+    static IntBox findHorizontalPortalPlacement(
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit,
+        IntBox heightLimit,
         int findingRadius
     ) {
-        IntegerAABBInclusive result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
+        IntBox result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
             areaSize, world, searchingCenter, heightLimit,
-            30
+            30, findingRadius / 8
         );
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
                 areaSize, world, searchingCenter, heightLimit,
-                10
+                10, findingRadius / 8
             );
         }
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
                 areaSize, world, searchingCenter, heightLimit,
-                1
+                1, findingRadius / 8
             );
         }
         return result;
     }
     
-    private static IntegerAABBInclusive findHorizontalPortalPlacementWithVerticalSpaceReserved(
+    private static IntBox findHorizontalPortalPlacementWithVerticalSpaceReserved(
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit,
-        int verticalSpaceReserve
+        IntBox heightLimit,
+        int verticalSpaceReserve,
+        int findingRadius
     ) {
         BlockPos growVertically = new BlockPos(
             areaSize.getX(),
             verticalSpaceReserve,
             areaSize.getZ()
         );
-        IntegerAABBInclusive foundCubeArea = findCubeAirAreaAtAnywhere(
+        IntBox foundCubeArea = findCubeAirAreaAtAnywhere(
             growVertically, world, searchingCenter, heightLimit, findingRadius
         );
         if (foundCubeArea == null) {
@@ -389,18 +389,19 @@ public class NetherPortalMatcher {
         return false;
     }
     
-    static IntegerAABBInclusive findCubeAirAreaAtAnywhere(
+    static IntBox findCubeAirAreaAtAnywhere(
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntegerAABBInclusive heightLimit,
+        IntBox heightLimit,
         int findingRadius
     ) {
-        return fromNearToFarWithinHeightLimit(
-            searchingCenter,
-            findingRadius, heightLimit
+        return NewNetherPortalGenerator.fromNearToFarColumned(
+            ((ServerWorld) world),
+            searchingCenter.getX(), searchingCenter.getZ(),
+            findingRadius
         ).map(
-            basePoint -> IntegerAABBInclusive.getBoxByBasePointAndSize(
+            basePoint -> IntBox.getBoxByBasePointAndSize(
                 areaSize, basePoint
             )
         ).filter(
@@ -408,7 +409,7 @@ public class NetherPortalMatcher {
         ).findFirst().orElse(null);
     }
     
-    public static boolean isAllAir(IWorld world, IntegerAABBInclusive box) {
+    public static boolean isAllAir(IWorld world, IntBox box) {
         boolean roughTest = Arrays.stream(box.getEightVertices()).allMatch(
             blockPos -> isAir(world, blockPos)
         );
@@ -420,72 +421,10 @@ public class NetherPortalMatcher {
         );
     }
     
-    //------------------------------------------------------------
-    //detect existing obsidian frame
-    
-    //@Nullable
-    @Deprecated
-    public static ObsidianFrame findEmptyObsidianFrame(
-        IWorld world,
-        BlockPos searchingCenter,
-        Direction.Axis normalAxis,
-        Predicate<IntegerAABBInclusive> filter,
-        int findingRadius
-    ) {
-        Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
-        Direction roughTestObsidianFace1 = Direction.get(
-            Direction.AxisDirection.POSITIVE,
-            anotherTwoAxis.getLeft()
-        );
-        Direction roughTestObsidianFace2 = Direction.get(
-            Direction.AxisDirection.POSITIVE,
-            anotherTwoAxis.getRight()
-        );
-        
-        Optional<ObsidianFrame> result =
-            fromNearToFarWithinHeightLimit(searchingCenter, findingRadius, heightLimitOverworld)
-                .filter(
-                    blockPos -> isAirOnObsidian(
-                        world, blockPos,
-                        roughTestObsidianFace1,
-                        roughTestObsidianFace2
-                    )
-                )
-                .map(
-                    blockPos -> detectFrameFromInnerPos(
-                        world, blockPos, normalAxis, filter
-                    )
-                )
-                .filter(
-                    Objects::nonNull
-                )
-                .findFirst();
-        
-        return result.orElse(null);
-    }
-    
-    @Deprecated
-    private static boolean isAirOnObsidian(
-        IWorld world,
-        BlockPos blockPos,
-        Direction obsidianFace1,
-        Direction obsidianFace2
-    ) {
-        return world.isAir(blockPos) &&
-            O_O.isObsidian(
-                world,
-                blockPos.add(obsidianFace1.getVector())
-            ) &&
-            O_O.isObsidian(
-                world,
-                blockPos.add(obsidianFace2.getVector())
-            );
-    }
-    
     
     //move the box up
-    public static IntegerAABBInclusive levitateBox(
-        IWorld world, IntegerAABBInclusive airCube
+    public static IntBox levitateBox(
+        IWorld world, IntBox airCube
     ) {
         Integer maxUpShift = Helper.getLastSatisfying(
             IntStream.range(1, 40).boxed(),
@@ -501,11 +440,11 @@ public class NetherPortalMatcher {
         return airCube.getMoved(new Vec3i(0, maxUpShift * 2 / 3, 0));
     }
     
-    public static IntegerAABBInclusive pushDownBox(
-        IWorld world, IntegerAABBInclusive airCube
+    public static IntBox pushDownBox(
+        IWorld world, IntBox airCube
     ) {
         Integer downShift = Helper.getLastSatisfying(
-            IntStream.range(1, 40).boxed(),
+            IntStream.range(0, 40).boxed(),
             i -> isAllAir(
                 world,
                 airCube.getMoved(new Vec3i(0, -i, 0))

@@ -106,7 +106,7 @@ public abstract class PortalRenderer {
     protected void renderPortals(MatrixStack matrixStack) {
         assert mc.cameraEntity.world == mc.world;
         assert mc.cameraEntity.dimension == mc.world.dimension.getType();
-    
+        
         for (Portal portal : getPortalsNearbySorted()) {
             renderPortalIfRoughCheckPassed(portal, matrixStack);
         }
@@ -120,21 +120,21 @@ public abstract class PortalRenderer {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
-    
+        
         Vec3d thisTickEyePos = getRoughTestCameraPos();
-    
+        
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
         }
-    
+        
         if (isRendering()) {
             Portal outerPortal = portalLayers.peek();
             if (isReversePortal(portal, outerPortal)) {
                 return;
             }
         }
-    
-    
+        
+        
         doRenderPortal(portal, matrixStack);
     }
     
@@ -152,15 +152,16 @@ public abstract class PortalRenderer {
     }
     
     private Vec3d getRoughTestCameraPos() {
-        if (mc.gameRenderer.getCamera().isThirdPerson()) {
-            return mc.gameRenderer.getCamera().getPos();
-        }
-        return mc.cameraEntity.getCameraPosVec(MyRenderHelper.partialTicks);
+        return mc.gameRenderer.getCamera().getPos();
     }
     
     private List<Portal> getPortalsNearbySorted() {
-        Vec3d cameraPos = mc.cameraEntity.getPos();
-        double range = 128.0;
+        Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+        double range = mc.options.viewDistance * 16;
+        if (getPortalLayer() > 1) {
+            //do not render deep layers of mirror when far away
+            range /= (getPortalLayer());
+        }
         return CHelper.getClientNearbyPortals(range)
             .sorted(
                 Comparator.comparing(portalEntity ->
@@ -183,37 +184,37 @@ public abstract class PortalRenderer {
         
         Entity cameraEntity = mc.cameraEntity;
         Camera camera = mc.gameRenderer.getCamera();
-    
+        
         if (getPortalLayer() >= 2 &&
             portal.getDistanceToNearestPointInPortal(cameraEntity.getPos()) >
                 (16 * maxPortalLayer.get())
         ) {
             return;
         }
-    
+        
         MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
-    
+        
         assert cameraEntity.world == mc.world;
-    
+        
         Vec3d oldEyePos = McHelper.getEyePos(cameraEntity);
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
         DimensionType oldDimension = cameraEntity.dimension;
         ClientWorld oldWorld = ((ClientWorld) cameraEntity.world);
-    
+        
         Vec3d oldCameraPos = camera.getPos();
-    
+        
         Vec3d newEyePos = portal.transformPoint(oldEyePos);
         Vec3d newLastTickEyePos = portal.transformPoint(oldLastTickEyePos);
         DimensionType newDimension = portal.dimensionTo;
         ClientWorld newWorld =
             CGlobal.clientWorldLoader.getOrCreateFakedWorld(newDimension);
         //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
-    
+        
         McHelper.setEyePos(cameraEntity, newEyePos, newLastTickEyePos);
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         mc.world = newWorld;
-    
+        
         renderPortalContentWithContextSwitched(
             portal, oldCameraPos, oldWorld
         );
@@ -227,7 +228,7 @@ public abstract class PortalRenderer {
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
         MyRenderHelper.restoreViewPort();
-    
+        
         CGlobal.myGameRenderer.resetFog();
     }
     
@@ -236,18 +237,18 @@ public abstract class PortalRenderer {
     ) {
         GlStateManager.enableAlphaTest();
         GlStateManager.enableCull();
-    
+        
         WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
         ClientWorld destClientWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
-    
+        
         CHelper.checkGlError();
-    
+        
         CGlobal.myGameRenderer.renderWorld(
             MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
-    
+        
         CHelper.checkGlError();
-    
+        
     }
     
     public void applyAdditionalTransformations(MatrixStack matrixStack) {

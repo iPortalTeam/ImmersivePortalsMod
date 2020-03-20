@@ -99,19 +99,21 @@ public class McHelper {
             }
             long startTime = System.nanoTime();
             for (; ; ) {
-                if (iterator.hasNext()) {
-                    T next = iterator.next();
-                    if (predicate.test(next)) {
-                        onFound.accept(next);
+                for (int i = 0; i < 300; i++) {
+                    if (iterator.hasNext()) {
+                        T next = iterator.next();
+                        if (predicate.test(next)) {
+                            onFound.accept(next);
+                            return true;
+                        }
+                        countStorage[0] += 1;
+                    }
+                    else {
+                        //finished searching
+                        onNotFound.run();
                         return true;
                     }
                 }
-                else {
-                    //finished searching
-                    onNotFound.run();
-                    return true;
-                }
-                countStorage[0] += 1;
                 
                 long currTime = System.nanoTime();
                 
