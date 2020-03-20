@@ -4,11 +4,13 @@ import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntegerAABBInclusive;
 import net.minecraft.block.Blocks;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
@@ -92,7 +94,7 @@ public class NetherPortalMatcher {
         if (!innerAreaFilter.test(innerArea)) {
             return null;
         }
-    
+        
         if (!isObsidianFrameIntact(world, normalAxis, innerArea)) {
             return null;
         }
@@ -257,9 +259,9 @@ public class NetherPortalMatcher {
             Helper.log("Generated Portal Above Lava Lake");
             return aboveLavaLake.getSubBoxInCenter(areaSize);
         }
-    
+        
         Helper.log("Generated Portal On Ground");
-    
+        
         IntegerAABBInclusive biggerArea = getAirCubeOnSolidGround(
             areaSize.add(5, 0, 5), world, searchingCenter,
             heightLimit, findingRadius
@@ -396,9 +398,10 @@ public class NetherPortalMatcher {
         IntegerAABBInclusive heightLimit,
         int findingRadius
     ) {
-        return fromNearToFarWithinHeightLimit(
-            searchingCenter,
-            findingRadius, heightLimit
+        return NewNetherPortalGenerator.fromNearToFarColumned(
+            ((ServerWorld) world),
+            searchingCenter.getX(), searchingCenter.getZ(),
+            findingRadius
         ).map(
             basePoint -> IntegerAABBInclusive.getBoxByBasePointAndSize(
                 areaSize, basePoint

@@ -236,8 +236,6 @@ public class MyNetworkClient {
             catch (Throwable e) {
                 if (reportedError < 200) {
                     reportedError += 1;
-                }
-                else {
                     throw new IllegalStateException(
                         "handling packet in " + dimension, e
                     );

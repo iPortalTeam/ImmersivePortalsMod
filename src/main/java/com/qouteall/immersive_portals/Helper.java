@@ -636,10 +636,10 @@ public class Helper {
     
         double dot = dotProduct4d(a, b);
 
-//        if (dot < 0.0f) {
-//            a.scale(-1);
-//            dot = -dot;
-//        }
+        if (dot < 0.0f) {
+            a.scale(-1);
+            dot = -dot;
+        }
     
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
@@ -692,5 +692,12 @@ public class Helper {
         Vector3f vector3f = new Vector3f(vec);
         vector3f.rotate(rotation);
         return new Vec3d(vector3f);
+    }
+    
+    public static Quaternion ortholize(Quaternion quaternion) {
+        if (quaternion.getA() < 0) {
+            quaternion.scale(-1);
+        }
+        return quaternion;
     }
 }
