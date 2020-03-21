@@ -233,8 +233,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     private static void removeUnnecessaryTag(CompoundTag tag) {
         tag.remove("Pos");
-        tag.remove("UUIDMost");
-        tag.remove("UUIDLeast");
+        tag.remove("UUID");
         tag.getKeys().forEach(key -> {
             Tag currTag = tag.get(key);
             if (currTag instanceof CompoundTag) {
