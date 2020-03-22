@@ -8,20 +8,22 @@ import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPo
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.level.UnmodifiableLevelProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AltiusInfo {
-    public List<DimensionType> dimsFromTopToDown;
+    //store identifier because forge
+    private List<Identifier> dimsFromTopToDown;
     
     public AltiusInfo(List<DimensionType> dimsFromTopToDown) {
-        this.dimsFromTopToDown = dimsFromTopToDown;
+        this.dimsFromTopToDown = dimsFromTopToDown.stream().map(
+            dimensionType -> DimensionType.getId(dimensionType)
+        ).collect(Collectors.toList());
     }
     
     public static AltiusInfo getDummy() {
@@ -50,7 +52,7 @@ public class AltiusInfo {
         ListTag listTag = new ListTag();
         dimsFromTopToDown.forEach(dimensionType -> {
             listTag.add(listTag.size(), StringTag.of(
-                Registry.DIMENSION_TYPE.getId(dimensionType).toString()
+                dimensionType.toString()
             ));
         });
         tag.put("dimensions", listTag);
@@ -74,8 +76,8 @@ public class AltiusInfo {
                 dimsFromTopToDown.stream(),
                 (top, down) -> {
                     VerticalConnectingPortal.connectMutually(
-                        top, down,
-                        0, getHeight(down)
+                        DimensionType.byId(top), DimensionType.byId(down),
+                        0, getHeight(DimensionType.byId(down))
                     );
                     return null;
                 }

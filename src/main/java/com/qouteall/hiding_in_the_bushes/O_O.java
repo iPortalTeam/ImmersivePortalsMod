@@ -14,6 +14,10 @@ import net.minecraft.world.dimension.DimensionType;
 public class O_O {
     public static boolean isReachEntityAttributesPresent;
     
+    public static boolean isForge() {
+        return false;
+    }
+    
     @Environment(EnvType.CLIENT)
     public static void onPlayerChangeDimensionClient(
         DimensionType from, DimensionType to
@@ -60,5 +64,9 @@ public class O_O {
     
     public static boolean isObsidian(IWorld world, BlockPos obsidianPos) {
         return world.getBlockState(obsidianPos) == Blocks.OBSIDIAN.getDefaultState();
+    }
+    
+    public static void registerDimensionsForge() {
+    
     }
 }

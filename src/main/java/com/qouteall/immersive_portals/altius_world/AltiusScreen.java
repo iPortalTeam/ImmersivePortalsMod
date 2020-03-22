@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.altius_world;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.sun.istack.internal.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -67,6 +67,8 @@ public class AltiusScreen extends Screen {
             15,
             this
         );
+    
+        O_O.registerDimensionsForge();
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
         dimListWidget.terms.add(
@@ -80,7 +82,6 @@ public class AltiusScreen extends Screen {
         );
     }
     
-    @Nullable
     public AltiusInfo getAltiusInfo() {
         if (isEnabled) {
             return new AltiusInfo(
@@ -172,6 +173,7 @@ public class AltiusScreen extends Screen {
         isEnabled = cond;
         if (isEnabled) {
             toggleButton.setMessage(I18n.translate("imm_ptl.altius_toggle_true"));
+            
         }
         else {
             toggleButton.setMessage(I18n.translate("imm_ptl.altius_toggle_false"));

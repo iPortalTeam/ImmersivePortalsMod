@@ -49,6 +49,7 @@ public class MixinCreateWorldScreen extends Screen {
             }
         ));
         altiusButton.visible = true;
+    
     }
     
     @Inject(

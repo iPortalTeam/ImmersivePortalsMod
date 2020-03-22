@@ -155,13 +155,18 @@ public abstract class PortalRenderer {
         return mc.gameRenderer.getCamera().getPos();
     }
     
-    private List<Portal> getPortalsNearbySorted() {
-        Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+    protected final double getRenderRange() {
         double range = mc.options.viewDistance * 16;
         if (getPortalLayer() > 1) {
             //do not render deep layers of mirror when far away
             range /= (getPortalLayer());
         }
+        return range;
+    }
+    
+    private List<Portal> getPortalsNearbySorted() {
+        Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+        double range = mc.options.viewDistance * 16;
         return CHelper.getClientNearbyPortals(range)
             .sorted(
                 Comparator.comparing(portalEntity ->
@@ -179,6 +184,10 @@ public abstract class PortalRenderer {
         Portal portal
     ) {
         if (getPortalLayer() > maxPortalLayer.get()) {
+            return;
+        }
+        
+        if (portal.getDistanceToNearestPointInPortal(mc.gameRenderer.getCamera().getPos()) > getRenderRange()) {
             return;
         }
         
