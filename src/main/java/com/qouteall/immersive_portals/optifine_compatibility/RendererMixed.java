@@ -150,6 +150,9 @@ public class RendererMixed extends PortalRenderer {
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
         
+        //reset projection matrix
+        mc.gameRenderer.method_22709(MyRenderHelper.projectionMatrix);
+        
         //write to deferred buffer
         if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {
             return;
@@ -180,8 +183,6 @@ public class RendererMixed extends PortalRenderer {
         );
     }
     
-    //NOTE it will write to shader depth buffer
-    //it's drawing into shader fb
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
         Portal portal, MatrixStack matrixStack
     ) {

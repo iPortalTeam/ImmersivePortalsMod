@@ -18,6 +18,7 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.Untracker;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
@@ -67,6 +68,9 @@ public class MyRenderHelper {
     public static long renderStartNanoTime;
     public static double viewBobFactor;
     
+    //null indicates not gathered
+    public static Matrix4f projectionMatrix;
+    
     public static void updatePreRenderInfo(
         float partialTicks_
     ) {
@@ -92,6 +96,8 @@ public class MyRenderHelper {
         renderStartNanoTime = System.nanoTime();
     
         updateViewBobbingFactor(cameraEntity);
+    
+        projectionMatrix = null;
     
     }
     

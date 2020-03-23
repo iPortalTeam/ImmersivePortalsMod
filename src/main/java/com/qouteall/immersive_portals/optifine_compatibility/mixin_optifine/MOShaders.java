@@ -35,7 +35,6 @@ import net.optifine.shaders.uniform.ShaderUniformM4;
 import net.optifine.shaders.uniform.ShaderUniforms;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFramebufferObject;
-import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GLCapabilities;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -1942,10 +1941,6 @@ public abstract class MOShaders {
         OFGlobal.getDfb = () -> dfb;
         OFGlobal.bindGbuffersTextures = () -> bindGbuffersTextures();
         
-        OFGlobal.flipShaderFb = () -> {
-            checkBufferFlip(ProgramCompositePre);
-        };
-        
         OFGlobal.getShaderUniforms = () -> shaderUniforms;
         
         OFGlobal.getCurrentWorld = () -> currentWorld;
@@ -1953,11 +1948,6 @@ public abstract class MOShaders {
         OFGlobal.bindToShaderFrameBuffer = () -> {
             EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
             GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
-        };
-    
-        OFGlobal.setDrawBuffers = () -> {
-            GL32.glDrawBuffers(dfbDrawBuffers);
-            GL32.glReadBuffer(0);
         };
     }
 }

@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
@@ -149,7 +148,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         );
         if (isTranslucent) {
             CGlobal.renderer.onAfterTranslucentRendering(matrices);
-    
+            
         }
         
     }
@@ -209,7 +208,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (renderLayer_1 == RenderLayer.getSolid()) {
             MyGameRenderer.doPruneVisibleChunks(visibleChunks);
         }
-    
+        
         if (CGlobal.renderer.isRendering()) {
             CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
             CGlobal.myGameRenderer.startCulling();
@@ -291,7 +290,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             float_1,
             matrixStack_1, vertexConsumerProvider_1
         );
-    
+        
     }
     
     @Inject(
@@ -408,13 +407,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
-    
+            
             //fix sky abnormal with optifine and fog disabled
             if (OFInterface.isFogDisabled.getAsBoolean()) {
                 GL11.glEnable(GL11.GL_FOG);
             }
         }
-    
+        
         if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
             MyRenderHelper.applyMirrorFaceCulling();
         }
@@ -511,7 +510,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (CGlobal.useHackedChunkRenderDispatcher) {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
-    
+        
         if (CGlobal.renderer.isRendering()) {
             needsTerrainUpdate = true;
         }
@@ -549,6 +548,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
+    //disable cull when rendering mirror
     @Redirect(
         method = "render",
         at = @At(
@@ -561,21 +561,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         immediate.draw(layer);
         MyRenderHelper.shouldForceDisableCull = false;
     }
-
-//    //test
-//    @Redirect(
-//        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V"
-//        )
-//    )
-//    private void onCloudEnableDepthTest() {
-//        if (CGlobal.renderer.isRendering()) {
-//            McHelper.test();
-//        }
-//        else {
-//            RenderSystem.enableDepthTest();
-//        }
-//    }
+    
+    
 }
