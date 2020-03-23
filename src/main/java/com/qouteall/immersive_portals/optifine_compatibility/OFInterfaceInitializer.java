@@ -10,7 +10,6 @@ import net.minecraft.client.render.WorldRenderer;
 import net.optifine.Config;
 import net.optifine.shaders.Shaders;
 import org.apache.commons.lang3.Validate;
-import org.lwjgl.opengl.EXTFramebufferObject;
 
 import java.lang.reflect.Field;
 
@@ -24,10 +23,7 @@ public class OFInterfaceInitializer {
         
         OFInterface.isShaders = Config::isShaders;
         OFInterface.isShadowPass = () -> Config.isShaders() && Shaders.isShadowPass;
-        OFInterface.bindToShaderFrameBuffer = () -> {
-            EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
-            GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
-        };
+       
         OFInterface.beforeRenderCenter = (partialTicks) -> {
             if (Config.isShaders()) {
                 MinecraftClient mc = MinecraftClient.getInstance();

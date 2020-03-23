@@ -2,13 +2,14 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
+import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -18,9 +19,13 @@ import net.minecraft.util.math.Vec3d;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
 
 public class RendererDeferred extends PortalRenderer {
-    SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
+    private SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
+    private MatrixStack modelView = new MatrixStack();
     
     @Override
     public boolean shouldSkipClearing() {
@@ -34,7 +39,13 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-        renderPortals(matrixStack);
+        if (isRendering()) {
+            return;
+        }
+        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
+        modelView.push();
+        modelView.peek().getModel().multiply(matrixStack.peek().getModel());
+        modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
     }
     
     @Override
@@ -53,7 +64,7 @@ public class RendererDeferred extends PortalRenderer {
         deferredBuffer.fb.setClearColor(1, 0, 0, 0);
         deferredBuffer.fb.clear(MinecraftClient.IS_SYSTEM_MAC);
         
-        OFInterface.bindToShaderFrameBuffer.run();
+        OFGlobal.bindToShaderFrameBuffer.run();
         
     }
     
@@ -66,7 +77,7 @@ public class RendererDeferred extends PortalRenderer {
         
         OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
         
-        if (!testShouldRenderPortal(portal)) {
+        if (!testShouldRenderPortal(portal, matrixStack)) {
             return;
         }
         
@@ -86,7 +97,7 @@ public class RendererDeferred extends PortalRenderer {
             matrixStack
         );
         
-        OFInterface.bindToShaderFrameBuffer.run();
+        OFGlobal.bindToShaderFrameBuffer.run();
     }
     
     @Override
@@ -95,7 +106,7 @@ public class RendererDeferred extends PortalRenderer {
     ) {
         OFGlobal.shaderContextManager.switchContextAndRun(
             () -> {
-                OFInterface.bindToShaderFrameBuffer.run();
+                OFGlobal.bindToShaderFrameBuffer.run();
                 super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
             }
         );
@@ -103,10 +114,10 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
-        if (shouldRenderPortalInEntityRenderer(portal)) {
-            assert false;
-            //ViewAreaRenderer.drawPortalViewTriangle(portal);
-        }
+//        if (shouldRenderPortalInEntityRenderer(portal)) {
+//            assert false;
+//            //ViewAreaRenderer.drawPortalViewTriangle(portal);
+//        }
     }
     
     private boolean shouldRenderPortalInEntityRenderer(Portal portal) {
@@ -125,19 +136,22 @@ public class RendererDeferred extends PortalRenderer {
     }
     
     //NOTE it will write to shader depth buffer
-    private boolean testShouldRenderPortal(Portal portal) {
-        assert false;
+    private boolean testShouldRenderPortal(Portal portal, MatrixStack matrixStack) {
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             GlStateManager.enableDepthTest();
+//            GlStateManager.disableDepthTest();//test
             GlStateManager.disableTexture();
-            GlStateManager.colorMask(false, false, false, false);
-            //MyRenderHelper.setupCameraTransformation();
+            //GlStateManager.colorMask(false, false, false, false);
+            GlStateManager.depthMask(false);
             GL20.glUseProgram(0);
             
-            //ViewAreaRenderer.drawPortalViewTriangle(portal);
+            ViewAreaRenderer.drawPortalViewTriangle(
+                portal, matrixStack, true, true
+            );
             
             GlStateManager.enableTexture();
             GlStateManager.colorMask(true, true, true, true);
+            GlStateManager.depthMask(true);
         });
     }
     
@@ -147,9 +161,19 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
         
-        if (MyRenderHelper.getRenderedPortalNum() == 0) {
-            return;
-        }
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mc.getFramebuffer().fbo);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
+        
+        GL30.glBlitFramebuffer(
+            0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
+            0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
+            GL11.GL_COLOR_BUFFER_BIT, GL_NEAREST
+        );
+        
+        CHelper.checkGlError();
+        
+        renderPortals(modelView);
+        modelView.pop();
         
         GlStateManager.enableAlphaTest();
         Framebuffer mainFrameBuffer = mc.getFramebuffer();
@@ -157,7 +181,7 @@ public class RendererDeferred extends PortalRenderer {
         
         MyRenderHelper.myDrawFrameBuffer(
             deferredBuffer.fb,
-            true,
+            false,
             false
         );
     }

@@ -27,4 +27,7 @@ public class OFGlobal {
     public static Consumer<Program> debugFunc = (p) -> {
     };
     
+    public static Runnable bindToShaderFrameBuffer;
+    
+    public static Runnable setDrawBuffers;
 }

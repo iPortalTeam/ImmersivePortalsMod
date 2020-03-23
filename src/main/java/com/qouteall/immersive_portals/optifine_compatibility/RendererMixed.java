@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
@@ -10,6 +9,7 @@ import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
+import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -116,7 +116,7 @@ public class RendererMixed extends PortalRenderer {
             
         }
         
-        OFInterface.bindToShaderFrameBuffer.run();
+        OFGlobal.bindToShaderFrameBuffer.run();
     }
     
     @Override
@@ -139,13 +139,13 @@ public class RendererMixed extends PortalRenderer {
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
         
         //write to deferred buffer
-        if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal)) {
+        if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {
             return;
         }
         
         portalLayers.push(portal);
         
-        OFInterface.bindToShaderFrameBuffer.run();
+        OFGlobal.bindToShaderFrameBuffer.run();
         manageCameraAndRenderPortalContent(portal);
         
         int innerLayer = getPortalLayer();
@@ -170,7 +170,9 @@ public class RendererMixed extends PortalRenderer {
     
     //NOTE it will write to shader depth buffer
     //it's drawing into shader fb
-    private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(Portal portal) {
+    private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
+        Portal portal, MatrixStack matrixStack
+    ) {
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             int portalLayer = getPortalLayer();
             
@@ -182,26 +184,25 @@ public class RendererMixed extends PortalRenderer {
             GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
             GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
             
-            myDrawPortalViewArea(portal);
+            myDrawPortalViewArea(portal, matrixStack);
             
             GL11.glDisable(GL_STENCIL_TEST);
             
-            OFInterface.bindToShaderFrameBuffer.run();
+            OFGlobal.bindToShaderFrameBuffer.run();
         });
     }
     
-    //maybe it's similar to rendererUsingStencil's ?
-    private void myDrawPortalViewArea(Portal portal) {
-        assert false;
+    private void myDrawPortalViewArea(Portal portal, MatrixStack matrixStack) {
         
         GlStateManager.enableDepthTest();
         GlStateManager.disableTexture();
         GlStateManager.colorMask(false, false, false, false);
         
-        //MyRenderHelper.setupCameraTransformation();
         GL20.glUseProgram(0);
         
-        //ViewAreaRenderer.drawPortalViewTriangle(portal);
+        ViewAreaRenderer.drawPortalViewTriangle(
+            portal, matrixStack, false, false
+        );
         
         GlStateManager.enableTexture();
         GlStateManager.colorMask(true, true, true, true);
@@ -213,7 +214,7 @@ public class RendererMixed extends PortalRenderer {
     ) {
         OFGlobal.shaderContextManager.switchContextAndRun(
             () -> {
-                OFInterface.bindToShaderFrameBuffer.run();
+                OFGlobal.bindToShaderFrameBuffer.run();
                 super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
             }
         );
@@ -221,7 +222,7 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
-        assert false;
+        //TODO render shadow
 //        if (Shaders.isShadowPass) {
 //            ViewAreaRenderer.drawPortalViewTriangle(portal);
 //        }

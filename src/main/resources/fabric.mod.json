@@ -48,5 +48,11 @@
   },
   "suggests": {
     "flamingo": "*"
+  },
+  "custom": {
+    "fabric-renderer-indigo:force_compatibility": true,
+    "mm:early_risers": [
+      "com.qouteall.hiding_in_the_bushes.LaunchMixinWithOptifineRunnable"
+    ]
   }
 }
