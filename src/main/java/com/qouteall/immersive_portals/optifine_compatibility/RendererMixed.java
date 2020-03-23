@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
@@ -35,6 +36,9 @@ import static org.lwjgl.opengl.GL11.glStencilOp;
 public class RendererMixed extends PortalRenderer {
     private SecondaryFrameBuffer[] deferredFbs;
     
+    //OptiFine messes up with transformations so store it
+    private MatrixStack modelView = new MatrixStack();
+    
     @Override
     public boolean shouldSkipClearing() {
         return false;
@@ -57,7 +61,9 @@ public class RendererMixed extends PortalRenderer {
         
         glDisable(GL_STENCIL_TEST);
         
-        renderPortals(matrixStack);
+        MatrixStack effectiveTransformation = this.modelView;
+        modelView = new MatrixStack();
+        renderPortals(effectiveTransformation);
     }
     
     private void initStencilForLayer(int portalLayer) {
@@ -89,6 +95,10 @@ public class RendererMixed extends PortalRenderer {
             deferredFbs[getPortalLayer()].fb,
             GL_DEPTH_BUFFER_BIT
         );
+        
+        modelView.push();
+        modelView.peek().getModel().multiply(matrixStack.peek().getModel());
+        modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
     }
     
     @Override
@@ -133,6 +143,8 @@ public class RendererMixed extends PortalRenderer {
         mainFrameBuffer.beginWrite(true);
         
         deferredFbs[0].fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
+        
+        CHelper.checkGlError();
     }
     
     @Override
@@ -173,39 +185,31 @@ public class RendererMixed extends PortalRenderer {
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
         Portal portal, MatrixStack matrixStack
     ) {
-        return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
-            int portalLayer = getPortalLayer();
-            
-            initStencilForLayer(portalLayer);
-            
-            deferredFbs[portalLayer].fb.beginWrite(true);
-            
-            GL11.glEnable(GL_STENCIL_TEST);
-            GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
-            GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-            
-            myDrawPortalViewArea(portal, matrixStack);
-            
-            GL11.glDisable(GL_STENCIL_TEST);
-            
-            OFGlobal.bindToShaderFrameBuffer.run();
-        });
-    }
-    
-    private void myDrawPortalViewArea(Portal portal, MatrixStack matrixStack) {
+        int portalLayer = getPortalLayer();
         
-        GlStateManager.enableDepthTest();
-        GlStateManager.disableTexture();
-        GlStateManager.colorMask(false, false, false, false);
+        initStencilForLayer(portalLayer);
+        
+        deferredFbs[portalLayer].fb.beginWrite(true);
         
         GL20.glUseProgram(0);
         
-        ViewAreaRenderer.drawPortalViewTriangle(
-            portal, matrixStack, false, false
-        );
+        GL11.glEnable(GL_STENCIL_TEST);
+        GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
+        GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+    
+        GlStateManager.enableDepthTest();
         
-        GlStateManager.enableTexture();
-        GlStateManager.colorMask(true, true, true, true);
+        boolean result = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
+            ViewAreaRenderer.drawPortalViewTriangle(
+                portal, matrixStack, false, false
+            );
+        });
+        
+        GL11.glDisable(GL_STENCIL_TEST);
+        
+        OFGlobal.bindToShaderFrameBuffer.run();
+        
+        return result;
     }
     
     @Override

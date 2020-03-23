@@ -42,7 +42,7 @@ public class RendererDeferred extends PortalRenderer {
         if (isRendering()) {
             return;
         }
-        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
+//        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
         modelView.push();
         modelView.peek().getModel().multiply(matrixStack.peek().getModel());
         modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
@@ -141,7 +141,7 @@ public class RendererDeferred extends PortalRenderer {
             GlStateManager.enableDepthTest();
 //            GlStateManager.disableDepthTest();//test
             GlStateManager.disableTexture();
-            //GlStateManager.colorMask(false, false, false, false);
+//            GlStateManager.colorMask(false, false, false, false);
             GlStateManager.depthMask(false);
             GL20.glUseProgram(0);
             
