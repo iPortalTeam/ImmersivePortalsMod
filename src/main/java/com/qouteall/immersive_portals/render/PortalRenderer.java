@@ -82,7 +82,7 @@ public abstract class PortalRenderer {
                 MyRenderHelper.originalPlayerPos.add(
                     0, client.cameraEntity.getEyeY(), 0
                 ),
-                0.1
+                0
             );
         }
         return false;

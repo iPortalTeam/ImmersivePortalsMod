@@ -66,37 +66,7 @@ public abstract class MixinEntity implements IEEntity {
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
-        Entity this_ = (Entity) (Object) this;
-        
-        if (collidingPortal != null) {
-            if (collidingPortal.dimension != dimension) {
-                collidingPortal = null;
-            }
-        }
-        
-        //TODO change to portals discovering nearby entities instead
-        // of entities discovering nearby portals
-        world.getProfiler().push("getCollidingPortal");
-        Portal nowCollidingPortal =
-            CollisionHelper.getCollidingPortalUnreliable(this_);
-        world.getProfiler().pop();
-        
-        if (nowCollidingPortal == null) {
-            if (stopCollidingPortalCounter > 0) {
-                stopCollidingPortalCounter--;
-            }
-            else {
-                collidingPortal = null;
-            }
-        }
-        else {
-            collidingPortal = nowCollidingPortal;
-            stopCollidingPortalCounter = 1;
-        }
-        
-        if (world.isClient) {
-            McHelper.onClientEntityTick(this_);
-        }
+        tickCollidingPortal();
     }
     
     @Redirect(
@@ -258,5 +228,40 @@ public abstract class MixinEntity implements IEEntity {
     @Override
     public Portal getCollidingPortal() {
         return collidingPortal;
+    }
+    
+    @Override
+    public void tickCollidingPortal() {
+        Entity this_ = (Entity) (Object) this;
+        
+        if (collidingPortal != null) {
+            if (collidingPortal.dimension != dimension) {
+                collidingPortal = null;
+            }
+        }
+        
+        //TODO change to portals discovering nearby entities instead
+        // of entities discovering nearby portals
+        world.getProfiler().push("getCollidingPortal");
+        Portal nowCollidingPortal =
+            CollisionHelper.getCollidingPortalUnreliable(this_);
+        world.getProfiler().pop();
+        
+        if (nowCollidingPortal == null) {
+            if (stopCollidingPortalCounter > 0) {
+                stopCollidingPortalCounter--;
+            }
+            else {
+                collidingPortal = null;
+            }
+        }
+        else {
+            collidingPortal = nowCollidingPortal;
+            stopCollidingPortalCounter = 1;
+        }
+        
+        if (world.isClient) {
+            McHelper.onClientEntityTick(this_);
+        }
     }
 }

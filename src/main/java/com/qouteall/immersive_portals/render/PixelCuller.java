@@ -29,9 +29,8 @@ public class PixelCuller {
     }
     
     //NOTE the actual culling plane is related to current model view matrix
-    public static void updateCullingPlaneInner(MatrixStack matrixStack) {
-        assert CGlobal.renderer.isRendering();
-        activeClipPlaneEquation = getClipEquationInner(CGlobal.renderer.getRenderingPortal());
+    public static void updateCullingPlaneInner(MatrixStack matrixStack, Portal portal) {
+        activeClipPlaneEquation = getClipEquationInner(portal);
         if (!OFInterface.isShaders.getAsBoolean()) {
             McHelper.runWithTransformation(
                 matrixStack,
@@ -43,7 +42,6 @@ public class PixelCuller {
     }
     
     public static void updateCullingPlaneOuter(MatrixStack matrixStack, Portal portal) {
-        assert !CGlobal.renderer.isRendering();
         activeClipPlaneEquation = getClipEquationOuter(portal);
         if (!OFInterface.isShaders.getAsBoolean()) {
             McHelper.runWithTransformation(

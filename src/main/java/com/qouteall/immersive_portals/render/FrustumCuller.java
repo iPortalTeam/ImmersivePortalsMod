@@ -99,6 +99,11 @@ public class FrustumCuller {
             return false;
         }
         
+        //test
+//        if (CrossPortalEntityRenderer.isRendering) {
+//            return false;
+//        }
+        
         if (OFInterface.isShadowPass.getAsBoolean()) {
             return false;
         }

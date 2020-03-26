@@ -426,6 +426,11 @@ public class MyCommandClient {
             "teleportation_debug",
             cond -> Global.teleportationDebugEnabled = cond
         );
+        registerSwitchCommand(
+            builder,
+            "cross_portal_entity_rendering",
+            cond -> Global.correctCrossPortalEntityRendering = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

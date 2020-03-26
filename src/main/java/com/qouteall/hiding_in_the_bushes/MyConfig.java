@@ -21,7 +21,6 @@ public class MyConfig {
     public boolean renderYourselfInPortal = true;
     public boolean activeLoading = true;
     public boolean teleportationDebug = false;
-    public boolean correctCrossPortalEntityRendering = true;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -85,6 +84,5 @@ public class MyConfig {
     
         Global.activeLoading = activeLoading;
         Global.teleportationDebugEnabled = teleportationDebug;
-        Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
     }
 }

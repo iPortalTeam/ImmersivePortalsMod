@@ -270,15 +270,17 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
-                PixelCuller.updateCullingPlaneInner(matrixStack);
+                PixelCuller.updateCullingPlaneInner(matrixStack, CGlobal.renderer.getRenderingPortal());
                 PixelCuller.startCulling();
             }
         }
         
+        MinecraftClient.getInstance().getProfiler().push("draw");
         McHelper.runWithTransformation(
             matrixStack,
             () -> tessellator.draw()
         );
+        MinecraftClient.getInstance().getProfiler().pop();
         
         if (shouldReverseCull) {
             MyRenderHelper.recoverFaceCulling();
