@@ -62,9 +62,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         
         portalLayers.push(portal);
     
-        Framebuffer oldFrameBuffer = mc.getFramebuffer();
+        Framebuffer oldFrameBuffer = client.getFramebuffer();
     
-        ((IEMinecraftClient) mc).setFrameBuffer(secondaryFrameBuffer.fb);
+        ((IEMinecraftClient) client).setFrameBuffer(secondaryFrameBuffer.fb);
         secondaryFrameBuffer.fb.beginWrite(true);
         
         GlStateManager.clearColor(1, 0, 1, 1);
@@ -77,7 +77,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     
         manageCameraAndRenderPortalContent(portal);
         
-        ((IEMinecraftClient) mc).setFrameBuffer(oldFrameBuffer);
+        ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.beginWrite(true);
         
         portalLayers.pop();

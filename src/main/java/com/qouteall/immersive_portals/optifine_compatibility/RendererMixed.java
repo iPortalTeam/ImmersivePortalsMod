@@ -56,7 +56,7 @@ public class RendererMixed extends PortalRenderer {
         glStencilFunc(GL_EQUAL, portalLayer, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
-        Framebuffer mcFrameBuffer = mc.getFramebuffer();
+        Framebuffer mcFrameBuffer = client.getFramebuffer();
         MyRenderHelper.myDrawFrameBuffer(mcFrameBuffer, false, true);
         
         glDisable(GL_STENCIL_TEST);
@@ -140,7 +140,7 @@ public class RendererMixed extends PortalRenderer {
             return;
         }
         
-        Framebuffer mainFrameBuffer = mc.getFramebuffer();
+        Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
         
         deferredFbs[0].fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
@@ -151,7 +151,7 @@ public class RendererMixed extends PortalRenderer {
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
         //reset projection matrix
-        mc.gameRenderer.method_22709(MyRenderHelper.projectionMatrix);
+        client.gameRenderer.method_22709(MyRenderHelper.projectionMatrix);
         
         //write to deferred buffer
         if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {

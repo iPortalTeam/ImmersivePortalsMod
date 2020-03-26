@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.teleportation;
 
-import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -104,15 +103,15 @@ public class CollisionHelper {
         if (boxOtherSide == null) {
             return attemptedMove;
         }
-    
+        
         //switch world and check collision
         World oldWorld = entity.world;
         Vec3d oldPos = entity.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(entity);
-    
+        
         entity.world = getWorld(entity.world.isClient, collidingPortal.dimensionTo);
         entity.setBoundingBox(boxOtherSide);
-    
+        
         Vec3d move2 = handleCollisionFunc.apply(attemptedMove);
         
         entity.world = oldWorld;
@@ -138,9 +137,9 @@ public class CollisionHelper {
         
         entity.setBoundingBox(boxThisSide);
         Vec3d move1 = handleCollisionFunc.apply(attemptedMove);
-    
+        
         entity.setBoundingBox(originalBoundingBox);
-    
+        
         return move1;
     }
     
@@ -191,7 +190,7 @@ public class CollisionHelper {
     //use entity.getCollidingPortal() and do not use this
     public static Portal getCollidingPortalUnreliable(Entity entity) {
         Box box = entity.getBoundingBox();
-    
+        
         return getCollidingPortalRough(entity, box).filter(
             portal -> shouldCollideWithPortal(
                 entity, portal
@@ -206,17 +205,20 @@ public class CollisionHelper {
         
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
         
-        //TODO reduce garbage object creation
-        Stream<Portal> normalPortals = world.getEntities(
-            Portal.class, box, e -> true
-        ).stream();
+        List<Portal> collidingNormalPortals = McHelper.getEntitiesRegardingLargeEntities(
+            world,
+            box,
+            10,
+            Portal.class,
+            p -> true
+        );
         
         if (globalPortals == null) {
-            return normalPortals;
+            return collidingNormalPortals.stream();
         }
         
-        return Streams.concat(
-            normalPortals,
+        return Stream.concat(
+            collidingNormalPortals.stream(),
             globalPortals.stream()
                 .filter(
                     p -> p.getBoundingBox().expand(0.5).intersects(box)

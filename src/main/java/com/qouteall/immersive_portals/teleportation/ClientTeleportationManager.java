@@ -36,7 +36,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
-    MinecraftClient mc = MinecraftClient.getInstance();
+    MinecraftClient client = MinecraftClient.getInstance();
     private long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     private Vec3d lastPlayerHeadPos = null;
@@ -67,25 +67,25 @@ public class ClientTeleportationManager {
                 return;
             }
         }
-        if (mc.player.dimension != dimension) {
+        if (client.player.dimension != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
         getOutOfLoadingScreen(dimension, pos);
     }
     
     private void manageTeleportation() {
-        if (mc.world == null || mc.player == null) {
+        if (client.world == null || client.player == null) {
             lastPlayerHeadPos = null;
         }
         else {
-            Vec3d currentHeadPos = mc.player.getCameraPosVec(MyRenderHelper.partialTicks);
+            Vec3d currentHeadPos = client.player.getCameraPosVec(MyRenderHelper.partialTicks);
             if (lastPlayerHeadPos != null) {
                 if (lastPlayerHeadPos.squaredDistanceTo(currentHeadPos) > 100) {
                     Helper.err("The Player is Moving Too Fast!");
                 }
                 CHelper.getClientNearbyPortals(20).filter(
                     portal -> {
-                        return mc.player.dimension == portal.dimension &&
+                        return client.player.dimension == portal.dimension &&
                             portal.isTeleportable() &&
                             portal.isMovedThroughPortal(
                                 lastPlayerHeadPos,
@@ -93,11 +93,11 @@ public class ClientTeleportationManager {
                             );
                     }
                 ).findFirst().ifPresent(
-                    portal -> onEntityGoInsidePortal(mc.player, portal)
+                    portal -> onEntityGoInsidePortal(client.player, portal)
                 );
             }
             
-            lastPlayerHeadPos = mc.player.getCameraPosVec(MyRenderHelper.partialTicks);
+            lastPlayerHeadPos = client.player.getCameraPosVec(MyRenderHelper.partialTicks);
         }
     }
     
@@ -115,7 +115,7 @@ public class ClientTeleportationManager {
         
         lastTeleportGameTime = tickTimeForTeleportation;
         
-        ClientPlayerEntity player = mc.player;
+        ClientPlayerEntity player = client.player;
         
         DimensionType toDimension = portal.dimensionTo;
         
@@ -124,7 +124,7 @@ public class ClientTeleportationManager {
         Vec3d newEyePos = portal.transformPoint(oldEyePos);
         Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
         
-        ClientWorld fromWorld = mc.world;
+        ClientWorld fromWorld = client.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
         
         if (fromDimension != toDimension) {
@@ -167,9 +167,9 @@ public class ClientTeleportationManager {
     private void forceTeleportPlayer(DimensionType toDimension, Vec3d destination) {
         Helper.log("force teleported " + toDimension + destination);
         
-        ClientWorld fromWorld = mc.world;
+        ClientWorld fromWorld = client.world;
         DimensionType fromDimension = fromWorld.dimension.getType();
-        ClientPlayerEntity player = mc.player;
+        ClientPlayerEntity player = client.player;
         if (fromDimension == toDimension) {
             player.updatePosition(
                 destination.x,
@@ -216,15 +216,15 @@ public class ClientTeleportationManager {
         
         toWorld.addPlayer(player.getEntityId(), player);
         
-        mc.world = toWorld;
-        ((IEMinecraftClient) mc).setWorldRenderer(
+        client.world = toWorld;
+        ((IEMinecraftClient) client).setWorldRenderer(
             CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
         );
         
         toWorld.setScoreboard(fromWorld.getScoreboard());
         
-        if (mc.particleManager != null)
-            mc.particleManager.setWorld(toWorld);
+        if (client.particleManager != null)
+            client.particleManager.setWorld(toWorld);
         
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
         
@@ -280,20 +280,20 @@ public class ClientTeleportationManager {
     }
     
     private void getOutOfLoadingScreen(DimensionType dimension, Vec3d playerPos) {
-        if (((IEMinecraftClient) mc).getCurrentScreen() instanceof DownloadingTerrainScreen) {
+        if (((IEMinecraftClient) client).getCurrentScreen() instanceof DownloadingTerrainScreen) {
             Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
-            if (mc.player.dimension != dimension) {
+            if (client.player.dimension != dimension) {
                 Helper.err("Manually fix dimension state while loading terrain");
                 ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
-                changePlayerDimension(mc.player, mc.world, toWorld, playerPos);
+                changePlayerDimension(client.player, client.world, toWorld, playerPos);
             }
-            mc.player.updatePosition(playerPos.x, playerPos.y, playerPos.z);
-            mc.openScreen(null);
+            client.player.updatePosition(playerPos.x, playerPos.y, playerPos.z);
+            client.openScreen(null);
         }
     }
     
     private void changePlayerMotionIfCollidingWithPortal() {
-        ClientPlayerEntity player = mc.player;
+        ClientPlayerEntity player = client.player;
         List<Portal> portals = player.world.getEntities(
             Portal.class,
             player.getBoundingBox().expand(0.5),

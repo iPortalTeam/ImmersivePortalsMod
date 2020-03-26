@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.render.PixelCuller;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.optifine.shaders.Program;
@@ -69,7 +70,7 @@ public class ShaderCullingManager {
     
     public static void loadUniforms() {
         if (CGlobal.renderer.isRendering()) {
-            double[] equation = CGlobal.myGameRenderer.getClipPlaneEquation();
+            double[] equation = PixelCuller.getActiveCullingPlaneEquation();
             if (equation != null) {
                 uniform_equationXYZ.setValue(
                     (float) equation[0],

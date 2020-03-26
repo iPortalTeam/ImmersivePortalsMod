@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.PixelCuller;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
@@ -210,8 +211,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         
         if (CGlobal.renderer.isRendering()) {
-            CGlobal.myGameRenderer.updateCullingPlane(matrixStack_1);
-            CGlobal.myGameRenderer.startCulling();
+            PixelCuller.updateCullingPlaneInner(matrixStack_1);
+            PixelCuller.startCulling();
             if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
@@ -231,7 +232,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
-            CGlobal.myGameRenderer.endCulling();
+            PixelCuller.endCulling();
             MyRenderHelper.recoverFaceCulling();
         }
     }
@@ -312,8 +313,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
-            CGlobal.myGameRenderer.updateCullingPlane(matrices);
-            CGlobal.myGameRenderer.startCulling();
+            PixelCuller.updateCullingPlaneInner(matrices);
+            PixelCuller.startCulling();
         }
     }
     
@@ -337,7 +338,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
-            CGlobal.myGameRenderer.endCulling();
+            PixelCuller.endCulling();
         }
     }
     

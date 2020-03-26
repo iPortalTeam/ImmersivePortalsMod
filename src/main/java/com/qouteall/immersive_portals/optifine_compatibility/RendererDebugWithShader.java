@@ -77,7 +77,7 @@ public class RendererDebugWithShader extends PortalRenderer {
         deferredBuffer.fb.beginWrite(true);
         
         GlStateManager.activeTexture(GL13.GL_TEXTURE0);
-        mc.getFramebuffer().draw(
+        client.getFramebuffer().draw(
             deferredBuffer.fb.viewportWidth,
             deferredBuffer.fb.viewportHeight
         );
@@ -108,7 +108,7 @@ public class RendererDebugWithShader extends PortalRenderer {
         }
         
         GlStateManager.enableAlphaTest();
-        Framebuffer mainFrameBuffer = mc.getFramebuffer();
+        Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
         
         deferredBuffer.fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);

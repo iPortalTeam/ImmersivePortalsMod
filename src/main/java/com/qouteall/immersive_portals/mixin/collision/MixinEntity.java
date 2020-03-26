@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.collision;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
@@ -65,14 +66,21 @@ public abstract class MixinEntity implements IEEntity {
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
+        Entity this_ = (Entity) (Object) this;
+        
         if (collidingPortal != null) {
             if (collidingPortal.dimension != dimension) {
                 collidingPortal = null;
             }
         }
         
+        //TODO change to portals discovering nearby entities instead
+        // of entities discovering nearby portals
+        world.getProfiler().push("getCollidingPortal");
         Portal nowCollidingPortal =
-            CollisionHelper.getCollidingPortalUnreliable((Entity) (Object) this);
+            CollisionHelper.getCollidingPortalUnreliable(this_);
+        world.getProfiler().pop();
+        
         if (nowCollidingPortal == null) {
             if (stopCollidingPortalCounter > 0) {
                 stopCollidingPortalCounter--;
@@ -84,6 +92,10 @@ public abstract class MixinEntity implements IEEntity {
         else {
             collidingPortal = nowCollidingPortal;
             stopCollidingPortalCounter = 1;
+        }
+        
+        if (world.isClient) {
+            McHelper.onClientEntityTick(this_);
         }
     }
     

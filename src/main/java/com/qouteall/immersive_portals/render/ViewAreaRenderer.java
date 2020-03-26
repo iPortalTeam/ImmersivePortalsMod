@@ -251,7 +251,7 @@ public class ViewAreaRenderer {
         }
         
         GlStateManager.disableTexture();
-        CGlobal.myGameRenderer.endCulling();
+        PixelCuller.endCulling();
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -259,7 +259,7 @@ public class ViewAreaRenderer {
             fogColor,
             portal,
             bufferbuilder,
-            PortalRenderer.mc.gameRenderer.getCamera().getPos(),
+            PortalRenderer.client.gameRenderer.getCamera().getPos(),
             MyRenderHelper.partialTicks,
             portal instanceof Mirror ? 0 : 0.45F
         );
@@ -270,8 +270,8 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
-                CGlobal.myGameRenderer.updateCullingPlane(matrixStack);
-                CGlobal.myGameRenderer.startCulling();
+                PixelCuller.updateCullingPlaneInner(matrixStack);
+                PixelCuller.startCulling();
             }
         }
         
@@ -285,7 +285,7 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
-                CGlobal.myGameRenderer.endCulling();
+                PixelCuller.endCulling();
             }
         }
         

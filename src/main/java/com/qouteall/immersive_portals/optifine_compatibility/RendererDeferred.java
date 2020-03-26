@@ -92,7 +92,7 @@ public class RendererDeferred extends PortalRenderer {
         
         MyRenderHelper.drawFrameBufferUp(
             portal,
-            mc.getFramebuffer(),
+            client.getFramebuffer(),
             CGlobal.shaderManager,
             matrixStack
         );
@@ -161,7 +161,7 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
         
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mc.getFramebuffer().fbo);
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getFramebuffer().fbo);
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
         
         GL30.glBlitFramebuffer(
@@ -176,7 +176,7 @@ public class RendererDeferred extends PortalRenderer {
         modelView.pop();
         
         GlStateManager.enableAlphaTest();
-        Framebuffer mainFrameBuffer = mc.getFramebuffer();
+        Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
         
         MyRenderHelper.myDrawFrameBuffer(

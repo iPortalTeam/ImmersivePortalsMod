@@ -194,8 +194,8 @@ public class MyRenderHelper {
                     GlStateManager.viewport(
                         0,
                         0,
-                        PortalRenderer.mc.getFramebuffer().viewportWidth,
-                        PortalRenderer.mc.getFramebuffer().viewportHeight
+                        PortalRenderer.client.getFramebuffer().viewportWidth,
+                        PortalRenderer.client.getFramebuffer().viewportHeight
                     );
                 }
     
