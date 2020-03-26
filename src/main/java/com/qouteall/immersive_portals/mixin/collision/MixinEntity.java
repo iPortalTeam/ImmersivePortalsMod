@@ -1,11 +1,14 @@
 package com.qouteall.immersive_portals.mixin.collision;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -47,6 +50,18 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     protected abstract Vec3d adjustMovementForCollisions(Vec3d vec3d_1);
     
+    @Shadow
+    private double x;
+    
+    @Shadow
+    private double y;
+    
+    @Shadow
+    private double z;
+    
+    @Shadow
+    public abstract Text getName();
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
@@ -71,7 +86,7 @@ public abstract class MixinEntity implements IEEntity {
             stopCollidingPortalCounter = 1;
         }
     }
-
+    
     @Redirect(
         method = "move",
         at = @At(
@@ -174,7 +189,7 @@ public abstract class MixinEntity implements IEEntity {
         }
         return entity.isWet();
     }
-
+    
     @Redirect(
         method = "checkBlockCollision",
         at = @At(
@@ -199,6 +214,31 @@ public abstract class MixinEntity implements IEEntity {
             else {
                 Helper.err("World Field is Null");
                 dimension = DimensionType.OVERWORLD;
+            }
+        }
+    }
+    
+    //for teleportation debug
+    @Inject(
+        method = "setPos",
+        at = @At("HEAD")
+    )
+    private void onSetPos(double nx, double ny, double nz, CallbackInfo ci) {
+        if (((Object) this) instanceof ServerPlayerEntity) {
+            if (Global.teleportationDebugEnabled) {
+                if (Math.abs(x - nx) > 10 ||
+                    Math.abs(y - ny) > 10 ||
+                    Math.abs(z - nz) > 10
+                ) {
+                    Helper.log(String.format(
+                        "%s %s teleported from %s %s %s to %s %s %s",
+                        getName().asString(),
+                        dimension,
+                        (int) x, (int) y, (int) z,
+                        (int) nx, (int) ny, (int) nz
+                    ));
+                    new Throwable().printStackTrace();
+                }
             }
         }
     }

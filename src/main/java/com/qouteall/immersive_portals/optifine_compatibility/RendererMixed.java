@@ -63,6 +63,7 @@ public class RendererMixed extends PortalRenderer {
         
         MatrixStack effectiveTransformation = this.modelView;
         modelView = new MatrixStack();
+        
         renderPortals(effectiveTransformation);
     }
     
@@ -149,7 +150,6 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
-        
         //reset projection matrix
         mc.gameRenderer.method_22709(MyRenderHelper.projectionMatrix);
         

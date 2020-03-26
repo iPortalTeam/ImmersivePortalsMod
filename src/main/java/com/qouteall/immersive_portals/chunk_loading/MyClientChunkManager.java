@@ -35,10 +35,8 @@ public class MyClientChunkManager extends ClientChunkManager {
     private final LightingProvider lightingProvider;
     private final ClientWorld world;
     
-    //its performance is a little lower than vanilla
-    //but this is indispensable
-    //there is no Long2ObjectConcurrentHashMap so I use ChunkPos which is less cache friendly
-    private ConcurrentHashMap<ChunkPos, WorldChunk> chunkMap = new ConcurrentHashMap<>();
+    //TODO change to long2object map
+    private final ConcurrentHashMap<ChunkPos, WorldChunk> chunkMap = new ConcurrentHashMap<>();
     
     public MyClientChunkManager(ClientWorld clientWorld_1, int int_1) {
         super(clientWorld_1, int_1);

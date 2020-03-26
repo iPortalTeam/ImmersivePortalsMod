@@ -66,13 +66,13 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     )
     private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         DimensionType packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
-    
+        
         assert packetDimension != null;
-    
+        
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
             cancelTeleportRequest();
         }
-    
+        
         if (player.dimension != packetDimension) {
             Global.serverTeleportationManager.acceptDubiousMovePacket(
                 player, packet, packetDimension
@@ -88,9 +88,9 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
      */
     @Overwrite
     public void teleportRequest(
-        double double_1,
-        double double_2,
-        double double_3,
+        double destX,
+        double destY,
+        double destZ,
         float float_1,
         float float_2,
         Set<PlayerPositionLookS2CPacket.Flag> set_1
@@ -99,25 +99,29 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             player.getName().asString(),
             player.dimension,
             (int) player.getX(), (int) player.getY(), (int) player.getZ(),
-            (int) double_1, (int) double_2, (int) double_3
+            (int) destX, (int) destY, (int) destZ
         ));
-    
+        
         double double_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0D;
         double double_5 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.getY() : 0.0D;
         double double_6 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.getZ() : 0.0D;
         float float_3 = set_1.contains(PlayerPositionLookS2CPacket.Flag.Y_ROT) ? this.player.yaw : 0.0F;
         float float_4 = set_1.contains(PlayerPositionLookS2CPacket.Flag.X_ROT) ? this.player.pitch : 0.0F;
-        //this.requestedTeleportPos = new Vec3d(double_1, double_2, double_3);
+        
+        if (!Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+            this.requestedTeleportPos = new Vec3d(destX, destY, destZ);
+        }
+        
         if (++this.requestedTeleportId == Integer.MAX_VALUE) {
             this.requestedTeleportId = 0;
         }
         
         this.teleportRequestTick = this.ticks;
-        this.player.updatePositionAndAngles(double_1, double_2, double_3, float_1, float_2);
+        this.player.updatePositionAndAngles(destX, destY, destZ, float_1, float_2);
         PlayerPositionLookS2CPacket packet_1 = new PlayerPositionLookS2CPacket(
-            double_1 - double_4,
-            double_2 - double_5,
-            double_3 - double_6,
+            destX - double_4,
+            destY - double_5,
+            destZ - double_6,
             float_1 - float_3,
             float_2 - float_4,
             set_1,
@@ -125,6 +129,10 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         );
         ((IEPlayerPositionLookS2CPacket) packet_1).setPlayerDimension(player.dimension);
         this.player.networkHandler.sendPacket(packet_1);
+        
+        if (Global.teleportationDebugEnabled) {
+            new Throwable().printStackTrace();
+        }
     }
     
     //server will check the collision when receiving position packet from client
@@ -177,26 +185,26 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
         if (Global.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
-        
+            
             if (entity != player) {
                 double currX = entity.getX();
                 double currY = entity.getY();
                 double currZ = entity.getZ();
-            
+                
                 double newX = packet.getX();
                 double newY = packet.getY();
                 double newZ = packet.getZ();
-        
+                
                 if (entity.getPos().squaredDistanceTo(
                     newX, newY, newZ
                 ) < 256) {
                     float yaw = packet.getYaw();
                     float pitch = packet.getPitch();
-            
+                    
                     entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
-            
+                    
                     this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
-            
+                    
                     ridingEntity = true;
                     updatedRiddenX = entity.getX();
                     updatedRiddenY = entity.getY();

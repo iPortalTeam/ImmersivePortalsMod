@@ -100,12 +100,12 @@ public class BlockPortalShape {
     }
     
     public void calcAreaBox() {
-        innerAreaBox = Helper.reduceWithDifferentType(
+        innerAreaBox = Helper.reduce(
             new IntBox(anchor, anchor),
             area.stream(),
             IntBox::getExpanded
         );
-        totalAreaBox = Helper.reduceWithDifferentType(
+        totalAreaBox = Helper.reduce(
             new IntBox(anchor, anchor),
             frameAreaWithoutCorner.stream(),
             IntBox::getExpanded

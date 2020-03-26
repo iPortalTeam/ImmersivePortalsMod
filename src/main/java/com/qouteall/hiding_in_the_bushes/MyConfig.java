@@ -20,6 +20,8 @@ public class MyConfig {
     public boolean longerReachInCreative = true;
     public boolean renderYourselfInPortal = true;
     public boolean activeLoading = true;
+    public boolean teleportationDebug = false;
+    public boolean correctCrossPortalEntityRendering = true;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -45,18 +47,18 @@ public class MyConfig {
         }
         else {
             MyConfig configObject = new MyConfig();
-            saveConfigFile(configObject);
+            configObject.saveConfigFile();
             return configObject;
         }
     }
     
-    public static void saveConfigFile(MyConfig configObject) {
+    public void saveConfigFile() {
         File configFile1 = new File(getGameDir(), "imm_ptl_config.json");
         try {
             configFile1.createNewFile();
             FileWriter fileWriter = new FileWriter(configFile1);
             
-            fileWriter.write(Global.gson.toJson(configObject));
+            fileWriter.write(Global.gson.toJson(this));
             fileWriter.close();
         }
         catch (IOException e) {
@@ -64,23 +66,25 @@ public class MyConfig {
         }
     }
     
-    public static void onConfigChanged(MyConfig config) {
-        if (config.compatibilityRenderMode) {
+    public void onConfigChanged() {
+        if (compatibilityRenderMode) {
             Global.renderMode = Global.RenderMode.compatibility;
         }
         else {
             Global.renderMode = Global.RenderMode.normal;
         }
-        Global.doCheckGlError = config.doCheckGlError;
-        Global.maxPortalLayer = config.maxPortalLayer;
-        Global.netherPortalFindingRadius = config.portalSearchingRange;
-        Global.longerReachInCreative = config.longerReachInCreative;
-        Global.renderYourselfInPortal = config.renderYourselfInPortal;
+        Global.doCheckGlError = doCheckGlError;
+        Global.maxPortalLayer = maxPortalLayer;
+        Global.netherPortalFindingRadius = portalSearchingRange;
+        Global.longerReachInCreative = longerReachInCreative;
+        Global.renderYourselfInPortal = renderYourselfInPortal;
     
         if (O_O.isReachEntityAttributesPresent) {
             Global.longerReachInCreative = false;
         }
     
-        Global.activeLoading = config.activeLoading;
+        Global.activeLoading = activeLoading;
+        Global.teleportationDebugEnabled = teleportationDebug;
+        Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
     }
 }

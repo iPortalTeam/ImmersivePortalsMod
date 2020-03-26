@@ -206,6 +206,7 @@ public class CollisionHelper {
         
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
         
+        //TODO reduce garbage object creation
         Stream<Portal> normalPortals = world.getEntities(
             Portal.class, box, e -> true
         ).stream();

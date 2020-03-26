@@ -59,7 +59,9 @@ public class O_O {
     }
     
     public static void loadConfigFabric() {
-        MyConfig.onConfigChanged(MyConfig.readConfigFromFile());
+        MyConfig myConfig = MyConfig.readConfigFromFile();
+        myConfig.onConfigChanged();
+        myConfig.saveConfigFile();
     }
     
     public static boolean isObsidian(IWorld world, BlockPos obsidianPos) {

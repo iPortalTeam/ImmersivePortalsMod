@@ -50,6 +50,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.active_loading",
                 currConfig.activeLoading
             ).setDefaultValue(true).build();
+            BooleanListEntry entryTeleportDebug = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.teleportation_debug",
+                currConfig.teleportationDebug
+            ).setDefaultValue(false).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
@@ -57,6 +61,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryLongerReachInCreative);
             category.addEntry(entryRenderYourselfInPortal);
             category.addEntry(entryActiveLoading);
+            category.addEntry(entryTeleportDebug);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -68,8 +73,9 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.longerReachInCreative = entryLongerReachInCreative.getValue();
                     newConfigObject.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
                     newConfigObject.activeLoading = entryActiveLoading.getValue();
-                    MyConfig.saveConfigFile(newConfigObject);
-                    MyConfig.onConfigChanged(newConfigObject);
+                    newConfigObject.teleportationDebug = entryTeleportDebug.getValue();
+                    newConfigObject.saveConfigFile();
+                    newConfigObject.onConfigChanged();
                 })
                 .build();
         };
