@@ -210,7 +210,7 @@ public class ShaderContextManager {
         
         OFGlobal.copyContextToObject.accept(templateContext);
         
-        Helper.log("context template updated");
+        Helper.log("shader context template updated");
     }
     
     private PerDimensionContext createContextByTemplate() {

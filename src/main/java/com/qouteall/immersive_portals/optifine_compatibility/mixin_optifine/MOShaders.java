@@ -1101,7 +1101,7 @@ public abstract class MOShaders {
         String filename,
         CallbackInfoReturnable<Integer> cir
     ) {
-        shouldModifyShaderCode = ShaderCullingManager.getShouldModifyShaderCode(program);
+        shouldModifyShaderCode = ShaderCullingManager.shouldModifyShaderCode(program);
     }
     
     @ModifyVariable(
@@ -1123,7 +1123,7 @@ public abstract class MOShaders {
         at = @At("TAIL")
     )
     private static void onLoadingUniforms(Program program, CallbackInfo ci) {
-        if (ShaderCullingManager.getShouldModifyShaderCode(program)) {
+        if (ShaderCullingManager.shouldModifyShaderCode(program)) {
             ShaderCullingManager.loadUniforms();
         }
         OFGlobal.debugFunc.accept(program);

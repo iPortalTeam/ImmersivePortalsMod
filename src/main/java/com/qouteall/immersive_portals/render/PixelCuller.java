@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,11 +13,14 @@ import org.lwjgl.opengl.GL11;
 public class PixelCuller {
     private static final MinecraftClient client = MinecraftClient.getInstance();
     private static double[] activeClipPlaneEquation;
-    private static boolean isCullingEnabled = false;
+    public static boolean isCullingEnabled = false;
     
     public static void endCulling() {
         GL11.glDisable(GL11.GL_CLIP_PLANE0);
         isCullingEnabled = false;
+        if (OFInterface.isShaders.getAsBoolean()) {
+            ShaderCullingManager.update();
+        }
     }
     
     public static void startCulling() {
@@ -26,6 +30,9 @@ public class PixelCuller {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
         isCullingEnabled = true;
+        if (OFInterface.isShaders.getAsBoolean()) {
+            ShaderCullingManager.update();
+        }
     }
     
     //NOTE the actual culling plane is related to current model view matrix
@@ -39,6 +46,9 @@ public class PixelCuller {
                 }
             );
         }
+        else {
+            ShaderCullingManager.update();
+        }
     }
     
     public static void updateCullingPlaneOuter(MatrixStack matrixStack, Portal portal) {
@@ -50,6 +60,9 @@ public class PixelCuller {
                     GL11.glClipPlane(GL11.GL_CLIP_PLANE0, activeClipPlaneEquation);
                 }
             );
+        }
+        else {
+            ShaderCullingManager.update();
         }
     }
     
