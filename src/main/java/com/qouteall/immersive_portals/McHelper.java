@@ -328,4 +328,10 @@ public class McHelper {
         return list;
     }
     
+    
+    //avoid dedicated server crash
+    public static void onClientEntityTick(Entity entity) {
+        CrossPortalEntityRenderer.onEntityTickClient(entity);
+    }
+    
 }

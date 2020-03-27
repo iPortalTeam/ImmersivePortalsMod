@@ -49,16 +49,13 @@ public abstract class MixinEntity implements IEEntity {
     protected abstract Vec3d adjustMovementForCollisions(Vec3d vec3d_1);
     
     @Shadow
-    private double x;
-    
-    @Shadow
-    private double y;
-    
-    @Shadow
-    private double z;
-    
-    @Shadow
     public abstract Text getName();
+    
+    @Shadow public abstract double getX();
+    
+    @Shadow public abstract double getY();
+    
+    @Shadow public abstract double getZ();
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
@@ -179,15 +176,15 @@ public abstract class MixinEntity implements IEEntity {
     private void onSetPos(double nx, double ny, double nz, CallbackInfo ci) {
         if (((Object) this) instanceof ServerPlayerEntity) {
             if (Global.teleportationDebugEnabled) {
-                if (Math.abs(x - nx) > 10 ||
-                    Math.abs(y - ny) > 10 ||
-                    Math.abs(z - nz) > 10
+                if (Math.abs(getX() - nx) > 10 ||
+                    Math.abs(getY() - ny) > 10 ||
+                    Math.abs(getZ() - nz) > 10
                 ) {
                     Helper.log(String.format(
                         "%s %s teleported from %s %s %s to %s %s %s",
                         getName().asString(),
                         dimension,
-                        (int) x, (int) y, (int) z,
+                        (int) getX(), (int) getY(), (int) getZ(),
                         (int) nx, (int) ny, (int) nz
                     ));
                     new Throwable().printStackTrace();

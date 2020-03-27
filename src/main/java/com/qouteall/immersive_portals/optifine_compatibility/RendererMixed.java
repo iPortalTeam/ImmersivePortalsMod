@@ -151,7 +151,7 @@ public class RendererMixed extends PortalRenderer {
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
         //reset projection matrix
-        client.gameRenderer.method_22709(MyRenderHelper.projectionMatrix);
+        client.gameRenderer.loadProjectionMatrix(MyRenderHelper.projectionMatrix);
         
         //write to deferred buffer
         if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {

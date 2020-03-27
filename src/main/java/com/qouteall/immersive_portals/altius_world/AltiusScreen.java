@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.altius_world;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.MinecraftClient;
@@ -163,7 +164,7 @@ public class AltiusScreen extends Screen {
         super.render(mouseX, mouseY, delta);
         
         this.drawCenteredString(
-            this.font, this.title.asFormattedString(), this.width / 2, 20, -1
+            MinecraftClient.getInstance().textRenderer, this.title.asFormattedString(), this.width / 2, 20, -1
         );
         
         

@@ -27,7 +27,6 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Helper {
@@ -415,7 +414,7 @@ public class Helper {
         return currentBox;
     }
     
-    public static <A, B> B reduceWithDifferentType(
+    public static <A, B> B reduce(
         B start,
         Stream<A> stream,
         BiFunction<B, A, B> func

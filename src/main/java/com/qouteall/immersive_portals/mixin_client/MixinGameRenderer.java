@@ -154,7 +154,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     
     //gather world rendering projection matrix
     @Inject(
-        method = "method_22709",
+        method = "loadProjectionMatrix",
         at = @At("HEAD")
     )
     private void onLoadProjectionMatrix(Matrix4f matrix4f, CallbackInfo ci) {
