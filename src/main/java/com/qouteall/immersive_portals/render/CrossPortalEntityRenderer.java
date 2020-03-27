@@ -134,7 +134,9 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         if (CGlobal.renderer.isRendering()) {
-            renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            if (collidingPortal == CGlobal.renderer.getRenderingPortal()) {
+                renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            }
         }
         else {
             PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal);
@@ -173,13 +175,13 @@ public class CrossPortalEntityRenderer {
         Vec3d oldEyePos = McHelper.getEyePos(entity);
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(entity);
         World oldWorld = entity.world;
-    
+        
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
         
         if (newEyePos.squaredDistanceTo(cameraPos) < 1) {
             return;
         }
-    
+        
         McHelper.setEyePos(
             entity,
             newEyePos,
