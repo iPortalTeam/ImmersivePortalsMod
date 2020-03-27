@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityContext;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -63,7 +63,7 @@ public class PortalPlaceholderBlock extends Block {
         BlockState blockState_1,
         BlockView blockView_1,
         BlockPos blockPos_1,
-        EntityContext entityContext_1
+        ShapeContext entityContext_1
     ) {
         switch ((Direction.Axis) blockState_1.get(AXIS)) {
             case Z:
