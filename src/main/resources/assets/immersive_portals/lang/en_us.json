@@ -10,6 +10,8 @@
   "imm_ptl.long_reach_in_creative": "Longer Hand Reach in Creative",
   "imm_ptl.render_yourself_in_portal": "Render Yourself in Portal",
   "imm_ptl.active_loading": "Actively Load Remote Chunks",
+  "imm_ptl.teleportation_debug": "Teleportation Debug",
+  "imm_ptlcorrect_cross_portal_entity_rendering": "Correct Cross Portal Entity Rendering (lower FPS)",
   "effect.immersive_portals.longer_reach": "Longer Hand Reach",
   "item.minecraft.potion.effect.longer_reach_potion": "Potion of Longer Hand Reach",
   "item.minecraft.splash_potion.effect.longer_reach_potion": "Splash Potion of Longer Hand Reach",

@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-//	modCompile 'com.github.modmuss50:OptiFabric:1.0.0-beta4'
+	modCompile 'com.github.modmuss50:OptiFabric:1.0.0-beta4'
 
 	//Deps required for optifabric
 	compile 'org.zeroturnaround:zt-zip:1.13'
@@ -43,7 +43,7 @@ dependencies {
 	//modImplementation "io.github.Ladysnake:Requiem:1.1.4:api"
 
 	//used for building mod
-	compile files('ofpre9b.jar')
+	compile files('ofpre10.jar')
 
 	modApi "me.shedaniel.cloth:config-2:2.9.3"
 	modImplementation "io.github.prospector:modmenu:1.10.1+build.30"

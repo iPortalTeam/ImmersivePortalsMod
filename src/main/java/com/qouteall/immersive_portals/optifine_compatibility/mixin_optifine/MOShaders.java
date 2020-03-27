@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.dimension.DimensionType;
@@ -1132,6 +1133,7 @@ public abstract class MOShaders {
     //but it's illegal to set a uniform without binding program
     @Inject(method = "setCameraShadow", at = @At("HEAD"))
     private static void onSetCameraShadow(
+        MatrixStack matrixStack,
         Camera activeRenderInfo,
         float partialTicks,
         CallbackInfo ci
