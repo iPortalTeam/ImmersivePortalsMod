@@ -34,7 +34,7 @@ import static org.lwjgl.opengl.GL11.glStencilFunc;
 import static org.lwjgl.opengl.GL11.glStencilOp;
 
 public class RendererMixed extends PortalRenderer {
-    private SecondaryFrameBuffer[] deferredFbs;
+    private SecondaryFrameBuffer[] deferredFbs = new SecondaryFrameBuffer[0];
     
     //OptiFine messes up with transformations so store it
     private MatrixStack modelView = new MatrixStack();
@@ -108,7 +108,11 @@ public class RendererMixed extends PortalRenderer {
             CGlobal.shaderManager = new ShaderManager();
         }
         
-        if (deferredFbs == null) {
+        if (deferredFbs.length != maxPortalLayer.get() + 1) {
+            for (SecondaryFrameBuffer fb : deferredFbs) {
+                fb.fb.delete();
+            }
+            
             deferredFbs = new SecondaryFrameBuffer[maxPortalLayer.get() + 1];
             for (int i = 0; i < deferredFbs.length; i++) {
                 deferredFbs[i] = new SecondaryFrameBuffer();
@@ -197,12 +201,12 @@ public class RendererMixed extends PortalRenderer {
         GL11.glEnable(GL_STENCIL_TEST);
         GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-    
+        
         GlStateManager.enableDepthTest();
         
         boolean result = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             ViewAreaRenderer.drawPortalViewTriangle(
-                portal, matrixStack, false, false
+                portal, matrixStack, true, true
             );
         });
         

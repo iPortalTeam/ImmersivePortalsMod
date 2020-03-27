@@ -9,6 +9,7 @@
     "block_manipulation/MixinMinecraftClient_B",
     "collisions/MixinClientPlayerEntity",
     "debug/MixinBuiltChunk",
+    "debug/MixinKeyboard",
     "far_scenery/MixinGameRenderer_F",
     "far_scenery/MixinWorldRenderer_F",
     "sync/MixinClientPlayNetworkHandler",

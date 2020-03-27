@@ -93,6 +93,7 @@ public class ShaderCullingManager {
     
     @Deprecated
     public static void loadUniforms() {
+        update();
 //        if (CGlobal.renderer.isRendering()) {
 //            double[] equation = PixelCuller.getActiveCullingPlaneEquation();
 //            if (equation != null) {
