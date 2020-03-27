@@ -19,8 +19,6 @@ public class OFInterface {
     
     public static BooleanSupplier isShadowPass = returnFalse;
     
-    public static Runnable bindToShaderFrameBuffer = invokeNothing;
-    
     public static FloatConsumer beforeRenderCenter = f -> {
     };
     

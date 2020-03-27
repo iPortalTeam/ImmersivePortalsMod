@@ -10,6 +10,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -31,47 +32,7 @@ import java.util.stream.Stream;
 
 public class Helper {
     
-    private static final Logger LOGGER = LogManager.getLogger();
-    
-    public static void assertWithSideEffects(boolean cond) {
-        //assert cond;
-        if (!cond) {
-            Helper.err("ASSERTION FAILED");
-        }
-    }
-    
-    //copied from Project class
-    public static void doTransformation(FloatBuffer m, float[] in, float[] out) {
-        for (int i = 0; i < 4; i++) {
-            out[i] =
-                in[0] * m.get(m.position() + 0 * 4 + i)
-                    + in[1] * m.get(m.position() + 1 * 4 + i)
-                    + in[2] * m.get(m.position() + 2 * 4 + i)
-                    + in[3] * m.get(m.position() + 3 * 4 + i);
-            
-        }
-    }
-    
-    //NOTE the w value is omitted
-    public static Vec3d doTransformation(FloatBuffer m, Vec3d in) {
-        float[] input = {(float) in.x, (float) in.y, (float) in.z, 1};
-        float[] output = new float[4];
-        doTransformation(m, input, output);
-        return new Vec3d(output[0], output[1], output[2]);
-    }
-    
-    public static final float[] IDENTITY_MATRIX =
-        new float[]{
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f};
-    
-    private static void loadIdentityMatrix(FloatBuffer m) {
-        int oldPos = m.position();
-        m.put(IDENTITY_MATRIX);
-        m.position(oldPos);
-    }
+    private static final Logger LOGGER = LogManager.getLogger("Portal");
     
     public static FloatBuffer getModelViewMatrix() {
         return getMatrix(GL11.GL_MODELVIEW_MATRIX);
@@ -322,21 +283,6 @@ public class Helper {
         }
     }
     
-    //sometimes it catches all types of exception
-    //and the exception message will be hided
-    //use this to avoid that
-    public static <T> T doNotEatExceptionMessage(
-        Supplier<T> func
-    ) {
-        try {
-            return func.get();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-    
     public static <T> String myToString(
         Stream<T> stream
     ) {
@@ -481,11 +427,6 @@ public class Helper {
                 throw new IllegalStateException("combiner should only be used in parallel");
             }
         );
-//        SimpleBox<B> bBox = new SimpleBox<>(start);
-//        stream.forEach(a -> {
-//            bBox.obj = func.apply(bBox.obj, a);
-//        });
-//        return bBox.obj;
     }
     
     public static <T> T noError(Callable<T> func) {
@@ -636,12 +577,12 @@ public class Helper {
         b.normalize();
     
         double dot = dotProduct4d(a, b);
-
-//        if (dot < 0.0f) {
-//            a.scale(-1);
-//            dot = -dot;
-//        }
-    
+        
+        if (dot < 0.0f) {
+            a.scale(-1);
+            dot = -dot;
+        }
+        
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
             // If the inputs are too close for comfort, linearly interpolate
@@ -709,5 +650,22 @@ public class Helper {
             quaternion.scale(-1);
         }
         return quaternion;
+    }
+    
+    //naive interpolation is better?
+    public static Quaternion interpolateQuaternionNaive(
+        Quaternion a,
+        Quaternion b,
+        float t
+    ) {
+        return makeIntoExpression(
+            new Quaternion(
+                MathHelper.lerp(t, a.getB(), b.getB()),
+                MathHelper.lerp(t, a.getC(), b.getC()),
+                MathHelper.lerp(t, a.getD(), b.getD()),
+                MathHelper.lerp(t, a.getA(), b.getA())
+            ),
+            Quaternion::normalize
+        );
     }
 }

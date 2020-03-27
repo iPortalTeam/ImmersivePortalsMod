@@ -490,7 +490,7 @@ public class MyCommandClient {
             str.append(String.format(
                 "%s %s\n",
                 world.dimension.getType(),
-                ((MyClientChunkManager) world.getChunkManager()).getChunkNum()
+                ((MyClientChunkManager) world.getChunkManager()).getLoadedChunkCount()
             ));
         });
         

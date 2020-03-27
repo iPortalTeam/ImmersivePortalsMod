@@ -46,7 +46,7 @@ dependencies {
 	//modImplementation "io.github.Ladysnake:Requiem:1.1.4:api"
 
 	//used for building mod
-	compile files('ofstuff_pre1.jar')
+	compile files('ofpre10.jar')
 
 	modApi "me.shedaniel.cloth:config-2:2.11.2"
 	modImplementation "io.github.prospector:modmenu:1.10.2+build.31"

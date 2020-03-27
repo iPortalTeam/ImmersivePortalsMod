@@ -10,10 +10,20 @@
   "imm_ptl.long_reach_in_creative": "创造模式下触及范围更大",
   "imm_ptl.render_yourself_in_portal": "在传送门中渲染自己",
   "imm_ptl.active_loading": "完全加载仅传送门可视区块",
+  "imm_ptl.teleportation_debug": "调试坐标同步",
+  "imm_ptlcorrect_cross_portal_entity_rendering": "正确渲染跨传送门实体（降低帧率）",
   "effect.immersive_portals.longer_reach": "触及范围增大",
   "item.minecraft.potion.effect.longer_reach_potion": "触及范围增大药水",
   "item.minecraft.splash_potion.effect.longer_reach_potion": "触及范围增大喷溅药水",
   "item.minecraft.lingering_potion.effect.longer_reach_potion": "触及范围增大滞留药水",
   "attribute.name.imm_ptl.hand_reach_multiplier": "触及范围",
-  "generator.imm_ptl_altius": "纵深世界"
+  "imm_ptl.altius_screen_button": "位面纵叠",
+  "imm_ptl.altius_screen": "位面纵叠",
+  "imm_ptl.altius_toggle_true": "位面纵叠已启用",
+  "imm_ptl.altius_toggle_false": "位面纵叠已禁用",
+  "imm_ptl.back_to_create_world": "返回",
+  "imm_ptl.add_dimension": "加入位面",
+  "imm_ptl.remove_dimension": "移除位面",
+  "imm_ptl.confirm_select_dimension": "确定",
+  "imm_ptl.select_dimension": "选择一个位面"
 }

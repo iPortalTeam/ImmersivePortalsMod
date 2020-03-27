@@ -64,7 +64,7 @@ public class ClientWorldLoader {
             });
             isClientRemoteTicking = false;
         }
-    
+        
         boolean lightmapTextureConflict = false;
         for (DimensionRenderHelper helper : renderHelperMap.values()) {
             helper.tick();
@@ -84,8 +84,10 @@ public class ClientWorldLoader {
             renderHelperMap.clear();
             Helper.log("Refreshed Lightmaps");
         }
-    
+        
     }
+    
+    private static int reportedErrorNum = 0;
     
     private void tickRemoteWorld(ClientWorld newWorld) {
         ClientWorld oldWorld = mc.world;
@@ -97,6 +99,12 @@ public class ClientWorldLoader {
             newWorld.tickEntities();
             newWorld.tick(() -> true);
         }
+        catch (Throwable e) {
+            if (reportedErrorNum < 200) {
+                e.printStackTrace();
+                reportedErrorNum++;
+            }
+        }
         finally {
             mc.world = oldWorld;
             ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
@@ -107,15 +115,15 @@ public class ClientWorldLoader {
         worldRendererMap.values().forEach(
             worldRenderer -> worldRenderer.setWorld(null)
         );
-    
+        
         clientWorldMap.clear();
         worldRendererMap.clear();
-    
+        
         renderHelperMap.values().forEach(DimensionRenderHelper::cleanUp);
         renderHelperMap.clear();
-    
+        
         isInitialized = false;
-    
+        
         ModMain.clientTaskList.forceClearTasks();
     }
     

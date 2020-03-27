@@ -66,6 +66,8 @@ public class AltiusScreen extends Screen {
             15,
             this
         );
+    
+        O_O.registerDimensionsForge();
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
         dimListWidget.terms.add(
@@ -161,7 +163,7 @@ public class AltiusScreen extends Screen {
         super.render(mouseX, mouseY, delta);
         
         this.drawCenteredString(
-            this.textRenderer, this.title.asFormattedString(), this.width / 2, 20, -1
+            this.font, this.title.asFormattedString(), this.width / 2, 20, -1
         );
         
         

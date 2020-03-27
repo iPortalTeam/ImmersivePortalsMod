@@ -271,7 +271,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         
         Entity vehicle = vehicleTypeSelector.select(random).create(world);
         
-        Helper.reduceWithDifferentType(
+        Helper.reduce(
             vehicle,
             IntStream.range(0, layer)
                 .mapToObj(i -> initRandomEntity(

@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.OFInterface;
 import net.minecraft.client.gl.Framebuffer;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
@@ -36,6 +35,6 @@ public class OFHelper {
             Global.renderMode = Global.RenderMode.compatibility;
         }
     
-        OFInterface.bindToShaderFrameBuffer.run();
+        OFGlobal.bindToShaderFrameBuffer.run();
     }
 }

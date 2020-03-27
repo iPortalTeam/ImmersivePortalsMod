@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
 public abstract class MixinCamera implements IECamera {
-    private double lastClipSpaceResult = 1;
+    private static double lastClipSpaceResult = 1;
     
     @Shadow
     private net.minecraft.util.math.Vec3d pos;

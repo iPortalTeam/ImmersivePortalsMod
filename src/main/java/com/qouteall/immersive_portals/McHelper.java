@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.ducks.IEServerWorld;
@@ -7,6 +8,7 @@ import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
@@ -17,8 +19,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -208,6 +212,9 @@ public class McHelper {
         Vec3d pos,
         Vec3d lastTickPos
     ) {
+    
+    
+        //NOTE do not call entity.setPosition() because it may tick the entity
         entity.setPos(pos.x, pos.y, pos.z);
         entity.lastRenderX = lastTickPos.x;
         entity.lastRenderY = lastTickPos.y;
@@ -294,5 +301,31 @@ public class McHelper {
         player.updatePosition(player.getX(), player.getY(), player.getZ());
     }
     
+    public static <T extends Entity> List<T> getEntitiesRegardingLargeEntities(
+        World world,
+        Box box,
+        double maxEntitySizeHalf,
+        Class<T> entityClass,
+        Predicate<T> predicate
+    ) {
+        world.getProfiler().visit("getEntitiesPortal");
+        int i = MathHelper.floor((box.x1 - maxEntitySizeHalf) / 16.0D);
+        int j = MathHelper.ceil((box.x2 + maxEntitySizeHalf) / 16.0D);
+        int k = MathHelper.floor((box.z1 - maxEntitySizeHalf) / 16.0D);
+        int l = MathHelper.ceil((box.z2 + maxEntitySizeHalf) / 16.0D);
+        List<T> list = Lists.newArrayList();
+        ChunkManager chunkManager = world.getChunkManager();
+        
+        for (int m = i; m < j; ++m) {
+            for (int n = k; n < l; ++n) {
+                WorldChunk worldChunk = chunkManager.getWorldChunk(m, n, false);
+                if (worldChunk != null) {
+                    worldChunk.getEntities(entityClass, box, list, predicate);
+                }
+            }
+        }
+        
+        return list;
+    }
     
 }

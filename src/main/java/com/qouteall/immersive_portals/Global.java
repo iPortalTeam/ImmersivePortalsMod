@@ -26,6 +26,10 @@ public class Global {
     
     public static int netherPortalFindingRadius = 128;
     
+    public static boolean teleportationDebugEnabled = false;
+    
+    public static boolean correctCrossPortalEntityRendering = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

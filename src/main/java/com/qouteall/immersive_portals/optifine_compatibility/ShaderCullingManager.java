@@ -1,11 +1,18 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.render.PixelCuller;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.uniform.ShaderUniform1f;
 import net.optifine.shaders.uniform.ShaderUniform3f;
+import net.optifine.shaders.uniform.ShaderUniforms;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,21 +35,21 @@ public class ShaderCullingManager {
     public static boolean cullingEnabled = true;
     
     public static void init() {
-//        try {
-//            InputStream inputStream =
-//                MinecraftClient.getInstance().getResourceManager().getResource(
-//                    transformation
-//                ).getInputStream();
-//
-//            toReplace = IOUtils.toString(inputStream, Charset.defaultCharset());
-//        }
-//        catch (IOException e) {
-//            throw new IllegalArgumentException(e);
-//        }
-//
-//        ShaderUniforms shaderUniforms = OFGlobal.getShaderUniforms.get();
-//        uniform_equationXYZ = shaderUniforms.make3f("cullingEquationXYZ");
-//        uniform_equationW = shaderUniforms.make1f("cullingEquationW");
+        try {
+            InputStream inputStream =
+                MinecraftClient.getInstance().getResourceManager().getResource(
+                    transformation
+                ).getInputStream();
+            
+            toReplace = IOUtils.toString(inputStream, Charset.defaultCharset());
+        }
+        catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        
+        ShaderUniforms shaderUniforms = OFGlobal.getShaderUniforms.get();
+        uniform_equationXYZ = shaderUniforms.make3f("cullingEquationXYZ");
+        uniform_equationW = shaderUniforms.make1f("cullingEquationW");
     }
     
     public static StringBuilder modifyFragShaderCode(StringBuilder rawCode) {
@@ -51,7 +58,7 @@ public class ShaderCullingManager {
         }
         
         if (toReplace == null) {
-            throw new IllegalStateException("Shader Code Modifier is not initialized");
+            throw new RuntimeException("Shader Code Modifier is not initialized");
         }
         
         StringBuilder uniformsDeclarationCode = getUniformsDeclarationCode(rawCode);
@@ -63,13 +70,19 @@ public class ShaderCullingManager {
     
     public static void loadUniforms() {
         if (CGlobal.renderer.isRendering()) {
-            double[] equation = CGlobal.myGameRenderer.getClipPlaneEquation();
-            uniform_equationXYZ.setValue(
-                (float) equation[0],
-                (float) equation[1],
-                (float) equation[2]
-            );
-            uniform_equationW.setValue((float) equation[3]);
+            double[] equation = PixelCuller.getActiveCullingPlaneEquation();
+            if (equation != null) {
+                uniform_equationXYZ.setValue(
+                    (float) equation[0],
+                    (float) equation[1],
+                    (float) equation[2]
+                );
+                uniform_equationW.setValue((float) equation[3]);
+            }
+            else {
+                uniform_equationXYZ.setValue(0, 0, 0);
+                uniform_equationW.setValue(2333);
+            }
         }
         else {
             uniform_equationXYZ.setValue(0, 0, 0);

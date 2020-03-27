@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.far_scenery;
 
 import net.minecraft.util.math.Vec3d;
 
+@Deprecated
 public class FSRenderingContext {
     
     public static boolean isRenderingScenery = false;

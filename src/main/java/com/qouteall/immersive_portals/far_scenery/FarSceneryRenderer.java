@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL13;
 
 import static org.lwjgl.opengl.GL11.GL_QUADS;
 
+@Deprecated
 public class FarSceneryRenderer {
     public static boolean shouldUpdateFarScenery = true;
     

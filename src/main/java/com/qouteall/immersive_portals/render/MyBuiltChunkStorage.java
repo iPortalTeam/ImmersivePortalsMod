@@ -31,7 +31,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     public static class Preset {
         public ChunkBuilder.BuiltChunk[] data;
         public long lastActiveTime;
-        public boolean isMainPreset;
         public boolean isNeighborUpdated;
         
         public Preset(ChunkBuilder.BuiltChunk[] data, boolean isNeighborUpdated) {
@@ -122,8 +121,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         }
         
         if (!preset.isNeighborUpdated) {
-            preset.isNeighborUpdated = true;
             OFBuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+            preset.isNeighborUpdated = true;
             if (isRenderingPortal) {
                 shouldUpdateMainPresetNeighbor = true;
             }

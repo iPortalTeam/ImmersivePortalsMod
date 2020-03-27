@@ -313,8 +313,9 @@ public class ServerTeleportationManager {
             }
         }
         copiedPlayerList.forEach(player -> {
-            McHelper.getEntitiesNearby(
-                player,
+            McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
+                player.world,
+                player.getPos(),
                 Entity.class,
                 32
             ).filter(

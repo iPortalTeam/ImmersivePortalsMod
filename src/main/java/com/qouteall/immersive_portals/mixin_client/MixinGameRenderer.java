@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -149,6 +150,17 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private void redirectBobViewTranslate(MatrixStack matrixStack, double x, double y, double z) {
         double viewBobFactor = MyRenderHelper.viewBobFactor;
         matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
+    }
+    
+    //gather world rendering projection matrix
+    @Inject(
+        method = "method_22709",
+        at = @At("HEAD")
+    )
+    private void onLoadProjectionMatrix(Matrix4f matrix4f, CallbackInfo ci) {
+        if (MyRenderHelper.projectionMatrix == null) {
+            MyRenderHelper.projectionMatrix = matrix4f;
+        }
     }
     
     @Override
