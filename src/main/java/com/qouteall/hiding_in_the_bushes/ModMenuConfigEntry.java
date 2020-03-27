@@ -58,6 +58,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.correct_cross_portal_entity_rendering",
                 currConfig.correctCrossPortalEntityRendering
             ).setDefaultValue(true).build();
+            BooleanListEntry entryLoadFewerChunks = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.load_fewer_chunks",
+                currConfig.loadFewerChunks
+            ).setDefaultValue(false).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
@@ -67,6 +71,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryActiveLoading);
             category.addEntry(entryTeleportDebug);
             category.addEntry(entryCorrectCrossPortalEntityRendering);
+            category.addEntry(entryLoadFewerChunks);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -80,6 +85,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.activeLoading = entryActiveLoading.getValue();
                     newConfigObject.teleportationDebug = entryTeleportDebug.getValue();
                     newConfigObject.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
+                    newConfigObject.loadFewerChunks = entryLoadFewerChunks.getValue();
                     newConfigObject.saveConfigFile();
                     newConfigObject.onConfigChanged();
                 })

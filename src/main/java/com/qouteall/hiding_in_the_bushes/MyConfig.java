@@ -22,6 +22,7 @@ public class MyConfig {
     public boolean activeLoading = true;
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
+    public boolean loadFewerChunks = false;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -86,5 +87,6 @@ public class MyConfig {
         Global.activeLoading = activeLoading;
         Global.teleportationDebugEnabled = teleportationDebug;
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
+        Global.loadFewerChunks = loadFewerChunks;
     }
 }

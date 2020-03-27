@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -14,7 +15,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ChunkVisibilityManager {
-    public static final int portalLoadingRange = 48;
+    private static final int portalLoadingRange = 48;
     public static final int secondaryPortalLoadingRange = 16;
     
     public static interface ChunkPosConsumer {
@@ -89,6 +90,9 @@ public class ChunkVisibilityManager {
     }
     
     private static int getDirectLoadingDistance(int renderDistance, double distanceToPortal) {
+        if (Global.loadFewerChunks) {
+            return 1;
+        }
         if (distanceToPortal < 5) {
             return renderDistance;
         }
@@ -133,7 +137,7 @@ public class ChunkVisibilityManager {
             McHelper.getRenderDistanceOnServer() -
                 Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.getPos()), 16)
         );
-    
+        
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -183,50 +187,53 @@ public class ChunkVisibilityManager {
     ) {
         return Streams.concat(
             Stream.of(playerDirectLoader(player)),
-    
+            
             McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
                 player.world,
                 player.getPos(),
                 Portal.class,
-                portalLoadingRange
+                Global.loadFewerChunks ? portalLoadingRange / 2 : portalLoadingRange
             ).filter(
                 portal -> portal.canBeSeenByPlayer(player)
             ).flatMap(
-                portal -> Streams.concat(
+                portal -> Stream.concat(
                     Stream.of(portalDirectLoader(portal, player)),
-    
-                    McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-                        McHelper.getServer().getWorld(portal.dimensionTo),
-                        portal.destination,
-                        Portal.class,
-                        secondaryPortalLoadingRange
-                    ).filter(
-                        remotePortal -> remotePortal.canBeSeenByPlayer(player)
-                    ).map(
-                        remotePortal -> portalIndirectLoader(remotePortal)
-                    )
+                    
+                    Global.loadFewerChunks ?
+                        Stream.empty() :
+                        McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
+                            McHelper.getServer().getWorld(portal.dimensionTo),
+                            portal.destination,
+                            Portal.class,
+                            secondaryPortalLoadingRange
+                        ).filter(
+                            remotePortal -> remotePortal.canBeSeenByPlayer(player)
+                        ).map(
+                            remotePortal -> portalIndirectLoader(remotePortal)
+                        )
                 )
             ),
             
             getGlobalPortals(player.dimension)
                 .flatMap(
-                    portal -> Streams.concat(
+                    portal -> Stream.concat(
                         Stream.of(globalPortalDirectLoader(
                             player, portal
                         )),
                         
-                        getGlobalPortals(
-                            portal.dimensionTo
-                        ).filter(
-                            remotePortal ->
-                                remotePortal.getDistanceToNearestPointInPortal(
+                        Global.loadFewerChunks ?
+                            Stream.empty() :
+                            getGlobalPortals(
+                                portal.dimensionTo
+                            ).filter(
+                                remotePortal -> remotePortal.getDistanceToNearestPointInPortal(
                                     portal.transformPointRough(player.getPos())
-                                ) < 64
-                        ).map(
-                            remotePortal -> globalPortalIndirectLoader(
-                                player, portal, remotePortal
+                                ) < (Global.loadFewerChunks ? portalLoadingRange / 2 : portalLoadingRange)
+                            ).map(
+                                remotePortal -> globalPortalIndirectLoader(
+                                    player, portal, remotePortal
+                                )
                             )
-                        )
                     )
                 )
         ).distinct();

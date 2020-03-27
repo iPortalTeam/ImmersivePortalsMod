@@ -133,16 +133,8 @@ public class CrossPortalEntityRenderer {
         Portal collidingPortal,
         MatrixStack matrixStack
     ) {
-//        if (entity instanceof ClientPlayerEntity) {
-//            if (client.options.perspective == 0) {
-//                return;
-//            }
-//        }
         if (CGlobal.renderer.isRendering()) {
-            //Currently only render inner world projections for current rendered portal
-            //if (CGlobal.renderer.getRenderingPortal() == collidingPortal) {
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
-            //}
         }
         else {
             PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal);
