@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderDimensionRedirect;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -1169,6 +1170,17 @@ public abstract class MOShaders {
         previousCameraPositionZ = cameraPositionZ - MyRenderHelper.cameraPosDelta.z;
     }
     
+    @Redirect(
+        method = "init",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/dimension/DimensionType;getRawId()I"
+        )
+    )
+    private static int redirectGetDimensionRawId(DimensionType dimensionType) {
+        return ShaderDimensionRedirect.getShaderDimension(dimensionType).getRawId();
+    }
+    
     static {
         OFGlobal.copyContextFromObject = context -> {
             mc = context.mc;
@@ -1946,7 +1958,7 @@ public abstract class MOShaders {
         OFGlobal.getShaderUniforms = () -> shaderUniforms;
         
         OFGlobal.getCurrentWorld = () -> currentWorld;
-    
+        
         OFGlobal.bindToShaderFrameBuffer = () -> {
             EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
             GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);

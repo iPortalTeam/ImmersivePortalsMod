@@ -231,15 +231,20 @@ public class MyCommandServer {
                                         context, "angleDegrees"
                                     );
                                     
-                                    portal.rotation = new Quaternion(
-                                        new Vector3f(
-                                            (float) rotatingAxis.x,
-                                            (float) rotatingAxis.y,
-                                            (float) rotatingAxis.z
-                                        ),
-                                        (float) angleDegrees,
-                                        true
-                                    );
+                                    if (angleDegrees != 0) {
+                                        portal.rotation = new Quaternion(
+                                            new Vector3f(
+                                                (float) rotatingAxis.x,
+                                                (float) rotatingAxis.y,
+                                                (float) rotatingAxis.z
+                                            ),
+                                            (float) angleDegrees,
+                                            true
+                                        );
+                                    }
+                                    else {
+                                        portal.rotation = null;
+                                    }
                                     
                                     reloadPortal(portal);
                                     
