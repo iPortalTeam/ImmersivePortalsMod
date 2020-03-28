@@ -76,7 +76,7 @@ public class ServerTeleportationManager {
         UUID portalId
     ) {
         recordLastPosition(player);
-    
+        
         Portal portal = findPortal(dimensionBefore, portalId);
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
@@ -84,7 +84,7 @@ public class ServerTeleportationManager {
             if (isTeleporting(player)) {
                 Helper.err(player.toString() + "is teleporting frequently");
             }
-    
+            
             DimensionType dimensionTo = portal.dimensionTo;
             Vec3d newEyePos = portal.transformPoint(oldEyePos);
             
@@ -358,8 +358,8 @@ public class ServerTeleportationManager {
             changeEntityDimension(entity, portal.dimensionTo, newEyePos);
         }
         
-        entity.updatePosition(
-            newEyePos.x, newEyePos.y, newEyePos.z
+        McHelper.setEyePos(
+            entity, newEyePos, newEyePos
         );
         
         entity.setVelocity(portal.transformLocalVec(entity.getVelocity()));

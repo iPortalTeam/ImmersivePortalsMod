@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
@@ -88,6 +89,9 @@ public class CrossPortalEntityRenderer {
                     collidingPortal
                 );
                 PixelCuller.startCulling();
+                if (OFInterface.isShaders.getAsBoolean()) {
+                    ShaderCullingManager.update();
+                }
             }
         }
     }
@@ -134,7 +138,10 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         if (CGlobal.renderer.isRendering()) {
-            if (collidingPortal == CGlobal.renderer.getRenderingPortal()) {
+            //???
+            if (collidingPortal == CGlobal.renderer.getRenderingPortal()
+                || (entity instanceof ClientPlayerEntity)
+            ) {
                 renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             }
         }

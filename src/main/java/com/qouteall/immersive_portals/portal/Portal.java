@@ -230,6 +230,11 @@ public class Portal extends Entity {
     }
     
     @Override
+    public void setBoundingBox(Box boundingBox) {
+        boundingBoxCache = null;
+    }
+    
+    @Override
     public void move(MovementType type, Vec3d movement) {
         //portal cannot be moved
     }
