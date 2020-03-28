@@ -30,6 +30,8 @@ public class Global {
     
     public static boolean correctCrossPortalEntityRendering = true;
     
+    public static boolean loadFewerChunks = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

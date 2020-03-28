@@ -18,7 +18,6 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
@@ -32,6 +31,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
@@ -231,15 +231,20 @@ public class MyCommandServer {
                                         context, "angleDegrees"
                                     );
                                     
-                                    portal.rotation = new Quaternion(
-                                        new Vector3f(
-                                            (float) rotatingAxis.x,
-                                            (float) rotatingAxis.y,
-                                            (float) rotatingAxis.z
-                                        ),
-                                        (float) angleDegrees,
-                                        true
-                                    );
+                                    if (angleDegrees != 0) {
+                                        portal.rotation = new Quaternion(
+                                            new Vector3f(
+                                                (float) rotatingAxis.x,
+                                                (float) rotatingAxis.y,
+                                                (float) rotatingAxis.z
+                                            ),
+                                            (float) angleDegrees,
+                                            true
+                                        );
+                                    }
+                                    else {
+                                        portal.rotation = null;
+                                    }
                                     
                                     reloadPortal(portal);
                                     
@@ -391,6 +396,30 @@ public class MyCommandServer {
                 portal -> {
                     Consumer<Portal> removalInformer = p -> sendMessage(context, "Removed " + p);
                     PortalManipulation.removeConnectedPortals(portal, removalInformer);
+                }
+            ))
+        );
+        
+        builder.then(CommandManager
+            .literal("move_portal_half_block")
+            .executes(context -> processPortalTargetedCommand(
+                context, portal -> {
+                    try {
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        Vec3d viewVector = player.getRotationVector();
+                        Direction facing = Direction.getFacing(
+                            viewVector.x, viewVector.y, viewVector.z
+                        );
+                        Vec3d offset = new Vec3d(facing.getVector()).multiply(0.5);
+                        portal.updatePosition(
+                            portal.getX() + offset.x,
+                            portal.getY() + offset.y,
+                            portal.getZ() + offset.z
+                        );
+                    }
+                    catch (CommandSyntaxException e) {
+                        sendMessage(context, "This command can only be invoked by player");
+                    }
                 }
             ))
         );

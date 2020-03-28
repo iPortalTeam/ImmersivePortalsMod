@@ -154,6 +154,9 @@ public class ClientTeleportationManager {
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
         }
+    
+        //update colliding portal
+//        ((IEEntity) player).tickCollidingPortal();
     }
     
     private boolean isTeleportingFrequently() {

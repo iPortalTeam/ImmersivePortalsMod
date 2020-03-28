@@ -1,10 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMainClient;
-import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
-import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
@@ -18,7 +14,6 @@ import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
 import com.qouteall.immersive_portals.render.PortalEntityRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.fabricmc.loader.FabricLoader;
 import net.minecraft.entity.EntityType;
 import org.apache.commons.lang3.Validate;
 
@@ -59,14 +54,7 @@ public class ModEntryClient implements ClientModInitializer {
         
         initPortalRenderers();
         
-        OFInterface.isOptifinePresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
         
-        if (OFInterface.isOptifinePresent) {
-            OFBuiltChunkNeighborFix.init();
-            OFInterfaceInitializer.init();
-        }
-    
-        Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }
     
 }

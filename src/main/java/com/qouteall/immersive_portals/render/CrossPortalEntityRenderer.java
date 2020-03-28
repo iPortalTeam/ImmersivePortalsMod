@@ -5,8 +5,10 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
@@ -87,6 +89,9 @@ public class CrossPortalEntityRenderer {
                     collidingPortal
                 );
                 PixelCuller.startCulling();
+                if (OFInterface.isShaders.getAsBoolean()) {
+                    ShaderCullingManager.update();
+                }
             }
         }
     }
@@ -132,26 +137,38 @@ public class CrossPortalEntityRenderer {
         Portal collidingPortal,
         MatrixStack matrixStack
     ) {
-        if (entity instanceof ClientPlayerEntity) {
-            if (client.options.perspective == 0) {
-                return;
-            }
-        }
         if (CGlobal.renderer.isRendering()) {
-            //Currently only render inner world projections for current rendered portal
-            if (CGlobal.renderer.getRenderingPortal() == collidingPortal) {
-                doRenderEntity(entity, collidingPortal, matrixStack);
+            //???
+            if (collidingPortal == CGlobal.renderer.getRenderingPortal()
+                || (entity instanceof ClientPlayerEntity)
+            ) {
+                renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             }
         }
         else {
             PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal);
             PixelCuller.startCulling();
-            doRenderEntity(entity, collidingPortal, matrixStack);
+            renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             PixelCuller.endCulling();
         }
     }
     
-    private static void doRenderEntity(
+    private static void renderEntityRegardingPlayer(
+        Entity entity,
+        Portal transformingPortal,
+        MatrixStack matrixStack
+    ) {
+        if (entity instanceof ClientPlayerEntity) {
+            CGlobal.myGameRenderer.renderPlayerItself(() -> {
+                renderEntity(entity, transformingPortal, matrixStack);
+            });
+        }
+        else {
+            renderEntity(entity, transformingPortal, matrixStack);
+        }
+    }
+    
+    private static void renderEntity(
         Entity entity,
         Portal transformingPortal,
         MatrixStack matrixStack
@@ -166,14 +183,22 @@ public class CrossPortalEntityRenderer {
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(entity);
         World oldWorld = entity.world;
         
+        Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
+        
+        if (newEyePos.squaredDistanceTo(cameraPos) < 1) {
+            return;
+        }
+        
         McHelper.setEyePos(
             entity,
-            transformingPortal.transformPoint(oldEyePos),
+            newEyePos,
             transformingPortal.transformPoint(oldLastTickEyePos)
         );
+        
         entity.world = newWorld;
-    
+        
         isRendering = true;
+        OFInterface.updateEntityTypeForShader.accept(entity);
         VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
         ((IEWorldRenderer) client.worldRenderer).myRenderEntity(
             entity,

@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 public class PixelCuller {
     private static final MinecraftClient client = MinecraftClient.getInstance();
     private static double[] activeClipPlaneEquation;
-    private static boolean isCullingEnabled = false;
+    public static boolean isCullingEnabled = false;
     
     public static void endCulling() {
         GL11.glDisable(GL11.GL_CLIP_PLANE0);
@@ -28,28 +28,32 @@ public class PixelCuller {
         isCullingEnabled = true;
     }
     
+    public static void startClassicalCulling(){
+        GL11.glEnable(GL11.GL_CLIP_PLANE0);
+        isCullingEnabled = true;
+    }
+    
     //NOTE the actual culling plane is related to current model view matrix
     public static void updateCullingPlaneInner(MatrixStack matrixStack, Portal portal) {
         activeClipPlaneEquation = getClipEquationInner(portal);
         if (!OFInterface.isShaders.getAsBoolean()) {
-            McHelper.runWithTransformation(
-                matrixStack,
-                () -> {
-                    GL11.glClipPlane(GL11.GL_CLIP_PLANE0, activeClipPlaneEquation);
-                }
-            );
+            loadCullingPlaneClassical(matrixStack);
         }
+    }
+    
+    public static void loadCullingPlaneClassical(MatrixStack matrixStack) {
+        McHelper.runWithTransformation(
+            matrixStack,
+            () -> {
+                GL11.glClipPlane(GL11.GL_CLIP_PLANE0, activeClipPlaneEquation);
+            }
+        );
     }
     
     public static void updateCullingPlaneOuter(MatrixStack matrixStack, Portal portal) {
         activeClipPlaneEquation = getClipEquationOuter(portal);
         if (!OFInterface.isShaders.getAsBoolean()) {
-            McHelper.runWithTransformation(
-                matrixStack,
-                () -> {
-                    GL11.glClipPlane(GL11.GL_CLIP_PLANE0, activeClipPlaneEquation);
-                }
-            );
+            loadCullingPlaneClassical(matrixStack);
         }
     }
     

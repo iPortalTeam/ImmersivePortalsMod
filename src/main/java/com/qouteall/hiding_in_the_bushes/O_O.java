@@ -2,6 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.FabricLoader;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -70,5 +71,9 @@ public class O_O {
     
     public static void registerDimensionsForge() {
     
+    }
+    
+    public static boolean detectOptiFine() {
+        return FabricLoader.INSTANCE.isModLoaded("optifabric");
     }
 }

@@ -3,7 +3,10 @@ package com.qouteall.immersive_portals;
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
+import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
+import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderDimensionRedirect;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
@@ -82,6 +85,15 @@ public class ModMainClient {
         DubiousThings.init();
         
         CrossPortalEntityRenderer.init();
+    
+        OFInterface.isOptifinePresent = O_O.detectOptiFine();
+        if (OFInterface.isOptifinePresent) {
+            OFInterfaceInitializer.init();
+            OFBuiltChunkNeighborFix.init();
+            ShaderDimensionRedirect.init();
+        }
+    
+        Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }
     
 }

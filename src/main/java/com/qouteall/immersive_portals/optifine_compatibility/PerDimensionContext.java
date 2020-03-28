@@ -452,6 +452,8 @@ public class PerDimensionContext {
     //reset the fields that will be changed by init()
     //do not reset the fields that was initialized by loadShaderPack()
     public void doSpecialInit() {
+//        shaderPackLoaded = true;
+        
 //        sunPosition = new float[4];
 //        moonPosition = new float[4];
 //        shadowLightPosition = new float[4];

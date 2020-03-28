@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.render.PixelCuller;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
@@ -68,8 +68,8 @@ public class ShaderCullingManager {
         return new StringBuilder(result);
     }
     
-    public static void loadUniforms() {
-        if (CGlobal.renderer.isRendering()) {
+    public static void update() {
+        if (PixelCuller.isCullingEnabled) {
             double[] equation = PixelCuller.getActiveCullingPlaneEquation();
             if (equation != null) {
                 uniform_equationXYZ.setValue(
@@ -80,6 +80,7 @@ public class ShaderCullingManager {
                 uniform_equationW.setValue((float) equation[3]);
             }
             else {
+                Helper.err("Culling Equation is Null?");
                 uniform_equationXYZ.setValue(0, 0, 0);
                 uniform_equationW.setValue(2333);
             }
@@ -90,11 +91,43 @@ public class ShaderCullingManager {
         }
     }
     
-    public static boolean getShouldModifyShaderCode(Program program) {
-        return program.getName().equals("gbuffers_textured") ||
-            program.getName().equals("gbuffers_textured_lit") ||
-            program.getName().equals("gbuffers_water") ||
-            program.getName().equals("gbuffers_terrain");
+    @Deprecated
+    public static void loadUniforms() {
+        update();
+//        if (CGlobal.renderer.isRendering()) {
+//            double[] equation = PixelCuller.getActiveCullingPlaneEquation();
+//            if (equation != null) {
+//                uniform_equationXYZ.setValue(
+//                    (float) equation[0],
+//                    (float) equation[1],
+//                    (float) equation[2]
+//                );
+//                uniform_equationW.setValue((float) equation[3]);
+//            }
+//            else {
+//                uniform_equationXYZ.setValue(0, 0, 0);
+//                uniform_equationW.setValue(2333);
+//            }
+//        }
+//        else {
+//            uniform_equationXYZ.setValue(0, 0, 0);
+//            uniform_equationW.setValue(2333);
+//        }
+    }
+    
+    public static boolean shouldModifyShaderCode(Program program) {
+        String programName = program.getName();
+        return programName.equals("gbuffers_textured") ||
+            programName.equals("gbuffers_textured_lit") ||
+            programName.equals("gbuffers_water") ||
+            programName.equals("gbuffers_terrain") ||
+            programName.equals("gbuffers_terrain_solid") ||
+            programName.equals("gbuffers_terrain_cutout_mip") ||
+            programName.equals("gbuffers_terrain_cutout") ||
+            programName.equals("gbuffers_block") ||
+            programName.equals("gbuffers_item") ||
+            programName.equals("gbuffers_entities") ||
+            programName.equals("gbuffers_weather");
     }
     
     //sometimes the shader may not declare gbufferProjectionInverse

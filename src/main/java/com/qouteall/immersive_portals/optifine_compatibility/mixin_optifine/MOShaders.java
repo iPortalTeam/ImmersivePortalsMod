@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderDimensionRedirect;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -1101,7 +1102,7 @@ public abstract class MOShaders {
         String filename,
         CallbackInfoReturnable<Integer> cir
     ) {
-        shouldModifyShaderCode = ShaderCullingManager.getShouldModifyShaderCode(program);
+        shouldModifyShaderCode = ShaderCullingManager.shouldModifyShaderCode(program);
     }
     
     @ModifyVariable(
@@ -1123,7 +1124,7 @@ public abstract class MOShaders {
         at = @At("TAIL")
     )
     private static void onLoadingUniforms(Program program, CallbackInfo ci) {
-        if (ShaderCullingManager.getShouldModifyShaderCode(program)) {
+        if (ShaderCullingManager.shouldModifyShaderCode(program)) {
             ShaderCullingManager.loadUniforms();
         }
         OFGlobal.debugFunc.accept(program);
@@ -1167,6 +1168,17 @@ public abstract class MOShaders {
         previousCameraPositionX = cameraPositionX - MyRenderHelper.cameraPosDelta.x;
         previousCameraPositionY = cameraPositionY - MyRenderHelper.cameraPosDelta.y;
         previousCameraPositionZ = cameraPositionZ - MyRenderHelper.cameraPosDelta.z;
+    }
+    
+    @Redirect(
+        method = "init",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/dimension/DimensionType;getRawId()I"
+        )
+    )
+    private static int redirectGetDimensionRawId(DimensionType dimensionType) {
+        return ShaderDimensionRedirect.getShaderDimension(dimensionType).getRawId();
     }
     
     static {
@@ -1946,7 +1958,7 @@ public abstract class MOShaders {
         OFGlobal.getShaderUniforms = () -> shaderUniforms;
         
         OFGlobal.getCurrentWorld = () -> currentWorld;
-    
+        
         OFGlobal.bindToShaderFrameBuffer = () -> {
             EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
             GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);

@@ -44,8 +44,6 @@ public class EndPortalEntity extends Portal {
         portal.width = 3;
         portal.height = 3;
         
-        portal.loadFewerChunks = false;
-        
         world.spawnEntity(portal);
     }
     
