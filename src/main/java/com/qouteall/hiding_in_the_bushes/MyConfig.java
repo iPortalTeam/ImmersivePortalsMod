@@ -100,7 +100,7 @@ public class MyConfig {
         }
     }
     
-    public static Map<String, String> redirectListToMap(List<String> redirectList) {
+    public static Map<String, String> listToMap(List<String> redirectList) {
         return redirectList.stream()
             .collect(Collectors.toMap(
                 s -> s.substring(0, s.indexOf(splitter)),
@@ -108,7 +108,7 @@ public class MyConfig {
             ));
     }
     
-    public static List<String> redirectMapToList(Map<String, String> redirectmap) {
+    public static List<String> mapToList(Map<String, String> redirectmap) {
         return redirectmap.entrySet().stream()
             .map(entry -> entry.getKey() + splitter + entry.getValue())
             .collect(Collectors.toList());
@@ -125,6 +125,6 @@ public class MyConfig {
         defaultRedirectMap.put("immersive_portals:alternate4", "minecraft:overworld");
         defaultRedirectMap.put("immersive_portals:alternate5", "minecraft:overworld");
     
-        defaultRedirectMapList = redirectMapToList(defaultRedirectMap);
+        defaultRedirectMapList = mapToList(defaultRedirectMap);
     }
 }

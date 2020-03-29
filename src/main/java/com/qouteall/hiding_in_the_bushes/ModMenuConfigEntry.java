@@ -67,7 +67,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
-                MyConfig.redirectMapToList(currConfig.dimensionRenderRedirect)
+                MyConfig.mapToList(currConfig.dimensionRenderRedirect)
             ).setDefaultValue(MyConfig.defaultRedirectMapList).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
@@ -94,7 +94,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.teleportationDebug = entryTeleportDebug.getValue();
                     newConfigObject.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfigObject.loadFewerChunks = entryLoadFewerChunks.getValue();
-                    newConfigObject.dimensionRenderRedirect = MyConfig.redirectListToMap(
+                    newConfigObject.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );
                     newConfigObject.saveConfigFile();
