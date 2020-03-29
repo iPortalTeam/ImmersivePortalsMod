@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.render;
+package com.qouteall.immersive_portals.render.context_management;
 
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;

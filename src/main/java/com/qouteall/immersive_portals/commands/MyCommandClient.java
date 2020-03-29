@@ -332,6 +332,20 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder = builder.then(CommandManager
+            .literal("uniform_report_shadow")
+            .executes(context -> {
+                UniformReport.launchUniformReport(
+                    new String[]{
+                        "shadow_solid", "shadow"
+                    },
+                    s -> context.getSource().sendFeedback(
+                        new LiteralText(s), true
+                    )
+                );
+                return 0;
+            })
+        );
         builder.then(CommandManager
             .literal("erase_chunk")
             .executes(context -> {

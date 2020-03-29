@@ -102,7 +102,7 @@ public class BlockManipulationClient {
             mc.player
         );
         
-        ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+        ClientWorld world = CGlobal.clientWorldLoader.getWorld(
             portal.dimensionTo
         );
         
@@ -166,7 +166,7 @@ public class BlockManipulationClient {
                 BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
                 BlockPos blockPos = blockHitResult.getBlockPos();
                 ClientWorld remoteWorld =
-                    CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+                    CGlobal.clientWorldLoader.getWorld(remotePointedDim);
                 if (!remoteWorld.getBlockState(blockPos).isAir()) {
                     Direction direction = blockHitResult.getSide();
                     if (myUpdateBlockBreakingProgress(mc, blockPos, direction)) {
@@ -189,7 +189,7 @@ public class BlockManipulationClient {
         Direction direction
     ) {
         ClientWorld oldWorld = mc.world;
-        mc.world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+        mc.world = CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         isContextSwitched = true;
     
         try {
@@ -206,7 +206,7 @@ public class BlockManipulationClient {
         MinecraftClient mc = MinecraftClient.getInstance();
         
         ClientWorld targetWorld =
-            CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+            CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
     
         if (targetWorld.isAir(blockPos)) {
@@ -236,7 +236,7 @@ public class BlockManipulationClient {
     public static void myItemUse(Hand hand) {
         MinecraftClient mc = MinecraftClient.getInstance();
         ClientWorld targetWorld =
-            CGlobal.clientWorldLoader.getOrCreateFakedWorld(remotePointedDim);
+            CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         
         ItemStack itemStack = mc.player.getStackInHand(hand);
         BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
@@ -244,7 +244,7 @@ public class BlockManipulationClient {
         Pair<BlockHitResult, DimensionType> result =
             BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
         blockHitResult = result.getLeft();
-        targetWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(result.getRight());
+        targetWorld = CGlobal.clientWorldLoader.getWorld(result.getRight());
         remoteHitResult = blockHitResult;
         remotePointedDim = result.getRight();
         

@@ -79,7 +79,7 @@ public abstract class MixinMinecraftClient_B {
     )
     private void redirectDoItemPick(MinecraftClient minecraftClient) {
         if (BlockManipulationClient.isPointingToRemoteBlock()) {
-            ClientWorld remoteWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+            ClientWorld remoteWorld = CGlobal.clientWorldLoader.getWorld(
                 BlockManipulationClient.remotePointedDim
             );
             ClientWorld oldWorld = this.world;

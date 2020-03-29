@@ -175,7 +175,7 @@ public class CrossPortalEntityRenderer {
     ) {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
         
-        ClientWorld newWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(
             transformingPortal.dimensionTo
         );
         

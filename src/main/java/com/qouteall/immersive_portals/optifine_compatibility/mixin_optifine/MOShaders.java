@@ -5,8 +5,8 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
-import com.qouteall.immersive_portals.optifine_compatibility.ShaderDimensionRedirect;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -1178,8 +1178,55 @@ public abstract class MOShaders {
         )
     )
     private static int redirectGetDimensionRawId(DimensionType dimensionType) {
-        return ShaderDimensionRedirect.getShaderDimension(dimensionType).getRawId();
+        return RenderDimensionRedirect.getRedirectedDimension(dimensionType).getRawId();
     }
+    
+    //redirect dimension for shadow camera
+    @Redirect(
+        method = "Lnet/optifine/shaders/Shaders;setCameraShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/Camera;F)V",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;"
+        )
+    )
+    private static ClientWorld redirectWorldForShadowCamera(MinecraftClient client) {
+        return CGlobal.clientWorldLoader.getWorld(
+            RenderDimensionRedirect.getRedirectedDimension(
+                client.world.getDimension().getType()
+            )
+        );
+    }
+    
+    @Redirect(
+        method = "beginRender",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
+            ordinal = 1
+        )
+    )
+    private static ClientWorld redirectWorldInBeginRender(MinecraftClient client) {
+        return CGlobal.clientWorldLoader.getWorld(
+            RenderDimensionRedirect.getRedirectedDimension(
+                client.world.getDimension().getType()
+            )
+        );
+    }
+    
+//    @Redirect(
+//        method = "beginRender",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/world/World;getTimeOfDay()J"
+//        )
+//    )
+//    private static long redirectGetTimeOfDay(World world) {
+//        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+//            RenderDimensionRedirect.getRedirectedDimension(
+//                world.getDimension().getType()
+//            )
+//        ).getTimeOfDay();
+//    }
     
     static {
         OFGlobal.copyContextFromObject = context -> {

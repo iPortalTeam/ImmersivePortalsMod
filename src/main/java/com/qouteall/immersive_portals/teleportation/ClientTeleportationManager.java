@@ -14,9 +14,9 @@ import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.FogRendererContext;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.TransformationManager;
+import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -128,7 +128,7 @@ public class ClientTeleportationManager {
         DimensionType fromDimension = fromWorld.dimension.getType();
         
         if (fromDimension != toDimension) {
-            ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
+            ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(toDimension);
             
             changePlayerDimension(player, fromWorld, toWorld, newEyePos);
         }
@@ -182,7 +182,7 @@ public class ClientTeleportationManager {
             McHelper.adjustVehicle(player);
         }
         else {
-            ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(toDimension);
+            ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(toDimension);
             
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }
@@ -287,7 +287,7 @@ public class ClientTeleportationManager {
             Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
             if (client.player.dimension != dimension) {
                 Helper.err("Manually fix dimension state while loading terrain");
-                ClientWorld toWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+                ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(dimension);
                 changePlayerDimension(client.player, client.world, toWorld, playerPos);
             }
             client.player.updatePosition(playerPos.x, playerPos.y, playerPos.z);

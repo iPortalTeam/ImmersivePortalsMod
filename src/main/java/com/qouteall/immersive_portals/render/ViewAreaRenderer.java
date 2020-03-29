@@ -10,6 +10,9 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
+import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -311,7 +314,7 @@ public class ViewAreaRenderer {
         Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
         
         FogRendererContext.swappingManager.swapAndInvoke(
-            dimension,
+            RenderDimensionRedirect.getRedirectedDimension(dimension),
             () -> {
                 boxOfFogColor.obj = FogRendererContext.getCurrentFogColor.get();
             }

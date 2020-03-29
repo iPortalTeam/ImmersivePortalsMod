@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
-import com.qouteall.immersive_portals.render.DimensionRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -130,20 +130,14 @@ public class ClientWorldLoader {
     }
     
     //@Nullable
-    public ClientWorld getWorld(DimensionType dimension) {
-        initializeIfNeeded();
-        
-        return clientWorldMap.get(dimension);
-    }
-    
-    //@Nullable
     public WorldRenderer getWorldRenderer(DimensionType dimension) {
         initializeIfNeeded();
         
         return worldRendererMap.get(dimension);
     }
     
-    public ClientWorld getOrCreateFakedWorld(DimensionType dimension) {
+    //Create world if missing
+    public ClientWorld getWorld(DimensionType dimension) {
         Validate.notNull(dimension);
         
         initializeIfNeeded();
@@ -151,8 +145,8 @@ public class ClientWorldLoader {
         if (!clientWorldMap.containsKey(dimension)) {
             return createFakedClientWorld(dimension);
         }
-        
-        return getWorld(dimension);
+    
+        return clientWorldMap.get(dimension);
     }
     
     public DimensionRenderHelper getDimensionRenderHelper(DimensionType dimension) {
@@ -162,7 +156,7 @@ public class ClientWorldLoader {
             dimension,
             dimensionType -> {
                 return new DimensionRenderHelper(
-                    getOrCreateFakedWorld(dimension)
+                    getWorld(dimension)
                 );
             }
         );

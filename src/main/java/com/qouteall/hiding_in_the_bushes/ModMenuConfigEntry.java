@@ -6,8 +6,11 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
 import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
+import me.shedaniel.clothconfig2.gui.entries.StringListListEntry;
 
 public class ModMenuConfigEntry implements ModMenuApi {
+    
+    
     @Override
     public String getModId() {
         return "immersive_portals";
@@ -62,6 +65,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.load_fewer_chunks",
                 currConfig.loadFewerChunks
             ).setDefaultValue(false).build();
+            StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
+                "imm_ptl.render_redirect",
+                MyConfig.redirectMapToList(currConfig.dimensionRenderRedirect)
+            ).setDefaultValue(MyConfig.defaultRedirectMapList).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
@@ -72,6 +79,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryTeleportDebug);
             category.addEntry(entryCorrectCrossPortalEntityRendering);
             category.addEntry(entryLoadFewerChunks);
+            category.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -86,10 +94,14 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.teleportationDebug = entryTeleportDebug.getValue();
                     newConfigObject.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfigObject.loadFewerChunks = entryLoadFewerChunks.getValue();
+                    newConfigObject.dimensionRenderRedirect = MyConfig.redirectListToMap(
+                        entryDimensionRenderRedirect.getValue()
+                    );
                     newConfigObject.saveConfigFile();
                     newConfigObject.onConfigChanged();
                 })
                 .build();
         };
     }
+    
 }

@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PixelCuller;
 import com.qouteall.immersive_portals.render.TransformationManager;
+import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -545,6 +546,23 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         MyRenderHelper.shouldForceDisableCull = false;
     }
     
+    //redirect sky rendering dimension
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V"
+        )
+    )
+    private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
+        MyGameRenderer.renderSkyFor(
+            RenderDimensionRedirect.getRedirectedDimension(
+                MinecraftClient.getInstance().world.dimension.getType()
+            ),
+            matrixStack,
+            f
+        );
+    }
     
     @Override
     public EntityRenderDispatcher getEntityRenderDispatcher() {

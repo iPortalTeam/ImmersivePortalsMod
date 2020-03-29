@@ -6,7 +6,6 @@ import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
-import com.qouteall.immersive_portals.optifine_compatibility.ShaderDimensionRedirect;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
@@ -90,7 +89,6 @@ public class ModMainClient {
         if (OFInterface.isOptifinePresent) {
             OFInterfaceInitializer.init();
             OFBuiltChunkNeighborFix.init();
-            ShaderDimensionRedirect.init();
         }
     
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
