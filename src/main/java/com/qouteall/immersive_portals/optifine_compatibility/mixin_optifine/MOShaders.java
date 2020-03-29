@@ -21,6 +21,7 @@ import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.ProgramStack;
 import net.optifine.shaders.Programs;
+import net.optifine.shaders.ShaderPackDefault;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.config.PropertyDefaultFastFancyOff;
 import net.optifine.shaders.config.PropertyDefaultTrueFalse;
@@ -1031,6 +1032,11 @@ public abstract class MOShaders {
         DimensionType currDimension = mc.world.dimension.getType();
         
         Helper.log("Shader init " + currDimension);
+    
+        if (RenderDimensionRedirect.isNoShader(currentWorld.dimension.getType())) {
+            shaderPack = new ShaderPackDefault();
+            Helper.log("Set to internal shader");
+        }
     }
     
     //loading shader pack will change vertex format

@@ -68,7 +68,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
-            ).setDefaultValue(MyConfig.defaultRedirectMapList).build();
+            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true).setExpanded(true).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);

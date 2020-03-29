@@ -101,15 +101,24 @@ public class MyConfig {
     }
     
     public static Map<String, String> listToMap(List<String> redirectList) {
-        return redirectList.stream()
-            .collect(Collectors.toMap(
-                s -> s.substring(0, s.indexOf(splitter)),
-                s -> s.substring(s.indexOf(splitter) + 2)
-            ));
+        Map<String, String> result = new HashMap<>();
+        for (String s : redirectList) {
+            int i = s.indexOf(splitter);
+            if (i != -1) {
+                result.put(
+                    s.substring(0, i),
+                    s.substring(i + 2)
+                );
+            }
+            else {
+                result.put(s, "???");
+            }
+        }
+        return result;
     }
     
-    public static List<String> mapToList(Map<String, String> redirectmap) {
-        return redirectmap.entrySet().stream()
+    public static List<String> mapToList(Map<String, String> redirectMap) {
+        return redirectMap.entrySet().stream()
             .map(entry -> entry.getKey() + splitter + entry.getValue())
             .collect(Collectors.toList());
     }
@@ -124,7 +133,7 @@ public class MyConfig {
         defaultRedirectMap.put("immersive_portals:alternate3", "minecraft:overworld");
         defaultRedirectMap.put("immersive_portals:alternate4", "minecraft:overworld");
         defaultRedirectMap.put("immersive_portals:alternate5", "minecraft:overworld");
-    
+        
         defaultRedirectMapList = mapToList(defaultRedirectMap);
     }
 }

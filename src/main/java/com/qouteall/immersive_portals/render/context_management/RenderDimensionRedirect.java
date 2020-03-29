@@ -12,6 +12,8 @@ import java.util.Map;
 @Environment(EnvType.CLIENT)
 public class RenderDimensionRedirect {
     private static Map<String, String> idMap = new HashMap<>();
+    
+    //null indicates no shader
     private static Map<DimensionType, DimensionType> redirectMap = new HashMap<>();
     
     public static void updateIdMap(Map<String, String> redirectIdMap) {
@@ -28,16 +30,37 @@ public class RenderDimensionRedirect {
                 return;
             }
             if (to == null) {
-                CHelper.printChat("Invalid Dimension " + value);
-                return;
+                if (!value.equals("vanilla")) {
+                    CHelper.printChat("Invalid Dimension " + value);
+                    return;
+                }
             }
             
             redirectMap.put(from, to);
         });
     }
     
+    public static boolean isNoShader(DimensionType dimension) {
+        if (redirectMap.containsKey(dimension)) {
+            DimensionType r = redirectMap.get(dimension);
+            if (r == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static DimensionType getRedirectedDimension(DimensionType dimension) {
-        return redirectMap.getOrDefault(dimension, dimension);
+        if (redirectMap.containsKey(dimension)) {
+            DimensionType r = redirectMap.get(dimension);
+            if (r == null) {
+                return dimension;
+            }
+            return r;
+        }
+        else {
+            return dimension;
+        }
     }
     
     //avoid infinite recursion
