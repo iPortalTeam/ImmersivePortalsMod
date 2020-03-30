@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -124,7 +123,7 @@ public class RendererUsingStencil extends PortalRenderer {
         clampStencilValue(outerPortalStencilValue);
     
         //is it necessary?
-        CGlobal.myGameRenderer.resetDiffuseLighting(matrixStack);
+        MyGameRenderer.resetDiffuseLighting(matrixStack);
     
         //POP
         portalLayers.pop();

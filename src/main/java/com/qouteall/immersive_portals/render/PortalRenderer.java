@@ -223,11 +223,11 @@ public abstract class PortalRenderer {
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         client.world = newWorld;
-        
+    
         renderPortalContentWithContextSwitched(
             portal, oldCameraPos, oldWorld
         );
-        
+    
         //restore the position
         cameraEntity.dimension = oldDimension;
         cameraEntity.world = oldWorld;
@@ -238,7 +238,7 @@ public abstract class PortalRenderer {
         GlStateManager.disableBlend();
         MyRenderHelper.restoreViewPort();
         
-        CGlobal.myGameRenderer.resetFog();
+        MyGameRenderer.resetFog();
     }
     
     protected void renderPortalContentWithContextSwitched(
@@ -252,7 +252,7 @@ public abstract class PortalRenderer {
         
         CHelper.checkGlError();
         
-        CGlobal.myGameRenderer.renderWorld(
+        MyGameRenderer.renderWorld(
             MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
         

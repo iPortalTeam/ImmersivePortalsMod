@@ -163,7 +163,7 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         if (entity instanceof ClientPlayerEntity) {
-            CGlobal.myGameRenderer.renderPlayerItself(() -> {
+            MyGameRenderer.renderPlayerItself(() -> {
                 renderEntity(entity, transformingPortal, matrixStack);
             });
         }

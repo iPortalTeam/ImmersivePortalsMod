@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighbo
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
-import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
@@ -73,7 +72,6 @@ public class ModMainClient {
             
             CGlobal.renderer = CGlobal.rendererUsingStencil;
             CGlobal.clientWorldLoader = new ClientWorldLoader();
-            CGlobal.myGameRenderer = new MyGameRenderer();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
         
