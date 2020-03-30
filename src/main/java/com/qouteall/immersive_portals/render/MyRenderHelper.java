@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -16,6 +17,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.Untracker;
@@ -71,6 +73,7 @@ public class MyRenderHelper {
     
     //null indicates not gathered
     public static Matrix4f projectionMatrix;
+    public static Camera originalCamera;
     
     public static void updatePreRenderInfo(
         float partialTicks_
@@ -99,6 +102,7 @@ public class MyRenderHelper {
         updateViewBobbingFactor(cameraEntity);
     
         projectionMatrix = null;
+        originalCamera = MinecraftClient.getInstance().gameRenderer.getCamera();
     
     }
     
@@ -403,5 +407,14 @@ public class MyRenderHelper {
             }
         }
         return number % 2 == 1;
+    }
+    
+    public static void adjustCameraPos(){
+        Camera currCamera = MinecraftClient.getInstance().gameRenderer.getCamera();
+        Vec3d pos = originalCamera.getPos();
+        for (Portal portal : CGlobal.renderer.portalLayers) {
+            pos = portal.transformPoint(pos);
+        }
+        ((IECamera) currCamera).mySetPos(pos);
     }
 }

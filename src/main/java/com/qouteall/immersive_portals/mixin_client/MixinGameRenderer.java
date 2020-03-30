@@ -162,6 +162,25 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
+    @Inject(
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onCameraUpdated(
+        float tickDelta,
+        long limitTime,
+        MatrixStack matrix,
+        CallbackInfo ci
+    ) {
+        if (CGlobal.renderer.isRendering()) {
+            MyRenderHelper.adjustCameraPos();
+        }
+    }
+    
     @Override
     public void setLightmapTextureManager(LightmapTextureManager manager) {
         lightmapTextureManager = manager;
