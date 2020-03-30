@@ -442,12 +442,12 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, (random, shulker) -> {
                 ItemStack toFill = filledTreasureSelector.select(random);
                 IntStream.range(
-                    0, shulker.getInvSize()
-                ).forEach(i -> shulker.setInvStack(i, toFill.copy()));
+                    0, shulker.size()
+                ).forEach(i -> shulker.setStack(i, toFill.copy()));
             })
             .add(5, (random, shulker) -> {
-                shulker.setInvStack(
-                    random.nextInt(shulker.getInvSize()),
+                shulker.setStack(
+                    random.nextInt(shulker.size()),
                     singleTreasureSelector.select(random).apply(random)
                 );
             })

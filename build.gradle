@@ -45,11 +45,14 @@ dependencies {
 	//used for building mod
 	compile files('ofpre10.jar')
 
-	modApi "me.shedaniel.cloth:config-2:2.9.3"
-	modImplementation "io.github.prospector:modmenu:1.10.1+build.30"
+	modApi "me.shedaniel.cloth:config-2:3.2.1-unstable"
+	modImplementation "io.github.prospector:modmenu:1.11.0+build.2"
 
 	//include "me.shedaniel.cloth:config-2:3.0.1"
 	//include "io.github.prospector:modmenu:1.10.2+build.1"
+
+	//For javax.annotation.Nullable
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 processResources {

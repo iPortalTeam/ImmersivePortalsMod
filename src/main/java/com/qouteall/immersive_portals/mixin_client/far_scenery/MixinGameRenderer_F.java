@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client.far_scenery;
 
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.util.math.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,7 +16,7 @@ public class MixinGameRenderer_F {
         method = "getBasicProjectionMatrix",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/util/math/Matrix4f;viewboxMatrix(DFFF)Lnet/minecraft/client/util/math/Matrix4f;"
+            target = "Lnet/minecraft/util/math/Matrix4f;viewboxMatrix(DFFF)Lnet/minecraft/util/math/Matrix4f;"
         )
     )
     Matrix4f redirectProjectionMatrix(

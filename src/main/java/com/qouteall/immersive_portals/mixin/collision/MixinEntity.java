@@ -57,6 +57,8 @@ public abstract class MixinEntity implements IEEntity {
     
     @Shadow public abstract double getZ();
     
+    @Shadow public boolean inanimate;
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
