@@ -45,7 +45,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         this.lightingProvider = new LightingProvider(
             this,
             true,
-            RenderDimensionRedirect.hasSkylight(clientWorld.dimension.getType())
+            RenderDimensionRedirect.hasSkylight(clientWorld.dimension)
         );
         
     }

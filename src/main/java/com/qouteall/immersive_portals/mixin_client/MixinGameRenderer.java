@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
-import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
@@ -44,6 +43,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     private boolean renderingPanorama;
     
+    @Shadow
+    public abstract void method_22709(Matrix4f matrix4f);
+    
     @Inject(method = "render", at = @At("HEAD"))
     private void onFarBeforeRendering(
         float partialTicks,
@@ -73,7 +75,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         ModMainClient.switchToCorrectRenderer();
-    
+        
         CGlobal.renderer.prepareRendering();
     }
     
@@ -93,7 +95,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         CGlobal.renderer.finishRendering();
-    
+        
         MyRenderHelper.onTotalRenderEnd();
     }
     
@@ -121,21 +123,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
-    //do not update target when rendering portal
-    @Redirect(
-        method = "renderWorld",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;updateTargetedEntity(F)V"
-        )
-    )
-    private void redirectUpdateTargetedEntity(GameRenderer gameRenderer, float tickDelta) {
-        if (!CGlobal.renderer.isRendering()) {
-            gameRenderer.updateTargetedEntity(tickDelta);
-            BlockManipulationClient.onPointedBlockUpdated(tickDelta);
-        }
-    }
-    
     //View bobbing will make the camera pos offset to actuall camera pos
     //Teleportation is based on camera pos. If the teleportation is incorrect
     //then rendering will have problem
@@ -152,14 +139,26 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
     }
     
-    //gather world rendering projection matrix
-    @Inject(
-        method = "method_22709",
-        at = @At("HEAD")
+    @Redirect(
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/GameRenderer;method_22709(Lnet/minecraft/client/util/math/Matrix4f;)V"
+        )
     )
-    private void onLoadProjectionMatrix(Matrix4f matrix4f, CallbackInfo ci) {
-        if (MyRenderHelper.projectionMatrix == null) {
-            MyRenderHelper.projectionMatrix = matrix4f;
+    private void redirectLoadProjectionMatrix(GameRenderer gameRenderer, Matrix4f matrix4f) {
+        if (CGlobal.renderer.isRendering()) {
+            //load recorded projection matrix
+            method_22709(MyRenderHelper.projectionMatrix);
+        }
+        else {
+            //load projection matrix normally
+            method_22709(matrix4f);
+            
+            //record projection matrix
+            if (MyRenderHelper.projectionMatrix == null) {
+                MyRenderHelper.projectionMatrix = matrix4f;
+            }
         }
     }
     

@@ -1,9 +1,11 @@
 package com.qouteall.immersive_portals.render.context_management;
 
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ModMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.HashMap;
@@ -26,12 +28,18 @@ public class RenderDimensionRedirect {
             DimensionType from = DimensionType.byId(new Identifier(key));
             DimensionType to = DimensionType.byId(new Identifier(value));
             if (from == null) {
-                CHelper.printChat("Invalid Dimension " + key);
+                ModMain.clientTaskList.addTask(()->{
+                    CHelper.printChat("Invalid Dimension " + key);
+                    return true;
+                });
                 return;
             }
             if (to == null) {
                 if (!value.equals("vanilla")) {
-                    CHelper.printChat("Invalid Dimension " + value);
+                    ModMain.clientTaskList.addTask(()->{
+                        CHelper.printChat("Invalid Dimension " + value);
+                        return true;
+                    });
                     return;
                 }
             }
@@ -63,10 +71,14 @@ public class RenderDimensionRedirect {
         }
     }
     
-    //avoid infinite recursion
-    public static boolean hasSkylight(DimensionType dimension) {
+    public static boolean hasSkylight(Dimension dimension) {
         updateRedirectMap();
-        DimensionType redirectedDimension = getRedirectedDimension(dimension);
+        DimensionType redirectedDimension = getRedirectedDimension(dimension.getType());
+        if (redirectedDimension == dimension.getType()) {
+            return dimension.hasSkyLight();
+        }
+        
+        //if it's redirected, it's probably redirected to a vanilla dimension
         if (redirectedDimension == DimensionType.OVERWORLD) {
             return true;
         }
