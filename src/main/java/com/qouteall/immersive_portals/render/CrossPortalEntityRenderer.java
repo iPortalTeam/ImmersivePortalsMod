@@ -38,6 +38,10 @@ public class CrossPortalEntityRenderer {
         ModMain.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
     }
     
+    public static void cleanUp() {
+        collidedEntities.clear();
+    }
+    
     private static void onClientTick() {
         collidedEntities.entrySet().removeIf(entry ->
             entry.getKey().removed ||
@@ -159,7 +163,7 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         if (entity instanceof ClientPlayerEntity) {
-            CGlobal.myGameRenderer.renderPlayerItself(() -> {
+            MyGameRenderer.renderPlayerItself(() -> {
                 renderEntity(entity, transformingPortal, matrixStack);
             });
         }
@@ -175,7 +179,7 @@ public class CrossPortalEntityRenderer {
     ) {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
         
-        ClientWorld newWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(
             transformingPortal.dimensionTo
         );
         

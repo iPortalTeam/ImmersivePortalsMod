@@ -216,18 +216,18 @@ public abstract class PortalRenderer {
         Vec3d newLastTickEyePos = portal.transformPoint(oldLastTickEyePos);
         DimensionType newDimension = portal.dimensionTo;
         ClientWorld newWorld =
-            CGlobal.clientWorldLoader.getOrCreateFakedWorld(newDimension);
+            CGlobal.clientWorldLoader.getWorld(newDimension);
         //Vec3d newCameraPos = portal.applyTransformationToPoint(oldCameraPos);
         
         McHelper.setEyePos(cameraEntity, newEyePos, newLastTickEyePos);
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         client.world = newWorld;
-        
+    
         renderPortalContentWithContextSwitched(
             portal, oldCameraPos, oldWorld
         );
-        
+    
         //restore the position
         cameraEntity.dimension = oldDimension;
         cameraEntity.world = oldWorld;
@@ -238,7 +238,7 @@ public abstract class PortalRenderer {
         GlStateManager.disableBlend();
         MyRenderHelper.restoreViewPort();
         
-        CGlobal.myGameRenderer.resetFog();
+        MyGameRenderer.resetFog();
     }
     
     protected void renderPortalContentWithContextSwitched(
@@ -248,11 +248,11 @@ public abstract class PortalRenderer {
         GlStateManager.enableCull();
         
         WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
-        ClientWorld destClientWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(portal.dimensionTo);
+        ClientWorld destClientWorld = CGlobal.clientWorldLoader.getWorld(portal.dimensionTo);
         
         CHelper.checkGlError();
         
-        CGlobal.myGameRenderer.renderWorld(
+        MyGameRenderer.renderWorld(
             MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
         

@@ -5,8 +5,8 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
-import com.qouteall.immersive_portals.optifine_compatibility.ShaderDimensionRedirect;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -21,6 +21,7 @@ import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.ProgramStack;
 import net.optifine.shaders.Programs;
+import net.optifine.shaders.ShaderPackDefault;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.config.PropertyDefaultFastFancyOff;
 import net.optifine.shaders.config.PropertyDefaultTrueFalse;
@@ -1031,6 +1032,11 @@ public abstract class MOShaders {
         DimensionType currDimension = mc.world.dimension.getType();
         
         Helper.log("Shader init " + currDimension);
+    
+        if (RenderDimensionRedirect.isNoShader(currentWorld.dimension.getType())) {
+            shaderPack = new ShaderPackDefault();
+            Helper.log("Set to internal shader");
+        }
     }
     
     //loading shader pack will change vertex format
@@ -1178,8 +1184,55 @@ public abstract class MOShaders {
         )
     )
     private static int redirectGetDimensionRawId(DimensionType dimensionType) {
-        return ShaderDimensionRedirect.getShaderDimension(dimensionType).getRawId();
+        return RenderDimensionRedirect.getRedirectedDimension(dimensionType).getRawId();
     }
+    
+    //redirect dimension for shadow camera
+    @Redirect(
+        method = "Lnet/optifine/shaders/Shaders;setCameraShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/Camera;F)V",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;"
+        )
+    )
+    private static ClientWorld redirectWorldForShadowCamera(MinecraftClient client) {
+        return CGlobal.clientWorldLoader.getWorld(
+            RenderDimensionRedirect.getRedirectedDimension(
+                client.world.getDimension().getType()
+            )
+        );
+    }
+    
+    @Redirect(
+        method = "beginRender",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
+            ordinal = 1
+        )
+    )
+    private static ClientWorld redirectWorldInBeginRender(MinecraftClient client) {
+        return CGlobal.clientWorldLoader.getWorld(
+            RenderDimensionRedirect.getRedirectedDimension(
+                client.world.getDimension().getType()
+            )
+        );
+    }
+    
+//    @Redirect(
+//        method = "beginRender",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/world/World;getTimeOfDay()J"
+//        )
+//    )
+//    private static long redirectGetTimeOfDay(World world) {
+//        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+//            RenderDimensionRedirect.getRedirectedDimension(
+//                world.getDimension().getType()
+//            )
+//        ).getTimeOfDay();
+//    }
     
     static {
         OFGlobal.copyContextFromObject = context -> {

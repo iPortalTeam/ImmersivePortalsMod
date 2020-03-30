@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererDebug;
 import com.qouteall.immersive_portals.render.RendererDummy;
@@ -22,7 +21,6 @@ public class CGlobal {
     public static RendererDebug rendererDebug = new RendererDebug();
     
     public static ClientWorldLoader clientWorldLoader;
-    public static MyGameRenderer myGameRenderer;
     public static ClientTeleportationManager clientTeleportationManager;
     public static ShaderManager shaderManager;
     

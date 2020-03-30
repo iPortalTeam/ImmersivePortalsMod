@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.render;
+package com.qouteall.immersive_portals.render.context_management;
 
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import net.minecraft.client.MinecraftClient;

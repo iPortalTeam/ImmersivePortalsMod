@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -121,21 +122,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
-    //do not update target when rendering portal
-    @Redirect(
-        method = "renderWorld",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;updateTargetedEntity(F)V"
-        )
-    )
-    private void redirectUpdateTargetedEntity(GameRenderer gameRenderer, float tickDelta) {
-        if (!CGlobal.renderer.isRendering()) {
-            gameRenderer.updateTargetedEntity(tickDelta);
-            BlockManipulationClient.onPointedBlockUpdated(tickDelta);
-        }
-    }
-    
     //View bobbing will make the camera pos offset to actuall camera pos
     //Teleportation is based on camera pos. If the teleportation is incorrect
     //then rendering will have problem
@@ -152,14 +138,45 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
     }
     
-    //gather world rendering projection matrix
-    @Inject(
-        method = "loadProjectionMatrix",
-        at = @At("HEAD")
+    @Redirect(
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/GameRenderer;method_22709(Lnet/minecraft/client/util/math/Matrix4f;)V"
+        )
     )
-    private void onLoadProjectionMatrix(Matrix4f matrix4f, CallbackInfo ci) {
-        if (MyRenderHelper.projectionMatrix == null) {
-            MyRenderHelper.projectionMatrix = matrix4f;
+    private void redirectLoadProjectionMatrix(GameRenderer gameRenderer, Matrix4f matrix4f) {
+        if (CGlobal.renderer.isRendering()) {
+            //load recorded projection matrix
+            method_22709(MyRenderHelper.projectionMatrix);
+        }
+        else {
+            //load projection matrix normally
+            method_22709(matrix4f);
+            
+            //record projection matrix
+            if (MyRenderHelper.projectionMatrix == null) {
+                MyRenderHelper.projectionMatrix = matrix4f;
+            }
+        }
+    }
+    
+    @Inject(
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onCameraUpdated(
+        float tickDelta,
+        long limitTime,
+        MatrixStack matrix,
+        CallbackInfo ci
+    ) {
+        if (CGlobal.renderer.isRendering()) {
+            MyRenderHelper.adjustCameraPos();
         }
     }
     

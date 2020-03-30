@@ -51,7 +51,7 @@ public class CHelper {
     //do not inline this
     //or it will crash in server
     public static World getClientWorld(DimensionType dimension) {
-        return CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+        return CGlobal.clientWorldLoader.getWorld(dimension);
     }
     
     public static List<GlobalTrackedPortal> getClientGlobalPortal(World world) {

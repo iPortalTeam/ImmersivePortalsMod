@@ -108,7 +108,7 @@ public class MyNetworkClient {
         
         //without this delay it will flash? or it's random?
         MinecraftClient.getInstance().execute(() -> {
-            ClientWorld world = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
+            ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimensionType);
             
             if (world.getEntityById(entityId) != null) {
                 Helper.err(String.format(
@@ -130,7 +130,7 @@ public class MyNetworkClient {
     
             //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {
-                CGlobal.clientWorldLoader.getOrCreateFakedWorld(
+                CGlobal.clientWorldLoader.getWorld(
                     ((Portal) entity).dimensionTo
                 );
             }
@@ -212,7 +212,7 @@ public class MyNetworkClient {
     private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
         MinecraftClient mc = MinecraftClient.getInstance();
         mc.execute(() -> {
-            ClientWorld packetWorld = CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimension);
+            ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
             
             assert packetWorld != null;
             
@@ -253,7 +253,7 @@ public class MyNetworkClient {
         CompoundTag compoundTag = buf.readCompoundTag();
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
-                CGlobal.clientWorldLoader.getOrCreateFakedWorld(dimensionType);
+                CGlobal.clientWorldLoader.getWorld(dimensionType);
             
             List<GlobalTrackedPortal> portals =
                 GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
