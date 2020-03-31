@@ -177,7 +177,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
-            MyRenderHelper.adjustCameraPos();
+            MyRenderHelper.adjustCameraPos(camera);
         }
     }
     

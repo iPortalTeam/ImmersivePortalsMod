@@ -4,7 +4,6 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -229,18 +228,18 @@ public abstract class MixinShaders {
     }
     
     //correct the previous camera pos
-    @Inject(method = "beginRender", at = @At("TAIL"))
-    private static void onBeginRender(
-        MinecraftClient minecraft,
-        Camera activeRenderInfo,
-        float partialTicks,
-        long finishTimeNano,
-        CallbackInfo ci
-    ) {
-        previousCameraPositionX = cameraPositionX - MyRenderHelper.cameraPosDelta.x;
-        previousCameraPositionY = cameraPositionY - MyRenderHelper.cameraPosDelta.y;
-        previousCameraPositionZ = cameraPositionZ - MyRenderHelper.cameraPosDelta.z;
-    }
+//    @Inject(method = "beginRender", at = @At("TAIL"))
+//    private static void onBeginRender(
+//        MinecraftClient minecraft,
+//        Camera activeRenderInfo,
+//        float partialTicks,
+//        long finishTimeNano,
+//        CallbackInfo ci
+//    ) {
+//        previousCameraPositionX = cameraPositionX - MyRenderHelper.cameraPosDelta.x;
+//        previousCameraPositionY = cameraPositionY - MyRenderHelper.cameraPosDelta.y;
+//        previousCameraPositionZ = cameraPositionZ - MyRenderHelper.cameraPosDelta.z;
+//    }
     
     
 }

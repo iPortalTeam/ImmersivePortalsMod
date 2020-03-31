@@ -112,12 +112,12 @@ public class MyGameRenderer {
         client.getProfiler().push("render_portal_content");
         
         //invoke it!
-        OFInterface.beforeRenderCenter.accept(partialTicks);
+//        OFInterface.beforeRenderCenter.accept(partialTicks);
         client.gameRenderer.renderWorld(
             partialTicks, 0,
             new MatrixStack()
         );
-        OFInterface.afterRenderCenter.run();
+//        OFInterface.afterRenderCenter.run();
         
         client.getProfiler().pop();
         

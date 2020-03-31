@@ -409,12 +409,14 @@ public class MyRenderHelper {
         return number % 2 == 1;
     }
     
-    public static void adjustCameraPos(){
-        Camera currCamera = MinecraftClient.getInstance().gameRenderer.getCamera();
+    public static void adjustCameraPos(Camera camera){
+//        if (OFInterface.isShadowPass.getAsBoolean()) {
+//            return;
+//        }
         Vec3d pos = originalCamera.getPos();
         for (Portal portal : CGlobal.renderer.portalLayers) {
             pos = portal.transformPoint(pos);
         }
-        ((IECamera) currCamera).mySetPos(pos);
+        ((IECamera) camera).mySetPos(pos);
     }
 }
