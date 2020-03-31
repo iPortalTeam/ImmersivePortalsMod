@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = ShadersRender.class, remap = false)
-public class MOShadersRender {
+public class MixinShadersRender {
     @Inject(method = "renderShadowMap", at = @At("HEAD"), cancellable = true)
     private static void onRenderShadowMap(
         GameRenderer entityRenderer,
