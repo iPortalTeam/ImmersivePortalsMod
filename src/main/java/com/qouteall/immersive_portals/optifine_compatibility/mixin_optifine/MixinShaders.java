@@ -4,15 +4,12 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
-import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
-import net.optifine.shaders.ShaderPackDefault;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.uniform.CustomUniforms;
 import net.optifine.shaders.uniform.ShaderUniforms;
@@ -91,18 +88,7 @@ public abstract class MixinShaders {
         }
     }
     
-    @Inject(method = "init", at = @At("HEAD"))
-    private static void onInit(CallbackInfo ci) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        DimensionType currDimension = mc.world.dimension.getType();
-        
-        Helper.log("Shader init " + currDimension);
-        
-        if (RenderDimensionRedirect.isNoShader(currentWorld.dimension.getType())) {
-            shaderPack = new ShaderPackDefault();
-            Helper.log("Set to internal shader");
-        }
-    }
+   
     
     //loading shader pack will change vertex format
     //avoid changing vertex format when rebuilding

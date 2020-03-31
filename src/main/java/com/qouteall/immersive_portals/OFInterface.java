@@ -35,7 +35,7 @@ public class OFInterface {
     public static Consumer<Object> createNewRenderInfosNormal = (a) -> {
     };
     
-    public static Runnable initShaderCullingManager = invokeNothing;
+//    public static Runnable initShaderCullingManager = invokeNothing;
     
     public static BooleanSupplier isFogDisabled = returnFalse;
     

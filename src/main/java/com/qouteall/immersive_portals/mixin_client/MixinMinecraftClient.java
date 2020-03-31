@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.MinecraftClient;
@@ -33,10 +32,10 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     @Final
     public WorldRenderer worldRenderer;
     
-    @Inject(at = @At("TAIL"), method = "<init>")
-    private void onInitEnded(CallbackInfo info) {
-        OFInterface.initShaderCullingManager.run();
-    }
+//    @Inject(at = @At("TAIL"), method = "<init>")
+//    private void onInitEnded(CallbackInfo info) {
+//        OFInterface.initShaderCullingManager.run();
+//    }
     
     @Inject(
         at = @At(

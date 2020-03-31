@@ -33,7 +33,7 @@ public class ShaderCullingManager {
     
     public static boolean cullingEnabled = true;
     
-    public static void init() {
+    private static void init() {
         try {
             InputStream inputStream =
                 MinecraftClient.getInstance().getResourceManager().getResource(
@@ -57,9 +57,9 @@ public class ShaderCullingManager {
             return rawCode;
         }
         
-//        if (toReplace == null) {
-//            init();
-//        }
+        if (toReplace == null) {
+            init();
+        }
         
         if (toReplace == null) {
             throw new RuntimeException("Shader Code Modifier is not initialized");
