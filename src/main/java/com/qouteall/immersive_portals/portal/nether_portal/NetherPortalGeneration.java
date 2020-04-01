@@ -12,6 +12,7 @@ import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -28,13 +29,119 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class NewNetherPortalGenerator {
+public class NetherPortalGeneration {
+    public final static int randomShiftFactor = 20;
+    
+    public static BlockPos getRandomShift() {
+        Random rand = new Random();
+        return new BlockPos(
+            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
+            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
+            (rand.nextDouble() * 2 - 1) * randomShiftFactor
+        );
+    }
+    
+    public static IntBox findAirCubePlacement(
+        ServerWorld toWorld,
+        BlockPos mappedPosInOtherDimension,
+        IntBox heightLimit,
+        Direction.Axis axis,
+        BlockPos neededAreaSize,
+        int findingRadius
+    ) {
+        IntBox foundAirCube =
+            axis == Direction.Axis.Y ?
+                NetherPortalMatcher.findHorizontalPortalPlacement(
+                    neededAreaSize, toWorld, mappedPosInOtherDimension,
+                    heightLimit, findingRadius
+                ) :
+                NetherPortalMatcher.findVerticalPortalPlacement(
+                    neededAreaSize, toWorld, mappedPosInOtherDimension,
+                    heightLimit, findingRadius
+                );
+        
+        if (foundAirCube == null) {
+            Helper.log("Cannot find normal portal placement");
+            foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
+                neededAreaSize,
+                toWorld,
+                mappedPosInOtherDimension, heightLimit, findingRadius
+            );
+        }
+        
+        if (foundAirCube == null) {
+            Helper.err("No place to put portal? " +
+                "Force placed portal. It will occupy normal blocks.");
+            
+            foundAirCube = IntBox.getBoxByBasePointAndSize(
+                neededAreaSize,
+                mappedPosInOtherDimension
+            );
+        }
+        return foundAirCube;
+    }
+    
+    public static DimensionType getDestinationDimension(
+        DimensionType fromDimension
+    ) {
+        if (fromDimension == DimensionType.THE_NETHER) {
+            return DimensionType.OVERWORLD;
+        }
+        else if (fromDimension == DimensionType.THE_END) {
+            return null;
+        }
+        else {
+            //you can access nether in any other dimension
+            //including alternate dimensions
+            return DimensionType.THE_NETHER;
+        }
+    }
+    
+    public static BlockPos mapPosition(
+        BlockPos pos,
+        DimensionType dimensionFrom,
+        DimensionType dimensionTo
+    ) {
+        if (dimensionFrom == DimensionType.OVERWORLD && dimensionTo == DimensionType.THE_NETHER) {
+            return new BlockPos(
+                pos.getX() / 8,
+                pos.getY(),
+                pos.getZ() / 8
+            );
+        }
+        else if (dimensionFrom == DimensionType.THE_NETHER && dimensionTo == DimensionType.OVERWORLD) {
+            return new BlockPos(
+                pos.getX() * 8,
+                pos.getY(),
+                pos.getZ() * 8
+            );
+        }
+        else {
+            return pos;
+        }
+    }
+    
+    public static void setPortalContentBlock(
+        ServerWorld world,
+        BlockPos pos,
+        Direction.Axis normalAxis
+    ) {
+        world.setBlockState(
+            pos,
+            PortalPlaceholderBlock.instance.getDefaultState().with(
+                PortalPlaceholderBlock.AXIS, normalAxis
+            ),
+            3
+        );
+    }
+    
     public static class Info {
         DimensionType from;
         DimensionType to;
@@ -56,13 +163,13 @@ public class NewNetherPortalGenerator {
     
     //return null for not found
     //executed on main server thread
-    public static boolean onFireLit(
+    public static boolean onFireLitOnObsidian(
         ServerWorld fromWorld,
         BlockPos firePos
     ) {
         DimensionType fromDimension = fromWorld.dimension.getType();
         
-        DimensionType toDimension = NetherPortalGenerator.getDestinationDimension(fromDimension);
+        DimensionType toDimension = getDestinationDimension(fromDimension);
         
         if (toDimension == null) return false;
         
@@ -74,7 +181,7 @@ public class NewNetherPortalGenerator {
             toWorld,
             Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius,
-            (fromPos1) -> NetherPortalGenerator.mapPosition(
+            (fromPos1) -> mapPosition(
                 fromPos1,
                 fromWorld.dimension.getType(),
                 toWorld.dimension.getType()
@@ -84,15 +191,11 @@ public class NewNetherPortalGenerator {
             //this side frame
             blockPos -> O_O.isObsidian(fromWorld, blockPos),
             //other side area
-            blockPos -> {
-                return toWorld.isAir(blockPos);
-            },
+            blockPos -> toWorld.isAir(blockPos),
             //other side frame
-            blockPos -> {
-                return O_O.isObsidian(toWorld, blockPos);
-            },
+            blockPos -> O_O.isObsidian(toWorld, blockPos),
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
-            info -> generateNetherPortalEntities(info, NewNetherPortalEntity.entityType)
+            info -> generateBreakablePortalEntities(info, NetherPortalEntity.entityType)
         );
         return thisSideShape != null;
     }
@@ -108,7 +211,7 @@ public class NewNetherPortalGenerator {
             fromWorld,
             Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius,
-            (fromPos1) -> NetherPortalGenerator.getRandomShift().add(fromPos1),
+            (fromPos1) -> getRandomShift().add(fromPos1),
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
             blockPos -> fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,
             fromWorld::isAir,
@@ -335,7 +438,7 @@ public class NewNetherPortalGenerator {
                 ModMain.serverTaskList.addTask(() -> {
                     
                     IntBox airCubePlacement =
-                        NetherPortalGenerator.findAirCubePlacement(
+                        findAirCubePlacement(
                             toWorld, toPos, toWorldHeightLimit,
                             foundShape.axis, foundShape.totalAreaBox.getSize(),
                             airCubeSearchingRadius
@@ -375,25 +478,23 @@ public class NewNetherPortalGenerator {
         BlockPortalShape blockPortalShape
     ) {
         blockPortalShape.area.forEach(
-            blockPos -> NetherPortalGenerator.setPortalContentBlock(
+            blockPos -> setPortalContentBlock(
                 fromWorld, blockPos, blockPortalShape.axis
             )
         );
     }
     
-    //create portal entity and generate obsidian blocks and placeholder blocks
-    //the portal blocks will be placed on both sides because the obsidian may break while generating
-    //executed on server main thread
-    public static void generateNetherPortalEntities(
-        Info info, EntityType<NewNetherPortalEntity> entityType
+    //create portal entity and generate placeholder blocks
+    public static void generateBreakablePortalEntities(
+        Info info, EntityType<? extends BreakablePortalEntity> entityType
     ) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
         ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
         
         fillInPlaceHolderBlocks(fromWorld, info.fromShape);
         fillInPlaceHolderBlocks(toWorld, info.toShape);
-        
-        NewNetherPortalEntity[] portalArray = new NewNetherPortalEntity[]{
+    
+        BreakablePortalEntity[] portalArray = new BreakablePortalEntity[]{
             entityType.create(fromWorld),
             entityType.create(fromWorld),
             entityType.create(toWorld),

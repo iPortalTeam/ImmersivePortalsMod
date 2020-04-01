@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin.portal_generation;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
-import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalGenerator;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.FlintAndSteelItem;
@@ -32,7 +32,7 @@ public class MixinFlintAndSteelItem {
             BlockPos firePos = targetPos.offset(side);
             Block targetBlock = world.getBlockState(targetPos).getBlock();
             if (O_O.isObsidian(world, targetPos)) {
-                NewNetherPortalGenerator.onFireLit(((ServerWorld) world), firePos);
+                NetherPortalGeneration.onFireLitOnObsidian(((ServerWorld) world), firePos);
             }
             else if (targetBlock == Blocks.GLASS) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
@@ -40,7 +40,7 @@ public class MixinFlintAndSteelItem {
                 );
             }
             else if (targetBlock == ModMain.portalHelperBlock) {
-                boolean result = NewNetherPortalGenerator.activatePortalHelper(
+                boolean result = NetherPortalGeneration.activatePortalHelper(
                     ((ServerWorld) world),
                     firePos
                 );

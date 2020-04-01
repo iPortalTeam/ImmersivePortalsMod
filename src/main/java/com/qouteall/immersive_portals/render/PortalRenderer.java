@@ -77,13 +77,7 @@ public abstract class PortalRenderer {
             return false;
         }
         if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
-            Portal renderingPortal = getRenderingPortal();
-            return renderingPortal.canRenderEntityInsideMe(
-                MyRenderHelper.originalPlayerPos.add(
-                    0, client.cameraEntity.getEyeY(), 0
-                ),
-                0
-            );
+            return true;
         }
         return false;
     }

@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -91,7 +92,7 @@ public class PortalPlaceholderBlock extends Block {
         BlockPos blockPos,
         BlockPos neighborPos
     ) {
-        if(!world.isClient()){
+        if (!world.isClient()) {
             Direction.Axis axis = thisState.get(AXIS);
             if (direction.getAxis() != axis) {
                 McHelper.getEntitiesNearby(
@@ -101,8 +102,8 @@ public class PortalPlaceholderBlock extends Block {
                     20
                 ).forEach(
                     portal -> {
-                        if (portal instanceof IBreakablePortal) {
-                            ((IBreakablePortal) portal).notifyPlaceholderUpdate();
+                        if (portal instanceof BreakablePortalEntity) {
+                            ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
                         }
                     }
                 );
@@ -130,7 +131,7 @@ public class PortalPlaceholderBlock extends Block {
         //nothing
     }
     
-   
+    
     //---------These are copied from BlockBarrier
     @Override
     public boolean isTranslucent(

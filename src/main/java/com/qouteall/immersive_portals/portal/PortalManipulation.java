@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
@@ -176,5 +177,11 @@ public class PortalManipulation {
             e.remove();
             informer.accept(e);
         });
+    }
+    
+    public static void generateBreakablePortalOneFaced(
+        NetherPortalGeneration.Info info
+    ) {
+    
     }
 }
