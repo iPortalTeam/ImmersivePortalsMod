@@ -346,7 +346,7 @@ public class MyCommandServer {
                         p -> sendMessage(context, "Removed " + p)
                     );
                     
-                    Portal result = PortalManipulation.doCompleteBiWayPortal(
+                    Portal result = PortalManipulation.completeBiWayPortal(
                         portal,
                         Portal.entityType
                     );
@@ -367,7 +367,7 @@ public class MyCommandServer {
                         p -> sendMessage(context, "Removed " + p)
                     );
                     
-                    Portal result = PortalManipulation.doCompleteBiFacedPortal(
+                    Portal result = PortalManipulation.completeBiFacedPortal(
                         portal,
                         Portal.entityType
                     );
