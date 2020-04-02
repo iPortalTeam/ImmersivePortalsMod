@@ -189,7 +189,7 @@ public class CrossPortalEntityRenderer {
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
         
-        if (newEyePos.squaredDistanceTo(cameraPos) < 1) {
+        if (newEyePos.squaredDistanceTo(cameraPos) < 1 && entity instanceof ClientPlayerEntity) {
             return;
         }
         

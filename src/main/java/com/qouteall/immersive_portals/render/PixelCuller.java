@@ -69,11 +69,16 @@ public class PixelCuller {
     //its result depends on camera pos
     private static double[] getClipEquationInner(Portal portal) {
         
+        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+        
         Vec3d planeNormal = portal.getContentDirection();
         
+        double correction = portal.destination.subtract(cameraPos)
+            .dotProduct(portal.getContentDirection()) / 150.0;
+        
         Vec3d portalPos = portal.destination
-            .subtract(planeNormal.multiply(0.01))//avoid z fighting
-            .subtract(client.gameRenderer.getCamera().getPos());
+            .subtract(planeNormal.multiply(correction))//avoid z fighting
+            .subtract(cameraPos);
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c

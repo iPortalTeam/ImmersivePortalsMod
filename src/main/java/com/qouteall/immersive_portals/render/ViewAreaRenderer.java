@@ -176,7 +176,12 @@ public class ViewAreaRenderer {
         double cameraLocalX = cameraPosLocal.dotProduct(portal.axisW);
         double cameraLocalY = cameraPosLocal.dotProduct(portal.axisH);
         
-        final double r = 1000;
+        double r = MinecraftClient.getInstance().options.viewDistance * 16-16;
+    
+        double distance = Math.abs(cameraPosLocal.dotProduct(portal.getNormal()));
+        if (distance > 200) {
+            r = r * 200 / distance;
+        }
         
         Vec3d v0 = portal.getPointInPlaneLocalClamped(
             r + cameraLocalX,
@@ -273,7 +278,10 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
-                PixelCuller.updateCullingPlaneInner(matrixStack, CGlobal.renderer.getRenderingPortal());
+                PixelCuller.updateCullingPlaneInner(
+                    matrixStack,
+                    CGlobal.renderer.getRenderingPortal()
+                );
                 PixelCuller.loadCullingPlaneClassical(matrixStack);
                 PixelCuller.startClassicalCulling();
             }
