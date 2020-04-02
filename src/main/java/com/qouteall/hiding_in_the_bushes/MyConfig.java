@@ -28,6 +28,7 @@ public class MyConfig {
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
     public boolean loadFewerChunks = false;
+    public boolean multiThreadedNetherPortalSearching = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     
     private static File getGameDir() {
@@ -94,6 +95,7 @@ public class MyConfig {
         Global.teleportationDebugEnabled = teleportationDebug;
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         Global.loadFewerChunks = loadFewerChunks;
+        Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

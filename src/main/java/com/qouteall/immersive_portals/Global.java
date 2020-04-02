@@ -32,6 +32,8 @@ public class Global {
     
     public static boolean loadFewerChunks = false;
     
+    public static boolean multiThreadedNetherPortalSearching = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

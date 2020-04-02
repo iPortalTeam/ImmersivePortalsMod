@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -63,6 +64,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             WorldChunk worldChunk_1 = chunkMapNew.get(chunkPos.toLong());
             if (positionEquals(worldChunk_1, int_1, int_2)) {
                 chunkMapNew.remove(chunkPos.toLong());
+                O_O.postChunkUnloadEventForge(worldChunk_1);
             }
         }
     }
@@ -111,6 +113,7 @@ public class MyClientChunkManager extends ClientChunkManager {
                 worldChunk_1 = new WorldChunk(this.world, chunkPos, biomeArray_1);
                 worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, int_3);
                 chunkMapNew.put(chunkPos.toLong(), worldChunk_1);
+                O_O.postChunkLoadEventForge(worldChunk_1);
             }
             else {
                 worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, int_3);

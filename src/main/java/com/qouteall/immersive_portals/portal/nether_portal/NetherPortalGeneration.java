@@ -23,13 +23,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -142,6 +144,66 @@ public class NetherPortalGeneration {
         );
     }
     
+    //create portal entity and generate placeholder blocks
+    public static void generateBreakablePortalEntities(
+        Info info,
+        EntityType<? extends BreakablePortalEntity> entityType
+    ) {
+        ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
+        ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
+        
+        fillInPlaceHolderBlocks(fromWorld, info.fromShape);
+        fillInPlaceHolderBlocks(toWorld, info.toShape);
+        
+        BreakablePortalEntity[] portalArray = new BreakablePortalEntity[]{
+            entityType.create(fromWorld),
+            entityType.create(fromWorld),
+            entityType.create(toWorld),
+            entityType.create(toWorld)
+        };
+        
+        info.fromShape.initPortalPosAxisShape(
+            portalArray[0], false
+        );
+        info.fromShape.initPortalPosAxisShape(
+            portalArray[1], true
+        );
+        info.toShape.initPortalPosAxisShape(
+            portalArray[2], false
+        );
+        info.toShape.initPortalPosAxisShape(
+            portalArray[3], true
+        );
+        
+        portalArray[0].dimensionTo = info.to;
+        portalArray[1].dimensionTo = info.to;
+        portalArray[2].dimensionTo = info.from;
+        portalArray[3].dimensionTo = info.from;
+        
+        Vec3d offset = new Vec3d(info.toShape.innerAreaBox.l.subtract(
+            info.fromShape.innerAreaBox.l
+        ));
+        portalArray[0].destination = portalArray[0].getPos().add(offset);
+        portalArray[1].destination = portalArray[1].getPos().add(offset);
+        portalArray[2].destination = portalArray[2].getPos().subtract(offset);
+        portalArray[3].destination = portalArray[3].getPos().subtract(offset);
+        
+        portalArray[0].blockPortalShape = info.fromShape;
+        portalArray[1].blockPortalShape = info.fromShape;
+        portalArray[2].blockPortalShape = info.toShape;
+        portalArray[3].blockPortalShape = info.toShape;
+        
+        portalArray[0].reversePortalId = portalArray[2].getUuid();
+        portalArray[1].reversePortalId = portalArray[3].getUuid();
+        portalArray[2].reversePortalId = portalArray[0].getUuid();
+        portalArray[3].reversePortalId = portalArray[1].getUuid();
+        
+        fromWorld.spawnEntity(portalArray[0]);
+        fromWorld.spawnEntity(portalArray[1]);
+        toWorld.spawnEntity(portalArray[2]);
+        toWorld.spawnEntity(portalArray[3]);
+    }
+    
     public static class Info {
         DimensionType from;
         DimensionType to;
@@ -191,9 +253,9 @@ public class NetherPortalGeneration {
             //this side frame
             blockPos -> O_O.isObsidian(fromWorld, blockPos),
             //other side area
-            blockPos -> toWorld.isAir(blockPos),
+            (w, blockPos) -> w.isAir(blockPos),
             //other side frame
-            blockPos -> O_O.isObsidian(toWorld, blockPos),
+            (w, blockPos) -> O_O.isObsidian(w, blockPos),
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
             info -> generateBreakablePortalEntities(info, NetherPortalEntity.entityType)
         );
@@ -214,8 +276,8 @@ public class NetherPortalGeneration {
             (fromPos1) -> getRandomShift().add(fromPos1),
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
             blockPos -> fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,
-            fromWorld::isAir,
-            blockPos -> fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,
+            (w, pos) -> w.isAir(pos),
+            (w, blockPos) -> w.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock,
             (toShape) -> {
                 embodyNewFrame(fromWorld, toShape, ModMain.portalHelperBlock.getDefaultState());
             },
@@ -241,8 +303,8 @@ public class NetherPortalGeneration {
         Function<BlockPos, BlockPos> positionMapping,
         Predicate<BlockPos> thisSideAreaPredicate,
         Predicate<BlockPos> thisSideFramePredicate,
-        Predicate<BlockPos> otherSideAreaPredicate,
-        Predicate<BlockPos> otherSideFramePredicate,
+        BiPredicate<IWorld, BlockPos> otherSideAreaPredicate,
+        BiPredicate<IWorld, BlockPos> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGeneratedFunc,
         Consumer<Info> portalEntityGeneratingFunc
     ) {
@@ -319,6 +381,7 @@ public class NetherPortalGeneration {
                 return false;
             }
             else {
+                ChunkRegion chunkRegion = chunkLoader.createChunkRegion();
                 
                 startSearchingPortalFrame(
                     fromWorld,
@@ -327,8 +390,8 @@ public class NetherPortalGeneration {
                     airCubeSearchingRadius,
                     thisSideAreaPredicate,
                     thisSideFramePredicate,
-                    otherSideAreaPredicate,
-                    otherSideFramePredicate,
+                    (pos) -> otherSideAreaPredicate.test(chunkRegion, pos),
+                    (pos) -> otherSideFramePredicate.test(chunkRegion, pos),
                     newFrameGeneratedFunc,
                     portalEntityGeneratingFunc,
                     fromDimension,
@@ -365,7 +428,8 @@ public class NetherPortalGeneration {
         DimensionType toDimension,
         BlockPortalShape foundShape,
         BlockPos fromPos,
-        BlockPos toPos, LoadingIndicatorEntity indicatorEntity,
+        BlockPos toPos,
+        LoadingIndicatorEntity indicatorEntity,
         Runnable finishBehavior
     ) {
         
@@ -380,7 +444,7 @@ public class NetherPortalGeneration {
             toPos.getX(), toPos.getZ(),
             existingFrameSearchingRadius
         );
-        Iterator<BlockPortalShape> iterator =
+        Stream<BlockPortalShape> stream =
             blockPosStream.map(
                 blockPos -> {
                     if (!otherSideAreaPredicate.test(blockPos)) {
@@ -394,10 +458,11 @@ public class NetherPortalGeneration {
                         temp
                     );
                 }
-            ).iterator();
+            );
         
-        McHelper.performSplitedFindingTaskOnServer(
-            iterator,
+        McHelper.performFindingTaskOnServer(
+            Global.multiThreadedNetherPortalSearching,
+            stream,
             shape -> shape != null && (fromWorld != toWorld || !shape.anchor.equals(foundShape.anchor)),
             (i) -> {
                 boolean isIntact = foundShape.isPortalIntact(
@@ -407,7 +472,6 @@ public class NetherPortalGeneration {
                 
                 if (!isIntact) {
                     Helper.log("Nether Portal Generation Aborted");
-                    finishBehavior.run();
                     return false;
                 }
                 
@@ -428,7 +492,6 @@ public class NetherPortalGeneration {
                 );
                 
                 portalEntityGeneratingFunc.accept(info);
-                indicatorEntity.remove();
             },
             () -> {
                 indicatorEntity.setText(new TranslatableText(
@@ -456,11 +519,11 @@ public class NetherPortalGeneration {
                         fromDimension, toDimension, foundShape, toShape
                     );
                     portalEntityGeneratingFunc.accept(info);
-                    finishBehavior.run();
                     
                     return true;
                 });
-            }
+            },
+            finishBehavior
         );
     }
     
@@ -473,7 +536,7 @@ public class NetherPortalGeneration {
         );
     }
     
-    private static void fillInPlaceHolderBlocks(
+    public static void fillInPlaceHolderBlocks(
         ServerWorld fromWorld,
         BlockPortalShape blockPortalShape
     ) {
@@ -482,65 +545,6 @@ public class NetherPortalGeneration {
                 fromWorld, blockPos, blockPortalShape.axis
             )
         );
-    }
-    
-    //create portal entity and generate placeholder blocks
-    public static void generateBreakablePortalEntities(
-        Info info, EntityType<? extends BreakablePortalEntity> entityType
-    ) {
-        ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
-        ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
-        
-        fillInPlaceHolderBlocks(fromWorld, info.fromShape);
-        fillInPlaceHolderBlocks(toWorld, info.toShape);
-    
-        BreakablePortalEntity[] portalArray = new BreakablePortalEntity[]{
-            entityType.create(fromWorld),
-            entityType.create(fromWorld),
-            entityType.create(toWorld),
-            entityType.create(toWorld)
-        };
-        
-        info.fromShape.initPortalPosAxisShape(
-            portalArray[0], false
-        );
-        info.fromShape.initPortalPosAxisShape(
-            portalArray[1], true
-        );
-        info.toShape.initPortalPosAxisShape(
-            portalArray[2], false
-        );
-        info.toShape.initPortalPosAxisShape(
-            portalArray[3], true
-        );
-        
-        portalArray[0].dimensionTo = info.to;
-        portalArray[1].dimensionTo = info.to;
-        portalArray[2].dimensionTo = info.from;
-        portalArray[3].dimensionTo = info.from;
-        
-        Vec3d offset = new Vec3d(info.toShape.innerAreaBox.l.subtract(
-            info.fromShape.innerAreaBox.l
-        ));
-        portalArray[0].destination = portalArray[0].getPos().add(offset);
-        portalArray[1].destination = portalArray[1].getPos().add(offset);
-        portalArray[2].destination = portalArray[2].getPos().subtract(offset);
-        portalArray[3].destination = portalArray[3].getPos().subtract(offset);
-        
-        portalArray[0].blockPortalShape = info.fromShape;
-        portalArray[1].blockPortalShape = info.fromShape;
-        portalArray[2].blockPortalShape = info.toShape;
-        portalArray[3].blockPortalShape = info.toShape;
-        
-        portalArray[0].reversePortalId = portalArray[2].getUuid();
-        portalArray[1].reversePortalId = portalArray[3].getUuid();
-        portalArray[2].reversePortalId = portalArray[0].getUuid();
-        portalArray[3].reversePortalId = portalArray[1].getUuid();
-        
-        fromWorld.spawnEntity(portalArray[0]);
-        fromWorld.spawnEntity(portalArray[1]);
-        toWorld.spawnEntity(portalArray[2]);
-        toWorld.spawnEntity(portalArray[3]);
     }
     
     private static void generateHelperPortalEntities(Info info) {
@@ -594,26 +598,27 @@ public class NetherPortalGeneration {
     ) {
         int height = world.getEffectiveHeight();
         
-        BlockPos.Mutable columnPos = new BlockPos.Mutable();
-        BlockPos.Mutable temp = new BlockPos.Mutable();
+        BlockPos.Mutable temp0 = new BlockPos.Mutable();
+        BlockPos.Mutable temp2 = new BlockPos.Mutable();
+        BlockPos.Mutable temp1 = new BlockPos.Mutable();
         
         return IntStream.range(0, range).boxed()
             .flatMap(layer ->
                 Streams.concat(
                     IntStream.range(0, layer * 2 + 1)
-                        .mapToObj(i -> columnPos.set(layer, 0, i - layer)),
+                        .mapToObj(i -> temp0.set(layer, 0, i - layer)),
                     IntStream.range(0, layer * 2 + 1)
-                        .mapToObj(i -> columnPos.set(-layer, 0, i - layer)),
+                        .mapToObj(i -> temp0.set(-layer, 0, i - layer)),
                     IntStream.range(0, layer * 2 - 1)
-                        .mapToObj(i -> columnPos.set(i - layer + 1, 0, layer)),
+                        .mapToObj(i -> temp0.set(i - layer + 1, 0, layer)),
                     IntStream.range(0, layer * 2 - 1)
-                        .mapToObj(i -> columnPos.set(i - layer + 1, 0, -layer))
+                        .mapToObj(i -> temp0.set(i - layer + 1, 0, -layer))
                 ).map(
-                    columnPos_ -> columnPos.set(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
+                    columnPos_ -> temp1.set(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
                 ).flatMap(
                     columnPos_ ->
                         IntStream.range(3, height - 3)
-                            .mapToObj(y -> temp.set(columnPos.getX(), y, columnPos.getZ()))
+                            .mapToObj(y -> temp2.set(columnPos_.getX(), y, columnPos_.getZ()))
                 )
             );
     }
