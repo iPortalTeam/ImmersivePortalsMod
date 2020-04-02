@@ -170,7 +170,11 @@ public class MyGameRenderer {
         if (OFInterface.isFogDisabled.getAsBoolean()) {
             return;
         }
-        
+    
+        forceResetFog();
+    }
+    
+    public static void forceResetFog() {
         Camera camera = client.gameRenderer.getCamera();
         float g = client.gameRenderer.getViewDistance();
         
@@ -240,7 +244,7 @@ public class MyGameRenderer {
         ClientWorld oldWorld = client.world;
         WorldRenderer oldWorldRenderer = client.worldRenderer;
         FogRendererContext.swappingManager.pushSwapping(dimension);
-        MyGameRenderer.resetFog();
+        MyGameRenderer.forceResetFog();
 
         client.world = newWorld;
         ((IEMinecraftClient)client).setWorldRenderer(newWorldRenderer);
@@ -250,7 +254,7 @@ public class MyGameRenderer {
         client.world = oldWorld;
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         FogRendererContext.swappingManager.popSwapping();
-        MyGameRenderer.resetFog();
+        MyGameRenderer.forceResetFog();
         
 //        client.worldRenderer.renderSky(matrixStack,partialTicks);
     }

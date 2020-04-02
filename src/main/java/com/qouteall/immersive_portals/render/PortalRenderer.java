@@ -128,6 +128,9 @@ public abstract class PortalRenderer {
             }
         }
         
+        if (isOutOfDistance(portal)) {
+            return;
+        }
         
         doRenderPortal(portal, matrixStack);
     }
@@ -181,21 +184,12 @@ public abstract class PortalRenderer {
             return;
         }
         
-        if (portal.getDistanceToNearestPointInPortal(client.gameRenderer.getCamera().getPos()) > getRenderRange()) {
-            return;
-        }
         
         Entity cameraEntity = client.cameraEntity;
-        Camera camera = client.gameRenderer.getCamera();
-        
-        if (getPortalLayer() >= 2 &&
-            portal.getDistanceToNearestPointInPortal(cameraEntity.getPos()) >
-                (16 * maxPortalLayer.get())
-        ) {
-            return;
-        }
         
         MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
+        
+        Camera camera = client.gameRenderer.getCamera();
         
         assert cameraEntity.world == client.world;
         
@@ -217,11 +211,11 @@ public abstract class PortalRenderer {
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         client.world = newWorld;
-    
+        
         renderPortalContentWithContextSwitched(
             portal, oldCameraPos, oldWorld
         );
-    
+        
         //restore the position
         cameraEntity.dimension = oldDimension;
         cameraEntity.world = oldWorld;
@@ -233,6 +227,21 @@ public abstract class PortalRenderer {
         MyRenderHelper.restoreViewPort();
         
         MyGameRenderer.resetFog();
+    }
+    
+    private boolean isOutOfDistance(Portal portal) {
+        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+        if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
+            return true;
+        }
+        
+        if (getPortalLayer() >= 1 &&
+            portal.getDistanceToNearestPointInPortal(cameraPos) >
+                (16 * maxPortalLayer.get())
+        ) {
+            return true;
+        }
+        return false;
     }
     
     protected void renderPortalContentWithContextSwitched(

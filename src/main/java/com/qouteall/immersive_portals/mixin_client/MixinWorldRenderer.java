@@ -216,7 +216,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         
         if (CGlobal.renderer.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(matrixStack_1, CGlobal.renderer.getRenderingPortal());
+            PixelCuller.updateCullingPlaneInner(
+                matrixStack_1,
+                CGlobal.renderer.getRenderingPortal()
+            );
             PixelCuller.startCulling();
             if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
@@ -555,13 +558,41 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
-        MyGameRenderer.renderSkyFor(
-            RenderDimensionRedirect.getRedirectedDimension(
-                MinecraftClient.getInstance().world.dimension.getType()
-            ),
-            matrixStack,
-            f
-        );
+        if (OFInterface.isShaders.getAsBoolean()) {
+            MyGameRenderer.renderSkyFor(
+                RenderDimensionRedirect.getRedirectedDimension(
+                    MinecraftClient.getInstance().world.dimension.getType()
+                ),
+                matrixStack,
+                f
+            );
+        }
+        else {
+            worldRenderer.renderSky(matrixStack, f);
+        }
+    }
+    
+    //fix cloud fog abnormal with OptiFine and fog disabled
+    @Inject(
+        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableFog()V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onEnableFogInRenderClouds(
+        MatrixStack matrices,
+        float tickDelta,
+        double cameraX,
+        double cameraY,
+        double cameraZ,
+        CallbackInfo ci
+    ) {
+        if (OFInterface.isFogDisabled.getAsBoolean()) {
+            MyGameRenderer.forceResetFog();
+            GL11.glEnable(GL11.GL_FOG);
+        }
     }
     
     @Override
