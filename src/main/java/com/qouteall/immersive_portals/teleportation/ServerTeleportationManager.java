@@ -52,6 +52,11 @@ public class ServerTeleportationManager {
         if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
             return;
         }
+        //a new born entity may have last tick pos 0 0 0
+        double motion = McHelper.lastTickPosOf(entity).squaredDistanceTo(entity.getPos());
+        if (motion > 2) {
+            return;
+        }
         ModMain.serverTaskList.addTask(() -> {
             teleportRegularEntity(entity, portal);
             return true;
