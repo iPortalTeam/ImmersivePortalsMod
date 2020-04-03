@@ -1,19 +1,16 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
-import net.minecraft.structure.StructureManager;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
-public class VoidChunkGenerator extends FloatingIslandsChunkGenerator {
-    public VoidChunkGenerator(
+public class NormalSkylandGenerator extends FloatingIslandsChunkGenerator {
+    public NormalSkylandGenerator(
         IWorld iWorld,
         BiomeSource biomeSource,
         FloatingIslandsChunkGeneratorConfig floatingIslandsChunkGeneratorConfig
@@ -22,24 +19,19 @@ public class VoidChunkGenerator extends FloatingIslandsChunkGenerator {
     }
     
     @Override
-    public void populateNoise(IWorld world, Chunk chunk) {
-        //nothing
-    }
-    
-    @Override
     public boolean hasStructure(
         Biome biome, StructureFeature<? extends FeatureConfig> structureFeature
     ) {
-        return false;
+        if (structureFeature == StructureFeature.MINESHAFT) {
+            //no mineshaft
+            return false;
+        }
+        return super.hasStructure(biome, structureFeature);
     }
     
+    //make end city and woodland mansion be able to generate
     @Override
-    public void setStructureStarts(
-        BiomeAccess biomeAccess,
-        Chunk chunk,
-        ChunkGenerator<?> chunkGenerator,
-        StructureManager structureManager
-    ) {
-        //nothing
+    public int getHeightOnGround(int x, int z, Heightmap.Type heightmapType) {
+        return 64;
     }
 }

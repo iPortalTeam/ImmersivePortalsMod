@@ -19,7 +19,8 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
-public class AlternateSky {
+@Deprecated
+public class AlternateSkyRenderer {
     public static void renderAlternateSky(MatrixStack matrixStack, float f) {
         ClientWorld world = MinecraftClient.getInstance().world;
         

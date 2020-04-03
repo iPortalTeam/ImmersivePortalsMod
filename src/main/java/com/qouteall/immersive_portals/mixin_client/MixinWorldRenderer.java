@@ -1,11 +1,9 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateSky;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
@@ -35,6 +33,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -448,9 +447,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
         
-        if (client.world.dimension instanceof AlternateDimension) {
-            AlternateSky.renderAlternateSky(matrixStack_1, float_1);
-        }
+//        if (client.world.dimension instanceof AlternateDimension) {
+//            AlternateSkyRenderer.renderAlternateSky(matrixStack_1, float_1);
+//        }
         
         if (CGlobal.renderer.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
@@ -559,10 +558,15 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
         if (OFInterface.isShaders.getAsBoolean()) {
+            DimensionType dim = MinecraftClient.getInstance().world.dimension.getType();
+//            if (CGlobal.renderer.isRendering()) {
+//                Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+//                if (renderingPortal instanceof VerticalConnectingPortal) {
+//                    dim = renderingPortal.dimension;
+//                }
+//            }
             MyGameRenderer.renderSkyFor(
-                RenderDimensionRedirect.getRedirectedDimension(
-                    MinecraftClient.getInstance().world.dimension.getType()
-                ),
+                RenderDimensionRedirect.getRedirectedDimension(dim),
                 matrixStack,
                 f
             );

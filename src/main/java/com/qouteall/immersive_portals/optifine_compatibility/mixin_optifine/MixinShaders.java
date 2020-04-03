@@ -4,10 +4,13 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
@@ -55,9 +58,12 @@ public abstract class MixinShaders {
         throw new RuntimeException();
     }
     
-    @Shadow private static IShaderPack shaderPack;
+    @Shadow
+    private static IShaderPack shaderPack;
     
-    @Shadow @Final private static ByteBuffer bigBuffer;
+    @Shadow
+    @Final
+    private static ByteBuffer bigBuffer;
     
     //avoid uninit when creating faked world
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
@@ -88,7 +94,6 @@ public abstract class MixinShaders {
         }
     }
     
-   
     
     //loading shader pack will change vertex format
     //avoid changing vertex format when rebuilding
@@ -210,6 +215,28 @@ public abstract class MixinShaders {
             //big buffer is not big enough
             cir.setReturnValue(BufferUtils.createIntBuffer(size));
             cir.cancel();
+        }
+    }
+    
+    //avoid too bright when rendering remote world
+    @Redirect(
+        method = "beginRender",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/entity/EntityRenderDispatcher;getLight(Lnet/minecraft/entity/Entity;F)I",
+            remap = true
+        )
+    )
+    private static int redirectGetLight(
+        EntityRenderDispatcher entityRenderDispatcher,
+        Entity entity,
+        float tickDelta
+    ) {
+        if (CGlobal.renderer.isRendering()) {
+            return MyRenderHelper.originalCameraLightPacked;
+        }
+        else {
+            return entityRenderDispatcher.getLight(entity, tickDelta);
         }
     }
     
