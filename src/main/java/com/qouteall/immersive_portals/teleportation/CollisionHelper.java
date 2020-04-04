@@ -83,7 +83,8 @@ public class CollisionHelper {
         
         return new Vec3d(
             Math.abs(move1.x) < Math.abs(move2.x) ? move1.x : move2.x,
-            Math.abs(move1.y) < Math.abs(move2.y) ? move1.y : move2.y,
+            move2.y > attemptedMove.y ? move2.y :
+                (Math.abs(move1.y) < Math.abs(move2.y) ? move1.y : move2.y),
             Math.abs(move1.z) < Math.abs(move2.z) ? move1.z : move2.z
         );
     }
