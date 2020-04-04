@@ -154,15 +154,17 @@ public class NetherPortalMatcher {
             return aboveLavaLake.getSubBoxInCenter(areaSize);
         }
         
-        Helper.log("Generated Portal On Ground");
-        
         IntBox biggerArea = getAirCubeOnSolidGround(
             areaSize.add(5, 0, 5), world, searchingCenter,
             heightLimit, findingRadius / 8
         );
         if (biggerArea == null) {
+            Helper.log("Cannot Find Portal Placement on Ground");
             return null;
         }
+    
+        Helper.log("Generated Portal On Ground");
+        
         return pushDownBox(world, biggerArea.getSubBoxInCenter(areaSize));
     }
     

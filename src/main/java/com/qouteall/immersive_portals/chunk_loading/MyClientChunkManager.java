@@ -88,51 +88,53 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public WorldChunk loadChunkFromPacket(
-        int int_1,
-        int int_2,
+        int x,
+        int z,
         BiomeArray biomeArray_1,
         PacketByteBuf packetByteBuf_1,
         CompoundTag compoundTag_1,
-        int int_3
+        int sections
     ) {
-        ChunkPos chunkPos = new ChunkPos(int_1, int_2);
+        ChunkPos chunkPos = new ChunkPos(x, z);
         WorldChunk worldChunk_1;
         
         synchronized (chunkMapNew) {
             worldChunk_1 = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
-            if (!positionEquals(worldChunk_1, int_1, int_2)) {
+            if (!positionEquals(worldChunk_1, x, z)) {
                 if (biomeArray_1 == null) {
                     LOGGER.warn(
                         "Ignoring chunk since we don't have complete data: {}, {}",
-                        int_1,
-                        int_2
+                        x,
+                        z
                     );
                     return null;
                 }
                 
                 worldChunk_1 = new WorldChunk(this.world, chunkPos, biomeArray_1);
-                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, int_3);
+                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, sections);
                 chunkMapNew.put(chunkPos.toLong(), worldChunk_1);
-                O_O.postChunkLoadEventForge(worldChunk_1);
             }
             else {
-                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, int_3);
+                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, sections);
             }
         }
         
-        ChunkSection[] chunkSections_1 = worldChunk_1.getSectionArray();
-        LightingProvider lightingProvider_1 = this.getLightingProvider();
-        lightingProvider_1.setLightEnabled(chunkPos, true);
+        ChunkSection[] chunkSections = worldChunk_1.getSectionArray();
+        LightingProvider lightingProvider = this.getLightingProvider();
+        lightingProvider.setLightEnabled(chunkPos, true);
         
-        for (int int_5 = 0; int_5 < chunkSections_1.length; ++int_5) {
-            ChunkSection chunkSection_1 = chunkSections_1[int_5];
-            lightingProvider_1.updateSectionStatus(
-                ChunkSectionPos.from(int_1, int_5, int_2),
+        for (int i = 0; i < chunkSections.length; ++i) {
+            ChunkSection chunkSection_1 = chunkSections[i];
+            lightingProvider.updateSectionStatus(
+                ChunkSectionPos.from(x, i, z),
                 ChunkSection.isEmpty(chunkSection_1)
             );
         }
         
-        this.world.resetChunkColor(int_1, int_2);
+        this.world.resetChunkColor(x, z);
+        
+        O_O.postChunkLoadEventForge(worldChunk_1);
+        
         return worldChunk_1;
     }
     
