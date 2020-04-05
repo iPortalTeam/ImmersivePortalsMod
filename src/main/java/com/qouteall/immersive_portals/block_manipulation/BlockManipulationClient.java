@@ -117,14 +117,17 @@ public class BlockManipulationClient {
                 }
                 
                 FluidState fluidState = world.getFluidState(blockPos);
-                Vec3d vec3d = rayTraceContext.getStart();
-                Vec3d vec3d2 = rayTraceContext.getEnd();
+                Vec3d start = rayTraceContext.getStart();
+                Vec3d end = rayTraceContext.getEnd();
+                /**{@link VoxelShape#rayTrace(Vec3d, Vec3d, BlockPos)}*/
+                //correct the start pos to avoid being considered inside block
+                Vec3d correctedStart = start.subtract(end.subtract(start).multiply(0.0015));
                 VoxelShape solidShape = rayTraceContext.getBlockShape(blockState, world, blockPos);
                 BlockHitResult blockHitResult = world.rayTraceBlock(
-                    vec3d, vec3d2, blockPos, solidShape, blockState
+                    correctedStart, end, blockPos, solidShape, blockState
                 );
                 VoxelShape fluidShape = rayTraceContext.getFluidShape(fluidState, world, blockPos);
-                BlockHitResult blockHitResult2 = fluidShape.rayTrace(vec3d, vec3d2, blockPos);
+                BlockHitResult blockHitResult2 = fluidShape.rayTrace(start, end, blockPos);
                 double d = blockHitResult == null ? Double.MAX_VALUE :
                     rayTraceContext.getStart().squaredDistanceTo(blockHitResult.getPos());
                 double e = blockHitResult2 == null ? Double.MAX_VALUE :
@@ -140,7 +143,7 @@ public class BlockManipulationClient {
                 );
             }
         );
-    
+        
         if (remoteHitResult.getPos().y < 0.1) {
             remoteHitResult = new BlockHitResult(
                 remoteHitResult.getPos(),
@@ -149,7 +152,7 @@ public class BlockManipulationClient {
                 ((BlockHitResult) remoteHitResult).isInsideBlock()
             );
         }
-    
+        
         if (remoteHitResult != null) {
             if (!world.getBlockState(((BlockHitResult) remoteHitResult).getBlockPos()).isAir()) {
                 mc.crosshairTarget = null;
@@ -191,7 +194,7 @@ public class BlockManipulationClient {
         ClientWorld oldWorld = mc.world;
         mc.world = CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         isContextSwitched = true;
-    
+        
         try {
             return mc.interactionManager.updateBlockBreakingProgress(blockPos, direction);
         }
@@ -199,7 +202,7 @@ public class BlockManipulationClient {
             mc.world = oldWorld;
             isContextSwitched = false;
         }
-    
+        
     }
     
     public static void myAttackBlock() {
@@ -208,16 +211,16 @@ public class BlockManipulationClient {
         ClientWorld targetWorld =
             CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
-    
+        
         if (targetWorld.isAir(blockPos)) {
             return;
         }
-    
+        
         ClientWorld oldWorld = mc.world;
-    
+        
         mc.world = targetWorld;
         isContextSwitched = true;
-    
+        
         try {
             mc.interactionManager.attackBlock(
                 blockPos,
@@ -228,7 +231,7 @@ public class BlockManipulationClient {
             mc.world = oldWorld;
             isContextSwitched = false;
         }
-    
+        
         mc.player.swingHand(Hand.MAIN_HAND);
     }
     
