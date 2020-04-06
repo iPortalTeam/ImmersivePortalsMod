@@ -71,21 +71,40 @@ public class CollisionHelper {
     ) {
         Box originalBoundingBox = entity.getBoundingBox();
         
-        Vec3d move1 = getThisSideMove(
+        Vec3d thisSideMove = getThisSideMove(
             entity, attemptedMove, collidingPortal,
             handleCollisionFunc, originalBoundingBox
         );
         
-        Vec3d move2 = getOtherSideMove(
+        Vec3d otherSideMove = getOtherSideMove(
             entity, attemptedMove, collidingPortal,
             handleCollisionFunc, originalBoundingBox
         );
+        
+        double x = Math.abs(thisSideMove.x) < Math.abs(otherSideMove.x) ? thisSideMove.x : otherSideMove.x;
+        double y = Math.abs(thisSideMove.y) < Math.abs(otherSideMove.y) ? thisSideMove.y : otherSideMove.y;
+        double z = Math.abs(thisSideMove.z) < Math.abs(otherSideMove.z) ? thisSideMove.z : otherSideMove.z;
+        
+        double actualY;
+        //fix stepping onto slab or stair through portal
+        if (attemptedMove.y < 0 && (otherSideMove.y > 0 || thisSideMove.y > 0)) {
+            if (thisSideMove.y > otherSideMove.y) {
+                //this side collision box is cut a little more from bottom
+                //so it will step shorter. compensate
+                actualY = thisSideMove.y - attemptedMove.y;
+            }
+            else {
+                actualY = otherSideMove.y;
+            }
+        }
+        else {
+            actualY = y;
+        }
         
         return new Vec3d(
-            Math.abs(move1.x) < Math.abs(move2.x) ? move1.x : move2.x,
-            move2.y > attemptedMove.y ? move2.y :
-                (Math.abs(move1.y) < Math.abs(move2.y) ? move1.y : move2.y),
-            Math.abs(move1.z) < Math.abs(move2.z) ? move1.z : move2.z
+            x,
+            actualY,
+            z
         );
     }
     
@@ -96,6 +115,11 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
+        if (collidingPortal.rotation != null) {
+            //handling collision with rotating portal is hard to implement
+            return attemptedMove;
+        }
+        
         Box boxOtherSide = getCollisionBoxOtherSide(
             collidingPortal,
             originalBoundingBox,

@@ -77,6 +77,9 @@ public abstract class PortalRenderer {
             return false;
         }
         if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
+            if (TransformationManager.isAnimationRunning()) {
+                return false;
+            }
             return true;
         }
         return false;

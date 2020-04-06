@@ -642,6 +642,7 @@ public class Helper {
     }
     
     //naive interpolation is better?
+    //not better
     public static Quaternion interpolateQuaternionNaive(
         Quaternion a,
         Quaternion b,

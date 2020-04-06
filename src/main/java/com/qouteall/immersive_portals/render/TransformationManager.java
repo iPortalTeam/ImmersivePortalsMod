@@ -37,10 +37,17 @@ public class TransformationManager {
         
     }
     
+    public static boolean isAnimationRunning() {
+        double progress = (MyRenderHelper.renderStartNanoTime - interpolationStartTime) /
+            ((double) interpolationEndTime - interpolationStartTime);
+        
+        return progress >= -0.1 && progress <= 1.1;
+    }
+    
     public static Quaternion getFinalRotation(Quaternion cameraRotation) {
         double progress = (MyRenderHelper.renderStartNanoTime - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
-
+        
         if (progress < 0 || progress >= 1) {
             return cameraRotation;
         }
@@ -62,9 +69,11 @@ public class TransformationManager {
 //        }
         
         progress = mapProgress(progress);
-
-        return Helper.interpolateQuaternionNaive(
-            Helper.ortholize(inertialRotation), Helper.ortholize(cameraRotation.copy()), (float) progress
+        
+        return Helper.interpolateQuaternion(
+            Helper.ortholize(inertialRotation),
+            Helper.ortholize(cameraRotation.copy()),
+            (float) progress
         );
     }
     

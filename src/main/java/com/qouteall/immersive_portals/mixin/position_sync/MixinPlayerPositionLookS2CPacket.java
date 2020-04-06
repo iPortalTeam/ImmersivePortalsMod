@@ -23,18 +23,17 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
         playerDimension = dimension;
     }
     
-    @Inject(
-        method = "read",
-        at = @At("HEAD")
-    )
+    @Inject(method = "read", at = @At("HEAD"))
     private void onRead(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
-        playerDimension = DimensionType.byRawId(packetByteBuf_1.readInt());
+        try {
+            playerDimension = DimensionType.byRawId(packetByteBuf_1.readInt());
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new RuntimeException("The server doesn't install Immmersive Portals Mod");
+        }
     }
     
-    @Inject(
-        method = "write",
-        at = @At("HEAD")
-    )
+    @Inject(method = "write", at = @At("HEAD"))
     private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
         packetByteBuf_1.writeInt(playerDimension.getRawId());
     }

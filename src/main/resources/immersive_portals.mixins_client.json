@@ -32,6 +32,7 @@
     "MixinFrustum",
     "MixinGameRenderer",
     "MixinGlStateManager",
+    "MixinInGameOverlayRenderer",
     "MixinMatrix4f",
     "MixinMinecraftClient",
     "MixinParticleManager",
