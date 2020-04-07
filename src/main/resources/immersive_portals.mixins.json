@@ -18,6 +18,7 @@
     "collision/MixinAbstractDecorationEntity",
     "collision/MixinAbstractMinecartEntity",
     "collision/MixinEntity",
+    "collision/MixinLivingEntity_C",
     "entity_sync/MixinEntityTracker",
     "entity_sync/MixinEntityTrackerEntry",
     "entity_sync/MixinServerPlayerEntity",

@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -62,6 +63,8 @@ public abstract class MixinEntity implements IEEntity {
     
     @Shadow
     public abstract Text getName();
+    
+    @Shadow protected abstract BlockPos getLandingPos();
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))

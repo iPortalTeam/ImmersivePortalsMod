@@ -214,7 +214,7 @@ public class CollisionHelper {
     //this would cause player to fall through floor when halfway though portal
     //use entity.getCollidingPortal() and do not use this
     public static Portal getCollidingPortalUnreliable(Entity entity) {
-        Box box = entity.getBoundingBox();
+        Box box = entity.getBoundingBox().stretch(entity.getVelocity());
         
         return getCollidingPortalRough(entity, box).filter(
             portal -> shouldCollideWithPortal(

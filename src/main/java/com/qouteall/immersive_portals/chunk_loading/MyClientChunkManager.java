@@ -26,6 +26,8 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 //this class is modified based on ClientChunkManager
@@ -90,18 +92,18 @@ public class MyClientChunkManager extends ClientChunkManager {
     public WorldChunk loadChunkFromPacket(
         int x,
         int z,
-        BiomeArray biomeArray_1,
-        PacketByteBuf packetByteBuf_1,
-        CompoundTag compoundTag_1,
+        BiomeArray biomeArray,
+        PacketByteBuf packetByteBuf,
+        CompoundTag compoundTag,
         int sections
     ) {
         ChunkPos chunkPos = new ChunkPos(x, z);
-        WorldChunk worldChunk_1;
+        WorldChunk worldChunk;
         
         synchronized (chunkMapNew) {
-            worldChunk_1 = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
-            if (!positionEquals(worldChunk_1, x, z)) {
-                if (biomeArray_1 == null) {
+            worldChunk = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
+            if (!positionEquals(worldChunk, x, z)) {
+                if (biomeArray == null) {
                     LOGGER.warn(
                         "Ignoring chunk since we don't have complete data: {}, {}",
                         x,
@@ -110,16 +112,16 @@ public class MyClientChunkManager extends ClientChunkManager {
                     return null;
                 }
                 
-                worldChunk_1 = new WorldChunk(this.world, chunkPos, biomeArray_1);
-                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, sections);
-                chunkMapNew.put(chunkPos.toLong(), worldChunk_1);
+                worldChunk = new WorldChunk(this.world, chunkPos, biomeArray);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, sections);
+                chunkMapNew.put(chunkPos.toLong(), worldChunk);
             }
             else {
-                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, sections);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, sections);
             }
         }
         
-        ChunkSection[] chunkSections = worldChunk_1.getSectionArray();
+        ChunkSection[] chunkSections = worldChunk.getSectionArray();
         LightingProvider lightingProvider = this.getLightingProvider();
         lightingProvider.setLightEnabled(chunkPos, true);
         
@@ -133,9 +135,9 @@ public class MyClientChunkManager extends ClientChunkManager {
         
         this.world.resetChunkColor(x, z);
         
-        O_O.postChunkLoadEventForge(worldChunk_1);
+        O_O.postChunkLoadEventForge(worldChunk);
         
-        return worldChunk_1;
+        return worldChunk;
     }
     
     public static void updateLightStatus(WorldChunk chunk) {
@@ -147,6 +149,12 @@ public class MyClientChunkManager extends ClientChunkManager {
                 ChunkSectionPos.from(chunk.getPos().x, int_5, chunk.getPos().z),
                 ChunkSection.isEmpty(chunkSection_1)
             );
+        }
+    }
+    
+    public List<WorldChunk> getCopiedChunkList() {
+        synchronized (chunkMapNew) {
+            return Arrays.asList(chunkMapNew.values().toArray(new WorldChunk[0]));
         }
     }
     
