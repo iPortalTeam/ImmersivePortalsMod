@@ -51,10 +51,10 @@ dependencies {
 	include "me.shedaniel.cloth:config-2:2.9.3"
 	include "io.github.prospector:modmenu:1.10.1+build.30"
 
-	modCompile 'ignored:netherHigher:1.0.2+build.3'
-	modCompile 'ignored:config:2-2.9.3'
-	modCompile 'ignored:cotton-client-commands:0.4.2+1.14.3-SNAPSHOT'
-	modCompile 'ignored:fiber-0.8.0:1'
+//	modCompile 'ignored:netherHigher:1.0.2+build.3'
+//	modCompile 'ignored:config:2-2.9.3'
+//	modCompile 'ignored:cotton-client-commands:0.4.2+1.14.3-SNAPSHOT'
+//	modCompile 'ignored:fiber-0.8.0:1'
 
 }
 
