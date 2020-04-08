@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -89,7 +90,11 @@ public class RendererDeferred extends PortalRenderer {
         portalLayers.pop();
         
         deferredBuffer.fb.beginWrite(true);
-        
+    
+//        RenderSystem.disableBlend();
+//        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+//        RenderSystem.colorMask(true,true,true,true);
+        RenderSystem.disableAlphaTest();
         MyRenderHelper.drawFrameBufferUp(
             portal,
             client.getFramebuffer(),
@@ -142,7 +147,7 @@ public class RendererDeferred extends PortalRenderer {
 //            GlStateManager.disableDepthTest();//test
             GlStateManager.disableTexture();
 //            GlStateManager.colorMask(false, false, false, false);
-            GlStateManager.depthMask(false);
+            GlStateManager.depthMask(true);
             GL20.glUseProgram(0);
             
             ViewAreaRenderer.drawPortalViewTriangle(

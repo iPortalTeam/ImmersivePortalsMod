@@ -57,6 +57,12 @@ public class RendererMixed extends PortalRenderer {
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         Framebuffer mcFrameBuffer = client.getFramebuffer();
+    
+        if (OFHelper.isChocapicShader()) {
+            MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
+        }
+        
+        deferredFbs[portalLayer].fb.beginWrite(true);
         MyRenderHelper.myDrawFrameBuffer(mcFrameBuffer, false, true);
         
         glDisable(GL_STENCIL_TEST);
@@ -138,7 +144,6 @@ public class RendererMixed extends PortalRenderer {
     public void finishRendering() {
         GlStateManager.colorMask(true, true, true, true);
         Shaders.useProgram(Shaders.ProgramNone);
-        //GuiLighting.disable();
         
         if (MyRenderHelper.getRenderedPortalNum() == 0) {
             return;
@@ -179,7 +184,6 @@ public class RendererMixed extends PortalRenderer {
         
         deferredFbs[outerLayer].fb.beginWrite(true);
         
-        GlStateManager.enableAlphaTest();
         MyRenderHelper.myDrawFrameBuffer(
             deferredFbs[innerLayer].fb,
             true,

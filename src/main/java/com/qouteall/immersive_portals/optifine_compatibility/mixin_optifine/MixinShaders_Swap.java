@@ -1764,5 +1764,7 @@ public abstract class MixinShaders_Swap {
             EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
             GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
         };
+        
+        OFGlobal.getCurrentShaderpack = () -> shaderPack;
     }
 }

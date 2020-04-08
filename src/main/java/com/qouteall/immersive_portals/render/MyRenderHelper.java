@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 import static org.lwjgl.opengl.GL11.GL_PROJECTION;
@@ -310,13 +311,14 @@ public class MyRenderHelper {
         GlStateManager.viewport(0, 0, int_1, int_2);
         GlStateManager.enableTexture();
         GlStateManager.disableLighting();
+        GlStateManager.disableFog();
         if (doEnableAlphaTest) {
             RenderSystem.enableAlphaTest();
         }
         else {
             GlStateManager.disableAlphaTest();
         }
-        GlStateManager.enableBlend();
+        GlStateManager.disableBlend();
         GlStateManager.disableColorMaterial();
         
         
@@ -410,5 +412,13 @@ public class MyRenderHelper {
             pos = portal.transformPoint(pos);
         }
         ((IECamera) camera).mySetPos(pos);
+    }
+    
+    public static void clearAlphaTo1(Framebuffer mcFrameBuffer) {
+        mcFrameBuffer.beginWrite(true);
+        RenderSystem.colorMask(false, false, false, true);
+        RenderSystem.clearColor(0, 0, 0, 1.0f);
+        RenderSystem.clear(GL_COLOR_BUFFER_BIT, true);
+        RenderSystem.colorMask(true, true, true, true);
     }
 }

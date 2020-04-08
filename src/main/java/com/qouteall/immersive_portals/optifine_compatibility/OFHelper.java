@@ -37,4 +37,9 @@ public class OFHelper {
     
         OFGlobal.bindToShaderFrameBuffer.run();
     }
+    
+    public static boolean isChocapicShader() {
+        String name = OFGlobal.getCurrentShaderpack.get().getName();
+        return name.toLowerCase().indexOf("chocapic") != -1;
+    }
 }
