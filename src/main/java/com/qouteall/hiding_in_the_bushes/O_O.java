@@ -85,4 +85,8 @@ public class O_O {
     public static void postChunkUnloadEventForge(WorldChunk chunk) {
     
     }
+    
+    public static boolean isNetherHigherModPresent() {
+        return FabricLoader.INSTANCE.isModLoaded("netherhigher");
+    }
 }

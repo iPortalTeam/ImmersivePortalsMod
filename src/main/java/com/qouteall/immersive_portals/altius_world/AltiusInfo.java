@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.altius_world;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
@@ -89,6 +90,9 @@ public class AltiusInfo {
     
     public static int getHeight(DimensionType dimensionType) {
         if (dimensionType == DimensionType.THE_NETHER) {
+            if (O_O.isNetherHigherModPresent()) {
+                return 256;
+            }
             return 128;
         }
         return 256;

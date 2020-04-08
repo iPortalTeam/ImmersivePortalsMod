@@ -77,9 +77,9 @@ public abstract class PortalRenderer {
             return false;
         }
         if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
-            if (TransformationManager.isAnimationRunning()) {
-                return false;
-            }
+//            if (TransformationManager.isAnimationRunning()) {
+//                return false;
+//            }
             return true;
         }
         return false;
@@ -229,6 +229,7 @@ public abstract class PortalRenderer {
         GlStateManager.disableBlend();
         MyRenderHelper.restoreViewPort();
         
+        MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
     }
     

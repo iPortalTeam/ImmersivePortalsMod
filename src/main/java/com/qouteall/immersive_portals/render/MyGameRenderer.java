@@ -158,7 +158,15 @@ public class MyGameRenderer {
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
-        doRenderEntity.run();
+        double distanceToCamera =
+            player.getCameraPosVec(1).distanceTo(client.gameRenderer.getCamera().getPos());
+        //avoid rendering player too near and block view
+        if (distanceToCamera > 0.5) {
+            doRenderEntity.run();
+        }
+        else {
+//            Helper.log("ignored " + distanceToCamera);
+        }
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos

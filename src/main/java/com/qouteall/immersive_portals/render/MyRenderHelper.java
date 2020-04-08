@@ -75,6 +75,7 @@ public class MyRenderHelper {
     public static Camera originalCamera;
     public static int originalCameraLightPacked;
     
+    public static String debugText;
     
     public static void updatePreRenderInfo(
         float tickDelta_
@@ -108,6 +109,8 @@ public class MyRenderHelper {
     
         originalCameraLightPacked = client.getEntityRenderManager()
             .getLight(client.cameraEntity, tickDelta);
+    
+        debugText = "";
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {
