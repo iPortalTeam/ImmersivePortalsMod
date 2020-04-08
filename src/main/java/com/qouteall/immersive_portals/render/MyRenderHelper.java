@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
@@ -20,7 +19,6 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.Untracker;
 import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -31,10 +29,8 @@ import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.system.MemoryUtil;
 
 import java.lang.ref.WeakReference;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,7 +56,7 @@ public class MyRenderHelper {
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;
     public static GameMode originalGameMode;
-    public static float partialTicks = 0;
+    public static float tickDelta = 0;
     
     private static Set<DimensionType> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<Portal>>> lastPortalRenderInfos = new ArrayList<>();
@@ -81,7 +77,7 @@ public class MyRenderHelper {
     
     
     public static void updatePreRenderInfo(
-        float partialTicks_
+        float tickDelta_
     ) {
         
         Entity cameraEntity = client.cameraEntity;
@@ -95,7 +91,7 @@ public class MyRenderHelper {
         MyRenderHelper.originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         MyRenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
-        partialTicks = partialTicks_;
+        tickDelta = tickDelta_;
         
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
@@ -111,11 +107,11 @@ public class MyRenderHelper {
         originalCamera = client.gameRenderer.getCamera();
     
         originalCameraLightPacked = client.getEntityRenderManager()
-            .getLight(client.cameraEntity, partialTicks);
+            .getLight(client.cameraEntity, tickDelta);
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {
-        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(partialTicks);
+        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
         double minPortalDistance = CHelper.getClientNearbyPortals(10)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
             .min(Double::compareTo).orElse(1.0);
@@ -363,18 +359,6 @@ public class MyRenderHelper {
         GlStateManager.popMatrix();
         
         CHelper.checkGlError();
-    }
-    
-    //If I don't do so JVM will crash
-    private static final FloatBuffer matrixBuffer = (FloatBuffer) GLX.make(MemoryUtil.memAllocFloat(
-        16), (p_209238_0_) -> {
-        Untracker.untrack(MemoryUtil.memAddress(p_209238_0_));
-    });
-    
-    public static void multMatrix(float[] arr) {
-        matrixBuffer.put(arr);
-        matrixBuffer.rewind();
-        GlStateManager.multMatrix(matrixBuffer);
     }
     
     public static boolean isRenderingMirror() {

@@ -594,7 +594,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (OFInterface.isFogDisabled.getAsBoolean()) {
-            MyGameRenderer.forceResetFog();
+            MyGameRenderer.forceResetFogState();
             GL11.glEnable(GL11.GL_FOG);
         }
     }

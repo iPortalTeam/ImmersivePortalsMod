@@ -229,7 +229,7 @@ public abstract class PortalRenderer {
         GlStateManager.disableBlend();
         MyRenderHelper.restoreViewPort();
         
-        MyGameRenderer.resetFog();
+        MyGameRenderer.resetFogState();
     }
     
     private boolean isOutOfDistance(Portal portal) {
@@ -259,7 +259,7 @@ public abstract class PortalRenderer {
         CHelper.checkGlError();
         
         MyGameRenderer.renderWorld(
-            MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
+            MyRenderHelper.tickDelta, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
         
         CHelper.checkGlError();

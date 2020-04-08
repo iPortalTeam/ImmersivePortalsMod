@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
@@ -114,6 +115,13 @@ public class BlockManipulationClient {
                 //don't stop at placeholder block
                 if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
                     return null;
+                }
+    
+                //when seeing through mirror don't stop at the glass block
+                if (portal instanceof Mirror) {
+                    if (portal.getDistanceToNearestPointInPortal(new Vec3d(blockPos).add(0.5,0.5,0.5)) < 0.6) {
+                        return null;
+                    }
                 }
                 
                 FluidState fluidState = world.getFluidState(blockPos);

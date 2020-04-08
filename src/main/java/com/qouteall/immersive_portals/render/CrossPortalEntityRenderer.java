@@ -209,7 +209,7 @@ public class CrossPortalEntityRenderer {
         ((IEWorldRenderer) client.worldRenderer).myRenderEntity(
             entity,
             cameraPos.x, cameraPos.y, cameraPos.z,
-            MyRenderHelper.partialTicks, matrixStack,
+            MyRenderHelper.tickDelta, matrixStack,
             consumers
         );
         //immediately invoke draw call

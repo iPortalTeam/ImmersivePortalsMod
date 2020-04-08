@@ -268,7 +268,7 @@ public class ViewAreaRenderer {
             portal,
             bufferbuilder,
             PortalRenderer.client.gameRenderer.getCamera().getPos(),
-            MyRenderHelper.partialTicks,
+            MyRenderHelper.tickDelta,
             portal instanceof Mirror ? 0 : 0.45F
         );
         
