@@ -112,12 +112,12 @@ public class MyGameRenderer {
         client.getProfiler().push("render_portal_content");
         
         //invoke it!
-        OFInterface.beforeRenderCenter.accept(partialTicks);
+//        OFInterface.beforeRenderCenter.accept(partialTicks);
         client.gameRenderer.renderWorld(
             partialTicks, 0,
             new MatrixStack()
         );
-        OFInterface.afterRenderCenter.run();
+//        OFInterface.afterRenderCenter.run();
         
         client.getProfiler().pop();
         
@@ -158,7 +158,15 @@ public class MyGameRenderer {
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
-        doRenderEntity.run();
+        double distanceToCamera =
+            player.getCameraPosVec(MyRenderHelper.tickDelta).distanceTo(client.gameRenderer.getCamera().getPos());
+        //avoid rendering player too near and block view
+        if (distanceToCamera > 1) {
+            doRenderEntity.run();
+        }
+        else {
+//            Helper.log("ignored " + distanceToCamera);
+        }
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos
@@ -166,11 +174,19 @@ public class MyGameRenderer {
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
     }
     
-    public static void resetFog() {
+    public static void resetFogState() {
         if (OFInterface.isFogDisabled.getAsBoolean()) {
             return;
         }
         
+        if (OFInterface.isShaders.getAsBoolean()) {
+            return;
+        }
+        
+        forceResetFogState();
+    }
+    
+    public static void forceResetFogState() {
         Camera camera = client.gameRenderer.getCamera();
         float g = client.gameRenderer.getViewDistance();
         
@@ -191,6 +207,16 @@ public class MyGameRenderer {
             bl2
         );
         BackgroundRenderer.setFogBlack();
+    }
+    
+    public static void updateFogColor() {
+        BackgroundRenderer.render(
+            client.gameRenderer.getCamera(),
+            MyRenderHelper.tickDelta,
+            client.world,
+            client.options.viewDistance,
+            client.gameRenderer.getSkyDarkness(MyRenderHelper.tickDelta)
+        );
     }
     
     public static void resetDiffuseLighting(MatrixStack matrixStack) {
@@ -232,27 +258,25 @@ public class MyGameRenderer {
     public static void renderSkyFor(
         DimensionType dimension,
         MatrixStack matrixStack,
-        float partialTicks
+        float tickDelta
     ) {
         ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
         WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
-    
+        
         ClientWorld oldWorld = client.world;
         WorldRenderer oldWorldRenderer = client.worldRenderer;
         FogRendererContext.swappingManager.pushSwapping(dimension);
-        MyGameRenderer.resetFog();
-
+        MyGameRenderer.forceResetFogState();
+        
         client.world = newWorld;
-        ((IEMinecraftClient)client).setWorldRenderer(newWorldRenderer);
-
-        newWorldRenderer.renderSky(matrixStack, partialTicks);
-
+        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
+        
+        newWorldRenderer.renderSky(matrixStack, tickDelta);
+        
         client.world = oldWorld;
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         FogRendererContext.swappingManager.popSwapping();
-        MyGameRenderer.resetFog();
-        
-//        client.worldRenderer.renderSky(matrixStack,partialTicks);
+        MyGameRenderer.forceResetFogState();
     }
     
 }

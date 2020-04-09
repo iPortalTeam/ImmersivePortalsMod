@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
@@ -35,7 +36,7 @@ public class PortalManipulation {
         );
     }
     
-    public static Portal doCompleteBiWayPortal(Portal portal, EntityType<Portal> entityType) {
+    public static Portal completeBiWayPortal(Portal portal, EntityType<Portal> entityType) {
         ServerWorld world = McHelper.getServer().getWorld(portal.dimensionTo);
         
         Portal newPortal = entityType.create(world);
@@ -80,7 +81,7 @@ public class PortalManipulation {
         newPortal.axisH = Helper.getRotated(rotation, newPortal.axisH);
     }
     
-    public static Portal doCompleteBiFacedPortal(Portal portal, EntityType<Portal> entityType) {
+    public static Portal completeBiFacedPortal(Portal portal, EntityType<Portal> entityType) {
         ServerWorld world = (ServerWorld) portal.world;
         Portal newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
@@ -137,7 +138,7 @@ public class PortalManipulation {
             removalInformer
         );
         
-        Portal oppositeFacedPortal = doCompleteBiFacedPortal(portal, entityType);
+        Portal oppositeFacedPortal = completeBiFacedPortal(portal, entityType);
         removeOverlappedPortals(
             McHelper.getServer().getWorld(portal.dimensionTo),
             portal.destination,
@@ -145,7 +146,7 @@ public class PortalManipulation {
             removalInformer
         );
         
-        Portal r1 = doCompleteBiWayPortal(portal, entityType);
+        Portal r1 = completeBiWayPortal(portal, entityType);
         removeOverlappedPortals(
             McHelper.getServer().getWorld(oppositeFacedPortal.dimensionTo),
             oppositeFacedPortal.destination,
@@ -153,7 +154,7 @@ public class PortalManipulation {
             removalInformer
         );
         
-        Portal r2 = doCompleteBiWayPortal(oppositeFacedPortal, entityType);
+        Portal r2 = completeBiWayPortal(oppositeFacedPortal, entityType);
         addingInformer.accept(oppositeFacedPortal);
         addingInformer.accept(r1);
         addingInformer.accept(r2);
@@ -176,5 +177,11 @@ public class PortalManipulation {
             e.remove();
             informer.accept(e);
         });
+    }
+    
+    public static void generateBreakablePortalOneFaced(
+        NetherPortalGeneration.Info info
+    ) {
+    
     }
 }

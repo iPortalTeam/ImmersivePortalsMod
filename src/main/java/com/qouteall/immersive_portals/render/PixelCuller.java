@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -22,13 +23,13 @@ public class PixelCuller {
     public static void startCulling() {
         //shaders do not compatible with glCullPlane
         //I have to modify shader code
-        if (CGlobal.useFrontCulling && !OFInterface.isShaders.getAsBoolean()) {
+        if (CGlobal.useFrontCulling && !isShaderCulling()) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
         isCullingEnabled = true;
     }
     
-    public static void startClassicalCulling(){
+    public static void startClassicalCulling() {
         GL11.glEnable(GL11.GL_CLIP_PLANE0);
         isCullingEnabled = true;
     }
@@ -36,9 +37,16 @@ public class PixelCuller {
     //NOTE the actual culling plane is related to current model view matrix
     public static void updateCullingPlaneInner(MatrixStack matrixStack, Portal portal) {
         activeClipPlaneEquation = getClipEquationInner(portal);
-        if (!OFInterface.isShaders.getAsBoolean()) {
+        if (!isShaderCulling()) {
             loadCullingPlaneClassical(matrixStack);
         }
+    }
+    
+    public static boolean isShaderCulling() {
+        return OFInterface.isShaders.getAsBoolean() &&
+            !RenderDimensionRedirect.isNoShader(
+                MinecraftClient.getInstance().world.dimension.getType()
+            );
     }
     
     public static void loadCullingPlaneClassical(MatrixStack matrixStack) {
@@ -52,7 +60,7 @@ public class PixelCuller {
     
     public static void updateCullingPlaneOuter(MatrixStack matrixStack, Portal portal) {
         activeClipPlaneEquation = getClipEquationOuter(portal);
-        if (!OFInterface.isShaders.getAsBoolean()) {
+        if (!isShaderCulling()) {
             loadCullingPlaneClassical(matrixStack);
         }
     }
@@ -61,11 +69,16 @@ public class PixelCuller {
     //its result depends on camera pos
     private static double[] getClipEquationInner(Portal portal) {
         
+        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+        
         Vec3d planeNormal = portal.getContentDirection();
         
+        double correction = portal.destination.subtract(cameraPos)
+            .dotProduct(portal.getContentDirection()) / 150.0;
+        
         Vec3d portalPos = portal.destination
-            .subtract(planeNormal.multiply(0.01))//avoid z fighting
-            .subtract(client.gameRenderer.getCamera().getPos());
+            .subtract(planeNormal.multiply(correction))//avoid z fighting
+            .subtract(cameraPos);
         
         //equation: planeNormal * p + c > 0
         //-planeNormal * portalCenter = c

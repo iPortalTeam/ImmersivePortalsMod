@@ -1,12 +1,14 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.entity.EntityContext;
+import net.minecraft.entity.EntityType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -100,8 +102,8 @@ public class PortalPlaceholderBlock extends Block {
                     20
                 ).forEach(
                     portal -> {
-                        if (portal instanceof IBreakablePortal) {
-                            ((IBreakablePortal) portal).notifyPlaceholderUpdate();
+                        if (portal instanceof BreakablePortalEntity) {
+                            ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
                         }
                     }
                 );
@@ -129,6 +131,7 @@ public class PortalPlaceholderBlock extends Block {
         //nothing
     }
     
+   
     //---------These are copied from BlockBarrier
     @Override
     public boolean isTranslucent(

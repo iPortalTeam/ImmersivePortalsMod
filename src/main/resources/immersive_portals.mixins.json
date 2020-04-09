@@ -9,6 +9,7 @@
     "altius_world/MixinLevelProperties",
     "altius_world/MixinMinecraftServer_A",
     "altius_world/MixinOverworldDimension",
+    "altius_world/MixinSpawnHelper",
     "altius_world/MixinSurfaceChunkGenerator",
     "block_manipulation/MixinLivingEntity",
     "block_manipulation/MixinStatusEffect",

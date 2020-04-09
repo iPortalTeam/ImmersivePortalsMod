@@ -7,7 +7,7 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 
-public class MyFloatingIslandChunkGenerator extends FloatingIslandsChunkGenerator {
+public class StretchedSkylandGenerator extends FloatingIslandsChunkGenerator {
     private final BlockState AIR;
     
     private double wxx;
@@ -15,7 +15,7 @@ public class MyFloatingIslandChunkGenerator extends FloatingIslandsChunkGenerato
     private double wxz;
     private double wzz;
     
-    public MyFloatingIslandChunkGenerator(
+    public StretchedSkylandGenerator(
         IWorld iWorld,
         BiomeSource biomeSource,
         FloatingIslandsChunkGeneratorConfig floatingIslandsChunkGeneratorConfig

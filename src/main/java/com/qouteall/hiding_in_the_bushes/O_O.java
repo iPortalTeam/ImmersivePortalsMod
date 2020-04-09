@@ -10,6 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 public class O_O {
@@ -75,5 +76,17 @@ public class O_O {
     
     public static boolean detectOptiFine() {
         return FabricLoader.INSTANCE.isModLoaded("optifabric");
+    }
+    
+    public static void postChunkLoadEventForge(WorldChunk chunk) {
+    
+    }
+    
+    public static void postChunkUnloadEventForge(WorldChunk chunk) {
+    
+    }
+    
+    public static boolean isNetherHigherModPresent() {
+        return FabricLoader.INSTANCE.isModLoaded("netherhigher");
     }
 }

@@ -72,9 +72,9 @@ public class MyCommandServer {
                                 BorderPortal.setBorderPortal(
                                     context.getSource().getWorld(),
                                     IntegerArgumentType.getInteger(context, "x1"),
-                                    IntegerArgumentType.getInteger(context, "y1"),
+                                    IntegerArgumentType.getInteger(context, "z1"),
                                     IntegerArgumentType.getInteger(context, "x2"),
-                                    IntegerArgumentType.getInteger(context, "y2")
+                                    IntegerArgumentType.getInteger(context, "z2")
                                 );
                                 return 0;
                             })
@@ -346,7 +346,7 @@ public class MyCommandServer {
                         p -> sendMessage(context, "Removed " + p)
                     );
                     
-                    Portal result = PortalManipulation.doCompleteBiWayPortal(
+                    Portal result = PortalManipulation.completeBiWayPortal(
                         portal,
                         Portal.entityType
                     );
@@ -367,7 +367,7 @@ public class MyCommandServer {
                         p -> sendMessage(context, "Removed " + p)
                     );
                     
-                    Portal result = PortalManipulation.doCompleteBiFacedPortal(
+                    Portal result = PortalManipulation.completeBiFacedPortal(
                         portal,
                         Portal.entityType
                     );

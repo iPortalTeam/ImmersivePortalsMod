@@ -77,13 +77,10 @@ public abstract class PortalRenderer {
             return false;
         }
         if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
-            Portal renderingPortal = getRenderingPortal();
-            return renderingPortal.canRenderEntityInsideMe(
-                MyRenderHelper.originalPlayerPos.add(
-                    0, client.cameraEntity.getEyeY(), 0
-                ),
-                0
-            );
+//            if (TransformationManager.isAnimationRunning()) {
+//                return false;
+//            }
+            return true;
         }
         return false;
     }
@@ -134,6 +131,9 @@ public abstract class PortalRenderer {
             }
         }
         
+        if (isOutOfDistance(portal)) {
+            return;
+        }
         
         doRenderPortal(portal, matrixStack);
     }
@@ -187,21 +187,12 @@ public abstract class PortalRenderer {
             return;
         }
         
-        if (portal.getDistanceToNearestPointInPortal(client.gameRenderer.getCamera().getPos()) > getRenderRange()) {
-            return;
-        }
         
         Entity cameraEntity = client.cameraEntity;
-        Camera camera = client.gameRenderer.getCamera();
-        
-        if (getPortalLayer() >= 2 &&
-            portal.getDistanceToNearestPointInPortal(cameraEntity.getPos()) >
-                (16 * maxPortalLayer.get())
-        ) {
-            return;
-        }
         
         MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
+        
+        Camera camera = client.gameRenderer.getCamera();
         
         assert cameraEntity.world == client.world;
         
@@ -223,11 +214,11 @@ public abstract class PortalRenderer {
         cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         client.world = newWorld;
-    
+        
         renderPortalContentWithContextSwitched(
             portal, oldCameraPos, oldWorld
         );
-    
+        
         //restore the position
         cameraEntity.dimension = oldDimension;
         cameraEntity.world = oldWorld;
@@ -238,7 +229,23 @@ public abstract class PortalRenderer {
         GlStateManager.disableBlend();
         MyRenderHelper.restoreViewPort();
         
-        MyGameRenderer.resetFog();
+        MyGameRenderer.updateFogColor();
+        MyGameRenderer.resetFogState();
+    }
+    
+    private boolean isOutOfDistance(Portal portal) {
+        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+        if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
+            return true;
+        }
+        
+        if (getPortalLayer() >= 1 &&
+            portal.getDistanceToNearestPointInPortal(cameraPos) >
+                (16 * maxPortalLayer.get())
+        ) {
+            return true;
+        }
+        return false;
     }
     
     protected void renderPortalContentWithContextSwitched(
@@ -253,7 +260,7 @@ public abstract class PortalRenderer {
         CHelper.checkGlError();
         
         MyGameRenderer.renderWorld(
-            MyRenderHelper.partialTicks, worldRenderer, destClientWorld, oldCameraPos, oldWorld
+            MyRenderHelper.tickDelta, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
         
         CHelper.checkGlError();

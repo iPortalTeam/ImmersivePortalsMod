@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -25,6 +26,8 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 //this class is modified based on ClientChunkManager
@@ -63,6 +66,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             WorldChunk worldChunk_1 = chunkMapNew.get(chunkPos.toLong());
             if (positionEquals(worldChunk_1, int_1, int_2)) {
                 chunkMapNew.remove(chunkPos.toLong());
+                O_O.postChunkUnloadEventForge(worldChunk_1);
             }
         }
     }
@@ -86,51 +90,54 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public WorldChunk loadChunkFromPacket(
-        int int_1,
-        int int_2,
-        BiomeArray biomeArray_1,
-        PacketByteBuf packetByteBuf_1,
-        CompoundTag compoundTag_1,
-        int int_3
+        int x,
+        int z,
+        BiomeArray biomeArray,
+        PacketByteBuf packetByteBuf,
+        CompoundTag compoundTag,
+        int sections
     ) {
-        ChunkPos chunkPos = new ChunkPos(int_1, int_2);
-        WorldChunk worldChunk_1;
+        ChunkPos chunkPos = new ChunkPos(x, z);
+        WorldChunk worldChunk;
         
         synchronized (chunkMapNew) {
-            worldChunk_1 = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
-            if (!positionEquals(worldChunk_1, int_1, int_2)) {
-                if (biomeArray_1 == null) {
+            worldChunk = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
+            if (!positionEquals(worldChunk, x, z)) {
+                if (biomeArray == null) {
                     LOGGER.warn(
                         "Ignoring chunk since we don't have complete data: {}, {}",
-                        int_1,
-                        int_2
+                        x,
+                        z
                     );
                     return null;
                 }
                 
-                worldChunk_1 = new WorldChunk(this.world, chunkPos, biomeArray_1);
-                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, int_3);
-                chunkMapNew.put(chunkPos.toLong(), worldChunk_1);
+                worldChunk = new WorldChunk(this.world, chunkPos, biomeArray);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, sections);
+                chunkMapNew.put(chunkPos.toLong(), worldChunk);
             }
             else {
-                worldChunk_1.loadFromPacket(biomeArray_1, packetByteBuf_1, compoundTag_1, int_3);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, sections);
             }
         }
         
-        ChunkSection[] chunkSections_1 = worldChunk_1.getSectionArray();
-        LightingProvider lightingProvider_1 = this.getLightingProvider();
-        lightingProvider_1.setLightEnabled(chunkPos, true);
+        ChunkSection[] chunkSections = worldChunk.getSectionArray();
+        LightingProvider lightingProvider = this.getLightingProvider();
+        lightingProvider.setLightEnabled(chunkPos, true);
         
-        for (int int_5 = 0; int_5 < chunkSections_1.length; ++int_5) {
-            ChunkSection chunkSection_1 = chunkSections_1[int_5];
-            lightingProvider_1.updateSectionStatus(
-                ChunkSectionPos.from(int_1, int_5, int_2),
+        for (int i = 0; i < chunkSections.length; ++i) {
+            ChunkSection chunkSection_1 = chunkSections[i];
+            lightingProvider.updateSectionStatus(
+                ChunkSectionPos.from(x, i, z),
                 ChunkSection.isEmpty(chunkSection_1)
             );
         }
         
-        this.world.resetChunkColor(int_1, int_2);
-        return worldChunk_1;
+        this.world.resetChunkColor(x, z);
+        
+        O_O.postChunkLoadEventForge(worldChunk);
+        
+        return worldChunk;
     }
     
     public static void updateLightStatus(WorldChunk chunk) {
@@ -142,6 +149,12 @@ public class MyClientChunkManager extends ClientChunkManager {
                 ChunkSectionPos.from(chunk.getPos().x, int_5, chunk.getPos().z),
                 ChunkSection.isEmpty(chunkSection_1)
             );
+        }
+    }
+    
+    public List<WorldChunk> getCopiedChunkList() {
+        synchronized (chunkMapNew) {
+            return Arrays.asList(chunkMapNew.values().toArray(new WorldChunk[0]));
         }
     }
     

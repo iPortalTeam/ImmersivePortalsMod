@@ -45,15 +45,21 @@ public class ServerTeleportationManager {
     }
     
     public void tryToTeleportRegularEntity(Portal portal, Entity entity) {
-        if (!(entity instanceof ServerPlayerEntity)) {
-            if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
-                return;
-            }
-            ModMain.serverTaskList.addTask(() -> {
-                teleportRegularEntity(entity, portal);
-                return true;
-            });
+        if (entity instanceof ServerPlayerEntity) {
+            return;
         }
+        if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
+            return;
+        }
+        //a new born entity may have last tick pos 0 0 0
+        double motion = McHelper.lastTickPosOf(entity).squaredDistanceTo(entity.getPos());
+        if (motion > 2) {
+            return;
+        }
+        ModMain.serverTaskList.addTask(() -> {
+            teleportRegularEntity(entity, portal);
+            return true;
+        });
     }
     
     private static Stream<Entity> getEntitiesToTeleport(Portal portal) {
@@ -351,18 +357,28 @@ public class ServerTeleportationManager {
         if (entity.hasVehicle() || doesEntityClutterContainPlayer(entity)) {
             return;
         }
+    
+        Vec3d velocity = entity.getVelocity();
+        
+        List<Entity> passengerList = entity.getPassengerList();
         
         Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(entity));
         
         if (portal.dimensionTo != entity.dimension) {
             changeEntityDimension(entity, portal.dimensionTo, newEyePos);
+            for (Entity passenger : passengerList) {
+                changeEntityDimension(passenger, portal.dimensionTo, newEyePos);
+            }
+            for (Entity passenger : passengerList) {
+                passenger.startRiding(entity, true);
+            }
         }
         
         entity.updatePosition(
             newEyePos.x, newEyePos.y, newEyePos.z
         );
         
-        entity.setVelocity(portal.transformLocalVec(entity.getVelocity()));
+        entity.setVelocity(portal.transformLocalVec(velocity));
         
         portal.onEntityTeleportedOnServer(entity);
     }

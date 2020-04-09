@@ -65,10 +65,15 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.load_fewer_chunks",
                 currConfig.loadFewerChunks
             ).setDefaultValue(false).build();
+            BooleanListEntry entryMultiThreadedNetherPortalSearching = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.multi_threaded_nether_portal_searching",
+                currConfig.multiThreadedNetherPortalSearching
+            ).setDefaultValue(true).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
-            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true).setExpanded(true).build();
+            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true).setExpanded(
+                true).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
@@ -79,6 +84,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryTeleportDebug);
             category.addEntry(entryCorrectCrossPortalEntityRendering);
             category.addEntry(entryLoadFewerChunks);
+            category.addEntry(entryMultiThreadedNetherPortalSearching);
             category.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
@@ -94,6 +100,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.teleportationDebug = entryTeleportDebug.getValue();
                     newConfigObject.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfigObject.loadFewerChunks = entryLoadFewerChunks.getValue();
+                    newConfigObject.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
                     newConfigObject.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

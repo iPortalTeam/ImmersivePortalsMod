@@ -21,5 +21,8 @@ public class MixinDebugHud {
         if (world != null) {
             returnValue.add("In: " + world.dimension.getType());
         }
+        if (MyRenderHelper.debugText != null && !MyRenderHelper.debugText.isEmpty()) {
+            returnValue.add("Debug: " + MyRenderHelper.debugText);
+        }
     }
 }

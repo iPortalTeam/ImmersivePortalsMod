@@ -47,7 +47,7 @@ public class BorderBarrierFiller {
             warnedPlayers.remove(player);
             
             McHelper.serverLog(player, "Start filling border");
-    
+            
             startFillingBorder(world, borderBox, player);
         }
     }
@@ -102,12 +102,12 @@ public class BorderBarrierFiller {
             zStream.get().mapToObj(z -> temp.set(borderBox.l.getX(), 0, z)),
             zStream.get().mapToObj(z -> temp.set(borderBox.h.getX(), 0, z))
         );
-    
+        
         BlockPos size = borderBox.getSize();
         int totalColumns = size.getX() * 2 + size.getZ() * 2;
-    
-        McHelper.performSplitedFindingTaskOnServer(
-            stream.iterator(),
+        
+        McHelper.performSplittedFindingTaskOnServer(
+            stream,
             pos -> {
                 for (int y = 0; y < 256; y++) {
                     temp1.set(pos.getX(), y, pos.getZ());
@@ -126,6 +126,9 @@ public class BorderBarrierFiller {
             },
             e -> {
                 //nothing
+            },
+            () -> {
+            
             },
             () -> {
             

@@ -31,6 +31,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -85,20 +86,44 @@ public class McHelper {
         return getOverWorldOnServer().getTime();
     }
     
-    public static <T> void performSplitedFindingTaskOnServer(
-        Iterator<T> iterator,
+    public static <T> void performFindingTaskOnServer(
+        boolean isMultithreaded,
+        Stream<T> stream,
         Predicate<T> predicate,
-        IntPredicate progressInformer,//return false to abort the task
+        IntPredicate taskWatcher,//return false to abort the task
         Consumer<T> onFound,
-        Runnable onNotFound
+        Runnable onNotFound,
+        Runnable finalizer
+    ) {
+        if (isMultithreaded) {
+            performMultiThreadedFindingTaskOnServer(
+                stream, predicate, taskWatcher, onFound, onNotFound, finalizer
+            );
+        }
+        else {
+            performSplittedFindingTaskOnServer(
+                stream, predicate, taskWatcher, onFound, onNotFound, finalizer
+            );
+        }
+    }
+    
+    public static <T> void performSplittedFindingTaskOnServer(
+        Stream<T> stream,
+        Predicate<T> predicate,
+        IntPredicate taskWatcher,//return false to abort the task
+        Consumer<T> onFound,
+        Runnable onNotFound,
+        Runnable finalizer
     ) {
         final long timeValve = (1000000000L / 50);
         int[] countStorage = new int[1];
         countStorage[0] = 0;
+        Iterator<T> iterator = stream.iterator();
         ModMain.serverTaskList.addTask(() -> {
             boolean shouldContinueRunning =
-                progressInformer.test(countStorage[0]);
+                taskWatcher.test(countStorage[0]);
             if (!shouldContinueRunning) {
+                finalizer.run();
                 return true;
             }
             long startTime = System.nanoTime();
@@ -108,6 +133,7 @@ public class McHelper {
                         T next = iterator.next();
                         if (predicate.test(next)) {
                             onFound.accept(next);
+                            finalizer.run();
                             return true;
                         }
                         countStorage[0] += 1;
@@ -115,6 +141,7 @@ public class McHelper {
                     else {
                         //finished searching
                         onNotFound.run();
+                        finalizer.run();
                         return true;
                     }
                 }
@@ -125,6 +152,69 @@ public class McHelper {
                     //suspend the task and retry it next tick
                     return false;
                 }
+            }
+        });
+    }
+    
+    public static <T> void performMultiThreadedFindingTaskOnServer(
+        Stream<T> stream,
+        Predicate<T> predicate,
+        IntPredicate taskWatcher,//return false to abort the task
+        Consumer<T> onFound,
+        Runnable onNotFound,
+        Runnable finalizer
+    ) {
+        int[] progress = new int[1];
+        Helper.SimpleBox<Boolean> isAborted = new Helper.SimpleBox<>(false);
+        Helper.SimpleBox<Runnable> finishBehavior = new Helper.SimpleBox<>(null);
+        CompletableFuture<Void> future = CompletableFuture.runAsync(
+            () -> {
+                T result = stream.peek(
+                    obj -> {
+                        progress[0] += 1;
+                    }
+                ).filter(
+                    predicate
+                ).findFirst().orElse(null);
+                if (result != null) {
+                    finishBehavior.obj = () -> onFound.accept(result);
+                }
+                else {
+                    finishBehavior.obj = onNotFound;
+                }
+            },
+            McHelper.getServer().getWorkerExecutor()
+        );
+        ModMain.serverTaskList.addTask(() -> {
+            if (future.isDone()) {
+                if (!isAborted.obj) {
+                    finishBehavior.obj.run();
+                    finalizer.run();
+                }
+                else {
+                    Helper.log("Future done but the task is aborted");
+                }
+                return true;
+            }
+            if (future.isCancelled()) {
+                Helper.err("The future is cancelled???");
+                finalizer.run();
+                return true;
+            }
+            if (future.isCompletedExceptionally()) {
+                Helper.err("The future is completed exceptionally???");
+                finalizer.run();
+                return true;
+            }
+            boolean shouldContinue = taskWatcher.test(progress[0]);
+            if (!shouldContinue) {
+                isAborted.obj = true;
+                future.cancel(true);
+                finalizer.run();
+                return true;
+            }
+            else {
+                return false;
             }
         });
     }

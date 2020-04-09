@@ -37,10 +37,17 @@ public class TransformationManager {
         
     }
     
+    public static boolean isAnimationRunning() {
+        double progress = (MyRenderHelper.renderStartNanoTime - interpolationStartTime) /
+            ((double) interpolationEndTime - interpolationStartTime);
+        
+        return progress >= -0.1 && progress <= 1.1;
+    }
+    
     public static Quaternion getFinalRotation(Quaternion cameraRotation) {
         double progress = (MyRenderHelper.renderStartNanoTime - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
-
+        
         if (progress < 0 || progress >= 1) {
             return cameraRotation;
         }
@@ -62,9 +69,11 @@ public class TransformationManager {
 //        }
         
         progress = mapProgress(progress);
-
-        return Helper.interpolateQuaternionNaive(
-            Helper.ortholize(inertialRotation), Helper.ortholize(cameraRotation.copy()), (float) progress
+        
+        return Helper.interpolateQuaternion(
+            Helper.ortholize(inertialRotation),
+            Helper.ortholize(cameraRotation.copy()),
+            (float) progress
         );
     }
     
@@ -125,13 +134,19 @@ public class TransformationManager {
             b.conjugate();
             visualRotation.hamiltonProduct(b);
             
-            Vec3d oldViewVector = player.getRotationVec(MyRenderHelper.partialTicks);
+            Vec3d oldViewVector = player.getRotationVec(MyRenderHelper.tickDelta);
             Vec3d newViewVector = portal.transformLocalVec(oldViewVector);
             
             player.yaw = getYawFromViewVector(newViewVector);
             player.prevYaw = player.yaw;
             player.pitch = getPitchFromViewVector(newViewVector);
             player.prevPitch = player.pitch;
+            
+            player.renderYaw = player.yaw;
+            player.renderPitch = player.pitch;
+            
+            player.lastRenderYaw = player.renderYaw;
+            player.lastRenderPitch = player.renderPitch;
             
             Quaternion newCameraRotation = getCameraRotation(player.pitch, player.yaw);
             
@@ -153,7 +168,7 @@ public class TransformationManager {
             client.player,
             client.options.perspective > 0,
             client.options.perspective == 2,
-            MyRenderHelper.partialTicks
+            MyRenderHelper.tickDelta
         );
     }
     

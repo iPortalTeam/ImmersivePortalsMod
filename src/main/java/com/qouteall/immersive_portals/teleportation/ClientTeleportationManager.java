@@ -79,7 +79,7 @@ public class ClientTeleportationManager {
             lastPlayerHeadPos = null;
         }
         else {
-            Vec3d currentHeadPos = client.player.getCameraPosVec(MyRenderHelper.partialTicks);
+            Vec3d currentHeadPos = client.player.getCameraPosVec(MyRenderHelper.tickDelta);
             if (lastPlayerHeadPos != null) {
                 if (lastPlayerHeadPos.squaredDistanceTo(currentHeadPos) > 100) {
                     Helper.err("The Player is Moving Too Fast!");
@@ -98,7 +98,7 @@ public class ClientTeleportationManager {
                 );
             }
             
-            lastPlayerHeadPos = client.player.getCameraPosVec(MyRenderHelper.partialTicks);
+            lastPlayerHeadPos = client.player.getCameraPosVec(MyRenderHelper.tickDelta);
         }
     }
     
@@ -154,12 +154,12 @@ public class ClientTeleportationManager {
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
         }
-    
+        
         //update colliding portal
 //        ((IEEntity) player).tickCollidingPortal();
     }
     
-    private boolean isTeleportingFrequently() {
+    public boolean isTeleportingFrequently() {
         if (tickTimeForTeleportation - lastTeleportGameTime <= 20) {
             return true;
         }
@@ -258,7 +258,7 @@ public class ClientTeleportationManager {
         
         //because the teleportation may happen before rendering
         //but after pre render info being updated
-        MyRenderHelper.updatePreRenderInfo(MyRenderHelper.partialTicks);
+        MyRenderHelper.updatePreRenderInfo(MyRenderHelper.tickDelta);
         
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
         

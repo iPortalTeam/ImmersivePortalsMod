@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import net.minecraft.world.World;
+import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.uniform.ShaderUniforms;
 
@@ -19,6 +20,7 @@ public class OFGlobal {
     public static Runnable bindGbuffersTextures;
     public static Supplier<ShaderUniforms> getShaderUniforms;
     public static Supplier<World> getCurrentWorld;
+    public static Supplier<IShaderPack> getCurrentShaderpack;
     
     public static boolean alwaysRenderShadowMap = true;
     

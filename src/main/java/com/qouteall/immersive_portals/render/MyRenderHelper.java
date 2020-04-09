@@ -21,6 +21,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.Untracker;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 import static org.lwjgl.opengl.GL11.GL_PROJECTION;
@@ -54,11 +56,13 @@ import static org.lwjgl.opengl.GL11.glCullFace;
 
 public class MyRenderHelper {
     
+    public static final MinecraftClient client = MinecraftClient.getInstance();
+    
     public static DimensionType originalPlayerDimension;
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;
     public static GameMode originalGameMode;
-    public static float partialTicks = 0;
+    public static float tickDelta = 0;
     
     private static Set<DimensionType> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<Portal>>> lastPortalRenderInfos = new ArrayList<>();
@@ -73,12 +77,17 @@ public class MyRenderHelper {
     
     //null indicates not gathered
     public static Matrix4f projectionMatrix;
+    
     public static Camera originalCamera;
+    public static int originalCameraLightPacked;
+    
+    public static String debugText;
     
     public static void updatePreRenderInfo(
-        float partialTicks_
+        float tickDelta_
     ) {
-        Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
+        
+        Entity cameraEntity = client.cameraEntity;
         
         if (cameraEntity == null) {
             return;
@@ -89,25 +98,29 @@ public class MyRenderHelper {
         MyRenderHelper.originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         MyRenderHelper.originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
-        partialTicks = partialTicks_;
-    
+        tickDelta = tickDelta_;
+        
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
-    
+        
         FogRendererContext.update();
-    
+        
         renderStartNanoTime = System.nanoTime();
-    
+        
         updateViewBobbingFactor(cameraEntity);
-    
+        
         projectionMatrix = null;
-        originalCamera = MinecraftClient.getInstance().gameRenderer.getCamera();
+        originalCamera = client.gameRenderer.getCamera();
     
+        originalCameraLightPacked = client.getEntityRenderManager()
+            .getLight(client.cameraEntity, tickDelta);
+    
+        debugText = "";
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {
-        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(partialTicks);
+        Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
         double minPortalDistance = CHelper.getClientNearbyPortals(10)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
             .min(Double::compareTo).orElse(1.0);
@@ -169,7 +182,7 @@ public class MyRenderHelper {
         ).collect(Collectors.toList());
         portalRenderInfos.add(currRenderInfo);
         renderedDimensions.add(portalLayers.peek().dimensionTo);
-    
+        
         CHelper.checkGlError();
     }
     
@@ -303,13 +316,14 @@ public class MyRenderHelper {
         GlStateManager.viewport(0, 0, int_1, int_2);
         GlStateManager.enableTexture();
         GlStateManager.disableLighting();
+        GlStateManager.disableFog();
         if (doEnableAlphaTest) {
             RenderSystem.enableAlphaTest();
         }
         else {
             GlStateManager.disableAlphaTest();
         }
-        GlStateManager.enableBlend();
+        GlStateManager.disableBlend();
         GlStateManager.disableColorMaterial();
         
         
@@ -357,18 +371,6 @@ public class MyRenderHelper {
         CHelper.checkGlError();
     }
     
-    //If I don't do so JVM will crash
-    private static final FloatBuffer matrixBuffer = (FloatBuffer) GLX.make(MemoryUtil.memAllocFloat(
-        16), (p_209238_0_) -> {
-        Untracker.untrack(MemoryUtil.memAddress(p_209238_0_));
-    });
-    
-    public static void multMatrix(float[] arr) {
-        matrixBuffer.put(arr);
-        matrixBuffer.rewind();
-        GlStateManager.multMatrix(matrixBuffer);
-    }
-    
     public static boolean isRenderingMirror() {
         return CGlobal.renderer.isRendering() &&
             CGlobal.renderer.getRenderingPortal() instanceof Mirror;
@@ -409,12 +411,19 @@ public class MyRenderHelper {
         return number % 2 == 1;
     }
     
-    public static void adjustCameraPos(){
-        Camera currCamera = MinecraftClient.getInstance().gameRenderer.getCamera();
+    public static void adjustCameraPos(Camera camera) {
         Vec3d pos = originalCamera.getPos();
         for (Portal portal : CGlobal.renderer.portalLayers) {
             pos = portal.transformPoint(pos);
         }
-        ((IECamera) currCamera).mySetPos(pos);
+        ((IECamera) camera).mySetPos(pos);
+    }
+    
+    public static void clearAlphaTo1(Framebuffer mcFrameBuffer) {
+        mcFrameBuffer.beginWrite(true);
+        RenderSystem.colorMask(false, false, false, true);
+        RenderSystem.clearColor(0, 0, 0, 1.0f);
+        RenderSystem.clear(GL_COLOR_BUFFER_BIT, true);
+        RenderSystem.colorMask(true, true, true, true);
     }
 }

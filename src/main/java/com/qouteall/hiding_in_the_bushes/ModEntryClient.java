@@ -9,7 +9,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NewNetherPortalEntity;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
 import com.qouteall.immersive_portals.render.PortalEntityRenderer;
 import net.fabricmc.api.ClientModInitializer;
@@ -25,7 +25,7 @@ public class ModEntryClient implements ClientModInitializer {
         
         Arrays.stream(new EntityType<?>[]{
             Portal.entityType,
-            NewNetherPortalEntity.entityType,
+            NetherPortalEntity.entityType,
             EndPortalEntity.entityType,
             Mirror.entityType,
             BreakableMirror.entityType,

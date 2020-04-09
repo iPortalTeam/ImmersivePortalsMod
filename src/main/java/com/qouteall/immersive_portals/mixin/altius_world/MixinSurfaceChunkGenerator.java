@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
-import com.qouteall.immersive_portals.altius_world.AltiusGeneratorType;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -11,7 +10,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
-import net.minecraft.world.level.LevelGeneratorType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -84,4 +82,5 @@ public abstract class MixinSurfaceChunkGenerator<T extends ChunkGeneratorConfig>
             }
         }
     }
+    
 }
