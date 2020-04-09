@@ -141,6 +141,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static int getHeight(DimensionType dimensionType) {
+        //TODO method_24853
         if (dimensionType == DimensionType.THE_NETHER) {
             if (O_O.isNetherHigherModPresent()) {
                 return 256;

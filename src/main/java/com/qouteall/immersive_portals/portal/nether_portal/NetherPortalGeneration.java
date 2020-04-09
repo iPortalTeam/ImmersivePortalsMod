@@ -29,7 +29,6 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiPredicate;
@@ -181,7 +180,7 @@ public class NetherPortalGeneration {
         portalArray[2].dimensionTo = info.from;
         portalArray[3].dimensionTo = info.from;
         
-        Vec3d offset = new Vec3d(info.toShape.innerAreaBox.l.subtract(
+        Vec3d offset =  Vec3d.method_24954(info.toShape.innerAreaBox.l.subtract(
             info.fromShape.innerAreaBox.l
         ));
         portalArray[0].destination = portalArray[0].getPos().add(offset);
@@ -578,7 +577,7 @@ public class NetherPortalGeneration {
         portalArray[2].dimensionTo = info.from;
         portalArray[3].dimensionTo = info.from;
         
-        Vec3d offset = new Vec3d(info.toShape.innerAreaBox.l.subtract(
+        Vec3d offset =  Vec3d.method_24954(info.toShape.innerAreaBox.l.subtract(
             info.fromShape.innerAreaBox.l
         ));
         portalArray[0].destination = portalArray[0].getPos().add(offset);
@@ -598,7 +597,7 @@ public class NetherPortalGeneration {
         int z,
         int range
     ) {
-        int height = world.getEffectiveHeight();
+        int height = world.method_24853();
         
         BlockPos.Mutable temp0 = new BlockPos.Mutable();
         BlockPos.Mutable temp2 = new BlockPos.Mutable();

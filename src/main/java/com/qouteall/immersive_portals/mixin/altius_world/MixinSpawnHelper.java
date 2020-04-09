@@ -28,9 +28,10 @@ public class MixinSpawnHelper {
         int z
     ) {
         int height = chunk.sampleHeightmap(type, x, z);
+        int dimHeight = chunk.getWorld().method_24853();
         if (AltiusInfo.isAltius()) {
             if (chunk.getWorld().getDimension().getType() == DimensionType.THE_NETHER) {
-                return Math.min(height, chunk.getWorld().getEffectiveHeight() - 3);
+                return Math.min(height, dimHeight - 3);
             }
         }
         return height;
