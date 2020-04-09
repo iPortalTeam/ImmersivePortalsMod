@@ -3,14 +3,12 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
-import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -45,6 +43,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Shadow
     private boolean renderingPanorama;
     
+    @Shadow
+    public abstract void loadProjectionMatrix(Matrix4f matrix4f);
+    
     @Inject(method = "render", at = @At("HEAD"))
     private void onFarBeforeRendering(
         float partialTicks,
@@ -74,7 +75,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         ModMainClient.switchToCorrectRenderer();
-    
+        
         CGlobal.renderer.prepareRendering();
     }
     
@@ -94,7 +95,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         CGlobal.renderer.finishRendering();
-    
+        
         MyRenderHelper.onTotalRenderEnd();
     }
     
@@ -142,17 +143,17 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         method = "renderWorld",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;method_22709(Lnet/minecraft/client/util/math/Matrix4f;)V"
+            target = "Lnet/minecraft/client/render/GameRenderer;loadProjectionMatrix(Lnet/minecraft/util/math/Matrix4f;)V"
         )
     )
     private void redirectLoadProjectionMatrix(GameRenderer gameRenderer, Matrix4f matrix4f) {
         if (CGlobal.renderer.isRendering()) {
             //load recorded projection matrix
-            method_22709(MyRenderHelper.projectionMatrix);
+            loadProjectionMatrix(MyRenderHelper.projectionMatrix);
         }
         else {
             //load projection matrix normally
-            method_22709(matrix4f);
+            loadProjectionMatrix(matrix4f);
             
             //record projection matrix
             if (MyRenderHelper.projectionMatrix == null) {
