@@ -95,42 +95,38 @@ public class MyClientChunkManager extends ClientChunkManager {
         BiomeArray biomeArray,
         PacketByteBuf packetByteBuf,
         CompoundTag compoundTag,
-        int sections,
+        int k,
         boolean bl
     ) {
-        ChunkPos chunkPos = new ChunkPos(x, z);
-        WorldChunk worldChunk;
+        long chunkPosLong = ChunkPos.toLong(x, z);
         
+        WorldChunk worldChunk;
         synchronized (chunkMapNew) {
-            worldChunk = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
-            if (!bl && !positionEquals(worldChunk, x, z)) {
+            worldChunk = (WorldChunk) this.chunkMapNew.get(chunkPosLong);
+            if (!bl && positionEquals(worldChunk, x, z)) {
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, k);
+            }
+            else {
                 if (biomeArray == null) {
-                    LOGGER.warn(
-                        "Ignoring chunk since we don't have complete data: {}, {}",
-                        x,
-                        z
-                    );
+                    LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", x, z);
                     return null;
                 }
                 
-                worldChunk = new WorldChunk(this.world, chunkPos, biomeArray);
-                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, sections);
-                chunkMapNew.put(chunkPos.toLong(), worldChunk);
-            }
-            else {
-                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, sections);
+                worldChunk = new WorldChunk(this.world, new ChunkPos(x, z), biomeArray);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, k);
+                chunkMapNew.put(chunkPosLong, worldChunk);
             }
         }
         
         ChunkSection[] chunkSections = worldChunk.getSectionArray();
         LightingProvider lightingProvider = this.getLightingProvider();
-        lightingProvider.setLightEnabled(chunkPos, true);
+        lightingProvider.setLightEnabled(new ChunkPos(x, z), true);
         
-        for (int i = 0; i < chunkSections.length; ++i) {
-            ChunkSection chunkSection_1 = chunkSections[i];
+        for (int m = 0; m < chunkSections.length; ++m) {
+            ChunkSection chunkSection = chunkSections[m];
             lightingProvider.updateSectionStatus(
-                ChunkSectionPos.from(x, i, z),
-                ChunkSection.isEmpty(chunkSection_1)
+                ChunkSectionPos.from(x, m, z),
+                ChunkSection.isEmpty(chunkSection)
             );
         }
         

@@ -58,8 +58,6 @@ public abstract class MixinEntity implements IEEntity {
     
     @Shadow public abstract double getZ();
     
-    @Shadow public boolean inanimate;
-    
     @Shadow protected abstract BlockPos getLandingPos();
     
     //maintain collidingPortal field

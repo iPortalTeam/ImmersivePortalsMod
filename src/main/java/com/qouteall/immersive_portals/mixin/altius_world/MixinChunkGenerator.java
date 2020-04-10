@@ -1,11 +1,10 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
-import com.qouteall.immersive_portals.altius_world.AltiusGeneratorType;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.level.LevelGeneratorType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +26,11 @@ public class MixinChunkGenerator {
         method = "generateFeatures",
         at = @At("HEAD")
     )
-    private void onStartGeneratingFeatures(ChunkRegion region, CallbackInfo ci) {
+    private void onStartGeneratingFeatures(
+        ChunkRegion chunkRegion,
+        StructureAccessor structureAccessor,
+        CallbackInfo ci
+    ) {
         if (shouldLock()) {
             featureGenLock.lock();
         }
@@ -37,7 +40,11 @@ public class MixinChunkGenerator {
         method = "generateFeatures",
         at = @At("RETURN")
     )
-    private void onEndGeneratingFeatures(ChunkRegion region, CallbackInfo ci) {
+    private void onEndGeneratingFeatures(
+        ChunkRegion chunkRegion,
+        StructureAccessor structureAccessor,
+        CallbackInfo ci
+    ) {
         if (shouldLock()) {
             featureGenLock.unlock();
         }

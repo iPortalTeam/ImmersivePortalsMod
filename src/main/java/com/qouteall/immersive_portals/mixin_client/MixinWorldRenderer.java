@@ -357,14 +357,14 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;isGlowing()Z"
+            target = "Lnet/minecraft/client/MinecraftClient;method_27022(Lnet/minecraft/entity/Entity;)Z"
         )
     )
-    private boolean redirectGlowing(Entity entity) {
+    private boolean redirectGlowing(MinecraftClient client, Entity entity) {
         if (CGlobal.renderer.isRendering()) {
             return false;
         }
-        return entity.isGlowing();
+        return client.method_27022(entity);
     }
     
     private static boolean isReloadingOtherWorldRenderers = false;

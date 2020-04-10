@@ -264,6 +264,12 @@ public class MyRegistry {
     }
     
     public static void registerEffectAndPotion() {
+        Registry.register(
+            Registry.ATTRIBUTES,
+            "immersive_portals:hand_reach_multiplier",
+            HandReachTweak.handReachMultiplierAttribute
+        );
+        
         StatusEffect.class.hashCode();
         HandReachTweak.longerReachEffect = HandReachTweak.statusEffectConstructor.apply(
             StatusEffectType.BENEFICIAL, 0)
