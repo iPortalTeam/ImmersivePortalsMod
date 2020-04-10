@@ -544,12 +544,11 @@ public class Helper {
     
     //NOTE this will mutate a and return a
     public static Quaternion quaternionNumAdd(Quaternion a, Quaternion b) {
-        //TODO correct wrong parameter name for yarn
         a.set(
-            a.getB() + b.getB(),
-            a.getC() + b.getC(),
-            a.getD() + b.getD(),
-            a.getA() + b.getA()
+            a.getX() + b.getX(),
+            a.getY() + b.getY(),
+            a.getZ() + b.getZ(),
+            a.getW() + b.getW()
         );
         return a;
     }
@@ -557,10 +556,10 @@ public class Helper {
     //NOTE this will mutate a and reutrn a
     public static Quaternion quaternionScale(Quaternion a, float scale) {
         a.set(
-            a.getB() * scale,
-            a.getC() * scale,
-            a.getD() * scale,
-            a.getA() * scale
+            a.getX() * scale,
+            a.getY() * scale,
+            a.getZ() * scale,
+            a.getW() * scale
         );
         return a;
     }
@@ -610,22 +609,22 @@ public class Helper {
     }
     
     public static double dotProduct4d(Quaternion a, Quaternion b) {
-        return a.getA() * b.getA() +
-            a.getB() * b.getB() +
-            a.getC() * b.getC() +
-            a.getD() * b.getD();
+        return a.getX() * b.getX() +
+            a.getY() * b.getY() +
+            a.getZ() * b.getZ() +
+            a.getW() * b.getW();
     }
     
     public static boolean isClose(Quaternion a, Quaternion b, float valve) {
         a.normalize();
         b.normalize();
-        if (a.getA() * b.getA() < 0) {
+        if (a.getW() * b.getW() < 0) {
             a.scale(-1);
         }
-        float da = a.getA() - b.getA();
-        float db = a.getB() - b.getB();
-        float dc = a.getC() - b.getC();
-        float dd = a.getD() - b.getD();
+        float da = a.getX() - b.getX();
+        float db = a.getY() - b.getY();
+        float dc = a.getZ() - b.getZ();
+        float dd = a.getW() - b.getW();
         return da * da + db * db + dc * dc + dd * dd < valve;
     }
     
@@ -645,7 +644,7 @@ public class Helper {
     }
     
     public static Quaternion ortholize(Quaternion quaternion) {
-        if (quaternion.getA() < 0) {
+        if (quaternion.getW() < 0) {
             quaternion.scale(-1);
         }
         return quaternion;
@@ -660,10 +659,10 @@ public class Helper {
     ) {
         return makeIntoExpression(
             new Quaternion(
-                MathHelper.lerp(t, a.getB(), b.getB()),
-                MathHelper.lerp(t, a.getC(), b.getC()),
-                MathHelper.lerp(t, a.getD(), b.getD()),
-                MathHelper.lerp(t, a.getA(), b.getA())
+                MathHelper.lerp(t, a.getX(), b.getX()),
+                MathHelper.lerp(t, a.getY(), b.getY()),
+                MathHelper.lerp(t, a.getZ(), b.getZ()),
+                MathHelper.lerp(t, a.getW(), b.getW())
             ),
             Quaternion::normalize
         );

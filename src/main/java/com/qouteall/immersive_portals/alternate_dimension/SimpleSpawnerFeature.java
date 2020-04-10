@@ -35,6 +35,7 @@ import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.MobSpawnerEntry;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
@@ -115,18 +116,20 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         super(configDeserializer);
     }
     
+    
     @Override
     public boolean generate(
         IWorld world,
+        StructureAccessor accessor,
         ChunkGenerator<? extends ChunkGeneratorConfig> generator,
         Random random,
         BlockPos pos,
         DefaultFeatureConfig config
     ) {
         ChunkPos chunkPos = new ChunkPos(pos);
-    
+        
         random.setSeed(chunkPos.toLong() + random.nextInt(2333));
-    
+        
         if (random.nextDouble() < 0.03) {
             generateOnce(world, random, chunkPos);
         }
@@ -159,7 +162,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             height,
             random.nextInt(16)
         );
-    
+        
         for (int dx = -7; dx <= 7; dx++) {
             for (int dz = -7; dz <= 7; dz++) {
                 world.setBlockState(
@@ -169,7 +172,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
                 );
             }
         }
-    
+        
         BlockState spawnerShieldBlock = spawnerShieldSelector.select(random);
         for (BlockPos shieldPos : shieldPoses) {
             world.setBlockState(
@@ -181,7 +184,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         
         world.setBlockState(spawnerPos, Blocks.SPAWNER.getDefaultState(), 2);
         initSpawnerBlockEntity(world, random, spawnerPos);
-    
+        
         BlockPos shulkerBoxPos = spawnerPos.down();
         initShulkerBoxTreasure(world, random, shulkerBoxPos);
     }
@@ -209,26 +212,26 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             //Helper.err("No Spawner Block Entity???");
             return;
         }
-    
+        
         MobSpawnerBlockEntity mobSpawner = (MobSpawnerBlockEntity) blockEntity;
         Entity spawnedEntity = entitySelector.select(random).apply(world.getWorld(), random);
         Validate.isTrue(!spawnedEntity.hasVehicle());
         CompoundTag tag = new CompoundTag();
         spawnedEntity.saveToTag(tag);
-    
+        
         removeUnnecessaryTag(tag);
-    
+        
         mobSpawner.getLogic().setSpawnEntry(
             new MobSpawnerEntry(100, tag)
         );
         mobSpawner.getLogic().setEntityId(spawnedEntity.getType());
-    
-        CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
+        
+        CompoundTag logicTag = mobSpawner.getLogic().toTag(new CompoundTag());
         logicTag.putShort("RequiredPlayerRange", (short) 64);
         //logicTag.putShort("MinSpawnDelay",(short) 10);
         //logicTag.putShort("MaxSpawnDelay",(short) 100);
         //logicTag.putShort("MaxNearbyEntities",(short) 200);
-        mobSpawner.getLogic().deserialize(logicTag);
+        mobSpawner.getLogic().fromTag(logicTag);
     }
     
     private static void removeUnnecessaryTag(CompoundTag tag) {
@@ -432,7 +435,8 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             })
             .add(10, random -> {
                 ItemStack stack = new ItemStack(() -> Items.ENCHANTED_BOOK, 1);
-                stack.addEnchantment(((SimpleRegistry<Enchantment>) Registry.ENCHANTMENT).getRandom(random), 5);
+                stack.addEnchantment(((SimpleRegistry<Enchantment>) Registry.ENCHANTMENT).getRandom(
+                    random), 5);
                 return stack;
             })
             .build();

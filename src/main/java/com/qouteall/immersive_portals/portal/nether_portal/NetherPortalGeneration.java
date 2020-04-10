@@ -597,7 +597,7 @@ public class NetherPortalGeneration {
         int z,
         int range
     ) {
-        int height = world.method_24853();
+        int height = world.getDimensionHeight();
         
         BlockPos.Mutable temp0 = new BlockPos.Mutable();
         BlockPos.Mutable temp2 = new BlockPos.Mutable();

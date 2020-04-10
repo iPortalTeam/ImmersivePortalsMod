@@ -26,6 +26,7 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.GenerationStep;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
@@ -71,7 +72,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     }
     
     @Override
-    public void populateNoise(IWorld world, Chunk chunk) {
+    public void populateNoise(IWorld world, StructureAccessor structureAccessor, Chunk chunk) {
         ProtoChunk protoChunk = (ProtoChunk) chunk;
         ChunkPos pos = chunk.getPos();
         Heightmap oceanFloorHeightMap = protoChunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
@@ -150,9 +151,9 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     
     //generate more ore
     @Override
-    public void generateFeatures(ChunkRegion region) {
+    public void generateFeatures(ChunkRegion region, StructureAccessor structureAccessor) {
         try {
-            super.generateFeatures(region);
+            super.generateFeatures(region,structureAccessor);
     
         }
         catch (Throwable throwable) {
@@ -173,12 +174,14 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
             generateFeatureForStep(
                 region, centerChunkX, centerChunkZ,
                 blockPos, biome, chunkRandom, currSeed,
-                GenerationStep.Feature.UNDERGROUND_ORES
+                GenerationStep.Feature.UNDERGROUND_ORES,
+                structureAccessor
             );
         }
     
         SimpleSpawnerFeature.instance.generate(
             region,
+            structureAccessor,
             this,
             random,
             blockPos,
@@ -194,11 +197,12 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         Biome biome,
         ChunkRandom chunkRandom,
         long currSeed,
-        GenerationStep.Feature feature
+        GenerationStep.Feature feature,
+        StructureAccessor structureAccessor
     ) {
         try {
             biome.generateFeatureStep(
-                feature, this, region, currSeed, chunkRandom, blockPos
+                feature, structureAccessor,this, region, currSeed, chunkRandom, blockPos
             );
         }
         catch (Exception var17) {

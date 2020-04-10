@@ -147,10 +147,10 @@ public class Portal extends Entity {
         compoundTag.putDouble("cullableYStart", cullableYStart);
         compoundTag.putDouble("cullableYEnd", cullableYEnd);
         if (rotation != null) {
-            compoundTag.putDouble("rotationA", rotation.getA());
-            compoundTag.putDouble("rotationB", rotation.getB());
-            compoundTag.putDouble("rotationC", rotation.getC());
-            compoundTag.putDouble("rotationD", rotation.getD());
+            compoundTag.putDouble("rotationA", rotation.getW());
+            compoundTag.putDouble("rotationB", rotation.getX());
+            compoundTag.putDouble("rotationC", rotation.getY());
+            compoundTag.putDouble("rotationD", rotation.getZ());
         }
         compoundTag.putDouble("motionAffinity", motionAffinity);
     }

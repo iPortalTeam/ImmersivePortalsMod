@@ -6,6 +6,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
@@ -22,7 +23,7 @@ public class VoidChunkGenerator extends FloatingIslandsChunkGenerator {
     }
     
     @Override
-    public void populateNoise(IWorld world, Chunk chunk) {
+    public void populateNoise(IWorld world, StructureAccessor structureAccessor, Chunk chunk) {
         //nothing
     }
     
@@ -35,6 +36,7 @@ public class VoidChunkGenerator extends FloatingIslandsChunkGenerator {
     
     @Override
     public void setStructureStarts(
+        StructureAccessor structureAccessor,
         BiomeAccess biomeAccess,
         Chunk chunk,
         ChunkGenerator<?> chunkGenerator,

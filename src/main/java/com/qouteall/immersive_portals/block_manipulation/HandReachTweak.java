@@ -16,9 +16,9 @@ public class HandReachTweak {
         statusEffectConstructor;
     
     public static final EntityAttribute handReachMultiplierAttribute =
-        (new ClampedEntityAttribute((EntityAttribute) null, "imm_ptl.hand_reach_multiplier",
+        (new ClampedEntityAttribute( "imm_ptl.hand_reach_multiplier",
             1.0D, 0.0D, 1024.0D
-        )).setName("Hand Reach Multiplier").setTracked(true);
+        )).setTracked(true);
     
     public static StatusEffect longerReachEffect;
     

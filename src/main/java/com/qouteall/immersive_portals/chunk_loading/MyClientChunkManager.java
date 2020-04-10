@@ -95,14 +95,15 @@ public class MyClientChunkManager extends ClientChunkManager {
         BiomeArray biomeArray,
         PacketByteBuf packetByteBuf,
         CompoundTag compoundTag,
-        int sections
+        int sections,
+        boolean bl
     ) {
         ChunkPos chunkPos = new ChunkPos(x, z);
         WorldChunk worldChunk;
         
         synchronized (chunkMapNew) {
             worldChunk = (WorldChunk) chunkMapNew.get(chunkPos.toLong());
-            if (!positionEquals(worldChunk, x, z)) {
+            if (!bl && !positionEquals(worldChunk, x, z)) {
                 if (biomeArray == null) {
                     LOGGER.warn(
                         "Ignoring chunk since we don't have complete data: {}, {}",
