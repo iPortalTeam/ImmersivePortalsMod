@@ -72,6 +72,9 @@ public class AltiusScreen extends Screen {
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
         dimListWidget.terms.add(
+            new DimTermWidget(ModMain.alternate4, dimListWidget, callback)
+        );
+        dimListWidget.terms.add(
             new DimTermWidget(ModMain.alternate2, dimListWidget, callback)
         );
         dimListWidget.terms.add(

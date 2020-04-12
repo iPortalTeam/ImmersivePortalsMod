@@ -165,11 +165,11 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         int z = centerChunkZ * 16;
         BlockPos blockPos = new BlockPos(x, 0, z);
     
-        for (int pass = 0; pass < 2; pass++) {
+        for (int pass = 1; pass < 4; pass++) {
             Biome biome = this.getDecorationBiome(region.getBiomeAccess(), blockPos.add(8, 8, 8));
             ChunkRandom chunkRandom = new ChunkRandom();
             long currSeed = chunkRandom.setSeed(region.getSeed() + pass, x, z);
-        
+
             generateFeatureForStep(
                 region, centerChunkX, centerChunkZ,
                 blockPos, biome, chunkRandom, currSeed,
