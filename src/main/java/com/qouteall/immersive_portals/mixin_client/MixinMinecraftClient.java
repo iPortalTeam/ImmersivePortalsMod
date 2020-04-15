@@ -38,15 +38,16 @@ public class MixinMinecraftClient implements IEMinecraftClient {
 //    }
     
     @Inject(
+        method = "tick",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V",
             shift = At.Shift.AFTER
-        ),
-        method = "Lnet/minecraft/client/MinecraftClient;tick()V"
+        )
     )
     private void onClientTick(CallbackInfo ci) {
         ModMain.postClientTickSignal.emit();
+        CGlobal.clientTeleportationManager.manageTeleportation(0);
     }
     
     @Inject(

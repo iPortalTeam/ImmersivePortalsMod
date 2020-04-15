@@ -44,9 +44,9 @@ public class ClientTeleportationManager {
     private long teleportTickTimeLimit = 0;
     
     public ClientTeleportationManager() {
-        ModMain.preRenderSignal.connectWithWeakRef(
-            this, ClientTeleportationManager::manageTeleportation
-        );
+//        ModMain.preRenderSignal.connectWithWeakRef(
+//            this, ClientTeleportationManager::manageTeleportation
+//        );
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, ClientTeleportationManager::tick
         );
@@ -73,12 +73,12 @@ public class ClientTeleportationManager {
         getOutOfLoadingScreen(dimension, pos);
     }
     
-    private void manageTeleportation() {
+    public void manageTeleportation(float tickDelta) {
         if (client.world == null || client.player == null) {
             lastPlayerHeadPos = null;
         }
         else {
-            Vec3d currentHeadPos = client.player.getCameraPosVec(MyRenderHelper.tickDelta);
+            Vec3d currentHeadPos = client.player.getCameraPosVec(tickDelta);
             if (lastPlayerHeadPos != null) {
                 if (lastPlayerHeadPos.squaredDistanceTo(currentHeadPos) > 100) {
                     Helper.err("The Player is Moving Too Fast!");
@@ -97,7 +97,7 @@ public class ClientTeleportationManager {
                 );
             }
             
-            lastPlayerHeadPos = client.player.getCameraPosVec(MyRenderHelper.tickDelta);
+            lastPlayerHeadPos = client.player.getCameraPosVec(tickDelta);
         }
     }
     

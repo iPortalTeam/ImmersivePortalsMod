@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
@@ -37,7 +36,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.dimension.OverworldDimension;
 import org.lwjgl.opengl.GL11;
 
 import java.util.function.Predicate;
@@ -265,14 +263,15 @@ public class MyGameRenderer {
         
         ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
         
-        if (client.world.dimension instanceof AlternateDimension &&
-            newWorld.dimension instanceof OverworldDimension
-        ) {
-            //avoid redirecting alternate to overworld
-            //or sky will be dark when camera pos is low
-            client.worldRenderer.renderSky(matrixStack, tickDelta);
-            return;
-        }
+        //TODO check dark sky rendering
+//        if (client.world.dimension instanceof AlternateDimension &&
+//            newWorld.dimension instanceof OverworldDimension
+//        ) {
+//            //avoid redirecting alternate to overworld
+//            //or sky will be dark when camera pos is low
+//            client.worldRenderer.renderSky(matrixStack, tickDelta);
+//            return;
+//        }
         
         WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
         
