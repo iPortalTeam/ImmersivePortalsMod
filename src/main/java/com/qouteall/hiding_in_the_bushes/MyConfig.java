@@ -29,6 +29,7 @@ public class MyConfig {
     public boolean correctCrossPortalEntityRendering = true;
     public boolean loadFewerChunks = false;
     public boolean multiThreadedNetherPortalSearching = true;
+    public boolean edgelessSky = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     
     private static File getGameDir() {
@@ -96,6 +97,7 @@ public class MyConfig {
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         Global.loadFewerChunks = loadFewerChunks;
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
+        Global.edgelessSky = edgelessSky;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
