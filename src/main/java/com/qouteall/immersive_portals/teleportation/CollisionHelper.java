@@ -86,15 +86,23 @@ public class CollisionHelper {
         double z = Math.abs(thisSideMove.z) < Math.abs(otherSideMove.z) ? thisSideMove.z : otherSideMove.z;
         
         double actualY;
-        //fix stepping onto slab or stair through portal
-        if (attemptedMove.y < 0 && (otherSideMove.y > 0 || thisSideMove.y > 0)) {
-            if (thisSideMove.y > otherSideMove.y) {
-                //this side collision box is cut a little more from bottom
-                //so it will step shorter. compensate
-                actualY = thisSideMove.y - attemptedMove.y;
+        //handle stepping onto slab or stair through portal
+        if (attemptedMove.y < 0) {
+            if (otherSideMove.y > 0) {
+                actualY = otherSideMove.y;
+            }
+            else if (thisSideMove.y > 0) {
+                //re-calc collision with intact collision box
+                double realStepping = handleCollisionFunc.apply(attemptedMove).y;
+                if (realStepping > 0) {
+                    actualY = realStepping;
+                }
+                else {
+                    actualY = y;
+                }
             }
             else {
-                actualY = otherSideMove.y;
+                actualY = y;
             }
         }
         else {
@@ -175,9 +183,6 @@ public class CollisionHelper {
     ) {
         //cut the collision box a little bit more for horizontal portals
         //because the box will be stretched by attemptedMove when calculating collision
-//        Vec3d cullingPos = portal.getNormal().y > 0.5 ?
-//            portal.getPos().add(portal.getNormal().multiply(0.5)) :
-//            portal.getPos();
         Vec3d cullingPos = portal.getPos().subtract(attemptedMove);
         return clipBox(
             originalBox,
@@ -195,7 +200,6 @@ public class CollisionHelper {
         return clipBox(
             originalBox.offset(teleportation),
             portal.destination.subtract(attemptedMove),
-//            portal.destination,
             portal.getNormal().multiply(-1)
         );
     }
