@@ -30,6 +30,7 @@ public class MyConfig {
     public boolean loadFewerChunks = false;
     public boolean multiThreadedNetherPortalSearching = true;
     public boolean edgelessSky = false;
+    public boolean reversibleNetherPortalLinking = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     
     private static File getGameDir() {
@@ -98,6 +99,7 @@ public class MyConfig {
         Global.loadFewerChunks = loadFewerChunks;
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
         Global.edgelessSky = edgelessSky;
+        Global.reversibleNetherPortalLinking = reversibleNetherPortalLinking;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

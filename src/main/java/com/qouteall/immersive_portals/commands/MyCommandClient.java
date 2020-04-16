@@ -215,7 +215,10 @@ public class MyCommandClient {
             .executes(context -> {
                 Portal collidingPortal =
                     ((IEEntity) MinecraftClient.getInstance().player).getCollidingPortal();
-                McHelper.serverLog(context.getSource().getPlayer(), collidingPortal.toString());
+                McHelper.serverLog(
+                    context.getSource().getPlayer(),
+                    collidingPortal != null ? collidingPortal.toString() : "null"
+                );
                 return 0;
             })
         );

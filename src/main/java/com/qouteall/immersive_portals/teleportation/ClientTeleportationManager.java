@@ -4,12 +4,14 @@ import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -55,6 +57,7 @@ public class ClientTeleportationManager {
     private void tick() {
         tickTimeForTeleportation++;
         changePlayerMotionIfCollidingWithPortal();
+        
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -74,10 +77,18 @@ public class ClientTeleportationManager {
     }
     
     public void manageTeleportation(float tickDelta) {
+        if (Global.disableTeleportation) {
+            return;
+        }
+        
         if (client.world == null || client.player == null) {
             lastPlayerHeadPos = null;
         }
         else {
+            if (client.player.prevX == 0 && client.player.prevY == 0 && client.player.prevZ == 0) {
+                return;
+            }
+            
             Vec3d currentHeadPos = client.player.getCameraPosVec(tickDelta);
             if (lastPlayerHeadPos != null) {
                 if (lastPlayerHeadPos.squaredDistanceTo(currentHeadPos) > 100) {
@@ -155,7 +166,7 @@ public class ClientTeleportationManager {
         }
         
         //update colliding portal
-//        ((IEEntity) player).tickCollidingPortal();
+        ((IEEntity) player).tickCollidingPortal();
     }
     
     public boolean isTeleportingFrequently() {

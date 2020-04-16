@@ -567,13 +567,16 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 return;
             }
         }
-        
-        DimensionType dim = MinecraftClient.getInstance().world.dimension.getType();
-        DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
-        
-        MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
 
-//        worldRenderer.renderSky(matrixStack, f);
+        if (OFInterface.isShaders.getAsBoolean()) {
+            DimensionType dim = MinecraftClient.getInstance().world.dimension.getType();
+            DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
+
+            MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
+            return;
+        }
+
+        worldRenderer.renderSky(matrixStack, f);
     }
     
     //fix cloud fog abnormal with OptiFine and fog disabled

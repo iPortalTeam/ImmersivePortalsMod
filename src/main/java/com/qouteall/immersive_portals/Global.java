@@ -36,6 +36,10 @@ public class Global {
     
     public static boolean edgelessSky = false;
     
+    public static boolean disableTeleportation = false;
+    
+    public static boolean reversibleNetherPortalLinking = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

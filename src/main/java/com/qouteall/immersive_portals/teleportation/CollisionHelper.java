@@ -81,39 +81,41 @@ public class CollisionHelper {
             handleCollisionFunc, originalBoundingBox
         );
         
-        double x = Math.abs(thisSideMove.x) < Math.abs(otherSideMove.x) ? thisSideMove.x : otherSideMove.x;
-        double y = Math.abs(thisSideMove.y) < Math.abs(otherSideMove.y) ? thisSideMove.y : otherSideMove.y;
-        double z = Math.abs(thisSideMove.z) < Math.abs(otherSideMove.z) ? thisSideMove.z : otherSideMove.z;
-        
-        double actualY;
         //handle stepping onto slab or stair through portal
         if (attemptedMove.y < 0) {
             if (otherSideMove.y > 0) {
-                actualY = otherSideMove.y;
+                //stepping on the other side
+                return new Vec3d(
+                    absMin(thisSideMove.x, otherSideMove.x),
+                    otherSideMove.y,
+                    absMin(thisSideMove.z, otherSideMove.z)
+                );
             }
             else if (thisSideMove.y > 0) {
+                //stepping on this side
                 //re-calc collision with intact collision box
-                double realStepping = handleCollisionFunc.apply(attemptedMove).y;
-                if (realStepping > 0) {
-                    actualY = realStepping;
-                }
-                else {
-                    actualY = y;
-                }
+                //the stepping is shorter using the clipped collision box
+                Vec3d newThisSideMove = handleCollisionFunc.apply(attemptedMove);
+                
+                //apply the stepping move for the other side
+                Vec3d newOtherSideMove = getOtherSideMove(
+                    entity, newThisSideMove, collidingPortal,
+                    handleCollisionFunc, originalBoundingBox
+                );
+    
+                return newOtherSideMove;
             }
-            else {
-                actualY = y;
-            }
-        }
-        else {
-            actualY = y;
         }
         
         return new Vec3d(
-            x,
-            actualY,
-            z
+            absMin(thisSideMove.x, otherSideMove.x),
+            absMin(thisSideMove.y, otherSideMove.y),
+            absMin(thisSideMove.z, otherSideMove.z)
         );
+    }
+    
+    private static double absMin(double a, double b) {
+        return Math.abs(a) < Math.abs(b) ? a : b;
     }
     
     private static Vec3d getOtherSideMove(
