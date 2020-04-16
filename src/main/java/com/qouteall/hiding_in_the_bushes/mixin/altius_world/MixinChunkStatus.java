@@ -7,6 +7,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,18 +25,19 @@ public class MixinChunkStatus {
         method = "method_12151",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;generateFeatures(Lnet/minecraft/world/ChunkRegion;)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;generateFeatures(Lnet/minecraft/world/ChunkRegion;Lnet/minecraft/world/gen/StructureAccessor;)V"
         )
     )
     private static void redirectGenerateFeatures(
         ChunkGenerator chunkGenerator,
-        ChunkRegion chunkRegion
+        ChunkRegion chunkRegion,
+        StructureAccessor accessor
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
-        chunkGenerator.generateFeatures(chunkRegion);
+        chunkGenerator.generateFeatures(chunkRegion,accessor);
         if (shouldLock) {
             featureGenLock.unlock();
         }
@@ -45,11 +47,12 @@ public class MixinChunkStatus {
         method = "method_16556",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/biome/source/BiomeAccess;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/biome/source/BiomeAccess;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;)V"
         )
     )
     private static void redirectSetStructureStarts(
         ChunkGenerator generator,
+        StructureAccessor structureAccessor,
         BiomeAccess biomeAccess,
         Chunk chunk,
         ChunkGenerator<?> chunkGenerator,
@@ -60,7 +63,7 @@ public class MixinChunkStatus {
             featureGenLock.lock();
         }
         generator.setStructureStarts(
-            biomeAccess, chunk, chunkGenerator, structureManager
+            structureAccessor, biomeAccess, chunk, chunkGenerator, structureManager
         );
         if (shouldLock) {
             featureGenLock.unlock();
@@ -71,17 +74,17 @@ public class MixinChunkStatus {
         method = "method_16565",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;addStructureReferences(Lnet/minecraft/world/IWorld;Lnet/minecraft/world/chunk/Chunk;)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;addStructureReferences(Lnet/minecraft/world/IWorld;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;)V"
         )
     )
     private static void redirectAddStructureReference(
-        ChunkGenerator chunkGenerator, IWorld world, Chunk chunk
+        ChunkGenerator chunkGenerator, IWorld world, StructureAccessor structureAccessor, Chunk chunk
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
-        chunkGenerator.addStructureReferences(world, chunk);
+        chunkGenerator.addStructureReferences(world, structureAccessor, chunk);
         if (shouldLock) {
             featureGenLock.unlock();
         }
