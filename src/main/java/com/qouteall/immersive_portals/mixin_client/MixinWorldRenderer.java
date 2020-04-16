@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
@@ -446,7 +447,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-        
+
 //        if (client.world.dimension instanceof AlternateDimension) {
 //            AlternateSkyRenderer.renderAlternateSky(matrixStack_1, float_1);
 //        }
@@ -557,23 +558,25 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
+        if (Global.edgelessSky) {
+            if (CGlobal.renderer.isRendering()) {
+                MyGameRenderer.renderSkyFor(
+                    RenderDimensionRedirect.getRedirectedDimension(MyRenderHelper.originalPlayerDimension),
+                    matrixStack, f
+                );
+                return;
+            }
+        }
+
         if (OFInterface.isShaders.getAsBoolean()) {
             DimensionType dim = MinecraftClient.getInstance().world.dimension.getType();
-//            if (CGlobal.renderer.isRendering()) {
-//                Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
-//                if (renderingPortal instanceof VerticalConnectingPortal) {
-//                    dim = renderingPortal.dimension;
-//                }
-//            }
-            MyGameRenderer.renderSkyFor(
-                RenderDimensionRedirect.getRedirectedDimension(dim),
-                matrixStack,
-                f
-            );
+            DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
+
+            MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
+            return;
         }
-        else {
-            worldRenderer.renderSky(matrixStack, f);
-        }
+
+        worldRenderer.renderSky(matrixStack, f);
     }
     
     //fix cloud fog abnormal with OptiFine and fog disabled

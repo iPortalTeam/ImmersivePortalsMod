@@ -107,11 +107,12 @@ public class MyRenderHelper {
         
         projectionMatrix = null;
         originalCamera = client.gameRenderer.getCamera();
-    
+        
         originalCameraLightPacked = client.getEntityRenderManager()
             .getLight(client.cameraEntity, tickDelta);
-    
+        
         debugText = "";
+//        MyRenderHelper.debugText = String.valueOf(((IEEntity) client.player).getCollidingPortal());
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {

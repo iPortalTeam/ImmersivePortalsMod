@@ -54,6 +54,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CallbackInfo ci
     ) {
         MyRenderHelper.updatePreRenderInfo(partialTicks);
+        CGlobal.clientTeleportationManager.manageTeleportation(MyRenderHelper.tickDelta);
         ModMain.preRenderSignal.emit();
         if (CGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();

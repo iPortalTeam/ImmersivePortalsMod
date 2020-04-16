@@ -16,46 +16,38 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Mixin(ChunkGenerator.class)
 public class MixinChunkGenerator {
-    @Shadow
-    @Final
-    protected IWorld world;
-    private static ReentrantLock featureGenLock;
-    
-    //Vanilla feature generation is not thread safe
-    @Inject(
-        method = "generateFeatures",
-        at = @At("HEAD")
-    )
-    private void onStartGeneratingFeatures(
-        ChunkRegion chunkRegion,
-        StructureAccessor structureAccessor,
-        CallbackInfo ci
-    ) {
-        if (shouldLock()) {
-            featureGenLock.lock();
-        }
-    }
-    
-    @Inject(
-        method = "generateFeatures",
-        at = @At("RETURN")
-    )
-    private void onEndGeneratingFeatures(
-        ChunkRegion chunkRegion,
-        StructureAccessor structureAccessor,
-        CallbackInfo ci
-    ) {
-        if (shouldLock()) {
-            featureGenLock.unlock();
-        }
-    }
-    
-    private boolean shouldLock() {
-        return AltiusInfo.isAltius();
-    }
-    
-    static {
-        featureGenLock = new ReentrantLock(true);
-    }
+//    @Shadow
+//    @Final
+//    protected IWorld world;
+//    private static ReentrantLock featureGenLock;
+//
+//    //Vanilla feature generation is not thread safe
+//    @Inject(
+//        method = "generateFeatures",
+//        at = @At("HEAD")
+//    )
+//    private void onStartGeneratingFeatures(ChunkRegion region, CallbackInfo ci) {
+//        if (shouldLock()) {
+//            featureGenLock.lock();
+//        }
+//    }
+//
+//    @Inject(
+//        method = "generateFeatures",
+//        at = @At("RETURN")
+//    )
+//    private void onEndGeneratingFeatures(ChunkRegion region, CallbackInfo ci) {
+//        if (shouldLock()) {
+//            featureGenLock.unlock();
+//        }
+//    }
+//
+//    private boolean shouldLock() {
+//        return AltiusInfo.isAltius();
+//    }
+//
+//    static {
+//        featureGenLock = new ReentrantLock(true);
+//    }
     
 }

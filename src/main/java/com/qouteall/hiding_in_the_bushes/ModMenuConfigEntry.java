@@ -69,6 +69,14 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.multi_threaded_nether_portal_searching",
                 currConfig.multiThreadedNetherPortalSearching
             ).setDefaultValue(true).build();
+            BooleanListEntry entryEdgelessSky = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.edgeless_sky",
+                currConfig.edgelessSky
+            ).setDefaultValue(false).build();
+            BooleanListEntry entryReversibleNetherPortalLinking = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.reversible_nether_portal_linking",
+                currConfig.reversibleNetherPortalLinking
+            ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
@@ -85,6 +93,8 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryCorrectCrossPortalEntityRendering);
             category.addEntry(entryLoadFewerChunks);
             category.addEntry(entryMultiThreadedNetherPortalSearching);
+            category.addEntry(entryEdgelessSky);
+            category.addEntry(entryReversibleNetherPortalLinking);
             category.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
@@ -101,6 +111,8 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfigObject.loadFewerChunks = entryLoadFewerChunks.getValue();
                     newConfigObject.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
+                    newConfigObject.edgelessSky = entryEdgelessSky.getValue();
+                    newConfigObject.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
                     newConfigObject.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

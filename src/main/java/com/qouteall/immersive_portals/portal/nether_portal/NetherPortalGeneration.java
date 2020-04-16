@@ -236,13 +236,21 @@ public class NetherPortalGeneration {
         if (toDimension == null) return false;
         
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
+    
+        int searchingRadius = Global.netherPortalFindingRadius;
+    
+        if (Global.reversibleNetherPortalLinking) {
+            if (fromDimension == DimensionType.OVERWORLD) {
+                searchingRadius /= 8;
+            }
+        }
         
         BlockPortalShape thisSideShape = startGeneratingPortal(
             fromWorld,
             firePos,
             toWorld,
-            Global.netherPortalFindingRadius,
-            Global.netherPortalFindingRadius,
+            searchingRadius,
+            searchingRadius,
             (fromPos1) -> mapPosition(
                 fromPos1,
                 fromWorld.dimension.getType(),

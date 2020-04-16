@@ -81,31 +81,41 @@ public class CollisionHelper {
             handleCollisionFunc, originalBoundingBox
         );
         
-        double x = Math.abs(thisSideMove.x) < Math.abs(otherSideMove.x) ? thisSideMove.x : otherSideMove.x;
-        double y = Math.abs(thisSideMove.y) < Math.abs(otherSideMove.y) ? thisSideMove.y : otherSideMove.y;
-        double z = Math.abs(thisSideMove.z) < Math.abs(otherSideMove.z) ? thisSideMove.z : otherSideMove.z;
-        
-        double actualY;
-        //fix stepping onto slab or stair through portal
-        if (attemptedMove.y < 0 && (otherSideMove.y > 0 || thisSideMove.y > 0)) {
-            if (thisSideMove.y > otherSideMove.y) {
-                //this side collision box is cut a little more from bottom
-                //so it will step shorter. compensate
-                actualY = thisSideMove.y - attemptedMove.y;
+        //handle stepping onto slab or stair through portal
+        if (attemptedMove.y < 0) {
+            if (otherSideMove.y > 0) {
+                //stepping on the other side
+                return new Vec3d(
+                    absMin(thisSideMove.x, otherSideMove.x),
+                    otherSideMove.y,
+                    absMin(thisSideMove.z, otherSideMove.z)
+                );
             }
-            else {
-                actualY = otherSideMove.y;
+            else if (thisSideMove.y > 0) {
+                //stepping on this side
+                //re-calc collision with intact collision box
+                //the stepping is shorter using the clipped collision box
+                Vec3d newThisSideMove = handleCollisionFunc.apply(attemptedMove);
+                
+                //apply the stepping move for the other side
+                Vec3d newOtherSideMove = getOtherSideMove(
+                    entity, newThisSideMove, collidingPortal,
+                    handleCollisionFunc, originalBoundingBox
+                );
+    
+                return newOtherSideMove;
             }
-        }
-        else {
-            actualY = y;
         }
         
         return new Vec3d(
-            x,
-            actualY,
-            z
+            absMin(thisSideMove.x, otherSideMove.x),
+            absMin(thisSideMove.y, otherSideMove.y),
+            absMin(thisSideMove.z, otherSideMove.z)
         );
+    }
+    
+    private static double absMin(double a, double b) {
+        return Math.abs(a) < Math.abs(b) ? a : b;
     }
     
     private static Vec3d getOtherSideMove(
@@ -175,9 +185,6 @@ public class CollisionHelper {
     ) {
         //cut the collision box a little bit more for horizontal portals
         //because the box will be stretched by attemptedMove when calculating collision
-//        Vec3d cullingPos = portal.getNormal().y > 0.5 ?
-//            portal.getPos().add(portal.getNormal().multiply(0.5)) :
-//            portal.getPos();
         Vec3d cullingPos = portal.getPos().subtract(attemptedMove);
         return clipBox(
             originalBox,
@@ -195,7 +202,6 @@ public class CollisionHelper {
         return clipBox(
             originalBox.offset(teleportation),
             portal.destination.subtract(attemptedMove),
-//            portal.destination,
             portal.getNormal().multiply(-1)
         );
     }

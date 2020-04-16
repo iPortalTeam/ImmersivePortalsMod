@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
@@ -32,22 +33,31 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     @Final
     public WorldRenderer worldRenderer;
     
-//    @Inject(at = @At("TAIL"), method = "<init>")
-//    private void onInitEnded(CallbackInfo info) {
-//        OFInterface.initShaderCullingManager.run();
-//    }
-    
     @Inject(
+        method = "tick",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V",
             shift = At.Shift.AFTER
-        ),
-        method = "Lnet/minecraft/client/MinecraftClient;tick()V"
+        )
     )
-    private void onClientTick(CallbackInfo ci) {
+    private void onAfterClientTick(CallbackInfo ci) {
         ModMain.postClientTickSignal.emit();
+        MyRenderHelper.updatePreRenderInfo(0);
+        CGlobal.clientTeleportationManager.manageTeleportation(0);
     }
+    
+//    @Inject(
+//        method = "tick",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V"
+//        )
+//    )
+//    private void onBeforeClientTick(CallbackInfo ci) {
+//        MyRenderHelper.updatePreRenderInfo(1);
+//        CGlobal.clientTeleportationManager.manageTeleportation(1);
+//    }
     
     @Inject(
         method = "Lnet/minecraft/client/MinecraftClient;setWorld(Lnet/minecraft/client/world/ClientWorld;)V",
