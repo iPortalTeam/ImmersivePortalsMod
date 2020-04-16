@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
+import net.minecraft.network.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
@@ -137,7 +138,7 @@ public class ClassicalPortalConverter {
         ).filter(Objects::nonNull).findFirst().orElse(null);
         
         if (thisSideShape == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_failed"));
+            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_failed"), MessageType.SYSTEM);
         }
         else {
             NetherPortalGeneration.generateBreakablePortalEntities(
@@ -149,7 +150,7 @@ public class ClassicalPortalConverter {
                 ),
                 entityType
             );
-            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_succeeded"));
+            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_succeeded"), MessageType.SYSTEM);
         }
     }
     

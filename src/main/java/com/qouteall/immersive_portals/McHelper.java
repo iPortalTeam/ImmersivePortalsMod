@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.MessageType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -72,7 +73,7 @@ public class McHelper {
         ServerPlayerEntity player,
         String text
     ) {
-        player.sendMessage(new LiteralText(text));
+        player.sendMessage(new LiteralText(text), MessageType.SYSTEM);
     }
     
     public static Box getChunkBoundingBox(ChunkPos chunkPos) {

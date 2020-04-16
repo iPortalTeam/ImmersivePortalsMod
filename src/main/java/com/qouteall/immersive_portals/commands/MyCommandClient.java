@@ -25,6 +25,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.MessageType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -207,7 +208,7 @@ public class MyCommandClient {
             .literal("report_render_info_num")
             .executes(context -> {
                 String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
-                context.getSource().getPlayer().sendMessage(new LiteralText(str));
+                context.getSource().getPlayer().sendMessage(new LiteralText(str), MessageType.SYSTEM);
                 return 0;
             })
         );
@@ -540,7 +541,7 @@ public class MyCommandClient {
         
         Helper.log(str);
         
-        context.getSource().getPlayer().sendMessage(new LiteralText(result));
+        context.getSource().getPlayer().sendMessage(new LiteralText(result), MessageType.SYSTEM);
         
         return 0;
     }
