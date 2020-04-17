@@ -17,19 +17,19 @@ public class ModEntry implements ModInitializer {
         MyRegistry.registerEntitiesFabric();
         
         Helper.log("Entities Registered");
-    
+        
         MyRegistry.registerMyDimensionsFabric();
-    
+        
         Helper.log("Dimensions Registered");
-    
+        
         MyRegistry.registerBlocksFabric();
-    
+        
         Helper.log("Blocks Registered");
-    
+        
         MyRegistry.registerEffectAndPotion();
-    
+        
         Helper.log("Status Effects Registered");
-    
+        
         O_O.isReachEntityAttributesPresent = FabricLoader.INSTANCE.isModLoaded(
             "reach-entity-attributes");
         if (O_O.isReachEntityAttributesPresent) {

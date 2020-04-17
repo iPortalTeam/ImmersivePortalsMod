@@ -35,8 +35,10 @@ public class PixelCuller {
     }
     
     //NOTE the actual culling plane is related to current model view matrix
-    public static void updateCullingPlaneInner(MatrixStack matrixStack, Portal portal) {
-        activeClipPlaneEquation = getClipEquationInner(portal);
+    public static void updateCullingPlaneInner(
+        MatrixStack matrixStack, Portal portal, boolean doCompensate
+    ) {
+        activeClipPlaneEquation = getClipEquationInner(portal, doCompensate);
         if (!isShaderCulling()) {
             loadCullingPlaneClassical(matrixStack);
         }
@@ -67,14 +69,20 @@ public class PixelCuller {
     
     //invoke this before rendering portal
     //its result depends on camera pos
-    private static double[] getClipEquationInner(Portal portal) {
+    private static double[] getClipEquationInner(Portal portal, boolean doCompensate) {
         
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
         
         Vec3d planeNormal = portal.getContentDirection();
         
-        double correction = portal.destination.subtract(cameraPos)
-            .dotProduct(portal.getContentDirection()) / 150.0;
+        double correction;
+        if (doCompensate) {
+            correction = portal.destination.subtract(cameraPos)
+                .dotProduct(portal.getContentDirection()) / 150.0;
+        }
+        else {
+            correction = 0;
+        }
         
         Vec3d portalPos = portal.destination
             .subtract(planeNormal.multiply(correction))//avoid z fighting

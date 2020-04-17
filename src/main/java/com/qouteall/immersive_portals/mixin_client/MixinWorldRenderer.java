@@ -218,7 +218,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (CGlobal.renderer.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrixStack_1,
-                CGlobal.renderer.getRenderingPortal()
+                CGlobal.renderer.getRenderingPortal(),
+                true
             );
             PixelCuller.startCulling();
             if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
@@ -324,7 +325,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(matrices, CGlobal.renderer.getRenderingPortal());
+            PixelCuller.updateCullingPlaneInner(matrices, CGlobal.renderer.getRenderingPortal(),true);
             PixelCuller.startCulling();
         }
     }

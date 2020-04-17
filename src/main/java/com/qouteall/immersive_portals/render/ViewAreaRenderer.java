@@ -279,8 +279,7 @@ public class ViewAreaRenderer {
         if (doFrontCulling) {
             if (CGlobal.renderer.isRendering()) {
                 PixelCuller.updateCullingPlaneInner(
-                    matrixStack,
-                    CGlobal.renderer.getRenderingPortal()
+                    matrixStack, CGlobal.renderer.getRenderingPortal(), false
                 );
                 PixelCuller.loadCullingPlaneClassical(matrixStack);
                 PixelCuller.startClassicalCulling();

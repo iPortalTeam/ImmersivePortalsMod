@@ -116,7 +116,7 @@ public class Portal extends Entity {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
         else {
-            motionAffinity = -0.3;
+            motionAffinity = 0;
         }
     }
     
