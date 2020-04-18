@@ -3,6 +3,8 @@
   "package": "com.qouteall.immersive_portals.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "alternate_dimension/MixinPlayerEntity_A",
+    "alternate_dimension/MixinServerPlayNetworkHandler_A",
     "altius_world/MixinChunkGenerator",
     "altius_world/MixinLevelGeneratorType",
     "altius_world/MixinLevelInfo",
@@ -24,12 +26,6 @@
     "entity_sync/MixinEntityTrackerEntry",
     "entity_sync/MixinServerPlayerEntity",
     "entity_sync/MixinThreadedAnvilChunkStorage_E",
-    "portal_generation/MixinEnderEyeItem",
-    "portal_generation/MixinFlintAndSteelItem",
-    "portal_generation/MixinNetherPortalBlock",
-    "position_sync/MixinPlayerMoveC2SPacket_S",
-    "position_sync/MixinPlayerPositionLookS2CPacket",
-    "position_sync/MixinServerPlayNetworkHandler",
     "MixinCommandManager",
     "MixinMetricsData",
     "MixinMinecraftServer",
@@ -37,7 +33,13 @@
     "MixinProfilerSystem",
     "MixinServerChunkManager",
     "MixinServerWorld",
-    "MixinWorld"
+    "MixinWorld",
+    "portal_generation/MixinEnderEyeItem",
+    "portal_generation/MixinFlintAndSteelItem",
+    "portal_generation/MixinNetherPortalBlock",
+    "position_sync/MixinPlayerMoveC2SPacket_S",
+    "position_sync/MixinPlayerPositionLookS2CPacket",
+    "position_sync/MixinServerPlayNetworkHandler"
   ],
   "injectors": {
     "defaultRequire": 1
