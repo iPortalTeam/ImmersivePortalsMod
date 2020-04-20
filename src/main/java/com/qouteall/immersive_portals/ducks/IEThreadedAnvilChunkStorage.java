@@ -4,6 +4,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.chunk.WorldChunk;
 
 public interface IEThreadedAnvilChunkStorage {
     int getWatchDistance();
@@ -15,4 +16,9 @@ public interface IEThreadedAnvilChunkStorage {
     ChunkHolder getChunkHolder_(long long_1);
     
     void onPlayerRespawn(ServerPlayerEntity oldPlayer);
+    
+    void updateEntityTrackersAfterSendingChunkPacket(
+        WorldChunk chunk,
+        ServerPlayerEntity playerEntity
+    );
 }
