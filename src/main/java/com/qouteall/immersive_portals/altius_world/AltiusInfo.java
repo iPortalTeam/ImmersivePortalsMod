@@ -69,8 +69,17 @@ public class AltiusInfo {
     }
     
     public void createPortals() {
+        if (dimsFromTopToDown.isEmpty()) {
+            Helper.err("Dimension List is empty?");
+            return;
+        }
+        DimensionType topDimension = DimensionType.byId(dimsFromTopToDown.get(0));
+        if (topDimension == null) {
+            Helper.err("Invalid Dimension " + dimsFromTopToDown.get(0));
+            return;
+        }
         GlobalPortalStorage gps =
-            GlobalPortalStorage.get(McHelper.getServer().getWorld(DimensionType.OVERWORLD));
+            GlobalPortalStorage.get(McHelper.getServer().getWorld(topDimension));
         if (gps.data == null || gps.data.isEmpty()) {
             Helper.wrapAdjacentAndMap(
                 dimsFromTopToDown.stream(),
