@@ -3,8 +3,6 @@
   "package": "com.qouteall.immersive_portals.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "alternate_dimension/MixinPlayerEntity_A",
-    "alternate_dimension/MixinServerPlayNetworkHandler_A",
     "altius_world/MixinChunkGenerator",
     "altius_world/MixinLevelGeneratorType",
     "altius_world/MixinLevelInfo",
@@ -21,6 +19,7 @@
     "collision/MixinAbstractDecorationEntity",
     "collision/MixinAbstractMinecartEntity",
     "collision/MixinEntity",
+    "collision/MixinLivingEntity_C",
     "collision/MixinProjectileEntity",
     "collision/MixinSnowballEntity",
     "entity_sync/MixinEntityTracker",
@@ -41,9 +40,6 @@
     "position_sync/MixinPlayerMoveC2SPacket_S",
     "position_sync/MixinPlayerPositionLookS2CPacket",
     "position_sync/MixinServerPlayNetworkHandler"
-    "MixinWorld",
-
-    "MixinFabricEventFactory"
   ],
   "injectors": {
     "defaultRequire": 1

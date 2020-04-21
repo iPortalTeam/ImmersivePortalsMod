@@ -311,7 +311,7 @@ public class NetherPortalMatcher {
     
     public static boolean isAllAir(IWorld world, IntBox box) {
         //the box out of height limit is not accepted
-        if (box.h.getY() + 5 >= ((World) world).getEffectiveHeight()) {
+        if (box.h.getY() + 5 >= ((World) world).getDimensionHeight()) {
             return false;
         }
         if (box.l.getY() - 5 <= 0) {

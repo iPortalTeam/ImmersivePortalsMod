@@ -7,7 +7,6 @@ import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -75,7 +74,7 @@ public class Portal extends Entity {
         dimensionTo = DimensionType.byRawId(compoundTag.getInt("dimensionTo"));
         destination = Helper.getVec3d(compoundTag, "destination");
         if (compoundTag.contains("specificPlayer")) {
-            specificPlayerId = compoundTag.getUuid("specificPlayer");
+            specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         }
         if (compoundTag.contains("specialShape")) {
             specialShape = new GeometryPortalShape(
@@ -131,7 +130,7 @@ public class Portal extends Entity {
         Helper.putVec3d(compoundTag, "destination", destination);
         
         if (specificPlayerId != null) {
-            compoundTag.putUuid("specificPlayer", specificPlayerId);
+            Helper.putUuid(compoundTag, "specificPlayer", specificPlayerId);
         }
         
         if (specialShape != null) {
@@ -148,10 +147,10 @@ public class Portal extends Entity {
         compoundTag.putDouble("cullableYStart", cullableYStart);
         compoundTag.putDouble("cullableYEnd", cullableYEnd);
         if (rotation != null) {
-            compoundTag.putDouble("rotationA", rotation.getA());
-            compoundTag.putDouble("rotationB", rotation.getB());
-            compoundTag.putDouble("rotationC", rotation.getC());
-            compoundTag.putDouble("rotationD", rotation.getD());
+            compoundTag.putDouble("rotationA", rotation.getW());
+            compoundTag.putDouble("rotationB", rotation.getX());
+            compoundTag.putDouble("rotationC", rotation.getY());
+            compoundTag.putDouble("rotationD", rotation.getZ());
         }
         compoundTag.putDouble("motionAffinity", motionAffinity);
     }
@@ -285,7 +284,7 @@ public class Portal extends Entity {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
         Direction.Axis wAxis = anotherTwoAxis.getLeft();
         Direction.Axis hAxis = anotherTwoAxis.getRight();
-    
+        
         float width = (float) Helper.getCoordinate(portalSize, wAxis);
         float height = (float) Helper.getCoordinate(portalSize, hAxis);
         
@@ -296,12 +295,12 @@ public class Portal extends Entity {
         portals[1].updatePosition(center1.x, center1.y, center1.z);
         portals[2].updatePosition(center2.x, center2.y, center2.z);
         portals[3].updatePosition(center2.x, center2.y, center2.z);
-    
+        
         portals[0].destination = center2;
         portals[1].destination = center2;
         portals[2].destination = center1;
         portals[3].destination = center1;
-    
+        
         assert portals[0].dimension == dimension1;
         assert portals[1].dimension == dimension1;
         assert portals[2].dimension == dimension2;
