@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinConfig",
+    "MixinDynamicLights",
     "MixinShaders",
     "MixinShaders_DimensionRedirect",
     "MixinShaders_Swap",

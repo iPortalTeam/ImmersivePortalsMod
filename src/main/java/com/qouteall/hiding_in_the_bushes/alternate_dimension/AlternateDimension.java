@@ -179,7 +179,7 @@ public class AlternateDimension extends Dimension {
     
     @Override
     public boolean canPlayersSleep() {
-        return false;
+        return true;
     }
     
     @Override

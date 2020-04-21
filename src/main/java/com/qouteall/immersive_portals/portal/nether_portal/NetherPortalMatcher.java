@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
@@ -162,7 +163,7 @@ public class NetherPortalMatcher {
             Helper.log("Cannot Find Portal Placement on Ground");
             return null;
         }
-    
+        
         Helper.log("Generated Portal On Ground");
         
         return pushDownBox(world, biggerArea.getSubBoxInCenter(areaSize));
@@ -309,6 +310,15 @@ public class NetherPortalMatcher {
     }
     
     public static boolean isAllAir(IWorld world, IntBox box) {
+        //the box out of height limit is not accepted
+        if (box.h.getY() + 5 >= ((World) world).getEffectiveHeight()) {
+            return false;
+        }
+        if (box.l.getY() - 5 <= 0) {
+            return false;
+        }
+        
+        
         boolean roughTest = Arrays.stream(box.getEightVertices()).allMatch(
             blockPos -> isAir(world, blockPos)
         );

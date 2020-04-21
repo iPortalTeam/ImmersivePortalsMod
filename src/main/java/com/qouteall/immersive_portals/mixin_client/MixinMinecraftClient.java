@@ -4,7 +4,6 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
@@ -43,7 +42,7 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     )
     private void onAfterClientTick(CallbackInfo ci) {
         ModMain.postClientTickSignal.emit();
-        MyRenderHelper.updatePreRenderInfo(0);
+//        MyRenderHelper.updatePreRenderInfo(0);
         CGlobal.clientTeleportationManager.manageTeleportation(0);
     }
     

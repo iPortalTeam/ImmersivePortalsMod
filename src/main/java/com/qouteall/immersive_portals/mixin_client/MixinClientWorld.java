@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
@@ -11,8 +10,6 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.profiler.Profiler;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Final;
@@ -21,9 +18,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -90,19 +85,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
             .forEach(world -> world.removeEntity(entityId));
     }
     
-    //avoid alternate dimension dark
-    @Inject(
-        method = "getSkyDarknessHeight",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onGetSkyDarknessHeight(CallbackInfoReturnable<Double> cir) {
-        ClientWorld clientWorld = (ClientWorld) (Object) this;
-        if (clientWorld.dimension instanceof AlternateDimension) {
-            cir.setReturnValue(-100d);
-            cir.cancel();
-        }
-    }
+    
     
     //avoid dark sky in alternate dimension when player is in end biome
 //    @Redirect(
@@ -120,20 +103,5 @@ public abstract class MixinClientWorld implements IEClientWorld {
 //            return world.getBiome(pos);
 //        }
 //    }
-    @Redirect(
-        method = "method_23777",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/biome/Biome;getSkyColor()I"
-        )
-    )
-    private int redirectBiomeGetSkyColor(Biome biome) {
-        ClientWorld this_ = (ClientWorld) ((Object) this);
-        if (this_.dimension instanceof AlternateDimension) {
-            return Biomes.PLAINS.getSkyColor();
-        }
-        else {
-            return biome.getSkyColor();
-        }
-    }
+
 }

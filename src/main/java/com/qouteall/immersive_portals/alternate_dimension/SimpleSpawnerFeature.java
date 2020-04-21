@@ -77,9 +77,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
         new RandomSelector.Builder<EntityType<?>>()
-            .add(10, EntityType.ZOMBIE)
-            .add(10, EntityType.PIGLIN)
-            .add(10, EntityType.ZOMBIE_VILLAGER)
+            .add(10, EntityType.ZOMBIE_PIGMAN)
             .add(10, EntityType.HUSK)
             .add(10, EntityType.DROWNED)
             .add(20, EntityType.SKELETON)
@@ -212,15 +210,15 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             //Helper.err("No Spawner Block Entity???");
             return;
         }
-        
+    
         MobSpawnerBlockEntity mobSpawner = (MobSpawnerBlockEntity) blockEntity;
         Entity spawnedEntity = entitySelector.select(random).apply(world.getWorld(), random);
         Validate.isTrue(!spawnedEntity.hasVehicle());
         CompoundTag tag = new CompoundTag();
         spawnedEntity.saveToTag(tag);
-        
+    
         removeUnnecessaryTag(tag);
-        
+    
         mobSpawner.getLogic().setSpawnEntry(
             new MobSpawnerEntry(100, tag)
         );
@@ -296,14 +294,14 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, (random, entity) -> {
                 //nothing
             })
-            .add(10, (random, entity) ->
+            .add(15, (random, entity) ->
                 entity.addStatusEffect(new StatusEffectInstance(
-                    StatusEffects.SPEED, 60, 2
+                    StatusEffects.SPEED, 120, 2
                 ))
             )
-            .add(10, (random, entity) ->
+            .add(20, (random, entity) ->
                 entity.addStatusEffect(new StatusEffectInstance(
-                    StatusEffects.JUMP_BOOST, 60, 3
+                    StatusEffects.JUMP_BOOST, 120, 3
                 ))
             )
             .add(5, (random, entity) -> {
@@ -345,11 +343,12 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<ItemStack> filledTreasureSelector =
         new RandomSelector.Builder<ItemStack>()
-            .add(20, new ItemStack(() -> Items.DIRT, 64))
-            .add(20, new ItemStack(() -> Items.SAND, 64))
-            .add(20, new ItemStack(() -> Items.TERRACOTTA, 64))
-            .add(10, new ItemStack(() -> Items.GRAVEL, 64))
-            .add(10, new ItemStack(() -> Items.GLASS, 64))
+            .add(40, new ItemStack(() -> Items.DIRT, 64))
+            .add(40, new ItemStack(() -> Items.SAND, 64))
+            .add(40, new ItemStack(() -> Items.TERRACOTTA, 64))
+            .add(40, new ItemStack(() -> Items.GRAVEL, 64))
+            .add(40, new ItemStack(() -> Items.PACKED_ICE, 64))
+            .add(40, new ItemStack(() -> Items.GLASS, 64))
             .add(10, new ItemStack(() -> Items.COBBLESTONE, 64))
             .add(10, new ItemStack(() -> Items.FEATHER, 64))
             .add(10, new ItemStack(() -> Items.INK_SAC, 64))
@@ -385,6 +384,9 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, new ItemStack(() -> Items.SEAGRASS, 64))
             .add(10, new ItemStack(() -> Items.CACTUS, 64))
             .add(10, new ItemStack(() -> Items.VINE, 64))
+            .add(10, new ItemStack(() -> Items.OBSERVER, 64))
+            .add(10, new ItemStack(() -> Items.COMPARATOR, 64))
+            .add(10, new ItemStack(() -> Items.REPEATER, 64))
             .add(10, new ItemStack(() -> Items.DIAMOND_HOE, 1))
             .add(10, new ItemStack(() -> Items.FLINT_AND_STEEL, 1))
             .add(10, new ItemStack(() -> Items.COMPASS, 1))
@@ -394,6 +396,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, new ItemStack(() -> Items.MILK_BUCKET, 1))
             .add(10, new ItemStack(() -> Items.LEATHER_HORSE_ARMOR, 1))
             .add(10, new ItemStack(() -> Items.LEATHER_BOOTS, 1))
+            .add(10, new ItemStack(() -> Items.SLIME_BLOCK, 1))
             .add(10, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.ENCHANTED_BOOK, 1),
                 itemStack -> itemStack.addEnchantment(Enchantments.BINDING_CURSE, 1)
@@ -407,10 +410,14 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
                 itemStack -> itemStack.addEnchantment(Enchantments.EFFICIENCY, 10)
             ))
             .add(10, Helper.makeIntoExpression(
+                new ItemStack(() -> Items.GOLDEN_PICKAXE, 1),
+                itemStack -> itemStack.addEnchantment(Enchantments.EFFICIENCY, 10)
+            ))
+            .add(10, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.POTION, 1),
                 itemStack -> PotionUtil.setPotion(itemStack, Potions.MUNDANE)
             ))
-            .add(50, Helper.makeIntoExpression(
+            .add(100, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.POTION, 1),
                 itemStack -> PotionUtil.setPotion(itemStack, HandReachTweak.longerReachPotion)
             ))
