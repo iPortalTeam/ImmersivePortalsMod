@@ -477,6 +477,39 @@ public class MyCommandServer {
         );
         
         builder.then(CommandManager
+            .literal("move_portal")
+            .then(
+                CommandManager.argument(
+                    "distance",
+                    DoubleArgumentType.doubleArg()
+                ).executes(context -> processPortalTargetedCommand(
+                    context, portal -> {
+                        try {
+                            double distance = DoubleArgumentType.getDouble(
+                                context, "distance"
+                            );
+                            
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            Vec3d viewVector = player.getRotationVector();
+                            Direction facing = Direction.getFacing(
+                                viewVector.x, viewVector.y, viewVector.z
+                            );
+                            Vec3d offset = new Vec3d(facing.getVector()).multiply(distance);
+                            portal.updatePosition(
+                                portal.getX() + offset.x,
+                                portal.getY() + offset.y,
+                                portal.getZ() + offset.z
+                            );
+                        }
+                        catch (CommandSyntaxException e) {
+                            sendMessage(context, "This command can only be invoked by player");
+                        }
+                    }
+                ))
+            )
+        );
+        
+        builder.then(CommandManager
             .literal("connect_floor")
             .then(
                 CommandManager.argument(
