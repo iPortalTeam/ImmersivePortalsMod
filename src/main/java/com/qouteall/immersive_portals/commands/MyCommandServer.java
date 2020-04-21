@@ -831,7 +831,7 @@ public class MyCommandServer {
             pointedPortal.getNormal(),
             p -> true
         ).stream().filter(
-            portal -> player.getUuid().equals(portal.specificPlayerId)
+            portal -> player.getUuid().equals(portal.specificPlayerId) || portal.specificPlayerId == null
         ).forEach(
             portal -> {
                 PortalManipulation.removeConnectedPortals(
