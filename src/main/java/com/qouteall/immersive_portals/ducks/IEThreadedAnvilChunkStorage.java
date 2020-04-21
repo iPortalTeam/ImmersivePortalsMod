@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.ducks;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerLightingProvider;
@@ -21,4 +22,6 @@ public interface IEThreadedAnvilChunkStorage {
         WorldChunk chunk,
         ServerPlayerEntity playerEntity
     );
+    
+    void resendSpawnPacketToTrackers(Entity entity);
 }

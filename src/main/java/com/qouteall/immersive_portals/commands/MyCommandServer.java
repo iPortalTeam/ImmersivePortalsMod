@@ -9,9 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
@@ -599,6 +597,43 @@ public class MyCommandServer {
             )
         );
         
+        builder.then(CommandManager
+            .literal("set_portal_specific_accessor")
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                portal -> {
+                    portal.specificPlayerId = null;
+                    sendMessage(context, "This portal can be accessed by all players now");
+                    sendMessage(context, portal.toString());
+                }
+            ))
+            .then(CommandManager
+                .argument("player", EntityArgumentType.player())
+                .executes(context -> processPortalTargetedCommand(
+                    context,
+                    portal -> {
+                        try {
+                            Entity player = EntityArgumentType.getEntity(context, "player");
+                            
+                            portal.specificPlayerId = player.getUuid();
+                            
+                            sendMessage(
+                                context,
+                                "This portal can only be accessed by " +
+                                    player.getName().asString() + " now"
+                            );
+                            sendMessage(context, portal.toString());
+                        }
+                        catch (CommandSyntaxException e) {
+                            context.getSource().sendError(
+                                new LiteralText("Invalid Player Argument")
+                            );
+                        }
+                    }
+                ))
+            )
+        );
+        
         dispatcher.register(builder);
     }
     
@@ -615,26 +650,13 @@ public class MyCommandServer {
     }
     
     public static void reloadPortal(Portal portal) {
-        portal.remove();
-        
-        Helper.SimpleBox<Integer> counter = new Helper.SimpleBox<>(0);
-        ModMain.serverTaskList.addTask(() -> {
-            if (counter.obj < 2) {
-                counter.obj++;
-                return false;
-            }
-            portal.removed = false;
-            portal.updateCache();
-            portal.world.spawnEntity(portal);
-            return true;
-        });
+        portal.updateCache();
+        McHelper.getIEStorage(portal.dimension).resendSpawnPacketToTrackers(portal);
     }
     
     public static void sendMessage(CommandContext<ServerCommandSource> context, String message) {
         context.getSource().sendFeedback(
-            new LiteralText(
-                message
-            ),
+            new LiteralText(message),
             false
         );
     }

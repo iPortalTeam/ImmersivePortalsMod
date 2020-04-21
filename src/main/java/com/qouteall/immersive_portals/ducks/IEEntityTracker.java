@@ -9,4 +9,8 @@ public interface IEEntityTracker {
     void updateCameraPosition_(ServerPlayerEntity player);
     
     void onPlayerRespawn(ServerPlayerEntity oldPlayer);
+    
+    void resendSpawnPacketToTrackers();
+    
+    void stopTrackingToAllPlayers_();
 }

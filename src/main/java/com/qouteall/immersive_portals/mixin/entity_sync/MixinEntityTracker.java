@@ -26,7 +26,7 @@ import java.util.Set;
 
 //NOTE must redirect all packets about entities
 @Mixin(targets = "net.minecraft.server.world.ThreadedAnvilChunkStorage$EntityTracker")
-public class MixinEntityTracker implements IEEntityTracker {
+public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final
     private EntityTrackerEntry entry;
@@ -41,6 +41,9 @@ public class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final
     private Set<ServerPlayerEntity> playersTracking;
+    
+    @Shadow
+    public abstract void stopTracking();
     
     @Redirect(
         method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToOtherNearbyPlayers(Lnet/minecraft/network/Packet;)V",
@@ -80,14 +83,6 @@ public class MixinEntityTracker implements IEEntityTracker {
         );
     }
     
-    
-    //copied
-    private static int getChebyshevDistance(ChunkPos chunkPos_1, int int_1, int int_2) {
-        int int_3 = chunkPos_1.x - int_1;
-        int int_4 = chunkPos_1.z - int_2;
-        return Math.max(Math.abs(int_3), Math.abs(int_4));
-    }
-    
     /**
      * @author qouteall
      */
@@ -103,7 +98,7 @@ public class MixinEntityTracker implements IEEntityTracker {
     @Overwrite
     public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
         //ignore the argument
-    
+        
         McHelper.getRawPlayerList().forEach(this::updateCameraPosition);
         
     }
@@ -119,7 +114,7 @@ public class MixinEntityTracker implements IEEntityTracker {
         
         if (player != this.entity) {
             McHelper.checkDimension(this.entity);
-    
+            
             Vec3d relativePos = (player.getPos()).subtract(this.entry.getLastPos());
             int maxWatchDistance = Math.min(
                 this.maxDistance,
@@ -143,7 +138,7 @@ public class MixinEntityTracker implements IEEntityTracker {
                         shouldTrack = true;
                     }
                 }
-    
+                
                 if (shouldTrack && this.playersTracking.add(player)) {
                     this.entry.startTracking(player);
                 }
@@ -158,5 +153,20 @@ public class MixinEntityTracker implements IEEntityTracker {
     @Override
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
         playersTracking.remove(oldPlayer);
+        entry.stopTracking(oldPlayer);
+    }
+    
+    @Override
+    public void resendSpawnPacketToTrackers() {
+        Packet<?> spawnPacket = entity.createSpawnPacket();
+        Packet redirected = MyNetwork.createRedirectedMessage(entity.dimension, spawnPacket);
+        playersTracking.forEach(player -> {
+            player.networkHandler.sendPacket(redirected);
+        });
+    }
+    
+    @Override
+    public void stopTrackingToAllPlayers_() {
+        stopTracking();
     }
 }

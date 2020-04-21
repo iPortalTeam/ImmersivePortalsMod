@@ -64,12 +64,15 @@ public class ChunkDataSyncManager {
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         chunkPos.dimension,
-                        new LightUpdateS2CPacket(chunkPos.getChunkPos(), ieStorage.getLightingProvider())
+                        new LightUpdateS2CPacket(
+                            chunkPos.getChunkPos(),
+                            ieStorage.getLightingProvider()
+                        )
                     )
                 );
                 
                 ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
-    
+                
                 McHelper.getServer().getProfiler().pop();
             }
         }
@@ -83,7 +86,7 @@ public class ChunkDataSyncManager {
     public void onChunkProvidedDeferred(WorldChunk chunk) {
         DimensionType dimension = chunk.getWorld().dimension.getType();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
-    
+        
         McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Packet chunkDataPacketRedirected = MyNetwork.createRedirectedMessage(
@@ -95,7 +98,7 @@ public class ChunkDataSyncManager {
             dimension,
             new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider())
         );
-    
+        
         McHelper.getServer().getProfiler().pop();
         
         NewChunkTrackingGraph.getPlayersViewingChunk(

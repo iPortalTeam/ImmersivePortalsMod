@@ -43,7 +43,7 @@ public class PortalManipulation {
         newPortal.dimensionTo = portal.dimension;
         newPortal.updatePosition(portal.destination.x, portal.destination.y, portal.destination.z);
         newPortal.destination = portal.getPos();
-        newPortal.specificPlayer = portal.specificPlayer;
+        newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width;
         newPortal.height = portal.height;
@@ -87,7 +87,7 @@ public class PortalManipulation {
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
         newPortal.destination = portal.destination;
-        newPortal.specificPlayer = portal.specificPlayer;
+        newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width;
         newPortal.height = portal.height;

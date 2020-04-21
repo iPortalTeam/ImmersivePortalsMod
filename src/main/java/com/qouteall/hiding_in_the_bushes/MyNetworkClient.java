@@ -110,15 +110,14 @@ public class MyNetworkClient {
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimensionType);
             
-            if (world.getEntityById(entityId) != null) {
-                Helper.err(String.format(
-                    "duplicate entity %s %s %s",
-                    ((Integer) entityId).toString(),
-                    entityType.get().getTranslationKey(),
-                    compoundTag
-                ));
-                return;
-            }
+//            if (world.getEntityById(entityId) != null) {
+//                Helper.err(String.format(
+//                    "duplicate entity %s %s %s",
+//                    ((Integer) entityId).toString(),
+//                    entityType.get().getTranslationKey(),
+//                    compoundTag
+//                ));
+//            }
             
             Entity entity = entityType.get().create(
                 world

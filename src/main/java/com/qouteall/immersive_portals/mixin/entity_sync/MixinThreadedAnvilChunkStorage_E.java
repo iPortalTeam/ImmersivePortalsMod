@@ -42,7 +42,8 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         if (entity instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) entity;
             if (Global.serverTeleportationManager.isTeleporting(player)) {
-                entityTrackers.remove(entity.getEntityId());
+                Object tracker = entityTrackers.remove(entity.getEntityId());
+                ((IEEntityTracker) tracker).stopTrackingToAllPlayers_();
                 handlePlayerAddedOrRemoved(player, false);
                 ci.cancel();
             }
@@ -82,13 +83,18 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         
         for (Entity entity : attachedEntityList) {
             player.networkHandler.sendPacket(new EntityAttachS2CPacket(
-                entity,
-                ((MobEntity) entity).getHoldingEntity()
+                entity, ((MobEntity) entity).getHoldingEntity()
             ));
         }
         
         for (Entity entity : passengerList) {
             player.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(entity));
         }
+    }
+    
+    @Override
+    public void resendSpawnPacketToTrackers(Entity entity) {
+        Object tracker = entityTrackers.get(entity.getEntityId());
+        ((IEEntityTracker) tracker).resendSpawnPacketToTrackers();
     }
 }

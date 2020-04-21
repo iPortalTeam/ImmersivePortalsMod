@@ -223,14 +223,14 @@ public class ServerTeleportationManager {
         ServerWorld toWorld,
         Vec3d newEyePos
     ) {
+        teleportingEntities.add(player);
+        
         Entity vehicle = player.getVehicle();
         if (vehicle != null) {
             ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
         }
         
         BlockPos oldPos = player.getBlockPos();
-        
-        teleportingEntities.add(player);
         
         O_O.segregateServerPlayer(fromWorld, player);
         
