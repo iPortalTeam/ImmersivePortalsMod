@@ -317,15 +317,15 @@ public class Helper {
     }
     
     public static void log(Object str) {
-        LOGGER.info("[Portal] " + str);
+        LOGGER.info(str);
     }
     
     public static void err(Object str) {
-        LOGGER.error("[Portal] " + str);
+        LOGGER.error(str);
     }
     
     public static void dbg(Object str) {
-        LOGGER.debug("[Portal] " + str);
+        LOGGER.debug(str);
     }
     
     public static Vec3d[] eightVerticesOf(Box box) {

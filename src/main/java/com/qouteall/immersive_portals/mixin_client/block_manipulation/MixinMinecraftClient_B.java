@@ -33,7 +33,7 @@ public abstract class MixinMinecraftClient_B {
         cancellable = true
     )
     private void onHandleBlockBreaking(boolean isKeyPressed, CallbackInfo ci) {
-        if (BlockManipulationClient.isPointingToRemoteBlock()) {
+        if (BlockManipulationClient.isPointingToPortal()) {
             BlockManipulationClient.myHandleBlockBreaking(isKeyPressed);
             ci.cancel();
         }
@@ -48,7 +48,7 @@ public abstract class MixinMinecraftClient_B {
         cancellable = true
     )
     private void onDoAttack(CallbackInfo ci) {
-        if (BlockManipulationClient.isPointingToRemoteBlock()) {
+        if (BlockManipulationClient.isPointingToPortal()) {
             BlockManipulationClient.myAttackBlock();
             ci.cancel();
         }
@@ -63,7 +63,7 @@ public abstract class MixinMinecraftClient_B {
         cancellable = true
     )
     private void onDoItemUse(CallbackInfo ci) {
-        if (BlockManipulationClient.isPointingToRemoteBlock()) {
+        if (BlockManipulationClient.isPointingToPortal()) {
             //TODO support offhand
             BlockManipulationClient.myItemUse(Hand.MAIN_HAND);
             ci.cancel();
@@ -78,7 +78,7 @@ public abstract class MixinMinecraftClient_B {
         )
     )
     private void redirectDoItemPick(MinecraftClient minecraftClient) {
-        if (BlockManipulationClient.isPointingToRemoteBlock()) {
+        if (BlockManipulationClient.isPointingToPortal()) {
             ClientWorld remoteWorld = CGlobal.clientWorldLoader.getWorld(
                 BlockManipulationClient.remotePointedDim
             );
