@@ -153,8 +153,8 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     @Override
     public void generateFeatures(ChunkRegion region, StructureAccessor structureAccessor) {
         try {
-            super.generateFeatures(region,structureAccessor);
-    
+            super.generateFeatures(region, structureAccessor);
+            
         }
         catch (Throwable throwable) {
             Helper.err("Force ignore exception while generating feature " + throwable);
@@ -170,7 +170,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
             Biome biome = this.getDecorationBiome(region.getBiomeAccess(), blockPos.add(8, 8, 8));
             ChunkRandom chunkRandom = new ChunkRandom();
             long currSeed = chunkRandom.setPopulationSeed(region.getSeed() + pass, x, z);
-        
+            
             generateFeatureForStep(
                 region, centerChunkX, centerChunkZ,
                 blockPos, biome, chunkRandom, currSeed,
@@ -178,7 +178,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                 structureAccessor
             );
         }
-    
+        
         SimpleSpawnerFeature.instance.generate(
             region,
             structureAccessor,
@@ -202,7 +202,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     ) {
         try {
             biome.generateFeatureStep(
-                feature, structureAccessor,this, region, currSeed, chunkRandom, blockPos
+                feature, structureAccessor, this, region, currSeed, chunkRandom, blockPos
             );
         }
         catch (Exception var17) {
@@ -225,7 +225,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         StructureManager structureManager
     ) {
         random.setTerrainSeed(chunk.getPos().x, chunk.getPos().z);
-    
+        
         Iterator var5 = Feature.STRUCTURES.values().iterator();
         
         while (var5.hasNext()) {
@@ -333,9 +333,13 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     }
     
     @Override
-    public void addStructureReferences(IWorld world, Chunk chunk) {
+    public void addStructureReferences(
+        IWorld world,
+        StructureAccessor structureAccessor,
+        Chunk chunk
+    ) {
         try {
-            super.addStructureReferences(world, chunk);
+            super.addStructureReferences(world, structureAccessor, chunk);
         }
         catch (Throwable throwable) {
             Helper.err("Error Generating " + world.getDimension().getType() + chunk.getPos());

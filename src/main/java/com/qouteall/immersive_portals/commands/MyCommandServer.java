@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class MyCommandServer {
@@ -463,7 +462,7 @@ public class MyCommandServer {
                             Direction facing = Direction.getFacing(
                                 viewVector.x, viewVector.y, viewVector.z
                             );
-                            Vec3d offset = new Vec3d(facing.getVector()).multiply(distance);
+                            Vec3d offset = Vec3d.method_24954(facing.getVector()).multiply(distance);
                             portal.updatePosition(
                                 portal.getX() + offset.x,
                                 portal.getY() + offset.y,
@@ -914,7 +913,7 @@ public class MyCommandServer {
     
     public static int processPortalTargetedCommand(
         CommandContext<ServerCommandSource> context,
-        Consumer<Portal> processCommand
+        PortalConsumerThrowsCommandSyntaxException processCommand
     ) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
