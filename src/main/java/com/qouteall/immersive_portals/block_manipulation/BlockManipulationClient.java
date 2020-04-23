@@ -117,7 +117,7 @@ public class BlockManipulationClient {
             from,
             Portal.class,
             endDistance - beginDistance
-        ).filter(p -> p.getPos().subtract(portal.destination).dotProduct(portal.transformLocalVec(portal.getNormal())) < 0);
+        ).filter(p -> p.getPos().subtract(portal.destination).dotProduct(portal.getContentDirection()) > 0);
 
         com.mojang.datafixers.util.Pair<Portal, Vec3d> portalHit =
             MyCommandServer.getPlayerPointingPortalRaw(
