@@ -34,7 +34,17 @@ public class BlockManipulationClient {
     public static boolean isPointingToPortal() {
         return remotePointedDim != null;
     }
-    
+
+    private static BlockHitResult createMissedHitResult(Vec3d from, Vec3d to) {
+        Vec3d dir = to.subtract(from).normalize();
+
+        return BlockHitResult.createMissed(to, Direction.getFacing(dir.x, dir.y, dir.z), new BlockPos(to));
+    }
+
+    private static boolean hitResultIsMissedOrNull(HitResult bhr) {
+        return bhr == null || bhr.getType() == HitResult.Type.MISS;
+    }
+
     public static void updatePointedBlock(float partialTicks) {
         if (client.interactionManager == null || client.world == null) {
             return;
@@ -52,8 +62,8 @@ public class BlockManipulationClient {
         ).ifPresent(pair -> {
             double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
             if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
-                client.crosshairTarget = null;
-                
+                client.crosshairTarget = createMissedHitResult(cameraPos, pair.getSecond());
+
                 updateTargetedBlockThroughPortal(
                     cameraPos,
                     client.player.getRotationVec(partialTicks),
@@ -65,14 +75,14 @@ public class BlockManipulationClient {
             }
         });
     }
-    
+
     private static double getCurrentTargetDistance() {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        
-        if (client.crosshairTarget == null) {
+
+        if (hitResultIsMissedOrNull(client.crosshairTarget)) {
             return 23333;
         }
-        
+
         //pointing to placeholder block does not count
         if (client.crosshairTarget instanceof BlockHitResult) {
             BlockHitResult hitResult = (BlockHitResult) client.crosshairTarget;
@@ -173,7 +183,7 @@ public class BlockManipulationClient {
         
         if (remoteHitResult != null) {
             if (!world.getBlockState(((BlockHitResult) remoteHitResult).getBlockPos()).isAir()) {
-                client.crosshairTarget = null;
+                client.crosshairTarget = createMissedHitResult(from, to);
                 remotePointedDim = portal.dimensionTo;
             }
         }
