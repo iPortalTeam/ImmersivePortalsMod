@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -23,13 +24,15 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.stream.Stream;
+
 public class BlockManipulationClient {
     private static final MinecraftClient client = MinecraftClient.getInstance();
-    
+
     public static DimensionType remotePointedDim;
     public static HitResult remoteHitResult;
     public static boolean isContextSwitched = false;
-    
+
     public static boolean isPointingToPortal() {
         return remotePointedDim != null;
     }
@@ -48,14 +51,14 @@ public class BlockManipulationClient {
         if (client.interactionManager == null || client.world == null) {
             return;
         }
-        
+
         remotePointedDim = null;
         remoteHitResult = null;
-        
+
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        
+
         float reachDistance = client.interactionManager.getReachDistance();
-        
+
         MyCommandServer.getPlayerPointingPortalRaw(
             client.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
@@ -90,10 +93,10 @@ public class BlockManipulationClient {
                 return 23333;
             }
         }
-        
+
         return cameraPos.distanceTo(client.crosshairTarget.getPos());
     }
-    
+
     private static void updateTargetedBlockThroughPortal(
         Vec3d cameraPos,
         Vec3d viewVector,
@@ -102,14 +105,46 @@ public class BlockManipulationClient {
         double endDistance,
         Portal portal
     ) {
-        
         Vec3d from = portal.transformPoint(
             cameraPos.add(viewVector.multiply(beginDistance))
         );
         Vec3d to = portal.transformPoint(
             cameraPos.add(viewVector.multiply(endDistance))
         );
-        
+
+        Stream<Portal> portalStream = McHelper.getEntitiesNearby(
+            portal.world,
+            from,
+            Portal.class,
+            endDistance - beginDistance
+        ).filter(p -> p.getPos().subtract(portal.destination).dotProduct(portal.transformLocalVec(portal.getNormal())) < 0);
+
+        com.mojang.datafixers.util.Pair<Portal, Vec3d> portalHit =
+            MyCommandServer.getPlayerPointingPortalRaw(
+                portalStream, portal.world, from, to, true
+            ).orElse(null);
+
+        if (portalHit != null) {
+            Portal intersected = portalHit.getFirst();
+            Vec3d intersection = portalHit.getSecond();
+
+            double distanceToPortalPointing = intersection.distanceTo(from);
+            if (distanceToPortalPointing < endDistance) {
+                Vec3d lookThrough = portal.transformLocalVec(viewVector);
+
+                updateTargetedBlockThroughPortal(
+                    intersection,
+                    lookThrough,
+                    portal.dimension,
+                    0,
+                    endDistance - distanceToPortalPointing,
+                    intersected
+                );
+
+                return;
+            }
+        }
+
         RayTraceContext context = new RayTraceContext(
             from,
             to,
@@ -117,21 +152,21 @@ public class BlockManipulationClient {
             RayTraceContext.FluidHandling.NONE,
             client.player
         );
-        
+
         ClientWorld world = CGlobal.clientWorldLoader.getWorld(
             portal.dimensionTo
         );
-        
+
         remoteHitResult = BlockView.rayTrace(
             context,
             (rayTraceContext, blockPos) -> {
                 BlockState blockState = world.getBlockState(blockPos);
-                
+
                 //don't stop at placeholder block
                 if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
                     return null;
                 }
-                
+
                 //when seeing through mirror don't stop at the glass block
                 if (portal instanceof Mirror) {
                     if (portal.getDistanceToNearestPointInPortal(new Vec3d(blockPos).add(
@@ -142,7 +177,7 @@ public class BlockManipulationClient {
                         return null;
                     }
                 }
-                
+
                 FluidState fluidState = world.getFluidState(blockPos);
                 Vec3d start = rayTraceContext.getStart();
                 Vec3d end = rayTraceContext.getEnd();
@@ -170,7 +205,7 @@ public class BlockManipulationClient {
                 );
             }
         );
-        
+
         if (remoteHitResult.getPos().y < 0.1) {
             remoteHitResult = new BlockHitResult(
                 remoteHitResult.getPos(),
@@ -179,22 +214,22 @@ public class BlockManipulationClient {
                 ((BlockHitResult) remoteHitResult).isInsideBlock()
             );
         }
-        
+
         if (remoteHitResult != null) {
             if (!world.getBlockState(((BlockHitResult) remoteHitResult).getBlockPos()).isAir()) {
                 client.crosshairTarget = createMissedHitResult(from, to);
                 remotePointedDim = portal.dimensionTo;
             }
         }
-        
+
     }
-    
+
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
 //        if (remoteHitResult == null) {
 //            return;
 //        }
-        
-        
+
+
         if (!client.player.isUsingItem()) {
             if (isKeyPressed && isPointingToPortal()) {
                 BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
@@ -208,14 +243,13 @@ public class BlockManipulationClient {
                         client.player.swingHand(Hand.MAIN_HAND);
                     }
                 }
-                
-            }
-            else {
+
+            } else {
                 client.interactionManager.cancelBlockBreaking();
             }
         }
     }
-    
+
     //hacky switch
     public static boolean myUpdateBlockBreakingProgress(
         BlockPos blockPos,
@@ -224,73 +258,71 @@ public class BlockManipulationClient {
 //        if (remoteHitResult == null) {
 //            return false;
 //        }
-        
+
         ClientWorld oldWorld = client.world;
         client.world = CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         isContextSwitched = true;
-        
+
         try {
             return client.interactionManager.updateBlockBreakingProgress(blockPos, direction);
-        }
-        finally {
+        } finally {
             client.world = oldWorld;
             isContextSwitched = false;
         }
-        
+
     }
-    
+
     public static void myAttackBlock() {
 //        if (remoteHitResult == null) {
 //            return;
 //        }
-        
-        
+
+
         ClientWorld targetWorld =
             CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
-        
+
         if (targetWorld.isAir(blockPos)) {
             return;
         }
-        
+
         ClientWorld oldWorld = client.world;
-        
+
         client.world = targetWorld;
         isContextSwitched = true;
-        
+
         try {
             client.interactionManager.attackBlock(
                 blockPos,
                 ((BlockHitResult) remoteHitResult).getSide()
             );
-        }
-        finally {
+        } finally {
             client.world = oldWorld;
             isContextSwitched = false;
         }
-        
+
         client.player.swingHand(Hand.MAIN_HAND);
     }
-    
+
     //too lazy to rewrite the whole interaction system so hack there and here
     public static void myItemUse(Hand hand) {
 //        if (remoteHitResult == null) {
 //            return;
 //        }
-        
+
         ClientWorld targetWorld =
             CGlobal.clientWorldLoader.getWorld(remotePointedDim);
-        
+
         ItemStack itemStack = client.player.getStackInHand(hand);
         BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
-        
+
         Pair<BlockHitResult, DimensionType> result =
             BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
         blockHitResult = result.getLeft();
         targetWorld = CGlobal.clientWorldLoader.getWorld(result.getRight());
         remoteHitResult = blockHitResult;
         remotePointedDim = result.getRight();
-        
+
         int i = itemStack.getCount();
         ActionResult actionResult2 = myInteractBlock(hand, targetWorld, blockHitResult);
         if (actionResult2.isAccepted()) {
@@ -300,14 +332,14 @@ public class BlockManipulationClient {
                     client.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
                 }
             }
-            
+
             return;
         }
-        
+
         if (actionResult2 == ActionResult.FAIL) {
             return;
         }
-        
+
         if (!itemStack.isEmpty()) {
             ActionResult actionResult3 = client.interactionManager.interactItem(
                 client.player,
@@ -318,13 +350,13 @@ public class BlockManipulationClient {
                 if (actionResult3.shouldSwingHand()) {
                     client.player.swingHand(hand);
                 }
-                
+
                 client.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
                 return;
             }
         }
     }
-    
+
     private static ActionResult myInteractBlock(
         Hand hand,
         ClientWorld targetWorld,
@@ -333,23 +365,22 @@ public class BlockManipulationClient {
 //        if (remoteHitResult == null) {
 //            return null;
 //        }
-        
+
         ClientWorld oldWorld = client.world;
-        
+
         try {
             client.player.world = targetWorld;
             client.world = targetWorld;
             isContextSwitched = true;
-            
+
             return client.interactionManager.interactBlock(
                 client.player, targetWorld, hand, blockHitResult
             );
-        }
-        finally {
+        } finally {
             client.player.world = oldWorld;
             client.world = oldWorld;
             isContextSwitched = false;
         }
     }
-    
+
 }
