@@ -30,7 +30,6 @@ public class BlockManipulationClient {
     public static HitResult remoteHitResult;
     public static boolean isContextSwitched = false;
     
-    
     public static boolean isPointingToPortal() {
         return remotePointedDim != null;
     }

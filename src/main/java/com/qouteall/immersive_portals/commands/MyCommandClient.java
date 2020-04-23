@@ -448,6 +448,11 @@ public class MyCommandClient {
             "cross_portal_entity_rendering",
             cond -> Global.correctCrossPortalEntityRendering = cond
         );
+        registerSwitchCommand(
+            builder,
+            "loose_visible_chunk_iteration",
+            cond -> Global.looseVisibleChunkIteration = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")
