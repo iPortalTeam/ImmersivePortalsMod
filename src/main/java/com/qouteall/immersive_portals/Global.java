@@ -40,6 +40,8 @@ public class Global {
     
     public static boolean reversibleNetherPortalLinking = false;
     
+    public static boolean looseVisibleChunkIteration = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

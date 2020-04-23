@@ -379,7 +379,7 @@ public class MyCommandClient {
                         );
                     }
                 }
-    
+                
                 return 0;
             })
         );
@@ -401,7 +401,7 @@ public class MyCommandClient {
                         );
                     }
                 }
-            
+                
                 return 0;
             })
         );
@@ -441,6 +441,22 @@ public class MyCommandClient {
             cond -> CGlobal.useSuperAdvancedFrustumCulling = cond
         );
     
+        registerSwitchCommand(
+            builder,
+            "teleportation_debug",
+            cond -> Global.teleportationDebugEnabled = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "cross_portal_entity_rendering",
+            cond -> Global.correctCrossPortalEntityRendering = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "loose_visible_chunk_iteration",
+            cond -> Global.looseVisibleChunkIteration = cond
+        );
+        
         builder.then(CommandManager
             .literal("print_class_path")
             .executes(context -> {
@@ -448,9 +464,9 @@ public class MyCommandClient {
                 return 0;
             })
         );
-    
+        
         dispatcher.register(builder);
-    
+        
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     

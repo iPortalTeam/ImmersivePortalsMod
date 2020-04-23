@@ -95,11 +95,11 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                         int worldX = pos.x * 16 + localX;
                         int worldY = sectionY * 16 + localY;
                         int worldZ = pos.z * 16 + localZ;
-    
+                        
                         BlockState currBlockState = generator.getBlockComposition(
                             worldX, worldY, worldZ
                         );
-    
+                        
                         if (currBlockState != AIR) {
                             section.setBlockState(localX, localY, localZ, currBlockState, false);
                             oceanFloorHeightMap.trackUpdate(localX, worldY, localZ, currBlockState);
@@ -108,11 +108,11 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                     }
                 }
             }
-    
+            
             section.unlock();
         }
-    
-    
+        
+        
     }
     
     //carve more
@@ -159,13 +159,13 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         catch (Throwable throwable) {
             Helper.err("Force ignore exception while generating feature " + throwable);
         }
-    
+        
         int centerChunkX = region.getCenterChunkX();
         int centerChunkZ = region.getCenterChunkZ();
         int x = centerChunkX * 16;
         int z = centerChunkZ * 16;
         BlockPos blockPos = new BlockPos(x, 0, z);
-    
+        
         for (int pass = 1; pass < 4; pass++) {
             Biome biome = this.getDecorationBiome(region.getBiomeAccess(), blockPos.add(8, 8, 8));
             ChunkRandom chunkRandom = new ChunkRandom();
@@ -227,7 +227,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         random.setTerrainSeed(chunk.getPos().x, chunk.getPos().z);
     
         Iterator var5 = Feature.STRUCTURES.values().iterator();
-    
+        
         while (var5.hasNext()) {
             StructureFeature<?> structureFeature = (StructureFeature) var5.next();
             if (chunkGenerator.getBiomeSource().hasStructureFeature(structureFeature)) {
@@ -332,4 +332,14 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         return 64;
     }
     
+    @Override
+    public void addStructureReferences(IWorld world, Chunk chunk) {
+        try {
+            super.addStructureReferences(world, chunk);
+        }
+        catch (Throwable throwable) {
+            Helper.err("Error Generating " + world.getDimension().getType() + chunk.getPos());
+            throwable.printStackTrace();
+        }
+    }
 }
