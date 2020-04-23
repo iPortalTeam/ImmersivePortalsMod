@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -72,7 +73,8 @@ public class BlockManipulationClient {
                     client.player.dimension,
                     distanceToPortalPointing,
                     reachDistance,
-                    pair.getFirst()
+                    pair.getFirst(),
+                    0
                 );
             }
         });
@@ -103,8 +105,13 @@ public class BlockManipulationClient {
         DimensionType playerDimension,
         double beginDistance,
         double endDistance,
-        Portal portal
+        Portal portal,
+        int level
     ) {
+        if (level >= Global.maxPortalLayer) {
+            return;
+        }
+
         Vec3d from = portal.transformPoint(
             cameraPos.add(viewVector.multiply(beginDistance))
         );
@@ -138,7 +145,8 @@ public class BlockManipulationClient {
                     portal.dimension,
                     0,
                     endDistance - distanceToPortalPointing,
-                    intersected
+                    intersected,
+                    level + 1
                 );
 
                 return;
