@@ -7,8 +7,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,7 +46,7 @@ public abstract class MixinCreateWorldScreen extends Screen {
         
         altiusButton = (ButtonWidget) this.addButton(new ButtonWidget(
             this.width / 2 - 75, 187 - 25, 150, 20,
-            I18n.translate("imm_ptl.altius_screen_button"),
+            new TranslatableText("imm_ptl.altius_screen_button"),
             (buttonWidget) -> {
                 openAltiusScreen();
             }
@@ -72,19 +72,18 @@ public abstract class MixinCreateWorldScreen extends Screen {
         method = "createLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;startIntegratedServer(Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;)V"
+            target = "Lnet/minecraft/client/MinecraftClient;startIntegratedServer(Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;)V"
         )
     )
     private void redirectOnCreateLevel(
         MinecraftClient minecraftClient,
         String name,
-        String displayName,
         LevelInfo levelInfo
     ) {
         AltiusInfo info = altiusScreen.getAltiusInfo();
         ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
         
-        minecraftClient.startIntegratedServer(name, displayName, levelInfo);
+        minecraftClient.startIntegratedServer(name, levelInfo);
     }
     
     private void openAltiusScreen() {

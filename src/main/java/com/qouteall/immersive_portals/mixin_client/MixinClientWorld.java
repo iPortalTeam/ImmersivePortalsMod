@@ -5,13 +5,13 @@ import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import net.minecraft.class_5217;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -62,7 +62,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
     )
     void onConstructed(
         ClientPlayNetworkHandler clientPlayNetworkHandler,
-        LevelInfo levelInfo,
+        class_5217 levelInfo,
         DimensionType dimensionType,
         int chunkLoadDistance,
         Supplier<Profiler> supplier,

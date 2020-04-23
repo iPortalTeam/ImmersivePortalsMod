@@ -45,8 +45,8 @@ dependencies {
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-	modApi "me.shedaniel.cloth:config-2:3.3.2-unstable"
-	modImplementation "io.github.prospector:modmenu:1.11.1+build.3"
+	modCompileOnly "me.shedaniel.cloth:config-2:3.3.2-unstable"
+	modCompileOnly "io.github.prospector:modmenu:1.11.1+build.3"
 
 	//include "me.shedaniel.cloth:config-2:3.0.1"
 	//include "io.github.prospector:modmenu:1.10.2+build.1"

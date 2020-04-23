@@ -8,12 +8,12 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
+import net.minecraft.class_5219;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
-import net.minecraft.world.level.LevelGeneratorOptions;
 import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,6 +40,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     )
     private void onServerConstruct(
         LevelStorage.Session session,
+        class_5219 arg,
         Proxy proxy,
         DataFixer dataFixer,
         CommandManager commandManager,
@@ -76,9 +77,6 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("RETURN")
     )
     private void onFinishedLoadingAllWorlds(
-        String string,
-        long l,
-        LevelGeneratorOptions levelGeneratorOptions,
         CallbackInfo ci
     ) {
         portal_areAllWorldsLoaded = true;

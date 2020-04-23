@@ -16,7 +16,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.level.LevelInfo;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
@@ -207,9 +206,7 @@ public class ClientWorldLoader {
             );
             newWorld = new ClientWorld(
                 newNetworkHandler,
-                new LevelInfo(
-                    mc.world.getLevelProperties()
-                ),
+                mc.world.getLevelProperties(),
                 dimension,
                 chunkLoadDistance,
                 () -> mc.getProfiler(),

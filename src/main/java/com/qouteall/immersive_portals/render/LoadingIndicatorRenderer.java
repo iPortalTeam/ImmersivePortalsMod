@@ -5,6 +5,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
 public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEntity> {
@@ -32,7 +33,7 @@ public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEnt
             matrixStack_1.translate(0, -i * 0.25 - 0.5, 0);
             this.renderLabelIfPresent(
                 entity_1,
-                splited[i],
+                new LiteralText(splited[i]),
                 matrixStack_1,
                 vertexConsumerProvider_1,
                 int_1

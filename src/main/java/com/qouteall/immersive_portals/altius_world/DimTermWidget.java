@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.altius_world;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
@@ -24,19 +25,19 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
     
     @Override
     public void render(
-        int index,
+        MatrixStack matrixStack,
         int y,
         int x,
         int width,
         int height,
         int mouseX,
         int mouseY,
-        boolean hovering,
-        float delta
+        int i,
+        boolean bl,
+        float f
     ) {
         MinecraftClient.getInstance().textRenderer.draw(
-            dimension.toString(),
-            x, y, 0xFFFFFFFF
+            matrixStack, dimension.toString(), width + 32 + 3, (float) (x), 0xFFFFFFFF
         );
     }
     

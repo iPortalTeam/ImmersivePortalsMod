@@ -4,9 +4,10 @@ import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -31,7 +32,7 @@ public class AltiusScreen extends Screen {
         
         toggleButton = new ButtonWidget(
             0, 0, 150, 20,
-            I18n.translate("imm_ptl.toggle_altius"),
+            new TranslatableText("imm_ptl.toggle_altius"),
             (buttonWidget) -> {
                 setEnabled(!isEnabled);
             }
@@ -39,21 +40,21 @@ public class AltiusScreen extends Screen {
         
         backButton = new ButtonWidget(
             0, 0, 72, 20,
-            I18n.translate("imm_ptl.back_to_create_world"),
+            new TranslatableText("imm_ptl.back_to_create_world"),
             (buttonWidget) -> {
                 MinecraftClient.getInstance().openScreen(parent);
             }
         );
         addDimensionButton = new ButtonWidget(
             0, 0, 72, 20,
-            I18n.translate("imm_ptl.add_dimension"),
+            new TranslatableText("imm_ptl.add_dimension"),
             (buttonWidget) -> {
                 onAddDimension();
             }
         );
         removeDimensionButton = new ButtonWidget(
             0, 0, 72, 20,
-            I18n.translate("imm_ptl.remove_dimension"),
+            new TranslatableText("imm_ptl.remove_dimension"),
             (buttonWidget) -> {
                 onRemoveDimension();
             }
@@ -67,7 +68,7 @@ public class AltiusScreen extends Screen {
             15,
             this
         );
-    
+        
         O_O.registerDimensionsForge();
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
@@ -156,30 +157,31 @@ public class AltiusScreen extends Screen {
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float delta) {
-        this.renderBackground();
+    public void render(MatrixStack matrixStack, int mouseY, int i, float f) {
+        this.renderBackground(matrixStack);
         
         
         if (isEnabled) {
-            dimListWidget.render(mouseX, mouseY, delta);
+            dimListWidget.render(matrixStack, mouseY, i, f);
         }
         
-        super.render(mouseX, mouseY, delta);
-        
-        this.drawCenteredString(
-            MinecraftClient.getInstance().textRenderer, this.title.asFormattedString(), this.width / 2, 20, -1
+        super.render(matrixStack, mouseY, i, f);
+    
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        textRenderer.method_27517(
+            matrixStack, this.title,
+            20, 20, -1
         );
-        
         
     }
     
     private void setEnabled(boolean cond) {
         isEnabled = cond;
         if (isEnabled) {
-            toggleButton.setMessage(I18n.translate("imm_ptl.altius_toggle_true"));
+            toggleButton.setMessage(new TranslatableText("imm_ptl.altius_toggle_true"));
         }
         else {
-            toggleButton.setMessage(I18n.translate("imm_ptl.altius_toggle_false"));
+            toggleButton.setMessage(new TranslatableText("imm_ptl.altius_toggle_false"));
         }
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;

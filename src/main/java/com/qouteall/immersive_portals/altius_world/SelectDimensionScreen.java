@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.altius_world;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
@@ -45,7 +45,7 @@ public class SelectDimensionScreen extends Screen {
         
         confirmButton = (ButtonWidget) this.addButton(new ButtonWidget(
             this.width / 2 - 75, this.height - 28, 150, 20,
-            I18n.translate("imm_ptl.confirm_select_dimension"),
+            new TranslatableText("imm_ptl.confirm_select_dimension"),
             (buttonWidget) -> {
                 DimTermWidget selected = dimListWidget.getSelected();
                 if (selected == null) {
@@ -59,15 +59,15 @@ public class SelectDimensionScreen extends Screen {
     }
     
     @Override
-    public void render(int mouseX, int mouseY, float delta) {
-        this.renderBackground();
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+        this.renderBackground(matrixStack);
         
-        dimListWidget.render(mouseX, mouseY, delta);
+        dimListWidget.render(matrixStack, mouseX, mouseY, delta);
         
-        super.render(mouseX, mouseY, delta);
+        super.render(matrixStack, mouseX, mouseY, delta);
         
         this.drawCenteredString(
-            this.textRenderer, this.title.asFormattedString(), this.width / 2, 20, -1
+            matrixStack, this.textRenderer, this.title.asString(), this.width / 2, 20, -1
         );
     }
 }

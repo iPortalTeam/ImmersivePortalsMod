@@ -18,11 +18,11 @@ public class MixinLevelProperties implements IELevelProperties {
     AltiusInfo altiusInfo;
     
     @Inject(
-        method = "<init>(Lnet/minecraft/world/level/LevelInfo;Ljava/lang/String;)V",
+        method = "<init>(Lnet/minecraft/world/level/LevelInfo;)V",
         at = @At("RETURN")
     )
     private void onConstructedFromLevelInfo(
-        LevelInfo levelInfo, String levelName, CallbackInfo ci
+        LevelInfo levelInfo, CallbackInfo ci
     ) {
         altiusInfo = ((IELevelProperties) (Object) levelInfo).getAltiusInfo();
     }

@@ -218,7 +218,9 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         }
     }
     
+    @Override
     public void setStructureStarts(
+        StructureAccessor structureAccessor,
         BiomeAccess biomeAccess,
         Chunk chunk,
         ChunkGenerator<?> chunkGenerator,
@@ -247,19 +249,10 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                 }
                 if (shouldStart) {
                     StructureStart structureStart3 = structureFeature.getStructureStartFactory().create(
-                        structureFeature,
-                        chunkPos.x,
-                        chunkPos.z,
-                        BlockBox.empty(),
-                        i,
-                        chunkGenerator.getSeed()
+                        structureFeature, chunkPos.x, chunkPos.z, BlockBox.empty(), i, chunkGenerator.getSeed()
                     );
-                    structureStart3.initialize(
-                        this,
-                        structureManager,
-                        chunkPos.x,
-                        chunkPos.z,
-                        biome
+                    structureStart3.init(
+                        this, structureManager, chunkPos.x, chunkPos.z, biome
                     );
                     structureStart2 = structureStart3.hasChildren() ? structureStart3 : StructureStart.DEFAULT;
                 }
