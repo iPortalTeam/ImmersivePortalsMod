@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
@@ -67,6 +68,10 @@ public class MyGameRenderer {
                 client.cameraEntity.getX(),
                 client.cameraEntity.getZ()
             );
+        }
+        
+        if (Global.looseVisibleChunkIteration) {
+            client.chunkCullingEnabled = false;
         }
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
@@ -138,6 +143,10 @@ public class MyGameRenderer {
         FogRendererContext.swappingManager.popSwapping();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
+        
+        if (Global.looseVisibleChunkIteration) {
+            client.chunkCullingEnabled = true;
+        }
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {
