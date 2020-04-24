@@ -128,7 +128,7 @@ public class AlternateDimension extends Dimension {
             world,
             BiomeSourceType.FIXED.applyConfig(
                 BiomeSourceType.FIXED.getConfig(world.getLevelProperties()).setBiome(
-                    Biomes.PLAINS
+                    Biomes.THE_VOID
                 )
             ),
             generationSettings
