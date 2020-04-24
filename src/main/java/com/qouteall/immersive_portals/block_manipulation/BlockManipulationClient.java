@@ -28,8 +28,8 @@ import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BlockManipulationClient {
@@ -89,14 +89,10 @@ public class BlockManipulationClient {
             }
         });
 
-        StringJoiner sj = new StringJoiner("\n");
-
-        aimingPortals
+        MyRenderHelper.debugText = aimingPortals
             .stream()
             .map(p -> p.getLeft().toString() + p.getRight().get())
-            .forEach(sj::add);
-
-        MyRenderHelper.debugText = sj.toString();
+            .collect(Collectors.joining("\n"));
     }
 
     private static double getHitResultDistance(HitResult hitResult, Vec3d from) {
