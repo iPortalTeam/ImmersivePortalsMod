@@ -23,3 +23,7 @@ bin/
 # fabric
 
 run/
+
+compiler_output/
+deps/
+*.gitignore

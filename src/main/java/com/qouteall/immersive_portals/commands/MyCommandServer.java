@@ -245,16 +245,14 @@ public class MyCommandServer {
                                             (float) angleDegrees,
                                             true
                                         );
-                                    }
-                                    else {
+                                    } else {
                                         portal.rotation = null;
                                     }
 
                                     reloadPortal(portal);
 
 
-                                }
-                                catch (CommandSyntaxException ignored) {
+                                } catch (CommandSyntaxException ignored) {
                                     ignored.printStackTrace();
                                 }
                             }
@@ -297,8 +295,7 @@ public class MyCommandServer {
                                     );
 
                                     reloadPortal(portal);
-                                }
-                                catch (CommandSyntaxException ignored) {
+                                } catch (CommandSyntaxException ignored) {
                                     ignored.printStackTrace();
                                 }
                             }
@@ -460,8 +457,7 @@ public class MyCommandServer {
                                 portal.getY() + offset.y,
                                 portal.getZ() + offset.z
                             );
-                        }
-                        catch (CommandSyntaxException e) {
+                        } catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
                         }
                     }
@@ -577,8 +573,7 @@ public class MyCommandServer {
                     Global.serverTeleportationManager.lastPosition.get(player);
                 if (lastPos == null) {
                     sendMessage(context, "You haven't teleported");
-                }
-                else {
+                } else {
                     Global.serverTeleportationManager.invokeTpmeCommand(
                         player, lastPos.getLeft(), lastPos.getRight()
                     );
@@ -714,8 +709,7 @@ public class MyCommandServer {
                 Portal portal = (Portal) portalEntity;
 
                 invoker.accept(portal);
-            }
-            else {
+            } else {
                 sendMessage(context, "The target should be portal");
             }
         }
@@ -866,11 +860,9 @@ public class MyCommandServer {
                 },
                 Portal.entityType
             );
-        }
-        else if (biFaced) {
+        } else if (biFaced) {
             PortalManipulation.completeBiFacedPortal(newPortal, Portal.entityType);
-        }
-        else if (biWay) {
+        } else if (biWay) {
             PortalManipulation.completeBiWayPortal(newPortal, Portal.entityType);
         }
     }
@@ -925,8 +917,7 @@ public class MyCommandServer {
                 true
             );
             return 0;
-        }
-        else {
+        } else {
             processCommand.accept(portal);
         }
         return 0;
