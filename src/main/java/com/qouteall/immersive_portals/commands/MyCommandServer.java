@@ -19,7 +19,11 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.command.arguments.*;
+import net.minecraft.command.arguments.DimensionArgumentType;
+import net.minecraft.command.arguments.EntityArgumentType;
+import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
+import net.minecraft.command.arguments.TextArgumentType;
+import net.minecraft.command.arguments.Vec3ArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +39,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class MyCommandServer {
