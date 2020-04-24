@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.commands.MyCommandServer;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -25,6 +26,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 public class BlockManipulationClient {
@@ -33,6 +38,7 @@ public class BlockManipulationClient {
     public static DimensionType remotePointedDim;
     public static HitResult remoteHitResult;
     public static boolean isContextSwitched = false;
+    private static List<Pair<Portal, AtomicReference<String>>> aimingPortals = new ArrayList<>();
 
     public static boolean isPointingToPortal() {
         return remotePointedDim != null;
@@ -60,58 +66,75 @@ public class BlockManipulationClient {
 
         float reachDistance = client.interactionManager.getReachDistance();
 
+        aimingPortals.clear();
+
         MyCommandServer.getPlayerPointingPortalRaw(
             client.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
-            double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
-            if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
-                client.crosshairTarget = createMissedHitResult(cameraPos, pair.getSecond());
+            Portal intersected = pair.getFirst();
+            Vec3d intersection = pair.getSecond();
+
+            double distanceToPortalPointing = intersection.distanceTo(cameraPos);
+            if (distanceToPortalPointing <= getCurrentTargetDistance(null) + 1f / 16) {
+                client.crosshairTarget = createMissedHitResult(cameraPos, intersection);
 
                 updateTargetedBlockThroughPortal(
-                    cameraPos,
+                    intersection,
                     client.player.getRotationVec(partialTicks),
-                    client.player.dimension,
-                    distanceToPortalPointing,
-                    reachDistance,
-                    pair.getFirst(),
+                    0,
+                    reachDistance - distanceToPortalPointing,
+                    intersected,
                     0
                 );
             }
         });
+
+        StringJoiner sj = new StringJoiner("\n");
+
+        aimingPortals
+            .stream()
+            .map(p -> p.getLeft().toString() + p.getRight().get())
+            .forEach(sj::add);
+
+        MyRenderHelper.debugText = sj.toString();
     }
 
-    private static double getCurrentTargetDistance() {
-        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+    private static double getHitResultDistance(HitResult hitResult, Vec3d from) {
+        if (from == null) {
+            from = client.gameRenderer.getCamera().getPos();
+        }
 
-        if (hitResultIsMissedOrNull(client.crosshairTarget)) {
+        if (hitResultIsMissedOrNull(hitResult)) {
             return 23333;
         }
 
         //pointing to placeholder block does not count
-        if (client.crosshairTarget instanceof BlockHitResult) {
-            BlockHitResult hitResult = (BlockHitResult) client.crosshairTarget;
-            BlockPos hitPos = hitResult.getBlockPos();
+        if (hitResult instanceof BlockHitResult) {
+            BlockPos hitPos = ((BlockHitResult) hitResult).getBlockPos();
             if (client.world.getBlockState(hitPos).getBlock() == PortalPlaceholderBlock.instance) {
                 return 23333;
             }
         }
 
-        return cameraPos.distanceTo(client.crosshairTarget.getPos());
+        return from.distanceTo(hitResult.getPos());
+    }
+
+    private static double getCurrentTargetDistance(Vec3d from) {
+        if (hitResultIsMissedOrNull(remoteHitResult)) {
+            return getHitResultDistance(client.crosshairTarget, from);
+        }
+
+        return getHitResultDistance(remoteHitResult, from);
     }
 
     private static void updateTargetedBlockThroughPortal(
         Vec3d cameraPos,
         Vec3d viewVector,
-        DimensionType playerDimension,
         double beginDistance,
         double endDistance,
         Portal portal,
         int level
     ) {
-        if (level >= Global.maxPortalLayer) {
-            return;
-        }
-
         Vec3d from = portal.transformPoint(
             cameraPos.add(viewVector.multiply(beginDistance))
         );
@@ -119,38 +142,10 @@ public class BlockManipulationClient {
             cameraPos.add(viewVector.multiply(endDistance))
         );
 
-        Stream<Portal> portalStream = McHelper.getEntitiesNearby(
-            portal.world,
-            from,
-            Portal.class,
-            endDistance - beginDistance
-        ).filter(p -> p.getPos().subtract(portal.destination).dotProduct(portal.getContentDirection()) > 0);
+        if (level >= Global.maxPortalLayer) {
+            client.crosshairTarget = createMissedHitResult(from, to);
 
-        com.mojang.datafixers.util.Pair<Portal, Vec3d> portalHit =
-            MyCommandServer.getPlayerPointingPortalRaw(
-                portalStream, portal.world, from, to, true
-            ).orElse(null);
-
-        if (portalHit != null) {
-            Portal intersected = portalHit.getFirst();
-            Vec3d intersection = portalHit.getSecond();
-
-            double distanceToPortalPointing = intersection.distanceTo(from);
-            if (distanceToPortalPointing < endDistance) {
-                Vec3d lookThrough = portal.transformLocalVec(viewVector);
-
-                updateTargetedBlockThroughPortal(
-                    intersection,
-                    lookThrough,
-                    portal.dimension,
-                    0,
-                    endDistance - distanceToPortalPointing,
-                    intersected,
-                    level + 1
-                );
-
-                return;
-            }
+            return;
         }
 
         RayTraceContext context = new RayTraceContext(
@@ -230,6 +225,39 @@ public class BlockManipulationClient {
             }
         }
 
+        Stream<Portal> portalStream = McHelper.getEntitiesNearby(
+            portal.world,
+            from,
+            Portal.class,
+            endDistance - beginDistance
+        );//.filter(p -> p.getPos().subtract(portal.destination).dotProduct(portal.getContentDirection()) > 0);
+
+        AtomicReference<String> ar = new AtomicReference<>("0");
+
+        aimingPortals.add(new Pair<>(portal, ar));
+
+        portalStream = portalStream.peek(p -> ar.set(Long.toString(Long.parseLong(ar.get()) + 1)));
+
+        MyCommandServer.getPlayerPointingPortalRaw(
+            portalStream, portal.world, from, to, true
+        ).ifPresent(portalHit -> {
+            Portal intersected = portalHit.getFirst();
+            Vec3d intersection = portalHit.getSecond();
+
+            double distanceToPortalPointing = intersection.distanceTo(from);
+            if (distanceToPortalPointing <= getCurrentTargetDistance(from) + 1f / 16) {
+                Vec3d lookThrough = portal.transformLocalVec(viewVector);
+
+                updateTargetedBlockThroughPortal(
+                    intersection,
+                    lookThrough,
+                    0,
+                    endDistance - beginDistance - distanceToPortalPointing,
+                    intersected,
+                    level + 1
+                );
+            }
+        });
     }
 
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
