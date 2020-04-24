@@ -45,7 +45,7 @@ public class BlockManipulationClient {
     }
 
     private static BlockHitResult createMissedHitResult(Vec3d from, Vec3d to) {
-        Vec3d dir = to.subtract(from).normalize();
+        Vec3d dir = from.subtract(to).normalize();
 
         return BlockHitResult.createMissed(to, Direction.getFacing(dir.x, dir.y, dir.z), new BlockPos(to));
     }
