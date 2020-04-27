@@ -5,6 +5,7 @@
   "mixins": [
     "MixinConfig",
     "MixinDynamicLights",
+    "MixinLightmapTextureManager",
     "MixinShaders",
     "MixinShaders_DimensionRedirect",
     "MixinShaders_Swap",

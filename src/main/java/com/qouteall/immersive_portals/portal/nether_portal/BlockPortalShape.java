@@ -217,7 +217,6 @@ public class BlockPortalShape {
                 blockPos.getY() - anchor.getY() + newAnchor.getY(),
                 blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
             )
-            //return blockPos.subtract(anchor).add(newAnchor);
         ).allMatch(
             isObsidian
         );

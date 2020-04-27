@@ -1,9 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
-import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,10 +15,10 @@ public class MixinDebugHud {
     private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
         List<String> returnValue = cir.getReturnValue();
         returnValue.add("Rendered Portal Num: " + MyRenderHelper.lastPortalRenderInfos.size());
-        ClientWorld world = MinecraftClient.getInstance().world;
-        if (world != null) {
-            returnValue.add("In: " + world.dimension.getType());
-        }
+//        ClientWorld world = MinecraftClient.getInstance().world;
+//        if (world != null) {
+//            returnValue.add("In: " + world.dimension.getType());
+//        }
         if (MyRenderHelper.debugText != null && !MyRenderHelper.debugText.isEmpty()) {
             returnValue.add("Debug: " + MyRenderHelper.debugText);
         }
