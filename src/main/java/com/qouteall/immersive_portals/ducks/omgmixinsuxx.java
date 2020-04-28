@@ -18,7 +18,7 @@ import net.minecraft.world.RayTraceContext;
 public class omgmixinsuxx {
     public static BlockHitResult onRayTraceBlock(BlockView blockView, Vec3d start, Vec3d end, BlockPos pos, VoxelShape shape, BlockState state) {
         if (state.getBlock() == PortalPlaceholderBlock.instance) {
-            return null;//BlockHitResult.createMissed(end, Direction.getFacing(-end.x, -end.y, -end.z), pos);
+            return null;
         }
 
         return blockView.rayTraceBlock(start, end, pos, shape, state);
