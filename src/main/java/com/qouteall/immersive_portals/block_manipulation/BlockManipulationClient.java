@@ -2,10 +2,8 @@ package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
-import com.qouteall.immersive_portals.ducks.omgmixinsuxx;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -137,8 +135,8 @@ public class BlockManipulationClient {
                 //correct the start pos to avoid being considered inside block
                 Vec3d correctedStart = start.subtract(end.subtract(start).multiply(0.0015));
                 VoxelShape solidShape = rayTraceContext.getBlockShape(blockState, world, blockPos);
-                BlockHitResult blockHitResult = omgmixinsuxx.onRayTraceBlock(
-                    world, correctedStart, end, blockPos, solidShape, blockState
+                BlockHitResult blockHitResult = world.rayTraceBlock(
+                    correctedStart, end, blockPos, solidShape, blockState
                 );
                 VoxelShape fluidShape = rayTraceContext.getFluidShape(fluidState, world, blockPos);
                 BlockHitResult blockHitResult2 = fluidShape.rayTrace(start, end, blockPos);
