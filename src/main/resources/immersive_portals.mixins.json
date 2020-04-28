@@ -36,7 +36,6 @@
     "MixinWorld",
     "MixinWorldChunk",
     "MixinRayTraceContext",
-    "MixinBlockView",
     "portal_generation/MixinEnderEyeItem",
     "portal_generation/MixinFlintAndSteelItem",
     "portal_generation/MixinNetherPortalBlock",
