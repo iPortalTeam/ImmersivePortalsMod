@@ -44,6 +44,8 @@ public class Global {
     
     public static boolean blameOpenJdk = true;
     
+    public static boolean portalPlaceholderPassthrough = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,
