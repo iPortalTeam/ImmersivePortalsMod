@@ -34,7 +34,12 @@
     "MixinServerChunkManager",
     "MixinServerWorld",
     "MixinWorld",
+<<<<<<< HEAD
     "MixinBlockView",
+=======
+    "MixinWorldChunk",
+    "MixinRayTraceContext",
+>>>>>>> 5e89d4e... Make portal placeholder passthrough better
     "portal_generation/MixinEnderEyeItem",
     "portal_generation/MixinFlintAndSteelItem",
     "portal_generation/MixinNetherPortalBlock",
