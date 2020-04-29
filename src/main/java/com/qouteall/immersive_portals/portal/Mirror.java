@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.Global;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -15,6 +16,7 @@ public class Mirror extends Portal {
     public void tick() {
         super.tick();
         teleportable = false;
+        interactable = Global.mirrorInteractableThroughPortal;
     }
     
     @Override
