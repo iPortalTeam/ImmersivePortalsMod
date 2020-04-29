@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.block_manipulation;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -19,9 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class BlockManipulationClient {
@@ -33,16 +30,6 @@ public class BlockManipulationClient {
 
     public static boolean isPointingToPortal() {
         return remotePointedDim != null;
-    }
-
-    private static BlockHitResult createMissedHitResult(Vec3d from, Vec3d to) {
-        Vec3d dir = from.subtract(to).normalize();
-
-        return BlockHitResult.createMissed(to, Direction.getFacing(dir.x, dir.y, dir.z), new BlockPos(to));
-    }
-
-    private static boolean hitResultIsMissedOrNull(HitResult bhr) {
-        return bhr == null || bhr.getType() == HitResult.Type.MISS;
     }
 
     public static void updatePointedBlock(float partialTicks) {
@@ -76,34 +63,6 @@ public class BlockManipulationClient {
             .stream()
             .map(Portal::toString)
             .collect(Collectors.joining("\n"));
-    }
-
-    private static double getHitResultDistance(HitResult hitResult, Vec3d from) {
-        if (from == null) {
-            from = client.gameRenderer.getCamera().getPos();
-        }
-
-        if (hitResultIsMissedOrNull(hitResult)) {
-            return 23333;
-        }
-
-        //pointing to placeholder block does not count
-        if (hitResult instanceof BlockHitResult) {
-            BlockPos hitPos = ((BlockHitResult) hitResult).getBlockPos();
-            if (client.world.getBlockState(hitPos).getBlock() == PortalPlaceholderBlock.instance) {
-                return 23333;
-            }
-        }
-
-        return from.distanceTo(hitResult.getPos());
-    }
-
-    private static double getCurrentTargetDistance(Vec3d from) {
-        if (hitResultIsMissedOrNull(remoteHitResult)) {
-            return getHitResultDistance(client.crosshairTarget, from);
-        }
-
-        return getHitResultDistance(remoteHitResult, from);
     }
 
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
