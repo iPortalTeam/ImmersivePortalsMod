@@ -49,7 +49,9 @@ public class Portal extends Entity {
     public Quaternion rotation;
     
     public double motionAffinity = 0;
-    
+
+    public boolean interactable = true;
+
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -118,6 +120,9 @@ public class Portal extends Entity {
         else {
             motionAffinity = 0;
         }
+        if(compoundTag.contains("interactable")) {
+            interactable = compoundTag.getBoolean("interactable");
+        }
     }
     
     @Override
@@ -153,6 +158,7 @@ public class Portal extends Entity {
             compoundTag.putDouble("rotationD", rotation.getD());
         }
         compoundTag.putDouble("motionAffinity", motionAffinity);
+        compoundTag.putBoolean("interactable", interactable);
     }
     
     public boolean isCullable() {
@@ -165,7 +171,11 @@ public class Portal extends Entity {
     public boolean isTeleportable() {
         return teleportable;
     }
-    
+
+    public boolean canInteractThroughPortal() {
+        return interactable;
+    }
+
     public void updateCache() {
         boundingBoxCache = null;
         normal = null;

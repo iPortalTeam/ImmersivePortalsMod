@@ -15,6 +15,7 @@ public class Mirror extends Portal {
     public void tick() {
         super.tick();
         teleportable = false;
+        interactable = false;
     }
     
     @Override
