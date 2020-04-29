@@ -310,4 +310,15 @@ public class IntBox {
             )
         );
     }
+    
+    public boolean contains(BlockPos pos) {
+        assert isSorted();
+    
+        return pos.getX() >= l.getX() &&
+            pos.getX() <= h.getX() &&
+            pos.getY() >= l.getY() &&
+            pos.getY() <= h.getY() &&
+            pos.getZ() >= l.getZ() &&
+            pos.getZ() <= h.getZ();
+    }
 }

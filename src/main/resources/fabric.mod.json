@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersive_portals",
-  "version": "0.27",
+  "version": "0.28",
   "name": "Immersive Portals",
   "description": "See through nether portals. Go inside portal seamlessly. Use portals to distort the space.",
   "authors": [

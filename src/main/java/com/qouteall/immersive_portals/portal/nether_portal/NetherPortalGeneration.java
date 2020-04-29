@@ -75,7 +75,8 @@ public class NetherPortalGeneration {
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
                 neededAreaSize,
                 toWorld,
-                mappedPosInOtherDimension, findingRadius
+                mappedPosInOtherDimension,
+                findingRadius
             );
         }
         
@@ -448,28 +449,12 @@ public class NetherPortalGeneration {
         IntBox toWorldHeightLimit =
             NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
         
-        Stream<BlockPos> blockPosStream;
-        if (Global.blameOpenJdk) {
-            blockPosStream = BlockPos.stream(
-                new BlockPos(
-                    toPos.getX() - existingFrameSearchingRadius,
-                    3,
-                    toPos.getZ() - existingFrameSearchingRadius
-                ),
-                new BlockPos(
-                    toPos.getX() + existingFrameSearchingRadius,
-                    toWorld.getEffectiveHeight() - 3,
-                    toPos.getZ() + existingFrameSearchingRadius
-                )
-            );
-        }
-        else {
-            blockPosStream = fromNearToFarColumned(
-                toWorld,
-                toPos.getX(), toPos.getZ(),
-                existingFrameSearchingRadius
-            );
-        }
+        Stream<BlockPos> blockPosStream = fromNearToFarColumned(
+            toWorld,
+            toPos.getX(), toPos.getZ(),
+            existingFrameSearchingRadius
+        );
+        
         Stream<BlockPortalShape> stream =
             blockPosStream.map(
                 blockPos -> {
@@ -559,6 +544,25 @@ public class NetherPortalGeneration {
         );
     }
     
+    public static Stream<BlockPos> blockPosStreamNaive(
+        ServerWorld toWorld,
+        int x, int z, int raidus
+    ) {
+        Stream<BlockPos> blockPosStream = BlockPos.stream(
+            new BlockPos(
+                x - raidus,
+                3,
+                z - raidus
+            ),
+            new BlockPos(
+                x + raidus,
+                toWorld.getEffectiveHeight() - 3,
+                z + raidus
+            )
+        );
+        return blockPosStream;
+    }
+    
     private static void embodyNewFrame(
         ServerWorld toWorld,
         BlockPortalShape toShape, BlockState frameBlockState
@@ -628,6 +632,12 @@ public class NetherPortalGeneration {
         int z,
         int range
     ) {
+        if (Global.blameOpenJdk) {
+            return blockPosStreamNaive(
+                world, x, z, range
+            );
+        }
+        
         int height = world.getEffectiveHeight();
         
         BlockPos.Mutable temp0 = new BlockPos.Mutable();
@@ -638,20 +648,21 @@ public class NetherPortalGeneration {
             .flatMap(layer ->
                 Streams.concat(
                     IntStream.range(0, layer * 2 + 1)
-                        .mapToObj(i -> temp0.set(layer, 0, i - layer)),
+                        .mapToObj(i -> new BlockPos(layer, 0, i - layer)),
                     IntStream.range(0, layer * 2 + 1)
-                        .mapToObj(i -> temp0.set(-layer, 0, i - layer)),
+                        .mapToObj(i -> new BlockPos(-layer, 0, i - layer)),
                     IntStream.range(0, layer * 2 - 1)
-                        .mapToObj(i -> temp0.set(i - layer + 1, 0, layer)),
+                        .mapToObj(i -> new BlockPos(i - layer + 1, 0, layer)),
                     IntStream.range(0, layer * 2 - 1)
-                        .mapToObj(i -> temp0.set(i - layer + 1, 0, -layer))
+                        .mapToObj(i -> new BlockPos(i - layer + 1, 0, -layer))
                 ).map(
-                    columnPos_ -> temp1.set(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
+                    columnPos_ -> new BlockPos(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
                 ).flatMap(
                     columnPos_ ->
                         IntStream.range(3, height - 3)
-                            .mapToObj(y -> temp2.set(columnPos_.getX(), y, columnPos_.getZ()))
+                            .mapToObj(y -> new BlockPos(columnPos_.getX(), y, columnPos_.getZ()))
                 )
             );
     }
+    
 }
