@@ -34,6 +34,8 @@
     "MixinServerChunkManager",
     "MixinServerWorld",
     "MixinWorld",
+    "MixinWorldChunk",
+    "MixinRayTraceContext",
     "portal_generation/MixinEnderEyeItem",
     "portal_generation/MixinFlintAndSteelItem",
     "portal_generation/MixinNetherPortalBlock",
