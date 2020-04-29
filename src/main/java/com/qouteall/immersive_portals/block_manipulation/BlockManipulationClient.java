@@ -59,7 +59,7 @@ public class BlockManipulationClient {
         MyCommandServer.getPlayerPointingPortalRaw(
             client.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
-            if(pair.getFirst().canInteractThroughPortal()) {
+            if(pair.getFirst().isInteractable()) {
                 double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
                 if(distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
                     client.crosshairTarget = createMissedHitResult(cameraPos, pair.getSecond());

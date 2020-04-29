@@ -50,7 +50,7 @@ public class Portal extends Entity {
     
     public double motionAffinity = 0;
 
-    public boolean interactable = true;
+    private boolean interactable = true;
 
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -172,8 +172,22 @@ public class Portal extends Entity {
         return teleportable;
     }
 
-    public boolean canInteractThroughPortal() {
+
+    /**
+     * Determines whether the player should be able to reach through the portal or not.
+     * Can be overridden by a sub class.
+     * @return the interactability of the portal
+     */
+    public boolean isInteractable() {
         return interactable;
+    }
+
+    /**
+     * Changes the reach-through behavior of the portal.
+     * @param interactable the interactability of the portal
+     */
+    public void setInteractable(boolean interactable) {
+        this.interactable = interactable;
     }
 
     public void updateCache() {

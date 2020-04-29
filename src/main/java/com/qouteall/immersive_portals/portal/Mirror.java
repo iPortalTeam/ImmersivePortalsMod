@@ -16,14 +16,19 @@ public class Mirror extends Portal {
     public void tick() {
         super.tick();
         teleportable = false;
-        interactable = Global.mirrorInteractableThroughPortal;
     }
-    
+
+    @Override
+    public boolean isInteractable()
+    {
+        return Global.mirrorInteractableThroughPortal && super.isInteractable();
+    }
+
     @Override
     public Vec3d getContentDirection() {
         return getNormal();
     }
-    
+
     @Override
     public Vec3d transformPoint(Vec3d pos) {
         Vec3d localPos = pos.subtract(getPos());
