@@ -48,29 +48,29 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Helper {
-    
+
     private static final Logger LOGGER = LogManager.getLogger("Portal");
-    
+
     public static FloatBuffer getModelViewMatrix() {
         return getMatrix(GL11.GL_MODELVIEW_MATRIX);
     }
-    
+
     public static FloatBuffer getProjectionMatrix() {
         return getMatrix(GL11.GL_PROJECTION_MATRIX);
     }
-    
+
     public static FloatBuffer getTextureMatrix() {
         return getMatrix(GL11.GL_TEXTURE_MATRIX);
     }
-    
+
     public static FloatBuffer getMatrix(int matrixId) {
         FloatBuffer temp = BufferUtils.createFloatBuffer(16);
-        
+
         GL11.glGetFloatv(matrixId, temp);
-        
+
         return temp;
     }
-    
+
     //get the intersect point of a line and a plane
     //a line: p = lineCenter + t * lineDirection
     //get the t of the colliding point
@@ -85,7 +85,7 @@ public class Helper {
             /
             (lineDirection.dotProduct(planeNormal));
     }
-    
+
     public static boolean isInFrontOfPlane(
         Vec3d pos,
         Vec3d planePos,
@@ -93,7 +93,7 @@ public class Helper {
     ) {
         return pos.subtract(planePos).dotProduct(planeNormal) > 0;
     }
-    
+
     public static Vec3d fallPointOntoPlane(
         Vec3d point,
         Vec3d planePos,
@@ -102,44 +102,42 @@ public class Helper {
         double t = getCollidingT(planePos, planeNormal, point, planeNormal);
         return point.add(planeNormal.multiply(t));
     }
-    
+
     public static Vec3i getUnitFromAxis(Direction.Axis axis) {
         return Direction.get(
             Direction.AxisDirection.POSITIVE,
             axis
         ).getVector();
     }
-    
+
     public static int getCoordinate(Vec3i v, Direction.Axis axis) {
         return axis.choose(v.getX(), v.getY(), v.getZ());
     }
-    
+
     public static double getCoordinate(Vec3d v, Direction.Axis axis) {
         return axis.choose(v.x, v.y, v.z);
     }
-    
+
     public static int getCoordinate(Vec3i v, Direction direction) {
         return getCoordinate(v, direction.getAxis()) *
             (direction.getDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1);
     }
-    
+
     public static <A, B> Pair<B, A> swaped(Pair<A, B> p) {
         return new Pair<>(p.getRight(), p.getLeft());
     }
-    
+
     public static <T> T uniqueOfThree(T a, T b, T c) {
         if (a.equals(b)) {
             return c;
-        }
-        else if (b.equals(c)) {
+        } else if (b.equals(c)) {
             return a;
-        }
-        else {
+        } else {
             assert a.equals(c);
             return b;
         }
     }
-    
+
     public static BlockPos max(BlockPos a, BlockPos b) {
         return new BlockPos(
             Math.max(a.getX(), b.getX()),
@@ -147,7 +145,7 @@ public class Helper {
             Math.max(a.getZ(), b.getZ())
         );
     }
-    
+
     public static BlockPos min(BlockPos a, BlockPos b) {
         return new BlockPos(
             Math.min(a.getX(), b.getX()),
@@ -155,7 +153,7 @@ public class Helper {
             Math.min(a.getZ(), b.getZ())
         );
     }
-    
+
     public static Pair<Direction.Axis, Direction.Axis> getAnotherTwoAxis(Direction.Axis axis) {
         switch (axis) {
             case X:
@@ -167,15 +165,15 @@ public class Helper {
         }
         throw new IllegalArgumentException();
     }
-    
+
     public static BlockPos scale(Vec3i v, int m) {
         return new BlockPos(v.getX() * m, v.getY() * m, v.getZ() * m);
     }
-    
+
     public static BlockPos divide(Vec3i v, int d) {
         return new BlockPos(v.getX() / d, v.getY() / d, v.getZ() / d);
     }
-    
+
     public static Direction[] getAnotherFourDirections(Direction.Axis axisOfNormal) {
         Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = getAnotherTwoAxis(
             axisOfNormal
@@ -195,7 +193,7 @@ public class Helper {
             )
         };
     }
-    
+
     @Deprecated
     public static Pair<Direction.Axis, Direction.Axis> getPerpendicularAxis(Direction facing) {
         Pair<Direction.Axis, Direction.Axis> axises = getAnotherTwoAxis(facing.getAxis());
@@ -204,7 +202,7 @@ public class Helper {
         }
         return axises;
     }
-    
+
     public static Pair<Direction, Direction> getPerpendicularDirections(Direction facing) {
         Pair<Direction.Axis, Direction.Axis> axises = getAnotherTwoAxis(facing.getAxis());
         if (facing.getDirection() == Direction.AxisDirection.NEGATIVE) {
@@ -215,25 +213,25 @@ public class Helper {
             Direction.get(Direction.AxisDirection.POSITIVE, axises.getRight())
         );
     }
-    
+
     public static Vec3d getBoxSize(Box box) {
         return new Vec3d(box.getXLength(), box.getYLength(), box.getZLength());
     }
-    
+
     public static Box getBoxSurface(Box box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
         Vec3d shrinkVec = new Vec3d(direction.getVector()).multiply(size);
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
-    
+
     public static IntBox expandRectangle(
         BlockPos startingPos,
         Predicate<BlockPos> blockPosPredicate, Direction.Axis axis
     ) {
         IntBox wallArea = new IntBox(startingPos, startingPos);
-        
+
         for (Direction direction : getAnotherFourDirections(axis)) {
-            
+
             wallArea = expandArea(
                 wallArea,
                 blockPosPredicate,
@@ -242,16 +240,16 @@ public class Helper {
         }
         return wallArea;
     }
-    
-    
+
+
     public static class SimpleBox<T> {
         public T obj;
-        
+
         public SimpleBox(T obj) {
             this.obj = obj;
         }
     }
-    
+
     //@Nullable
     public static <T> T getLastSatisfying(Stream<T> stream, Predicate<T> predicate) {
         SimpleBox<T> box = new SimpleBox<T>(null);
@@ -259,47 +257,44 @@ public class Helper {
             if (predicate.test(curr)) {
                 box.obj = curr;
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         }).findFirst();
         return box.obj;
     }
-    
+
     public interface CallableWithoutException<T> {
         public T run();
     }
-    
+
     public static Vec3d interpolatePos(Entity entity, float partialTicks) {
         Vec3d currPos = entity.getPos();
         Vec3d lastTickPos = McHelper.lastTickPosOf(entity);
         return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
     }
-    
+
     public static Runnable noException(Callable func) {
         return () -> {
             try {
                 func.call();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         };
     }
-    
+
     public static void doNotEatExceptionMessage(
         Runnable func
     ) {
         try {
             func.run();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
-    
+
     public static <T> String myToString(
         Stream<T> stream
     ) {
@@ -310,7 +305,7 @@ public class Helper {
         });
         return stringBuilder.toString();
     }
-    
+
     //NOTE this is not concatenation, it's composing
     public static <A, B> Stream<Pair<A, B>> composeTwoStreamsWithEqualLength(
         Stream<A> a,
@@ -319,34 +314,34 @@ public class Helper {
         Iterator<A> aIterator = a.iterator();
         Iterator<B> bIterator = b.iterator();
         Iterator<Pair<A, B>> iterator = new Iterator<Pair<A, B>>() {
-            
+
             @Override
             public boolean hasNext() {
                 assert aIterator.hasNext() == bIterator.hasNext();
                 return aIterator.hasNext();
             }
-            
+
             @Override
             public Pair<A, B> next() {
                 return new Pair<>(aIterator.next(), bIterator.next());
             }
         };
-        
+
         return Streams.stream(iterator);
     }
-    
+
     public static void log(Object str) {
         LOGGER.info(str);
     }
-    
+
     public static void err(Object str) {
         LOGGER.error(str);
     }
-    
+
     public static void dbg(Object str) {
         LOGGER.debug(str);
     }
-    
+
     public static Vec3d[] eightVerticesOf(Box box) {
         return new Vec3d[]{
             new Vec3d(box.x1, box.y1, box.z1),
@@ -359,13 +354,13 @@ public class Helper {
             new Vec3d(box.x2, box.y2, box.z2)
         };
     }
-    
+
     public static void putVec3d(CompoundTag compoundTag, String name, Vec3d vec3d) {
         compoundTag.putDouble(name + "X", vec3d.x);
         compoundTag.putDouble(name + "Y", vec3d.y);
         compoundTag.putDouble(name + "Z", vec3d.z);
     }
-    
+
     public static Vec3d getVec3d(CompoundTag compoundTag, String name) {
         return new Vec3d(
             compoundTag.getDouble(name + "X"),
@@ -373,13 +368,13 @@ public class Helper {
             compoundTag.getDouble(name + "Z")
         );
     }
-    
+
     public static void putVec3i(CompoundTag compoundTag, String name, Vec3i vec3i) {
         compoundTag.putInt(name + "X", vec3i.getX());
         compoundTag.putInt(name + "Y", vec3i.getY());
         compoundTag.putInt(name + "Z", vec3i.getZ());
     }
-    
+
     public static BlockPos getVec3i(CompoundTag compoundTag, String name) {
         return new BlockPos(
             compoundTag.getInt(name + "X"),
@@ -387,7 +382,7 @@ public class Helper {
             compoundTag.getInt(name + "Z")
         );
     }
-    
+
     public static <T> void compareOldAndNew(
         Set<T> oldSet,
         Set<T> newSet,
@@ -405,15 +400,15 @@ public class Helper {
             forAdded
         );
     }
-    
+
     public static long secondToNano(double second) {
         return (long) (second * 1000000000L);
     }
-    
+
     public static double nanoToSecond(long nano) {
         return nano / 1000000000.0;
     }
-    
+
     public static IntBox expandArea(
         IntBox originalArea,
         Predicate<BlockPos> predicate,
@@ -424,14 +419,13 @@ public class Helper {
             IntBox expanded = currentBox.getExpanded(direction, 1);
             if (expanded.getSurfaceLayer(direction).stream().allMatch(predicate)) {
                 currentBox = expanded;
-            }
-            else {
+            } else {
                 return currentBox;
             }
         }
         return currentBox;
     }
-    
+
     public static <A, B> B reduce(
         B start,
         Stream<A> stream,
@@ -445,29 +439,27 @@ public class Helper {
             }
         );
     }
-    
+
     public static <T> T noError(Callable<T> func) {
         try {
             return func.call();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
-    
+
     public static interface ExceptionalRunnable {
         void run() throws Throwable;
     }
-    
+
     public static void noError(ExceptionalRunnable runnable) {
         try {
             runnable.run();
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
     }
-    
+
     //ObjectList does not override removeIf() so its complexity is O(n^2)
     //this is O(n)
     public static <T> void removeIf(ObjectList<T> list, Predicate<T> predicate) {
@@ -481,7 +473,7 @@ public class Helper {
         }
         list.removeElements(placingIndex, list.size());
     }
-    
+
     public static <T, S> Stream<S> wrapAdjacentAndMap(
         Stream<T> stream,
         BiFunction<T, T, S> function
@@ -490,7 +482,7 @@ public class Helper {
         return Streams.stream(new Iterator<S>() {
             private boolean isBuffered = false;
             private T buffer;
-            
+
             private void fillBuffer() {
                 if (!isBuffered) {
                     assert iterator.hasNext();
@@ -498,13 +490,13 @@ public class Helper {
                     buffer = iterator.next();
                 }
             }
-            
+
             private T takeBuffer() {
                 assert isBuffered;
                 isBuffered = false;
                 return buffer;
             }
-            
+
             @Override
             public boolean hasNext() {
                 if (!iterator.hasNext()) {
@@ -513,7 +505,7 @@ public class Helper {
                 fillBuffer();
                 return iterator.hasNext();
             }
-            
+
             @Override
             public S next() {
                 fillBuffer();
@@ -523,7 +515,7 @@ public class Helper {
             }
         });
     }
-    
+
     //map and reduce at the same time
     public static <A, B> Stream<B> mapReduce(
         Stream<A> stream,
@@ -535,7 +527,7 @@ public class Helper {
             return startValue.obj;
         });
     }
-    
+
     //another implementation using mapReduce but creates more garbage objects
     public static <T, S> Stream<S> wrapAdjacentAndMap1(
         Stream<T> stream,
@@ -554,12 +546,12 @@ public class Helper {
             new SimpleBox<>(new Pair<T, S>(firstValue, null))
         ).map(pair -> pair.getRight());
     }
-    
+
     public static <T> T makeIntoExpression(T t, Consumer<T> func) {
         func.accept(t);
         return t;
     }
-    
+
     //NOTE this will mutate a and return a
     public static Quaternion quaternionNumAdd(Quaternion a, Quaternion b) {
         //TODO correct wrong parameter name for yarn
@@ -571,7 +563,7 @@ public class Helper {
         );
         return a;
     }
-    
+
     //NOTE this will mutate a and reutrn a
     public static Quaternion quaternionScale(Quaternion a, float scale) {
         a.set(
@@ -582,7 +574,7 @@ public class Helper {
         );
         return a;
     }
-    
+
     //a quaternion is a 4d vector on 4d sphere
     //this method may mutate argument but will not change rotation
     public static Quaternion interpolateQuaternion(
@@ -592,19 +584,19 @@ public class Helper {
     ) {
         a.normalize();
         b.normalize();
-        
+
         double dot = dotProduct4d(a, b);
-        
+
         if (dot < 0.0f) {
             a.scale(-1);
             dot = -dot;
         }
-        
+
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
             // If the inputs are too close for comfort, linearly interpolate
             // and normalize the result.
-            
+
             Quaternion result = quaternionNumAdd(
                 quaternionScale(a.copy(), 1 - t),
                 quaternionScale(b.copy(), t)
@@ -612,28 +604,28 @@ public class Helper {
             result.normalize();
             return result;
         }
-        
+
         double theta_0 = Math.acos(dot);
         double theta = theta_0 * t;
         double sin_theta = Math.sin(theta);
         double sin_theta_0 = Math.sin(theta_0);
-        
+
         double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;
         double s1 = sin_theta / sin_theta_0;
-        
+
         return quaternionNumAdd(
             quaternionScale(a.copy(), (float) s0),
             quaternionScale(b.copy(), (float) s1)
         );
     }
-    
+
     public static double dotProduct4d(Quaternion a, Quaternion b) {
         return a.getA() * b.getA() +
             a.getB() * b.getB() +
             a.getC() * b.getC() +
             a.getD() * b.getD();
     }
-    
+
     public static boolean isClose(Quaternion a, Quaternion b, float valve) {
         a.normalize();
         b.normalize();
@@ -646,20 +638,20 @@ public class Helper {
         float dd = a.getD() - b.getD();
         return da * da + db * db + dc * dc + dd * dd < valve;
     }
-    
+
     public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
         Vector3f vector3f = new Vector3f(vec);
         vector3f.rotate(rotation);
         return new Vec3d(vector3f);
     }
-    
+
     public static Quaternion ortholize(Quaternion quaternion) {
         if (quaternion.getA() < 0) {
             quaternion.scale(-1);
         }
         return quaternion;
     }
-    
+
     //naive interpolation is better?
     //not better
     public static Quaternion interpolateQuaternionNaive(
@@ -784,7 +776,7 @@ public class Helper {
     }
 
     /**
-     * @see #withSwitchedContext(World, Supplier) 
+     * @see #withSwitchedContext(World, Supplier)
      */
     @Environment(EnvType.CLIENT)
     private static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
@@ -832,8 +824,8 @@ public class Helper {
     }
 
     /**
-     * @see Helper#rayTrace(World, RayTraceContext, boolean)
      * @author LoganDark
+     * @see Helper#rayTrace(World, RayTraceContext, boolean)
      */
     private static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
