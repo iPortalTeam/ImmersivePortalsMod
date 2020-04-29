@@ -42,6 +42,8 @@ public class Global {
     
     public static boolean looseVisibleChunkIteration = true;
     
+    public static boolean blameOpenJdk = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

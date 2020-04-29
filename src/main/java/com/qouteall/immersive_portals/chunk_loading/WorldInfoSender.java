@@ -22,34 +22,32 @@ public class WorldInfoSender {
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
                     Set<DimensionType> visibleDimensions = getVisibleDimensions(player);
-    
+                    
                     if (player.dimension != DimensionType.OVERWORLD) {
-                        if (visibleDimensions.contains(DimensionType.OVERWORLD)) {
-                            sendWorldInfoIfVisible(
-                                player,
-                                McHelper.getServer().getWorld(DimensionType.OVERWORLD)
-                            );
-                        }
+                        sendWorldInfo(
+                            player,
+                            McHelper.getServer().getWorld(DimensionType.OVERWORLD)
+                        );
                     }
-    
+                    
                     McHelper.getServer().getWorlds().forEach(thisWorld -> {
                         if (thisWorld.dimension instanceof AlternateDimension) {
                             if (visibleDimensions.contains(thisWorld.dimension.getType())) {
-                                sendWorldInfoIfVisible(
+                                sendWorldInfo(
                                     player,
                                     thisWorld
                                 );
                             }
                         }
                     });
-    
+                    
                 }
             }
         });
     }
     
     //send the daytime and weather info to player when player is in nether
-    public static void sendWorldInfoIfVisible(ServerPlayerEntity player, ServerWorld world) {
+    public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
         DimensionType remoteDimension = world.dimension.getType();
         
         player.networkHandler.sendPacket(

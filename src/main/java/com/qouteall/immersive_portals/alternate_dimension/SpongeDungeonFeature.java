@@ -47,28 +47,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
+public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     //no need to register it
     public static final Feature<DefaultFeatureConfig> instance =
-        new SimpleSpawnerFeature(DefaultFeatureConfig::deserialize);
+        new SpongeDungeonFeature(DefaultFeatureConfig::deserialize);
     
     private static RandomSelector<BlockState> spawnerShieldSelector =
         new RandomSelector.Builder<BlockState>()
-            .add(30, Blocks.OBSIDIAN.getDefaultState())
-            .add(5, Blocks.SPONGE.getDefaultState())
+            .add(20, Blocks.OBSIDIAN.getDefaultState())
+            .add(10, Blocks.SPONGE.getDefaultState())
             .add(5, Blocks.CLAY.getDefaultState())
             .build();
     
     private static RandomSelector<Function<Random, Integer>> heightSelector =
         new RandomSelector.Builder<Function<Random, Integer>>()
-            .add(30, random -> (int) (random.nextDouble() * 50))
-            .add(10, random -> random.nextInt(140) + 1)
+            .add(20, random -> (int) (random.nextDouble() * 50 + 1))
+            .add(10, random -> random.nextInt(150) + 1)
             .build();
     
     private static RandomSelector<BiFunction<World, Random, Entity>> entitySelector =
         new RandomSelector.Builder<BiFunction<World, Random, Entity>>()
-            .add(10, SimpleSpawnerFeature::randomMonster)
-            .add(60, SimpleSpawnerFeature::randomRidingMonster)
+            .add(10, SpongeDungeonFeature::randomMonster)
+            .add(60, SpongeDungeonFeature::randomRidingMonster)
             .build();
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
@@ -86,6 +86,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, EntityType.GIANT)
             .add(10, EntityType.MAGMA_CUBE)
             .add(10, EntityType.GUARDIAN)
+            .add(1, EntityType.WITHER)
             .build();
     
     private static RandomSelector<EntityType<?>> vehicleTypeSelector =
@@ -105,7 +106,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             .add(10, vehicleTypeSelector)
             .build();
     
-    public SimpleSpawnerFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer) {
+    public SpongeDungeonFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer) {
         super(configDeserializer);
     }
     
@@ -118,9 +119,9 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         DefaultFeatureConfig config
     ) {
         ChunkPos chunkPos = new ChunkPos(pos);
-    
+        
         random.setSeed(chunkPos.toLong() + random.nextInt(2333));
-    
+        
         if (random.nextDouble() < 0.03) {
             generateOnce(world, random, chunkPos);
         }
@@ -153,7 +154,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             height,
             random.nextInt(16)
         );
-    
+        
         for (int dx = -7; dx <= 7; dx++) {
             for (int dz = -7; dz <= 7; dz++) {
                 world.setBlockState(
@@ -163,7 +164,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
                 );
             }
         }
-    
+        
         BlockState spawnerShieldBlock = spawnerShieldSelector.select(random);
         for (BlockPos shieldPos : shieldPoses) {
             world.setBlockState(
@@ -175,7 +176,7 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
         
         world.setBlockState(spawnerPos, Blocks.SPAWNER.getDefaultState(), 2);
         initSpawnerBlockEntity(world, random, spawnerPos);
-    
+        
         BlockPos shulkerBoxPos = spawnerPos.down();
         initShulkerBoxTreasure(world, random, shulkerBoxPos);
     }
@@ -203,20 +204,20 @@ public class SimpleSpawnerFeature extends Feature<DefaultFeatureConfig> {
             //Helper.err("No Spawner Block Entity???");
             return;
         }
-    
+        
         MobSpawnerBlockEntity mobSpawner = (MobSpawnerBlockEntity) blockEntity;
         Entity spawnedEntity = entitySelector.select(random).apply(world.getWorld(), random);
         Validate.isTrue(!spawnedEntity.hasVehicle());
         CompoundTag tag = new CompoundTag();
         spawnedEntity.saveToTag(tag);
-    
+        
         removeUnnecessaryTag(tag);
-    
+        
         mobSpawner.getLogic().setSpawnEntry(
             new MobSpawnerEntry(100, tag)
         );
         mobSpawner.getLogic().setEntityId(spawnedEntity.getType());
-    
+        
         CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
         logicTag.putShort("RequiredPlayerRange", (short) 64);
         //logicTag.putShort("MinSpawnDelay",(short) 10);

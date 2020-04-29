@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
@@ -45,6 +46,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class MyCommandServer {
@@ -701,7 +704,18 @@ public class MyCommandServer {
                 return 0;
             })
         );
-
+        
+        builder.then(CommandManager
+            .literal("make_portal_round")
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                portal -> {
+                    makePortalRound(portal);
+                    reloadPortal(portal);
+                }
+            ))
+        );
+        
         dispatcher.register(builder);
     }
 
@@ -977,4 +991,22 @@ public class MyCommandServer {
         return getPlayerPointingPortalRaw(portalStream, player.world, from, to, includeGlobalPortal);
     }
 
+    private static void makePortalRound(Portal portal) {
+        GeometryPortalShape shape = new GeometryPortalShape();
+        final int triangleNum = 30;
+        double twoPi = Math.PI * 2;
+        shape.triangles = IntStream.range(0, triangleNum)
+            .mapToObj(i -> new GeometryPortalShape.TriangleInPlane(
+                0, 0,
+                portal.width * 0.5 * Math.cos(twoPi * ((double) i) / triangleNum),
+                portal.height * 0.5 * Math.sin(twoPi * ((double) i) / triangleNum),
+                portal.width * 0.5 * Math.cos(twoPi * ((double) i + 1) / triangleNum),
+                portal.height * 0.5 * Math.sin(twoPi * ((double) i + 1) / triangleNum)
+            )).collect(Collectors.toList());
+        portal.specialShape = shape;
+        portal.cullableXStart = 0;
+        portal.cullableXEnd = 0;
+        portal.cullableYStart = 0;
+        portal.cullableYEnd = 0;
+    }
 }

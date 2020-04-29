@@ -217,7 +217,6 @@ public class BlockPortalShape {
                 blockPos.getY() - anchor.getY() + newAnchor.getY(),
                 blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
             )
-            //return blockPos.subtract(anchor).add(newAnchor);
         ).allMatch(
             isObsidian
         );
@@ -273,7 +272,13 @@ public class BlockPortalShape {
     public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
         Vec3d center = innerAreaBox.getCenterVec();
         portal.updatePosition(center.x, center.y, center.z);
-    
+        
+        IntBox rectanglePart = Helper.expandRectangle(
+            anchor,
+            blockPos -> area.contains(blockPos),
+            axis
+        );
+        
         Direction[] anotherFourDirections = Helper.getAnotherFourDirections(axis);
         Direction wDirection;
         Direction hDirection;
@@ -289,15 +294,21 @@ public class BlockPortalShape {
         portal.axisH = new Vec3d(hDirection.getVector());
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
-    
+        
         GeometryPortalShape shape = new GeometryPortalShape();
         Vec3d offset = new Vec3d(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
-        for (BlockPos blockPos : area) {
-            Vec3d p1 = new Vec3d(blockPos).add(offset);
-            Vec3d p2 = new Vec3d(blockPos).add(1, 1, 1).add(offset);
+    
+        Stream.concat(
+            area.stream()
+                .filter(blockPos -> !rectanglePart.contains(blockPos))
+                .map(blockPos -> new IntBox(blockPos, blockPos)),
+            Stream.of(rectanglePart)
+        ).forEach(part -> {
+            Vec3d p1 = new Vec3d(part.l).add(offset);
+            Vec3d p2 = new Vec3d(part.h).add(1, 1, 1).add(offset);
             double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
             double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
             double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
@@ -306,35 +317,20 @@ public class BlockPortalShape {
                 p1LocalX, p1LocalY,
                 p2LocalX, p2LocalY
             );
-        }
-    
+        });
+        
         portal.specialShape = shape;
-    
-        initCullableRange(portal);
-    }
-    
-    private void initCullableRange(Portal portal) {
-        IntBox expandedRectangle = Helper.expandRectangle(
-            anchor,
-            blockPos -> area.contains(blockPos),
-            axis
-        );
-        Vec3d offset = new Vec3d(
-            Direction.get(Direction.AxisDirection.POSITIVE, axis)
-                .getVector()
-        ).multiply(0.5);
-        Vec3d p1 = new Vec3d(expandedRectangle.l).add(offset);
-        Vec3d p2 = new Vec3d(expandedRectangle.h).add(1, 1, 1).add(offset);
-        Vec3d center = portal.getPos();
+        
+        Vec3d p1 = new Vec3d(rectanglePart.l).add(offset);
+        Vec3d p2 = new Vec3d(rectanglePart.h).add(1, 1, 1).add(offset);
         double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
         double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
         double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
         double p2LocalY = p2.subtract(center).dotProduct(portal.axisH);
         portal.initCullableRange(
-            p1LocalX,
-            p2LocalX,
-            p1LocalY,
-            p2LocalY
+            p1LocalX, p2LocalX,
+            p1LocalY, p2LocalY
         );
     }
+    
 }

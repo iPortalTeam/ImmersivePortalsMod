@@ -21,12 +21,12 @@ repositories {
 
 dependencies {
 //	modCompile 'com.github.modmuss50:OptiFabric:1.0.0-beta8'
-
-	//Deps required for optifabric
-	compile 'org.zeroturnaround:zt-zip:1.13'
-	compile('net.fabricmc:stitch:0.2.1.61') {
-		transitive = false
-	}
+//
+//	//Deps required for optifabric
+//	compile 'org.zeroturnaround:zt-zip:1.13'
+//	compile('net.fabricmc:stitch:0.2.1.61') {
+//		transitive = false
+//	}
 
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -95,11 +95,14 @@ publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			// add all the jars that should be included when publishing to maven
-			artifact(jar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
+			mavenJava(MavenPublication) {
+				// add all the jars that should be included when publishing to maven
+				artifact(remapJar) {
+					builtBy remapJar
+				}
+				artifact(sourcesJar) {
+					builtBy remapSourcesJar
+				}
 			}
 		}
 	}
