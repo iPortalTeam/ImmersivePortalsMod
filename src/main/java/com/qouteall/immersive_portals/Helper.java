@@ -851,7 +851,7 @@ public class Helper {
             return new Pair<>(
                 BlockHitResult.createMissed(
                     end,
-                    Direction.getFacing(diff.x, diff.y, diff.z),
+                    Direction.getFacing(diff.x, diff.y, diff.z).getOpposite(),
                     new BlockPos(end)
                 ),
                 portals
