@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IERayTraceContext;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
@@ -9,7 +10,11 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -39,6 +44,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Helper {
@@ -778,6 +784,54 @@ public class Helper {
     }
 
     /**
+     * @see #withSwitchedContext(World, Supplier) 
+     */
+    @Environment(EnvType.CLIENT)
+    private static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
+        boolean wasSwitched = BlockManipulationClient.isContextSwitched;
+        BlockManipulationClient.isContextSwitched = true;
+
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ClientWorld lastWorld = mc.world;
+        mc.world = world;
+
+        try {
+            return func.get();
+        } finally {
+            mc.world = lastWorld;
+            BlockManipulationClient.isContextSwitched = wasSwitched;
+        }
+    }
+
+    /**
+     * @see #withSwitchedContext(World, Supplier)
+     */
+    @Environment(EnvType.SERVER)
+    private static <T> T withSwitchedContextServer(ServerWorld world, Supplier<T> func) {
+        // lol
+        return func.get();
+    }
+
+    /**
+     * Execute {@code func} with the world being set to {@code world}, hopefully bypassing any issues that may be
+     * related to mutating a world that is not currently set as the current world.
+     * <p>
+     * You may safely nest this function within other context switches. It works on both the client and the server.
+     *
+     * @param world The world to switch the context to. The context will be restored when {@code func} is complete.
+     * @param func  The function to execute while the context is switched.
+     * @param <T>   The return type of {@code func}.
+     * @return Whatever {@code func} returned.
+     */
+    private static <T> T withSwitchedContext(World world, Supplier<T> func) {
+        if (world.isClient) {
+            return withSwitchedContextClient((ClientWorld) world, func);
+        } else {
+            return withSwitchedContextServer((ServerWorld) world, func);
+        }
+    }
+
+    /**
      * @see Helper#rayTrace(World, RayTraceContext, boolean)
      * @author LoganDark
      */
@@ -807,7 +861,9 @@ public class Helper {
         // First ray trace normally
         BlockHitResult hitResult = world.rayTrace(context);
 
-        List<Pair<Portal, Vec3d>> rayTracedPortals = rayTracePortals(world, start, end, includeGlobalPortals);
+        List<Pair<Portal, Vec3d>> rayTracedPortals = withSwitchedContext(world,
+            () -> rayTracePortals(world, start, end, includeGlobalPortals)
+        );
 
         if (rayTracedPortals.isEmpty()) {
             return new Pair<>(hitResult, portals);
