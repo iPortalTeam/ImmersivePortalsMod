@@ -727,11 +727,12 @@ public class Helper {
      * @param start                The start of the line defining the ray to trace.
      * @param end                  The end of the line defining the ray to trace.
      * @param includeGlobalPortals Whether or not to include global portals in the ray trace.
+     * @param filter               Filter the portals that this function returns. Nullable
      * @return A list of portals and their intersection points with the line, sorted by nearest portals first.
      * @author LoganDark
      */
     @SuppressWarnings("WeakerAccess")
-    public static List<Pair<Portal, Vec3d>> rayTracePortals(World world, Vec3d start, Vec3d end, boolean includeGlobalPortals) {
+    public static List<Pair<Portal, Vec3d>> rayTracePortals(World world, Vec3d start, Vec3d end, boolean includeGlobalPortals, Predicate<Portal> filter) {
         // This will be the center of the chunk search, rather than using start or end. This will allow the radius to be
         // smaller, and as a result, the search to be faster and slightly less inefficient.
         //
@@ -765,10 +766,12 @@ public class Helper {
         List<Pair<Portal, Vec3d>> hits = new ArrayList<>();
 
         nearby.forEach(portal -> {
-            Vec3d intersection = portal.rayTrace(start, end);
+            if (filter == null || filter.test(portal)) {
+                Vec3d intersection = portal.rayTrace(start, end);
 
-            if (intersection != null) {
-                hits.add(new Pair<>(portal, intersection));
+                if (intersection != null) {
+                    hits.add(new Pair<>(portal, intersection));
+                }
             }
         });
 
@@ -862,7 +865,7 @@ public class Helper {
         BlockHitResult hitResult = world.rayTrace(context);
 
         List<Pair<Portal, Vec3d>> rayTracedPortals = withSwitchedContext(world,
-            () -> rayTracePortals(world, start, end, includeGlobalPortals)
+            () -> rayTracePortals(world, start, end, includeGlobalPortals, Portal::isInteractable)
         );
 
         if (rayTracedPortals.isEmpty()) {
