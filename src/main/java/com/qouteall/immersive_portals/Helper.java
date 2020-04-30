@@ -809,6 +809,7 @@ public class Helper {
     /**
      * @see #withSwitchedContext(World, Supplier)
      */
+    @SuppressWarnings("unused")
     private static <T> T withSwitchedContextServer(ServerWorld world, Supplier<T> func) {
         // lol
         return func.get();
