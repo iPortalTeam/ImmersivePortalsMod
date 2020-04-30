@@ -29,20 +29,23 @@ import net.minecraft.command.arguments.Vec3ArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Collection;
@@ -975,7 +978,12 @@ public class MyCommandServer {
             Vec3d pos = new Vec3d(hitResult.getBlockPos()).add(.5, .5, .5)
                 .add(axisH.multiply(0.5 + height / 2));
 
-            Portal portal = new Portal(Portal.entityType, player.world);
+            World world = hitPortals.isEmpty()
+                ? player.world
+                : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(EnvType.SERVER);
+
+            Portal portal = new Portal(Portal.entityType, world);
+
             portal.setPos(pos.x, pos.y, pos.z);
 
             portal.axisW = axisW;
@@ -987,7 +995,9 @@ public class MyCommandServer {
             portal.width = width;
             portal.height = height;
             
-            player.world.spawnEntity(portal);
+            ChunkPos chunkPos = new ChunkPos(new BlockPos(pos));
+            ((ServerWorld) world).getChunkManager().addTicket(ChunkTicketType.UNKNOWN, chunkPos, 1, chunkPos);
+            world.spawnEntity(portal);
 
             context.getSource().sendFeedback(
                 new TranslatableText("imm_ptl.command.make_portal.success",
