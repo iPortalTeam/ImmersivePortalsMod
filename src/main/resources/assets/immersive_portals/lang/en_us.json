@@ -30,5 +30,6 @@
   "imm_ptl.add_dimension": "Add Dimension",
   "imm_ptl.remove_dimension": "Remove Dimension",
   "imm_ptl.confirm_select_dimension": "Confirm",
-  "imm_ptl.select_dimension": "Select a Dimension"
+  "imm_ptl.select_dimension": "Select a Dimension",
+  "imm_ptl.mirror_interactable_through_portal": "Mirrors can be reached through"
 }

@@ -77,6 +77,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.reversible_nether_portal_linking",
                 currConfig.reversibleNetherPortalLinking
             ).setDefaultValue(false).build();
+            BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
+                    "imm_ptl.mirror_interactable_through_portal",
+                    currConfig.mirrorInteractableThroughPortal
+            ).setDefaultValue(true).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
@@ -95,6 +99,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryMultiThreadedNetherPortalSearching);
             category.addEntry(entryEdgelessSky);
             category.addEntry(entryReversibleNetherPortalLinking);
+            category.addEntry(entryMirrorInteractableThroughPortal);
             category.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
@@ -113,6 +118,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
                     newConfigObject.edgelessSky = entryEdgelessSky.getValue();
                     newConfigObject.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
+                    newConfigObject.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfigObject.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

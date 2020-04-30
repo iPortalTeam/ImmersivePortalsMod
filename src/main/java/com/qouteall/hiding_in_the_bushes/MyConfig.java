@@ -31,6 +31,7 @@ public class MyConfig {
     public boolean multiThreadedNetherPortalSearching = true;
     public boolean edgelessSky = false;
     public boolean reversibleNetherPortalLinking = false;
+    public boolean mirrorInteractableThroughPortal = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     
     private static File getGameDir() {
@@ -88,7 +89,7 @@ public class MyConfig {
         Global.netherPortalFindingRadius = portalSearchingRange;
         Global.longerReachInCreative = longerReachInCreative;
         Global.renderYourselfInPortal = renderYourselfInPortal;
-        
+
         if (O_O.isReachEntityAttributesPresent) {
             Global.longerReachInCreative = false;
         }
@@ -100,7 +101,8 @@ public class MyConfig {
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
         Global.edgelessSky = edgelessSky;
         Global.reversibleNetherPortalLinking = reversibleNetherPortalLinking;
-        
+        Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
+
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
         }
