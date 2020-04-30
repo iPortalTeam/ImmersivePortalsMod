@@ -632,8 +632,12 @@ public class Portal extends Entity {
     /**
      * @return The {@link World} of this portal's {@link #dimensionTo}.
      */
-    public World getDestinationWorld() {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+    public World getDestinationWorld(EnvType env) {
+        if (env == null) {
+            env = FabricLoader.getInstance().getEnvironmentType();
+        }
+
+        if (env == EnvType.CLIENT) {
             return CHelper.getClientWorld(dimensionTo);
         } else {
             return McHelper.getServer().getWorld(dimensionTo);
