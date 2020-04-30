@@ -36,10 +36,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -49,6 +51,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -486,40 +489,7 @@ public class MyCommandServer {
                 .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
                     .then(CommandManager.argument("to", DimensionArgumentType.dimension())
                         .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                            .executes(context -> {
-                                try {
-                                    ServerPlayerEntity player = context.getSource().getPlayer();
-
-                                    Vec3d rotationVector = player.getRotationVector();
-                                    Direction playerFacing = Direction.getFacing(
-                                        rotationVector.x,
-                                        rotationVector.y,
-                                        rotationVector.z
-                                    );
-
-                                    RayTraceContext rtc = new RayTraceContext(
-                                        player.getCameraPosVec(1.0f),
-                                        player.getCameraPosVec(1.0f).add(rotationVector.multiply(100.0)),
-                                        RayTraceContext.ShapeType.OUTLINE,
-                                        RayTraceContext.FluidHandling.NONE,
-                                        player
-                                    );
-
-                                    net.minecraft.util.Pair<BlockHitResult, List<Portal>> rayTrace =
-                                        Helper.rayTrace(player.world, rtc, true);
-                                    BlockHitResult hitResult = rayTrace.getLeft();
-                                    List<Portal> hitPortals = rayTrace.getRight();
-
-                                    Helper.log(hitResult);
-                                    Helper.log(hitPortals);
-
-                                    return 0;
-                                } catch (Throwable omg) {
-                                    omg.printStackTrace();
-
-                                    return 0;
-                                }
-                            })
+                            .executes(MyCommandServer::runMakePortal)
                         )
                     )
                 )
@@ -961,6 +931,82 @@ public class MyCommandServer {
             new LiteralText(message),
             false
         );
+    }
+
+    // By LoganDark :D
+    private static int runMakePortal(CommandContext<ServerCommandSource> context) {
+        try {
+            double width = DoubleArgumentType.getDouble(context, "width");
+            double height = DoubleArgumentType.getDouble(context, "height");
+            DimensionType to = DimensionArgumentType.getDimensionArgument(context, "to");
+            Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+
+            ServerPlayerEntity player = context.getSource().getPlayer();
+            Vec3d playerLook = player.getRotationVector();
+
+            net.minecraft.util.Pair<BlockHitResult, List<Portal>> rayTrace =
+                Helper.rayTrace(
+                    player.world,
+                    new RayTraceContext(
+                        player.getCameraPosVec(1.0f),
+                        player.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
+                        RayTraceContext.ShapeType.OUTLINE,
+                        RayTraceContext.FluidHandling.NONE,
+                        player
+                    ),
+                    true
+                );
+
+            BlockHitResult hitResult = rayTrace.getLeft();
+            List<Portal> hitPortals = rayTrace.getRight();
+
+            if (Helper.hitResultIsMissedOrNull(hitResult)) {
+                return 0;
+            }
+
+            AtomicReference<Vec3d> playerLookAtomic = new AtomicReference<>(playerLook);
+            hitPortals.forEach(portal -> playerLookAtomic.set(portal.transformLocalVec(playerLookAtomic.get())));
+            playerLook = playerLookAtomic.get();
+
+            Direction lookingDirection = Helper.getFacingExcludingAxis(playerLook, hitResult.getSide().getAxis());
+
+            Vec3d axisH = new Vec3d(hitResult.getSide().getVector());
+            Vec3d axisW = axisH.crossProduct(new Vec3d(lookingDirection.getOpposite().getVector()));
+            Vec3d pos = new Vec3d(hitResult.getBlockPos()).add(.5, .5, .5)
+                .add(axisH.multiply(0.5 + height / 2));
+
+            Portal portal = new Portal(Portal.entityType, player.world);
+            portal.setPos(pos.x, pos.y, pos.z);
+
+            portal.axisW = axisW;
+            portal.axisH = axisH;
+
+            portal.dimensionTo = to;
+            portal.destination = dest;
+
+            portal.width = width;
+            portal.height = height;
+            
+            player.world.spawnEntity(portal);
+
+            context.getSource().sendFeedback(
+                new TranslatableText("imm_ptl.command.make_portal.success",
+                    Double.toString(width),
+                    Double.toString(height),
+                    Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(portal.world.dimension.getType())).toString(),
+                    pos.toString(),
+                    Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(to)).toString(),
+                    dest.toString()
+                ),
+                true
+            );
+
+            return 0;
+        } catch (Throwable omg) {
+            omg.printStackTrace();
+
+            return 0;
+        }
     }
 
     public static interface PortalConsumerThrowsCommandSyntaxException {

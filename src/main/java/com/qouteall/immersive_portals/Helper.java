@@ -21,6 +21,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilterableList;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -37,6 +38,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -806,7 +808,6 @@ public class Helper {
     /**
      * @see #withSwitchedContext(World, Supplier)
      */
-    @Environment(EnvType.SERVER)
     private static <T> T withSwitchedContextServer(ServerWorld world, Supplier<T> func) {
         // lol
         return func.get();
@@ -915,5 +916,36 @@ public class Helper {
         boolean includeGlobalPortals
     ) {
         return rayTrace(world, context, includeGlobalPortals, new ArrayList<>());
+    }
+
+    /**
+     * @param hitResult The HitResult to check.
+     * @return If the HitResult passed is either {@code null}, or of type {@link HitResult.Type#MISS}.
+     */
+    public static boolean hitResultIsMissedOrNull(HitResult hitResult) {
+        return hitResult == null || hitResult.getType() == HitResult.Type.MISS;
+    }
+
+    /**
+     * @param vec  The {@link Vec3d} to get the {@link Direction} of.
+     * @param axis The {@link Direction.Axis} of directions to exclude.
+     * @return The {@link Direction} of the passed {@code vec}, excluding directions of axis {@code axis}.
+     */
+    public static Direction getFacingExcludingAxis(Vec3d vec, Direction.Axis axis) {
+        Stream<Direction> directions = Arrays.stream(Direction.values()).filter(d -> !d.getAxis().equals(axis));
+        Direction samestDirection = Direction.NORTH;
+        double bestSameness = Double.MIN_VALUE;
+
+        for (Iterator<Direction> it = directions.iterator(); it.hasNext(); ) {
+            Direction dir = it.next();
+            double sameness = vec.x * dir.getOffsetX() + vec.y * dir.getOffsetY() + vec.z * dir.getOffsetZ();
+
+            if (sameness > bestSameness) {
+                bestSameness = sameness;
+                samestDirection = dir;
+            }
+        }
+
+        return samestDirection;
     }
 }
