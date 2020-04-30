@@ -55,22 +55,24 @@ public class BlockManipulationClient {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
         
         float reachDistance = client.interactionManager.getReachDistance();
-        
+
         MyCommandServer.getPlayerPointingPortalRaw(
             client.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
-            double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
-            if (distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
-                client.crosshairTarget = createMissedHitResult(cameraPos, pair.getSecond());
+            if(pair.getFirst().isInteractable()) {
+                double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
+                if(distanceToPortalPointing < getCurrentTargetDistance() + 0.2) {
+                    client.crosshairTarget = createMissedHitResult(cameraPos, pair.getSecond());
 
-                updateTargetedBlockThroughPortal(
-                    cameraPos,
-                    client.player.getRotationVec(partialTicks),
-                    client.player.dimension,
-                    distanceToPortalPointing,
-                    reachDistance,
-                    pair.getFirst()
-                );
+                    updateTargetedBlockThroughPortal(
+                            cameraPos,
+                            client.player.getRotationVec(partialTicks),
+                            client.player.dimension,
+                            distanceToPortalPointing,
+                            reachDistance,
+                            pair.getFirst()
+                    );
+                }
             }
         });
     }
@@ -188,7 +190,7 @@ public class BlockManipulationClient {
         }
         
     }
-    
+
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
 //        if (remoteHitResult == null) {
 //            return;
