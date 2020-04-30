@@ -632,7 +632,7 @@ public class Portal extends Entity {
     /**
      * @return The {@link World} of this portal's {@link #dimensionTo}.
      */
-    public World getWorld() {
+    public World getDestinationWorld() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             return CHelper.getClientWorld(dimensionTo);
         } else {
