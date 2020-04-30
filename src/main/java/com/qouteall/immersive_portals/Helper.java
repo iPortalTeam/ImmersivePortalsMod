@@ -750,7 +750,7 @@ public class Helper {
         if (includeGlobalPortals) {
             List<GlobalTrackedPortal> globalPortals;
 
-            // There are two methods of getting global portals depending on if you have a ServerWorld or ClientWorks.
+            // There are two methods of getting global portals depending on if you have a ServerWorld or ClientWorld.
             // Make sure we use the right one.
             if (world instanceof ServerWorld) {
                 globalPortals = GlobalPortalStorage.get((ServerWorld) world).data;
