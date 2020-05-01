@@ -777,18 +777,18 @@ public class Helper {
      */
     @Environment(EnvType.CLIENT)
     private static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
-        boolean wasSwitched = BlockManipulationClient.isContextSwitched;
-        BlockManipulationClient.isContextSwitched = true;
-
+        boolean wasContextSwitched = BlockManipulationClient.isContextSwitched;
         MinecraftClient mc = MinecraftClient.getInstance();
         ClientWorld lastWorld = mc.world;
-        mc.world = world;
 
         try {
+            BlockManipulationClient.isContextSwitched = true;
+            mc.world = world;
+
             return func.get();
         } finally {
             mc.world = lastWorld;
-            BlockManipulationClient.isContextSwitched = wasSwitched;
+            BlockManipulationClient.isContextSwitched = wasContextSwitched;
         }
     }
 
