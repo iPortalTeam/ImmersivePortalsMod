@@ -2,13 +2,10 @@ package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
-import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IERayTraceContext;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -877,8 +874,10 @@ public class Helper {
             .setEnd(portal.transformPoint(end));
 
         portals.add(portal);
-        Pair<BlockHitResult, List<Portal>> recursion =
-            rayTrace(portal.getDestinationWorld(world.isClient), context, includeGlobalPortals, portals);
+        World destWorld = portal.getDestinationWorld(world.isClient);
+        Pair<BlockHitResult, List<Portal>> recursion = withSwitchedContext(destWorld,
+            () -> rayTrace(destWorld, context, includeGlobalPortals, portals)
+        );
 
         betterContext
             .setStart(start)
