@@ -632,8 +632,8 @@ public class Portal extends Entity {
     /**
      * @return The {@link World} of this portal's {@link #dimensionTo}.
      */
-    public World getDestinationWorld(boolean client) {
-        if (client) {
+    public World getDestinationWorld(boolean isClient) {
+        if (isClient) {
             return CHelper.getClientWorld(dimensionTo);
         } else {
             return McHelper.getServer().getWorld(dimensionTo);
