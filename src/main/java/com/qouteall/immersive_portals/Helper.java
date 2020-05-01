@@ -876,9 +876,8 @@ public class Helper {
             .setEnd(portal.transformPoint(end));
 
         portals.add(portal);
-        EnvType env = world.isClient ? EnvType.CLIENT : EnvType.SERVER;
         Pair<BlockHitResult, List<Portal>> recursion =
-            rayTrace(portal.getDestinationWorld(env), context, includeGlobalPortals, portals);
+            rayTrace(portal.getDestinationWorld(world.isClient), context, includeGlobalPortals, portals);
 
         betterContext
             .setStart(start)
