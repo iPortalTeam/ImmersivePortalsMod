@@ -976,7 +976,7 @@ public class MyCommandServer {
 
             World world = hitPortals.isEmpty()
                 ? player.world
-                : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(EnvType.SERVER);
+                : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(false);
 
             Portal portal = new Portal(Portal.entityType, world);
 
