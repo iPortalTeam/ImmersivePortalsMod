@@ -142,12 +142,11 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntBox heightLimit,
         int findingRadius
     ) {
         IntBox aboveLavaLake = getAirCubeOnGround(
             areaSize.add(20, 20, 20), world, searchingCenter,
-            heightLimit, findingRadius / 8,
+            findingRadius / 8,
             blockPos -> isLavaLake(world, blockPos)
         );
         if (aboveLavaLake != null) {
@@ -157,7 +156,7 @@ public class NetherPortalMatcher {
         
         IntBox biggerArea = getAirCubeOnSolidGround(
             areaSize.add(5, 0, 5), world, searchingCenter,
-            heightLimit, findingRadius / 8
+            findingRadius / 8
         );
         if (biggerArea == null) {
             Helper.log("Cannot Find Portal Placement on Ground");
@@ -181,7 +180,6 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntBox heightLimit,
         int findingRadius,
         Predicate<BlockPos> groundBlockLimit
     ) {
@@ -207,7 +205,6 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntBox heightLimit,
         int findingRadius
     ) {
         return NetherPortalGeneration.fromNearToFarColumned(
@@ -233,22 +230,21 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntBox heightLimit,
         int findingRadius
     ) {
         IntBox result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
-            areaSize, world, searchingCenter, heightLimit,
+            areaSize, world, searchingCenter,
             30, findingRadius / 8
         );
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
-                areaSize, world, searchingCenter, heightLimit,
+                areaSize, world, searchingCenter,
                 10, findingRadius / 8
             );
         }
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
-                areaSize, world, searchingCenter, heightLimit,
+                areaSize, world, searchingCenter,
                 1, findingRadius / 8
             );
         }
@@ -259,7 +255,6 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntBox heightLimit,
         int verticalSpaceReserve,
         int findingRadius
     ) {
@@ -269,7 +264,7 @@ public class NetherPortalMatcher {
             areaSize.getZ()
         );
         IntBox foundCubeArea = findCubeAirAreaAtAnywhere(
-            growVertically, world, searchingCenter, heightLimit, findingRadius
+            growVertically, world, searchingCenter, findingRadius
         );
         if (foundCubeArea == null) {
             return null;
@@ -293,7 +288,6 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        IntBox heightLimit,
         int findingRadius
     ) {
         return NetherPortalGeneration.fromNearToFarColumned(

@@ -49,7 +49,9 @@ public class Portal extends Entity {
     public Quaternion rotation;
     
     public double motionAffinity = 0;
-    
+
+    private boolean interactable = true;
+
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -118,6 +120,9 @@ public class Portal extends Entity {
         else {
             motionAffinity = 0;
         }
+        if(compoundTag.contains("interactable")) {
+            interactable = compoundTag.getBoolean("interactable");
+        }
     }
     
     @Override
@@ -153,6 +158,7 @@ public class Portal extends Entity {
             compoundTag.putDouble("rotationD", rotation.getZ());
         }
         compoundTag.putDouble("motionAffinity", motionAffinity);
+        compoundTag.putBoolean("interactable", interactable);
     }
     
     public boolean isCullable() {
@@ -165,7 +171,25 @@ public class Portal extends Entity {
     public boolean isTeleportable() {
         return teleportable;
     }
-    
+
+
+    /**
+     * Determines whether the player should be able to reach through the portal or not.
+     * Can be overridden by a sub class.
+     * @return the interactability of the portal
+     */
+    public boolean isInteractable() {
+        return interactable;
+    }
+
+    /**
+     * Changes the reach-through behavior of the portal.
+     * @param interactable the interactability of the portal
+     */
+    public void setInteractable(boolean interactable) {
+        this.interactable = interactable;
+    }
+
     public void updateCache() {
         boundingBoxCache = null;
         normal = null;

@@ -67,8 +67,6 @@ public class PixelCuller {
         }
     }
     
-    //invoke this before rendering portal
-    //its result depends on camera pos
     private static double[] getClipEquationInner(Portal portal, boolean doCompensate) {
         
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();

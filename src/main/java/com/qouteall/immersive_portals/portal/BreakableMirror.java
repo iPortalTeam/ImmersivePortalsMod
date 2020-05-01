@@ -19,6 +19,7 @@ public class BreakableMirror extends Mirror {
     public static EntityType<BreakableMirror> entityType;
     
     public IntBox wallArea;
+    public boolean unbreakable = false;
     
     public BreakableMirror(EntityType<?> entityType_1, World world_1) {
         super(entityType_1, world_1);
@@ -39,6 +40,9 @@ public class BreakableMirror extends Mirror {
                 tag.getInt("boxZH")
             )
         );
+        if (tag.contains("unbreakable")) {
+            unbreakable = tag.getBoolean("unbreakable");
+        }
     }
     
     @Override
@@ -50,14 +54,18 @@ public class BreakableMirror extends Mirror {
         tag.putInt("boxXH", wallArea.h.getX());
         tag.putInt("boxYH", wallArea.h.getY());
         tag.putInt("boxZH", wallArea.h.getZ());
+        
+        tag.putBoolean("unbreakable", unbreakable);
     }
     
     @Override
     public void tick() {
         super.tick();
         if (!world.isClient) {
-            if (world.getTime() % 10 == getEntityId() % 10) {
-                checkWallIntegrity();
+            if (!unbreakable) {
+                if (world.getTime() % 10 == getEntityId() % 10) {
+                    checkWallIntegrity();
+                }
             }
         }
     }
@@ -90,13 +98,13 @@ public class BreakableMirror extends Mirror {
         if (!isGlass(world, glassPos)) {
             return null;
         }
-    
+        
         IntBox wallArea = Helper.expandRectangle(
             glassPos,
             blockPos -> isGlass(world, blockPos),
             facing.getAxis()
         );
-    
+        
         BreakableMirror breakableMirror = BreakableMirror.entityType.create(world);
         Vec3d pos = new Vec3d(
             (double) (wallArea.l.getX() + wallArea.h.getX()) / 2,
@@ -112,9 +120,9 @@ public class BreakableMirror extends Mirror {
         );
         breakableMirror.destination = pos;
         breakableMirror.dimensionTo = world.dimension.getType();
-    
+        
         Pair<Direction.Axis, Direction.Axis> axises = Helper.getPerpendicularAxis(facing);
-    
+        
         Direction.Axis wAxis = axises.getLeft();
         Direction.Axis hAxis = axises.getRight();
         float width = Helper.getCoordinate(wallArea.getSize(), wAxis);
@@ -132,7 +140,7 @@ public class BreakableMirror extends Mirror {
         breakableMirror.wallArea = wallArea;
         
         world.spawnEntity(breakableMirror);
-    
+        
         breakIntersectedMirror(breakableMirror);
         
         return breakableMirror;
@@ -142,7 +150,7 @@ public class BreakableMirror extends Mirror {
         McHelper.getEntitiesNearby(
             newMirror,
             BreakableMirror.class,
-            10
+            20
         ).filter(
             mirror1 -> mirror1.getNormal().dotProduct(newMirror.getNormal()) > 0.5
         ).filter(

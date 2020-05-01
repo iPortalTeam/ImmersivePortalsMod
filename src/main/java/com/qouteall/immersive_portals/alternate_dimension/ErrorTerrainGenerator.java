@@ -179,7 +179,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
             );
         }
         
-        SimpleSpawnerFeature.instance.generate(
+        SpongeDungeonFeature.instance.generate(
             region,
             structureAccessor,
             this,
@@ -265,7 +265,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     
     private static double getProbability(StructureFeature<?> structureFeature) {
         if (structureFeature instanceof StrongholdFeature) {
-            return 0.015;
+            return 0.0008;
         }
         if (structureFeature instanceof MineshaftFeature) {
             return 0.015;

@@ -147,6 +147,9 @@ public class MyGameRenderer {
         if (Global.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = true;
         }
+        
+        client.getEntityRenderManager()
+            .configure(client.world, oldCamera, client.targetedEntity);
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {

@@ -132,7 +132,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
         )
     )
-    private void onRenderBeforeRenderLayer(
+    private void redirectRenderLayer(
         WorldRenderer worldRenderer,
         RenderLayer renderLayer,
         MatrixStack matrices,

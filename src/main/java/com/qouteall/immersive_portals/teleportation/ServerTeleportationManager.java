@@ -349,7 +349,7 @@ public class ServerTeleportationManager {
         
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
-        if (currGameTime - lastTeleportGameTime < 2) {
+        if (currGameTime - lastTeleportGameTime < 3) {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
@@ -377,6 +377,7 @@ public class ServerTeleportationManager {
         entity.updatePosition(
             newEyePos.x, newEyePos.y, newEyePos.z
         );
+        McHelper.updateBoundingBox(entity);
         
         entity.setVelocity(portal.transformLocalVec(velocity));
         
