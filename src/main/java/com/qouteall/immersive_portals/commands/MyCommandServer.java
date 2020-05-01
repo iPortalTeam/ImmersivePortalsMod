@@ -19,7 +19,6 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
-import net.fabricmc.api.EnvType;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.EntityArgumentType;
@@ -36,13 +35,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.RayTraceContext;
-import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Collection;
@@ -488,7 +484,12 @@ public class MyCommandServer {
                 .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
                     .then(CommandManager.argument("to", DimensionArgumentType.dimension())
                         .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                            .executes(MyCommandServer::runMakePortal)
+                            .executes(MyCommandServer::placePortalAbsolute)
+                        )
+                        .then(CommandManager.literal("shift")
+                            .then(CommandManager.argument("dist", DoubleArgumentType.doubleArg())
+                                .executes(MyCommandServer::placePortalShift)
+                            )
                         )
                     )
                 )
@@ -932,85 +933,67 @@ public class MyCommandServer {
         );
     }
 
+    /**
+     * Gets success message based on the portal {@code portal}.
+     *
+     * @param portal The portal to send the success message for.
+     * @return The success message, as a {@link Text}.
+     * @author LoganDark
+     */
+    private static Text getMakePortalSuccess(Portal portal) {
+        return new TranslatableText("imm_ptl.command.make_portal.success",
+            Double.toString(portal.width),
+            Double.toString(portal.height),
+            Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(portal.world.dimension.getType())).toString(),
+            portal.getPos().toString(),
+            Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(portal.dimensionTo)).toString(),
+            portal.destination.toString()
+        );
+    }
+
     // By LoganDark :D
-    private static int runMakePortal(CommandContext<ServerCommandSource> context) {
-        try {
-            double width = DoubleArgumentType.getDouble(context, "width");
-            double height = DoubleArgumentType.getDouble(context, "height");
-            DimensionType to = DimensionArgumentType.getDimensionArgument(context, "to");
-            Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+    private static int placePortalAbsolute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        double width = DoubleArgumentType.getDouble(context, "width");
+        double height = DoubleArgumentType.getDouble(context, "height");
+        DimensionType to = DimensionArgumentType.getDimensionArgument(context, "to");
+        Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
 
-            ServerPlayerEntity player = context.getSource().getPlayer();
-            Vec3d playerLook = player.getRotationVector();
+        Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
 
-            net.minecraft.util.Pair<BlockHitResult, List<Portal>> rayTrace =
-                Helper.rayTrace(
-                    player.world,
-                    new RayTraceContext(
-                        player.getCameraPosVec(1.0f),
-                        player.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
-                        RayTraceContext.ShapeType.OUTLINE,
-                        RayTraceContext.FluidHandling.NONE,
-                        player
-                    ),
-                    true
-                );
-
-            BlockHitResult hitResult = rayTrace.getLeft();
-            List<Portal> hitPortals = rayTrace.getRight();
-
-            if (Helper.hitResultIsMissedOrNull(hitResult)) {
-                return 0;
-            }
-            
-            for (Portal hitPortal : hitPortals) {
-                playerLook = hitPortal.transformLocalVec(playerLook);
-            }
-
-            Direction lookingDirection = Helper.getFacingExcludingAxis(playerLook, hitResult.getSide().getAxis());
-
-            Vec3d axisH = new Vec3d(hitResult.getSide().getVector());
-            Vec3d axisW = axisH.crossProduct(new Vec3d(lookingDirection.getOpposite().getVector()));
-            Vec3d pos = new Vec3d(hitResult.getBlockPos()).add(.5, .5, .5)
-                .add(axisH.multiply(0.5 + height / 2));
-
-            World world = hitPortals.isEmpty()
-                ? player.world
-                : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(false);
-
-            Portal portal = new Portal(Portal.entityType, world);
-
-            portal.setPos(pos.x, pos.y, pos.z);
-
-            portal.axisW = axisW;
-            portal.axisH = axisH;
-
-            portal.dimensionTo = to;
-            portal.destination = dest;
-
-            portal.width = width;
-            portal.height = height;
-
-            world.spawnEntity(portal);
-
-            context.getSource().sendFeedback(
-                new TranslatableText("imm_ptl.command.make_portal.success",
-                    Double.toString(width),
-                    Double.toString(height),
-                    Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(portal.world.dimension.getType())).toString(),
-                    pos.toString(),
-                    Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(to)).toString(),
-                    dest.toString()
-                ),
-                true
-            );
-
-            return 0;
-        } catch (Throwable omg) {
-            omg.printStackTrace();
-
+        if (portal == null) {
             return 0;
         }
+
+        portal.dimensionTo = to;
+        portal.destination = dest;
+        portal.world.spawnEntity(portal);
+
+        context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
+
+        return 1;
+    }
+
+    // By LoganDark :D
+    private static int placePortalShift(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        double width = DoubleArgumentType.getDouble(context, "width");
+        double height = DoubleArgumentType.getDouble(context, "height");
+        DimensionType to = DimensionArgumentType.getDimensionArgument(context, "to");
+        double dist = DoubleArgumentType.getDouble(context, "dist");
+
+        Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
+
+        if (portal == null) {
+            return 0;
+        }
+
+        // unsafe to use getContentDirection before the destination is fully set
+        portal.dimensionTo = to;
+        portal.destination = portal.getPos().add(portal.axisW.crossProduct(portal.axisH).multiply(-dist));
+        portal.world.spawnEntity(portal);
+
+        context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
+
+        return 1;
     }
 
     public static interface PortalConsumerThrowsCommandSyntaxException {

@@ -14,6 +14,7 @@ import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilterableList;
@@ -241,7 +242,6 @@ public class Helper {
         }
         return wallArea;
     }
-    
     
     public static class SimpleBox<T> {
         public T obj;
@@ -936,5 +936,66 @@ public class Helper {
         }
 
         return samestDirection;
+    }
+
+    /**
+     * Places a portal based on {@code entity}'s looking direction. Does not set the portal destination or add it to the
+     * world, you will have to do that yourself.
+     *
+     * @param width  The width of the portal.
+     * @param height The height of the portal.
+     * @param entity The entity to place this portal as.
+     * @return The placed portal, with no destination set.
+     * @author LoganDark
+     */
+    public static Portal placePortal(double width, double height, Entity entity) {
+        Vec3d playerLook = entity.getRotationVector();
+
+        Pair<BlockHitResult, List<Portal>> rayTrace =
+            rayTrace(
+                entity.world,
+                new RayTraceContext(
+                    entity.getCameraPosVec(1.0f),
+                    entity.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
+                    RayTraceContext.ShapeType.OUTLINE,
+                    RayTraceContext.FluidHandling.NONE,
+                    entity
+                ),
+                true
+            );
+
+        BlockHitResult hitResult = rayTrace.getLeft();
+        List<Portal> hitPortals = rayTrace.getRight();
+
+        if (hitResultIsMissedOrNull(hitResult)) {
+            return null;
+        }
+
+        for (Portal hitPortal : hitPortals) {
+            playerLook = hitPortal.transformLocalVec(playerLook);
+        }
+
+        Direction lookingDirection = getFacingExcludingAxis(playerLook, hitResult.getSide().getAxis());
+
+        Vec3d axisH = new Vec3d(hitResult.getSide().getVector());
+        Vec3d axisW = axisH.crossProduct(new Vec3d(lookingDirection.getOpposite().getVector()));
+        Vec3d pos = new Vec3d(hitResult.getBlockPos()).add(.5, .5, .5)
+            .add(axisH.multiply(0.5 + height / 2));
+
+        World world = hitPortals.isEmpty()
+            ? entity.world
+            : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(false);
+
+        Portal portal = new Portal(Portal.entityType, world);
+
+        portal.setPos(pos.x, pos.y, pos.z);
+
+        portal.axisW = axisW;
+        portal.axisH = axisH;
+
+        portal.width = width;
+        portal.height = height;
+
+        return portal;
     }
 }
