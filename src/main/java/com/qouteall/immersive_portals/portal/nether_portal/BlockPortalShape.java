@@ -296,7 +296,7 @@ public class BlockPortalShape {
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
         
         GeometryPortalShape shape = new GeometryPortalShape();
-        Vec3d offset = new Vec3d(
+        Vec3d offset = Vec3d.method_24954(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
@@ -307,8 +307,8 @@ public class BlockPortalShape {
                 .map(blockPos -> new IntBox(blockPos, blockPos)),
             Stream.of(rectanglePart)
         ).forEach(part -> {
-            Vec3d p1 = new Vec3d(part.l).add(offset);
-            Vec3d p2 = new Vec3d(part.h).add(1, 1, 1).add(offset);
+            Vec3d p1 = Vec3d.method_24954(part.l).add(offset);
+            Vec3d p2 = Vec3d.method_24954(part.h).add(1, 1, 1).add(offset);
             double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
             double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
             double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
@@ -321,8 +321,8 @@ public class BlockPortalShape {
         
         portal.specialShape = shape;
         
-        Vec3d p1 = new Vec3d(rectanglePart.l).add(offset);
-        Vec3d p2 = new Vec3d(rectanglePart.h).add(1, 1, 1).add(offset);
+        Vec3d p1 = Vec3d.method_24954(rectanglePart.l).add(offset);
+        Vec3d p2 = Vec3d.method_24954(rectanglePart.h).add(1, 1, 1).add(offset);
         double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
         double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
         double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);

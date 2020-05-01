@@ -556,7 +556,7 @@ public class NetherPortalGeneration {
             ),
             new BlockPos(
                 x + raidus,
-                toWorld.getEffectiveHeight() - 3,
+                toWorld.getDimensionHeight() - 3,
                 z + raidus
             )
         );
@@ -638,7 +638,7 @@ public class NetherPortalGeneration {
             );
         }
         
-        int height = world.getEffectiveHeight();
+        int height = world.getDimensionHeight();
         
         BlockPos.Mutable temp0 = new BlockPos.Mutable();
         BlockPos.Mutable temp2 = new BlockPos.Mutable();
