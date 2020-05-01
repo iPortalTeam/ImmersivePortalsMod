@@ -32,14 +32,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -54,7 +51,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -966,10 +962,10 @@ public class MyCommandServer {
             if (Helper.hitResultIsMissedOrNull(hitResult)) {
                 return 0;
             }
-
-            AtomicReference<Vec3d> playerLookAtomic = new AtomicReference<>(playerLook);
-            hitPortals.forEach(portal -> playerLookAtomic.set(portal.transformLocalVec(playerLookAtomic.get())));
-            playerLook = playerLookAtomic.get();
+            
+            for (Portal hitPortal : hitPortals) {
+                playerLook = hitPortal.transformLocalVec(playerLook);
+            }
 
             Direction lookingDirection = Helper.getFacingExcludingAxis(playerLook, hitResult.getSide().getAxis());
 
@@ -994,9 +990,7 @@ public class MyCommandServer {
 
             portal.width = width;
             portal.height = height;
-            
-            ChunkPos chunkPos = new ChunkPos(new BlockPos(pos));
-            ((ServerWorld) world).getChunkManager().addTicket(ChunkTicketType.UNKNOWN, chunkPos, 1, chunkPos);
+
             world.spawnEntity(portal);
 
             context.getSource().sendFeedback(
