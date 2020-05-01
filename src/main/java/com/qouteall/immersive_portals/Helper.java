@@ -899,6 +899,7 @@ public class Helper {
      * to transform looking directions or do whatever you want really.
      * @author LoganDark
      */
+    @SuppressWarnings("WeakerAccess")
     public static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
         RayTraceContext context,
