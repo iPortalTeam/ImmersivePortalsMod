@@ -14,7 +14,6 @@ import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilterableList;
@@ -37,6 +36,7 @@ import org.lwjgl.opengl.GL11;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -926,21 +926,12 @@ public class Helper {
      */
     @SuppressWarnings("WeakerAccess")
     public static Direction getFacingExcludingAxis(Vec3d vec, Direction.Axis axis) {
-        Stream<Direction> directions = Arrays.stream(Direction.values()).filter(d -> !d.getAxis().equals(axis));
-        Direction samestDirection = Direction.NORTH;
-        double bestSameness = Double.MIN_VALUE;
-
-        for (Iterator<Direction> it = directions.iterator(); it.hasNext(); ) {
-            Direction dir = it.next();
-            double sameness = vec.x * dir.getOffsetX() + vec.y * dir.getOffsetY() + vec.z * dir.getOffsetZ();
-
-            if (sameness > bestSameness) {
-                bestSameness = sameness;
-                samestDirection = dir;
-            }
-        }
-
-        return samestDirection;
+        return Arrays.stream(Direction.values())
+            .filter(d -> d.getAxis() != axis)
+            .max(Comparator.comparingDouble(
+                dir -> vec.x * dir.getOffsetX() + vec.y * dir.getOffsetY() + vec.z * dir.getOffsetZ()
+            ))
+            .orElse(null);
     }
 
     /**
@@ -981,6 +972,11 @@ public class Helper {
         }
 
         Direction lookingDirection = getFacingExcludingAxis(playerLook, hitResult.getSide().getAxis());
+
+        // this should never happen...
+        if (lookingDirection == null) {
+            return null;
+        }
 
         Vec3d axisH = new Vec3d(hitResult.getSide().getVector());
         Vec3d axisW = axisH.crossProduct(new Vec3d(lookingDirection.getOpposite().getVector()));
