@@ -746,21 +746,8 @@ public class Helper {
         int chunkRadius = (int) Math.ceil(Math.abs(start.distanceTo(end) / 2) / 16);
         List<Portal> nearby = getNearbyEntities(world, middle, chunkRadius, Portal.class);
 
-        // Remove all global portals anyway, so we can add them back properly
-        nearby.removeIf(portal -> GlobalTrackedPortal.class.isAssignableFrom(portal.getClass()));
-
         if (includeGlobalPortals) {
-            List<GlobalTrackedPortal> globalPortals;
-
-            // There are two methods of getting global portals depending on if you have a ServerWorld or ClientWorld.
-            // Make sure we use the right one.
-            if (world instanceof ServerWorld) {
-                globalPortals = GlobalPortalStorage.get((ServerWorld) world).data;
-            } else {
-                globalPortals = ((IEClientWorld) world).getGlobalPortals();
-            }
-
-            nearby.addAll(globalPortals);
+            nearby.addAll(McHelper.getGlobalPortals(world));
         }
 
         // Make a list of all portals actually intersecting with this line, and then sort them by the distance from the
