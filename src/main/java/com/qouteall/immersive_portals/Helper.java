@@ -901,6 +901,7 @@ public class Helper {
      * to transform looking directions or do whatever you want really.
      * @author LoganDark
      */
+    @SuppressWarnings("WeakerAccess")
     public static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
         RayTraceContext context,
@@ -913,6 +914,7 @@ public class Helper {
      * @param hitResult The HitResult to check.
      * @return If the HitResult passed is either {@code null}, or of type {@link HitResult.Type#MISS}.
      */
+    @SuppressWarnings("WeakerAccess")
     public static boolean hitResultIsMissedOrNull(HitResult hitResult) {
         return hitResult == null || hitResult.getType() == HitResult.Type.MISS;
     }
@@ -922,6 +924,7 @@ public class Helper {
      * @param axis The {@link Direction.Axis} of directions to exclude.
      * @return The {@link Direction} of the passed {@code vec}, excluding directions of axis {@code axis}.
      */
+    @SuppressWarnings("WeakerAccess")
     public static Direction getFacingExcludingAxis(Vec3d vec, Direction.Axis axis) {
         Stream<Direction> directions = Arrays.stream(Direction.values()).filter(d -> !d.getAxis().equals(axis));
         Direction samestDirection = Direction.NORTH;
