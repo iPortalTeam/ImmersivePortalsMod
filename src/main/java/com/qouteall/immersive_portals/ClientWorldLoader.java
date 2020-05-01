@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
+import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -206,7 +207,7 @@ public class ClientWorldLoader {
             );
             newWorld = new ClientWorld(
                 newNetworkHandler,
-                mc.world.getLevelProperties(),
+                ((ClientWorld.class_5271) ((IEWorld) mc.world).myGetProperties()),
                 dimension,
                 chunkLoadDistance,
                 () -> mc.getProfiler(),

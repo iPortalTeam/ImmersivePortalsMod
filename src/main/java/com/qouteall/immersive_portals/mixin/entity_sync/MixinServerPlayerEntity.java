@@ -10,6 +10,7 @@ import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -32,16 +33,16 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     
     private HashMultimap<DimensionType, Entity> myRemovedEntities;
     
-    public MixinServerPlayerEntity(
-        World world,
-        GameProfile profile
-    ) {
-        super(world, profile);
-        throw new IllegalStateException();
-    }
-    
     @Shadow
     private boolean inTeleportationState;
+    
+    public MixinServerPlayerEntity(
+        World world,
+        BlockPos blockPos,
+        GameProfile gameProfile
+    ) {
+        super(world, blockPos, gameProfile);
+    }
     
     @Shadow
     protected abstract void dimensionChanged(ServerWorld targetWorld);

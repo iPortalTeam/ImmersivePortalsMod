@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.ducks;
 
-import net.minecraft.world.World;
+import net.minecraft.client.world.ClientWorld;
 
 public interface IEParticleManager {
-    void mySetWorld(World world);
+    void mySetWorld(ClientWorld world);
 }

@@ -168,7 +168,7 @@ public class AltiusScreen extends Screen {
         super.render(matrixStack, mouseY, i, f);
     
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        textRenderer.method_27517(
+        textRenderer.drawWithShadow(
             matrixStack, this.title,
             20, 20, -1
         );
