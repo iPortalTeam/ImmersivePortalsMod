@@ -2,13 +2,10 @@ package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -18,29 +15,24 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BlockManipulationClient {
     private static final MinecraftClient client = MinecraftClient.getInstance();
-    
+
+    public static List<Portal> remoteHitPortals = new ArrayList<>();
     public static DimensionType remotePointedDim;
     public static HitResult remoteHitResult;
+
     public static boolean isContextSwitched = false;
-    
+
     public static boolean isPointingToPortal() {
-        return remotePointedDim != null;
-    }
-
-    private static BlockHitResult createMissedHitResult(Vec3d from, Vec3d to) {
-        Vec3d dir = to.subtract(from).normalize();
-
-        return BlockHitResult.createMissed(to, Direction.getFacing(dir.x, dir.y, dir.z), new BlockPos(to));
+        return !remoteHitPortals.isEmpty();
     }
 
     private static boolean hitResultIsMissedOrNull(HitResult bhr) {
@@ -51,10 +43,11 @@ public class BlockManipulationClient {
         if (client.interactionManager == null || client.world == null || client.player == null) {
             return;
         }
-        
+
+        remoteHitPortals.clear();
         remotePointedDim = null;
         remoteHitResult = null;
-        
+
         Vec3d start = client.gameRenderer.getCamera().getPos();
         float reachDistance = client.interactionManager.getReachDistance();
         Vec3d looking = client.player.getRotationVec(partialTicks);
@@ -64,6 +57,10 @@ public class BlockManipulationClient {
         Pair<BlockHitResult, List<Portal>> results = Helper.rayTrace(client.player.world, rtc, true);
 
         client.crosshairTarget = results.getLeft();
+
+        remoteHitPortals.addAll(results.getRight());
+        remotePointedDim = !remoteHitPortals.isEmpty() ? remoteHitPortals.get(remoteHitPortals.size() - 1).dimensionTo : null;
+        remoteHitResult = remotePointedDim != null ? client.crosshairTarget : null;
 
         MyRenderHelper.debugText = results.getRight()
             .stream()
@@ -77,16 +74,17 @@ public class BlockManipulationClient {
         if (hitResultIsMissedOrNull(client.crosshairTarget)) {
             return 23333;
         }
-        
+
         return cameraPos.distanceTo(client.crosshairTarget.getPos());
     }
 
+    @SuppressWarnings("LocalVariableDeclarationSideOnly")
     public static void myHandleBlockBreaking(boolean isKeyPressed) {
 //        if (remoteHitResult == null) {
 //            return;
 //        }
-        
-        
+
+
         if (!client.player.isUsingItem()) {
             if (isKeyPressed && isPointingToPortal()) {
                 BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
@@ -100,15 +98,15 @@ public class BlockManipulationClient {
                         client.player.swingHand(Hand.MAIN_HAND);
                     }
                 }
-                
-            }
-            else {
+
+            } else {
                 client.interactionManager.cancelBlockBreaking();
             }
         }
     }
-    
+
     //hacky switch
+    @SuppressWarnings("LocalVariableDeclarationSideOnly")
     public static boolean myUpdateBlockBreakingProgress(
         BlockPos blockPos,
         Direction direction
@@ -116,73 +114,73 @@ public class BlockManipulationClient {
 //        if (remoteHitResult == null) {
 //            return false;
 //        }
-        
+
         ClientWorld oldWorld = client.world;
         client.world = CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         isContextSwitched = true;
-        
+
         try {
             return client.interactionManager.updateBlockBreakingProgress(blockPos, direction);
-        }
-        finally {
+        } finally {
             client.world = oldWorld;
             isContextSwitched = false;
         }
-        
+
     }
-    
+
+    @SuppressWarnings("LocalVariableDeclarationSideOnly")
     public static void myAttackBlock() {
 //        if (remoteHitResult == null) {
 //            return;
 //        }
-        
-        
+
+
         ClientWorld targetWorld =
             CGlobal.clientWorldLoader.getWorld(remotePointedDim);
         BlockPos blockPos = ((BlockHitResult) remoteHitResult).getBlockPos();
-        
+
         if (targetWorld.isAir(blockPos)) {
             return;
         }
-        
+
         ClientWorld oldWorld = client.world;
-        
+
         client.world = targetWorld;
         isContextSwitched = true;
-        
+
         try {
             client.interactionManager.attackBlock(
                 blockPos,
                 ((BlockHitResult) remoteHitResult).getSide()
             );
-        }
-        finally {
+        } finally {
             client.world = oldWorld;
             isContextSwitched = false;
         }
-        
+
         client.player.swingHand(Hand.MAIN_HAND);
     }
-    
+
     //too lazy to rewrite the whole interaction system so hack there and here
+    @SuppressWarnings("LocalVariableDeclarationSideOnly")
     public static void myItemUse(Hand hand) {
 //        if (remoteHitResult == null) {
 //            return;
 //        }
-        
+
         ClientWorld targetWorld =
             CGlobal.clientWorldLoader.getWorld(remotePointedDim);
-        
+
         ItemStack itemStack = client.player.getStackInHand(hand);
         BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
-        
+
         Pair<BlockHitResult, DimensionType> result =
             BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
         blockHitResult = result.getLeft();
         targetWorld = CGlobal.clientWorldLoader.getWorld(result.getRight());
         remoteHitResult = blockHitResult;
         remotePointedDim = result.getRight();
-        
+
         int i = itemStack.getCount();
         ActionResult actionResult2 = myInteractBlock(hand, targetWorld, blockHitResult);
         if (actionResult2.isAccepted()) {
@@ -192,14 +190,14 @@ public class BlockManipulationClient {
                     client.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
                 }
             }
-            
+
             return;
         }
-        
+
         if (actionResult2 == ActionResult.FAIL) {
             return;
         }
-        
+
         if (!itemStack.isEmpty()) {
             ActionResult actionResult3 = client.interactionManager.interactItem(
                 client.player,
@@ -210,13 +208,13 @@ public class BlockManipulationClient {
                 if (actionResult3.shouldSwingHand()) {
                     client.player.swingHand(hand);
                 }
-                
+
                 client.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
-                return;
             }
         }
     }
-    
+
+    @SuppressWarnings("LocalVariableDeclarationSideOnly")
     private static ActionResult myInteractBlock(
         Hand hand,
         ClientWorld targetWorld,
@@ -225,23 +223,23 @@ public class BlockManipulationClient {
 //        if (remoteHitResult == null) {
 //            return null;
 //        }
-        
+
         ClientWorld oldWorld = client.world;
-        
+
         try {
+            //noinspection ConstantConditions
             client.player.world = targetWorld;
             client.world = targetWorld;
             isContextSwitched = true;
-            
+
             return client.interactionManager.interactBlock(
                 client.player, targetWorld, hand, blockHitResult
             );
-        }
-        finally {
+        } finally {
             client.player.world = oldWorld;
             client.world = oldWorld;
             isContextSwitched = false;
         }
     }
-    
+
 }
