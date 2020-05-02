@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
-import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
@@ -141,12 +140,13 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static int getHeight(DimensionType dimensionType) {
-        if (dimensionType == DimensionType.THE_NETHER) {
-            if (O_O.isNetherHigherModPresent()) {
-                return 256;
-            }
-            return 128;
-        }
-        return 256;
+        return McHelper.getServer().getWorld(dimensionType).getEffectiveHeight();
+//        if (dimensionType == DimensionType.THE_NETHER) {
+//            if (O_O.isNetherHigherModPresent()) {
+//                return 256;
+//            }
+//            return 128;
+//        }
+//        return 256;
     }
 }
