@@ -1,12 +1,24 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
+import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
+import com.qouteall.immersive_portals.ducks.IERayTraceContext;
+import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.portal.Portal;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
+import net.minecraft.util.TypeFilterableList;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -14,18 +26,25 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Helper {
@@ -223,7 +242,6 @@ public class Helper {
         }
         return wallArea;
     }
-    
     
     public static class SimpleBox<T> {
         public T obj;
@@ -657,5 +675,328 @@ public class Helper {
             ),
             Quaternion::normalize
         );
+    }
+
+    /**
+     * Searches nearby chunks to look for a certain sub/class of entity. In the specified {@code world}, the chunk that
+     * {@code pos} is in will be used as the center of search. That chunk will be expanded by {@code chunkRadius} chunks
+     * in all directions to define the search area. Then, on all Y levels, those chunks will be searched for entities of
+     * class {@code entityClass}. Then all entities found will be returned.
+     * <p>
+     * If you define a {@code chunkRadius} of 1, 9 chunks will be searched. If you define one of 2, then 25 chunks will
+     * be searched. This can be an extreme performance bottleneck, so yse it sparingly such as a response to user input.
+     *
+     * @param world       The world in which to search for entities.
+     * @param pos         The chunk that this position is located in will be used as the center of search.
+     * @param chunkRadius Integer number of chunks to expand the square search area by.
+     * @param entityClass The entity class to search for.
+     * @param <T>         The entity class that will be returned in the list.
+     * @return All entities in the nearby chunks with type T.
+     * @author LoganDark
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static <T extends Entity> List<T> getNearbyEntities(World world, Vec3d pos, int chunkRadius, Class<T> entityClass) {
+        ArrayList<T> entities = new ArrayList<>();
+        int chunkX = (int) pos.x / 16;
+        int chunkZ = (int) pos.z / 16;
+
+        for (int z = -chunkRadius + 1; z < chunkRadius; z++) {
+            for (int x = -chunkRadius + 1; x < chunkRadius; x++) {
+                int aX = chunkX + x;
+                int aZ = chunkZ + z;
+
+                // WorldChunk contains a private variable called entitySections that groups all entities in the chunk by
+                // their Y level. Here we are using a Mixin duck typing interface thing to get that private variable and
+                // then manually search it. This is faster than using the built-in WorldChunk methods that do not do
+                // what we want.
+                TypeFilterableList<Entity>[] entitySections = ((IEWorldChunk) world.getChunk(aX, aZ)).getEntitySections();
+                for (TypeFilterableList<Entity> entitySection : entitySections) {
+                    entities.addAll(entitySection.getAllOfType(entityClass));
+                }
+            }
+        }
+
+        return entities;
+    }
+
+    /**
+     * Returns all portals intersecting the line from start->end.
+     *
+     * @param world                The world in which to ray trace for portals.
+     * @param start                The start of the line defining the ray to trace.
+     * @param end                  The end of the line defining the ray to trace.
+     * @param includeGlobalPortals Whether or not to include global portals in the ray trace.
+     * @param filter               Filter the portals that this function returns. Nullable
+     * @return A list of portals and their intersection points with the line, sorted by nearest portals first.
+     * @author LoganDark
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static List<Pair<Portal, Vec3d>> rayTracePortals(World world, Vec3d start, Vec3d end, boolean includeGlobalPortals, Predicate<Portal> filter) {
+        // This will be the center of the chunk search, rather than using start or end. This will allow the radius to be
+        // smaller, and as a result, the search to be faster and slightly less inefficient.
+        //
+        // The searching method employed by getNearbyEntities is still not ideal, but it's the best idea I have.
+        Vec3d middle = start.multiply(0.5).add(end.multiply(0.5));
+
+        // This could result in searching more chunks than necessary, but it always expands to completely cover any
+        // chunks the line from start->end passes through.
+        int chunkRadius = (int) Math.ceil(Math.abs(start.distanceTo(end) / 2) / 16);
+        List<Portal> nearby = getNearbyEntities(world, middle, chunkRadius, Portal.class);
+
+        if (includeGlobalPortals) {
+            nearby.addAll(McHelper.getGlobalPortals(world));
+        }
+
+        // Make a list of all portals actually intersecting with this line, and then sort them by the distance from the
+        // start position. Nearest portals first.
+        List<Pair<Portal, Vec3d>> hits = new ArrayList<>();
+
+        nearby.forEach(portal -> {
+            if (filter == null || filter.test(portal)) {
+                Vec3d intersection = portal.rayTrace(start, end);
+
+                if (intersection != null) {
+                    hits.add(new Pair<>(portal, intersection));
+                }
+            }
+        });
+
+        hits.sort((pair1, pair2) -> {
+            Vec3d intersection1 = pair1.getRight();
+            Vec3d intersection2 = pair2.getRight();
+
+            // Return a negative number if intersection1 is smaller (should come first)
+            return (int) Math.signum(intersection1.squaredDistanceTo(start) - intersection2.squaredDistanceTo(start));
+        });
+
+        return hits;
+    }
+
+    /**
+     * @see #withSwitchedContext(World, Supplier) 
+     */
+    @Environment(EnvType.CLIENT)
+    private static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
+        boolean wasContextSwitched = BlockManipulationClient.isContextSwitched;
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ClientWorld lastWorld = mc.world;
+
+        try {
+            BlockManipulationClient.isContextSwitched = true;
+            mc.world = world;
+
+            return func.get();
+        } finally {
+            mc.world = lastWorld;
+            BlockManipulationClient.isContextSwitched = wasContextSwitched;
+        }
+    }
+
+    /**
+     * @see #withSwitchedContext(World, Supplier)
+     */
+    @SuppressWarnings("unused")
+    private static <T> T withSwitchedContextServer(ServerWorld world, Supplier<T> func) {
+        // lol
+        return func.get();
+    }
+
+    /**
+     * Execute {@code func} with the world being set to {@code world}, hopefully bypassing any issues that may be
+     * related to mutating a world that is not currently set as the current world.
+     * <p>
+     * You may safely nest this function within other context switches. It works on both the client and the server.
+     *
+     * @param world The world to switch the context to. The context will be restored when {@code func} is complete.
+     * @param func  The function to execute while the context is switched.
+     * @param <T>   The return type of {@code func}.
+     * @return Whatever {@code func} returned.
+     */
+    private static <T> T withSwitchedContext(World world, Supplier<T> func) {
+        if (world.isClient) {
+            return withSwitchedContextClient((ClientWorld) world, func);
+        } else {
+            return withSwitchedContextServer((ServerWorld) world, func);
+        }
+    }
+
+    /**
+     * @see Helper#rayTrace(World, RayTraceContext, boolean)
+     * @author LoganDark
+     */
+    private static Pair<BlockHitResult, List<Portal>> rayTrace(
+        World world,
+        RayTraceContext context,
+        boolean includeGlobalPortals,
+        List<Portal> portals
+    ) {
+        Vec3d start = context.getStart();
+        Vec3d end = context.getEnd();
+
+        // If we're past the max portal layer, don't let the player target behind this portal, create a missed result
+        if (portals.size() > Global.maxPortalLayer) {
+            Vec3d diff = end.subtract(start);
+
+            return new Pair<>(
+                BlockHitResult.createMissed(
+                    end,
+                    Direction.getFacing(diff.x, diff.y, diff.z),
+                    new BlockPos(end)
+                ),
+                portals
+            );
+        }
+
+        // First ray trace normally
+        BlockHitResult hitResult = world.rayTrace(context);
+
+        List<Pair<Portal, Vec3d>> rayTracedPortals = withSwitchedContext(world,
+            () -> rayTracePortals(world, start, end, includeGlobalPortals, Portal::isInteractable)
+        );
+
+        if (rayTracedPortals.isEmpty()) {
+            return new Pair<>(hitResult, portals);
+        }
+
+        Pair<Portal, Vec3d> portalHit = rayTracedPortals.get(0);
+        Portal portal = portalHit.getLeft();
+        Vec3d intersection = portalHit.getRight();
+
+        // If the portal is not closer, return the hit result we just got
+        if (hitResult.getPos().squaredDistanceTo(start) < intersection.squaredDistanceTo(start)) {
+            return new Pair<>(hitResult, portals);
+        }
+
+        // If the portal is closer, recurse
+
+        IERayTraceContext betterContext = (IERayTraceContext) context;
+
+        betterContext
+            .setStart(portal.transformPoint(intersection))
+            .setEnd(portal.transformPoint(end));
+
+        portals.add(portal);
+        World destWorld = portal.getDestinationWorld(world.isClient);
+        Pair<BlockHitResult, List<Portal>> recursion = withSwitchedContext(destWorld,
+            () -> rayTrace(destWorld, context, includeGlobalPortals, portals)
+        );
+
+        betterContext
+            .setStart(start)
+            .setEnd(end);
+
+        return recursion;
+    }
+
+    /**
+     * Ray traces for blocks or whatever the {@code context} dictates.
+     *
+     * @param world                The world to ray trace in.
+     * @param context              The ray tracing context to use. This context will be mutated as it goes but will be
+     *                             returned back to normal before a result is returned to you, so you can act like it
+     *                             hasn't been  mutated.
+     * @param includeGlobalPortals Whether or not to include global portals in the ray trace. If this is false, then the
+     *                             ray trace can pass right through them.
+     * @return The BlockHitResult and the list of portals that we've passed through to get there. This list can be used
+     * to transform looking directions or do whatever you want really.
+     * @author LoganDark
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static Pair<BlockHitResult, List<Portal>> rayTrace(
+        World world,
+        RayTraceContext context,
+        boolean includeGlobalPortals
+    ) {
+        return rayTrace(world, context, includeGlobalPortals, new ArrayList<>());
+    }
+
+    /**
+     * @param hitResult The HitResult to check.
+     * @return If the HitResult passed is either {@code null}, or of type {@link HitResult.Type#MISS}.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static boolean hitResultIsMissedOrNull(HitResult hitResult) {
+        return hitResult == null || hitResult.getType() == HitResult.Type.MISS;
+    }
+
+    /**
+     * @param vec  The {@link Vec3d} to get the {@link Direction} of.
+     * @param axis The {@link Direction.Axis} of directions to exclude.
+     * @return The {@link Direction} of the passed {@code vec}, excluding directions of axis {@code axis}.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static Direction getFacingExcludingAxis(Vec3d vec, Direction.Axis axis) {
+        return Arrays.stream(Direction.values())
+            .filter(d -> d.getAxis() != axis)
+            .max(Comparator.comparingDouble(
+                dir -> vec.x * dir.getOffsetX() + vec.y * dir.getOffsetY() + vec.z * dir.getOffsetZ()
+            ))
+            .orElse(null);
+    }
+
+    /**
+     * Places a portal based on {@code entity}'s looking direction. Does not set the portal destination or add it to the
+     * world, you will have to do that yourself.
+     *
+     * @param width  The width of the portal.
+     * @param height The height of the portal.
+     * @param entity The entity to place this portal as.
+     * @return The placed portal, with no destination set.
+     * @author LoganDark
+     */
+    public static Portal placePortal(double width, double height, Entity entity) {
+        Vec3d playerLook = entity.getRotationVector();
+
+        Pair<BlockHitResult, List<Portal>> rayTrace =
+            rayTrace(
+                entity.world,
+                new RayTraceContext(
+                    entity.getCameraPosVec(1.0f),
+                    entity.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
+                    RayTraceContext.ShapeType.OUTLINE,
+                    RayTraceContext.FluidHandling.NONE,
+                    entity
+                ),
+                true
+            );
+
+        BlockHitResult hitResult = rayTrace.getLeft();
+        List<Portal> hitPortals = rayTrace.getRight();
+
+        if (hitResultIsMissedOrNull(hitResult)) {
+            return null;
+        }
+
+        for (Portal hitPortal : hitPortals) {
+            playerLook = hitPortal.transformLocalVec(playerLook);
+        }
+
+        Direction lookingDirection = getFacingExcludingAxis(playerLook, hitResult.getSide().getAxis());
+
+        // this should never happen...
+        if (lookingDirection == null) {
+            return null;
+        }
+
+        Vec3d axisH = new Vec3d(hitResult.getSide().getVector());
+        Vec3d axisW = axisH.crossProduct(new Vec3d(lookingDirection.getOpposite().getVector()));
+        Vec3d pos = new Vec3d(hitResult.getBlockPos()).add(.5, .5, .5)
+            .add(axisH.multiply(0.5 + height / 2));
+
+        World world = hitPortals.isEmpty()
+            ? entity.world
+            : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(false);
+
+        Portal portal = new Portal(Portal.entityType, world);
+
+        portal.setPos(pos.x, pos.y, pos.z);
+
+        portal.axisW = axisW;
+        portal.axisH = axisH;
+
+        portal.width = width;
+        portal.height = height;
+
+        return portal;
     }
 }
