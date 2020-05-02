@@ -23,7 +23,6 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
-import javax.sound.sampled.Port;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
@@ -82,14 +81,12 @@ public abstract class PortalRenderer {
         shouldRenderBlockOutline = getPortalLayer() == 0 && BlockManipulationClient.remoteHitPortals.isEmpty();
     }
     
-    protected Portal dropPortalLayer() {
-        Portal popped = portalLayers.pop();
+    protected void dropPortalLayer() {
+        portalLayers.pop();
         
         if (portalLayers.size() == --matches && matches == 0) {
             initShouldRenderBlockOutline();
         }
-        
-        return popped;
     }
     
     public boolean isRendering() {
