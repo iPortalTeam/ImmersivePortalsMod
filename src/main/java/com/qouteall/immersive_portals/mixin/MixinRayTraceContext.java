@@ -54,7 +54,7 @@ public abstract class MixinRayTraceContext implements IERayTraceContext {
         CallbackInfoReturnable<VoxelShape> cir
     ) {
         if (Global.portalPlaceholderPassthrough && blockState.getBlock() == PortalPlaceholderBlock.instance) {
-            if (blockView instanceof World && ((World) blockView).isClient()) {
+            if (blockView instanceof World) {
                 boolean isIntersectingWithPortal = McHelper.getEntitiesRegardingLargeEntities(
                     (World) blockView, new Box(blockPos),
                     10, Portal.class, e -> true
