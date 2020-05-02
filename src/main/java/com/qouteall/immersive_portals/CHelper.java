@@ -55,8 +55,7 @@ public class CHelper {
     }
     
     public static List<GlobalTrackedPortal> getClientGlobalPortal(World world) {
-        List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) world).getGlobalPortals();
-        return globalPortals;
+        return ((IEClientWorld) world).getGlobalPortals();
     }
     
     public static Stream<Portal> getClientNearbyPortals(double range) {

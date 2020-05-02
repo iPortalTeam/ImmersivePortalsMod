@@ -1047,12 +1047,10 @@ public class MyCommandServer {
         );
         if (includeGlobalPortal) {
             List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(player.world);
-            if (globalPortals != null) {
-                portalStream = Streams.concat(
-                    portalStream,
-                    globalPortals.stream()
-                );
-            }
+            portalStream = Streams.concat(
+                portalStream,
+                globalPortals.stream()
+            );
         }
         return portalStream.map(
             portal -> new Pair<Portal, Vec3d>(

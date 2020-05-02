@@ -318,8 +318,17 @@ public class NetherPortalGeneration {
         Consumer<BlockPortalShape> newFrameGeneratedFunc,
         Consumer<Info> portalEntityGeneratingFunc
     ) {
+        if (!fromWorld.isChunkLoaded(startingPos)) {
+            Helper.log("Cancel Nether Portal Generation Because Chunk Not Loaded");
+            return null;
+        }
+        
         DimensionType fromDimension = fromWorld.dimension.getType();
         DimensionType toDimension = toWorld.dimension.getType();
+        
+        Helper.log(String.format("Portal Generation Started %s %s %s %s",
+            fromDimension, startingPos.getX(), startingPos.getY(), startingPos.getZ()
+        ));
         
         BlockPortalShape foundShape = Arrays.stream(Direction.Axis.values())
             .map(

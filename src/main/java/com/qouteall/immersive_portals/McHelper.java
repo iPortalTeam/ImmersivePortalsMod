@@ -29,6 +29,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -264,12 +265,14 @@ public class McHelper {
     }
     
     public static List<GlobalTrackedPortal> getGlobalPortals(World world) {
+        List<GlobalTrackedPortal> result;
         if (world.isClient) {
-            return CHelper.getClientGlobalPortal(world);
+            result = CHelper.getClientGlobalPortal(world);
         }
         else {
-            return GlobalPortalStorage.get(((ServerWorld) world)).data;
+            result = GlobalPortalStorage.get(((ServerWorld) world)).data;
         }
+        return result != null ? result : Collections.emptyList();
     }
     
     public static Stream<Portal> getServerPortalsNearby(Entity center, double range) {
@@ -391,6 +394,7 @@ public class McHelper {
         player.updatePosition(player.getX(), player.getY(), player.getZ());
     }
     
+    //TODO merge with getServerEntitiesNearbyWithoutLoadingChunk
     public static <T extends Entity> List<T> getEntitiesRegardingLargeEntities(
         World world,
         Box box,

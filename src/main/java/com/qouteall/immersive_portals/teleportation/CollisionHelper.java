@@ -244,7 +244,7 @@ public class CollisionHelper {
             p -> true
         );
         
-        if (globalPortals == null) {
+        if (globalPortals.isEmpty()) {
             return collidingNormalPortals.stream();
         }
         
