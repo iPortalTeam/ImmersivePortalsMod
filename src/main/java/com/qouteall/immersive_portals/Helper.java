@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ducks.IERayTraceContext;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -700,8 +701,8 @@ public class Helper {
         int chunkX = (int) pos.x / 16;
         int chunkZ = (int) pos.z / 16;
 
-        for (int z = -chunkRadius + 1; z < chunkRadius; z++) {
-            for (int x = -chunkRadius + 1; x < chunkRadius; x++) {
+        for (int z = -chunkRadius; z <= chunkRadius; z++) {
+            for (int x = -chunkRadius; x <= chunkRadius; x++) {
                 int aX = chunkX + x;
                 int aZ = chunkZ + z;
 
@@ -744,7 +745,11 @@ public class Helper {
         List<Portal> nearby = getNearbyEntities(world, middle, chunkRadius, Portal.class);
 
         if (includeGlobalPortals) {
-            nearby.addAll(McHelper.getGlobalPortals(world));
+            List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
+
+            if (globalPortals != null) {
+                nearby.addAll(globalPortals);
+            }
         }
 
         // Make a list of all portals actually intersecting with this line, and then sort them by the distance from the
@@ -761,13 +766,7 @@ public class Helper {
             }
         });
 
-        hits.sort((pair1, pair2) -> {
-            Vec3d intersection1 = pair1.getRight();
-            Vec3d intersection2 = pair2.getRight();
-
-            // Return a negative number if intersection1 is smaller (should come first)
-            return (int) Math.signum(intersection1.squaredDistanceTo(start) - intersection2.squaredDistanceTo(start));
-        });
+        hits.sort(Comparator.comparingDouble(pair -> pair.getRight().squaredDistanceTo(start)));
 
         return hits;
     }
