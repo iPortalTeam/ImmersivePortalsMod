@@ -108,7 +108,7 @@ public class RendererUsingStencil extends PortalRenderer {
         }
     
         //PUSH
-        portalLayers.push(portal);
+        addPortalLayer(portal);
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
     
@@ -126,7 +126,7 @@ public class RendererUsingStencil extends PortalRenderer {
         MyGameRenderer.resetDiffuseLighting(matrixStack);
     
         //POP
-        portalLayers.pop();
+        dropPortalLayer();
     }
     
     @Override

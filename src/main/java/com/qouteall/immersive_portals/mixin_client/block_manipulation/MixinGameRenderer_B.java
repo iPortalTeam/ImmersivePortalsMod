@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer_B {
@@ -26,6 +27,13 @@ public class MixinGameRenderer_B {
     private void onUpdateTargetedEntityFinish(float tickDelta, CallbackInfo ci) {
         if (MinecraftClient.getInstance().world != null) {
             BlockManipulationClient.updatePointedBlock(tickDelta);
+        }
+    }
+    
+    @Inject(method = "shouldRenderBlockOutline", at = @At("HEAD"), cancellable = true)
+    private void onShouldRenderBlockOutline(CallbackInfoReturnable<Boolean> cir) {
+        if (!CGlobal.renderer.shouldRenderBlockOutline) {
+            cir.setReturnValue(false);
         }
     }
 }

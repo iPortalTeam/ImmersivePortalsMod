@@ -67,12 +67,12 @@ public class RendererDebugWithShader extends PortalRenderer {
             return;
         }
         
-        portalLayers.push(portal);
+        addPortalLayer(portal);
         
         manageCameraAndRenderPortalContent(portal);
         //it will bind the gbuffer of rendered dimension
         
-        portalLayers.pop();
+        dropPortalLayer();
         
         deferredBuffer.fb.beginWrite(true);
         

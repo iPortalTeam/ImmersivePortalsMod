@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -22,6 +23,7 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
+import javax.sound.sampled.Port;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
@@ -33,6 +35,9 @@ public abstract class PortalRenderer {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     protected Supplier<Integer> maxPortalLayer = () -> Global.maxPortalLayer;
     protected Stack<Portal> portalLayers = new Stack<>();
+    
+    private int matches = 0;
+    public boolean shouldRenderBlockOutline = false;
     
     //this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
@@ -57,6 +62,34 @@ public abstract class PortalRenderer {
     //2 for rendering world inside PortalEntity inside portal
     public int getPortalLayer() {
         return portalLayers.size();
+    }
+    
+    protected void addPortalLayer(Portal portal) {
+        if (portalLayers.size() == matches) {
+            List<Portal> remoteHitPortals = BlockManipulationClient.remoteHitPortals;
+            
+            if (remoteHitPortals.size() > matches && portal == remoteHitPortals.get(matches)) {
+                shouldRenderBlockOutline = ++matches == remoteHitPortals.size();
+            } else {
+                shouldRenderBlockOutline = false;
+            }
+        }
+        
+        portalLayers.push(portal);
+    }
+    
+    public void initShouldRenderBlockOutline() {
+        shouldRenderBlockOutline = getPortalLayer() == 0 && BlockManipulationClient.remoteHitPortals.isEmpty();
+    }
+    
+    protected Portal dropPortalLayer() {
+        Portal popped = portalLayers.pop();
+        
+        if (portalLayers.size() == --matches && matches == 0) {
+            initShouldRenderBlockOutline();
+        }
+        
+        return popped;
     }
     
     public boolean isRendering() {

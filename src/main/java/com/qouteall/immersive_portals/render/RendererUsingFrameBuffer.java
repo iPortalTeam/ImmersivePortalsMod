@@ -60,7 +60,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             return;
         }
         
-        portalLayers.push(portal);
+        addPortalLayer(portal);
     
         Framebuffer oldFrameBuffer = client.getFramebuffer();
     
@@ -80,7 +80,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.beginWrite(true);
         
-        portalLayers.pop();
+        dropPortalLayer();
     
         renderSecondBufferIntoMainBuffer(portal, matrixStack);
     }

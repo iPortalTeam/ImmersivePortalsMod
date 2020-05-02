@@ -52,7 +52,7 @@ public class RendererDebug extends PortalRenderer {
             return;
         }
         
-        portalLayers.push(portal);
+        addPortalLayer(portal);
         
         GlStateManager.clearColor(1, 0, 1, 1);
         GlStateManager.clearDepth(1);
@@ -64,7 +64,7 @@ public class RendererDebug extends PortalRenderer {
         
         manageCameraAndRenderPortalContent(portal);
         
-        portalLayers.pop();
+        dropPortalLayer();
     }
     
     private boolean testShouldRenderPortal(

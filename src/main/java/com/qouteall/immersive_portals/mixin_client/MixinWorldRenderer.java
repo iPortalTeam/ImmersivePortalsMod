@@ -475,6 +475,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
+        CGlobal.renderer.initShouldRenderBlockOutline();
         TransformationManager.processTransformation(camera, matrices);
     }
     

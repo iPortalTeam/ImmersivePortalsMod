@@ -167,14 +167,14 @@ public class RendererMixed extends PortalRenderer {
             return;
         }
         
-        portalLayers.push(portal);
+        addPortalLayer(portal);
         
         OFGlobal.bindToShaderFrameBuffer.run();
         manageCameraAndRenderPortalContent(portal);
         
         int innerLayer = getPortalLayer();
         
-        portalLayers.pop();
+        dropPortalLayer();
         
         int outerLayer = getPortalLayer();
         
