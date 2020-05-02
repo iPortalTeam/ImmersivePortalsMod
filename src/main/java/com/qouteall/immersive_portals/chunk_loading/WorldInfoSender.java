@@ -104,7 +104,7 @@ public class WorldInfoSender {
         return Stream.concat(
             ChunkVisibilityManager.getChunkLoaders(player)
                 .map(chunkLoader -> chunkLoader.center.dimension),
-            Optional.ofNullable(McHelper.getGlobalPortals(player.world))
+            Optional.of(McHelper.getGlobalPortals(player.world))
                 .map(p ->
                     p.stream().map(
                         p1 -> p1.dimensionTo
