@@ -23,6 +23,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
@@ -226,16 +227,20 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         mobSpawner.getLogic().deserialize(logicTag);
     }
     
-    private static void removeUnnecessaryTag(CompoundTag tag) {
-        tag.remove("Pos");
-        tag.remove("UUIDMost");
-        tag.remove("UUIDLeast");
-        tag.getKeys().forEach(key -> {
-            Tag currTag = tag.get(key);
-            if (currTag instanceof CompoundTag) {
-                removeUnnecessaryTag(((CompoundTag) currTag));
-            }
-        });
+    private static void removeUnnecessaryTag(Tag tag) {
+        if (tag instanceof CompoundTag) {
+            ((CompoundTag) tag).remove("Pos");
+            ((CompoundTag) tag).remove("UUIDMost");
+            ((CompoundTag) tag).remove("UUIDLeast");
+            ((CompoundTag) tag).getKeys().forEach(key -> {
+                Tag currTag = ((CompoundTag) tag).get(key);
+                removeUnnecessaryTag((currTag));
+                
+            });
+        }
+        if (tag instanceof ListTag) {
+            ((ListTag) tag).stream().forEach(SpongeDungeonFeature::removeUnnecessaryTag);
+        }
     }
     
     private static Entity randomMonster(World world, Random random) {
