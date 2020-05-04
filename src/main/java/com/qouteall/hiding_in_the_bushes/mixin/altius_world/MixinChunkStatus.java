@@ -1,5 +1,6 @@
 package com.qouteall.hiding_in_the_bushes.mixin.altius_world;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.world.ChunkRegion;
@@ -35,7 +36,18 @@ public class MixinChunkStatus {
         if (shouldLock) {
             featureGenLock.lock();
         }
-        chunkGenerator.generateFeatures(chunkRegion);
+        try {
+            chunkGenerator.generateFeatures(chunkRegion);
+        }
+        catch (Throwable e) {
+            Helper.err(String.format(
+                "Error when generating terrain %s %d %d",
+                chunkRegion.getWorld().dimension.getType(),
+                chunkRegion.getCenterChunkX(),
+                chunkRegion.getCenterChunkZ()
+            ));
+            e.printStackTrace();
+        }
         if (shouldLock) {
             featureGenLock.unlock();
         }
@@ -59,9 +71,18 @@ public class MixinChunkStatus {
         if (shouldLock) {
             featureGenLock.lock();
         }
-        generator.setStructureStarts(
-            biomeAccess, chunk, chunkGenerator, structureManager
-        );
+        try {
+            generator.setStructureStarts(
+                biomeAccess, chunk, chunkGenerator, structureManager
+            );
+        }
+        catch (Throwable e) {
+            Helper.err(String.format(
+                "Error when generating terrain %s",
+                chunk
+            ));
+            e.printStackTrace();
+        }
         if (shouldLock) {
             featureGenLock.unlock();
         }
@@ -81,7 +102,16 @@ public class MixinChunkStatus {
         if (shouldLock) {
             featureGenLock.lock();
         }
-        chunkGenerator.addStructureReferences(world, chunk);
+        try {
+            chunkGenerator.addStructureReferences(world, chunk);
+        }
+        catch (Throwable e) {
+            Helper.err(String.format(
+                "Error when generating terrain %s",
+                chunk
+            ));
+            e.printStackTrace();
+        }
         if (shouldLock) {
             featureGenLock.unlock();
         }

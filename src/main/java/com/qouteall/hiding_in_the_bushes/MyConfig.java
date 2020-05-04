@@ -2,6 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.CustomizablePortalGeneration;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.FabricLoader;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,7 @@ public class MyConfig {
     public boolean reversibleNetherPortalLinking = false;
     public boolean mirrorInteractableThroughPortal = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
+    public List<String> customizedPortalGeneration = defaultPortalGenList;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -89,7 +92,7 @@ public class MyConfig {
         Global.netherPortalFindingRadius = portalSearchingRange;
         Global.longerReachInCreative = longerReachInCreative;
         Global.renderYourselfInPortal = renderYourselfInPortal;
-
+        
         if (O_O.isReachEntityAttributesPresent) {
             Global.longerReachInCreative = false;
         }
@@ -102,10 +105,12 @@ public class MyConfig {
         Global.edgelessSky = edgelessSky;
         Global.reversibleNetherPortalLinking = reversibleNetherPortalLinking;
         Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
-
+        
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
         }
+        
+        CustomizablePortalGeneration.onConfigChanged(customizedPortalGeneration);
     }
     
     public static Map<String, String> listToMap(List<String> redirectList) {
@@ -134,6 +139,7 @@ public class MyConfig {
     private static final String splitter = "->";
     private static final Map<String, String> defaultRedirectMap = new HashMap<>();
     public static final List<String> defaultRedirectMapList;
+    public static final List<String> defaultPortalGenList;
     
     static {
         defaultRedirectMap.put("immersive_portals:alternate1", "minecraft:overworld");
@@ -143,5 +149,10 @@ public class MyConfig {
         defaultRedirectMap.put("immersive_portals:alternate5", "minecraft:overworld");
         
         defaultRedirectMapList = mapToList(defaultRedirectMap);
+        
+        defaultPortalGenList = new ArrayList<>();
+        defaultPortalGenList.add(
+            "minecraft:overworld,1,immersive_portals:alternate4,8,minecraft:lapis_block"
+        );
     }
 }

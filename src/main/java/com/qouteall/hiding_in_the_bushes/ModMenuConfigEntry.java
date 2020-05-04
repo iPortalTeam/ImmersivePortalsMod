@@ -78,14 +78,19 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.reversibleNetherPortalLinking
             ).setDefaultValue(false).build();
             BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
-                    "imm_ptl.mirror_interactable_through_portal",
-                    currConfig.mirrorInteractableThroughPortal
+                "imm_ptl.mirror_interactable_through_portal",
+                currConfig.mirrorInteractableThroughPortal
             ).setDefaultValue(true).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
-            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true).setExpanded(
-                true).build();
+            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true)
+                .setExpanded(true).build();
+            StringListListEntry entryPortalGeneration = builder.entryBuilder().startStrList(
+                "imm_ptl.portal_gen",
+                currConfig.customizedPortalGeneration
+            ).setDefaultValue(MyConfig.defaultPortalGenList).setInsertInFront(true)
+                .setExpanded(true).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
@@ -101,6 +106,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryReversibleNetherPortalLinking);
             category.addEntry(entryMirrorInteractableThroughPortal);
             category.addEntry(entryDimensionRenderRedirect);
+            category.addEntry(entryPortalGeneration);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -122,6 +128,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfigObject.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );
+                    newConfigObject.customizedPortalGeneration = entryPortalGeneration.getValue();
                     newConfigObject.saveConfigFile();
                     newConfigObject.onConfigChanged();
                 })

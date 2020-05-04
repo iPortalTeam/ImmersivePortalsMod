@@ -33,6 +33,8 @@ public class MixinNetherPortalBlock {
     
             if (!isNearObsidian) {
                 cir.setReturnValue(false);
+                cir.cancel();
+                return;
             }
             
             boolean result = NetherPortalGeneration.onFireLitOnObsidian(
@@ -41,6 +43,7 @@ public class MixinNetherPortalBlock {
             );
     
             cir.setReturnValue(result);
+            cir.cancel();
         }
         
         

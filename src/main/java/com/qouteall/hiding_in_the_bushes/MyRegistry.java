@@ -12,6 +12,7 @@ import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
@@ -126,7 +127,6 @@ public class MyRegistry {
                 .sounds(BlockSoundGroup.GLASS)
                 .strength(99999, 0)
                 .lightLevel(15)
-                .ticksRandomly()
                 .nonOpaque()
                 .dropsNothing()
                 .build()
@@ -250,6 +250,17 @@ public class MyRegistry {
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()
         );
+    
+        GeneralBreakablePortal.entityType = Registry.register(
+            Registry.ENTITY_TYPE,
+            new Identifier("immersive_portals", "general_breakable_portal"),
+            FabricEntityTypeBuilder.create(
+                EntityCategory.MISC,
+                GeneralBreakablePortal::new
+            ).size(
+                new EntityDimensions(1, 1, true)
+            ).setImmuneToFire().build()
+        );
         
         LoadingIndicatorEntity.entityType = Registry.register(
             Registry.ENTITY_TYPE,
@@ -259,7 +270,7 @@ public class MyRegistry {
                 (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
-            ).build()
+            ).setImmuneToFire().build()
         );
     }
     

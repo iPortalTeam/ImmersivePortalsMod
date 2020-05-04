@@ -61,6 +61,7 @@ public abstract class MixinRayTraceContext implements IERayTraceContext {
                 ).isEmpty();
                 if (!isIntersectingWithPortal) {
                     cir.setReturnValue(VoxelShapes.empty());
+                    cir.cancel();
                 }
             }
         }

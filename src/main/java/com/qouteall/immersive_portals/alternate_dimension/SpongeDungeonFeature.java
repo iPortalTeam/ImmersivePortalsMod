@@ -86,7 +86,13 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             .add(10, EntityType.CAVE_SPIDER)
             .add(10, EntityType.GIANT)
             .add(10, EntityType.MAGMA_CUBE)
-            .add(10, EntityType.GUARDIAN)
+//            .add(10, EntityType.GUARDIAN)
+            .add(10, EntityType.ENDERMAN)
+            .add(10, EntityType.SNOW_GOLEM)
+            .add(10, EntityType.ARMOR_STAND)
+            .add(10, EntityType.PILLAGER)
+            .add(10, EntityType.PUFFERFISH)
+            .add(10, EntityType.RAVAGER)
             .add(1, EntityType.WITHER)
             .build();
     
@@ -262,6 +268,8 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             ItemStack stack = new ItemStack(() -> Items.BOW);
             entity.equipStack(EquipmentSlot.MAINHAND, stack);
             entity.equipStack(EquipmentSlot.OFFHAND, stack.copy());
+            ItemStack pumpkin = new ItemStack(() -> Items.PUMPKIN);
+            entity.equipStack(EquipmentSlot.HEAD, pumpkin);
         }
         return entity;
     }

@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin.portal_generation;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
+import com.qouteall.immersive_portals.portal.CustomizablePortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -36,6 +37,7 @@ public class MixinFlintAndSteelItem {
             if (O_O.isObsidian(world, pos.offset(direction))) {
                 if (block.isAir()) {
                     cir.setReturnValue(true);
+                    cir.cancel();
                 }
             }
         }
@@ -52,11 +54,7 @@ public class MixinFlintAndSteelItem {
             Direction side = context.getSide();
             BlockPos firePos = targetPos.offset(side);
             Block targetBlock = world.getBlockState(targetPos).getBlock();
-//            if (O_O.isObsidian(world, targetPos)) {
-//                NetherPortalGeneration.onFireLitOnObsidian(((ServerWorld) world), firePos);
-//            }
-//            else
-                if (targetBlock == Blocks.GLASS) {
+            if (targetBlock == Blocks.GLASS) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );
@@ -66,11 +64,12 @@ public class MixinFlintAndSteelItem {
                     ((ServerWorld) world),
                     firePos
                 );
-                
             }
             else {
-                context.getStack().damage(1, context.getPlayer(),
-                    playerEntity_1x -> playerEntity_1x.sendToolBreakStatus(context.getHand())
+                CustomizablePortalGeneration.onFireLit(
+                    ((ServerWorld) world),
+                    firePos,
+                    targetBlock
                 );
             }
         }

@@ -47,6 +47,8 @@ public class Global {
     public static boolean portalPlaceholderPassthrough = true;
     
     public static boolean mirrorInteractableThroughPortal = true;
+    
+    public static boolean enableLapizPortal = true;
 
     public static enum RenderMode {
         normal,
