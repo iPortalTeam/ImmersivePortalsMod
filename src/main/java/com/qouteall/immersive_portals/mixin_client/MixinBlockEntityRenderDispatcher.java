@@ -34,7 +34,7 @@ public class MixinBlockEntityRenderDispatcher {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             boolean canRender = renderingPortal.canRenderEntityInsideMe(
                 new Vec3d(blockEntity.getPos()),
-                0
+                -0.1
             );
             if (!canRender) {
                 ci.cancel();

@@ -292,7 +292,7 @@ public class MyRegistry {
         
         HandReachTweak.longerReachPotion = new Potion(
             new StatusEffectInstance(
-                HandReachTweak.longerReachEffect, 3600, 1
+                HandReachTweak.longerReachEffect, 7200, 1
             )
         );
         Registry.register(

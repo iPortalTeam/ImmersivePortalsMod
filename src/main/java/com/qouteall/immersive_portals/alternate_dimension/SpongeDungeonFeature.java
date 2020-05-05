@@ -62,8 +62,8 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<Function<Random, Integer>> heightSelector =
         new RandomSelector.Builder<Function<Random, Integer>>()
-            .add(20, random -> (int) (random.nextDouble() * 50 + 1))
-            .add(10, random -> random.nextInt(150) + 1)
+            .add(20, random -> (int) (random.nextDouble() * 50 + 3))
+            .add(10, random -> random.nextInt(150) + 3)
             .build();
     
     private static RandomSelector<BiFunction<World, Random, Entity>> entitySelector =
@@ -99,11 +99,11 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     private static RandomSelector<EntityType<?>> vehicleTypeSelector =
         new RandomSelector.Builder<EntityType<?>>()
             .add(20, EntityType.BAT)
-            .add(30, EntityType.PHANTOM)
+            .add(20, EntityType.PHANTOM)
             .add(20, EntityType.GHAST)
             .add(10, EntityType.SLIME)
-            .add(10, EntityType.SPIDER)
-            .add(10, EntityType.PARROT)
+            .add(20, EntityType.SPIDER)
+            .add(20, EntityType.PARROT)
             .add(10, EntityType.SHULKER)
             .build();
     
@@ -226,7 +226,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         mobSpawner.getLogic().setEntityId(spawnedEntity.getType());
         
         CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
-        logicTag.putShort("RequiredPlayerRange", (short) 64);
+        logicTag.putShort("RequiredPlayerRange", (short) 32);
         //logicTag.putShort("MinSpawnDelay",(short) 10);
         //logicTag.putShort("MaxSpawnDelay",(short) 100);
         //logicTag.putShort("MaxNearbyEntities",(short) 200);
@@ -351,13 +351,13 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<ItemStack> filledTreasureSelector =
         new RandomSelector.Builder<ItemStack>()
-            .add(40, new ItemStack(() -> Items.DIRT, 64))
-            .add(40, new ItemStack(() -> Items.SAND, 64))
-            .add(40, new ItemStack(() -> Items.TERRACOTTA, 64))
-            .add(40, new ItemStack(() -> Items.GRAVEL, 64))
+            .add(60, new ItemStack(() -> Items.DIRT, 64))
+            .add(60, new ItemStack(() -> Items.SAND, 64))
+            .add(60, new ItemStack(() -> Items.TERRACOTTA, 64))
+            .add(60, new ItemStack(() -> Items.GRAVEL, 64))
             .add(40, new ItemStack(() -> Items.PACKED_ICE, 64))
-            .add(40, new ItemStack(() -> Items.GLASS, 64))
-            .add(10, new ItemStack(() -> Items.COBBLESTONE, 64))
+            .add(60, new ItemStack(() -> Items.GLASS, 64))
+            .add(60, new ItemStack(() -> Items.COBBLESTONE, 64))
             .add(10, new ItemStack(() -> Items.FEATHER, 64))
             .add(10, new ItemStack(() -> Items.INK_SAC, 64))
             .add(10, new ItemStack(() -> Items.LADDER, 64))
@@ -424,7 +424,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
                 new ItemStack(() -> Items.POTION, 1),
                 itemStack -> PotionUtil.setPotion(itemStack, Potions.MUNDANE)
             ))
-            .add(100, Helper.makeIntoExpression(
+            .add(80, Helper.makeIntoExpression(
                 new ItemStack(() -> Items.POTION, 1),
                 itemStack -> PotionUtil.setPotion(itemStack, HandReachTweak.longerReachPotion)
             ))

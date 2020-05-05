@@ -3,7 +3,7 @@
   "package": "com.qouteall.immersive_portals.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "alternate_dimension/MixinAvoidSunlightgoal",
+    "alternate_dimension/MixinAvoidSunlightGoal",
     "alternate_dimension/MixinPlayerEntity_A",
     "alternate_dimension/MixinServerPlayNetworkHandler_A",
     "altius_world/MixinChunkGenerator",
