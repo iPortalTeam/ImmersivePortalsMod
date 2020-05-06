@@ -35,7 +35,10 @@ public class ViewAreaRenderer {
         Vec3d posInPlayerCoordinate = portal.getPos().subtract(cameraPos);
         
         if (portal instanceof Mirror) {
-            posInPlayerCoordinate = posInPlayerCoordinate.add(portal.getNormal().multiply(-0.001));
+            //rendering portal behind translucent objects is broken
+            double mirrorOffset = OFInterface.isShaders.getAsBoolean() ? 0.01 : -0.01;
+            posInPlayerCoordinate = posInPlayerCoordinate.add(
+                portal.getNormal().multiply(mirrorOffset));
         }
         
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
@@ -176,8 +179,8 @@ public class ViewAreaRenderer {
         double cameraLocalX = cameraPosLocal.dotProduct(portal.axisW);
         double cameraLocalY = cameraPosLocal.dotProduct(portal.axisH);
         
-        double r = MinecraftClient.getInstance().options.viewDistance * 16-16;
-    
+        double r = MinecraftClient.getInstance().options.viewDistance * 16 - 16;
+        
         double distance = Math.abs(cameraPosLocal.dotProduct(portal.getNormal()));
         if (distance > 200) {
             r = r * 200 / distance;
@@ -308,7 +311,7 @@ public class ViewAreaRenderer {
     }
     
     private static Vec3d getCurrentFogColor(Portal portal) {
-    
+        
         if (Global.edgelessSky) {
             return getFogColorOf(MyRenderHelper.originalPlayerDimension);
         }

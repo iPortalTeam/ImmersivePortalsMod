@@ -1,10 +1,9 @@
 package com.qouteall.immersive_portals;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -17,12 +16,12 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.TypeFilterableList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -369,7 +368,20 @@ public class McHelper {
         DimensionType dimension,
         int x, int z
     ) {
+        //TODO cleanup
         ChunkHolder chunkHolder_ = getIEStorage(dimension).getChunkHolder_(ChunkPos.toLong(x, z));
+        if (chunkHolder_ == null) {
+            return null;
+        }
+        return chunkHolder_.getWorldChunk();
+    }
+    
+    public static WorldChunk getServerChunkIfPresent(
+        ServerWorld world, int x, int z
+    ) {
+        ChunkHolder chunkHolder_ = ((IEThreadedAnvilChunkStorage) (
+            (ServerChunkManager) world.getChunkManager()
+        ).threadedAnvilChunkStorage).getChunkHolder_(ChunkPos.toLong(x, z));
         if (chunkHolder_ == null) {
             return null;
         }
@@ -382,19 +394,26 @@ public class McHelper {
         Class<ENTITY> entityClass,
         double range
     ) {
-        Box box = new Box(center, center).expand(range);
-        return (Stream) ((IEServerWorld) world).getEntitiesWithoutImmediateChunkLoading(
+        return McHelper.findEntitiesRough(
             entityClass,
-            box,
+            world,
+            center,
+            (int) (range / 16),
             e -> true
         ).stream();
+
+//        Box box = new Box(center, center).expand(range);
+//        return (Stream) ((IEServerWorld) world).getEntitiesWithoutImmediateChunkLoading(
+//            entityClass,
+//            box,
+//            e -> true
+//        ).stream();
     }
     
     public static void updateBoundingBox(Entity player) {
         player.updatePosition(player.getX(), player.getY(), player.getZ());
     }
     
-    //TODO merge with getServerEntitiesNearbyWithoutLoadingChunk
     public static <T extends Entity> List<T> getEntitiesRegardingLargeEntities(
         World world,
         Box box,
@@ -402,28 +421,130 @@ public class McHelper {
         Class<T> entityClass,
         Predicate<T> predicate
     ) {
-        world.getProfiler().visit("getEntitiesPortal");
-        int i = MathHelper.floor((box.x1 - maxEntitySizeHalf) / 16.0D);
-        int j = MathHelper.ceil((box.x2 + maxEntitySizeHalf) / 16.0D);
-        int k = MathHelper.floor((box.z1 - maxEntitySizeHalf) / 16.0D);
-        int l = MathHelper.ceil((box.z2 + maxEntitySizeHalf) / 16.0D);
-        List<T> list = Lists.newArrayList();
-        ChunkManager chunkManager = world.getChunkManager();
-        
-        for (int m = i; m < j; ++m) {
-            for (int n = k; n < l; ++n) {
-                WorldChunk worldChunk = chunkManager.getWorldChunk(m, n, false);
-                if (worldChunk != null) {
-                    worldChunk.getEntities(entityClass, box, list, predicate);
-                }
-            }
-        }
-        
-        return list;
+        return findEntitiesByBox(
+            entityClass,
+            world,
+            box,
+            maxEntitySizeHalf,
+            predicate
+        );
+//        world.getProfiler().visit("getEntitiesPortal");
+//        int i = MathHelper.floor((box.x1 - maxEntitySizeHalf) / 16.0D);
+//        int j = MathHelper.ceil((box.x2 + maxEntitySizeHalf) / 16.0D);
+//        int k = MathHelper.floor((box.z1 - maxEntitySizeHalf) / 16.0D);
+//        int l = MathHelper.ceil((box.z2 + maxEntitySizeHalf) / 16.0D);
+//        List<T> list = Lists.newArrayList();
+//        ChunkManager chunkManager = world.getChunkManager();
+//
+//        for (int m = i; m < j; ++m) {
+//            for (int n = k; n < l; ++n) {
+//                WorldChunk worldChunk = chunkManager.getWorldChunk(m, n, false);
+//                if (worldChunk != null) {
+//                    worldChunk.getEntities(entityClass, box, list, predicate);
+//                }
+//            }
+//        }
+
+//        return list;
     }
     
     //avoid dedicated server crash
     public static void onClientEntityTick(Entity entity) {
         CrossPortalEntityRenderer.onEntityTickClient(entity);
     }
+    
+    public static interface ChunkAccessor {
+        WorldChunk getChunk(int x, int z);
+    }
+    
+    public static ChunkAccessor getChunkAccessor(World world) {
+        if (world.isClient()) {
+            return world::getChunk;
+        }
+        else {
+            return (x, z) -> getServerChunkIfPresent(((ServerWorld) world), x, z);
+        }
+    }
+    
+    public static <T extends Entity> List<T> findEntities(
+        Class<T> entityClass,
+        ChunkAccessor chunkAccessor,
+        int chunkXStart,
+        int chunkXEnd,
+        int chunkYStart,
+        int chunkYEnd,
+        int chunkZStart,
+        int chunkZEnd,
+        Predicate<T> predicate
+    ) {
+        ArrayList<T> result = new ArrayList<>();
+        for (int x = chunkXStart; x <= chunkXEnd; x++) {
+            for (int z = chunkZStart; z <= chunkZEnd; z++) {
+                WorldChunk chunk = chunkAccessor.getChunk(x, z);
+                if (chunk != null) {
+                    TypeFilterableList<Entity>[] entitySections =
+                        ((IEWorldChunk) chunk).getEntitySections();
+                    for (int i = chunkYStart; i <= chunkYEnd; i++) {
+                        TypeFilterableList<Entity> entitySection = entitySections[i];
+                        for (T entity : entitySection.getAllOfType(entityClass)) {
+                            if (predicate.test(entity)) {
+                                result.add(entity);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    
+    //faster
+    public static <T extends Entity> List<T> findEntitiesRough(
+        Class<T> entityClass,
+        World world,
+        Vec3d center,
+        int radiusChunks,
+        Predicate<T> predicate
+    ) {
+        ChunkPos chunkPos = new ChunkPos(new BlockPos(center));
+        return findEntities(
+            entityClass,
+            getChunkAccessor(world),
+            chunkPos.x - radiusChunks,
+            chunkPos.x + radiusChunks,
+            0, 15,
+            chunkPos.z - radiusChunks,
+            chunkPos.z + radiusChunks,
+            predicate
+        );
+    }
+    
+    //does not load chunk on server and works with large entities
+    public static <T extends Entity> List<T> findEntitiesByBox(
+        Class<T> entityClass,
+        World world,
+        Box box,
+        double maxEntityRadius,
+        Predicate<T> predicate
+    ) {
+        int xMin = (int) Math.floor(box.x1 - maxEntityRadius);
+        int yMin = (int) Math.floor(box.y1 - maxEntityRadius);
+        int zMin = (int) Math.floor(box.z1 - maxEntityRadius);
+        int xMax = (int) Math.ceil(box.x2 + maxEntityRadius);
+        int yMax = (int) Math.ceil(box.y2 + maxEntityRadius);
+        int zMax = (int) Math.ceil(box.z2 + maxEntityRadius);
+        
+        return findEntities(
+            entityClass,
+            getChunkAccessor(world),
+            xMin >> 4,
+            xMax >> 4,
+            Math.max(0, yMin >> 4),
+            Math.min(15, yMax >> 4),
+            zMin >> 4,
+            zMax >> 4,
+            e -> e.getBoundingBox().intersects(box) && predicate.test(e)
+        );
+    }
+    
 }
