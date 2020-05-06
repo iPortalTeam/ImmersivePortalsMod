@@ -151,8 +151,8 @@ public class MyConfig {
         defaultRedirectMapList = mapToList(defaultRedirectMap);
         
         defaultPortalGenList = new ArrayList<>();
-        defaultPortalGenList.add(
-            "minecraft:overworld,1,immersive_portals:alternate4,8,minecraft:lapis_block"
-        );
+//        defaultPortalGenList.add(
+//            "minecraft:overworld,1,immersive_portals:alternate4,8,minecraft:lapis_block"
+//        );
     }
 }

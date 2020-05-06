@@ -16,4 +16,20 @@ public class MixinDynamicLights {
             ci.cancel();
         }
     }
+    
+//    @ModifyConstant(
+//        method = "Lnet/optifine/DynamicLights;getLightLevel(Lnet/minecraft/util/math/BlockPos;)D",
+//        constant = @Constant(doubleValue = 56.25D)
+//    )
+//    private static double modifyMaxDist(double original) {
+//        return 256.0d;
+//    }
+//
+//    @ModifyConstant(
+//        method = "Lnet/optifine/DynamicLights;getLightLevel(Lnet/minecraft/util/math/BlockPos;)D",
+//        constant = @Constant(doubleValue = 7.5D)
+//    )
+//    private static double modifyRatio(double original) {
+//        return 16.0d;
+//    }
 }
