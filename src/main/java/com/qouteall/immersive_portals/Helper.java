@@ -310,7 +310,6 @@ public class Helper {
         return stringBuilder.toString();
     }
     
-    //NOTE this is not concatenation, it's composing
     public static <A, B> Stream<Pair<A, B>> composeTwoStreamsWithEqualLength(
         Stream<A> a,
         Stream<B> b

@@ -34,6 +34,7 @@
     "MixinGameRenderer",
     "MixinGlStateManager",
     "MixinInGameOverlayRenderer",
+    "MixinMapRenderer",
     "MixinMatrix4f",
     "MixinMinecraftClient",
     "MixinParticleManager",

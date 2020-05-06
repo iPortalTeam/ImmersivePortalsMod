@@ -5,8 +5,6 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -36,7 +34,7 @@ public class Portal extends Entity {
     public DimensionType dimensionTo;
     public Vec3d destination;
     
-    //additional properteis
+    //additional properties
     public boolean teleportable = true;
     public UUID specificPlayerId;
     public GeometryPortalShape specialShape;
