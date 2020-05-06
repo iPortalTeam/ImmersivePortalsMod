@@ -22,9 +22,9 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -32,7 +32,7 @@ public abstract class PortalRenderer {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     protected Supplier<Integer> maxPortalLayer = () -> Global.maxPortalLayer;
-    protected Stack<Portal> portalLayers = new Stack<>();
+    protected ArrayDeque<Portal> portalLayers = new ArrayDeque<>();
     
     //this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);

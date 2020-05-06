@@ -145,6 +145,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
             FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
+            
+            if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
+                MyRenderHelper.shouldForceDisableCull = false;
+            }
         }
         renderLayer(
             renderLayer, matrices,
@@ -156,6 +160,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
         if (renderLayer == RenderLayer.getCutout()) {
             CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
+            if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
+                MyRenderHelper.shouldForceDisableCull = true;
+            }
         }
     }
     
@@ -295,7 +302,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 return;
             }
         }
-        
+    
         CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
         renderEntity(
             entity,
@@ -325,7 +332,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (CGlobal.renderer.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(matrices, CGlobal.renderer.getRenderingPortal(),true);
+            PixelCuller.updateCullingPlaneInner(
+                matrices,
+                CGlobal.renderer.getRenderingPortal(),
+                true
+            );
             PixelCuller.startCulling();
         }
     }
@@ -448,11 +459,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-
-//        if (client.world.dimension instanceof AlternateDimension) {
-//            AlternateSkyRenderer.renderAlternateSky(matrixStack_1, float_1);
-//        }
-        
         if (CGlobal.renderer.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
             GL11.glDisable(GL11.GL_FOG);
@@ -550,6 +556,19 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         MyRenderHelper.shouldForceDisableCull = false;
     }
     
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw()V"
+//        )
+//    )
+//    private void redirectVertexDraw1(VertexConsumerProvider.Immediate immediate) {
+//        MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
+//        immediate.draw();
+//        MyRenderHelper.shouldForceDisableCull = false;
+//    }
+    
     //redirect sky rendering dimension
     @Redirect(
         method = "render",
@@ -568,15 +587,15 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 return;
             }
         }
-
+        
         if (OFInterface.isShaders.getAsBoolean()) {
             DimensionType dim = MinecraftClient.getInstance().world.dimension.getType();
             DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
-
+            
             MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
             return;
         }
-
+        
         worldRenderer.renderSky(matrixStack, f);
     }
     

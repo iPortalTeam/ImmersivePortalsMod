@@ -31,11 +31,11 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -172,7 +172,7 @@ public class MyRenderHelper {
         return renderedDimensions.contains(dimensionType);
     }
     
-    public static void onBeginPortalWorldRendering(Stack<Portal> portalLayers) {
+    public static void onBeginPortalWorldRendering(ArrayDeque<Portal> portalLayers) {
         List<WeakReference<Portal>> currRenderInfo = portalLayers.stream().map(
             (Function<Portal, WeakReference<Portal>>) WeakReference::new
         ).collect(Collectors.toList());
@@ -397,7 +397,7 @@ public class MyRenderHelper {
     }
     
     public static boolean isRenderingOddNumberOfMirrors() {
-        Stack<Portal> portalLayers = CGlobal.renderer.portalLayers;
+        ArrayDeque<Portal> portalLayers = CGlobal.renderer.portalLayers;
         int number = 0;
         for (Portal portal : portalLayers) {
             if (portal instanceof Mirror) {
