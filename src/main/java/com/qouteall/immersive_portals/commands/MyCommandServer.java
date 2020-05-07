@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -38,7 +39,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Collection;
@@ -318,31 +318,147 @@ public class MyCommandServer {
             )
         );
 
-        builder.then(CommandManager
-            .literal("tpme")
-            .then(
-                CommandManager.argument(
-                    "dim",
-                    DimensionArgumentType.dimension()
-                ).then(
-                    CommandManager.argument(
-                        "dest",
-                        Vec3ArgumentType.vec3()
-                    ).executes(
-                        context -> {
-                            DimensionType dimension = DimensionArgumentType.getDimensionArgument(
-                                context, "dim"
-                            );
-                            Vec3d pos = Vec3ArgumentType.getVec3(
-                                context, "dest"
+        builder.then(CommandManager.literal("tpme")
+            .then(CommandManager.argument("target", EntityArgumentType.entity())
+                .executes(context -> {
+                    Entity entity = EntityArgumentType.getEntity(context, "target");
+
+                    Global.serverTeleportationManager.invokeTpmeCommand(
+                        context.getSource().getPlayer(),
+                        entity.world.dimension.getType(),
+                        entity.getPos()
+                    );
+
+                    context.getSource().sendFeedback(
+                        new TranslatableText(
+                            "imm_ptl.command.tpme.success",
+                            entity.getDisplayName()
+                        ),
+                        true
+                    );
+
+                    return 1;
+                })
+            )
+            .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+                .executes(context -> {
+                    Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+
+                    Global.serverTeleportationManager.invokeTpmeCommand(
+                        player,
+                        player.world.dimension.getType(),
+                        dest
+                    );
+
+                    context.getSource().sendFeedback(
+                        new TranslatableText(
+                            "imm_ptl.command.tpme.success",
+                            dest.toString()
+                        ),
+                        true
+                    );
+
+                    return 1;
+                })
+            )
+            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+                    .executes(context -> {
+                        DimensionType dim = DimensionArgumentType.getDimensionArgument(context, "dim");
+                        Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+
+                        Global.serverTeleportationManager.invokeTpmeCommand(
+                            context.getSource().getPlayer(),
+                            dim,
+                            dest
+                        );
+
+                        context.getSource().sendFeedback(
+                            new TranslatableText(
+                                "imm_ptl.command.tpme.success",
+                                McHelper.dimensionTypeId(dim).toString() + dest.toString()
+                            ),
+                            true
+                        );
+
+                        return 1;
+                    })
+                )
+            )
+        );
+
+        builder.then(CommandManager.literal("tp")
+            .then(CommandManager.argument("from", EntityArgumentType.entities())
+                .then(CommandManager.argument("to", EntityArgumentType.entity())
+                    .executes(context -> {
+                        Collection<? extends Entity> entities =
+                            EntityArgumentType.getEntities(context, "from");
+                        Entity target = EntityArgumentType.getEntity(context, "to");
+
+                        int numTeleported = teleport(entities, target.world.dimension.getType(), target.getPos());
+
+                        context.getSource().sendFeedback(
+                            new TranslatableText(
+                                "imm_ptl.command.tp.success",
+                                numTeleported,
+                                target.getDisplayName()
+                            ),
+                            true
+                        );
+
+                        return numTeleported;
+                    })
+                )
+                .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+                    .executes(context -> {
+                        Collection<? extends Entity> entities =
+                            EntityArgumentType.getEntities(context, "from");
+                        Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+
+                        int numTeleported = teleport(
+                            entities,
+                            context.getSource().getWorld().dimension.getType(),
+                            dest
+                        );
+
+                        context.getSource().sendFeedback(
+                            new TranslatableText(
+                                "imm_ptl.command.tp.success",
+                                numTeleported,
+                                dest.toString()
+                            ),
+                            true
+                        );
+
+                        return numTeleported;
+                    })
+                )
+                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                    .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
+                        .executes(context -> {
+                            Collection<? extends Entity> entities =
+                                EntityArgumentType.getEntities(context, "from");
+                            DimensionType dim = DimensionArgumentType.getDimensionArgument(context, "dim");
+                            Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
+
+                            int numTeleported = teleport(
+                                entities,
+                                context.getSource().getWorld().dimension.getType(),
+                                dest
                             );
 
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            Global.serverTeleportationManager.invokeTpmeCommand(
-                                player, dimension, pos
+                            context.getSource().sendFeedback(
+                                new TranslatableText(
+                                    "imm_ptl.command.tp.success",
+                                    numTeleported,
+                                    McHelper.dimensionTypeId(dim).toString() + dest.toString()
+                                ),
+                                true
                             );
-                            return 0;
-                        }
+
+                            return numTeleported;
+                        })
                     )
                 )
             )
@@ -944,9 +1060,9 @@ public class MyCommandServer {
         return new TranslatableText("imm_ptl.command.make_portal.success",
             Double.toString(portal.width),
             Double.toString(portal.height),
-            Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(portal.world.dimension.getType())).toString(),
+            McHelper.dimensionTypeId(portal.world.dimension.getType()).toString(),
             portal.getPos().toString(),
-            Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(portal.dimensionTo)).toString(),
+            McHelper.dimensionTypeId(portal.dimensionTo).toString(),
             portal.destination.toString()
         );
     }
@@ -994,6 +1110,36 @@ public class MyCommandServer {
         context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
 
         return 1;
+    }
+
+    private static int teleport(Collection<? extends Entity> entities, DimensionType targetDim, Vec3d targetPos) {
+        ServerWorld targetWorld = McHelper.getServer().getWorld(targetDim);
+        
+        int numTeleported = 0;
+
+        for (Entity entity : entities) {
+            if (entity instanceof ServerPlayerEntity) {
+                Global.serverTeleportationManager.invokeTpmeCommand(
+                    (ServerPlayerEntity) entity, targetDim, targetPos
+                );
+            } else {
+                if (targetWorld == entity.world) {
+                    entity.refreshPositionAndAngles(targetPos.x, targetPos.y, targetPos.z, entity.yaw, entity.pitch);
+                    entity.setHeadYaw(entity.yaw);
+                } else {
+                    O_O.segregateServerEntity((ServerWorld) entity.world, entity);
+                    McHelper.setPosAndLastTickPos(entity, targetPos, targetPos);
+                    McHelper.updateBoundingBox(entity);
+                    entity.world = targetWorld;
+                    entity.dimension = targetWorld.dimension.getType();
+                    targetWorld.onDimensionChanged(entity);
+                }
+            }
+
+            numTeleported++;
+        }
+
+        return numTeleported;
     }
 
     public static interface PortalConsumerThrowsCommandSyntaxException {
