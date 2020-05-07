@@ -35,7 +35,7 @@ public class ViewAreaRenderer {
         Vec3d posInPlayerCoordinate = portal.getPos().subtract(cameraPos);
         
         if (portal instanceof Mirror) {
-            //rendering portal behind translucent objects is broken
+            //rendering portal behind translucent objects with shader is broken
             double mirrorOffset = OFInterface.isShaders.getAsBoolean() ? 0.01 : -0.01;
             posInPlayerCoordinate = posInPlayerCoordinate.add(
                 portal.getNormal().multiply(mirrorOffset));
