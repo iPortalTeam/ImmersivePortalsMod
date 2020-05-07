@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -1126,15 +1127,12 @@ public class MyCommandServer {
                     entity.refreshPositionAndAngles(targetPos.x, targetPos.y, targetPos.z, entity.yaw, entity.pitch);
                     entity.setHeadYaw(entity.yaw);
                 } else {
-                    entity.detach();
-                    entity.dimension = targetDim;
-                    Entity copy = entity.getType().create(targetWorld);
-                    if (copy == null) continue;
-                    copy.copyFrom(entity);
-                    copy.refreshPositionAndAngles(targetPos.x, targetPos.y, targetPos.z, copy.yaw, copy.pitch);
-                    copy.setHeadYaw(copy.yaw);
-                    targetWorld.onDimensionChanged(copy);
-                    entity.removed = true;
+                    O_O.segregateServerEntity((ServerWorld) entity.world, entity);
+                    McHelper.setPosAndLastTickPos(entity, targetPos, targetPos);
+                    McHelper.updateBoundingBox(entity);
+                    entity.world = targetWorld;
+                    entity.dimension = targetWorld.dimension.getType();
+                    targetWorld.onDimensionChanged(entity);
                 }
             }
 
