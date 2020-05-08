@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -82,6 +83,13 @@ public class BlockManipulationClient {
         if (hitResultIsMissedOrNull(client.crosshairTarget)) {
             return 23333;
         }
+    
+        if (client.crosshairTarget instanceof BlockHitResult) {
+            BlockPos hitPos = ((BlockHitResult) client.crosshairTarget).getBlockPos();
+            if (client.world.getBlockState(hitPos).getBlock() == PortalPlaceholderBlock.instance) {
+                return 23333;
+            }
+        }
         
         return cameraPos.distanceTo(client.crosshairTarget.getPos());
     }
@@ -118,6 +126,10 @@ public class BlockManipulationClient {
             context,
             (rayTraceContext, blockPos) -> {
                 BlockState blockState = world.getBlockState(blockPos);
+    
+                if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
+                    return null;
+                }
     
                 //when seeing through mirror don't stop at the glass block
                 if (portal instanceof Mirror) {
