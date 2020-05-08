@@ -28,6 +28,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.maxPortalLayer,
                 1, 15
             ).setDefaultValue(5).build();
+            BooleanListEntry entryLagAttackProof = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.lag_attack_proof",
+                currConfig.lagAttackProof
+            ).setDefaultValue(true).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
                 "imm_ptl.compatibility_render_mode",
                 currConfig.compatibilityRenderMode
@@ -92,6 +96,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             ).setDefaultValue(MyConfig.defaultPortalGenList).setInsertInFront(true)
                 .setExpanded(true).build();
             category.addEntry(entryMaxPortalLayer);
+            category.addEntry(entryLagAttackProof);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
             category.addEntry(entryPortalSearchingRange);
@@ -112,6 +117,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 .setSavingRunnable(() -> {
                     MyConfig newConfigObject = new MyConfig();
                     newConfigObject.maxPortalLayer = entryMaxPortalLayer.getValue();
+                    newConfigObject.lagAttackProof = entryLagAttackProof.getValue();
                     newConfigObject.compatibilityRenderMode = entryCompatibilityRenderMode.getValue();
                     newConfigObject.doCheckGlError = entryCheckGlError.getValue();
                     newConfigObject.portalSearchingRange = entryPortalSearchingRange.getValue();

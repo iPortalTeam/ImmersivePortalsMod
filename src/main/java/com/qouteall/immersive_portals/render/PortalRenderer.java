@@ -31,7 +31,12 @@ import java.util.stream.Collectors;
 public abstract class PortalRenderer {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
-    protected Supplier<Integer> maxPortalLayer = () -> Global.maxPortalLayer;
+    protected Supplier<Integer> maxPortalLayer = () -> {
+        if (MyRenderHelper.isLaggy) {
+            return 1;
+        }
+        return Global.maxPortalLayer;
+    };
     protected Stack<Portal> portalLayers = new Stack<>();
     
     //this WILL be called when rendering portal
@@ -161,13 +166,15 @@ public abstract class PortalRenderer {
             //do not render deep layers of mirror when far away
             range /= (getPortalLayer());
         }
+        if (MyRenderHelper.isLaggy) {
+            range = 16;
+        }
         return range;
     }
     
     private List<Portal> getPortalsNearbySorted() {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        double range = client.options.viewDistance * 16;
-        return CHelper.getClientNearbyPortals(range)
+        return CHelper.getClientNearbyPortals(getRenderRange())
             .sorted(
                 Comparator.comparing(portalEntity ->
                     portalEntity.getDistanceToNearestPointInPortal(cameraPos)
@@ -234,18 +241,20 @@ public abstract class PortalRenderer {
     }
     
     private boolean isOutOfDistance(Portal portal) {
-        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
-            return true;
-        }
         
-        if (getPortalLayer() >= 1 &&
-            portal.getDistanceToNearestPointInPortal(cameraPos) >
-                (16 * maxPortalLayer.get())
-        ) {
-            return true;
-        }
         return false;
+//        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+//        if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
+//            return true;
+//        }
+//
+//        if (getPortalLayer() >= 1 &&
+//            portal.getDistanceToNearestPointInPortal(cameraPos) >
+//                (16 * maxPortalLayer.get())
+//        ) {
+//            return true;
+//        }
+//        return false;
     }
     
     protected void renderPortalContentWithContextSwitched(

@@ -14,6 +14,8 @@ public class Global {
     
     public static int maxPortalLayer = 5;
     
+    public static boolean lagAttackProof = true;
+    
     public static RenderMode renderMode = RenderMode.normal;
     
     public static boolean doCheckGlError = false;
