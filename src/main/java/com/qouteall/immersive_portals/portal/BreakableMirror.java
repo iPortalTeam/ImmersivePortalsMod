@@ -109,9 +109,9 @@ public class BreakableMirror extends Mirror {
         
         boolean isPane = isGlassPane(world, glassPos);
 
-//        if (facing.getAxis() == Direction.Axis.Y && isPane) {
-//            return null;
-//        }
+        if (facing.getAxis() == Direction.Axis.Y && isPane) {
+            return null;
+        }
         
         IntBox wallArea = Helper.expandRectangle(
             glassPos,
@@ -126,6 +126,7 @@ public class BreakableMirror extends Mirror {
         
         Vec3d pos = Helper.getBoxSurface(wallBox, facing.getOpposite()).getCenter();
         pos = Helper.putCoordinate(
+            //getWallBox is incorrect with corner glass pane so correct the coordinate on the normal axis
             pos, facing.getAxis(),
             Helper.getCoordinate(
                 wallArea.getCenterVec().add(
@@ -177,7 +178,7 @@ public class BreakableMirror extends Mirror {
         );
     }
     
-    //the glass pane's area varies
+    //it's a little bit incorrect with corner glass pane
     private static Box getWallBox(ServerWorld world, IntBox glassArea) {
         return glassArea.stream().map(blockPos ->
             world.getBlockState(blockPos).getCollisionShape(world, blockPos).getBoundingBox()
