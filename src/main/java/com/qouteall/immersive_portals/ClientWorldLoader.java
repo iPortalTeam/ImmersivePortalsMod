@@ -43,6 +43,8 @@ public class ClientWorldLoader {
     
     public boolean isClientRemoteTicking = false;
     
+    public int ticksSinceEnteringWorld = 0;
+    
     public ClientWorldLoader() {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
@@ -86,7 +88,7 @@ public class ClientWorldLoader {
             renderHelperMap.clear();
             Helper.log("Refreshed Lightmaps");
         }
-        
+        ticksSinceEnteringWorld++;
     }
     
     private static int reportedErrorNum = 0;
@@ -127,6 +129,8 @@ public class ClientWorldLoader {
         isInitialized = false;
         
         ModMain.clientTaskList.forceClearTasks();
+    
+        ticksSinceEnteringWorld = 0;
     }
     
     //@Nullable

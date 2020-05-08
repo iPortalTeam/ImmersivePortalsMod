@@ -59,6 +59,7 @@ public class MixinFlintAndSteelItem {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );
+                cir.setReturnValue(ActionResult.SUCCESS);
             }
             else if (targetBlock == ModMain.portalHelperBlock) {
                 boolean result = NetherPortalGeneration.activatePortalHelper(
