@@ -83,24 +83,5 @@ public abstract class MixinClientWorld implements IEClientWorld {
             .filter(world -> world != (Object) this)
             .forEach(world -> world.removeEntity(entityId));
     }
-    
-    
-    
-    //avoid dark sky in alternate dimension when player is in end biome
-//    @Redirect(
-//        method = "method_23777",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/world/ClientWorld;getBiome(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome;"
-//        )
-//    )
-//    private Biome redirectGetBiomeInSkyRendering(ClientWorld world, BlockPos pos) {
-//        if (world.dimension instanceof AlternateDimension) {
-//            return Biomes.PLAINS;
-//        }
-//        else {
-//            return world.getBiome(pos);
-//        }
-//    }
 
 }

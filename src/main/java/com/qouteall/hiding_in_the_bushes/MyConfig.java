@@ -34,6 +34,7 @@ public class MyConfig {
     public boolean edgelessSky = false;
     public boolean reversibleNetherPortalLinking = false;
     public boolean mirrorInteractableThroughPortal = true;
+    public boolean looseMovementCheck = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public List<String> customizedPortalGeneration = defaultPortalGenList;
     
@@ -105,6 +106,7 @@ public class MyConfig {
         Global.edgelessSky = edgelessSky;
         Global.reversibleNetherPortalLinking = reversibleNetherPortalLinking;
         Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
+        Global.looseMovementCheck = looseMovementCheck;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

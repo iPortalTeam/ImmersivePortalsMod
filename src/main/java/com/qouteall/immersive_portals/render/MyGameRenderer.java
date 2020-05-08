@@ -173,11 +173,8 @@ public class MyGameRenderer {
         double distanceToCamera =
             player.getCameraPosVec(MyRenderHelper.tickDelta).distanceTo(client.gameRenderer.getCamera().getPos());
         //avoid rendering player too near and block view
-        if (distanceToCamera > 1) {
+        if (distanceToCamera > 1 || MyRenderHelper.isRenderingOddNumberOfMirrors()) {
             doRenderEntity.run();
-        }
-        else {
-//            Helper.log("ignored " + distanceToCamera);
         }
         
         McHelper.setPosAndLastTickPos(

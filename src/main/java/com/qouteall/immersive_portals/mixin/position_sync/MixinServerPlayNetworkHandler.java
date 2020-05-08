@@ -54,6 +54,9 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     @Shadow
     private double updatedRiddenZ;
     
+    @Shadow
+    protected abstract boolean isServerOwner();
+    
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
         method = "onPlayerMove",
@@ -79,6 +82,21 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             );
             ci.cancel();
         }
+    }
+    
+    @Redirect(
+        method = "onPlayerMove",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isServerOwner()Z"
+        )
+    )
+    private boolean redirectIsServerOwnerOnPlayerMove(ServerPlayNetworkHandler serverPlayNetworkHandler) {
+        if (Global.looseMovementCheck) {
+            Helper.log("Accepted dubious movement " + player.getName().getString());
+            return true;
+        }
+        return isServerOwner();
     }
     
     /**

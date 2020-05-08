@@ -48,7 +48,8 @@ public class Global {
     
     public static boolean mirrorInteractableThroughPortal = true;
     
-    public static boolean enableLapizPortal = true;
+    public static boolean looseMovementCheck = false;
+    
 
     public static enum RenderMode {
         normal,

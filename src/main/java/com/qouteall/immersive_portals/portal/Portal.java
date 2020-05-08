@@ -173,8 +173,7 @@ public class Portal extends Entity {
     public boolean isTeleportable() {
         return teleportable;
     }
-
-
+    
     /**
      * Determines whether the player should be able to reach through the portal or not.
      * Can be overridden by a sub class.
