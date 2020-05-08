@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
@@ -106,63 +107,54 @@ public class BreakableMirror extends Mirror {
             return null;
         }
         
-        boolean isGlassPane = isGlassPane(world, glassPos);
-    
-        if (facing.getAxis() == Direction.Axis.Y && isGlassPane) {
-            return null;
-        }
+        boolean isPane = isGlassPane(world, glassPos);
+
+//        if (facing.getAxis() == Direction.Axis.Y && isPane) {
+//            return null;
+//        }
         
         IntBox wallArea = Helper.expandRectangle(
             glassPos,
-            blockPos -> isGlass(world, blockPos),
+            blockPos -> isGlass(world, blockPos) && (isPane == isGlassPane(world, blockPos)),
             facing.getAxis()
         );
         
         BreakableMirror breakableMirror = BreakableMirror.entityType.create(world);
-        double distanceToCenter = isGlassPane ? (1.0/16) : 0.5;
-        Vec3d pos = new Vec3d(
-            (double) (wallArea.l.getX() + wallArea.h.getX()) / 2,
-            (double) (wallArea.l.getY() + wallArea.h.getY()) / 2,
-            (double) (wallArea.l.getZ() + wallArea.h.getZ()) / 2
-        ).add(
-            0.5, 0.5, 0.5
-        ).add(
-            new Vec3d(facing.getVector()).multiply(distanceToCenter)
+        double distanceToCenter = isPane ? (1.0 / 16) : 0.5;
+        
+        Box wallBox = getWallBox(world, wallArea);
+        
+        Vec3d pos = Helper.getBoxSurface(wallBox, facing.getOpposite()).getCenter();
+        pos = Helper.putCoordinate(
+            pos, facing.getAxis(),
+            Helper.getCoordinate(
+                wallArea.getCenterVec().add(
+                    new Vec3d(facing.getVector()).multiply(distanceToCenter)
+                ),
+                facing.getAxis()
+            )
         );
-        breakableMirror.updatePosition(
-            pos.x, pos.y, pos.z
-        );
+        breakableMirror.updatePosition(pos.x, pos.y, pos.z);
         breakableMirror.destination = pos;
         breakableMirror.dimensionTo = world.dimension.getType();
         
-        Pair<Direction.Axis, Direction.Axis> axises = Helper.getPerpendicularAxis(facing);
+        Pair<Direction, Direction> dirs =
+            Helper.getPerpendicularDirections(facing);
         
-        Direction.Axis wAxis = axises.getLeft();
-        Direction.Axis hAxis = axises.getRight();
-        float width = Helper.getCoordinate(wallArea.getSize(), wAxis);
-        int height = Helper.getCoordinate(wallArea.getSize(), hAxis);
+        Vec3d boxSize = Helper.getBoxSize(wallBox);
+        double width = Helper.getCoordinate(boxSize, dirs.getLeft().getAxis());
+        double height = Helper.getCoordinate(boxSize, dirs.getRight().getAxis());
         
-        if (isGlassPane) {
-            if (height < 1) {
-                return null;
-            }
-            height -= (6.0 / 8);
-        }
-        
-        breakableMirror.axisW = new Vec3d(
-            Direction.get(Direction.AxisDirection.POSITIVE, wAxis).getVector()
-        );
-        breakableMirror.axisH = new Vec3d(
-            Direction.get(Direction.AxisDirection.POSITIVE, hAxis).getVector()
-        );
+        breakableMirror.axisW = new Vec3d(dirs.getLeft().getVector());
+        breakableMirror.axisH = new Vec3d(dirs.getRight().getVector());
         breakableMirror.width = width;
         breakableMirror.height = height;
         
         breakableMirror.wallArea = wallArea;
         
-        world.spawnEntity(breakableMirror);
-        
         breakIntersectedMirror(breakableMirror);
+        
+        world.spawnEntity(breakableMirror);
         
         return breakableMirror;
     }
@@ -183,5 +175,13 @@ public class BreakableMirror extends Mirror {
         ).forEach(
             Entity::remove
         );
+    }
+    
+    //the glass pane's area varies
+    private static Box getWallBox(ServerWorld world, IntBox glassArea) {
+        return glassArea.stream().map(blockPos ->
+            world.getBlockState(blockPos).getCollisionShape(world, blockPos).getBoundingBox()
+                .offset(new Vec3d(blockPos))
+        ).reduce(Box::union).orElse(null);
     }
 }

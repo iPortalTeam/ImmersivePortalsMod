@@ -43,7 +43,7 @@ public class MixinFlintAndSteelItem {
         }
     }
     
-    @Inject(method = "useOnBlock", at = @At("HEAD"))
+    @Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
     private void onUseFlintAndSteel(
         ItemUsageContext context,
         CallbackInfoReturnable<ActionResult> cir

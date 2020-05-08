@@ -34,7 +34,7 @@ public class MyConfig {
     public boolean multiThreadedNetherPortalSearching = true;
     public boolean edgelessSky = false;
     public boolean reversibleNetherPortalLinking = false;
-    public boolean mirrorInteractableThroughPortal = true;
+    public boolean mirrorInteractableThroughPortal = false;
     public boolean looseMovementCheck = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public List<String> customizedPortalGeneration = defaultPortalGenList;

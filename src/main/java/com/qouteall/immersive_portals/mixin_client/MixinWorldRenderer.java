@@ -104,7 +104,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private boolean needsTerrainUpdate;
     
-    
     @Shadow
     private VertexBuffer lightSkyBuffer;
     
