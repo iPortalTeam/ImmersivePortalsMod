@@ -33,6 +33,7 @@ import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -617,6 +618,24 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             MyGameRenderer.forceResetFogState();
             GL11.glEnable(GL11.GL_FOG);
         }
+    }
+    
+    //the camera position is used for translucent sort
+    //avoid messing it
+    @Redirect(
+        method = "setupTerrain",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
+        )
+    )
+    private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
+        if (CGlobal.renderer.isRendering()) {
+            if (client.world.getDimension().getType() == MyRenderHelper.originalPlayerDimension) {
+                return;
+            }
+        }
+        chunkBuilder.setCameraPosition(cameraPosition);
     }
     
     @Override
