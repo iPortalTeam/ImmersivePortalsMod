@@ -36,5 +36,8 @@
   "imm_ptl.command.make_portal.success": "Created %sx%s portal %s%s -> %s%s",
   "imm_ptl.command.tpme.success": "Teleported self to %s",
   "imm_ptl.command.tp.success": "Teleported %d entities to %s",
-  "imm_ptl.laggy": "Rendering Fewer Portals Because Laggy. (This Can be Disabled in Config)"
+  "imm_ptl.laggy": "Rendering Fewer Portals Because Laggy. (This Can be Disabled in Config)",
+
+  "imm_ptl.missing_mixin": "Immersive Portals mod requires MixinBootstrap. MixinBootstrap is not installed.",
+  "imm_ptl.download_mixinbootstrap": "Download MixinBootstrap"
 }

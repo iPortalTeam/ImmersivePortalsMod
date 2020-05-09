@@ -22,6 +22,7 @@ public class MyConfig {
     
     public int maxPortalLayer = 5;
     public boolean lagAttackProof = true;
+    public int portalRenderLimit = 200;
     public boolean compatibilityRenderMode = false;
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
@@ -92,6 +93,7 @@ public class MyConfig {
         Global.doCheckGlError = doCheckGlError;
         Global.maxPortalLayer = maxPortalLayer;
         Global.lagAttackProof = lagAttackProof;
+        Global.portalRenderLimit = portalRenderLimit;
         Global.netherPortalFindingRadius = portalSearchingRange;
         Global.longerReachInCreative = longerReachInCreative;
         Global.renderYourselfInPortal = renderYourselfInPortal;

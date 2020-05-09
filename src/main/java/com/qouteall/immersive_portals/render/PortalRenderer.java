@@ -122,6 +122,10 @@ public abstract class PortalRenderer {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
+    
+        if (MyRenderHelper.getRenderedPortalNum() >= Global.portalRenderLimit) {
+            return;
+        }
         
         Vec3d thisTickEyePos = getRoughTestCameraPos();
         

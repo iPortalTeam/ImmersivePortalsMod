@@ -52,6 +52,8 @@ public class Global {
     
     public static boolean looseMovementCheck = false;
     
+    public static int portalRenderLimit = 200;
+    
 
     public static enum RenderMode {
         normal,

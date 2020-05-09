@@ -133,7 +133,7 @@ public class MyRenderHelper {
             }
         }
         else {
-            if (lastPortalRenderInfos.size() > 3) {
+            if (lastPortalRenderInfos.size() > 10) {
                 if (FPSMonitor.getAverageFps() < 8 || FPSMonitor.getMinimumFps() < 6) {
                     client.inGameHud.setOverlayMessage(
                         new TranslatableText("imm_ptl.laggy"),
