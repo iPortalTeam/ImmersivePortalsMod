@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin;
+package com.qouteall.hiding_in_the_bushes.mixin;
 
 import net.minecraft.util.Language;
 import org.spongepowered.asm.mixin.Mixin;
@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 
 @Mixin(Language.class)
 public interface MixinLanguage {
-    @Accessor
-    Map<String, String> getTranslations();
+    @Accessor("translations")
+    Map<String, String> portal_getTranslations();
 
-    @Accessor
-    Pattern getField_11489();
+    @Accessor("field_11489")
+    Pattern portal_getPattern();
 }

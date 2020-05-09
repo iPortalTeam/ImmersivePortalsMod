@@ -3,7 +3,7 @@ package net.logandark.languagehack;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.mixin.MixinLanguage;
+import com.qouteall.hiding_in_the_bushes.mixin.MixinLanguage;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Language;
 import org.apache.logging.log4j.core.util.Closer;
@@ -26,10 +26,10 @@ public class LanguageHack {
             );
             
             jsonObject.entrySet().forEach(entry -> {
-                String string = language.getField_11489()
+                String string = language.portal_getPattern()
                     .matcher(JsonHelper.asString(entry.getValue(), entry.getKey()))
                     .replaceAll("%$1s");
-                language.getTranslations().put(entry.getKey(), string);
+                language.portal_getTranslations().put(entry.getKey(), string);
             });
         }
         finally {

@@ -8,6 +8,7 @@
     "block_manipulation.MixinItem",
     "block_manipulation.MixinServerPlayerInteractionManager",
     "block_manipulation.MixinServerPlayNetworkHandler_B",
+    "MixinLanguage",
     "MixinPlayerManager_MA",
     "MixinServerPlayerEntity_MA"
   ],
