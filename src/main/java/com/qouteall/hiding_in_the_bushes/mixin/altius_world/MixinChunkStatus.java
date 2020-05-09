@@ -39,7 +39,7 @@ public class MixinChunkStatus {
             featureGenLock.lock();
         }
         try {
-            chunkGenerator.generateFeatures(chunkRegion);
+            chunkGenerator.generateFeatures(chunkRegion,accessor);
         }
         catch (Throwable e) {
             Helper.err(String.format(
@@ -76,8 +76,7 @@ public class MixinChunkStatus {
         }
         try {
             generator.setStructureStarts(
-                biomeAccess, chunk, chunkGenerator, structureManager
-            );
+                structureAccessor, biomeAccess, chunk, chunkGenerator, structureManager);
         }
         catch (Throwable e) {
             Helper.err(String.format(
@@ -106,7 +105,7 @@ public class MixinChunkStatus {
             featureGenLock.lock();
         }
         try {
-            chunkGenerator.addStructureReferences(world, chunk);
+            chunkGenerator.addStructureReferences(world, structureAccessor, chunk);
         }
         catch (Throwable e) {
             Helper.err(String.format(

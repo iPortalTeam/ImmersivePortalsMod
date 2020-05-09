@@ -23,8 +23,8 @@ public class MixinNetherPortalBlock {
         cancellable = true
     )
     private static void onCreatePortal(
-        IWorld iWorld_1,
-        BlockPos blockPos_1,
+        IWorld world,
+        BlockPos pos,
         CallbackInfoReturnable<Boolean> cir
     ) {
         if(world instanceof ServerWorld) {

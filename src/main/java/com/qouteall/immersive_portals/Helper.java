@@ -16,7 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
-import net.minecraft.util.TypeFilterableList;
+import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -1020,9 +1020,9 @@ public class Helper {
             return null;
         }
         
-        Vec3d axisH = new Vec3d(hitResult.getSide().getVector());
-        Vec3d axisW = axisH.crossProduct(new Vec3d(lookingDirection.getOpposite().getVector()));
-        Vec3d pos = new Vec3d(hitResult.getBlockPos()).add(.5, .5, .5)
+        Vec3d axisH =  Vec3d.method_24954(hitResult.getSide().getVector());
+        Vec3d axisW = axisH.crossProduct( Vec3d.method_24954(lookingDirection.getOpposite().getVector()));
+        Vec3d pos =  Vec3d.method_24953(hitResult.getBlockPos())
             .add(axisH.multiply(0.5 + height / 2));
         
         World world = hitPortals.isEmpty()

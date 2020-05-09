@@ -231,7 +231,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         );
         mobSpawner.getLogic().setEntityId(spawnedEntity.getType());
         
-        CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
+        CompoundTag logicTag = mobSpawner.getLogic().toTag(new CompoundTag());
         logicTag.putShort("RequiredPlayerRange", (short) 32);
         //logicTag.putShort("MinSpawnDelay",(short) 10);
         //logicTag.putShort("MaxSpawnDelay",(short) 100);
@@ -242,8 +242,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     private static void removeUnnecessaryTag(Tag tag) {
         if (tag instanceof CompoundTag) {
             ((CompoundTag) tag).remove("Pos");
-            ((CompoundTag) tag).remove("UUIDMost");
-            ((CompoundTag) tag).remove("UUIDLeast");
+            ((CompoundTag) tag).remove("UUID");
             ((CompoundTag) tag).getKeys().forEach(key -> {
                 Tag currTag = ((CompoundTag) tag).get(key);
                 removeUnnecessaryTag((currTag));
@@ -253,15 +252,6 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         if (tag instanceof ListTag) {
             ((ListTag) tag).stream().forEach(SpongeDungeonFeature::removeUnnecessaryTag);
         }
-    private static void removeUnnecessaryTag(CompoundTag tag) {
-        tag.remove("Pos");
-        tag.remove("UUID");
-        tag.getKeys().forEach(key -> {
-            Tag currTag = tag.get(key);
-            if (currTag instanceof CompoundTag) {
-                removeUnnecessaryTag(((CompoundTag) currTag));
-            }
-        });
     }
     
     private static Entity randomMonster(World world, Random random) {

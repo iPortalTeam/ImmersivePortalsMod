@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.TypeFilterableList;
+import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
