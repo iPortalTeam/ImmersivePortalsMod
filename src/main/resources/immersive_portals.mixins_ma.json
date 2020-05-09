@@ -3,11 +3,11 @@
   "package": "com.qouteall.hiding_in_the_bushes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "alternate_dimension/MixinMobSpawnerLogic",
-    "altius_world/MixinChunkStatus",
-    "block_manipulation/MixinItem",
-    "block_manipulation/MixinServerPlayerInteractionManager",
-    "block_manipulation/MixinServerPlayNetworkHandler_B",
+    "alternate_dimension.MixinMobSpawnerLogic",
+    "altius_world.MixinChunkStatus",
+    "block_manipulation.MixinItem",
+    "block_manipulation.MixinServerPlayerInteractionManager",
+    "block_manipulation.MixinServerPlayNetworkHandler_B",
     "MixinPlayerManager_MA",
     "MixinServerPlayerEntity_MA"
   ],

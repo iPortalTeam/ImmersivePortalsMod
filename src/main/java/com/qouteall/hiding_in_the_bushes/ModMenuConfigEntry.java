@@ -28,6 +28,15 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.maxPortalLayer,
                 1, 15
             ).setDefaultValue(5).build();
+            BooleanListEntry entryLagAttackProof = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.lag_attack_proof",
+                currConfig.lagAttackProof
+            ).setDefaultValue(true).build();
+            IntegerSliderEntry entryPortalRenderLimit = builder.entryBuilder().startIntSlider(
+                "imm_ptl.portal_render_limit",
+                currConfig.portalRenderLimit,
+                1, 1000
+            ).setDefaultValue(200).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
                 "imm_ptl.compatibility_render_mode",
                 currConfig.compatibilityRenderMode
@@ -78,15 +87,22 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.reversibleNetherPortalLinking
             ).setDefaultValue(false).build();
             BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
-                    "imm_ptl.mirror_interactable_through_portal",
-                    currConfig.mirrorInteractableThroughPortal
-            ).setDefaultValue(true).build();
+                "imm_ptl.mirror_interactable_through_portal",
+                currConfig.mirrorInteractableThroughPortal
+            ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
-            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true).setExpanded(
-                true).build();
+            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true)
+                .setExpanded(true).build();
+            StringListListEntry entryPortalGeneration = builder.entryBuilder().startStrList(
+                "imm_ptl.portal_gen",
+                currConfig.customizedPortalGeneration
+            ).setDefaultValue(MyConfig.defaultPortalGenList).setInsertInFront(true)
+                .setExpanded(true).build();
             category.addEntry(entryMaxPortalLayer);
+            category.addEntry(entryLagAttackProof);
+            category.addEntry(entryPortalRenderLimit);
             category.addEntry(entryCompatibilityRenderMode);
             category.addEntry(entryCheckGlError);
             category.addEntry(entryPortalSearchingRange);
@@ -101,29 +117,33 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryReversibleNetherPortalLinking);
             category.addEntry(entryMirrorInteractableThroughPortal);
             category.addEntry(entryDimensionRenderRedirect);
+            category.addEntry(entryPortalGeneration);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
-                    MyConfig newConfigObject = new MyConfig();
-                    newConfigObject.maxPortalLayer = entryMaxPortalLayer.getValue();
-                    newConfigObject.compatibilityRenderMode = entryCompatibilityRenderMode.getValue();
-                    newConfigObject.doCheckGlError = entryCheckGlError.getValue();
-                    newConfigObject.portalSearchingRange = entryPortalSearchingRange.getValue();
-                    newConfigObject.longerReachInCreative = entryLongerReachInCreative.getValue();
-                    newConfigObject.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
-                    newConfigObject.activeLoading = entryActiveLoading.getValue();
-                    newConfigObject.teleportationDebug = entryTeleportDebug.getValue();
-                    newConfigObject.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
-                    newConfigObject.loadFewerChunks = entryLoadFewerChunks.getValue();
-                    newConfigObject.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
-                    newConfigObject.edgelessSky = entryEdgelessSky.getValue();
-                    newConfigObject.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
-                    newConfigObject.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
-                    newConfigObject.dimensionRenderRedirect = MyConfig.listToMap(
+                    MyConfig newConfig = new MyConfig();
+                    newConfig.maxPortalLayer = entryMaxPortalLayer.getValue();
+                    newConfig.lagAttackProof = entryLagAttackProof.getValue();
+                    newConfig.portalRenderLimit = entryPortalRenderLimit.getValue();
+                    newConfig.compatibilityRenderMode = entryCompatibilityRenderMode.getValue();
+                    newConfig.doCheckGlError = entryCheckGlError.getValue();
+                    newConfig.portalSearchingRange = entryPortalSearchingRange.getValue();
+                    newConfig.longerReachInCreative = entryLongerReachInCreative.getValue();
+                    newConfig.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
+                    newConfig.activeLoading = entryActiveLoading.getValue();
+                    newConfig.teleportationDebug = entryTeleportDebug.getValue();
+                    newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
+                    newConfig.loadFewerChunks = entryLoadFewerChunks.getValue();
+                    newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
+                    newConfig.edgelessSky = entryEdgelessSky.getValue();
+                    newConfig.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
+                    newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
+                    newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );
-                    newConfigObject.saveConfigFile();
-                    newConfigObject.onConfigChanged();
+                    newConfig.customizedPortalGeneration = entryPortalGeneration.getValue();
+                    newConfig.saveConfigFile();
+                    newConfig.onConfigChanged();
                 })
                 .build();
         };

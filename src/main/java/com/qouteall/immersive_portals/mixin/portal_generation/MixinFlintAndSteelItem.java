@@ -3,9 +3,11 @@ package com.qouteall.immersive_portals.mixin.portal_generation;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
+import com.qouteall.immersive_portals.portal.CustomizablePortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
@@ -20,7 +22,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FlintAndSteelItem.class)
 public class MixinFlintAndSteelItem {
-    @Inject(method = "useOnBlock", at = @At("HEAD"))
+    @Inject(
+        method = "canIgnite",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private static void onCanIgnite(
+        BlockState block,
+        IWorld world,
+        BlockPos pos,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
+        for (Direction direction : Direction.values()) {
+            if (O_O.isObsidian(world, pos.offset(direction))) {
+                if (block.isAir()) {
+                    cir.setReturnValue(true);
+                    cir.cancel();
+                }
+            }
+        }
+    }
+    
+    @Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
     private void onUseFlintAndSteel(
         ItemUsageContext context,
         CallbackInfoReturnable<ActionResult> cir
@@ -30,25 +53,25 @@ public class MixinFlintAndSteelItem {
             BlockPos targetPos = context.getBlockPos();
             Direction side = context.getSide();
             BlockPos firePos = targetPos.offset(side);
-            Block targetBlock = world.getBlockState(targetPos).getBlock();
-            if (O_O.isObsidian(world, targetPos)) {
-                NetherPortalGeneration.onFireLitOnObsidian(((ServerWorld) world), firePos);
-            }
-            else if (targetBlock == Blocks.GLASS) {
+            BlockState targetBlockState = world.getBlockState(targetPos);
+            Block targetBlock = targetBlockState.getBlock();
+            if (targetBlockState.getMaterial() == Material.GLASS) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );
+                cir.setReturnValue(ActionResult.SUCCESS);
             }
             else if (targetBlock == ModMain.portalHelperBlock) {
                 boolean result = NetherPortalGeneration.activatePortalHelper(
                     ((ServerWorld) world),
                     firePos
                 );
-        
             }
             else {
-                context.getStack().damage(1, context.getPlayer(),
-                    playerEntity_1x -> playerEntity_1x.sendToolBreakStatus(context.getHand())
+                CustomizablePortalGeneration.onFireLit(
+                    ((ServerWorld) world),
+                    firePos,
+                    targetBlock
                 );
             }
         }

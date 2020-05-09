@@ -1,7 +1,9 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
@@ -32,7 +34,7 @@ public class Portal extends Entity {
     public DimensionType dimensionTo;
     public Vec3d destination;
     
-    //additional properteis
+    //additional properties
     public boolean teleportable = true;
     public UUID specificPlayerId;
     public GeometryPortalShape specialShape;
@@ -171,8 +173,7 @@ public class Portal extends Entity {
     public boolean isTeleportable() {
         return teleportable;
     }
-
-
+    
     /**
      * Determines whether the player should be able to reach through the portal or not.
      * Can be overridden by a sub class.
@@ -623,5 +624,16 @@ public class Portal extends Entity {
         ).add(
             axisH.multiply(yInPlane)
         );
+    }
+
+    /**
+     * @return The {@link World} of this portal's {@link #dimensionTo}.
+     */
+    public World getDestinationWorld(boolean isClient) {
+        if (isClient) {
+            return CHelper.getClientWorld(dimensionTo);
+        } else {
+            return McHelper.getServer().getWorld(dimensionTo);
+        }
     }
 }

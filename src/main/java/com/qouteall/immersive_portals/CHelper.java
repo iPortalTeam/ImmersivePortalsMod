@@ -55,27 +55,28 @@ public class CHelper {
     }
     
     public static List<GlobalTrackedPortal> getClientGlobalPortal(World world) {
-        List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) world).getGlobalPortals();
-        return globalPortals;
+        return ((IEClientWorld) world).getGlobalPortals();
     }
     
     public static Stream<Portal> getClientNearbyPortals(double range) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
-        Stream<Portal> nearbyPortals = McHelper.getEntitiesNearby(
-            player,
+        List<Portal> nearbyPortals = McHelper.findEntitiesRough(
             Portal.class,
-            range
+            player.world,
+            player.getPos(),
+            (int)(range / 16),
+            p -> true
         );
         if (globalPortals == null) {
-            return nearbyPortals;
+            return nearbyPortals.stream();
         }
         else {
             return Streams.concat(
                 globalPortals.stream().filter(
                     p -> p.getDistanceToNearestPointInPortal(player.getPos()) < range * 2
                 ),
-                nearbyPortals
+                nearbyPortals.stream()
             );
         }
     }

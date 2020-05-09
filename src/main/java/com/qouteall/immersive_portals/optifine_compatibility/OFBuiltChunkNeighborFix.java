@@ -37,8 +37,7 @@ public class OFBuiltChunkNeighborFix {
         try {
             for (int l = 0; l < Direction.values().length; ++l) {
                 Direction facing = Direction.values()[l];
-                for (int i = 0, chunksLength = chunks.length; i < chunksLength; i++) {
-                    ChunkBuilder.BuiltChunk renderChunk = chunks[i];
+                for (ChunkBuilder.BuiltChunk renderChunk : chunks) {
                     BlockPos neighborPos = renderChunk.getNeighborPosition(facing);
                     ChunkBuilder.BuiltChunk neighbour =
                         storage.myGetRenderChunkRaw(neighborPos, chunks);

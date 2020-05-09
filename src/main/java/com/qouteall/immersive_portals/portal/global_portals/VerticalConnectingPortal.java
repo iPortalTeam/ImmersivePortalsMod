@@ -141,13 +141,13 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static int getHeight(DimensionType dimensionType) {
-        //TODO method_24853
-        if (dimensionType == DimensionType.THE_NETHER) {
-            if (O_O.isNetherHigherModPresent()) {
-                return 256;
-            }
-            return 128;
-        }
-        return 256;
+        return McHelper.getServer().getWorld(dimensionType).getEffectiveHeight();
+//        if (dimensionType == DimensionType.THE_NETHER) {
+//            if (O_O.isNetherHigherModPresent()) {
+//                return 256;
+//            }
+//            return 128;
+//        }
+//        return 256;
     }
 }

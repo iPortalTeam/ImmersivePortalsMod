@@ -1,5 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.immersive_portals.Helper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.FabricLoader;
@@ -75,7 +76,22 @@ public class O_O {
     }
     
     public static boolean detectOptiFine() {
-        return FabricLoader.INSTANCE.isModLoaded("optifabric");
+        boolean isOptiFabricPresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+        
+        if (!isOptiFabricPresent) {
+            return false;
+        }
+        
+        try {
+            //do not load other optifine classes that loads vanilla classes
+            //that would load the class before mixin
+            Class.forName("optifine.ZipResourceProvider");
+            return true;
+        }
+        catch (ClassNotFoundException e) {
+            Helper.err("OptiFabric is present but OptiFine is not present!!!");
+            return false;
+        }
     }
     
     public static void postChunkLoadEventForge(WorldChunk chunk) {

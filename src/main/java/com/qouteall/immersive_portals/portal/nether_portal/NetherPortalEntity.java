@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,7 +25,6 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     
     @Override
     protected boolean isPortalIntactOnThisSide() {
-        assert McHelper.getServer() != null;
     
         return blockPortalShape.area.stream()
             .allMatch(blockPos ->

@@ -456,6 +456,11 @@ public class MyCommandClient {
             "loose_visible_chunk_iteration",
             cond -> Global.looseVisibleChunkIteration = cond
         );
+        registerSwitchCommand(
+            builder,
+            "portal_placeholder_passthrough",
+            cond -> Global.portalPlaceholderPassthrough = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

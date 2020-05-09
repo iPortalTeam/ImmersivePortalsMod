@@ -14,6 +14,8 @@ public class Global {
     
     public static int maxPortalLayer = 5;
     
+    public static boolean lagAttackProof = true;
+    
     public static RenderMode renderMode = RenderMode.normal;
     
     public static boolean doCheckGlError = false;
@@ -43,8 +45,15 @@ public class Global {
     public static boolean looseVisibleChunkIteration = true;
     
     public static boolean blameOpenJdk = true;
-
-    public static boolean mirrorInteractableThroughPortal = true;
+    
+    public static boolean portalPlaceholderPassthrough = true;
+    
+    public static boolean mirrorInteractableThroughPortal = false;
+    
+    public static boolean looseMovementCheck = false;
+    
+    public static int portalRenderLimit = 200;
+    
 
     public static enum RenderMode {
         normal,

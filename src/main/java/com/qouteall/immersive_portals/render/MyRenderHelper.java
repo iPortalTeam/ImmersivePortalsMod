@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IECamera;
@@ -21,6 +22,7 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
@@ -78,6 +80,8 @@ public class MyRenderHelper {
     
     public static String debugText;
     
+    public static boolean isLaggy = false;
+    
     public static void updatePreRenderInfo(
         float tickDelta_
     ) {
@@ -111,8 +115,34 @@ public class MyRenderHelper {
         originalCameraLightPacked = client.getEntityRenderManager()
             .getLight(client.cameraEntity, tickDelta);
         
+        updateIsLaggy();
+        
         debugText = "";
 //        MyRenderHelper.debugText = String.valueOf(((IEEntity) client.player).getCollidingPortal());
+    }
+    
+    //protect the player from mirror room lag attack
+    private static void updateIsLaggy() {
+        if (!Global.lagAttackProof) {
+            isLaggy = false;
+            return;
+        }
+        if (isLaggy) {
+            if (FPSMonitor.getMinimumFps() > 15) {
+                isLaggy = false;
+            }
+        }
+        else {
+            if (lastPortalRenderInfos.size() > 10) {
+                if (FPSMonitor.getAverageFps() < 8 || FPSMonitor.getMinimumFps() < 6) {
+                    client.inGameHud.setOverlayMessage(
+                        new TranslatableText("imm_ptl.laggy"),
+                        false
+                    );
+                    isLaggy = true;
+                }
+            }
+        }
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {

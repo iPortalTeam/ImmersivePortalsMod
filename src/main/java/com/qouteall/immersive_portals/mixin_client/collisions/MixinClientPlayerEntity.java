@@ -18,6 +18,7 @@ public class MixinClientPlayerEntity {
     private void onCannotFitAt(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (((IEEntity) this).getCollidingPortal() != null) {
             cir.setReturnValue(false);
+            cir.cancel();
         }
     }
 }

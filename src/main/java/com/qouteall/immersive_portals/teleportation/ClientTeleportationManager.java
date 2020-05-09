@@ -90,7 +90,7 @@ public class ClientTeleportationManager {
                 return;
             }
             
-            Vec3d currentHeadPos = client.player.getCameraPosVec(tickDelta);
+            Vec3d currentHeadPos = getPlayerHeadPos(tickDelta);
             if (lastPlayerHeadPos != null) {
                 if (lastPlayerHeadPos.squaredDistanceTo(currentHeadPos) > 100) {
                     Helper.err("The Player is Moving Too Fast!");
@@ -109,8 +109,28 @@ public class ClientTeleportationManager {
                 );
             }
             
-            lastPlayerHeadPos = client.player.getCameraPosVec(tickDelta);
+            lastPlayerHeadPos = getPlayerHeadPos(tickDelta);
         }
+    }
+    
+    private Vec3d getPlayerHeadPos(float tickDelta) {
+        return client.player.getCameraPosVec(tickDelta);
+//        Camera camera = client.gameRenderer.getCamera();
+//        float cameraY = MathHelper.lerp(
+//            tickDelta,
+//            ((IECamera) camera).getLastCameraY(),
+//            ((IECamera) camera).getCameraY()
+//        );
+//        return new Vec3d(
+//            MathHelper.lerp((double) tickDelta, client.player.prevX, client.player.getX()),
+//            MathHelper.lerp(
+//                (double) tickDelta,
+//                client.player.prevY,
+//                client.player.getY()
+//            ) + cameraY,
+//            MathHelper.lerp((double) tickDelta, client.player.prevZ, client.player.getZ())
+//        );
+        
     }
     
     private void onEntityGoInsidePortal(Entity entity, Portal portal) {

@@ -26,5 +26,15 @@
   "imm_ptl.add_dimension": "加入位面",
   "imm_ptl.remove_dimension": "移除位面",
   "imm_ptl.confirm_select_dimension": "确定",
-  "imm_ptl.select_dimension": "选择一个位面"
+  "imm_ptl.select_dimension": "选择一个位面",
+  "imm_ptl.lag_attack_proof": "卡顿时减少传送门渲染",
+  "imm_ptl.multi_threaded_nether_portal_searching": "多线程传送门框架搜索",
+  "imm_ptl.edgeless_sky": "去除位面连接传送门的天空渲染边界",
+  "imm_ptl.reversible_nether_portal_linking": "对称地狱门搜索范围",
+  "imm_ptl.render_redirect": "位面渲染风格替换",
+  "imm_ptl.mirror_interactable_through_portal": "透过镜子交互方块",
+  "imm_ptl.command.make_portal.success": "已生成传送门 %sx%s %s%s -> %s%s",
+  "imm_ptl.command.tpme.success": "将玩家传送至 %s",
+  "imm_ptl.command.tp.success": "传送实体 %d 至 %s",
+  "imm_ptl.laggy": "由于卡顿，暂时减少传送门渲染 (可设置关闭)"
 }

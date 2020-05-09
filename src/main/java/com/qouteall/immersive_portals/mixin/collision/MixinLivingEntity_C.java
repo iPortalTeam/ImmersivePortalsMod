@@ -32,6 +32,7 @@ public class MixinLivingEntity_C {
                 
                 if (!result.isAir()) {
                     cir.setReturnValue(result);
+                    cir.cancel();
                 }
             }
         }

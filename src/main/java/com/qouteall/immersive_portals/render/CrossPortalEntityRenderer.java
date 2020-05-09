@@ -62,7 +62,7 @@ public class CrossPortalEntityRenderer {
     public static void onBeginRenderingEnties(MatrixStack matrixStack) {
         if (CGlobal.renderer.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
-                matrixStack, CGlobal.renderer.getRenderingPortal(),false
+                matrixStack, CGlobal.renderer.getRenderingPortal(), false
             );
             PixelCuller.startCulling();
         }
@@ -137,21 +137,23 @@ public class CrossPortalEntityRenderer {
         });
     }
     
+    public static boolean isReversePortal(Portal a, Portal b) {
+        return a.dimensionTo == b.dimension &&
+            a.dimension == b.dimensionTo &&
+            a.getPos().distanceTo(b.destination) < 1 &&
+            a.destination.distanceTo(b.getPos()) < 1;
+    }
+    
     private static void renderProjectedEntity(
         Entity entity,
         Portal collidingPortal,
         MatrixStack matrixStack
     ) {
         if (CGlobal.renderer.isRendering()) {
-            //???
-            if (collidingPortal == CGlobal.renderer.getRenderingPortal()
-                || (entity instanceof ClientPlayerEntity)
-            ) {
-                renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
-            }
+            renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
         }
         else {
-            PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal,false);
+            PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal, false);
             PixelCuller.startCulling();
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             PixelCuller.endCulling();
@@ -189,6 +191,13 @@ public class CrossPortalEntityRenderer {
         World oldWorld = entity.world;
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
+        
+        if (CGlobal.renderer.isRendering()) {
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            if (!renderingPortal.canRenderEntityInsideMe(newEyePos, -3)) {
+                return;
+            }
+        }
         
         if (entity instanceof ClientPlayerEntity) {
             //avoid rendering player too near and block view

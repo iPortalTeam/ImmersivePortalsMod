@@ -102,6 +102,7 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
         double result = cir.getReturnValue() *
             HandReachTweak.getActualHandReachMultiplier(player);
         cir.setReturnValue((float) result);
+        cir.cancel();
     }
     
 }

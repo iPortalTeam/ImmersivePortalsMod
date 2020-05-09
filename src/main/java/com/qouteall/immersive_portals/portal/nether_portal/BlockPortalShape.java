@@ -158,12 +158,18 @@ public class BlockPortalShape {
         
         Set<BlockPos> area = new HashSet<>();
         area.add(startingPos);
-        findAreaRecursively(
+        
+        boolean isNormalFrame = findAreaRecursively(
             startingPos,
             isAir,
+            isObsidian,
             Helper.getAnotherFourDirections(axis),
             area
         );
+        
+        if (!isNormalFrame) {
+            return null;
+        }
         
         BlockPortalShape result =
             new BlockPortalShape(area, axis);
@@ -175,29 +181,42 @@ public class BlockPortalShape {
         return result;
     }
     
-    private static void findAreaRecursively(
+    //return false to abort
+    private static boolean findAreaRecursively(
         BlockPos startingPos,
-        Predicate<BlockPos> isEmptyPos,
+        Predicate<BlockPos> isAir,
+        Predicate<BlockPos> isObsidian,
         Direction[] directions,
         Set<BlockPos> foundArea
     ) {
         if (foundArea.size() > 400) {
-            return;
+            return true;
         }
         for (Direction direction : directions) {
             BlockPos newPos = startingPos.add(direction.getVector());
             if (!foundArea.contains(newPos)) {
-                if (isEmptyPos.test(newPos)) {
+                if (isAir.test(newPos)) {
                     foundArea.add(newPos);
-                    findAreaRecursively(
+                    boolean shouldContinue = findAreaRecursively(
                         newPos,
-                        isEmptyPos,
+                        isAir,
+                        isObsidian,
                         directions,
                         foundArea
                     );
+                    if (!shouldContinue) {
+                        return false;
+                    }
+                }
+                else {
+                    if (!isObsidian.test(newPos)) {
+                        //abort
+                        return false;
+                    }
                 }
             }
         }
+        return true;
     }
     
     //return null for not match
@@ -300,7 +319,7 @@ public class BlockPortalShape {
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
-    
+        
         Stream.concat(
             area.stream()
                 .filter(blockPos -> !rectanglePart.contains(blockPos))

@@ -35,9 +35,10 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
-        if (!isRendering()) {
-            doPortalRendering(matrixStack);
-        }
+        doPortalRendering(matrixStack);
+//        if (!isRendering()) {
+//
+//        }
     }
     
     private void doPortalRendering(MatrixStack matrixStack) {
@@ -53,9 +54,9 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-        if (isRendering()) {
-            doPortalRendering(matrixStack);
-        }
+//        if (isRendering()) {
+//            doPortalRendering(matrixStack);
+//        }
     }
     
     @Override

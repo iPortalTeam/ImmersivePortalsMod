@@ -83,11 +83,9 @@ public class BlockManipulationClient {
         if (hitResultIsMissedOrNull(client.crosshairTarget)) {
             return 23333;
         }
-
-        //pointing to placeholder block does not count
+    
         if (client.crosshairTarget instanceof BlockHitResult) {
-            BlockHitResult hitResult = (BlockHitResult) client.crosshairTarget;
-            BlockPos hitPos = hitResult.getBlockPos();
+            BlockPos hitPos = ((BlockHitResult) client.crosshairTarget).getBlockPos();
             if (client.world.getBlockState(hitPos).getBlock() == PortalPlaceholderBlock.instance) {
                 return 23333;
             }
@@ -129,12 +127,11 @@ public class BlockManipulationClient {
             context,
             (rayTraceContext, blockPos) -> {
                 BlockState blockState = world.getBlockState(blockPos);
-                
-                //don't stop at placeholder block
+    
                 if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
                     return null;
                 }
-                
+    
                 //when seeing through mirror don't stop at the glass block
                 if (portal instanceof Mirror) {
                     if (portal.getDistanceToNearestPointInPortal( Vec3d.method_24954(blockPos).add(0.5,0.5,0.5)) < 0.6) {
