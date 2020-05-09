@@ -15,23 +15,24 @@ import java.nio.charset.StandardCharsets;
 public class LanguageHack {
     public static void activate(String modid) {
         if (!O_O.isDedicatedServer()) return;
-
+        
         MixinLanguage language = (MixinLanguage) Language.getInstance();
         FileInputStream inputStream = O_O.getLanguageFileStream(modid);
-
+        
         try {
             JsonObject jsonObject = new Gson().fromJson(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8),
                 JsonObject.class
             );
-
+            
             jsonObject.entrySet().forEach(entry -> {
                 String string = language.getField_11489()
                     .matcher(JsonHelper.asString(entry.getValue(), entry.getKey()))
                     .replaceAll("%$1s");
                 language.getTranslations().put(entry.getKey(), string);
             });
-        } finally {
+        }
+        finally {
             Closer.closeSilently(inputStream);
         }
     }

@@ -118,7 +118,8 @@ public class O_O {
                     .getPath("assets/" + modid + "/lang/en_us.json")
                     .toFile()
             );
-        } catch (FileNotFoundException ugh) {
+        }
+        catch (FileNotFoundException ugh) {
             throw new RuntimeException(ugh);
         }
     }
