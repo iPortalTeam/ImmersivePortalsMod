@@ -31,7 +31,7 @@ public class EndPortalEntity extends Portal {
     public static void onEndPortalComplete(ServerWorld world, BlockPattern.Result pattern) {
         Portal portal = new EndPortalEntity(entityType,world);
         
-        Vec3d center = Vec3d.method_24954(pattern.getFrontTopLeft()).add(-1.5, 0.5, -1.5);
+        Vec3d center = Vec3d.of(pattern.getFrontTopLeft()).add(-1.5, 0.5, -1.5);
         portal.updatePosition(center.x, center.y, center.z);
         
         portal.destination = new Vec3d(0, 120, 0);

@@ -309,13 +309,13 @@ public class BlockPortalShape {
             wDirection = anotherFourDirections[1];
             hDirection = anotherFourDirections[0];
         }
-        portal.axisW =  Vec3d.method_24954(wDirection.getVector());
-        portal.axisH =  Vec3d.method_24954(hDirection.getVector());
+        portal.axisW =  Vec3d.of(wDirection.getVector());
+        portal.axisH =  Vec3d.of(hDirection.getVector());
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
         
         GeometryPortalShape shape = new GeometryPortalShape();
-        Vec3d offset = Vec3d.method_24954(
+        Vec3d offset = Vec3d.of(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
@@ -326,8 +326,8 @@ public class BlockPortalShape {
                 .map(blockPos -> new IntBox(blockPos, blockPos)),
             Stream.of(rectanglePart)
         ).forEach(part -> {
-            Vec3d p1 = Vec3d.method_24954(part.l).add(offset);
-            Vec3d p2 = Vec3d.method_24954(part.h).add(1, 1, 1).add(offset);
+            Vec3d p1 = Vec3d.of(part.l).add(offset);
+            Vec3d p2 = Vec3d.of(part.h).add(1, 1, 1).add(offset);
             double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
             double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
             double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
@@ -340,8 +340,8 @@ public class BlockPortalShape {
         
         portal.specialShape = shape;
         
-        Vec3d p1 = Vec3d.method_24954(rectanglePart.l).add(offset);
-        Vec3d p2 = Vec3d.method_24954(rectanglePart.h).add(1, 1, 1).add(offset);
+        Vec3d p1 = Vec3d.of(rectanglePart.l).add(offset);
+        Vec3d p2 = Vec3d.of(rectanglePart.h).add(1, 1, 1).add(offset);
         double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
         double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
         double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);

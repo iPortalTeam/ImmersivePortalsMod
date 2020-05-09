@@ -235,7 +235,7 @@ public class Helper {
     
     public static Box getBoxSurface(Box box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
-        Vec3d shrinkVec = Vec3d.method_24954(direction.getVector()).multiply(size);
+        Vec3d shrinkVec = Vec3d.of(direction.getVector()).multiply(size);
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
     }
     
@@ -1020,9 +1020,9 @@ public class Helper {
             return null;
         }
         
-        Vec3d axisH =  Vec3d.method_24954(hitResult.getSide().getVector());
-        Vec3d axisW = axisH.crossProduct( Vec3d.method_24954(lookingDirection.getOpposite().getVector()));
-        Vec3d pos =  Vec3d.method_24953(hitResult.getBlockPos())
+        Vec3d axisH =  Vec3d.of(hitResult.getSide().getVector());
+        Vec3d axisW = axisH.crossProduct( Vec3d.of(lookingDirection.getOpposite().getVector()));
+        Vec3d pos =  Vec3d.ofCenter(hitResult.getBlockPos())
             .add(axisH.multiply(0.5 + height / 2));
         
         World world = hitPortals.isEmpty()

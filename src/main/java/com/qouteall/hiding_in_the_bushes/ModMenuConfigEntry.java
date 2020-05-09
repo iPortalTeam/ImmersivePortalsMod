@@ -7,6 +7,7 @@ import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
 import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
 import me.shedaniel.clothconfig2.gui.entries.StringListListEntry;
+import net.minecraft.text.TranslatableText;
 
 public class ModMenuConfigEntry implements ModMenuApi {
     
@@ -22,81 +23,83 @@ public class ModMenuConfigEntry implements ModMenuApi {
             MyConfig currConfig = MyConfig.readConfigFromFile();
             
             ConfigBuilder builder = ConfigBuilder.create();
-            ConfigCategory category = builder.getOrCreateCategory("imm_ptl.main_category");
+            ConfigCategory category = builder.getOrCreateCategory(
+                new TranslatableText("imm_ptl.main_category")
+            );
             IntegerSliderEntry entryMaxPortalLayer = builder.entryBuilder().startIntSlider(
-                "imm_ptl.max_portal_layer",
+                new TranslatableText("imm_ptl.max_portal_layer"),
                 currConfig.maxPortalLayer,
                 1, 15
             ).setDefaultValue(5).build();
             BooleanListEntry entryLagAttackProof = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.lag_attack_proof",
+                new TranslatableText("imm_ptl.lag_attack_proof"),
                 currConfig.lagAttackProof
             ).setDefaultValue(true).build();
             IntegerSliderEntry entryPortalRenderLimit = builder.entryBuilder().startIntSlider(
-                "imm_ptl.portal_render_limit",
+                new TranslatableText("imm_ptl.portal_render_limit"),
                 currConfig.portalRenderLimit,
                 1, 1000
             ).setDefaultValue(200).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.compatibility_render_mode",
+                new TranslatableText("imm_ptl.compatibility_render_mode"),
                 currConfig.compatibilityRenderMode
             ).setDefaultValue(false).build();
             BooleanListEntry entryCheckGlError = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.check_gl_error",
+                new TranslatableText("imm_ptl.check_gl_error"),
                 currConfig.doCheckGlError
             ).setDefaultValue(false).build();
             IntegerSliderEntry entryPortalSearchingRange = builder.entryBuilder().startIntSlider(
-                "imm_ptl.portal_searching_range",
+                new TranslatableText("imm_ptl.portal_searching_range"),
                 currConfig.portalSearchingRange,
                 32, 1000
             ).setDefaultValue(128).build();
             BooleanListEntry entryLongerReachInCreative = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.long_reach_in_creative",
+                new TranslatableText("imm_ptl.long_reach_in_creative"),
                 currConfig.longerReachInCreative
             ).setDefaultValue(true).build();
             BooleanListEntry entryRenderYourselfInPortal = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.render_yourself_in_portal",
+                new TranslatableText("imm_ptl.render_yourself_in_portal"),
                 currConfig.renderYourselfInPortal
             ).setDefaultValue(true).build();
             BooleanListEntry entryActiveLoading = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.active_loading",
+                new TranslatableText("imm_ptl.active_loading"),
                 currConfig.activeLoading
             ).setDefaultValue(true).build();
             BooleanListEntry entryTeleportDebug = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.teleportation_debug",
+                new TranslatableText("imm_ptl.teleportation_debug"),
                 currConfig.teleportationDebug
             ).setDefaultValue(false).build();
             BooleanListEntry entryCorrectCrossPortalEntityRendering = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.correct_cross_portal_entity_rendering",
+                new TranslatableText("imm_ptl.correct_cross_portal_entity_rendering"),
                 currConfig.correctCrossPortalEntityRendering
             ).setDefaultValue(true).build();
             BooleanListEntry entryLoadFewerChunks = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.load_fewer_chunks",
+                new TranslatableText("imm_ptl.load_fewer_chunks"),
                 currConfig.loadFewerChunks
             ).setDefaultValue(false).build();
             BooleanListEntry entryMultiThreadedNetherPortalSearching = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.multi_threaded_nether_portal_searching",
+                new TranslatableText("imm_ptl.multi_threaded_nether_portal_searching"),
                 currConfig.multiThreadedNetherPortalSearching
             ).setDefaultValue(true).build();
             BooleanListEntry entryEdgelessSky = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.edgeless_sky",
+                new TranslatableText("imm_ptl.edgeless_sky"),
                 currConfig.edgelessSky
             ).setDefaultValue(false).build();
             BooleanListEntry entryReversibleNetherPortalLinking = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.reversible_nether_portal_linking",
+                new TranslatableText("imm_ptl.reversible_nether_portal_linking"),
                 currConfig.reversibleNetherPortalLinking
             ).setDefaultValue(false).build();
             BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.mirror_interactable_through_portal",
+                new TranslatableText("imm_ptl.mirror_interactable_through_portal"),
                 currConfig.mirrorInteractableThroughPortal
             ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
-                "imm_ptl.render_redirect",
+                new TranslatableText("imm_ptl.render_redirect"),
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
             ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true)
                 .setExpanded(true).build();
             StringListListEntry entryPortalGeneration = builder.entryBuilder().startStrList(
-                "imm_ptl.portal_gen",
+                new TranslatableText("imm_ptl.portal_gen"),
                 currConfig.customizedPortalGeneration
             ).setDefaultValue(MyConfig.defaultPortalGenList).setInsertInFront(true)
                 .setExpanded(true).build();

@@ -45,11 +45,11 @@ dependencies {
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-	modCompileOnly "me.shedaniel.cloth:config-2:3.3.2-unstable"
-	modCompileOnly "io.github.prospector:modmenu:1.11.1+build.3"
+	modImplementation "me.shedaniel.cloth:config-2:4.1.0-unstable"
+	modImplementation "io.github.prospector:modmenu:1.11.4+build.9"
 
-	//include "me.shedaniel.cloth:config-2:3.0.1"
-	//include "io.github.prospector:modmenu:1.10.2+build.1"
+	include "me.shedaniel.cloth:config-2:4.1.0-unstable"
+	include "io.github.prospector:modmenu:1.11.4+build.9"
 
 	//For javax.annotation.Nullable
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'

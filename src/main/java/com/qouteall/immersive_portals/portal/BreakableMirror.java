@@ -130,7 +130,7 @@ public class BreakableMirror extends Mirror {
             pos, facing.getAxis(),
             Helper.getCoordinate(
                 wallArea.getCenterVec().add(
-                     Vec3d.method_24954(facing.getVector()).multiply(distanceToCenter)
+                     Vec3d.of(facing.getVector()).multiply(distanceToCenter)
                 ),
                 facing.getAxis()
             )
@@ -146,8 +146,8 @@ public class BreakableMirror extends Mirror {
         double width = Helper.getCoordinate(boxSize, dirs.getLeft().getAxis());
         double height = Helper.getCoordinate(boxSize, dirs.getRight().getAxis());
         
-        breakableMirror.axisW =  Vec3d.method_24954(dirs.getLeft().getVector());
-        breakableMirror.axisH =  Vec3d.method_24954(dirs.getRight().getVector());
+        breakableMirror.axisW =  Vec3d.of(dirs.getLeft().getVector());
+        breakableMirror.axisH =  Vec3d.of(dirs.getRight().getVector());
         breakableMirror.width = width;
         breakableMirror.height = height;
         
@@ -182,7 +182,7 @@ public class BreakableMirror extends Mirror {
     private static Box getWallBox(ServerWorld world, IntBox glassArea) {
         return glassArea.stream().map(blockPos ->
             world.getBlockState(blockPos).getCollisionShape(world, blockPos).getBoundingBox()
-                .offset( Vec3d.method_24954(blockPos))
+                .offset( Vec3d.of(blockPos))
         ).reduce(Box::union).orElse(null);
     }
 }

@@ -77,8 +77,8 @@ public class BorderPortal extends GlobalTrackedPortal {
         portal.updatePosition(center.x, center.y, center.z);
         portal.destination = destination;
         
-        portal.axisW = Vec3d.method_24954(axises.getLeft().getVector());
-        portal.axisH = Vec3d.method_24954(axises.getRight().getVector());
+        portal.axisW = Vec3d.of(axises.getLeft().getVector());
+        portal.axisH = Vec3d.of(axises.getRight().getVector());
         portal.width = Helper.getCoordinate(areaSize, axises.getLeft().getAxis());
         portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
         

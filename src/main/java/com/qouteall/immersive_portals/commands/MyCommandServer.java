@@ -580,7 +580,7 @@ public class MyCommandServer {
                             Direction facing = Direction.getFacing(
                                 viewVector.x, viewVector.y, viewVector.z
                             );
-                            Vec3d offset = Vec3d.method_24954(facing.getVector()).multiply(distance);
+                            Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
                             portal.updatePosition(
                                 portal.getX() + offset.x,
                                 portal.getY() + offset.y,

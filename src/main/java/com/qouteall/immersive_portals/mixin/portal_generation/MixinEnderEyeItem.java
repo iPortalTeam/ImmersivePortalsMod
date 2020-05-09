@@ -48,7 +48,7 @@ public class MixinEnderEyeItem {
                 world.setBlockState(blockPos, blockState_2, 2);
                 world.updateComparators(blockPos, Blocks.END_PORTAL_FRAME);
                 itemUsageContext.getStack().decrement(1);
-                world.playLevelEvent(1503, blockPos, 0);
+                world.syncWorldEvent(1503, blockPos, 0);
                 BlockPattern.Result pattern =
                     EndPortalFrameBlock.getCompletedFramePattern().searchAround(world, blockPos);
                 if (pattern != null) {
@@ -66,7 +66,7 @@ public class MixinEnderEyeItem {
                         }
                     }
                     
-                    world.playGlobalEvent(1038, blockPos_2.add(1, 0, 1), 0);
+                    world.syncGlobalEvent(1038, blockPos_2.add(1, 0, 1), 0);
                     
                     EndPortalEntity.onEndPortalComplete(((ServerWorld) world), pattern);
                 }

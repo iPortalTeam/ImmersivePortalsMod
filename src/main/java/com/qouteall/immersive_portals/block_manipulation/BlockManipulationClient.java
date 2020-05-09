@@ -134,7 +134,7 @@ public class BlockManipulationClient {
     
                 //when seeing through mirror don't stop at the glass block
                 if (portal instanceof Mirror) {
-                    if (portal.getDistanceToNearestPointInPortal( Vec3d.method_24954(blockPos).add(0.5,0.5,0.5)) < 0.6) {
+                    if (portal.getDistanceToNearestPointInPortal( Vec3d.of(blockPos).add(0.5,0.5,0.5)) < 0.6) {
                         return null;
                     }
                 }

@@ -20,9 +20,9 @@ import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -163,7 +163,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "portal"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 (EntityType<Portal> type, World world1) ->
                     new Portal(type, world1)
             ).size(
@@ -175,7 +175,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "nether_portal_new"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 (EntityType<NetherPortalEntity> type, World world1) ->
                     new NetherPortalEntity(type, world1)
             ).size(
@@ -187,7 +187,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "end_portal"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 (EntityType.EntityFactory<EndPortalEntity>) EndPortalEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)
@@ -198,7 +198,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "mirror"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 (EntityType<Mirror> type, World world1) ->
                     new Mirror(type, world1)
             ).size(
@@ -210,7 +210,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "breakable_mirror"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 (EntityType<BreakableMirror> type, World world1) ->
                     new BreakableMirror(type, world1)
             ).size(
@@ -222,7 +222,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "global_tracked_portal"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 GlobalTrackedPortal::new
             ).size(
                 new EntityDimensions(1, 1, true)
@@ -233,7 +233,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "border_portal"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 BorderPortal::new
             ).size(
                 new EntityDimensions(1, 1, true)
@@ -244,7 +244,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "end_floor_portal"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 VerticalConnectingPortal::new
             ).size(
                 new EntityDimensions(1, 1, true)
@@ -255,7 +255,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "general_breakable_portal"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 GeneralBreakablePortal::new
             ).size(
                 new EntityDimensions(1, 1, true)
@@ -266,7 +266,7 @@ public class MyRegistry {
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "loading_indicator"),
             FabricEntityTypeBuilder.create(
-                EntityCategory.MISC,
+                SpawnGroup.MISC,
                 (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
             ).size(
                 new EntityDimensions(1, 1, true)

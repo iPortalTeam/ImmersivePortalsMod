@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "alternate_dimension.MixinAvoidSunlightGoal",
+    "alternate_dimension.MixinBedBlock",
     "altius_world.MixinChunkGenerator",
     "altius_world.MixinLevelGeneratorType",
     "altius_world.MixinLevelInfo",

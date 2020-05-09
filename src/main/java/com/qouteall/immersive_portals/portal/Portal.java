@@ -313,8 +313,8 @@ public class Portal extends Entity {
         float width = (float) Helper.getCoordinate(portalSize, wAxis);
         float height = (float) Helper.getCoordinate(portalSize, hAxis);
         
-        Vec3d wAxisVec = Vec3d.method_24954(Helper.getUnitFromAxis(wAxis));
-        Vec3d hAxisVec = Vec3d.method_24954(Helper.getUnitFromAxis(hAxis));
+        Vec3d wAxisVec = Vec3d.of(Helper.getUnitFromAxis(wAxis));
+        Vec3d hAxisVec = Vec3d.of(Helper.getUnitFromAxis(hAxis));
         
         portals[0].updatePosition(center1.x, center1.y, center1.z);
         portals[1].updatePosition(center1.x, center1.y, center1.z);
