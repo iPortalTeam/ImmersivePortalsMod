@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
+import net.logandark.languagehack.LanguageHack;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.world.dimension.DimensionType;
@@ -60,6 +61,8 @@ public class ModMain {
         GlobalPortalStorage.init();
     
         //AltiusGeneratorType.init();
+
+        LanguageHack.activate("immersive_portals");
     }
     
 }

@@ -14,6 +14,9 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 public class O_O {
     public static boolean isReachEntityAttributesPresent;
     
@@ -104,5 +107,23 @@ public class O_O {
     
     public static boolean isNetherHigherModPresent() {
         return FabricLoader.INSTANCE.isModLoaded("netherhigher");
+    }
+    
+    public static FileInputStream getLanguageFileStream(String modid) {
+        try {
+            //noinspection OptionalGetWithoutIsPresent
+            return new FileInputStream(
+                net.fabricmc.loader.api.FabricLoader.getInstance()
+                    .getModContainer(modid).get()
+                    .getPath("assets/" + modid + "/lang/en_us.json")
+                    .toFile()
+            );
+        } catch (FileNotFoundException ugh) {
+            throw new RuntimeException(ugh);
+        }
+    }
+    
+    public static boolean isDedicatedServer() {
+        return net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     }
 }
