@@ -28,6 +28,7 @@
     "entity_sync.MixinServerPlayerEntity",
     "entity_sync.MixinThreadedAnvilChunkStorage_E",
     "MixinCommandManager",
+    "MixinLanguage",
     "MixinMetricsData",
     "MixinMinecraftServer",
     "MixinPlayerManager",
