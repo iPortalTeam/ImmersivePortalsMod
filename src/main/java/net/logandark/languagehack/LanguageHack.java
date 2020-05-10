@@ -8,7 +8,7 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Language;
 import org.apache.logging.log4j.core.util.Closer;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
@@ -17,7 +17,7 @@ public class LanguageHack {
         if (!O_O.isDedicatedServer()) return;
         
         MixinLanguage language = (MixinLanguage) Language.getInstance();
-        FileInputStream inputStream = O_O.getLanguageFileStream(modid);
+        InputStream inputStream = O_O.getLanguageFileStream(modid);
         
         try {
             JsonObject jsonObject = new Gson().fromJson(

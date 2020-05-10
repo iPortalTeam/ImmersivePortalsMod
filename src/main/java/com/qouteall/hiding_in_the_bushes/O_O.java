@@ -14,8 +14,8 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 public class O_O {
     public static boolean isReachEntityAttributesPresent;
@@ -105,17 +105,16 @@ public class O_O {
     
     }
     
-    public static FileInputStream getLanguageFileStream(String modid) {
+    public static InputStream getLanguageFileStream(String modid) {
         try {
             //noinspection OptionalGetWithoutIsPresent
-            return new FileInputStream(
+            return Files.newInputStream(
                 net.fabricmc.loader.api.FabricLoader.getInstance()
                     .getModContainer(modid).get()
                     .getPath("assets/" + modid + "/lang/en_us.json")
-                    .toFile()
             );
         }
-        catch (FileNotFoundException ugh) {
+        catch (Throwable ugh) {
             throw new RuntimeException(ugh);
         }
     }

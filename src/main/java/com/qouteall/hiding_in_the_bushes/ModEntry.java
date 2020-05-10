@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.FabricLoader;
+import net.logandark.languagehack.LanguageHack;
 
 public class ModEntry implements ModInitializer {
     
@@ -38,6 +39,8 @@ public class ModEntry implements ModInitializer {
         else {
             Helper.log("Reach entity attributes mod is not present");
         }
+    
+        LanguageHack.activate("immersive_portals");
     }
     
 }
