@@ -144,13 +144,30 @@ public class CrossPortalEntityRenderer {
             a.destination.distanceTo(b.getPos()) < 1;
     }
     
+    public static boolean isFlippedPortal(Portal a, Portal b) {
+        if (a == b) {
+            return false;
+        }
+        return a.dimension == b.dimension &&
+            a.dimensionTo == b.dimensionTo &&
+            a.getPos().distanceTo(b.getPos()) < 1 &&
+            a.destination.distanceTo(b.destination) < 1 &&
+            a.getNormal().dotProduct(b.getNormal()) < -0.5;
+    }
+    
     private static void renderProjectedEntity(
         Entity entity,
         Portal collidingPortal,
         MatrixStack matrixStack
     ) {
         if (CGlobal.renderer.isRendering()) {
-            renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            //correctly rendering it needs two culling planes
+            //use some rough check to work around
+            
+            if (!isFlippedPortal(renderingPortal, collidingPortal)) {
+                renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            }
         }
         else {
             PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal, false);

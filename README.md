@@ -9,6 +9,5 @@ https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
 ## Wiki
 https://github.com/qouteall/ImmersivePortalsMod/wiki
 
-
-
-Download dev jar from https://github.com/qouteall/ImmersivePortalsMod/releases
+## Discord Server
+https://discord.gg/BZxgURK

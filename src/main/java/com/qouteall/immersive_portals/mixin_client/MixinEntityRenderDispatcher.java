@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.render.PortalRenderer;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.Entity;
@@ -25,7 +25,7 @@ public class MixinEntityRenderDispatcher {
         double double_3,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (!CGlobal.renderer.shouldRenderEntityNow(entity_1)) {
+        if (!PortalRenderer.shouldRenderEntityNow(entity_1)) {
             cir.setReturnValue(false);
             cir.cancel();
         }

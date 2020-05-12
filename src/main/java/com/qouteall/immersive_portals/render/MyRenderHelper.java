@@ -82,6 +82,8 @@ public class MyRenderHelper {
     
     public static boolean isLaggy = false;
     
+    public static boolean isRenderingEntities = false;
+    
     public static void updatePreRenderInfo(
         float tickDelta_
     ) {

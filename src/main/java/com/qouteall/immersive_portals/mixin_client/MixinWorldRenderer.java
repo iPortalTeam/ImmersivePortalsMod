@@ -12,6 +12,7 @@ import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PixelCuller;
+import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -255,7 +256,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private boolean redirectIsThirdPerson(Camera camera) {
-        if (CGlobal.renderer.shouldRenderPlayerItself()) {
+        if (PortalRenderer.shouldRenderPlayerItself()) {
             return true;
         }
         return camera.isThirdPerson();
@@ -281,16 +282,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
         if (entity == camera.getFocusedEntity()) {
-            if (CGlobal.renderer.shouldRenderPlayerItself()) {
+            if (PortalRenderer.shouldRenderPlayerItself()) {
                 MyGameRenderer.renderPlayerItself(() -> {
-                    CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
-                    renderEntity(
-                        entity,
-                        cameraX, cameraY, cameraZ,
-                        tickDelta,
-                        matrixStack, vertexConsumerProvider
-                    );
-                    CrossPortalEntityRenderer.afterRenderingEntity(entity);
+                    double distanceToCamera =
+                        entity.getCameraPosVec(MyRenderHelper.tickDelta)
+                            .distanceTo(client.gameRenderer.getCamera().getPos());
+                    //avoid rendering player too near and block view except mirror
+                    if (distanceToCamera > 1 || MyRenderHelper.isRenderingOddNumberOfMirrors()) {
+                        CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
+                        renderEntity(
+                            entity,
+                            cameraX, cameraY, cameraZ,
+                            tickDelta,
+                            matrixStack, vertexConsumerProvider
+                        );
+                        CrossPortalEntityRenderer.afterRenderingEntity(entity);
+                    }
                 });
                 return;
             }

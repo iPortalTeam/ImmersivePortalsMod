@@ -152,6 +152,7 @@ public class MyGameRenderer {
             .configure(client.world, oldCamera, client.targetedEntity);
     }
     
+    //TODO remove doOuterCheck
     public static void renderPlayerItself(Runnable doRenderEntity) {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) client.worldRenderer).getEntityRenderDispatcher();
@@ -169,13 +170,8 @@ public class MyGameRenderer {
             player, MyRenderHelper.originalPlayerPos, MyRenderHelper.originalPlayerLastTickPos
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
-        
-        double distanceToCamera =
-            player.getCameraPosVec(MyRenderHelper.tickDelta).distanceTo(client.gameRenderer.getCamera().getPos());
-        //avoid rendering player too near and block view except mirror
-        if (distanceToCamera > 1 || MyRenderHelper.isRenderingOddNumberOfMirrors()) {
-            doRenderEntity.run();
-        }
+    
+        doRenderEntity.run();
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos

@@ -11,7 +11,6 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -185,8 +184,10 @@ public class ClientTeleportationManager {
             disableTeleportFor(40);
         }
         
+        //TODO update colliding portal and take tickDelta into account
+        
         //update colliding portal
-        ((IEEntity) player).tickCollidingPortal();
+//        ((IEEntity) player).tickCollidingPortal();
     }
     
     public boolean isTeleportingFrequently() {

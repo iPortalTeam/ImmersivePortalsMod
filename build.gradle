@@ -126,3 +126,9 @@ repositories {
 		url = 'https://maven.fabricmc.net'
 	}
 }
+
+task printClasspath {
+	doLast {
+		configurations.testCompile.each { println it }
+	}
+}

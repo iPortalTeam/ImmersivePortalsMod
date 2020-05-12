@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
@@ -74,31 +75,40 @@ public abstract class PortalRenderer {
         return portalLayers.peek();
     }
     
-    public boolean shouldRenderPlayerItself() {
+    public static boolean shouldRenderPlayerItself() {
         if (!Global.renderYourselfInPortal) {
             return false;
         }
-        if (!isRendering()) {
+        if (!CGlobal.renderer.isRendering()) {
             return false;
         }
         if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
-//            if (TransformationManager.isAnimationRunning()) {
-//                return false;
-//            }
             return true;
         }
         return false;
     }
     
-    public boolean shouldRenderEntityNow(Entity entity) {
+    public static boolean shouldRenderEntityNow(Entity entity) {
         if (OFInterface.isShadowPass.getAsBoolean()) {
             return true;
         }
-        if (isRendering()) {
+        if (CGlobal.renderer.isRendering()) {
             if (entity instanceof ClientPlayerEntity) {
-                return shouldRenderPlayerItself();
+                return PortalRenderer.shouldRenderPlayerItself();
             }
-            return getRenderingPortal().canRenderEntityInsideMe(
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+            if (collidingPortal != null) {
+                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+    
+//                boolean isHidden = cameraPos.subtract(collidingPortal.getPos())
+//                    .dotProduct(collidingPortal.getNormal()) < 0;
+//                if (isHidden) {
+//                    return false;
+//                }
+            }
+            
+            return renderingPortal.canRenderEntityInsideMe(
                 entity.getCameraPosVec(1), -0.01
             );
         }
@@ -122,7 +132,7 @@ public abstract class PortalRenderer {
             Helper.err("rendering invalid portal " + portal);
             return;
         }
-    
+        
         if (MyRenderHelper.getRenderedPortalNum() >= Global.portalRenderLimit) {
             return;
         }
