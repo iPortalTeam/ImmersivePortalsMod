@@ -63,6 +63,7 @@ public class Portal extends Entity {
     ) {
         super(entityType_1, world_1);
     }
+   
     
     @Override
     protected void initDataTracker() {
@@ -281,14 +282,7 @@ public class Portal extends Entity {
             destination != null;
     }
     
-    public boolean canRenderPortalInsideMe(Portal anotherPortal) {
-        if (anotherPortal.dimension != dimensionTo) {
-            return false;
-        }
-        return canRenderEntityInsideMe(anotherPortal.getPos(), 0.5);
-    }
-    
-    public boolean canRenderEntityInsideMe(Vec3d entityPos, double valve) {
+    public boolean isInside(Vec3d entityPos, double valve) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
         return v > valve;
     }
@@ -635,5 +629,37 @@ public class Portal extends Entity {
         } else {
             return McHelper.getServer().getWorld(dimensionTo);
         }
+    }
+    
+    public static boolean isParallelPortal(Portal currPortal, Portal outerPortal) {
+        if (currPortal.dimension != outerPortal.dimensionTo) {
+            return false;
+        }
+        if (currPortal.dimensionTo != outerPortal.dimension) {
+            return false;
+        }
+        if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
+            return false;
+        }
+        return !outerPortal.isInside(currPortal.getPos(), 0.1);
+    }
+    
+    public static boolean isReversePortal(Portal a, Portal b) {
+        return a.dimensionTo == b.dimension &&
+            a.dimension == b.dimensionTo &&
+            a.getPos().distanceTo(b.destination) < 1 &&
+            a.destination.distanceTo(b.getPos()) < 1 &&
+            a.getNormal().dotProduct(b.getContentDirection()) > 0.5;
+    }
+    
+    public static boolean isFlippedPortal(Portal a, Portal b) {
+        if (a == b) {
+            return false;
+        }
+        return a.dimension == b.dimension &&
+            a.dimensionTo == b.dimensionTo &&
+            a.getPos().distanceTo(b.getPos()) < 1 &&
+            a.destination.distanceTo(b.destination) < 1 &&
+            a.getNormal().dotProduct(b.getNormal()) < -0.5;
     }
 }

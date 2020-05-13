@@ -14,6 +14,6 @@ public class MixinAbstractDecorationEntity {
         at = @At("HEAD")
     )
     private void onTick(CallbackInfo ci) {
-        ((IEEntity) this).tickCollidingPortal();
+        ((IEEntity) this).tickCollidingPortal(1);
     }
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
@@ -297,6 +298,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                             matrixStack, vertexConsumerProvider
                         );
                         CrossPortalEntityRenderer.afterRenderingEntity(entity);
+                    }
+                    else {
+                        Helper.log("dis");
                     }
                 });
                 return;

@@ -54,6 +54,8 @@ public class CustomizablePortalGeneration {
     }
     
     public static Entry readEntry(String str) {
+        str = str.trim();
+        
         String[] components = str.split(",");
         if (components.length != 5) {
             Helper.err("Invalid Entry " + str);

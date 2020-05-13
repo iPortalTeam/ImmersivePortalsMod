@@ -58,9 +58,9 @@ public class CollisionHelper {
         return new Box(afterBeingPushed, staticPos);
     }
     
-    private static boolean shouldCollideWithPortal(Entity entity, Portal portal) {
+    private static boolean shouldCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
         return portal.isTeleportable() &&
-            portal.isInFrontOfPortal(entity.getCameraPosVec(1));
+            portal.isInFrontOfPortal(entity.getCameraPosVec(tickDelta));
     }
     
     public static Vec3d handleCollisionHalfwayInPortal(
@@ -219,12 +219,12 @@ public class CollisionHelper {
     //it has a small chance to ignore collided entities
     //this would cause player to fall through floor when halfway though portal
     //use entity.getCollidingPortal() and do not use this
-    public static Portal getCollidingPortalUnreliable(Entity entity) {
+    public static Portal getCollidingPortalUnreliable(Entity entity, float tickDelta) {
         Box box = entity.getBoundingBox().stretch(entity.getVelocity());
         
         return getCollidingPortalRough(entity, box).filter(
             portal -> shouldCollideWithPortal(
-                entity, portal
+                entity, portal, tickDelta
             )
         ).min(
             Comparator.comparingDouble(p -> p.getY())

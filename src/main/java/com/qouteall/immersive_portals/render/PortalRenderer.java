@@ -99,18 +99,20 @@ public abstract class PortalRenderer {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
             if (collidingPortal != null) {
-                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-    
-//                boolean isHidden = cameraPos.subtract(collidingPortal.getPos())
-//                    .dotProduct(collidingPortal.getNormal()) < 0;
-//                if (isHidden) {
-//                    return false;
-//                }
+                if (!Portal.isReversePortal(collidingPortal, renderingPortal)) {
+                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                    
+                    boolean isHidden = cameraPos.subtract(collidingPortal.getPos())
+                        .dotProduct(collidingPortal.getNormal()) < 0;
+                    if (isHidden) {
+                        return false;
+                    }
+                }
             }
             
-            return renderingPortal.canRenderEntityInsideMe(
-                entity.getCameraPosVec(1), -0.01
-            );
+//            return renderingPortal.isInside(
+//                entity.getCameraPosVec(MyRenderHelper.tickDelta), -0.01
+//            );
         }
         return true;
     }
@@ -136,8 +138,8 @@ public abstract class PortalRenderer {
         if (MyRenderHelper.getRenderedPortalNum() >= Global.portalRenderLimit) {
             return;
         }
-        
-        Vec3d thisTickEyePos = getRoughTestCameraPos();
+    
+        Vec3d thisTickEyePos = client.gameRenderer.getCamera().getPos();
         
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
             return;
@@ -145,7 +147,7 @@ public abstract class PortalRenderer {
         
         if (isRendering()) {
             Portal outerPortal = portalLayers.peek();
-            if (isReversePortal(portal, outerPortal)) {
+            if (Portal.isParallelPortal(portal, outerPortal)) {
                 return;
             }
         }
@@ -155,23 +157,6 @@ public abstract class PortalRenderer {
         }
         
         doRenderPortal(portal, matrixStack);
-    }
-    
-    private static boolean isReversePortal(Portal currPortal, Portal outerPortal) {
-        if (currPortal.dimension != outerPortal.dimensionTo) {
-            return false;
-        }
-        if (currPortal.dimensionTo != outerPortal.dimension) {
-            return false;
-        }
-        if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
-            return false;
-        }
-        return !outerPortal.canRenderEntityInsideMe(currPortal.getPos(), 0.1);
-    }
-    
-    private Vec3d getRoughTestCameraPos() {
-        return client.gameRenderer.getCamera().getPos();
     }
     
     protected final double getRenderRange() {

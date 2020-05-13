@@ -18,6 +18,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
+import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
@@ -152,7 +153,6 @@ public class MyGameRenderer {
             .configure(client.world, oldCamera, client.targetedEntity);
     }
     
-    //TODO remove doOuterCheck
     public static void renderPlayerItself(Runnable doRenderEntity) {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) client.worldRenderer).getEntityRenderDispatcher();
@@ -170,8 +170,16 @@ public class MyGameRenderer {
             player, MyRenderHelper.originalPlayerPos, MyRenderHelper.originalPlayerLastTickPos
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
-    
+        
         doRenderEntity.run();
+        
+        if (ClientTeleportationManager.isTeleportingTick&&(CGlobal.renderer.getPortalLayer()==1)) {
+            Helper.log(String.format(
+                "r%d %s",
+                CGlobal.clientTeleportationManager.tickTimeForTeleportation,
+                MyRenderHelper.tickDelta
+            ));
+        }
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos

@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -38,11 +39,13 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
     MinecraftClient client = MinecraftClient.getInstance();
-    private long tickTimeForTeleportation = 0;
+    public long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     private Vec3d lastPlayerHeadPos = null;
     private long teleportWhileRidingTime = 0;
     private long teleportTickTimeLimit = 0;
+    
+    public static boolean isTeleportingTick = false;
     
     public ClientTeleportationManager() {
 //        ModMain.preRenderSignal.connectWithWeakRef(
@@ -56,7 +59,8 @@ public class ClientTeleportationManager {
     private void tick() {
         tickTimeForTeleportation++;
         changePlayerMotionIfCollidingWithPortal();
-        
+    
+        isTeleportingTick = false;
     }
     
     public void acceptSynchronizationDataFromServer(
@@ -183,11 +187,13 @@ public class ClientTeleportationManager {
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
         }
-        
-        //TODO update colliding portal and take tickDelta into account
+
+        Helper.log("Client Teleported " + portal);
         
         //update colliding portal
-//        ((IEEntity) player).tickCollidingPortal();
+        ((IEEntity) player).tickCollidingPortal(MyRenderHelper.tickDelta);
+    
+        isTeleportingTick = true;
     }
     
     public boolean isTeleportingFrequently() {

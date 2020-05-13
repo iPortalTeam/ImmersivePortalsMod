@@ -69,7 +69,7 @@ public abstract class MixinEntity implements IEEntity {
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
-        tickCollidingPortal();
+        tickCollidingPortal(1);
     }
     
     @Redirect(
@@ -234,7 +234,7 @@ public abstract class MixinEntity implements IEEntity {
     }
     
     @Override
-    public void tickCollidingPortal() {
+    public void tickCollidingPortal(float tickDelta) {
         Entity this_ = (Entity) (Object) this;
         
         if (collidingPortal != null) {
@@ -247,7 +247,7 @@ public abstract class MixinEntity implements IEEntity {
         // of entities discovering nearby portals
         world.getProfiler().push("getCollidingPortal");
         Portal nowCollidingPortal =
-            CollisionHelper.getCollidingPortalUnreliable(this_);
+            CollisionHelper.getCollidingPortalUnreliable(this_, tickDelta);
         world.getProfiler().pop();
         
         if (nowCollidingPortal == null) {
