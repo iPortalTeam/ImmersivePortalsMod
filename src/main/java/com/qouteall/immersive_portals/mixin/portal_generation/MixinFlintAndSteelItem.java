@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.portal.CustomizablePortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
@@ -15,6 +14,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -48,14 +48,14 @@ public class MixinFlintAndSteelItem {
         ItemUsageContext context,
         CallbackInfoReturnable<ActionResult> cir
     ) {
-        IWorld world = context.getWorld();
+        World world = context.getWorld();
         if (!world.isClient()) {
             BlockPos targetPos = context.getBlockPos();
             Direction side = context.getSide();
             BlockPos firePos = targetPos.offset(side);
             BlockState targetBlockState = world.getBlockState(targetPos);
             Block targetBlock = targetBlockState.getBlock();
-            if (targetBlockState.getMaterial() == Material.GLASS) {
+            if (BreakableMirror.isGlass(world,targetPos)) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );

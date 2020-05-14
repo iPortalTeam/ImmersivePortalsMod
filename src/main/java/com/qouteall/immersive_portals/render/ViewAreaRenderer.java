@@ -36,7 +36,8 @@ public class ViewAreaRenderer {
         
         if (portal instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
-            double mirrorOffset = OFInterface.isShaders.getAsBoolean() ? 0.01 : -0.01;
+            double mirrorOffset =
+                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
             posInPlayerCoordinate = posInPlayerCoordinate.add(
                 portal.getNormal().multiply(mirrorOffset));
         }

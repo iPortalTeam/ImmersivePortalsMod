@@ -4,7 +4,9 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Block;
-import net.minecraft.block.Material;
+import net.minecraft.block.GlassBlock;
+import net.minecraft.block.PaneBlock;
+import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
@@ -14,7 +16,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class BreakableMirror extends Mirror {
@@ -88,14 +89,14 @@ public class BreakableMirror extends Mirror {
         }
     }
     
-    private static boolean isGlass(World world, BlockPos blockPos) {
-//        return world.getBlockState(blockPos).getBlock() == Blocks.GLASS;
-        return world.getBlockState(blockPos).getMaterial() == Material.GLASS;
+    public static boolean isGlass(World world, BlockPos blockPos) {
+        Block block = world.getBlockState(blockPos).getBlock();
+        return block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock;
     }
     
     private static boolean isGlassPane(World world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return Registry.BLOCK.getId(block).toString().contains("pane");
+        return block instanceof PaneBlock || block instanceof StainedGlassBlock;
     }
     
     public static BreakableMirror createMirror(
