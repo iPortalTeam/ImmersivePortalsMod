@@ -78,7 +78,15 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         }
     }
     
-    
+    @Inject(method = "copyFrom", at = @At("RETURN"))
+    private void onCopyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
+        HashMultimap<DimensionType, Entity> oldPlayerRemovedEntities =
+            ((MixinServerPlayerEntity) (Object) oldPlayer).myRemovedEntities;
+        if (oldPlayerRemovedEntities != null) {
+            myRemovedEntities = HashMultimap.create();
+            this.myRemovedEntities.putAll(oldPlayerRemovedEntities);
+        }
+    }
     
     /**
      * @author qouteall

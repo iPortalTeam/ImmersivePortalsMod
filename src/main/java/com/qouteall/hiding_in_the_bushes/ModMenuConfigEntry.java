@@ -90,6 +90,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 "imm_ptl.mirror_interactable_through_portal",
                 currConfig.mirrorInteractableThroughPortal
             ).setDefaultValue(false).build();
+            BooleanListEntry entryPureMirror = builder.entryBuilder().startBooleanToggle(
+                "imm_ptl.pure_mirror",
+                currConfig.pureMirror
+            ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 "imm_ptl.render_redirect",
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
@@ -116,6 +120,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryEdgelessSky);
             category.addEntry(entryReversibleNetherPortalLinking);
             category.addEntry(entryMirrorInteractableThroughPortal);
+            category.addEntry(entryPureMirror);
             category.addEntry(entryDimensionRenderRedirect);
             category.addEntry(entryPortalGeneration);
             return builder
@@ -138,6 +143,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.edgelessSky = entryEdgelessSky.getValue();
                     newConfig.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
+                    newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

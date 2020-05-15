@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
@@ -10,6 +11,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
@@ -85,7 +87,7 @@ public class NewChunkTrackingGraph {
                 }
             }
         }
-    
+        
         public boolean isBeingWatchedByAnyPlayer() {
             return !watchingPlayers.isEmpty();
         }
@@ -155,33 +157,25 @@ public class NewChunkTrackingGraph {
         });
         
         McHelper.getServer().getWorlds().forEach(world -> {
-    
+            
             LongSortedSet currentLoadedChunks = getChunkRecordMap(world.dimension.getType()).keySet();
-    
+            
             currentLoadedChunks.forEach(
                 (long longChunkPos) -> {
                     MyLoadingTicket.load(world, new ChunkPos(longChunkPos));
-//                    ((IEServerWorld) world).updateLoadingStatus(
-//                        ChunkPos.getPackedX(longChunkPos),
-//                        ChunkPos.getPackedZ(longChunkPos),
-//                        true
-//                    );
                 }
             );
-    
+            
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(chunkLoader -> chunkLoader.foreachChunkPos(
                 (dim, x, z, dis) -> {
                     if (world.dimension.getType() == dim) {
                         additionalLoadedChunks.add(ChunkPos.toLong(x, z));
                         MyLoadingTicket.load(world, new ChunkPos(x, z));
-//                        ((IEServerWorld) world).updateLoadingStatus(
-//                            x, z, true
-//                        );
                     }
                 }
             ));
-    
+            
             LongList chunksToUnload = new LongArrayList();
             MyLoadingTicket.getRecord(world).forEach((long longChunkPos) -> {
                 if (!currentLoadedChunks.contains(longChunkPos) &&
@@ -190,14 +184,9 @@ public class NewChunkTrackingGraph {
                     chunksToUnload.add(longChunkPos);
                 }
             });
-    
+            
             chunksToUnload.forEach((long longChunkPos) -> {
                 MyLoadingTicket.unload(world, new ChunkPos(longChunkPos));
-//                world.setChunkForced(
-//                    ChunkPos.getPackedX(longChunkPos),
-//                    ChunkPos.getPackedZ(longChunkPos),
-//                    false
-//                );
             });
         });
     }
@@ -224,7 +213,7 @@ public class NewChunkTrackingGraph {
         boolean isLoadedNow
     ) {
         ServerWorld world = McHelper.getServer().getWorld(dimension);
-    
+        
         world.setChunkForced(chunkPos.x, chunkPos.z, isLoadedNow);
     }
     
@@ -282,10 +271,19 @@ public class NewChunkTrackingGraph {
     }
     
     public static void forceRemovePlayer(ServerPlayerEntity player) {
-        data.values().forEach(map -> map.values().forEach(
-            chunkRecord -> chunkRecord.removeInactiveWatcher(
+        data.forEach((dim, map) -> map.forEach(
+            (chunkPos, chunkRecord) -> chunkRecord.removeInactiveWatcher(
                 (player1, l, d) -> player1 == player,
                 p -> {
+                    //it solves issue but making respawn laggier
+                    p.networkHandler.sendPacket(
+                        MyNetwork.createRedirectedMessage(
+                            dim, new UnloadChunkS2CPacket(
+                                ChunkPos.getPackedX(chunkPos),
+                                ChunkPos.getPackedZ(chunkPos)
+                            )
+                        )
+                    );
                 }
             )
         ));

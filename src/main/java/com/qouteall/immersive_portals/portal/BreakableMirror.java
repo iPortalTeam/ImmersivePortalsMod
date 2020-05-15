@@ -96,7 +96,7 @@ public class BreakableMirror extends Mirror {
     
     private static boolean isGlassPane(World world, BlockPos blockPos) {
         Block block = world.getBlockState(blockPos).getBlock();
-        return block instanceof PaneBlock || block instanceof StainedGlassBlock;
+        return block instanceof PaneBlock;
     }
     
     public static BreakableMirror createMirror(
