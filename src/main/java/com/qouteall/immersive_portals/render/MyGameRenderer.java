@@ -18,7 +18,6 @@ import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
-import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
@@ -173,13 +172,13 @@ public class MyGameRenderer {
         
         doRenderEntity.run();
         
-        if (ClientTeleportationManager.isTeleportingTick&&(CGlobal.renderer.getPortalLayer()==1)) {
-            Helper.log(String.format(
-                "r%d %s",
-                CGlobal.clientTeleportationManager.tickTimeForTeleportation,
-                MyRenderHelper.tickDelta
-            ));
-        }
+//        if (ClientTeleportationManager.isTeleportingTick&&(CGlobal.renderer.getPortalLayer()==1)) {
+//            Helper.log(String.format(
+//                "r%d %s",
+//                CGlobal.clientTeleportationManager.tickTimeForTeleportation,
+//                MyRenderHelper.tickDelta
+//            ));
+//        }
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos

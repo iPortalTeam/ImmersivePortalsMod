@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IECamera;
@@ -14,7 +13,6 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
-import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.network.PlayerListEntry;
@@ -124,9 +122,9 @@ public class MyRenderHelper {
         debugText = "";
 //        MyRenderHelper.debugText = String.valueOf(((IEEntity) client.player).getCollidingPortal());
     
-        if (ClientTeleportationManager.isTeleportingTick) {
-            Helper.log("frame "+tickDelta_);
-        }
+//        if (ClientTeleportationManager.isTeleportingTick) {
+//            Helper.log("frame "+tickDelta_);
+//        }
     }
     
     //protect the player from mirror room lag attack
@@ -403,11 +401,6 @@ public class MyRenderHelper {
         GlStateManager.popMatrix();
         
         CHelper.checkGlError();
-    }
-    
-    public static boolean isRenderingMirror() {
-        return CGlobal.renderer.isRendering() &&
-            CGlobal.renderer.getRenderingPortal() instanceof Mirror;
     }
     
     public static void earlyUpdateLight() {

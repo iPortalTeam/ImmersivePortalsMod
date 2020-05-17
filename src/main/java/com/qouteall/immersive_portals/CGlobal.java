@@ -35,6 +35,6 @@ public class CGlobal {
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     public static boolean renderFewerInFastGraphic = true;
     public static boolean smoothChunkUnload = true;
-    public static boolean earlyClientLightUpdate = true;
+    public static boolean earlyClientLightUpdate = false;
     public static boolean useSuperAdvancedFrustumCulling = true;
 }
