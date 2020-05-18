@@ -110,9 +110,9 @@ public abstract class PortalRenderer {
                 }
             }
             
-//            return renderingPortal.isInside(
-//                entity.getCameraPosVec(MyRenderHelper.tickDelta), -0.01
-//            );
+            return renderingPortal.isInside(
+                entity.getCameraPosVec(MyRenderHelper.tickDelta), -0.01
+            );
         }
         return true;
     }

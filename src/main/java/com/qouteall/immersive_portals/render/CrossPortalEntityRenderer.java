@@ -137,6 +137,14 @@ public class CrossPortalEntityRenderer {
         });
     }
     
+    public static boolean hasIntersection(
+        Vec3d outerPlanePos, Vec3d outerPlaneNormal,
+        Vec3d entityPos, Vec3d collidingPortalNormal
+    ) {
+        return entityPos.subtract(outerPlanePos).dotProduct(outerPlaneNormal) > 0.01 &&
+            outerPlanePos.subtract(entityPos).dotProduct(collidingPortalNormal) > 0.01;
+    }
+    
     private static void renderProjectedEntity(
         Entity entity,
         Portal collidingPortal,
@@ -147,8 +155,14 @@ public class CrossPortalEntityRenderer {
             //correctly rendering it needs two culling planes
             //use some rough check to work around
             
-            if (!Portal.isFlippedPortal(renderingPortal, collidingPortal)) {
-                renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            if (!Portal.isFlippedPortal(renderingPortal,collidingPortal)) {
+                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                
+                boolean isHidden = cameraPos.subtract(collidingPortal.destination)
+                    .dotProduct(collidingPortal.getContentDirection()) < 0;
+                if (renderingPortal==collidingPortal|| !isHidden) {
+                    renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+                }
             }
         }
         else {
@@ -199,6 +213,10 @@ public class CrossPortalEntityRenderer {
         }
         
         if (entity instanceof ClientPlayerEntity) {
+            if(!Global.renderYourselfInPortal){
+                return;
+            }
+            
             //avoid rendering player too near and block view
             double dis = newEyePos.squaredDistanceTo(cameraPos);
             double valve = 0.5 + McHelper.lastTickPosOf(entity).squaredDistanceTo(entity.getPos());

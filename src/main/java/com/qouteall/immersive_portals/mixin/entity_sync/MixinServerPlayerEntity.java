@@ -78,7 +78,10 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         }
     }
     
-    @Inject(method = "copyFrom", at = @At("RETURN"))
+    @Inject(
+        method = "Lnet/minecraft/server/network/ServerPlayerEntity;copyFrom(Lnet/minecraft/server/network/ServerPlayerEntity;Z)V",
+        at = @At("RETURN")
+    )
     private void onCopyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         HashMultimap<DimensionType, Entity> oldPlayerRemovedEntities =
             ((MixinServerPlayerEntity) (Object) oldPlayer).myRemovedEntities;
