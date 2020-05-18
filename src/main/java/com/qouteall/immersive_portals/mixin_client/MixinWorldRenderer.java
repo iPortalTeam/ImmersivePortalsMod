@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
@@ -589,11 +590,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
         if (Global.edgelessSky) {
             if (CGlobal.renderer.isRendering()) {
-                MyGameRenderer.renderSkyFor(
-                    RenderDimensionRedirect.getRedirectedDimension(MyRenderHelper.originalPlayerDimension),
-                    matrixStack, f
-                );
-                return;
+                if (CGlobal.renderer.getRenderingPortal() instanceof GlobalTrackedPortal) {
+                    MyGameRenderer.renderSkyFor(
+                        RenderDimensionRedirect.getRedirectedDimension(MyRenderHelper.originalPlayerDimension),
+                        matrixStack, f
+                    );
+                    return;
+                }
             }
         }
         

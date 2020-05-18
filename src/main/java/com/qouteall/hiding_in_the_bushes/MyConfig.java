@@ -112,6 +112,7 @@ public class MyConfig {
         Global.reversibleNetherPortalLinking = reversibleNetherPortalLinking;
         Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
         Global.looseMovementCheck = looseMovementCheck;
+        Global.pureMirror = pureMirror;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
