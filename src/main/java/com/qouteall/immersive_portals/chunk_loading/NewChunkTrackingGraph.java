@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
@@ -268,6 +269,21 @@ public class NewChunkTrackingGraph {
             return Stream.empty();
         }
         return record.watchingPlayers.stream();
+    }
+    
+    /**
+     * {@link net.minecraft.server.world.ThreadedAnvilChunkStorage#getPlayersWatchingChunk(ChunkPos, boolean)}
+     * The "onlyOnWatchDistanceEdge" is so weird!!!!!!
+     * If it does not send only to edge players, placing a block will
+     * send light updates and cause client to rebuild the chunk multiple times
+     */
+    public static Stream<ServerPlayerEntity> getFarWatchers(
+        DimensionType dimension,
+        int x, int z
+    ) {
+        return getPlayersViewingChunk(dimension, x, z)
+            .filter(player -> player.dimension != dimension ||
+                Helper.getChebyshevDistance(x, z, player.chunkX, player.chunkZ) > 4);
     }
     
     public static void forceRemovePlayer(ServerPlayerEntity player) {
