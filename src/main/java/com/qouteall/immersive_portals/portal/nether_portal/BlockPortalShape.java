@@ -16,6 +16,7 @@ import org.apache.commons.lang3.Validate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +29,8 @@ public class BlockPortalShape {
     public Direction.Axis axis;
     public Set<BlockPos> frameAreaWithoutCorner;
     public Set<BlockPos> frameAreaWithCorner;
+    
+    private BlockPos firstFramePos;
     
     public BlockPortalShape(
         Set<BlockPos> area, Direction.Axis axis
@@ -143,6 +146,8 @@ public class BlockPortalShape {
             blockPos -> !area.contains(blockPos)
         ).collect(Collectors.toSet());
         frameAreaWithCorner.addAll(frameAreaWithoutCorner);
+        
+        firstFramePos = frameAreaWithoutCorner.iterator().next();
     }
     
     //null for not found
@@ -230,15 +235,7 @@ public class BlockPortalShape {
             return null;
         }
         
-        boolean testFrame = frameAreaWithoutCorner.stream().map(
-            blockPos -> temp.set(
-                blockPos.getX() - anchor.getX() + newAnchor.getX(),
-                blockPos.getY() - anchor.getY() + newAnchor.getY(),
-                blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
-            )
-        ).allMatch(
-            isObsidian
-        );
+        boolean testFrame = testFrameWithoutCorner(isObsidian, newAnchor, temp);
         
         if (!testFrame) {
             return null;
@@ -260,6 +257,25 @@ public class BlockPortalShape {
         }
         
         return getShapeWithMovedAnchor(newAnchor);
+    }
+    
+    private boolean testFrameWithoutCorner(
+        Predicate<BlockPos> isObsidian,
+        BlockPos newAnchor,
+        BlockPos.Mutable temp
+    ) {
+        Function<BlockPos, BlockPos.Mutable> mapper = blockPos -> temp.set(
+            blockPos.getX() - anchor.getX() + newAnchor.getX(),
+            blockPos.getY() - anchor.getY() + newAnchor.getY(),
+            blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
+        );
+    
+        //does this have optimization effect?
+        if (!isObsidian.test(mapper.apply(firstFramePos))) {
+            return false;
+        }
+        
+        return frameAreaWithoutCorner.stream().map(mapper).allMatch(isObsidian);
     }
     
     public BlockPortalShape getShapeWithMovedAnchor(
