@@ -106,8 +106,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         }
         
         verticalConnectingPortal.dimensionTo = toWorld.dimension.getType();
-        verticalConnectingPortal.width = 23333;
-        verticalConnectingPortal.height = 23333;
+        verticalConnectingPortal.width = 60001000;
+        verticalConnectingPortal.height = 60001000;
         return verticalConnectingPortal;
     }
     
