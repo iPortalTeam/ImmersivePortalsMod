@@ -63,7 +63,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     @Final
-    public MinecraftClient client;
+    private MinecraftClient client;
     
     @Shadow
     private double lastTranslucentSortX;
@@ -149,10 +149,34 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
             FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
         }
+    
+        ObjectList<?> visibleChunks = this.visibleChunks;
+        if (renderLayer == RenderLayer.getSolid()) {
+            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
+        }
+    
+        if (CGlobal.renderer.isRendering()) {
+            PixelCuller.updateCullingPlaneInner(
+                matrices,
+                CGlobal.renderer.getRenderingPortal(),
+                true
+            );
+            PixelCuller.startCulling();
+            if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
+                MyRenderHelper.applyMirrorFaceCulling();
+            }
+        }
+        
         renderLayer(
             renderLayer, matrices,
             cameraX, cameraY, cameraZ
         );
+    
+        if (CGlobal.renderer.isRendering()) {
+            PixelCuller.endCulling();
+            MyRenderHelper.recoverFaceCulling();
+        }
+        
         if (isTranslucent) {
             CGlobal.renderer.onAfterTranslucentRendering(matrices);
         }
@@ -200,54 +224,36 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //apply culling and apply optimization
-    @Inject(
-        method = "renderLayer",
-        at = @At("HEAD")
-    )
-    private void onStartRenderLayer(
-        RenderLayer renderLayer_1,
-        MatrixStack matrixStack_1,
-        double double_1,
-        double double_2,
-        double double_3,
-        CallbackInfo ci
-    ) {
-        ObjectList<?> visibleChunks = this.visibleChunks;
-        if (renderLayer_1 == RenderLayer.getSolid()) {
-            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
-        }
-        
-        if (CGlobal.renderer.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(
-                matrixStack_1,
-                CGlobal.renderer.getRenderingPortal(),
-                true
-            );
-            PixelCuller.startCulling();
-            if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
-                MyRenderHelper.applyMirrorFaceCulling();
-            }
-        }
-    }
-    
-    @Inject(
-        method = "renderLayer",
-        at = @At("TAIL")
-    )
-    private void onStopRenderLayer(
-        RenderLayer renderLayer_1,
-        MatrixStack matrixStack_1,
-        double double_1,
-        double double_2,
-        double double_3,
-        CallbackInfo ci
-    ) {
-        if (CGlobal.renderer.isRendering()) {
-            PixelCuller.endCulling();
-            MyRenderHelper.recoverFaceCulling();
-        }
-    }
+//    //apply culling and apply optimization
+//    @Inject(
+//        method = "renderLayer",
+//        at = @At("HEAD")
+//    )
+//    private void onStartRenderLayer(
+//        RenderLayer renderLayer,
+//        MatrixStack matrixStack_1,
+//        double double_1,
+//        double double_2,
+//        double double_3,
+//        CallbackInfo ci
+//    ) {
+//
+//    }
+//
+//    @Inject(
+//        method = "renderLayer",
+//        at = @At("TAIL")
+//    )
+//    private void onStopRenderLayer(
+//        RenderLayer renderLayer_1,
+//        MatrixStack matrixStack_1,
+//        double double_1,
+//        double double_2,
+//        double double_3,
+//        CallbackInfo ci
+//    ) {
+//
+//    }
     
     //to let the player be rendered when rendering portal
     @Redirect(
@@ -420,7 +426,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "renderLayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;"
+            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;",
+            ordinal = 0
         )
     )
     private RenderLayer redirectGetTranslucent() {
