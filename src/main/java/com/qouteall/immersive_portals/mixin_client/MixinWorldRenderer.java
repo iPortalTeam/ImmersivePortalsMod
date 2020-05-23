@@ -51,6 +51,9 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Iterator;
+import java.util.Set;
+
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
@@ -128,6 +131,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     protected abstract void updateChunks(long limitTime);
     
+    @Shadow
+    private Set<ChunkBuilder.BuiltChunk> chunksToRebuild;
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -149,12 +155,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
             FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
         }
-    
+        
         ObjectList<?> visibleChunks = this.visibleChunks;
         if (renderLayer == RenderLayer.getSolid()) {
             MyGameRenderer.doPruneVisibleChunks(visibleChunks);
         }
-    
+        
         if (CGlobal.renderer.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrices,
@@ -171,7 +177,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             renderLayer, matrices,
             cameraX, cameraY, cameraZ
         );
-    
+        
         if (CGlobal.renderer.isRendering()) {
             PixelCuller.endCulling();
             MyRenderHelper.recoverFaceCulling();
@@ -223,37 +229,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             );
         }
     }
-    
-//    //apply culling and apply optimization
-//    @Inject(
-//        method = "renderLayer",
-//        at = @At("HEAD")
-//    )
-//    private void onStartRenderLayer(
-//        RenderLayer renderLayer,
-//        MatrixStack matrixStack_1,
-//        double double_1,
-//        double double_2,
-//        double double_3,
-//        CallbackInfo ci
-//    ) {
-//
-//    }
-//
-//    @Inject(
-//        method = "renderLayer",
-//        at = @At("TAIL")
-//    )
-//    private void onStopRenderLayer(
-//        RenderLayer renderLayer_1,
-//        MatrixStack matrixStack_1,
-//        double double_1,
-//        double double_2,
-//        double double_3,
-//        CallbackInfo ci
-//    ) {
-//
-//    }
     
     //to let the player be rendered when rendering portal
     @Redirect(
@@ -527,6 +502,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
+    //reduce lag spike
     @Redirect(
         method = "render",
         at = @At(
@@ -536,7 +512,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     )
     private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
         if (CGlobal.renderer.isRendering()) {
-            updateChunks(0);
+            portal_updateChunks();
         }
         else {
             updateChunks(limitTime);
@@ -698,4 +674,33 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             entity, cameraX, cameraY, cameraZ, tickDelta, matrixStack, vertexConsumerProvider
         );
     }
+    
+    private void portal_updateChunks() {
+        
+        ChunkBuilder chunkBuilder = this.chunkBuilder;
+        boolean uploaded = chunkBuilder.upload();
+        this.needsTerrainUpdate |= uploaded;//no short circuit
+
+        
+        int num = 0;
+        for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
+            ChunkBuilder.BuiltChunk builtChunk = iterator.next();
+            
+            //vanilla's updateChunks() does not check shouldRebuild()
+            //so it may create many rebuild tasks and cancelling it which creates performance cost
+            if (builtChunk.shouldBuild()) {
+                builtChunk.scheduleRebuild(chunkBuilder);
+                builtChunk.cancelRebuild();
+                
+                iterator.remove();
+                
+                num++;
+                if (num > 20) {
+                    break;
+                }
+            }
+        }
+        
+    }
+    
 }

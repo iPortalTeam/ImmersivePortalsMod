@@ -291,4 +291,15 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             return null;
         }
     }
+    
+    public String getDebugString() {
+        return String.format(
+            "All:%s Needs Rebuild:%s",
+            builtChunkMap.size(),
+            builtChunkMap.values().stream()
+                .filter(
+                    builtChunk -> builtChunk.needsRebuild()
+                ).count()
+        );
+    }
 }

@@ -403,6 +403,25 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder.then(CommandManager
+            .literal("report_rebuild_status")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                MinecraftClient.getInstance().execute(() -> {
+                    CGlobal.clientWorldLoader.clientWorldMap.forEach((dim, world) -> {
+                        MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
+                            CGlobal.clientWorldLoader.getWorldRenderer(dim))
+                            .getBuiltChunkStorage();
+                        McHelper.serverLog(
+                            player,
+                            dim.toString() + builtChunkStorage.getDebugString()
+                        );
+                    });
+                });
+                
+                return 0;
+            })
+        );
         registerSwitchCommand(
             builder,
             "render_fewer_on_fast_graphic",
