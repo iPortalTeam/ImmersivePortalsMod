@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
@@ -26,22 +27,14 @@ public class BorderBarrierFiller {
         ServerWorld world = (ServerWorld) player.world;
         IntBox borderBox = getBorderBox(world);
         if (borderBox == null) {
-            McHelper.serverLog(
-                player,
-                "There is no world wrapping portal in this dimension"
-            );
+            player.sendMessage(new TranslatableText("imm_ptl.not_in_wrapping_zone"));
             return;
         }
         
         boolean warned = warnedPlayers.containsKey(player);
         if (!warned) {
             warnedPlayers.put(player, null);
-            McHelper.serverLog(
-                player,
-                "Warning! It will fill the outer layer of the border with barrier blocks.\n" +
-                    "This operation cannot be undone. You should backup the world before doing that.\n" +
-                    "Invoke this command again to precede."
-            );
+            player.sendMessage(new TranslatableText("imm_ptl.fill_barrier_warning"));
         }
         else {
             warnedPlayers.remove(player);
@@ -116,7 +109,7 @@ public class BorderBarrierFiller {
                 return false;
             },
             columns -> {
-                if (McHelper.getServerGameTime() % 10 == 0) {
+                if (McHelper.getServerGameTime() % 4 == 0) {
                     double progress = ((double) columns) / totalColumns;
                     McHelper.serverLog(
                         informer, Integer.toString((int) (progress * 100)) + "%"
@@ -126,6 +119,9 @@ public class BorderBarrierFiller {
             },
             e -> {
                 //nothing
+                McHelper.serverLog(
+                    informer, "Finished"
+                );
             },
             () -> {
             

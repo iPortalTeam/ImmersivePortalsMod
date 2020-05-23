@@ -46,7 +46,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
-public class MyCommandClient {
+public class ClientDebugCommand {
     
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
@@ -83,7 +83,7 @@ public class MyCommandClient {
                         "chunkZ", IntegerArgumentType.integer()
                     )
                     .executes(
-                        MyCommandClient::isClientChunkLoaded
+                        ClientDebugCommand::isClientChunkLoaded
                     )
                 )
             )
@@ -198,7 +198,7 @@ public class MyCommandClient {
         );
         builder = builder.then(CommandManager
             .literal("report_resource_consumption")
-            .executes(MyCommandClient::reportResourceConsumption)
+            .executes(ClientDebugCommand::reportResourceConsumption)
         );
         builder = builder.then(CommandManager
             .literal("report_render_info_num")
