@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.commands.MyCommandServer;
+import com.qouteall.immersive_portals.commands.PortalCommand;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
@@ -56,7 +56,7 @@ public class BlockManipulationClient {
         
         float reachDistance = client.interactionManager.getReachDistance();
 
-        MyCommandServer.getPlayerPointingPortalRaw(
+        PortalCommand.getPlayerPointingPortalRaw(
             client.player, partialTicks, reachDistance, true
         ).ifPresent(pair -> {
             if(pair.getFirst().isInteractable()) {

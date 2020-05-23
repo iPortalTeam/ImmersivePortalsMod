@@ -46,23 +46,23 @@ public class BorderBarrierFiller {
     }
     
     private static IntBox getBorderBox(ServerWorld world) {
-        List<BorderPortal> borderPortals = McHelper.getGlobalPortals(world).stream().filter(
-            p -> p instanceof BorderPortal
+        List<WorldWrappingPortal> worldWrappingPortals = McHelper.getGlobalPortals(world).stream().filter(
+            p -> p instanceof WorldWrappingPortal
         ).map(
-            p -> ((BorderPortal) p)
+            p -> ((WorldWrappingPortal) p)
         ).collect(Collectors.toList());
         
-        if (borderPortals.size() != 4) {
+        if (worldWrappingPortals.size() != 4) {
             return null;
         }
         
         Box floatBox = new Box(
-            borderPortals.get(0).getPos(),
-            borderPortals.get(1).getPos()
+            worldWrappingPortals.get(0).getPos(),
+            worldWrappingPortals.get(1).getPos()
         ).union(
             new Box(
-                borderPortals.get(2).getPos(),
-                borderPortals.get(3).getPos()
+                worldWrappingPortals.get(2).getPos(),
+                worldWrappingPortals.get(3).getPos()
             )
         );
         

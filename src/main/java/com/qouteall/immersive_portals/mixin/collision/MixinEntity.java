@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
+import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -238,7 +238,7 @@ public abstract class MixinEntity implements IEEntity {
         cancellable = true
     )
     private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
-        if (collidingPortal instanceof BorderPortal) {
+        if (collidingPortal instanceof WorldWrappingPortal) {
             cir.setReturnValue(false);
         }
     }

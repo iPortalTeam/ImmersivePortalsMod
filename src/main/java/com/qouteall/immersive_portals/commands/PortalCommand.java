@@ -17,9 +17,9 @@ import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
-import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.EntityArgumentType;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class MyCommandServer {
+public class PortalCommand {
     public static void registerClientDebugCommand(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
@@ -67,7 +67,7 @@ public class MyCommandServer {
                     .then(CommandManager.argument("x2", IntegerArgumentType.integer())
                         .then(CommandManager.argument("z2", IntegerArgumentType.integer())
                             .executes(context -> {
-                                BorderPortal.setBorderPortal(
+                                WorldWrappingPortal.setBorderPortal(
                                     context.getSource().getWorld(),
                                     IntegerArgumentType.getInteger(context, "x1"),
                                     IntegerArgumentType.getInteger(context, "z1"),
@@ -83,7 +83,7 @@ public class MyCommandServer {
         );
         builder.then(CommandManager.literal("border_remove")
             .executes(context -> {
-                BorderPortal.removeBorderPortal(context.getSource().getWorld());
+                WorldWrappingPortal.removeBorderPortal(context.getSource().getWorld());
                 return 0;
             })
         );
@@ -196,28 +196,24 @@ public class MyCommandServer {
         LiteralArgumentBuilder<ServerCommandSource> builder
     ) {
         builder.then(CommandManager.literal("view_portal_data")
-            .executes(context -> {
-                return processPortalTargetedCommand(
-                    context,
-                    (portal) -> {
-                        sendPortalInfo(context, portal);
-                    }
-                );
-            })
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                (portal) -> {
+                    sendPortalInfo(context, portal);
+                }
+            ))
         );
         
         builder.then(CommandManager.literal("set_portal_custom_name")
             .then(CommandManager
                 .argument("name", TextArgumentType.text())
-                .executes(context -> {
-                    return processPortalTargetedCommand(
-                        context,
-                        portal -> {
-                            Text name = TextArgumentType.getTextArgument(context, "name");
-                            portal.setCustomName(name);
-                        }
-                    );
-                })
+                .executes(context -> processPortalTargetedCommand(
+                    context,
+                    portal -> {
+                        Text name = TextArgumentType.getTextArgument(context, "name");
+                        portal.setCustomName(name);
+                    }
+                ))
             )
         );
         
@@ -764,11 +760,11 @@ public class MyCommandServer {
                 .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
                     .then(CommandManager.argument("to", DimensionArgumentType.dimension())
                         .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                            .executes(MyCommandServer::placePortalAbsolute)
+                            .executes(PortalCommand::placePortalAbsolute)
                         )
                         .then(CommandManager.literal("shift")
                             .then(CommandManager.argument("dist", DoubleArgumentType.doubleArg())
-                                .executes(MyCommandServer::placePortalShift)
+                                .executes(PortalCommand::placePortalShift)
                             )
                         )
                     )

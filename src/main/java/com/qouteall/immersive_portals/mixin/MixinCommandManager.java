@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.qouteall.immersive_portals.commands.MyCommandServer;
+import com.qouteall.immersive_portals.commands.PortalCommand;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Final;
@@ -23,9 +23,9 @@ public class MixinCommandManager {
     )
     private void initCommands(boolean isOnServer, CallbackInfo ci) {
         if (!isOnServer) {
-            MyCommandServer.registerClientDebugCommand(dispatcher);
+            PortalCommand.registerClientDebugCommand(dispatcher);
         }
-        MyCommandServer.register(dispatcher);
+        PortalCommand.register(dispatcher);
     }
     
 }
