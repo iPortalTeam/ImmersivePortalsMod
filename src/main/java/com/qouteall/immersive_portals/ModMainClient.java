@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
@@ -74,8 +73,6 @@ public class ModMainClient {
             CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
-        
-        FarSceneryRenderer.init();
         
         O_O.loadConfigFabric();
         

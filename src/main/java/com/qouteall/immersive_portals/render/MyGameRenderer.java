@@ -42,10 +42,7 @@ import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.OverworldDimension;
 import org.lwjgl.opengl.GL11;
 
-import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
@@ -307,60 +304,4 @@ public class MyGameRenderer {
         MyGameRenderer.forceResetFogState();
     }
     
-    @Deprecated
-    public static int getMyUpdateChunkCountLimit() {
-        return 10;
-    }
-    
-    @Deprecated
-    public static void testUpdateChunks(
-        ChunkBuilder chunkBuilder,
-        Set<ChunkBuilder.BuiltChunk> chunksToRebuild
-    ) {
-        long randNum = System.nanoTime() % 100;
-        
-        
-        Consumer<ChunkBuilder.BuiltChunk> fun = builtChunk -> {
-            builtChunk.scheduleRebuild(chunkBuilder);
-            
-            builtChunk.cancelRebuild();
-            
-            chunksToRebuild.remove(builtChunk);
-        };
-        
-        if (chunksToRebuild.size() > 200 && randNum != 0) {
-            chunksToRebuild.stream()
-                .filter(ChunkBuilder.BuiltChunk::needsRebuild)
-                .filter(builtChunk1 -> builtChunk1.hashCode() % 100 == randNum)
-                .limit(20)
-                .collect(Collectors.toList())
-                .forEach(fun);
-        }
-        else {
-            chunksToRebuild.stream()
-                .filter(ChunkBuilder.BuiltChunk::needsRebuild)
-                .limit(20)
-                .collect(Collectors.toList())
-                .forEach(fun);
-        }
-
-
-//        if (!chunksToRebuild.isEmpty()) {
-//            Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator();
-//
-//            while (iterator.hasNext()) {
-//                ChunkBuilder.BuiltChunk builtChunk = (ChunkBuilder.BuiltChunk) iterator.next();
-//
-//
-//                iterator.remove();
-//
-//                number++;
-//
-//                if (number > getMyUpdateChunkCountLimit()) {
-//                    return;
-//                }
-//
-//            }
-//        }
-    }
 }

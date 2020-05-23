@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
@@ -153,7 +152,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (isTranslucent) {
             CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
-            FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
         }
         
         ObjectList<?> visibleChunks = this.visibleChunks;
@@ -680,7 +678,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         ChunkBuilder chunkBuilder = this.chunkBuilder;
         boolean uploaded = chunkBuilder.upload();
         this.needsTerrainUpdate |= uploaded;//no short circuit
-
+        
         
         int num = 0;
         for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {

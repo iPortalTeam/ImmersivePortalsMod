@@ -13,8 +13,6 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
-import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
@@ -434,19 +432,10 @@ public class MyCommandClient {
         );
         registerSwitchCommand(
             builder,
-            "far_scenery",
-            cond -> FSRenderingContext.isFarSceneryEnabled = cond
-        );
-        registerSwitchCommand(
-            builder,
             "smooth_chunk_unload",
             cond -> CGlobal.smoothChunkUnload = cond
         );
-        registerSwitchCommand(
-            builder,
-            "update_far_scenery",
-            cond -> FarSceneryRenderer.shouldUpdateFarScenery = cond
-        );
+     
         registerSwitchCommand(
             builder,
             "early_light_update",
