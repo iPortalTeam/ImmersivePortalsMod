@@ -51,9 +51,9 @@ public class Portal extends Entity {
     public Quaternion rotation;
     
     public double motionAffinity = 0;
-
+    
     private boolean interactable = true;
-
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -63,7 +63,7 @@ public class Portal extends Entity {
     ) {
         super(entityType_1, world_1);
     }
-   
+    
     
     @Override
     protected void initDataTracker() {
@@ -123,7 +123,7 @@ public class Portal extends Entity {
         else {
             motionAffinity = 0;
         }
-        if(compoundTag.contains("interactable")) {
+        if (compoundTag.contains("interactable")) {
             interactable = compoundTag.getBoolean("interactable");
         }
     }
@@ -178,20 +178,22 @@ public class Portal extends Entity {
     /**
      * Determines whether the player should be able to reach through the portal or not.
      * Can be overridden by a sub class.
+     *
      * @return the interactability of the portal
      */
     public boolean isInteractable() {
         return interactable;
     }
-
+    
     /**
      * Changes the reach-through behavior of the portal.
+     *
      * @param interactable the interactability of the portal
      */
     public void setInteractable(boolean interactable) {
         this.interactable = interactable;
     }
-
+    
     public void updateCache() {
         boundingBoxCache = null;
         normal = null;
@@ -619,14 +621,19 @@ public class Portal extends Entity {
             axisH.multiply(yInPlane)
         );
     }
-
+    
+    public World getDestinationWorld() {
+        return getDestinationWorld(world.isClient());
+    }
+    
     /**
      * @return The {@link World} of this portal's {@link #dimensionTo}.
      */
     public World getDestinationWorld(boolean isClient) {
         if (isClient) {
             return CHelper.getClientWorld(dimensionTo);
-        } else {
+        }
+        else {
             return McHelper.getServer().getWorld(dimensionTo);
         }
     }
