@@ -5,6 +5,9 @@ import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -15,6 +18,7 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class WorldWrappingPortal extends GlobalTrackedPortal {
@@ -49,43 +53,6 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         compoundTag.putBoolean("isInward", isInward);
         compoundTag.putInt("zoneId", zoneId);
     }
-
-//    public static void setBorderPortal(
-//        ServerWorld world,
-//        int x1, int y1,
-//        int x2, int y2
-//    ) {
-//        GlobalPortalStorage storage = GlobalPortalStorage.get(world);
-//
-//        storage.data.removeIf(
-//            portal -> portal instanceof WorldWrappingPortal
-//        );
-//
-//        IntBox box = new IntBox(
-//            new BlockPos(x1, 0, y1),
-//            new BlockPos(x2, 256, y2)
-//        ).getSorted();
-//        Box area = box.toRealNumberBox();
-//
-//        storage.data.add(createWrappingPortal(world, area, Direction.NORTH));
-//        storage.data.add(createWrappingPortal(world, area, Direction.SOUTH));
-//        storage.data.add(createWrappingPortal(world, area, Direction.WEST));
-//        storage.data.add(createWrappingPortal(world, area, Direction.EAST));
-//
-//        storage.onDataChanged();
-//    }
-//
-//    public static void removeBorderPortal(
-//        ServerWorld world
-//    ) {
-//        GlobalPortalStorage storage = GlobalPortalStorage.get(world);
-//
-//        storage.data.removeIf(
-//            portal -> portal instanceof WorldWrappingPortal
-//        );
-//
-//        storage.onDataChanged();
-//    }
     
     private static WorldWrappingPortal createWrappingPortal(
         ServerWorld serverWorld,
@@ -149,6 +116,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         public void removeFromWorld() {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
             portals.forEach(worldWrappingPortal -> gps.data.remove(worldWrappingPortal));
+            gps.onDataChanged();
         }
         
         public Box getArea() {
@@ -188,6 +156,18 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
                 )
             );
         }
+        
+        @Override
+        public String toString() {
+            Box area = getArea();
+            return String.format(
+                "[%d] %s %s %s %s ~ %s %s %s\n",
+                id,
+                isInwardZone ? "inward" : "outward",
+                area.x1, area.y1, area.z1,
+                area.x2, area.y2, area.z2
+            );
+        }
     }
     
     public static List<WrappingZone> getWrappingZones(ServerWorld world) {
@@ -211,19 +191,105 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         return result;
     }
     
-    public static void purgeWrappingZones(List<WrappingZone> zones) {
-        for (WrappingZone zone : zones) {
-            if (!zone.isValid()) {
-                zone.removeFromWorld();
-            }
-        }
-    }
-    
     public static int getAvailableId(List<WrappingZone> zones) {
         return zones.stream()
             .max(Comparator.comparingInt(z -> z.id))
             .map(z -> z.id + 1)
             .orElse(1);
+    }
+    
+    public static void invokeAddWrappingZone(
+        ServerWorld world,
+        int x1, int z1, int x2, int z2,
+        boolean isInward,
+        Consumer<Text> feedbackSender
+    ) {
+        List<WrappingZone> wrappingZones = getWrappingZones(world);
+        
+        for (WrappingZone zone : wrappingZones) {
+            if (!zone.isValid()) {
+                feedbackSender.accept(new TranslatableText(
+                    "imm_ptl.removed_invalid_wrapping_portals",
+                    Helper.myToString(zone.portals.stream())
+                ));
+                zone.removeFromWorld();
+            }
+        }
+        
+        int availableId = getAvailableId(wrappingZones);
+        
+        Box box = new IntBox(new BlockPos(x1, 0, z1), new BlockPos(x2, 255, z2)).toRealNumberBox();
+        
+        WorldWrappingPortal p1 = createWrappingPortal(
+            world, box, Direction.NORTH, availableId, isInward
+        );
+        WorldWrappingPortal p2 = createWrappingPortal(
+            world, box, Direction.SOUTH, availableId, isInward
+        );
+        WorldWrappingPortal p3 = createWrappingPortal(
+            world, box, Direction.WEST, availableId, isInward
+        );
+        WorldWrappingPortal p4 = createWrappingPortal(
+            world, box, Direction.EAST, availableId, isInward
+        );
+        
+        GlobalPortalStorage gps = GlobalPortalStorage.get(world);
+        gps.data.add(p1);
+        gps.data.add(p2);
+        gps.data.add(p3);
+        gps.data.add(p4);
+        gps.onDataChanged();
+    }
+    
+    public static void invokeViewWrappingZones(
+        ServerWorld world,
+        Consumer<Text> feedbackSender
+    ) {
+        List<WrappingZone> wrappingZones = getWrappingZones(world);
+        
+        wrappingZones.forEach(wrappingZone -> {
+            feedbackSender.accept(new LiteralText(wrappingZone.toString()));
+        });
+    }
+    
+    public static void invokeRemoveWrappingZone(
+        ServerWorld world,
+        Vec3d playerPos,
+        Consumer<Text> feedbackSender
+    ) {
+        List<WrappingZone> wrappingZones = getWrappingZones(world);
+    
+        WrappingZone zone = wrappingZones.stream()
+            .filter(z -> z.getArea().contains(playerPos))
+            .findFirst().orElse(null);
+    
+        if (zone != null) {
+            zone.removeFromWorld();
+            feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));
+        }
+        else {
+            feedbackSender.accept(new TranslatableText("imm_ptl.not_in_any_zone"));
+        }
+    }
+    
+    public static void invokeRemoveWrappingZone(
+        ServerWorld world,
+        int zoneId,
+        Consumer<Text> feedbackSender
+    ) {
+        List<WrappingZone> wrappingZones = getWrappingZones(world);
+    
+        WrappingZone zone = wrappingZones.stream()
+            .filter(wrappingZone -> wrappingZone.id == zoneId)
+            .findFirst().orElse(null);
+    
+        if (zone != null) {
+            zone.removeFromWorld();
+            feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));
+        }
+        else {
+            feedbackSender.accept(new TranslatableText("imm_ptl.cannot_find_zone"));
+        }
     }
     
 }
