@@ -100,8 +100,7 @@ public class MyGameRenderer {
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         client.world = newWorld;
         ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
-        helper.lightmapTexture.update(0);
-        helper.lightmapTexture.enable();
+        
         BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         client.player.noClip = true;
@@ -116,10 +115,16 @@ public class MyGameRenderer {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
+    
+        //update lightmap
+        if (!MyRenderHelper.isDimensionRendered(newWorld.dimension.getType())) {
+            helper.lightmapTexture.update(0);
+        }
+        helper.lightmapTexture.enable();
         
         client.getProfiler().push("render_portal_content");
         
-        //invoke it!
+        //invoke rendering
         client.gameRenderer.renderWorld(
             partialTicks,
             Util.getMeasuringTimeNano(),

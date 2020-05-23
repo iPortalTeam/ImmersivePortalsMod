@@ -116,7 +116,7 @@ public class BorderBarrierFiller {
                 return false;
             },
             columns -> {
-                if (McHelper.getServerGameTime() % 40 == 0) {
+                if (McHelper.getServerGameTime() % 10 == 0) {
                     double progress = ((double) columns) / totalColumns;
                     McHelper.serverLog(
                         informer, Integer.toString((int) (progress * 100)) + "%"

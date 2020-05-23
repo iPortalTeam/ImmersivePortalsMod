@@ -2,10 +2,10 @@ package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.commands.MyCommandServer;
-import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
@@ -109,6 +109,9 @@ public class BlockManipulationClient {
         Vec3d to = portal.transformPoint(
             cameraPos.add(viewVector.multiply(endDistance))
         );
+    
+        //do not touch barrier block through world wrapping portal
+//        from = from.add(to.subtract(from).normalize().multiply(0.00151));
         
         RayTraceContext context = new RayTraceContext(
             from,
@@ -130,17 +133,20 @@ public class BlockManipulationClient {
                 if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
                     return null;
                 }
+                if (blockState.getBlock() == Blocks.BARRIER) {
+                    return null;
+                }
     
                 //when seeing through mirror don't stop at the glass block
-                if (portal instanceof Mirror) {
-                    if (portal.getDistanceToNearestPointInPortal(new Vec3d(blockPos).add(
-                        0.5,
-                        0.5,
-                        0.5
-                    )) < 0.6) {
-                        return null;
-                    }
-                }
+//                if (portal instanceof Mirror) {
+//                    if (portal.getDistanceToNearestPointInPortal(new Vec3d(blockPos).add(
+//                        0.5,
+//                        0.5,
+//                        0.5
+//                    )) < 0.6) {
+//                        return null;
+//                    }
+//                }
                 
                 FluidState fluidState = world.getFluidState(blockPos);
                 Vec3d start = rayTraceContext.getStart();
@@ -148,6 +154,7 @@ public class BlockManipulationClient {
                 /**{@link VoxelShape#rayTrace(Vec3d, Vec3d, BlockPos)}*/
                 //correct the start pos to avoid being considered inside block
                 Vec3d correctedStart = start.subtract(end.subtract(start).multiply(0.0015));
+//                Vec3d correctedStart = start;
                 VoxelShape solidShape = rayTraceContext.getBlockShape(blockState, world, blockPos);
                 BlockHitResult blockHitResult = world.rayTraceBlock(
                     correctedStart, end, blockPos, solidShape, blockState

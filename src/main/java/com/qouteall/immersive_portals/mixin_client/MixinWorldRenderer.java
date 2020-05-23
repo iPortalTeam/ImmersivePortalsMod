@@ -679,6 +679,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean uploaded = chunkBuilder.upload();
         this.needsTerrainUpdate |= uploaded;//no short circuit
         
+        int limit = 10;
+        if (CGlobal.renderer.getPortalLayer() > 1) {
+            limit = 3;
+        }
         
         int num = 0;
         for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
@@ -693,7 +697,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 iterator.remove();
                 
                 num++;
-                if (num > 20) {
+                
+                if (num > limit) {
                     break;
                 }
             }

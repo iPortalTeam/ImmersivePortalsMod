@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -65,6 +66,8 @@ public abstract class MixinEntity implements IEEntity {
     public abstract Text getName();
     
     @Shadow protected abstract BlockPos getLandingPos();
+    
+    @Shadow public boolean inanimate;
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
@@ -225,6 +228,18 @@ public abstract class MixinEntity implements IEEntity {
                     new Throwable().printStackTrace();
                 }
             }
+        }
+    }
+    
+    //avoid suffocation damage when crossing world wrapping portal with barrier
+    @Inject(
+        method = "isInsideWall",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
+        if (collidingPortal instanceof BorderPortal) {
+            cir.setReturnValue(false);
         }
     }
     
