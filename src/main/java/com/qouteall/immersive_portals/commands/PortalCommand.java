@@ -61,18 +61,20 @@ public class PortalCommand {
     private static void registerGlobalPortalCommands(
         LiteralArgumentBuilder<ServerCommandSource> builder
     ) {
-        builder.then(CommandManager.literal("border_set")
+        builder.then(CommandManager.literal("add_inward_wrapping")
             .then(CommandManager.argument("x1", IntegerArgumentType.integer())
                 .then(CommandManager.argument("z1", IntegerArgumentType.integer())
                     .then(CommandManager.argument("x2", IntegerArgumentType.integer())
                         .then(CommandManager.argument("z2", IntegerArgumentType.integer())
                             .executes(context -> {
-                                WorldWrappingPortal.setBorderPortal(
+                                WorldWrappingPortal.invokeAddWrappingZone(
                                     context.getSource().getWorld(),
                                     IntegerArgumentType.getInteger(context, "x1"),
                                     IntegerArgumentType.getInteger(context, "z1"),
                                     IntegerArgumentType.getInteger(context, "x2"),
-                                    IntegerArgumentType.getInteger(context, "z2")
+                                    IntegerArgumentType.getInteger(context, "z2"),
+                                    true,
+                                    text -> context.getSource().sendFeedback(text, false)
                                 );
                                 return 0;
                             })
@@ -81,12 +83,62 @@ public class PortalCommand {
                 )
             )
         );
-        builder.then(CommandManager.literal("border_remove")
+        
+        builder.then(CommandManager.literal("add_outward_wrapping")
+            .then(CommandManager.argument("x1", IntegerArgumentType.integer())
+                .then(CommandManager.argument("z1", IntegerArgumentType.integer())
+                    .then(CommandManager.argument("x2", IntegerArgumentType.integer())
+                        .then(CommandManager.argument("z2", IntegerArgumentType.integer())
+                            .executes(context -> {
+                                WorldWrappingPortal.invokeAddWrappingZone(
+                                    context.getSource().getWorld(),
+                                    IntegerArgumentType.getInteger(context, "x1"),
+                                    IntegerArgumentType.getInteger(context, "z1"),
+                                    IntegerArgumentType.getInteger(context, "x2"),
+                                    IntegerArgumentType.getInteger(context, "z2"),
+                                    false,
+                                    text -> context.getSource().sendFeedback(text, false)
+                                );
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
+        
+        builder.then(CommandManager.literal("remove_wrapping_zone")
             .executes(context -> {
-                WorldWrappingPortal.removeBorderPortal(context.getSource().getWorld());
+                WorldWrappingPortal.invokeRemoveWrappingZone(
+                    context.getSource().getWorld(),
+                    context.getSource().getPosition(),
+                    text -> context.getSource().sendFeedback(text, false)
+                );
+                return 0;
+            })
+            .then(CommandManager.argument("id", IntegerArgumentType.integer())
+                .executes(context -> {
+                    int id = IntegerArgumentType.getInteger(context, "id");
+                    WorldWrappingPortal.invokeRemoveWrappingZone(
+                        context.getSource().getWorld(),
+                        id,
+                        text -> context.getSource().sendFeedback(text, false)
+                    );
+                    return 0;
+                })
+            )
+        );
+    
+        builder.then(CommandManager.literal("view_wrapping_zones")
+            .executes(context -> {
+                WorldWrappingPortal.invokeViewWrappingZones(
+                    context.getSource().getWorld(),
+                    text -> context.getSource().sendFeedback(text, false)
+                );
                 return 0;
             })
         );
+        
         builder.then(CommandManager.literal("fill_border_with_barrier")
             .executes(context -> {
                 BorderBarrierFiller.onCommandExecuted(
@@ -94,8 +146,17 @@ public class PortalCommand {
                 );
                 return 0;
             })
+            .then(CommandManager.argument("id", IntegerArgumentType.integer())
+                .executes(context -> {
+                    int id = IntegerArgumentType.getInteger(context, "id");
+                    BorderBarrierFiller.onCommandExecuted(
+                        context.getSource().getPlayer(),
+                        id
+                    );
+                    return 0;
+                })
+            )
         );
-        
         
         builder.then(CommandManager.literal("connect_floor")
             .then(CommandManager.argument("from", DimensionArgumentType.dimension())

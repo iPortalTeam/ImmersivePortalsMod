@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
@@ -120,15 +121,9 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         }
         
         public Box getArea() {
-            return new Box(
-                portals.get(0).getPos(),
-                portals.get(1).getPos()
-            ).union(
-                new Box(
-                    portals.get(2).getPos(),
-                    portals.get(3).getPos()
-                )
-            );
+            return portals.stream().map(
+                Portal::getThinAreaBox
+            ).reduce(Box::union).orElse(null);
         }
         
         public IntBox getIntArea() {
@@ -145,6 +140,11 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         }
         
         public IntBox getBorderBox() {
+    
+            if (!isInwardZone) {
+                return getIntArea();
+            }
+            
             Box floatBox = getArea();
             
             return new IntBox(
@@ -161,11 +161,11 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         public String toString() {
             Box area = getArea();
             return String.format(
-                "[%d] %s %s %s %s ~ %s %s %s\n",
+                "[%d] %s %s %s ~ %s %s\n",
                 id,
                 isInwardZone ? "inward" : "outward",
-                area.x1, area.y1, area.z1,
-                area.x2, area.y2, area.z2
+                area.x1, area.z1,
+                area.x2, area.z2
             );
         }
     }

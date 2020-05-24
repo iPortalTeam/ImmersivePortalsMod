@@ -48,5 +48,7 @@
   "imm_ptl.removed_invalid_wrapping_portals": "Removed Invalid Wrapping Portals %1$s",
   "imm_ptl.removed_portal": "Removed %1$s",
   "imm_ptl.cannot_find_zone": "Cannot Find The Wrapping Zone",
-  "imm_ptl.not_in_any_zone": "You Are Not in Any Wrapping Zone"
+  "imm_ptl.not_in_any_zone": "You Are Not in Any Wrapping Zone",
+  "imm_ptl.start_filling_barrier": "Start Filling Barrier",
+  "imm_ptl.finished": "Finished"
 }

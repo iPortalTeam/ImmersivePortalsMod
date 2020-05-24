@@ -7,13 +7,15 @@ import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -25,11 +27,50 @@ public class BorderBarrierFiller {
         ServerPlayerEntity player
     ) {
         ServerWorld world = (ServerWorld) player.world;
-        IntBox borderBox = getBorderBox(world);
-        if (borderBox == null) {
+        Vec3d playerPos = player.getPos();
+        
+        List<WorldWrappingPortal.WrappingZone> wrappingZones =
+            WorldWrappingPortal.getWrappingZones(world);
+        
+        WorldWrappingPortal.WrappingZone zone = wrappingZones.stream().filter(
+            wrappingZone -> wrappingZone.getArea().contains(playerPos)
+        ).findFirst().orElse(null);
+        
+        if (zone == null) {
             player.sendMessage(new TranslatableText("imm_ptl.not_in_wrapping_zone"));
             return;
         }
+        
+        doInvoke(player, world, zone);
+    }
+    
+    public static void onCommandExecuted(
+        ServerPlayerEntity player,
+        int zoneId
+    ) {
+        ServerWorld world = (ServerWorld) player.world;
+        
+        List<WorldWrappingPortal.WrappingZone> wrappingZones =
+            WorldWrappingPortal.getWrappingZones(world);
+        
+        WorldWrappingPortal.WrappingZone zone = wrappingZones.stream().filter(
+            wrappingZone -> wrappingZone.id == zoneId
+        ).findFirst().orElse(null);
+        
+        if (zone == null) {
+            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"));
+            return;
+        }
+        
+        doInvoke(player, world, zone);
+    }
+    
+    private static void doInvoke(
+        ServerPlayerEntity player,
+        ServerWorld world,
+        WorldWrappingPortal.WrappingZone zone
+    ) {
+        IntBox borderBox = zone.getBorderBox();
         
         boolean warned = warnedPlayers.containsKey(player);
         if (!warned) {
@@ -41,45 +82,14 @@ public class BorderBarrierFiller {
             
             McHelper.serverLog(player, "Start filling border");
             
-            startFillingBorder(world, borderBox, player);
+            startFillingBorder(world, borderBox, player::sendMessage);
         }
-    }
-    
-    private static IntBox getBorderBox(ServerWorld world) {
-        List<WorldWrappingPortal> worldWrappingPortals = McHelper.getGlobalPortals(world).stream().filter(
-            p -> p instanceof WorldWrappingPortal
-        ).map(
-            p -> ((WorldWrappingPortal) p)
-        ).collect(Collectors.toList());
-        
-        if (worldWrappingPortals.size() != 4) {
-            return null;
-        }
-        
-        Box floatBox = new Box(
-            worldWrappingPortals.get(0).getPos(),
-            worldWrappingPortals.get(1).getPos()
-        ).union(
-            new Box(
-                worldWrappingPortals.get(2).getPos(),
-                worldWrappingPortals.get(3).getPos()
-            )
-        );
-        
-        return new IntBox(
-            new BlockPos(
-                floatBox.x1 - 1, -1, floatBox.z1 - 1
-            ),
-            new BlockPos(
-                floatBox.x2, 256, floatBox.z2
-            )
-        );
     }
     
     private static void startFillingBorder(
         ServerWorld world,
         IntBox borderBox,
-        ServerPlayerEntity informer
+        Consumer<Text> informer
     ) {
         Supplier<IntStream> xStream = () -> IntStream.range(
             borderBox.l.getX(), borderBox.h.getX() + 1
@@ -111,20 +121,18 @@ public class BorderBarrierFiller {
             columns -> {
                 if (McHelper.getServerGameTime() % 4 == 0) {
                     double progress = ((double) columns) / totalColumns;
-                    McHelper.serverLog(
-                        informer, Integer.toString((int) (progress * 100)) + "%"
-                    );
+                    informer.accept(new LiteralText(
+                        Integer.toString((int) (progress * 100)) + "%"
+                    ));
                 }
                 return true;
             },
             e -> {
                 //nothing
-                McHelper.serverLog(
-                    informer, "Finished"
-                );
+                
             },
             () -> {
-            
+                informer.accept(new TranslatableText("imm_ptl.finished"));
             },
             () -> {
             

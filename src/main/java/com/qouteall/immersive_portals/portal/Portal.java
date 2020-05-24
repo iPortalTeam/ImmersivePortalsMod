@@ -522,6 +522,13 @@ public class Portal extends Entity {
         );
     }
     
+    public Box getThinAreaBox(){
+        return new Box(
+            getPointInPlane(width / 2, height / 2),
+            getPointInPlane(-width / 2, -height / 2)
+        );
+    }
+    
     public boolean isPointInPortalProjection(Vec3d pos) {
         Vec3d offset = pos.subtract(getPos());
         

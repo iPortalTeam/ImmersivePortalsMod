@@ -205,6 +205,9 @@ public class MyRenderHelper {
     }
     
     public static boolean isDimensionRendered(DimensionType dimensionType) {
+        if (dimensionType == originalPlayerDimension) {
+            return true;
+        }
         return renderedDimensions.contains(dimensionType);
     }
     
@@ -213,9 +216,14 @@ public class MyRenderHelper {
             (Function<Portal, WeakReference<Portal>>) WeakReference::new
         ).collect(Collectors.toList());
         portalRenderInfos.add(currRenderInfo);
-        renderedDimensions.add(portalLayers.peek().dimensionTo);
         
         CHelper.checkGlError();
+    }
+    
+    public static void onEndPortlWorldRendering() {
+        renderedDimensions.add(
+            CGlobal.renderer.portalLayers.peek().dimensionTo
+        );
     }
     
     public static void restoreViewPort() {
