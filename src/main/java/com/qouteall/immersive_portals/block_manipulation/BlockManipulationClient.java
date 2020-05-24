@@ -136,17 +136,6 @@ public class BlockManipulationClient {
                 if (blockState.getBlock() == Blocks.BARRIER) {
                     return null;
                 }
-    
-                //when seeing through mirror don't stop at the glass block
-//                if (portal instanceof Mirror) {
-//                    if (portal.getDistanceToNearestPointInPortal(new Vec3d(blockPos).add(
-//                        0.5,
-//                        0.5,
-//                        0.5
-//                    )) < 0.6) {
-//                        return null;
-//                    }
-//                }
                 
                 FluidState fluidState = world.getFluidState(blockPos);
                 Vec3d start = rayTraceContext.getStart();
@@ -291,7 +280,7 @@ public class BlockManipulationClient {
         BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
         
         Pair<BlockHitResult, DimensionType> result =
-            BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
+            BlockManipulationServer.getHitResultForPlacingNew(targetWorld, blockHitResult);
         blockHitResult = result.getLeft();
         targetWorld = CGlobal.clientWorldLoader.getWorld(result.getRight());
         remoteHitResult = blockHitResult;

@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.block_manipulation;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -21,6 +21,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+
+import java.util.List;
 
 public class BlockManipulationServer {
     
@@ -112,70 +114,37 @@ public class BlockManipulationServer {
         return !blockState.isAir() && progress >= 1.0F;
     }
     
-    public static Pair<BlockHitResult, DimensionType> getHitResultForPlacing(
+    public static Pair<BlockHitResult, DimensionType> getHitResultForPlacingNew(
         World world,
         BlockHitResult blockHitResult
     ) {
-        BlockHitResult targetBlockHitResult = blockHitResult;
-        DimensionType targetDimension = world.dimension.getType();
-        if (blockHitResult.getBlockPos().getY() == 255 && blockHitResult.getSide() == Direction.UP) {
-            VerticalConnectingPortal connectingPortal = VerticalConnectingPortal.getConnectingPortal(
-                world,
-                VerticalConnectingPortal.ConnectorType.ceil
-            );
-            if (connectingPortal != null) {
-                targetBlockHitResult = new BlockHitResult(
-                    Vec3d.ZERO,
-                    Direction.DOWN,
-                    new BlockPos(
-                        blockHitResult.getBlockPos().getX(),
-                        0,
-                        blockHitResult.getBlockPos().getZ()
-                    ),
-                    blockHitResult.isInsideBlock()
-                );
-                targetDimension = connectingPortal.dimensionTo;
-            }
+        Direction side = blockHitResult.getSide();
+        Vec3d sideVec = new Vec3d(side.getVector());
+        Vec3d hitCenter = new Vec3d(blockHitResult.getBlockPos()).add(0.5, 0.5, 0.5);
+        
+        List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
+        
+        GlobalTrackedPortal portal = globalPortals.stream().filter(p ->
+            p.getContentDirection().dotProduct(sideVec) > 0.9
+                && p.isPointInPortalProjection(hitCenter)
+                && p.getDistanceToPlane(hitCenter) < 0.6
+        ).findFirst().orElse(null);
+        
+        if (portal == null) {
+            return new Pair<>(blockHitResult, world.dimension.getType());
         }
-        else if (blockHitResult.getBlockPos().getY() == 0 && blockHitResult.getSide() == Direction.DOWN) {
-            VerticalConnectingPortal connectingPortal = VerticalConnectingPortal.getConnectingPortal(
-                world,
-                VerticalConnectingPortal.ConnectorType.floor
-            );
-            if (connectingPortal != null) {
-                targetBlockHitResult = new BlockHitResult(
-                    Vec3d.ZERO,
-                    Direction.UP,
-                    new BlockPos(
-                        blockHitResult.getBlockPos().getX(),
-                        255,
-                        blockHitResult.getBlockPos().getZ()
-                    ),
-                    blockHitResult.isInsideBlock()
-                );
-                targetDimension = connectingPortal.dimensionTo;
-            }
-        }
-        else if (world.getDimension().isNether() && blockHitResult.getBlockPos().getY() == 127 && blockHitResult.getSide() == Direction.UP) {
-            VerticalConnectingPortal connectingPortal = VerticalConnectingPortal.getConnectingPortal(
-                world,
-                VerticalConnectingPortal.ConnectorType.ceil
-            );
-            if (connectingPortal != null) {
-                targetBlockHitResult = new BlockHitResult(
-                    Vec3d.ZERO,
-                    Direction.DOWN,
-                    new BlockPos(
-                        blockHitResult.getBlockPos().getX(),
-                        0,
-                        blockHitResult.getBlockPos().getZ()
-                    ),
-                    blockHitResult.isInsideBlock()
-                );
-                targetDimension = connectingPortal.dimensionTo;
-            }
-        }
-        return new Pair<>(targetBlockHitResult, targetDimension);
+        
+        Vec3d newCenter = portal.transformPoint(hitCenter.add(sideVec));
+        BlockPos placingBlockPos = new BlockPos(newCenter);
+        
+        BlockHitResult newHitResult = new BlockHitResult(
+            Vec3d.ZERO,
+            side.getOpposite(),
+            placingBlockPos,
+            blockHitResult.isInsideBlock()
+        );
+        
+        return new Pair<>(newHitResult, portal.dimensionTo);
     }
     
     public static void processRightClickBlock(

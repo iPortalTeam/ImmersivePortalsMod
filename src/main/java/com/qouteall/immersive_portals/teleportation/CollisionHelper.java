@@ -102,7 +102,7 @@ public class CollisionHelper {
                     entity, newThisSideMove, collidingPortal,
                     handleCollisionFunc, originalBoundingBox
                 );
-    
+                
                 return newOtherSideMove;
             }
         }

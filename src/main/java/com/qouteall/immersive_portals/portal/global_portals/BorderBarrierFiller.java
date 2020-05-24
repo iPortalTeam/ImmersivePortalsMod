@@ -75,7 +75,7 @@ public class BorderBarrierFiller {
         boolean warned = warnedPlayers.containsKey(player);
         if (!warned) {
             warnedPlayers.put(player, null);
-            player.sendMessage(new TranslatableText("imm_ptl.fill_barrier_warning"));
+            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"));
         }
         else {
             warnedPlayers.remove(player);
@@ -127,7 +127,6 @@ public class BorderBarrierFiller {
             },
             e -> {
                 //nothing
-                
             },
             () -> {
                 informer.accept(new TranslatableText("imm_ptl.finished"));
