@@ -509,7 +509,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
-        if (CGlobal.renderer.isRendering()) {
+        if (CGlobal.renderer.isRendering() && (!OFInterface.isOptifinePresent)) {
             portal_updateChunks();
         }
         else {
