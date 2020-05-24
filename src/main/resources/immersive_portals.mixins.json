@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinCommandManager",
+    "MixinLivingEntity",
     "MixinMetricsData",
     "MixinMinecraftServer",
     "MixinPlayerManager",
@@ -24,7 +25,7 @@
     "altius_world.MixinOverworldDimension",
     "altius_world.MixinSpawnHelper",
     "altius_world.MixinSurfaceChunkGenerator",
-    "block_manipulation.MixinLivingEntity",
+    "block_manipulation.MixinLivingEntity_B",
     "block_manipulation.MixinStatusEffect",
     "chunk_sync.MixinChunkHolder",
     "chunk_sync.MixinChunkTicketManager",
