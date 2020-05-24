@@ -21,6 +21,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.command.arguments.ColumnPosArgumentType;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.EntityArgumentType;
 import net.minecraft.command.arguments.NbtCompoundTagArgumentType;
@@ -36,6 +37,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -62,47 +65,37 @@ public class PortalCommand {
         LiteralArgumentBuilder<ServerCommandSource> builder
     ) {
         builder.then(CommandManager.literal("add_inward_wrapping")
-            .then(CommandManager.argument("x1", IntegerArgumentType.integer())
-                .then(CommandManager.argument("z1", IntegerArgumentType.integer())
-                    .then(CommandManager.argument("x2", IntegerArgumentType.integer())
-                        .then(CommandManager.argument("z2", IntegerArgumentType.integer())
-                            .executes(context -> {
-                                WorldWrappingPortal.invokeAddWrappingZone(
-                                    context.getSource().getWorld(),
-                                    IntegerArgumentType.getInteger(context, "x1"),
-                                    IntegerArgumentType.getInteger(context, "z1"),
-                                    IntegerArgumentType.getInteger(context, "x2"),
-                                    IntegerArgumentType.getInteger(context, "z2"),
-                                    true,
-                                    text -> context.getSource().sendFeedback(text, false)
-                                );
-                                return 0;
-                            })
-                        )
-                    )
+            .then(CommandManager.argument("p1", ColumnPosArgumentType.columnPos())
+                .then(CommandManager.argument("p2", ColumnPosArgumentType.columnPos())
+                    .executes(context -> {
+                        ColumnPos p1 = ColumnPosArgumentType.getColumnPos(context, "p1");
+                        ColumnPos p2 = ColumnPosArgumentType.getColumnPos(context, "p2");
+                        WorldWrappingPortal.invokeAddWrappingZone(
+                            context.getSource().getWorld(),
+                            p1.x, p1.z, p2.x, p2.z,
+                            true,
+                            text -> context.getSource().sendFeedback(text, false)
+                        );
+                        return 0;
+                    })
                 )
             )
         );
         
         builder.then(CommandManager.literal("add_outward_wrapping")
-            .then(CommandManager.argument("x1", IntegerArgumentType.integer())
-                .then(CommandManager.argument("z1", IntegerArgumentType.integer())
-                    .then(CommandManager.argument("x2", IntegerArgumentType.integer())
-                        .then(CommandManager.argument("z2", IntegerArgumentType.integer())
-                            .executes(context -> {
-                                WorldWrappingPortal.invokeAddWrappingZone(
-                                    context.getSource().getWorld(),
-                                    IntegerArgumentType.getInteger(context, "x1"),
-                                    IntegerArgumentType.getInteger(context, "z1"),
-                                    IntegerArgumentType.getInteger(context, "x2"),
-                                    IntegerArgumentType.getInteger(context, "z2"),
-                                    false,
-                                    text -> context.getSource().sendFeedback(text, false)
-                                );
-                                return 0;
-                            })
-                        )
-                    )
+            .then(CommandManager.argument("p1", ColumnPosArgumentType.columnPos())
+                .then(CommandManager.argument("p2", ColumnPosArgumentType.columnPos())
+                    .executes(context -> {
+                        ColumnPos p1 = ColumnPosArgumentType.getColumnPos(context, "p1");
+                        ColumnPos p2 = ColumnPosArgumentType.getColumnPos(context, "p2");
+                        WorldWrappingPortal.invokeAddWrappingZone(
+                            context.getSource().getWorld(),
+                            p1.x, p1.z, p2.x, p2.z,
+                            false,
+                            text -> context.getSource().sendFeedback(text, false)
+                        );
+                        return 0;
+                    })
                 )
             )
         );
@@ -128,7 +121,7 @@ public class PortalCommand {
                 })
             )
         );
-    
+        
         builder.then(CommandManager.literal("view_wrapping_zones")
             .executes(context -> {
                 WorldWrappingPortal.invokeViewWrappingZones(
@@ -139,7 +132,7 @@ public class PortalCommand {
             })
         );
         
-        builder.then(CommandManager.literal("fill_border_with_barrier")
+        builder.then(CommandManager.literal("clear_wrapping_border")
             .executes(context -> {
                 BorderBarrierFiller.onCommandExecuted(
                     context.getSource().getPlayer()
@@ -833,7 +826,6 @@ public class PortalCommand {
             )
         );
         
-        
         builder.then(CommandManager.literal("goback")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
@@ -850,6 +842,46 @@ public class PortalCommand {
                 return 0;
             })
         );
+        
+        builder.then(CommandManager.literal("make_small_inward_wrapping")
+            .then(CommandManager.argument("p1", Vec3ArgumentType.vec3(false))
+                .then(CommandManager.argument("p2", Vec3ArgumentType.vec3(false))
+                    .executes(context -> {
+                        Vec3d p1 = Vec3ArgumentType.getVec3(context, "p1");
+                        Vec3d p2 = Vec3ArgumentType.getVec3(context, "p2");
+                        Box box = new Box(p1, p2);
+                        ServerWorld world = context.getSource().getWorld();
+                        addSmallWorldWrappingPortals(box, world, true);
+                        return 0;
+                    })
+                )
+            )
+        );
+        
+        builder.then(CommandManager.literal("make_small_outward_wrapping")
+            .then(CommandManager.argument("p1", Vec3ArgumentType.vec3(false))
+                .then(CommandManager.argument("p2", Vec3ArgumentType.vec3(false))
+                    .executes(context -> {
+                        Vec3d p1 = Vec3ArgumentType.getVec3(context, "p1");
+                        Vec3d p2 = Vec3ArgumentType.getVec3(context, "p2");
+                        Box box = new Box(p1, p2);
+                        ServerWorld world = context.getSource().getWorld();
+                        addSmallWorldWrappingPortals(box, world, false);
+                        return 0;
+                    })
+                )
+            )
+        );
+    }
+    
+    private static void addSmallWorldWrappingPortals(Box box, ServerWorld world, boolean isInward) {
+        for (Direction direction : Direction.values()) {
+            Portal portal = Portal.entityType.create(world);
+            WorldWrappingPortal.initWrappingPortal(
+                world, box, direction, isInward, portal
+            );
+            world.spawnEntity(portal);
+        }
     }
     
     public static void register(

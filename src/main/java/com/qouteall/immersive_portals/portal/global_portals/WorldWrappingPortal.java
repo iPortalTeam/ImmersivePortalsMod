@@ -62,10 +62,22 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         int zoneId,
         boolean isInward
     ) {
-        WorldWrappingPortal portal = new WorldWrappingPortal(entityType, serverWorld);
+        WorldWrappingPortal portal = entityType.create(serverWorld);
         portal.isInward = isInward;
         portal.zoneId = zoneId;
-        
+    
+        initWrappingPortal(serverWorld, area, direction, isInward, portal);
+    
+        return portal;
+    }
+    
+    public static void initWrappingPortal(
+        ServerWorld serverWorld,
+        Box area,
+        Direction direction,
+        boolean isInward,
+        Portal portal
+    ) {
         Vec3d areaSize = Helper.getBoxSize(area);
         
         Pair<Direction, Direction> axises = Helper.getPerpendicularDirections(
@@ -84,8 +96,6 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
         
         portal.dimensionTo = serverWorld.dimension.getType();
-        
-        return portal;
     }
     
     public static class WrappingZone {

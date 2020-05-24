@@ -37,7 +37,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.not_in_wrapping_zone"));
+            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"));
             return;
         }
         
@@ -114,17 +114,15 @@ public class BorderBarrierFiller {
             pos -> {
                 for (int y = 0; y < 256; y++) {
                     temp1.set(pos.getX(), y, pos.getZ());
-                    world.setBlockState(temp1, Blocks.BARRIER.getDefaultState());
+                    world.setBlockState(temp1, Blocks.AIR.getDefaultState());
                 }
                 return false;
             },
             columns -> {
-                if (McHelper.getServerGameTime() % 4 == 0) {
-                    double progress = ((double) columns) / totalColumns;
-                    informer.accept(new LiteralText(
-                        Integer.toString((int) (progress * 100)) + "%"
-                    ));
-                }
+                double progress = ((double) columns) / totalColumns;
+                informer.accept(new LiteralText(
+                    Integer.toString((int) (progress * 100)) + "%"
+                ));
                 return true;
             },
             e -> {
