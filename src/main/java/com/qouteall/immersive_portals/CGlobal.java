@@ -37,4 +37,5 @@ public class CGlobal {
     public static boolean smoothChunkUnload = true;
     public static boolean earlyClientLightUpdate = false;
     public static boolean useSuperAdvancedFrustumCulling = true;
+    public static boolean earlyFrustumCullingPortal = true;
 }

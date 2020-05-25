@@ -13,7 +13,6 @@ import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PixelCuller;
-import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -237,7 +236,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private boolean redirectIsThirdPerson(Camera camera) {
-        if (PortalRenderer.shouldRenderPlayerItself()) {
+        if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
             return true;
         }
         return camera.isThirdPerson();
@@ -263,7 +262,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
         if (entity == camera.getFocusedEntity()) {
-            if (PortalRenderer.shouldRenderPlayerItself()) {
+            if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
                 MyGameRenderer.renderPlayerItself(() -> {
                     double distanceToCamera =
                         entity.getCameraPosVec(MyRenderHelper.tickDelta)

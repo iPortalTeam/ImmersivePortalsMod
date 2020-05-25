@@ -26,6 +26,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Final
     @Mutable
     private LightmapTextureManager lightmapTextureManager;
+    
     @Shadow
     private boolean renderHand;
     @Shadow

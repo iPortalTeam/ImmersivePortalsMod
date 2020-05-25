@@ -254,4 +254,46 @@ public class CrossPortalEntityRenderer {
         );
         entity.world = oldWorld;
     }
+    
+    public static boolean shouldRenderPlayerItself() {
+        if (!Global.renderYourselfInPortal) {
+            return false;
+        }
+        if (!CGlobal.renderer.isRendering()) {
+            return false;
+        }
+        if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
+            return true;
+        }
+        return false;
+    }
+    
+    public static boolean shouldRenderEntityNow(Entity entity) {
+        if (OFInterface.isShadowPass.getAsBoolean()) {
+            return true;
+        }
+        if (CGlobal.renderer.isRendering()) {
+            if (entity instanceof ClientPlayerEntity) {
+                return shouldRenderPlayerItself();
+            }
+            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+            if (collidingPortal != null) {
+                if (!Portal.isReversePortal(collidingPortal, renderingPortal)) {
+                    Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
+                    
+                    boolean isHidden = cameraPos.subtract(collidingPortal.getPos())
+                        .dotProduct(collidingPortal.getNormal()) < 0;
+                    if (isHidden) {
+                        return false;
+                    }
+                }
+            }
+            
+            return renderingPortal.isInside(
+                entity.getCameraPosVec(MyRenderHelper.tickDelta), -0.01
+            );
+        }
+        return true;
+    }
 }

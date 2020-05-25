@@ -6,13 +6,11 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.Matrix3f;
 import net.minecraft.client.util.math.Matrix4f;
@@ -75,60 +73,37 @@ public abstract class PortalRenderer {
         return portalLayers.peek();
     }
     
-    public static boolean shouldRenderPlayerItself() {
-        if (!Global.renderYourselfInPortal) {
-            return false;
-        }
-        if (!CGlobal.renderer.isRendering()) {
-            return false;
-        }
-        if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
-            return true;
-        }
-        return false;
-    }
-    
-    public static boolean shouldRenderEntityNow(Entity entity) {
-        if (OFInterface.isShadowPass.getAsBoolean()) {
-            return true;
-        }
-        if (CGlobal.renderer.isRendering()) {
-            if (entity instanceof ClientPlayerEntity) {
-                return PortalRenderer.shouldRenderPlayerItself();
-            }
-            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
-            Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
-            if (collidingPortal != null) {
-                if (!Portal.isReversePortal(collidingPortal, renderingPortal)) {
-                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-                    
-                    boolean isHidden = cameraPos.subtract(collidingPortal.getPos())
-                        .dotProduct(collidingPortal.getNormal()) < 0;
-                    if (isHidden) {
-                        return false;
-                    }
-                }
-            }
-            
-            return renderingPortal.isInside(
-                entity.getCameraPosVec(MyRenderHelper.tickDelta), -0.01
-            );
-        }
-        return true;
-    }
-    
     protected void renderPortals(MatrixStack matrixStack) {
         assert client.cameraEntity.world == client.world;
         assert client.cameraEntity.dimension == client.world.dimension.getType();
         
-        for (Portal portal : getPortalsNearbySorted()) {
-            renderPortalIfRoughCheckPassed(portal, matrixStack);
+        List<Portal> portalsNearbySorted = getPortalsNearbySorted();
+    
+        if (portalsNearbySorted.isEmpty()) {
+            return;
+        }
+    
+        Frustum frustum = null;
+        if (CGlobal.earlyFrustumCullingPortal) {
+            frustum = new Frustum(
+                matrixStack.peek().getModel(),
+                MyRenderHelper.projectionMatrix
+            );
+//            ((IEFrustum) frustum).setIsNormalCulling(false);
+        
+            Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+            frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+        }
+        
+        for (Portal portal : portalsNearbySorted) {
+            renderPortalIfRoughCheckPassed(portal, matrixStack, frustum);
         }
     }
     
     private void renderPortalIfRoughCheckPassed(
         Portal portal,
-        MatrixStack matrixStack
+        MatrixStack matrixStack,
+        Frustum frustum
     ) {
         if (!portal.isPortalValid()) {
             Helper.err("rendering invalid portal " + portal);
@@ -138,7 +113,7 @@ public abstract class PortalRenderer {
         if (MyRenderHelper.getRenderedPortalNum() >= Global.portalRenderLimit) {
             return;
         }
-    
+        
         Vec3d thisTickEyePos = client.gameRenderer.getCamera().getPos();
         
         if (!portal.isInFrontOfPortal(thisTickEyePos)) {
@@ -154,6 +129,12 @@ public abstract class PortalRenderer {
         
         if (isOutOfDistance(portal)) {
             return;
+        }
+        
+        if (CGlobal.earlyFrustumCullingPortal) {
+            if (!frustum.isVisible(portal.getBoundingBox())) {
+                return;
+            }
         }
         
         doRenderPortal(portal, matrixStack);

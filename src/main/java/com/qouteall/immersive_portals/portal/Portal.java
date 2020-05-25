@@ -519,7 +519,12 @@ public class Portal extends Entity {
                 .add(getNormal().multiply(0.2)),
             getPointInPlane(-width / 2, -height / 2)
                 .add(getNormal().multiply(-0.2))
-        );
+        ).union(new Box(
+            getPointInPlane(-width / 2, height / 2)
+                .add(getNormal().multiply(0.2)),
+            getPointInPlane(width / 2, -height / 2)
+                .add(getNormal().multiply(-0.2))
+        ));
     }
     
     public Box getThinAreaBox(){
