@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.render.FrustumCuller;
 import net.minecraft.client.render.Frustum;
-import net.minecraft.client.util.math.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,11 +20,6 @@ public class MixinFrustum {
     private double z;
     
     private FrustumCuller portal_frustumCuller;
-    
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void onConstruct(Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
-    
-    }
     
     @Inject(
         method = "setPosition",
