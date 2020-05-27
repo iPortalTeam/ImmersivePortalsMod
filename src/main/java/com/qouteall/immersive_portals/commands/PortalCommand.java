@@ -64,7 +64,7 @@ public class PortalCommand {
     private static void registerGlobalPortalCommands(
         LiteralArgumentBuilder<ServerCommandSource> builder
     ) {
-        builder.then(CommandManager.literal("add_inward_wrapping")
+        builder.then(CommandManager.literal("create_inward_wrapping")
             .then(CommandManager.argument("p1", ColumnPosArgumentType.columnPos())
                 .then(CommandManager.argument("p2", ColumnPosArgumentType.columnPos())
                     .executes(context -> {
@@ -82,7 +82,7 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("add_outward_wrapping")
+        builder.then(CommandManager.literal("create_outward_wrapping")
             .then(CommandManager.argument("p1", ColumnPosArgumentType.columnPos())
                 .then(CommandManager.argument("p2", ColumnPosArgumentType.columnPos())
                     .executes(context -> {
@@ -558,19 +558,17 @@ public class PortalCommand {
         builder.then(CommandManager.literal("cb_set_portal_destination")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
                 .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                    .then(
-                        CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                            .executes(
-                                context -> processPortalArgumentedCommand(
-                                    context,
-                                    (portal) -> invokeSetPortalDestination(context, portal)
-                                )
+                    .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
+                        .executes(
+                            context -> processPortalArgumentedCommand(
+                                context,
+                                (portal) -> invokeSetPortalDestination(context, portal)
                             )
+                        )
                     )
                 )
             )
         );
-        
         
         builder.then(CommandManager.literal("cb_complete_bi_way_portal")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
@@ -843,7 +841,7 @@ public class PortalCommand {
             })
         );
         
-        builder.then(CommandManager.literal("make_small_inward_wrapping")
+        builder.then(CommandManager.literal("create_small_inward_wrapping")
             .then(CommandManager.argument("p1", Vec3ArgumentType.vec3(false))
                 .then(CommandManager.argument("p2", Vec3ArgumentType.vec3(false))
                     .executes(context -> {
@@ -858,7 +856,7 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("make_small_outward_wrapping")
+        builder.then(CommandManager.literal("create_small_outward_wrapping")
             .then(CommandManager.argument("p1", Vec3ArgumentType.vec3(false))
                 .then(CommandManager.argument("p2", Vec3ArgumentType.vec3(false))
                     .executes(context -> {
