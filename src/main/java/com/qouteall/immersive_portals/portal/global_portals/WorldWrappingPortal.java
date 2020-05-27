@@ -278,7 +278,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
             feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));
         }
         else {
-            feedbackSender.accept(new TranslatableText("imm_ptl.not_in_any_zone"));
+            feedbackSender.accept(new TranslatableText("imm_ptl.not_in_wrapping_zone"));
         }
     }
     

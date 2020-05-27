@@ -80,7 +80,7 @@ public class BorderBarrierFiller {
         else {
             warnedPlayers.remove(player);
             
-            McHelper.serverLog(player, "Start filling border");
+            player.sendMessage(new TranslatableText("imm_ptl.start_clearing_border"));
             
             startFillingBorder(world, borderBox, player::sendMessage);
         }
