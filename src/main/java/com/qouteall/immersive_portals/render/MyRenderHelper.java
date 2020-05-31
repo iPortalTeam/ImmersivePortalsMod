@@ -6,23 +6,16 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.ducks.IECamera;
-import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
-
-import java.util.Stack;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
@@ -235,25 +228,6 @@ public class MyRenderHelper {
     
     public static void recoverFaceCulling() {
         glCullFace(GL_BACK);
-    }
-    
-    public static boolean isRenderingOddNumberOfMirrors() {
-        Stack<Portal> portalLayers = RenderStates.portalLayers;
-        int number = 0;
-        for (Portal portal : portalLayers) {
-            if (portal instanceof Mirror) {
-                number++;
-            }
-        }
-        return number % 2 == 1;
-    }
-    
-    public static void adjustCameraPos(Camera camera) {
-        Vec3d pos = RenderStates.originalCamera.getPos();
-        for (Portal portal : RenderStates.portalLayers) {
-            pos = portal.transformPoint(pos);
-        }
-        ((IECamera) camera).mySetPos(pos);
     }
     
     public static void clearAlphaTo1(Framebuffer mcFrameBuffer) {

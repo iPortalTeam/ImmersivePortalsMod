@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -48,23 +49,20 @@ import java.util.function.Predicate;
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
     
-    public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
-        if (RenderStates.isRendering()) {
-            if (CGlobal.renderFewerInFastGraphic) {
-                if (!MinecraftClient.getInstance().options.fancyGraphics) {
-                    MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
-                }
-            }
-        }
+    public static void renderWorldNew(
+    
+    ){
+    
     }
     
     public static void renderWorld(
-        float partialTicks,
         WorldRenderer newWorldRenderer,
         ClientWorld newWorld,
         Vec3d oldCameraPos,
         ClientWorld oldWorld
     ) {
+        float tickDelta = RenderStates.tickDelta;
+        
         if (CGlobal.useHackedChunkRenderDispatcher) {
             ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage().updateCameraPosition(
                 client.cameraEntity.getX(),
@@ -127,7 +125,7 @@ public class MyGameRenderer {
         
         //invoke rendering
         client.gameRenderer.renderWorld(
-            partialTicks,
+            tickDelta,
             Util.getMeasuringTimeNano(),
             new MatrixStack()
         );
@@ -258,21 +256,21 @@ public class MyGameRenderer {
             Vec3d center = builtChunk.boundingBox.getCenter();
             return center.squaredDistanceTo(cameraPos) > range;
         };
-        
-        pruneVisibleChunks(
+    
+        Helper.removeIf(
             (ObjectList<Object>) visibleChunks,
-            builtChunkPredicate
+            obj -> builtChunkPredicate.test(((IEWorldRendererChunkInfo) obj).getBuiltChunk())
         );
     }
     
-    private static void pruneVisibleChunks(
-        ObjectList<Object> visibleChunks,
-        Predicate<ChunkBuilder.BuiltChunk> builtChunkPredicate
-    ) {
-        Helper.removeIf(
-            visibleChunks,
-            obj -> builtChunkPredicate.test(((IEWorldRendererChunkInfo) obj).getBuiltChunk())
-        );
+    public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
+        if (PortalLayers.isRendering()) {
+            if (CGlobal.renderFewerInFastGraphic) {
+                if (!MinecraftClient.getInstance().options.fancyGraphics) {
+                    MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
+                }
+            }
+        }
     }
     
     public static void renderSkyFor(

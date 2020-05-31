@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -36,7 +37,7 @@ public class CHelper {
     
     //NOTE this may not be reliable
     public static DimensionType getOriginalDimension() {
-        if (RenderStates.isRendering()) {
+        if (PortalLayers.isRendering()) {
             return RenderStates.originalPlayerDimension;
         }
         else {

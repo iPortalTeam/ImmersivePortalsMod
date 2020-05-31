@@ -125,7 +125,7 @@ public class ShaderContextManager {
         }
     }
     
-    private void checkState(
+    private static void checkState(
         ClientWorld currentClientWorld,
         DimensionType dimensionToSwitchTo,
         PerDimensionContext newContext
@@ -148,7 +148,7 @@ public class ShaderContextManager {
         }
     }
     
-    int forceCorrectedNum = 0;
+    public static int forceCorrectedNum = 0;
     
     private void forceSwitchToContextAndRun(
         PerDimensionContext contextToSwitchTo,

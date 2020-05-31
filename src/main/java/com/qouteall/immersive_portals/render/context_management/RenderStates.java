@@ -25,9 +25,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class RenderStates {
     
@@ -62,8 +59,6 @@ public class RenderStates {
     public static boolean isLaggy = false;
     
     public static boolean isRenderingEntities = false;
-    
-    public static final Stack<Portal> portalLayers = new Stack<>();
     
     public static void updatePreRenderInfo(
         float tickDelta_
@@ -192,29 +187,4 @@ public class RenderStates {
         return renderedDimensions.contains(dimensionType);
     }
     
-    public static void onBeginPortalWorldRendering(Stack<Portal> portalLayers) {
-        List<WeakReference<Portal>> currRenderInfo = portalLayers.stream().map(
-            (Function<Portal, WeakReference<Portal>>) WeakReference::new
-        ).collect(Collectors.toList());
-        portalRenderInfos.add(currRenderInfo);
-        
-        CHelper.checkGlError();
-    }
-    
-    public static void onEndPortlWorldRendering() {
-        renderedDimensions.add(
-            portalLayers.peek().dimensionTo
-        );
-    }
-    
-    //0 for rendering outer world
-    //1 for rendering world inside portal
-    //2 for rendering world inside PortalEntity inside portal
-    public static int getPortalLayer() {
-        return portalLayers.size();
-    }
-    
-    public static boolean isRendering() {
-        return getPortalLayer() != 0;
-    }
 }

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.context_management.RenderStates;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -52,7 +52,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         Portal portal,
         MatrixStack matrixStack
     ) {
-        if (RenderStates.isRendering()) {
+        if (PortalLayers.isRendering()) {
             //only support one-layer portal
             return;
         }
@@ -61,7 +61,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             return;
         }
     
-        RenderStates.portalLayers.push(portal);
+        PortalLayers.pushPortalLayer(portal);
     
         Framebuffer oldFrameBuffer = client.getFramebuffer();
     
@@ -81,7 +81,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.beginWrite(true);
     
-        RenderStates.portalLayers.pop();
+        PortalLayers.popPortalLayer();
     
         renderSecondBufferIntoMainBuffer(portal, matrixStack);
     }

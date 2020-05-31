@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.context_management.RenderStates;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -52,8 +52,8 @@ public class FrustumCuller {
             return nonePredicate;
         }
         
-        if (RenderStates.isRendering()) {
-            Portal portal = CGlobal.renderer.getRenderingPortal();
+        if (PortalLayers.isRendering()) {
+            Portal portal = PortalLayers.getRenderingPortal();
             
             Vec3d portalOriginInLocalCoordinate = portal.destination.add(
                 -cameraX, -cameraY, -cameraZ

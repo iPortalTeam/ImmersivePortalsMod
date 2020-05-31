@@ -1,9 +1,9 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,9 +32,7 @@ public class TransformationManager {
         
         matrixStack.multiply(finalRotation);
         
-        CGlobal.renderer.applyAdditionalTransformations(matrixStack);
-        
-        //applyMirrorTransformation(camera, matrixStack);
+        PortalLayers.applyAdditionalTransformations(matrixStack);
         
     }
     
@@ -52,22 +50,6 @@ public class TransformationManager {
         if (progress < 0 || progress >= 1) {
             return cameraRotation;
         }
-
-//        if (inertialRotation != null) {
-//
-//            if (Helper.isClose(inertialRotation, cameraRotation, 0.000001f)) {
-//                inertialRotation = null;
-//                return cameraRotation;
-//            }
-//
-//            inertialRotation = Helper.interpolateQuaternion(
-//                inertialRotation, cameraRotation, 0.04f
-//            );
-//            return inertialRotation;
-//        }
-//        else {
-//            return cameraRotation;
-//        }
         
         progress = mapProgress(progress);
         

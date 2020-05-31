@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
@@ -53,7 +54,7 @@ public class RendererDebug extends PortalRenderer {
             return;
         }
     
-        RenderStates.portalLayers.push(portal);
+        PortalLayers.pushPortalLayer(portal);
         
         GlStateManager.clearColor(1, 0, 1, 1);
         GlStateManager.clearDepth(1);
@@ -65,7 +66,7 @@ public class RendererDebug extends PortalRenderer {
         
         manageCameraAndRenderPortalContent(portal);
     
-        RenderStates.portalLayers.pop();
+        PortalLayers.popPortalLayer();
     }
     
     private boolean testShouldRenderPortal(

@@ -12,6 +12,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -277,14 +278,14 @@ public class ViewAreaRenderer {
             portal instanceof Mirror ? 0 : 0.45F
         );
         
-        boolean shouldReverseCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
+        boolean shouldReverseCull = PortalLayers.isRenderingOddNumberOfMirrors();
         if (shouldReverseCull) {
             MyRenderHelper.applyMirrorFaceCulling();
         }
         if (doFrontCulling) {
-            if (RenderStates.isRendering()) {
+            if (PortalLayers.isRendering()) {
                 PixelCuller.updateCullingPlaneInner(
-                    matrixStack, CGlobal.renderer.getRenderingPortal(), false
+                    matrixStack, PortalLayers.getRenderingPortal(), false
                 );
                 PixelCuller.loadCullingPlaneClassical(matrixStack);
                 PixelCuller.startClassicalCulling();
@@ -302,7 +303,7 @@ public class ViewAreaRenderer {
             MyRenderHelper.recoverFaceCulling();
         }
         if (doFrontCulling) {
-            if (RenderStates.isRendering()) {
+            if (PortalLayers.isRendering()) {
                 PixelCuller.endCulling();
             }
         }

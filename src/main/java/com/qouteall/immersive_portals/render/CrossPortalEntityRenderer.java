@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.PortalLayers;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -61,9 +62,9 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void onBeginRenderingEnties(MatrixStack matrixStack) {
-        if (RenderStates.isRendering()) {
+        if (PortalLayers.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
-                matrixStack, CGlobal.renderer.getRenderingPortal(), false
+                matrixStack, PortalLayers.getRenderingPortal(), false
             );
             PixelCuller.startCulling();
         }
@@ -79,7 +80,7 @@ public class CrossPortalEntityRenderer {
         if (!Global.correctCrossPortalEntityRendering) {
             return;
         }
-        if (!RenderStates.isRendering()) {
+        if (!PortalLayers.isRendering()) {
             if (collidedEntities.containsKey(entity)) {
                 Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
                 if (collidingPortal == null) {
@@ -106,7 +107,7 @@ public class CrossPortalEntityRenderer {
         if (!Global.correctCrossPortalEntityRendering) {
             return;
         }
-        if (!RenderStates.isRendering()) {
+        if (!PortalLayers.isRendering()) {
             if (collidedEntities.containsKey(entity)) {
                 //draw it with culling in a separate draw call
                 client.getBufferBuilders().getEntityVertexConsumers().draw();
@@ -151,8 +152,8 @@ public class CrossPortalEntityRenderer {
         Portal collidingPortal,
         MatrixStack matrixStack
     ) {
-        if (RenderStates.isRendering()) {
-            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+        if (PortalLayers.isRendering()) {
+            Portal renderingPortal = PortalLayers.getRenderingPortal();
             //correctly rendering it needs two culling planes
             //use some rough check to work around
             
@@ -206,8 +207,8 @@ public class CrossPortalEntityRenderer {
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
         
-        if (RenderStates.isRendering()) {
-            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+        if (PortalLayers.isRendering()) {
+            Portal renderingPortal = PortalLayers.getRenderingPortal();
             if (!renderingPortal.isInside(newEyePos, -3)) {
                 return;
             }
@@ -260,7 +261,7 @@ public class CrossPortalEntityRenderer {
         if (!Global.renderYourselfInPortal) {
             return false;
         }
-        if (!RenderStates.isRendering()) {
+        if (!PortalLayers.isRendering()) {
             return false;
         }
         if (client.cameraEntity.dimension == RenderStates.originalPlayerDimension) {
@@ -273,11 +274,11 @@ public class CrossPortalEntityRenderer {
         if (OFInterface.isShadowPass.getAsBoolean()) {
             return true;
         }
-        if (RenderStates.isRendering()) {
+        if (PortalLayers.isRendering()) {
             if (entity instanceof ClientPlayerEntity) {
                 return shouldRenderPlayerItself();
             }
-            Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
+            Portal renderingPortal = PortalLayers.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
             if (collidingPortal != null) {
                 if (!Portal.isReversePortal(collidingPortal, renderingPortal)) {
