@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -57,8 +58,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (client.world == null) {
             return;
         }
-        MyRenderHelper.updatePreRenderInfo(partialTicks);
-        CGlobal.clientTeleportationManager.manageTeleportation(MyRenderHelper.tickDelta);
+        RenderStates.updatePreRenderInfo(partialTicks);
+        CGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
         ModMain.preRenderSignal.emit();
         if (CGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
@@ -101,7 +102,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     ) {
         CGlobal.renderer.finishRendering();
         
-        MyRenderHelper.onTotalRenderEnd();
+        RenderStates.onTotalRenderEnd();
     }
     
     @Inject(method = "renderWorld", at = @At("TAIL"))
@@ -140,7 +141,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectBobViewTranslate(MatrixStack matrixStack, double x, double y, double z) {
-        double viewBobFactor = MyRenderHelper.viewBobFactor;
+        double viewBobFactor = RenderStates.viewBobFactor;
         matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
     }
     
@@ -152,17 +153,17 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectLoadProjectionMatrix(GameRenderer gameRenderer, Matrix4f matrix4f) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             //load recorded projection matrix
-            method_22709(MyRenderHelper.projectionMatrix);
+            method_22709(RenderStates.projectionMatrix);
         }
         else {
             //load projection matrix normally
             method_22709(matrix4f);
             
             //record projection matrix
-            if (MyRenderHelper.projectionMatrix == null) {
-                MyRenderHelper.projectionMatrix = matrix4f;
+            if (RenderStates.projectionMatrix == null) {
+                RenderStates.projectionMatrix = matrix4f;
             }
         }
     }
@@ -181,7 +182,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         MatrixStack matrix,
         CallbackInfo ci
     ) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             MyRenderHelper.adjustCameraPos(camera);
         }
     }

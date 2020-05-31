@@ -16,9 +16,9 @@ import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -222,7 +222,7 @@ public class ClientTeleportationManager {
         Helper.log("Client Teleported " + portal);
         
         //update colliding portal
-        ((IEEntity) player).tickCollidingPortal(MyRenderHelper.tickDelta);
+        ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
         
         isTeleportingTick = true;
     }
@@ -326,7 +326,7 @@ public class ClientTeleportationManager {
         
         //because the teleportation may happen before rendering
         //but after pre render info being updated
-        MyRenderHelper.updatePreRenderInfo(MyRenderHelper.tickDelta);
+        RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
         
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
         

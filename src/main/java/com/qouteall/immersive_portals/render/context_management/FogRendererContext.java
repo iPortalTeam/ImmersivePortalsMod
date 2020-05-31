@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render.context_management;
 
-import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionType;
@@ -33,7 +32,7 @@ public class FogRendererContext {
     }
     
     public static void update() {
-        swappingManager.setOuterDimension(MyRenderHelper.originalPlayerDimension);
+        swappingManager.setOuterDimension(RenderStates.originalPlayerDimension);
         swappingManager.resetChecks();
         DimensionType.getAll().forEach(dimension ->
             swappingManager.contextMap.computeIfAbsent(
@@ -41,7 +40,7 @@ public class FogRendererContext {
                 k -> new StaticFieldsSwappingManager.ContextRecord<>(
                     dimension,
                     new FogRendererContext(),
-                    dimension != MyRenderHelper.originalPlayerDimension
+                    dimension != RenderStates.originalPlayerDimension
                 )
             )
         );

@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
@@ -23,20 +24,18 @@ import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Stack;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class PortalRenderer {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
-    protected Supplier<Integer> maxPortalLayer = () -> {
-        if (MyRenderHelper.isLaggy) {
+    
+    public static int getMaxPortalLayer(){
+        if (RenderStates.isLaggy) {
             return 1;
         }
         return Global.maxPortalLayer;
-    };
-    protected Stack<Portal> portalLayers = new Stack<>();
+    }
     
     //this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
@@ -56,21 +55,10 @@ public abstract class PortalRenderer {
     //this will be called when rendering portal entities
     public abstract void renderPortalInEntityRenderer(Portal portal);
     
-    //0 for rendering outer world
-    //1 for rendering world inside portal
-    //2 for rendering world inside PortalEntity inside portal
-    public int getPortalLayer() {
-        return portalLayers.size();
-    }
-    
-    public boolean isRendering() {
-        return getPortalLayer() != 0;
-    }
-    
     public abstract boolean shouldSkipClearing();
     
     public Portal getRenderingPortal() {
-        return portalLayers.peek();
+        return RenderStates.portalLayers.peek();
     }
     
     protected void renderPortals(MatrixStack matrixStack) {
@@ -87,9 +75,8 @@ public abstract class PortalRenderer {
         if (CGlobal.earlyFrustumCullingPortal) {
             frustum = new Frustum(
                 matrixStack.peek().getModel(),
-                MyRenderHelper.projectionMatrix
+                RenderStates.projectionMatrix
             );
-//            ((IEFrustum) frustum).setIsNormalCulling(false);
         
             Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
             frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
@@ -110,7 +97,7 @@ public abstract class PortalRenderer {
             return;
         }
         
-        if (MyRenderHelper.getRenderedPortalNum() >= Global.portalRenderLimit) {
+        if (RenderStates.getRenderedPortalNum() >= Global.portalRenderLimit) {
             return;
         }
         
@@ -120,8 +107,8 @@ public abstract class PortalRenderer {
             return;
         }
         
-        if (isRendering()) {
-            Portal outerPortal = portalLayers.peek();
+        if (RenderStates.isRendering()) {
+            Portal outerPortal = RenderStates.portalLayers.peek();
             if (Portal.isParallelPortal(portal, outerPortal)) {
                 return;
             }
@@ -142,11 +129,11 @@ public abstract class PortalRenderer {
     
     protected final double getRenderRange() {
         double range = client.options.viewDistance * 16;
-        if (getPortalLayer() > 1) {
+        if (RenderStates.getPortalLayer() > 1) {
             //do not render deep layers of mirror when far away
-            range /= (getPortalLayer());
+            range /= (RenderStates.getPortalLayer());
         }
-        if (MyRenderHelper.isLaggy) {
+        if (RenderStates.isLaggy) {
             range = 16;
         }
         return range;
@@ -170,14 +157,14 @@ public abstract class PortalRenderer {
     protected final void manageCameraAndRenderPortalContent(
         Portal portal
     ) {
-        if (getPortalLayer() > maxPortalLayer.get()) {
+        if (RenderStates.getPortalLayer() > getMaxPortalLayer()) {
             return;
         }
         
         
         Entity cameraEntity = client.cameraEntity;
-        
-        MyRenderHelper.onBeginPortalWorldRendering(portalLayers);
+    
+        RenderStates.onBeginPortalWorldRendering(RenderStates.portalLayers);
         
         Camera camera = client.gameRenderer.getCamera();
         
@@ -249,7 +236,7 @@ public abstract class PortalRenderer {
         CHelper.checkGlError();
         
         MyGameRenderer.renderWorld(
-            MyRenderHelper.tickDelta, worldRenderer, destClientWorld, oldCameraPos, oldWorld
+            RenderStates.tickDelta, worldRenderer, destClientWorld, oldCameraPos, oldWorld
         );
         
         CHelper.checkGlError();
@@ -257,7 +244,7 @@ public abstract class PortalRenderer {
     }
     
     public void applyAdditionalTransformations(MatrixStack matrixStack) {
-        portalLayers.forEach(portal -> {
+        RenderStates.portalLayers.forEach(portal -> {
             if (portal instanceof Mirror) {
                 Matrix4f matrix = TransformationManager.getMirrorTransformation(portal.getNormal());
                 matrixStack.peek().getModel().multiply(matrix);

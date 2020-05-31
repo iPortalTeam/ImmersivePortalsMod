@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -46,7 +47,7 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        int portalLayer = getPortalLayer();
+        int portalLayer = RenderStates.getPortalLayer();
         
         initStencilForLayer(portalLayer);
         
@@ -99,7 +100,7 @@ public class RendererMixed extends PortalRenderer {
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
         OFHelper.copyFromShaderFbTo(
-            deferredFbs[getPortalLayer()].fb,
+            deferredFbs[RenderStates.getPortalLayer()].fb,
             GL_DEPTH_BUFFER_BIT
         );
         
@@ -114,12 +115,12 @@ public class RendererMixed extends PortalRenderer {
             CGlobal.shaderManager = new ShaderManager();
         }
         
-        if (deferredFbs.length != maxPortalLayer.get() + 1) {
+        if (deferredFbs.length != getMaxPortalLayer() + 1) {
             for (SecondaryFrameBuffer fb : deferredFbs) {
                 fb.fb.delete();
             }
             
-            deferredFbs = new SecondaryFrameBuffer[maxPortalLayer.get() + 1];
+            deferredFbs = new SecondaryFrameBuffer[getMaxPortalLayer() + 1];
             for (int i = 0; i < deferredFbs.length; i++) {
                 deferredFbs[i] = new SecondaryFrameBuffer();
             }
@@ -145,7 +146,7 @@ public class RendererMixed extends PortalRenderer {
         GlStateManager.colorMask(true, true, true, true);
         Shaders.useProgram(Shaders.ProgramNone);
         
-        if (MyRenderHelper.getRenderedPortalNum() == 0) {
+        if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
         
@@ -160,25 +161,25 @@ public class RendererMixed extends PortalRenderer {
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
         //reset projection matrix
-        client.gameRenderer.method_22709(MyRenderHelper.projectionMatrix);
+        client.gameRenderer.method_22709(RenderStates.projectionMatrix);
         
         //write to deferred buffer
         if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {
             return;
         }
-        
-        portalLayers.push(portal);
+    
+        RenderStates.portalLayers.push(portal);
         
         OFGlobal.bindToShaderFrameBuffer.run();
         manageCameraAndRenderPortalContent(portal);
         
-        int innerLayer = getPortalLayer();
+        int innerLayer = RenderStates.getPortalLayer();
+    
+        RenderStates.portalLayers.pop();
         
-        portalLayers.pop();
+        int outerLayer = RenderStates.getPortalLayer();
         
-        int outerLayer = getPortalLayer();
-        
-        if (innerLayer > maxPortalLayer.get()) {
+        if (innerLayer > getMaxPortalLayer()) {
             return;
         }
         
@@ -194,7 +195,7 @@ public class RendererMixed extends PortalRenderer {
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
         Portal portal, MatrixStack matrixStack
     ) {
-        int portalLayer = getPortalLayer();
+        int portalLayer = RenderStates.getPortalLayer();
         
         initStencilForLayer(portalLayer);
         

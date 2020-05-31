@@ -3,10 +3,10 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -63,16 +63,16 @@ public class RendererDebugWithShader extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
-        if (MyRenderHelper.getRenderedPortalNum() >= 1) {
+        if (RenderStates.getRenderedPortalNum() >= 1) {
             return;
         }
-        
-        portalLayers.push(portal);
+    
+        RenderStates.portalLayers.push(portal);
         
         manageCameraAndRenderPortalContent(portal);
         //it will bind the gbuffer of rendered dimension
-        
-        portalLayers.pop();
+    
+        RenderStates.portalLayers.pop();
         
         deferredBuffer.fb.beginWrite(true);
         
@@ -99,11 +99,11 @@ public class RendererDebugWithShader extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        if (isRendering()) {
+        if (RenderStates.isRendering()) {
             return;
         }
         
-        if (MyRenderHelper.getRenderedPortalNum() == 0) {
+        if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
         

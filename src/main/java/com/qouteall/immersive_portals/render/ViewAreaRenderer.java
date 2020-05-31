@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -272,7 +273,7 @@ public class ViewAreaRenderer {
             portal,
             bufferbuilder,
             PortalRenderer.client.gameRenderer.getCamera().getPos(),
-            MyRenderHelper.tickDelta,
+            RenderStates.tickDelta,
             portal instanceof Mirror ? 0 : 0.45F
         );
         
@@ -281,7 +282,7 @@ public class ViewAreaRenderer {
             MyRenderHelper.applyMirrorFaceCulling();
         }
         if (doFrontCulling) {
-            if (CGlobal.renderer.isRendering()) {
+            if (RenderStates.isRendering()) {
                 PixelCuller.updateCullingPlaneInner(
                     matrixStack, CGlobal.renderer.getRenderingPortal(), false
                 );
@@ -301,7 +302,7 @@ public class ViewAreaRenderer {
             MyRenderHelper.recoverFaceCulling();
         }
         if (doFrontCulling) {
-            if (CGlobal.renderer.isRendering()) {
+            if (RenderStates.isRendering()) {
                 PixelCuller.endCulling();
             }
         }
@@ -314,7 +315,7 @@ public class ViewAreaRenderer {
     private static Vec3d getCurrentFogColor(Portal portal) {
         
         if (Global.edgelessSky) {
-            return getFogColorOf(MyRenderHelper.originalPlayerDimension);
+            return getFogColorOf(RenderStates.originalPlayerDimension);
         }
         
         return getFogColorOf(portal.dimensionTo);

@@ -18,6 +18,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
@@ -48,7 +49,7 @@ public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
     
     public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             if (CGlobal.renderFewerInFastGraphic) {
                 if (!MinecraftClient.getInstance().options.fancyGraphics) {
                     MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
@@ -117,7 +118,7 @@ public class MyGameRenderer {
         ieGameRenderer.setCamera(newCamera);
     
         //update lightmap
-        if (!MyRenderHelper.isDimensionRendered(newWorld.dimension.getType())) {
+        if (!RenderStates.isDimensionRendered(newWorld.dimension.getType())) {
             helper.lightmapTexture.update(0);
         }
         helper.lightmapTexture.enable();
@@ -163,7 +164,7 @@ public class MyGameRenderer {
         EntityRenderDispatcher entityRenderDispatcher =
             ((IEWorldRenderer) client.worldRenderer).getEntityRenderDispatcher();
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
-        GameMode originalGameMode = MyRenderHelper.originalGameMode;
+        GameMode originalGameMode = RenderStates.originalGameMode;
         
         Entity player = client.cameraEntity;
         assert player != null;
@@ -173,7 +174,7 @@ public class MyGameRenderer {
         GameMode oldGameMode = playerListEntry.getGameMode();
         
         McHelper.setPosAndLastTickPos(
-            player, MyRenderHelper.originalPlayerPos, MyRenderHelper.originalPlayerLastTickPos
+            player, RenderStates.originalPlayerPos, RenderStates.originalPlayerLastTickPos
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
@@ -231,10 +232,10 @@ public class MyGameRenderer {
     public static void updateFogColor() {
         BackgroundRenderer.render(
             client.gameRenderer.getCamera(),
-            MyRenderHelper.tickDelta,
+            RenderStates.tickDelta,
             client.world,
             client.options.viewDistance,
-            client.gameRenderer.getSkyDarkness(MyRenderHelper.tickDelta)
+            client.gameRenderer.getSkyDarkness(RenderStates.tickDelta)
         );
     }
     

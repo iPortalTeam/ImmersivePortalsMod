@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -38,14 +39,14 @@ public class TransformationManager {
     }
     
     public static boolean isAnimationRunning() {
-        double progress = (MyRenderHelper.renderStartNanoTime - interpolationStartTime) /
+        double progress = (RenderStates.renderStartNanoTime - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
         
         return progress >= -0.1 && progress <= 1.1;
     }
     
     public static Quaternion getFinalRotation(Quaternion cameraRotation) {
-        double progress = (MyRenderHelper.renderStartNanoTime - interpolationStartTime) /
+        double progress = (RenderStates.renderStartNanoTime - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
         
         if (progress < 0 || progress >= 1) {
@@ -134,7 +135,7 @@ public class TransformationManager {
             b.conjugate();
             visualRotation.hamiltonProduct(b);
             
-            Vec3d oldViewVector = player.getRotationVec(MyRenderHelper.tickDelta);
+            Vec3d oldViewVector = player.getRotationVec(RenderStates.tickDelta);
             Vec3d newViewVector = portal.transformLocalVec(oldViewVector);
             
             player.yaw = getYawFromViewVector(newViewVector);
@@ -152,7 +153,7 @@ public class TransformationManager {
             
             if (!Helper.isClose(newCameraRotation, visualRotation, 0.001f)) {
                 inertialRotation = visualRotation;
-                interpolationStartTime = MyRenderHelper.renderStartNanoTime;
+                interpolationStartTime = RenderStates.renderStartNanoTime;
                 interpolationEndTime = interpolationStartTime +
                     Helper.secondToNano(1);
             }
@@ -168,7 +169,7 @@ public class TransformationManager {
             client.player,
             client.options.perspective > 0,
             client.options.perspective == 2,
-            MyRenderHelper.tickDelta
+            RenderStates.tickDelta
         );
     }
     

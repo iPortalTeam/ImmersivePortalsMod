@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
@@ -30,7 +31,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public boolean shouldSkipClearing() {
-        return isRendering();
+        return RenderStates.isRendering();
     }
     
     @Override
@@ -44,7 +45,7 @@ public class RendererUsingStencil extends PortalRenderer {
     private void doPortalRendering(MatrixStack matrixStack) {
         client.getProfiler().swap("render_portal_total");
         renderPortals(matrixStack);
-        if (isRendering()) {
+        if (RenderStates.isRendering()) {
             setStencilStateForWorldRendering();
         }
         else {
@@ -95,7 +96,7 @@ public class RendererUsingStencil extends PortalRenderer {
         Portal portal,
         MatrixStack matrixStack
     ) {
-        int outerPortalStencilValue = getPortalLayer();
+        int outerPortalStencilValue = RenderStates.getPortalLayer();
         
         client.getProfiler().push("render_view_area");
         boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
@@ -109,7 +110,7 @@ public class RendererUsingStencil extends PortalRenderer {
         }
     
         //PUSH
-        portalLayers.push(portal);
+        RenderStates.portalLayers.push(portal);
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
     
@@ -127,7 +128,7 @@ public class RendererUsingStencil extends PortalRenderer {
         MyGameRenderer.resetDiffuseLighting(matrixStack);
     
         //POP
-        portalLayers.pop();
+        RenderStates.portalLayers.pop();
     }
     
     @Override
@@ -147,7 +148,7 @@ public class RendererUsingStencil extends PortalRenderer {
     private void renderPortalViewAreaToStencil(
         Portal portal, MatrixStack matrixStack
     ) {
-        int outerPortalStencilValue = getPortalLayer();
+        int outerPortalStencilValue = RenderStates.getPortalLayer();
         
         //is the mask here different from the mask of glStencilMask?
         GL11.glStencilFunc(GL_EQUAL, outerPortalStencilValue, 0xFF);
@@ -263,7 +264,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void setStencilStateForWorldRendering() {
-        int thisPortalStencilValue = getPortalLayer();
+        int thisPortalStencilValue = RenderStates.getPortalLayer();
         
         //draw content in the mask
         GL11.glStencilFunc(GL_EQUAL, thisPortalStencilValue, 0xFF);

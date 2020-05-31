@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -40,7 +41,7 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-        if (isRendering()) {
+        if (RenderStates.isRendering()) {
             return;
         }
 //        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
@@ -71,7 +72,7 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
-        if (isRendering()) {
+        if (RenderStates.isRendering()) {
             //currently only support one-layer portal
             return;
         }
@@ -81,13 +82,13 @@ public class RendererDeferred extends PortalRenderer {
         if (!testShouldRenderPortal(portal, matrixStack)) {
             return;
         }
-        
-        portalLayers.push(portal);
+    
+        RenderStates.portalLayers.push(portal);
         
         manageCameraAndRenderPortalContent(portal);
         //it will bind the gbuffer of rendered dimension
-        
-        portalLayers.pop();
+    
+        RenderStates.portalLayers.pop();
         
         deferredBuffer.fb.beginWrite(true);
     
@@ -134,7 +135,7 @@ public class RendererDeferred extends PortalRenderer {
         if (Shaders.isShadowPass) {
             return true;
         }
-        if (isRendering()) {
+        if (RenderStates.isRendering()) {
             return portal.isInFrontOfPortal(cameraPos);
         }
         return false;
@@ -162,7 +163,7 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        if (isRendering()) {
+        if (RenderStates.isRendering()) {
             return;
         }
         

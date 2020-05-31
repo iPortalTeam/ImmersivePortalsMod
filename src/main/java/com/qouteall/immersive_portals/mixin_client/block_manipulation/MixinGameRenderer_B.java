@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client.block_manipulation;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +16,7 @@ public class MixinGameRenderer_B {
     @Inject(method = "updateTargetedEntity", at = @At("HEAD"), cancellable = true)
     private void onUpdateTargetedEntity(float tickDelta, CallbackInfo ci) {
         if (MinecraftClient.getInstance().world != null) {
-            if (CGlobal.renderer.isRendering()) {
+            if (RenderStates.isRendering()) {
                 ci.cancel();
             }
         }

@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IECamera;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -39,7 +39,7 @@ public abstract class MixinCamera implements IECamera {
         cancellable = true
     )
     private void getSubmergedFluidState(CallbackInfoReturnable<FluidState> cir) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             cir.setReturnValue(Fluids.EMPTY.getDefaultState());
             cir.cancel();
         }
@@ -47,7 +47,7 @@ public abstract class MixinCamera implements IECamera {
     
     @Inject(method = "clipToSpace", at = @At("HEAD"), cancellable = true)
     private void onClipToSpaceHead(double double_1, CallbackInfoReturnable<Double> cir) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             cir.setReturnValue(lastClipSpaceResult);
             cir.cancel();
         }

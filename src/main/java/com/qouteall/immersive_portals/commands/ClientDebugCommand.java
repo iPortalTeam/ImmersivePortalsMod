@@ -16,7 +16,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
@@ -223,7 +223,7 @@ public class ClientDebugCommand {
         builder = builder.then(CommandManager
             .literal("report_rendering")
             .executes(context -> {
-                String str = MyRenderHelper.lastPortalRenderInfos
+                String str = RenderStates.lastPortalRenderInfos
                     .stream()
                     .map(
                         list -> list.stream()

@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -60,7 +61,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void onBeginRenderingEnties(MatrixStack matrixStack) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrixStack, CGlobal.renderer.getRenderingPortal(), false
             );
@@ -78,7 +79,7 @@ public class CrossPortalEntityRenderer {
         if (!Global.correctCrossPortalEntityRendering) {
             return;
         }
-        if (!CGlobal.renderer.isRendering()) {
+        if (!RenderStates.isRendering()) {
             if (collidedEntities.containsKey(entity)) {
                 Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
                 if (collidingPortal == null) {
@@ -105,7 +106,7 @@ public class CrossPortalEntityRenderer {
         if (!Global.correctCrossPortalEntityRendering) {
             return;
         }
-        if (!CGlobal.renderer.isRendering()) {
+        if (!RenderStates.isRendering()) {
             if (collidedEntities.containsKey(entity)) {
                 //draw it with culling in a separate draw call
                 client.getBufferBuilders().getEntityVertexConsumers().draw();
@@ -150,7 +151,7 @@ public class CrossPortalEntityRenderer {
         Portal collidingPortal,
         MatrixStack matrixStack
     ) {
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             //correctly rendering it needs two culling planes
             //use some rough check to work around
@@ -205,7 +206,7 @@ public class CrossPortalEntityRenderer {
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
         
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             Portal renderingPortal = CGlobal.renderer.getRenderingPortal();
             if (!renderingPortal.isInside(newEyePos, -3)) {
                 return;
@@ -242,7 +243,7 @@ public class CrossPortalEntityRenderer {
         ((IEWorldRenderer) client.worldRenderer).myRenderEntity(
             entity,
             cameraPos.x, cameraPos.y, cameraPos.z,
-            MyRenderHelper.tickDelta, matrixStack,
+            RenderStates.tickDelta, matrixStack,
             consumers
         );
         //immediately invoke draw call
@@ -259,10 +260,10 @@ public class CrossPortalEntityRenderer {
         if (!Global.renderYourselfInPortal) {
             return false;
         }
-        if (!CGlobal.renderer.isRendering()) {
+        if (!RenderStates.isRendering()) {
             return false;
         }
-        if (client.cameraEntity.dimension == MyRenderHelper.originalPlayerDimension) {
+        if (client.cameraEntity.dimension == RenderStates.originalPlayerDimension) {
             return true;
         }
         return false;
@@ -272,7 +273,7 @@ public class CrossPortalEntityRenderer {
         if (OFInterface.isShadowPass.getAsBoolean()) {
             return true;
         }
-        if (CGlobal.renderer.isRendering()) {
+        if (RenderStates.isRendering()) {
             if (entity instanceof ClientPlayerEntity) {
                 return shouldRenderPlayerItself();
             }
@@ -291,7 +292,7 @@ public class CrossPortalEntityRenderer {
             }
             
             return renderingPortal.isInside(
-                entity.getCameraPosVec(MyRenderHelper.tickDelta), -0.01
+                entity.getCameraPosVec(RenderStates.tickDelta), -0.01
             );
         }
         return true;
