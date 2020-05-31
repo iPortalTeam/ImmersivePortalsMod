@@ -76,7 +76,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
     
-        manageCameraAndRenderPortalContent(portal);
+        mustRenderPortalHere(portal);
         
         ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.beginWrite(true);

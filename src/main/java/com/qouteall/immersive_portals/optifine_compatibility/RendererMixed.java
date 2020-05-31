@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.QueryManager;
@@ -172,7 +173,7 @@ public class RendererMixed extends PortalRenderer {
         PortalLayers.pushPortalLayer(portal);
         
         OFGlobal.bindToShaderFrameBuffer.run();
-        manageCameraAndRenderPortalContent(portal);
+        mustRenderPortalHere(portal);
         
         int innerLayer = PortalLayers.getPortalLayer();
     
@@ -224,16 +225,32 @@ public class RendererMixed extends PortalRenderer {
     }
     
     @Override
-    protected void renderPortalContentWithContextSwitched(
-        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
+    protected void invokeWorldRendering(
+        Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
     ) {
-        OFGlobal.shaderContextManager.switchContextAndRun(
-            () -> {
-                OFGlobal.bindToShaderFrameBuffer.run();
-                super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
+        MyGameRenderer.depictTheFascinatingWorld(
+            newWorld, newEyePos,
+            newLastTickEyePos,
+            runnable -> {
+                OFGlobal.shaderContextManager.switchContextAndRun(()->{
+                    OFGlobal.bindToShaderFrameBuffer.run();
+                    runnable.run();
+                });
             }
         );
     }
+    
+//    @Override
+//    protected void renderPortalContentWithContextSwitched(
+//        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
+//    ) {
+//        OFGlobal.shaderContextManager.switchContextAndRun(
+//            () -> {
+//                OFGlobal.bindToShaderFrameBuffer.run();
+//                super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
+//            }
+//        );
+//    }
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
