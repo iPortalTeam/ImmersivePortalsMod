@@ -35,7 +35,7 @@ public class PortalLayers {
     
     //0 for rendering outer world
     //1 for rendering world inside portal
-    //2 for rendering world inside PortalEntity inside portal
+    //2 for rendering world inside the portal inside portal
     public static int getPortalLayer() {
         return portalLayers.size();
     }

@@ -25,7 +25,7 @@ public class OFHelper {
         );
         
         int errorCode = GL11.glGetError();
-        if (errorCode != GL_NO_ERROR) {
+        if (errorCode != GL_NO_ERROR && Global.renderMode == Global.RenderMode.normal) {
             String message = "[Immersive Portals] Detected Video Card's Incapability of Depth Format Conversion. " +
                 "Switch to Compatibility Renderer";
             Helper.err("OpenGL Error" + errorCode);

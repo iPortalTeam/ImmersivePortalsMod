@@ -64,7 +64,7 @@ public class RendererDebug extends PortalRenderer {
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         
-        mustRenderPortalHere(portal);
+        renderPortalContent(portal);
     
         PortalLayers.popPortalLayer();
     }

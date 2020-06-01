@@ -71,7 +71,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     
         PortalLayers.pushPortalLayer(portal);
         
-        mustRenderPortalHere(portal);
+        renderPortalContent(portal);
         //it will bind the gbuffer of rendered dimension
     
         PortalLayers.popPortalLayer();
@@ -91,7 +91,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     protected void invokeWorldRendering(
         Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
     ) {
-        MyGameRenderer.depictTheFascinatingWorld(
+        MyGameRenderer.switchAndRenderTheWorld(
             newWorld, newEyePos,
             newLastTickEyePos,
             runnable -> {

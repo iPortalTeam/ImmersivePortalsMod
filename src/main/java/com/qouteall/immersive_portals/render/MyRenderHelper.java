@@ -34,9 +34,10 @@ public class MyRenderHelper {
     public static void drawFrameBufferUp(
         Portal portal,
         Framebuffer textureProvider,
-        ShaderManager shaderManager,
         MatrixStack matrixStack
     ) {
+        ShaderManager shaderManager = CGlobal.shaderManager;
+    
         CHelper.checkGlError();
         McHelper.runWithTransformation(
             matrixStack,

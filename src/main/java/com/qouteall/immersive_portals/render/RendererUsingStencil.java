@@ -117,7 +117,7 @@ public class RendererUsingStencil extends PortalRenderer {
         clearDepthOfThePortalViewArea(portal);
         client.getProfiler().pop();
         
-        mustRenderPortalHere(portal);
+        renderPortalContent(portal);
         
         restoreDepthOfPortalViewArea(portal, matrixStack);
         
@@ -138,7 +138,7 @@ public class RendererUsingStencil extends PortalRenderer {
     protected void invokeWorldRendering(
         Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
     ) {
-        MyGameRenderer.depictTheFascinatingWorld(
+        MyGameRenderer.switchAndRenderTheWorld(
             newWorld, newEyePos,
             newLastTickEyePos,
             runnable -> {

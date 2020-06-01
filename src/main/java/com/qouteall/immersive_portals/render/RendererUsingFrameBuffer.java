@@ -76,7 +76,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
     
-        mustRenderPortalHere(portal);
+        renderPortalContent(portal);
         
         ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.beginWrite(true);
@@ -113,7 +113,6 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         MyRenderHelper.drawFrameBufferUp(
             portal,
             secondaryFrameBuffer.fb,
-            CGlobal.shaderManager,
             matrixStack
         );
     }

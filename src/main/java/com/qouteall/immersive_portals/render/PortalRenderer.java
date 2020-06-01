@@ -138,7 +138,7 @@ public abstract class PortalRenderer {
         MatrixStack matrixStack
     );
     
-    protected final void mustRenderPortalHere(
+    protected final void renderPortalContent(
         Portal portal
     ) {
         if (PortalLayers.getPortalLayer() > PortalLayers.getMaxPortalLayer()) {
@@ -176,7 +176,7 @@ public abstract class PortalRenderer {
         Vec3d newLastTickEyePos,
         ClientWorld newWorld
     ) {
-        MyGameRenderer.depictTheFascinatingWorld(
+        MyGameRenderer.switchAndRenderTheWorld(
             newWorld, newEyePos,
             newLastTickEyePos,
             Runnable::run

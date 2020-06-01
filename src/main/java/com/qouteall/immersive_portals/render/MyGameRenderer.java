@@ -50,20 +50,20 @@ import java.util.function.Predicate;
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
     
-    public static void depictTheFascinatingWorld(
+    public static void switchAndRenderTheWorld(
         ClientWorld newWorld,
         Vec3d thisTickCameraPos,
         Vec3d lastTickCameraPos,
         Consumer<Runnable> invokeWrapper
     ) {
-        
+    
         Entity cameraEntity = client.cameraEntity;
-        
+    
         Vec3d oldEyePos = McHelper.getEyePos(cameraEntity);
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
         
-        DimensionType oldDimension = cameraEntity.dimension;
-        ClientWorld oldWorld = ((ClientWorld) cameraEntity.world);
+        DimensionType oldEntityDimension = cameraEntity.dimension;
+        ClientWorld oldEntityWorld = ((ClientWorld) cameraEntity.world);
         
         DimensionType newDimension = newWorld.dimension.getType();
         
@@ -83,8 +83,8 @@ public class MyGameRenderer {
         
         if (CGlobal.useHackedChunkRenderDispatcher) {
             ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage().updateCameraPosition(
-                client.cameraEntity.getX(),
-                client.cameraEntity.getZ()
+                cameraEntity.getX(),
+                cameraEntity.getZ()
             );
         }
         
@@ -152,15 +152,15 @@ public class MyGameRenderer {
         
         //recover
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-        client.world = oldWorld;
+        client.world = oldEntityWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
-        BlockEntityRenderDispatcher.INSTANCE.world = oldWorld;
+        BlockEntityRenderDispatcher.INSTANCE.world = oldEntityWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
         client.player.noClip = oldNoClip;
         ieGameRenderer.setDoRenderHand(oldDoRenderHand);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.popMatrix();
-        ((IEParticleManager) client.particleManager).mySetWorld(oldWorld);
+        ((IEParticleManager) client.particleManager).mySetWorld(oldEntityWorld);
         client.crosshairTarget = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
         
@@ -182,113 +182,9 @@ public class MyGameRenderer {
         CHelper.checkGlError();
         
         //restore the camera entity pos
-        cameraEntity.dimension = oldDimension;
-        cameraEntity.world = oldWorld;
+        cameraEntity.dimension = oldEntityDimension;
+        cameraEntity.world = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
-    }
-    
-    @Deprecated
-    public static void renderWorldDeprecated(
-        WorldRenderer newWorldRenderer,
-        ClientWorld newWorld,
-        Vec3d oldCameraPos,
-        ClientWorld oldWorld
-    ) {
-        float tickDelta = RenderStates.tickDelta;
-        
-        if (CGlobal.useHackedChunkRenderDispatcher) {
-            ((IEWorldRenderer) newWorldRenderer).getBuiltChunkStorage().updateCameraPosition(
-                client.cameraEntity.getX(),
-                client.cameraEntity.getZ()
-            );
-        }
-        
-        if (Global.looseVisibleChunkIteration) {
-            client.chunkCullingEnabled = false;
-        }
-        
-        IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
-        DimensionRenderHelper helper =
-            CGlobal.clientWorldLoader.getDimensionRenderHelper(
-                RenderDimensionRedirect.getRedirectedDimension(newWorld.dimension.getType())
-            );
-        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
-        Camera newCamera = new Camera();
-        
-        //store old state
-        WorldRenderer oldWorldRenderer = client.worldRenderer;
-        LightmapTextureManager oldLightmap = client.gameRenderer.getLightmapTextureManager();
-        GameMode oldGameMode = playerListEntry.getGameMode();
-        boolean oldNoClip = client.player.noClip;
-        boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        OFInterface.createNewRenderInfosNormal.accept(newWorldRenderer);
-        ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
-        HitResult oldCrosshairTarget = client.crosshairTarget;
-        Camera oldCamera = client.gameRenderer.getCamera();
-        
-        ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
-        
-        //switch
-        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
-        client.world = newWorld;
-        ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
-        
-        BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
-        ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
-        client.player.noClip = true;
-        ieGameRenderer.setDoRenderHand(false);
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.pushMatrix();
-        FogRendererContext.swappingManager.pushSwapping(
-            RenderDimensionRedirect.getRedirectedDimension(newWorld.dimension.getType())
-        );
-        ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
-        if (BlockManipulationClient.remotePointedDim == newWorld.dimension.getType()) {
-            client.crosshairTarget = BlockManipulationClient.remoteHitResult;
-        }
-        ieGameRenderer.setCamera(newCamera);
-        
-        //update lightmap
-        if (!RenderStates.isDimensionRendered(newWorld.dimension.getType())) {
-            helper.lightmapTexture.update(0);
-        }
-        helper.lightmapTexture.enable();
-        
-        client.getProfiler().push("render_portal_content");
-        
-        //invoke rendering
-        client.gameRenderer.renderWorld(
-            tickDelta,
-            Util.getMeasuringTimeNano(),
-            new MatrixStack()
-        );
-        
-        client.getProfiler().pop();
-        
-        //recover
-        ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-        client.world = oldWorld;
-        ieGameRenderer.setLightmapTextureManager(oldLightmap);
-        BlockEntityRenderDispatcher.INSTANCE.world = oldWorld;
-        ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
-        client.player.noClip = oldNoClip;
-        ieGameRenderer.setDoRenderHand(oldDoRenderHand);
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.popMatrix();
-        ((IEParticleManager) client.particleManager).mySetWorld(oldWorld);
-        client.crosshairTarget = oldCrosshairTarget;
-        ieGameRenderer.setCamera(oldCamera);
-        
-        FogRendererContext.swappingManager.popSwapping();
-        
-        ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
-        
-        if (Global.looseVisibleChunkIteration) {
-            client.chunkCullingEnabled = true;
-        }
-        
-        client.getEntityRenderManager()
-            .configure(client.world, oldCamera, client.targetedEntity);
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {

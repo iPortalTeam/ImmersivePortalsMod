@@ -17,9 +17,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
-import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -78,29 +76,29 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
         
-        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
+        
         
         if (!testShouldRenderPortal(portal, matrixStack)) {
             return;
         }
-    
+        
         PortalLayers.pushPortalLayer(portal);
         
-        mustRenderPortalHere(portal);
-        //it will bind the gbuffer of rendered dimension
-    
+        renderPortalContent(portal);
+        
         PortalLayers.popPortalLayer();
         
         deferredBuffer.fb.beginWrite(true);
-    
+
 //        RenderSystem.disableBlend();
 //        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 //        RenderSystem.colorMask(true,true,true,true);
         RenderSystem.disableAlphaTest();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
         MyRenderHelper.drawFrameBufferUp(
             portal,
             client.getFramebuffer(),
-            CGlobal.shaderManager,
             matrixStack
         );
         
@@ -111,11 +109,11 @@ public class RendererDeferred extends PortalRenderer {
     protected void invokeWorldRendering(
         Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
     ) {
-        MyGameRenderer.depictTheFascinatingWorld(
+        MyGameRenderer.switchAndRenderTheWorld(
             newWorld, newEyePos,
             newLastTickEyePos,
             runnable -> {
-                OFGlobal.shaderContextManager.switchContextAndRun(()->{
+                OFGlobal.shaderContextManager.switchContextAndRun(() -> {
                     OFGlobal.bindToShaderFrameBuffer.run();
                     runnable.run();
                 });
@@ -123,48 +121,20 @@ public class RendererDeferred extends PortalRenderer {
         );
     }
     
-//    @Override
-//    protected void renderPortalContentWithContextSwitched(
-//        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
-//    ) {
-//        OFGlobal.shaderContextManager.switchContextAndRun(
-//            () -> {
-//                OFGlobal.bindToShaderFrameBuffer.run();
-//                super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
-//            }
-//        );
-//    }
-    
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
-//        if (shouldRenderPortalInEntityRenderer(portal)) {
-//            assert false;
-//            //ViewAreaRenderer.drawPortalViewTriangle(portal);
-//        }
+    
     }
     
-    private boolean shouldRenderPortalInEntityRenderer(Portal portal) {
-        Entity cameraEntity = MinecraftClient.getInstance().cameraEntity;
-        if (cameraEntity == null) {
-            return false;
-        }
-        Vec3d cameraPos = cameraEntity.getPos();
-        if (Shaders.isShadowPass) {
-            return true;
-        }
-        if (PortalLayers.isRendering()) {
-            return portal.isInFrontOfPortal(cameraPos);
-        }
-        return false;
-    }
-    
-    //NOTE it will write to shader depth buffer
     private boolean testShouldRenderPortal(Portal portal, MatrixStack matrixStack) {
+        OFGlobal.bindToShaderFrameBuffer.run();
+//        deferredBuffer.fb.beginWrite(true);
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
             GlStateManager.enableDepthTest();
 //            GlStateManager.disableDepthTest();//test
             GlStateManager.disableTexture();
 //            GlStateManager.colorMask(false, false, false, false);
+//            GlStateManager.depthMask(true);
             GlStateManager.depthMask(true);
             GL20.glUseProgram(0);
             
@@ -194,6 +164,8 @@ public class RendererDeferred extends PortalRenderer {
         );
         
         CHelper.checkGlError();
+    
+        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
         
         renderPortals(modelView);
         modelView.pop();

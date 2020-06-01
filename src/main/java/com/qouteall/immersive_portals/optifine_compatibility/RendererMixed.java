@@ -173,7 +173,7 @@ public class RendererMixed extends PortalRenderer {
         PortalLayers.pushPortalLayer(portal);
         
         OFGlobal.bindToShaderFrameBuffer.run();
-        mustRenderPortalHere(portal);
+        renderPortalContent(portal);
         
         int innerLayer = PortalLayers.getPortalLayer();
     
@@ -228,7 +228,7 @@ public class RendererMixed extends PortalRenderer {
     protected void invokeWorldRendering(
         Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
     ) {
-        MyGameRenderer.depictTheFascinatingWorld(
+        MyGameRenderer.switchAndRenderTheWorld(
             newWorld, newEyePos,
             newLastTickEyePos,
             runnable -> {
