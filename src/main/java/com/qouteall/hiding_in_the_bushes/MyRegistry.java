@@ -234,8 +234,6 @@ public class MyRegistry {
             new Identifier("immersive_portals", "border_portal"),
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
-                BorderPortal::new
-                EntityCategory.MISC,
                 WorldWrappingPortal::new
             ).size(
                 new EntityDimensions(1, 1, true)

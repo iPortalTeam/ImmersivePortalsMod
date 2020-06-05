@@ -280,7 +280,7 @@ public class BlockManipulationClient {
         BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
         
         Pair<BlockHitResult, DimensionType> result =
-            BlockManipulationServer.getHitResultForPlacingNew(targetWorld, blockHitResult);
+            BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
         blockHitResult = result.getLeft();
         targetWorld = CGlobal.clientWorldLoader.getWorld(result.getRight());
         remoteHitResult = blockHitResult;

@@ -7,9 +7,9 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.Matrix3f;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Matrix3f;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 

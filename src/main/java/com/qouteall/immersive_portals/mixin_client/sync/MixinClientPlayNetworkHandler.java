@@ -109,7 +109,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         }
         
         if (world != null) {
-            if (world.dimension != null) {
+            if (world.getDimension() != null) {
                 if (world.getDimension().getType() != playerDimension) {
                     if (!MinecraftClient.getInstance().player.removed) {
                         Helper.log(String.format(

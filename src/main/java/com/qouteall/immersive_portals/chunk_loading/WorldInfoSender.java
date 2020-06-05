@@ -31,7 +31,7 @@ public class WorldInfoSender {
                     }
                     
                     McHelper.getServer().getWorlds().forEach(thisWorld -> {
-                        if (thisWorld.dimension instanceof AlternateDimension) {
+                        if (thisWorld.getDimension() instanceof AlternateDimension) {
                             if (visibleDimensions.contains(thisWorld.getDimension().getType())) {
                                 sendWorldInfo(
                                     player,

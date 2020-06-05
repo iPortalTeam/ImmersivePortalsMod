@@ -48,7 +48,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         this.lightingProvider = new LightingProvider(
             this,
             true,
-            RenderDimensionRedirect.hasSkylight(clientWorld.dimension)
+            RenderDimensionRedirect.hasSkylight(clientWorld.getDimension())
         );
         
     }
@@ -153,10 +153,6 @@ public class MyClientChunkManager extends ClientChunkManager {
         synchronized (chunkMapNew) {
             return Arrays.asList(chunkMapNew.values().toArray(new WorldChunk[0]));
         }
-    }
-    
-    @Override
-    public void tick(BooleanSupplier booleanSupplier_1) {
     }
     
     @Override

@@ -90,12 +90,12 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         portal.updatePosition(center.x, center.y, center.z);
         portal.destination = destination;
         
-        portal.axisW = new Vec3d(axises.getLeft().getVector());
-        portal.axisH = new Vec3d(axises.getRight().getVector());
+        portal.axisW =  Vec3d.of(axises.getLeft().getVector());
+        portal.axisH =  Vec3d.of(axises.getRight().getVector());
         portal.width = Helper.getCoordinate(areaSize, axises.getLeft().getAxis());
         portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
         
-        portal.dimensionTo = serverWorld.dimension.getType();
+        portal.dimensionTo = serverWorld.getDimension().getType();
     }
     
     public static class WrappingZone {

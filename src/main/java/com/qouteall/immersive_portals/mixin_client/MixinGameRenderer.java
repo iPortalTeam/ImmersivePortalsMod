@@ -156,7 +156,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private void redirectLoadProjectionMatrix(GameRenderer gameRenderer, Matrix4f matrix4f) {
         if (PortalRendering.isRendering()) {
             //load recorded projection matrix
-            loadProjectionMatrix(MyRenderHelper.projectionMatrix);
+            loadProjectionMatrix(RenderStates.projectionMatrix);
         }
         else {
             //load projection matrix normally

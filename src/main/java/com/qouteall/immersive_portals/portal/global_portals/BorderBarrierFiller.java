@@ -5,6 +5,7 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
+import net.minecraft.network.MessageType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -37,7 +38,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"));
+            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"), MessageType.SYSTEM);
             return;
         }
         
@@ -58,7 +59,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"));
+            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"),MessageType.SYSTEM);
             return;
         }
         
@@ -75,14 +76,14 @@ public class BorderBarrierFiller {
         boolean warned = warnedPlayers.containsKey(player);
         if (!warned) {
             warnedPlayers.put(player, null);
-            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"));
+            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"),MessageType.SYSTEM);
         }
         else {
             warnedPlayers.remove(player);
             
-            player.sendMessage(new TranslatableText("imm_ptl.start_clearing_border"));
+            player.sendMessage(new TranslatableText("imm_ptl.start_clearing_border"),MessageType.SYSTEM);
             
-            startFillingBorder(world, borderBox, player::sendMessage);
+            startFillingBorder(world, borderBox, l->player.sendMessage(l,MessageType.SYSTEM));
         }
     }
     

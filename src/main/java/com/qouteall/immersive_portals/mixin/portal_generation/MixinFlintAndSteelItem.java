@@ -13,7 +13,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,7 +55,7 @@ public class MixinFlintAndSteelItem {
             BlockPos firePos = targetPos.offset(side);
             BlockState targetBlockState = world.getBlockState(targetPos);
             Block targetBlock = targetBlockState.getBlock();
-            if (BreakableMirror.isGlass(world,targetPos)) {
+            if (BreakableMirror.isGlass(((World) world),targetPos)) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );

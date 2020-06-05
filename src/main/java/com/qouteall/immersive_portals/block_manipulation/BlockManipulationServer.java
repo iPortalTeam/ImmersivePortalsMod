@@ -64,7 +64,7 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
-        Vec3d pos = new Vec3d(requestPos);
+        Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
         double multiplier = HandReachTweak.getActualHandReachMultiplier(player);
         double distanceSquare = 6 * 6 * multiplier * multiplier;
@@ -119,8 +119,8 @@ public class BlockManipulationServer {
         BlockHitResult blockHitResult
     ) {
         Direction side = blockHitResult.getSide();
-        Vec3d sideVec = new Vec3d(side.getVector());
-        Vec3d hitCenter = new Vec3d(blockHitResult.getBlockPos()).add(0.5, 0.5, 0.5);
+        Vec3d sideVec = Vec3d.of(side.getVector());
+        Vec3d hitCenter =  Vec3d.ofCenter(blockHitResult.getBlockPos());
         
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
         
@@ -131,7 +131,7 @@ public class BlockManipulationServer {
         ).findFirst().orElse(null);
         
         if (portal == null) {
-            return new Pair<>(blockHitResult, world.dimension.getType());
+            return new Pair<>(blockHitResult, world.getDimension().getType());
         }
         
         Vec3d newCenter = portal.transformPoint(hitCenter.add(sideVec));

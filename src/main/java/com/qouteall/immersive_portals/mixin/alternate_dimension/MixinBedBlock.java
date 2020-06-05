@@ -17,7 +17,7 @@ public class MixinBedBlock {
         cancellable = true
     )
     private static void onIsOverworld(World world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (world.dimension instanceof AlternateDimension) {
+        if (world.getDimension() instanceof AlternateDimension) {
             cir.setReturnValue(true);
         }
     }

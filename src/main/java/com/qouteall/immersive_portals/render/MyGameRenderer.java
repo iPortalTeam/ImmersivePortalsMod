@@ -242,7 +242,7 @@ public class MyGameRenderer {
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
         
-        boolean bl2 = client.world.dimension.isFogThick(
+        boolean bl2 = client.world.getDimension().isFogThick(
             MathHelper.floor(d),
             MathHelper.floor(e)
         ) || client.inGameHud.getBossBarHud().shouldThickenFog();
@@ -310,8 +310,8 @@ public class MyGameRenderer {
         
         ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
         
-        if (client.world.dimension instanceof AlternateDimension &&
-            newWorld.dimension instanceof OverworldDimension
+        if (client.world.getDimension() instanceof AlternateDimension &&
+            newWorld.getDimension() instanceof OverworldDimension
         ) {
             //avoid redirecting alternate to overworld
             //or sky will be dark when camera pos is low

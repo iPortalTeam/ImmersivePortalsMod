@@ -503,7 +503,7 @@ public class PortalCommand {
                             Direction facing = Direction.getFacing(
                                 viewVector.x, viewVector.y, viewVector.z
                             );
-                            Vec3d offset = new Vec3d(facing.getVector()).multiply(distance);
+                            Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
                             portal.updatePosition(
                                 portal.getX() + offset.x,
                                 portal.getY() + offset.y,
@@ -769,7 +769,7 @@ public class PortalCommand {
                         
                         int numTeleported = teleport(
                             entities,
-                            target.world.dimension.getType(),
+                            target.world.getDimension().getType(),
                             target.getPos()
                         );
                         

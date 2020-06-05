@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PixelCuller;
+import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
@@ -359,7 +360,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private boolean redirectGlowing(MinecraftClient client, Entity entity) {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return false;
         }
         return client.method_27022(entity);

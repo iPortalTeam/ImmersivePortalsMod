@@ -20,7 +20,7 @@ public class MixinClientWorld_A {
     )
     private void onGetSkyDarknessHeight(CallbackInfoReturnable<Double> cir) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;
-        if (clientWorld.dimension instanceof AlternateDimension) {
+        if (clientWorld.getDimension() instanceof AlternateDimension) {
             cir.setReturnValue(-100d);
             cir.cancel();
         }
@@ -35,7 +35,7 @@ public class MixinClientWorld_A {
     )
     private int redirectBiomeGetSkyColor(Biome biome) {
         ClientWorld this_ = (ClientWorld) ((Object) this);
-        if (this_.dimension instanceof AlternateDimension) {
+        if (this_.getDimension() instanceof AlternateDimension) {
             return Biomes.PLAINS.getSkyColor();
         }
         else {

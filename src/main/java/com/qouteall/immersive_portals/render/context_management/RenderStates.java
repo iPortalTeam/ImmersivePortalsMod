@@ -12,10 +12,10 @@ import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.dimension.DimensionType;
@@ -158,7 +158,7 @@ public class RenderStates {
         MinecraftClient mc = MinecraftClient.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(mc.world.dimension.getType()).lightmapTexture);
+            .getDimensionRenderHelper(mc.world.getDimension().getType()).lightmapTexture);
         
         if (getRenderedPortalNum() != 0) {
             //recover chunk renderer dispatcher

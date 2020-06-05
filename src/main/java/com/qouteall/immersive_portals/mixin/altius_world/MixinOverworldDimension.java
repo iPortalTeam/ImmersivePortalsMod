@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
-import com.qouteall.immersive_portals.altius_world.AltiusGeneratorType;
 import net.minecraft.world.dimension.OverworldDimension;
 import net.minecraft.world.level.LevelProperties;
 import org.spongepowered.asm.mixin.Mixin;
