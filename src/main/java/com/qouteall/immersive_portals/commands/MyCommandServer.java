@@ -325,7 +325,7 @@ public class MyCommandServer {
 
                     Global.serverTeleportationManager.invokeTpmeCommand(
                         context.getSource().getPlayer(),
-                        entity.world.dimension.getType(),
+                        entity.world.getDimension().getType(),
                         entity.getPos()
                     );
 
@@ -347,7 +347,7 @@ public class MyCommandServer {
 
                     Global.serverTeleportationManager.invokeTpmeCommand(
                         player,
-                        player.world.dimension.getType(),
+                        player.world.getDimension().getType(),
                         dest
                     );
 
@@ -396,7 +396,7 @@ public class MyCommandServer {
                             EntityArgumentType.getEntities(context, "from");
                         Entity target = EntityArgumentType.getEntity(context, "to");
 
-                        int numTeleported = teleport(entities, target.world.dimension.getType(), target.getPos());
+                        int numTeleported = teleport(entities, target.world.getDimension().getType(), target.getPos());
 
                         context.getSource().sendFeedback(
                             new TranslatableText(
@@ -418,7 +418,7 @@ public class MyCommandServer {
 
                         int numTeleported = teleport(
                             entities,
-                            context.getSource().getWorld().dimension.getType(),
+                            context.getSource().getWorld().getDimension().getType(),
                             dest
                         );
 
@@ -444,7 +444,7 @@ public class MyCommandServer {
 
                             int numTeleported = teleport(
                                 entities,
-                                context.getSource().getWorld().dimension.getType(),
+                                context.getSource().getWorld().getDimension().getType(),
                                 dest
                             );
 
@@ -1060,7 +1060,7 @@ public class MyCommandServer {
         return new TranslatableText("imm_ptl.command.make_portal.success",
             Double.toString(portal.width),
             Double.toString(portal.height),
-            McHelper.dimensionTypeId(portal.world.dimension.getType()).toString(),
+            McHelper.dimensionTypeId(portal.world.getDimension().getType()).toString(),
             portal.getPos().toString(),
             McHelper.dimensionTypeId(portal.dimensionTo).toString(),
             portal.destination.toString()
@@ -1131,7 +1131,7 @@ public class MyCommandServer {
                     McHelper.setPosAndLastTickPos(entity, targetPos, targetPos);
                     McHelper.updateBoundingBox(entity);
                     entity.world = targetWorld;
-                    entity.dimension = targetWorld.dimension.getType();
+                    entity.dimension = targetWorld.getDimension().getType();
                     targetWorld.onDimensionChanged(entity);
                 }
             }

@@ -28,11 +28,11 @@ public class MixinShaders_DimensionRedirect {
     @Inject(method = "init", at = @At("HEAD"), remap = false)
     private static void onInit(CallbackInfo ci) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        DimensionType currDimension = mc.world.dimension.getType();
+        DimensionType currDimension = mc.world.getDimension().getType();
         
         Helper.log("Shader init " + currDimension);
         
-        if (RenderDimensionRedirect.isNoShader(currentWorld.dimension.getType())) {
+        if (RenderDimensionRedirect.isNoShader(currentWorld.getDimension().getType())) {
             shaderPack = new ShaderPackDefault();
             Helper.log("Set to internal shader");
         }

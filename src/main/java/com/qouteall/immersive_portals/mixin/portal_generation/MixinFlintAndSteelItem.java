@@ -14,7 +14,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,7 +29,7 @@ public class MixinFlintAndSteelItem {
     )
     private static void onCanIgnite(
         BlockState block,
-        IWorld world,
+        WorldAccess world,
         BlockPos pos,
         CallbackInfoReturnable<Boolean> cir
     ) {
@@ -48,7 +48,7 @@ public class MixinFlintAndSteelItem {
         ItemUsageContext context,
         CallbackInfoReturnable<ActionResult> cir
     ) {
-        IWorld world = context.getWorld();
+        WorldAccess world = context.getWorld();
         if (!world.isClient()) {
             BlockPos targetPos = context.getBlockPos();
             Direction side = context.getSide();

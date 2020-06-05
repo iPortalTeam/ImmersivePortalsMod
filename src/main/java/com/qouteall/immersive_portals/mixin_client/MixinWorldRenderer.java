@@ -586,7 +586,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         
         if (OFInterface.isShaders.getAsBoolean()) {
-            DimensionType dim = MinecraftClient.getInstance().world.dimension.getType();
+            DimensionType dim = MinecraftClient.getInstance().world.getDimension().getType();
             DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
             
             MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);

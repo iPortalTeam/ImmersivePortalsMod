@@ -61,7 +61,7 @@ public class FarSceneryRenderer {
         Vec3d currCameraPos = mc.gameRenderer.getCamera().getPos();
         renderingTask = FaceRenderingTask.createFarSceneryRenderingTask(
             currCameraPos,
-            mc.world.dimension.getType(),
+            mc.world.getDimension().getType(),
             100,
             mc.options.viewDistance,
             frameBufferSet

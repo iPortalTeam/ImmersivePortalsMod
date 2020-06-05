@@ -184,7 +184,7 @@ public class MyClientChunkManager extends ClientChunkManager {
     @Override
     public void onLightUpdate(LightType lightType_1, ChunkSectionPos chunkSectionPos_1) {
         CGlobal.clientWorldLoader.getWorldRenderer(
-            world.dimension.getType()
+            world.getDimension().getType()
         ).scheduleBlockRender(
             chunkSectionPos_1.getSectionX(),
             chunkSectionPos_1.getSectionY(),

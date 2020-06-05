@@ -107,7 +107,7 @@ public abstract class PortalRenderer {
     
     protected void renderPortals(MatrixStack matrixStack) {
         assert client.cameraEntity.world == client.world;
-        assert client.cameraEntity.dimension == client.world.dimension.getType();
+        assert client.cameraEntity.dimension == client.world.getDimension().getType();
         
         for (Portal portal : getPortalsNearbySorted()) {
             renderPortalIfRoughCheckPassed(portal, matrixStack);

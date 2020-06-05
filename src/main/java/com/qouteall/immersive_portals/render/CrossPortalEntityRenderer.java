@@ -131,7 +131,7 @@ public class CrossPortalEntityRenderer {
                 return;
             }
             DimensionType projectionDimension = collidingPortal.dimensionTo;
-            if (client.world.dimension.getType() == projectionDimension) {
+            if (client.world.getDimension().getType() == projectionDimension) {
                 renderProjectedEntity(entity, collidingPortal, matrixStack);
             }
         });

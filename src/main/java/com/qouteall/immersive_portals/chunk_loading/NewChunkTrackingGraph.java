@@ -156,7 +156,7 @@ public class NewChunkTrackingGraph {
         
         McHelper.getServer().getWorlds().forEach(world -> {
     
-            LongSortedSet currentLoadedChunks = getChunkRecordMap(world.dimension.getType()).keySet();
+            LongSortedSet currentLoadedChunks = getChunkRecordMap(world.getDimension().getType()).keySet();
     
             currentLoadedChunks.forEach(
                 (long longChunkPos) -> {
@@ -172,7 +172,7 @@ public class NewChunkTrackingGraph {
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(chunkLoader -> chunkLoader.foreachChunkPos(
                 (dim, x, z, dis) -> {
-                    if (world.dimension.getType() == dim) {
+                    if (world.getDimension().getType() == dim) {
                         additionalLoadedChunks.add(ChunkPos.toLong(x, z));
                         MyLoadingTicket.load(world, new ChunkPos(x, z));
 //                        ((IEServerWorld) world).updateLoadingStatus(

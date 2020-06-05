@@ -18,14 +18,12 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.source.BiomeSourceType;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
-import net.minecraft.world.biome.source.VanillaLayeredBiomeSourceConfig;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorType;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.OverworldChunkGeneratorConfig;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -51,11 +49,7 @@ public class AlternateDimension extends Dimension {
         dimensionTypeSupplier = dimensionTypeSupplier_;
     }
     
-    public ChunkGenerator<?> createChunkGenerator() {
-        return chunkGeneratorFunction.apply(this);
-    }
-    
-    public ChunkGenerator<?> getChunkGenerator2() {
+    public ChunkGenerator getChunkGenerator2() {
         OverworldChunkGeneratorConfig overworldChunkGeneratorConfig2 =
             new OverworldChunkGeneratorConfig();
         VanillaLayeredBiomeSourceConfig vanillaLayeredBiomeSourceConfig2 =
@@ -77,7 +71,7 @@ public class AlternateDimension extends Dimension {
         );
     }
     
-    public ChunkGenerator<?> getChunkGenerator1() {
+    public ChunkGenerator getChunkGenerator1() {
         FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
@@ -99,7 +93,7 @@ public class AlternateDimension extends Dimension {
         return list.get(index);
     }
     
-    public ChunkGenerator<?> getChunkGenerator3() {
+    public ChunkGenerator getChunkGenerator3() {
         
         FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
@@ -115,7 +109,7 @@ public class AlternateDimension extends Dimension {
         );
     }
     
-    public ChunkGenerator<?> getChunkGenerator4() {
+    public ChunkGenerator getChunkGenerator4() {
         FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
@@ -128,7 +122,7 @@ public class AlternateDimension extends Dimension {
         );
     }
     
-    public ChunkGenerator<?> getChunkGenerator5() {
+    public ChunkGenerator getChunkGenerator5() {
         FloatingIslandsChunkGeneratorConfig generationSettings = new FloatingIslandsChunkGeneratorConfig();
         generationSettings.setDefaultBlock(Blocks.STONE.getDefaultState());
         generationSettings.setDefaultFluid(Blocks.WATER.getDefaultState());
@@ -147,16 +141,6 @@ public class AlternateDimension extends Dimension {
     
     
     @Override
-    public BlockPos getSpawningBlockInChunk(ChunkPos chunkPos, boolean checkMobSpawnValidity) {
-        return null;
-    }
-    
-    @Override
-    public BlockPos getTopSpawningBlockPosition(int x, int z, boolean checkMobSpawnValidity) {
-        return null;
-    }
-    
-    @Override
     public float getSkyAngle(long worldTime, float partialTicks) {
         double d0 = MathHelper.fractionalPart((double) worldTime / 24000.0D - 0.25D);
         double d1 = 0.5D - Math.cos(d0 * Math.PI) / 2.0D;
@@ -169,22 +153,8 @@ public class AlternateDimension extends Dimension {
     }
     
     @Override
-    public Vec3d modifyFogColor(Vec3d vec3d, float tickDelta) {
-        return vec3d.multiply(
-            (double) (tickDelta * 0.94F + 0.06F),
-            (double) (tickDelta * 0.94F + 0.06F),
-            (double) (tickDelta * 0.91F + 0.09F)
-        );
-    }
-    
-    @Override
     public boolean canPlayersSleep() {
         return true;
-    }
-    
-    @Override
-    public boolean isFogThick(int x, int z) {
-        return false;
     }
     
     @Override
@@ -192,19 +162,16 @@ public class AlternateDimension extends Dimension {
         return dimensionTypeSupplier.get();
     }
     
-    @Environment(EnvType.CLIENT)
+    @Nullable
     @Override
-    public boolean hasGround() {
-        return true;
+    public BlockPos getSpawningBlockInChunk(long l, ChunkPos chunkPos, boolean bl) {
+        return null;
     }
     
-    /**
-     * the y level at which clouds are rendered.
-     */
-    @Environment(EnvType.CLIENT)
+    @Nullable
     @Override
-    public float getCloudHeight() {
-        return 128.0F;
+    public BlockPos getTopSpawningBlockPosition(long l, int i, int j, boolean bl) {
+        return null;
     }
     
 }

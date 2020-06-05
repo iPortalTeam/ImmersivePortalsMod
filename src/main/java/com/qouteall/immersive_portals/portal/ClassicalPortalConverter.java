@@ -143,7 +143,7 @@ public class ClassicalPortalConverter {
         else {
             NetherPortalGeneration.generateBreakablePortalEntities(
                 new NetherPortalGeneration.Info(
-                    oldWorld.dimension.getType(),
+                    oldWorld.getDimension().getType(),
                     player.dimension,
                     oldPortalShape,
                     thisSideShape

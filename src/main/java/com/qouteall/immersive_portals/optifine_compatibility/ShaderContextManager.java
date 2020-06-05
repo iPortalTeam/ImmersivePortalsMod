@@ -84,7 +84,7 @@ public class ShaderContextManager {
     public void switchContextAndRun(Runnable func) {
         DimensionType oldContextDimension = this.currentContextDimension;
         ClientWorld currentClientWorld = MinecraftClient.getInstance().world;
-        DimensionType dimensionToSwitchTo = currentClientWorld.dimension.getType();
+        DimensionType dimensionToSwitchTo = currentClientWorld.getDimension().getType();
         
         if (currentContextDimension == null) {
             //currently the context was not switched
@@ -113,7 +113,7 @@ public class ShaderContextManager {
     private void check(DimensionType dimensionToSwitchTo) {
         World shadersCurrentWorld = OFGlobal.getCurrentWorld.get();
         if (shadersCurrentWorld != null) {
-            DimensionType shaderCurrentDimension = shadersCurrentWorld.dimension.getType();
+            DimensionType shaderCurrentDimension = shadersCurrentWorld.getDimension().getType();
             if (shaderCurrentDimension != dimensionToSwitchTo) {
                 Helper.err(
                     "Shader Context Abnormal. Shader: " +
@@ -130,7 +130,7 @@ public class ShaderContextManager {
         DimensionType dimensionToSwitchTo,
         PerDimensionContext newContext
     ) {
-        DimensionType newContextDimension = newContext.currentWorld.dimension.getType();
+        DimensionType newContextDimension = newContext.currentWorld.getDimension().getType();
         
         if (newContextDimension != dimensionToSwitchTo) {
             Helper.err(

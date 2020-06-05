@@ -20,7 +20,7 @@ public class MixinLightmapTextureManager {
     )
     ClientWorld redirectWorldInUpdate(MinecraftClient client) {
         return CGlobal.clientWorldLoader.getWorld(RenderDimensionRedirect.getRedirectedDimension(
-            client.world.dimension.getType()
+            client.world.getDimension().getType()
         ));
     }
 }

@@ -1,7 +1,8 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
+import net.minecraft.class_5284;
 import net.minecraft.structure.StructureManager;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -9,21 +10,22 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 public class VoidChunkGenerator extends FloatingIslandsChunkGenerator {
+    
+    
     public VoidChunkGenerator(
-        IWorld iWorld,
         BiomeSource biomeSource,
-        FloatingIslandsChunkGeneratorConfig floatingIslandsChunkGeneratorConfig
+        long seed,
+        class_5284 config
     ) {
-        super(iWorld, biomeSource, floatingIslandsChunkGeneratorConfig);
+        super(biomeSource, seed, config);
     }
     
     @Override
-    public void populateNoise(IWorld world, StructureAccessor structureAccessor, Chunk chunk) {
+    public void populateNoise(WorldAccess world, StructureAccessor structureAccessor, Chunk chunk) {
         //nothing
     }
     
@@ -36,11 +38,12 @@ public class VoidChunkGenerator extends FloatingIslandsChunkGenerator {
     
     @Override
     public void setStructureStarts(
-        StructureAccessor structureAccessor,
+        StructureAccessor accessor,
         BiomeAccess biomeAccess,
         Chunk chunk,
-        ChunkGenerator<?> chunkGenerator,
-        StructureManager structureManager
+        ChunkGenerator generator,
+        StructureManager manager,
+        long seed
     ) {
         //nothing
     }

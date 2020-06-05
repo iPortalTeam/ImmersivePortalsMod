@@ -176,7 +176,7 @@ public class MyRenderHelper {
         MinecraftClient mc = MinecraftClient.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(mc.world.dimension.getType()).lightmapTexture);
+            .getDimensionRenderHelper(mc.world.getDimension().getType()).lightmapTexture);
         
         if (getRenderedPortalNum() != 0) {
             //recover chunk renderer dispatcher

@@ -7,8 +7,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class NetherPortalMatcher {
     
     //@Nullable
     private static IntBox detectStick(
-        IWorld world,
+        WorldAccess world,
         BlockPos center,
         Direction.Axis axis,
         Predicate<BlockPos> predicate,
@@ -127,11 +127,11 @@ public class NetherPortalMatcher {
         );
     }
     
-    private static boolean isAir(IWorld world, BlockPos pos) {
+    private static boolean isAir(WorldAccess world, BlockPos pos) {
         return world.isAir(pos);
     }
     
-    public static boolean isAirOrFire(IWorld world, BlockPos pos) {
+    public static boolean isAirOrFire(WorldAccess world, BlockPos pos) {
         return world.isAir(pos) || world.getBlockState(pos).getBlock() == Blocks.FIRE;
     }
     
@@ -140,7 +140,7 @@ public class NetherPortalMatcher {
     
     static IntBox findVerticalPortalPlacement(
         BlockPos areaSize,
-        IWorld world,
+        WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius
     ) {
@@ -169,7 +169,7 @@ public class NetherPortalMatcher {
     }
     
     private static boolean isLavaLake(
-        IWorld world, BlockPos blockPos
+        WorldAccess world, BlockPos blockPos
     ) {
         return world.getBlockState(blockPos).getBlock() == Blocks.LAVA &&
             world.getBlockState(blockPos.add(5, 0, 5)).getBlock() == Blocks.LAVA &&
@@ -178,7 +178,7 @@ public class NetherPortalMatcher {
     
     private static IntBox getAirCubeOnGround(
         BlockPos areaSize,
-        IWorld world,
+        WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius,
         Predicate<BlockPos> groundBlockLimit
@@ -203,7 +203,7 @@ public class NetherPortalMatcher {
     
     private static IntBox getAirCubeOnSolidGround(
         BlockPos areaSize,
-        IWorld world,
+        WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius
     ) {
@@ -228,7 +228,7 @@ public class NetherPortalMatcher {
     //make it possibly generate above ground
     static IntBox findHorizontalPortalPlacement(
         BlockPos areaSize,
-        IWorld world,
+        WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius
     ) {
@@ -253,7 +253,7 @@ public class NetherPortalMatcher {
     
     private static IntBox findHorizontalPortalPlacementWithVerticalSpaceReserved(
         BlockPos areaSize,
-        IWorld world,
+        WorldAccess world,
         BlockPos searchingCenter,
         int verticalSpaceReserve,
         int findingRadius
@@ -273,7 +273,7 @@ public class NetherPortalMatcher {
     }
     
     private static boolean isAirOnGround(
-        IWorld world,
+        WorldAccess world,
         BlockPos blockPos
     ) {
         if (world.isAir(blockPos)) {
@@ -286,7 +286,7 @@ public class NetherPortalMatcher {
     
     static IntBox findCubeAirAreaAtAnywhere(
         BlockPos areaSize,
-        IWorld world,
+        WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius
     ) {
@@ -303,7 +303,7 @@ public class NetherPortalMatcher {
         ).findFirst().orElse(null);
     }
     
-    public static boolean isAllAir(IWorld world, IntBox box) {
+    public static boolean isAllAir(WorldAccess world, IntBox box) {
         //the box out of height limit is not accepted
         if (box.h.getY() + 5 >= ((World) world).getDimensionHeight()) {
             return false;
@@ -327,7 +327,7 @@ public class NetherPortalMatcher {
     
     //move the box up
     public static IntBox levitateBox(
-        IWorld world, IntBox airCube
+        WorldAccess world, IntBox airCube
     ) {
         Integer maxUpShift = Helper.getLastSatisfying(
             IntStream.range(1, 40).boxed(),
@@ -344,7 +344,7 @@ public class NetherPortalMatcher {
     }
     
     public static IntBox pushDownBox(
-        IWorld world, IntBox airCube
+        WorldAccess world, IntBox airCube
     ) {
         Integer downShift = Helper.getLastSatisfying(
             IntStream.range(0, 40).boxed(),

@@ -175,6 +175,6 @@ public class GlobalPortalStorage extends PersistentState {
             );
         });
         
-        Helper.log("World info upgraded for " + world.dimension.getType());
+        Helper.log("World info upgraded for " + world.getDimension().getType());
     }
 }

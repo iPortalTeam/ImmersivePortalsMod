@@ -10,7 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -67,7 +67,7 @@ public class O_O {
         myConfig.saveConfigFile();
     }
     
-    public static boolean isObsidian(IWorld world, BlockPos obsidianPos) {
+    public static boolean isObsidian(WorldAccess world, BlockPos obsidianPos) {
         return world.getBlockState(obsidianPos) == Blocks.OBSIDIAN.getDefaultState();
     }
     

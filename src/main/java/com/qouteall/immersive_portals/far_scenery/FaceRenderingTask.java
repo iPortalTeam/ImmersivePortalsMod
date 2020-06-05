@@ -104,7 +104,7 @@ public class FaceRenderingTask {
                     cameraPos, nearPlaneDistance, farDistanceChunks,
                     scheduler
                 )).iterator(),
-            () -> mc.world.dimension.getType() != cameraDimension
+            () -> mc.world.getDimension().getType() != cameraDimension
         );
     }
     

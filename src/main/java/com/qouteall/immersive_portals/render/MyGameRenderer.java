@@ -77,7 +77,7 @@ public class MyGameRenderer {
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(
-                RenderDimensionRedirect.getRedirectedDimension(newWorld.dimension.getType())
+                RenderDimensionRedirect.getRedirectedDimension(newWorld.getDimension().getType())
             );
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
         Camera newCamera = new Camera();
@@ -108,10 +108,10 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(
-            RenderDimensionRedirect.getRedirectedDimension(newWorld.dimension.getType())
+            RenderDimensionRedirect.getRedirectedDimension(newWorld.getDimension().getType())
         );
         ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
-        if (BlockManipulationClient.remotePointedDim == newWorld.dimension.getType()) {
+        if (BlockManipulationClient.remotePointedDim == newWorld.getDimension().getType()) {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);

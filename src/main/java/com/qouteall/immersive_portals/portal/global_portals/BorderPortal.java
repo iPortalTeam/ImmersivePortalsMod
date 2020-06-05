@@ -82,7 +82,7 @@ public class BorderPortal extends GlobalTrackedPortal {
         portal.width = Helper.getCoordinate(areaSize, axises.getLeft().getAxis());
         portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
         
-        portal.dimensionTo = serverWorld.dimension.getType();
+        portal.dimensionTo = serverWorld.getDimension().getType();
         
         return portal;
     }

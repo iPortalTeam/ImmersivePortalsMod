@@ -2,10 +2,10 @@ package com.qouteall.immersive_portals.alternate_dimension;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.world.IWorld;
+import net.minecraft.class_5284;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 
 public class StretchedSkylandGenerator extends FloatingIslandsChunkGenerator {
     private final BlockState AIR;
@@ -16,20 +16,14 @@ public class StretchedSkylandGenerator extends FloatingIslandsChunkGenerator {
     private double wzz;
     
     public StretchedSkylandGenerator(
-        IWorld iWorld,
         BiomeSource biomeSource,
-        FloatingIslandsChunkGeneratorConfig floatingIslandsChunkGeneratorConfig
+        long seed,
+        class_5284 config
     ) {
-        super(iWorld, biomeSource, floatingIslandsChunkGeneratorConfig);
+        super(biomeSource, seed, config);
         AIR = Blocks.AIR.getDefaultState();
-
-//        long seed = iWorld.getSeed();
-//        double theta = ((seed % 23333) / 23333.0) * Math.PI * 2;
-//        wxx = Math.sin(theta);
-//        wzx = Math.cos(theta);
-//        wxz = Math.sin(theta + (Math.PI / 2));
-//        wzz = Math.cos(theta + (Math.PI / 2));
     }
+    
     
     protected int transformX(int x, int z) {
         return x / 2;

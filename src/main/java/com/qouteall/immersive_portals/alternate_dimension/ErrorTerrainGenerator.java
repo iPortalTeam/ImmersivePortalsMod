@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.Helper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.class_5284;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.crash.CrashException;
@@ -17,7 +18,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -30,7 +31,6 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.EndCityFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.MineshaftFeature;
@@ -52,27 +52,29 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     public static final int averageY = 64;
     public static final int maxY = 128;
     
-    LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache = CacheBuilder.newBuilder()
-        .maximumSize(10000)
-        .expireAfterWrite(30, TimeUnit.SECONDS)
-        .build(
-            new CacheLoader<ChunkPos, RegionErrorTerrainGenerator>() {
-                public RegionErrorTerrainGenerator load(ChunkPos key) {
-                    return new RegionErrorTerrainGenerator(key.x, key.z, world.getSeed());
-                }
-            });
+    LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
     public ErrorTerrainGenerator(
-        IWorld iWorld,
         BiomeSource biomeSource,
-        FloatingIslandsChunkGeneratorConfig floatingIslandsChunkGeneratorConfig
+        long seed,
+        class_5284 config
     ) {
-        super(iWorld, biomeSource, floatingIslandsChunkGeneratorConfig);
+        super(biomeSource, seed, config);
         AIR = Blocks.AIR.getDefaultState();
+        cache = CacheBuilder.newBuilder()
+            .maximumSize(10000)
+            .expireAfterWrite(30, TimeUnit.SECONDS)
+            .build(
+                new CacheLoader<ChunkPos, RegionErrorTerrainGenerator>() {
+                    public RegionErrorTerrainGenerator load(ChunkPos key) {
+                        return new RegionErrorTerrainGenerator(key.x, key.z, seed);
+                    }
+                });
     }
     
+    
     @Override
-    public void populateNoise(IWorld world, StructureAccessor structureAccessor, Chunk chunk) {
+    public void populateNoise(WorldAccess world, StructureAccessor structureAccessor, Chunk chunk) {
         ProtoChunk protoChunk = (ProtoChunk) chunk;
         ChunkPos pos = chunk.getPos();
         Heightmap oceanFloorHeightMap = protoChunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
@@ -117,7 +119,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     
     //carve more
     @Override
-    public void carve(BiomeAccess biomeAccess, Chunk chunk, GenerationStep.Carver carver) {
+    public void carve(long seed,BiomeAccess biomeAccess, Chunk chunk, GenerationStep.Carver carver) {
         ChunkRandom chunkRandom = new ChunkRandom();
         ChunkPos chunkPos = chunk.getPos();
         int chunkX = chunkPos.x;
@@ -133,7 +135,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                 while (listIterator.hasNext()) {
                     int n = listIterator.nextIndex();
                     ConfiguredCarver<?> configuredCarver = (ConfiguredCarver) listIterator.next();
-                    chunkRandom.setCarverSeed(this.seed + (long) n, cx, cz);
+                    chunkRandom.setCarverSeed(seed + (long) n, cx, cz);
                     boolean shouldCarve = configuredCarver.shouldCarve(chunkRandom, cx, cz);
                     if (shouldCarve) {
                         //carve more
@@ -220,11 +222,12 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     
     @Override
     public void setStructureStarts(
-        StructureAccessor structureAccessor,
+        StructureAccessor accessor,
         BiomeAccess biomeAccess,
         Chunk chunk,
-        ChunkGenerator<?> chunkGenerator,
-        StructureManager structureManager
+        ChunkGenerator generator,
+        StructureManager manager,
+        long seed
     ) {
         random.setTerrainSeed(chunk.getPos().x, chunk.getPos().z);
         
@@ -232,7 +235,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
         
         while (var5.hasNext()) {
             StructureFeature<?> structureFeature = (StructureFeature) var5.next();
-            if (chunkGenerator.getBiomeSource().hasStructureFeature(structureFeature)) {
+            if (generator.getBiomeSource().hasStructureFeature(structureFeature)) {
                 StructureStart structureStart = chunk.getStructureStart(structureFeature.getName());
                 int i = structureStart != null ? structureStart.getReferences() : 0;
                 ChunkRandom chunkRandom = new ChunkRandom();
@@ -249,10 +252,10 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
                 }
                 if (shouldStart) {
                     StructureStart structureStart3 = structureFeature.getStructureStartFactory().create(
-                        structureFeature, chunkPos.x, chunkPos.z, BlockBox.empty(), i, chunkGenerator.getSeed()
+                        structureFeature, chunkPos.x, chunkPos.z, BlockBox.empty(), i, seed
                     );
                     structureStart3.init(
-                        this, structureManager, chunkPos.x, chunkPos.z, biome
+                        this, manager, chunkPos.x, chunkPos.z, biome
                     );
                     structureStart2 = structureStart3.hasChildren() ? structureStart3 : StructureStart.DEFAULT;
                 }
@@ -327,7 +330,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     
     @Override
     public void addStructureReferences(
-        IWorld world,
+        WorldAccess world,
         StructureAccessor structureAccessor,
         Chunk chunk
     ) {

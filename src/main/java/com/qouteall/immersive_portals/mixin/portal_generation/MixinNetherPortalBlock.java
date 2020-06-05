@@ -6,7 +6,7 @@ import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +23,7 @@ public class MixinNetherPortalBlock {
         cancellable = true
     )
     private static void onCreatePortal(
-        IWorld world,
+        WorldAccess world,
         BlockPos pos,
         CallbackInfoReturnable<Boolean> cir
     ) {

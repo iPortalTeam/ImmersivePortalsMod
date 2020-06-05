@@ -4,7 +4,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -44,7 +44,7 @@ public class MixinChunkStatus {
         catch (Throwable e) {
             Helper.err(String.format(
                 "Error when generating terrain %s %d %d",
-                chunkRegion.getWorld().dimension.getType(),
+                chunkRegion.getWorld().getDimension().getType(),
                 chunkRegion.getCenterChunkX(),
                 chunkRegion.getCenterChunkZ()
             ));
@@ -59,16 +59,16 @@ public class MixinChunkStatus {
         method = "method_16556",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/biome/source/BiomeAccess;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/biome/source/BiomeAccess;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;J)V"
         )
     )
     private static void redirectSetStructureStarts(
-        ChunkGenerator generator,
-        StructureAccessor structureAccessor,
+        StructureAccessor accessor,
         BiomeAccess biomeAccess,
         Chunk chunk,
-        ChunkGenerator<?> chunkGenerator,
-        StructureManager structureManager
+        ChunkGenerator generator,
+        StructureManager manager,
+        long seed
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
@@ -76,7 +76,8 @@ public class MixinChunkStatus {
         }
         try {
             generator.setStructureStarts(
-                structureAccessor, biomeAccess, chunk, chunkGenerator, structureManager);
+                accessor, biomeAccess, chunk, generator, manager, seed
+            );
         }
         catch (Throwable e) {
             Helper.err(String.format(
@@ -98,7 +99,7 @@ public class MixinChunkStatus {
         )
     )
     private static void redirectAddStructureReference(
-        ChunkGenerator chunkGenerator, IWorld world, StructureAccessor structureAccessor, Chunk chunk
+        ChunkGenerator chunkGenerator, WorldAccess world, StructureAccessor structureAccessor, Chunk chunk
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {

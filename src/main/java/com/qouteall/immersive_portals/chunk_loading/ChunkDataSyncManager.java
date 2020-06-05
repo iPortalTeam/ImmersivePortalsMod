@@ -84,7 +84,7 @@ public class ChunkDataSyncManager {
      * {@link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)}r
      */
     public void onChunkProvidedDeferred(WorldChunk chunk) {
-        DimensionType dimension = chunk.getWorld().dimension.getType();
+        DimensionType dimension = chunk.getWorld().getDimension().getType();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
         
         McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");

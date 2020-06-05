@@ -100,7 +100,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
             }
             //do not use entity.dimension
             //or it will work abnormally when changeDimension() is run
-            myRemovedEntities.put(entity_1.world.dimension.getType(), entity_1);
+            myRemovedEntities.put(entity_1.world.getDimension().getType(), entity_1);
         }
         
     }

@@ -32,7 +32,7 @@ public class WorldInfoSender {
                     
                     McHelper.getServer().getWorlds().forEach(thisWorld -> {
                         if (thisWorld.dimension instanceof AlternateDimension) {
-                            if (visibleDimensions.contains(thisWorld.dimension.getType())) {
+                            if (visibleDimensions.contains(thisWorld.getDimension().getType())) {
                                 sendWorldInfo(
                                     player,
                                     thisWorld
@@ -48,7 +48,7 @@ public class WorldInfoSender {
     
     //send the daytime and weather info to player when player is in nether
     public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
-        DimensionType remoteDimension = world.dimension.getType();
+        DimensionType remoteDimension = world.getDimension().getType();
         
         player.networkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(

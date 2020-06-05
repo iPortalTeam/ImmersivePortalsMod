@@ -47,7 +47,7 @@ public class PixelCuller {
     public static boolean isShaderCulling() {
         return OFInterface.isShaders.getAsBoolean() &&
             !RenderDimensionRedirect.isNoShader(
-                MinecraftClient.getInstance().world.dimension.getType()
+                MinecraftClient.getInstance().world.getDimension().getType()
             );
     }
     

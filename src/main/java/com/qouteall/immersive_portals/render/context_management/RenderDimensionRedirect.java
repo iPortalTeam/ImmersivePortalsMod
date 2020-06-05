@@ -73,8 +73,8 @@ public class RenderDimensionRedirect {
     
     public static boolean hasSkylight(Dimension dimension) {
         updateRedirectMap();
-        DimensionType redirectedDimension = getRedirectedDimension(dimension.getType());
-        if (redirectedDimension == dimension.getType()) {
+        DimensionType redirectedDimension = getRedirectedDimension(getDimension().getType());
+        if (redirectedDimension == getDimension().getType()) {
             return dimension.hasSkyLight();
         }
         

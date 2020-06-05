@@ -162,7 +162,7 @@ public abstract class MixinEntity implements IEEntity {
         if (dimension == null) {
             Helper.err("Invalid Dimension Id Read From NBT " + this);
             if (world != null) {
-                dimension = world.dimension.getType();
+                dimension = world.getDimension().getType();
             }
             else {
                 Helper.err("World Field is Null");

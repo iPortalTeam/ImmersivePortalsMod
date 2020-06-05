@@ -16,9 +16,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-
+import net.minecraft.world.WorldAccess;
 import java.util.Random;
 
 public class PortalPlaceholderBlock extends Block {
@@ -87,7 +86,7 @@ public class PortalPlaceholderBlock extends Block {
         BlockState thisState,
         Direction direction,
         BlockState neighborState,
-        IWorld world,
+        WorldAccess world,
         BlockPos blockPos,
         BlockPos neighborPos
     ) {

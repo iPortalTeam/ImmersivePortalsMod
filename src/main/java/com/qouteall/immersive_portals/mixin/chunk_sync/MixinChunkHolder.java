@@ -30,7 +30,7 @@ public class MixinChunkHolder implements IEChunkHolder {
     @Overwrite
     private void sendPacketToPlayersWatching(Packet<?> packet_1, boolean boolean_1) {
         DimensionType dimension =
-            ((IEThreadedAnvilChunkStorage) playersWatchingChunkProvider).getWorld().dimension.getType();
+            ((IEThreadedAnvilChunkStorage) playersWatchingChunkProvider).getWorld().getDimension().getType();
     
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, pos.x, pos.z

@@ -238,7 +238,7 @@ public class ServerTeleportationManager {
         McHelper.updateBoundingBox(player);
         
         player.world = toWorld;
-        player.dimension = toWorld.dimension.getType();
+        player.dimension = toWorld.getDimension().getType();
         toWorld.onPlayerChangeDimension(player);
         
         toWorld.checkChunk(player);
@@ -253,7 +253,7 @@ public class ServerTeleportationManager {
             );
             changeEntityDimension(
                 vehicle,
-                toWorld.dimension.getType(),
+                toWorld.getDimension().getType(),
                 vehiclePos.add(0, vehicle.getStandingEyeHeight(), 0)
             );
             ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
@@ -263,21 +263,21 @@ public class ServerTeleportationManager {
         Helper.log(String.format(
             "%s :: (%s %s %s %s)->(%s %s %s %s)",
             player.getName().asString(),
-            fromWorld.dimension.getType(),
+            fromWorld.getDimension().getType(),
             oldPos.getX(), oldPos.getY(), oldPos.getZ(),
-            toWorld.dimension.getType(),
+            toWorld.getDimension().getType(),
             (int) player.getX(), (int) player.getY(), (int) player.getZ()
         ));
         
         O_O.onPlayerTravelOnServer(
             player,
-            fromWorld.dimension.getType(),
-            toWorld.dimension.getType()
+            fromWorld.getDimension().getType(),
+            toWorld.getDimension().getType()
         );
         
         //this is used for the advancement of "we need to go deeper"
         //and the advancement of travelling for long distance through nether
-        if (toWorld.dimension.getType() == DimensionType.THE_NETHER) {
+        if (toWorld.getDimension().getType() == DimensionType.THE_NETHER) {
             //this is used for
             ((IEServerPlayerEntity) player).setEnteredNetherPos(player.getPos());
         }

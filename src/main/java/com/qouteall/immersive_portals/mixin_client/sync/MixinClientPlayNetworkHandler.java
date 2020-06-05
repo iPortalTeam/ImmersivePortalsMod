@@ -110,7 +110,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         
         if (world != null) {
             if (world.dimension != null) {
-                if (world.dimension.getType() != playerDimension) {
+                if (world.getDimension().getType() != playerDimension) {
                     if (!MinecraftClient.getInstance().player.removed) {
                         Helper.log(String.format(
                             "denied position packet %s %s %s %s",
@@ -170,13 +170,13 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     private void onOnUnload(UnloadChunkS2CPacket packet, CallbackInfo ci) {
         if (CGlobal.smoothChunkUnload) {
             DimensionalChunkPos pos = new DimensionalChunkPos(
-                world.dimension.getType(),
+                world.getDimension().getType(),
                 packet.getX(),
                 packet.getZ()
             );
             
             WorldRenderer worldRenderer =
-                CGlobal.clientWorldLoader.getWorldRenderer(world.dimension.getType());
+                CGlobal.clientWorldLoader.getWorldRenderer(world.getDimension().getType());
             BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage();
             if (storage instanceof MyBuiltChunkStorage) {
                 for (int y = 0; y < 16; ++y) {

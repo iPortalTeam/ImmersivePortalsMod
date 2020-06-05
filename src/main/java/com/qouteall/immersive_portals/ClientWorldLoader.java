@@ -74,8 +74,8 @@ public class ClientWorldLoader {
                 if (helper.lightmapTexture == mc.gameRenderer.getLightmapTextureManager()) {
                     Helper.err(String.format(
                         "Lightmap Texture Conflict %s %s",
-                        helper.world.dimension.getType(),
-                        mc.world.dimension.getType()
+                        helper.world.getDimension().getType(),
+                        mc.world.getDimension().getType()
                     ));
                     lightmapTextureConflict = true;
                 }
@@ -162,7 +162,7 @@ public class ClientWorldLoader {
                 );
             }
         );
-        assert result.world.dimension.getType() == dimension;
+        assert result.world.getDimension().getType() == dimension;
         return result;
     }
     
@@ -175,7 +175,7 @@ public class ClientWorldLoader {
             clientWorldMap.put(playerDimension, mc.world);
             worldRendererMap.put(playerDimension, mc.worldRenderer);
             renderHelperMap.put(
-                mc.world.dimension.getType(),
+                mc.world.getDimension().getType(),
                 new DimensionRenderHelper(mc.world)
             );
             
@@ -187,7 +187,7 @@ public class ClientWorldLoader {
     
     //fool minecraft using the faked world
     private ClientWorld createFakedClientWorld(DimensionType dimension) {
-        assert mc.world.dimension.getType() == mc.player.dimension;
+        assert mc.world.getDimension().getType() == mc.player.dimension;
         assert (mc.player.dimension != dimension);
         
         isLoadingFakedWorld = true;

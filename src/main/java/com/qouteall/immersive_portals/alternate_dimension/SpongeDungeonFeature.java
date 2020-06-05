@@ -33,9 +33,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.MobSpawnerEntry;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
@@ -121,12 +122,11 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         super(configDeserializer);
     }
     
-    
     @Override
     public boolean generate(
-        IWorld world,
+        ServerWorldAccess serverWorldAccess,
         StructureAccessor accessor,
-        ChunkGenerator<? extends ChunkGeneratorConfig> generator,
+        ChunkGenerator generator,
         Random random,
         BlockPos pos,
         DefaultFeatureConfig config
@@ -136,7 +136,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         random.setSeed(chunkPos.toLong() + random.nextInt(2333));
         
         if (random.nextDouble() < 0.03) {
-            generateOnce(world, random, chunkPos);
+            generateOnce(serverWorldAccess, random, chunkPos);
         }
         
         return true;
@@ -160,7 +160,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         .filter(block -> block.getDefaultState().getMaterial() == Material.SHULKER_BOX)
         .collect(Collectors.toList());
     
-    public void generateOnce(IWorld world, Random random, ChunkPos chunkPos) {
+    public void generateOnce(WorldAccess world, Random random, ChunkPos chunkPos) {
         int height = heightSelector.select(random).apply(random);
         BlockPos spawnerPos = chunkPos.toBlockPos(
             random.nextInt(16),
@@ -195,7 +195,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     }
     
     public void initShulkerBoxTreasure(
-        IWorld world,
+        WorldAccess world,
         Random random,
         BlockPos shulkerBoxPos
     ) {
@@ -211,7 +211,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         treasureSelector.select(random).accept(random, ((ShulkerBoxBlockEntity) blockEntity));
     }
     
-    public void initSpawnerBlockEntity(IWorld world, Random random, BlockPos spawnerPos) {
+    public void initSpawnerBlockEntity(WorldAccess world, Random random, BlockPos spawnerPos) {
         BlockEntity blockEntity = world.getBlockEntity(spawnerPos);
         if (!(blockEntity instanceof MobSpawnerBlockEntity)) {
             //Helper.err("No Spawner Block Entity???");

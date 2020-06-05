@@ -161,7 +161,7 @@ public class MyNetwork {
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         
-        buf.writeInt(storage.world.get().dimension.getType().getRawId());
+        buf.writeInt(storage.world.get().getDimension().getType().getRawId());
         buf.writeCompoundTag(storage.toTag(new CompoundTag()));
         
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);

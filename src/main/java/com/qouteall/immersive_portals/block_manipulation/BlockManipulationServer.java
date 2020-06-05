@@ -117,7 +117,7 @@ public class BlockManipulationServer {
         BlockHitResult blockHitResult
     ) {
         BlockHitResult targetBlockHitResult = blockHitResult;
-        DimensionType targetDimension = world.dimension.getType();
+        DimensionType targetDimension = world.getDimension().getType();
         if (blockHitResult.getBlockPos().getY() == 255 && blockHitResult.getSide() == Direction.UP) {
             VerticalConnectingPortal connectingPortal = VerticalConnectingPortal.getConnectingPortal(
                 world,

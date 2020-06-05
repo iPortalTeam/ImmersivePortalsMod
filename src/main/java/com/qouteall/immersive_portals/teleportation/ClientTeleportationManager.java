@@ -157,7 +157,7 @@ public class ClientTeleportationManager {
         Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
         
         ClientWorld fromWorld = client.world;
-        DimensionType fromDimension = fromWorld.dimension.getType();
+        DimensionType fromDimension = fromWorld.getDimension().getType();
         
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(toDimension);
@@ -203,7 +203,7 @@ public class ClientTeleportationManager {
         Helper.log("force teleported " + toDimension + destination);
         
         ClientWorld fromWorld = client.world;
-        DimensionType fromDimension = fromWorld.dimension.getType();
+        DimensionType fromDimension = fromWorld.getDimension().getType();
         ClientPlayerEntity player = client.player;
         if (fromDimension == toDimension) {
             player.updatePosition(
@@ -231,8 +231,8 @@ public class ClientTeleportationManager {
         Entity vehicle = player.getVehicle();
         player.detach();
         
-        DimensionType toDimension = toWorld.dimension.getType();
-        DimensionType fromDimension = fromWorld.dimension.getType();
+        DimensionType toDimension = toWorld.getDimension().getType();
+        DimensionType fromDimension = fromWorld.getDimension().getType();
         
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
@@ -367,7 +367,7 @@ public class ClientTeleportationManager {
         ClientWorld oldWorld = (ClientWorld) entity.world;
         O_O.segregateClientEntity(oldWorld, entity);
         entity.world = newWorld;
-        entity.dimension = newWorld.dimension.getType();
+        entity.dimension = newWorld.getDimension().getType();
         entity.updatePosition(newPos.x, newPos.y, newPos.z);
         newWorld.addEntity(entity.getEntityId(), entity);
     }

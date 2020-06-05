@@ -24,7 +24,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -231,7 +231,7 @@ public class NetherPortalGeneration {
         ServerWorld fromWorld,
         BlockPos firePos
     ) {
-        DimensionType fromDimension = fromWorld.dimension.getType();
+        DimensionType fromDimension = fromWorld.getDimension().getType();
         
         DimensionType toDimension = getDestinationDimension(fromDimension);
         
@@ -255,8 +255,8 @@ public class NetherPortalGeneration {
             searchingRadius,
             (fromPos1) -> mapPosition(
                 fromPos1,
-                fromWorld.dimension.getType(),
-                toWorld.dimension.getType()
+                fromWorld.getDimension().getType(),
+                toWorld.getDimension().getType()
             ),
             //this side area
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
@@ -303,7 +303,7 @@ public class NetherPortalGeneration {
         return thisSideShape.obj != null;
     }
     
-    private static boolean isLapis(IWorld world, BlockPos blockPos) {
+    private static boolean isLapis(WorldAccess world, BlockPos blockPos) {
         return world.getBlockState(blockPos).getBlock() == Blocks.LAPIS_BLOCK;
     }
     
@@ -317,8 +317,8 @@ public class NetherPortalGeneration {
         Function<BlockPos, BlockPos> positionMapping,
         Predicate<BlockPos> thisSideAreaPredicate,
         Predicate<BlockPos> thisSideFramePredicate,
-        BiPredicate<IWorld, BlockPos> otherSideAreaPredicate,
-        BiPredicate<IWorld, BlockPos> otherSideFramePredicate,
+        BiPredicate<WorldAccess, BlockPos> otherSideAreaPredicate,
+        BiPredicate<WorldAccess, BlockPos> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGeneratedFunc,
         Consumer<Info> portalEntityGeneratingFunc
     ) {
@@ -327,8 +327,8 @@ public class NetherPortalGeneration {
             return null;
         }
         
-        DimensionType fromDimension = fromWorld.dimension.getType();
-        DimensionType toDimension = toWorld.dimension.getType();
+        DimensionType fromDimension = fromWorld.getDimension().getType();
+        DimensionType toDimension = toWorld.getDimension().getType();
         
         Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
             fromDimension, startingPos.getX(), startingPos.getY(), startingPos.getZ()
@@ -460,7 +460,7 @@ public class NetherPortalGeneration {
         BlockPos.Mutable temp = new BlockPos.Mutable();
         
         IntBox toWorldHeightLimit =
-            NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
+            NetherPortalMatcher.getHeightLimit(toWorld.getDimension().getType());
         
         Stream<BlockPos> blockPosStream = fromNearToFarColumned(
             toWorld,
@@ -501,7 +501,7 @@ public class NetherPortalGeneration {
             indicatorEntity.setText(
                 new TranslatableText(
                     "imm_ptl.searching_for_frame",
-                    toWorld.dimension.getType().toString(),
+                    toWorld.getDimension().getType().toString(),
                     String.format("%s %s %s", fromPos.getX(), fromPos.getY(), fromPos.getZ()),
                     new LiteralText(Integer.toString(i / 1000) + "k")
                 )

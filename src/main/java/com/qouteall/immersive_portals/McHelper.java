@@ -361,14 +361,14 @@ public class McHelper {
     }
     
     public static void checkDimension(Entity entity) {
-        if (entity.dimension != entity.world.dimension.getType()) {
+        if (entity.dimension != entity.world.getDimension().getType()) {
             Helper.err(String.format(
                 "Entity dimension field abnormal. Force corrected. %s %s %s",
                 entity,
                 entity.dimension,
-                entity.world.dimension.getType()
+                entity.world.getDimension().getType()
             ));
-            entity.dimension = entity.world.dimension.getType();
+            entity.dimension = entity.world.getDimension().getType();
         }
     }
     

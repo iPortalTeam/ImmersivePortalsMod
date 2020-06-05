@@ -528,7 +528,7 @@ public class MyCommandClient {
         CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
             str.append(String.format(
                 "%s %s\n",
-                world.dimension.getType(),
+                world.getDimension().getType(),
                 ((MyClientChunkManager) world.getChunkManager()).getLoadedChunkCount()
             ));
         });
@@ -552,7 +552,7 @@ public class MyCommandClient {
             world -> {
                 str.append(String.format(
                     "%s %s\n",
-                    world.dimension.getType(),
+                    world.getDimension().getType(),
                     world.getForcedChunks().size()
                 ));
             }

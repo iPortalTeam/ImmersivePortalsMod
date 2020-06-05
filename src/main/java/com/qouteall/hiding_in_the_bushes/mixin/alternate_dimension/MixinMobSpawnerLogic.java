@@ -6,8 +6,8 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.MobSpawnerLogic;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +26,7 @@ public class MixinMobSpawnerLogic {
         )
     )
     private boolean redirectCanSpawn1(MobEntity mobEntity, WorldView world) {
-        if (mobEntity.world.dimension instanceof AlternateDimension) {
+        if (mobEntity.world.getDimension() instanceof AlternateDimension) {
             return true;
         }
         return mobEntity.canSpawn(world);
@@ -42,7 +42,7 @@ public class MixinMobSpawnerLogic {
     )
     private boolean redirectCanSpawn2(
         EntityType type,
-        IWorld world,
+        WorldAccess world,
         SpawnReason spawnReason,
         BlockPos pos,
         Random random
