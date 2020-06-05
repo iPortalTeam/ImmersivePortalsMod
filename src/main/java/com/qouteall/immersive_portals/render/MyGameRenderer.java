@@ -17,7 +17,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -293,7 +293,7 @@ public class MyGameRenderer {
     }
     
     public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             if (CGlobal.renderFewerInFastGraphic) {
                 if (!MinecraftClient.getInstance().options.fancyGraphics) {
                     MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);

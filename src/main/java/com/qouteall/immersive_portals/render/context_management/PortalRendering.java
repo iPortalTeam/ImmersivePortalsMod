@@ -19,7 +19,7 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class PortalLayers {
+public class PortalRendering {
     private static final Stack<Portal> portalLayers = new Stack<>();
     private static boolean isRenderingCache = false;
     
@@ -71,7 +71,7 @@ public class PortalLayers {
     }
     
     public static boolean isRenderingOddNumberOfMirrors() {
-        Stack<Portal> portalLayers = PortalLayers.portalLayers;
+        Stack<Portal> portalLayers = PortalRendering.portalLayers;
         int number = 0;
         for (Portal portal : portalLayers) {
             if (portal instanceof Mirror) {

@@ -7,7 +7,7 @@ import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -69,12 +69,12 @@ public class RendererDebugWithShader extends PortalRenderer {
             return;
         }
     
-        PortalLayers.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portal);
         
         renderPortalContent(portal);
         //it will bind the gbuffer of rendered dimension
     
-        PortalLayers.popPortalLayer();
+        PortalRendering.popPortalLayer();
         
         deferredBuffer.fb.beginWrite(true);
         
@@ -117,7 +117,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return;
         }
         

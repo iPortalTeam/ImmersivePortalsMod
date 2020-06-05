@@ -14,7 +14,7 @@ import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PixelCuller;
 import com.qouteall.immersive_portals.render.TransformationManager;
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -160,14 +160,14 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             MyGameRenderer.doPruneVisibleChunks(visibleChunks);
         }
         
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrices,
-                PortalLayers.getRenderingPortal(),
+                PortalRendering.getRenderingPortal(),
                 true
             );
             PixelCuller.startCulling();
-            if (PortalLayers.isRenderingOddNumberOfMirrors()) {
+            if (PortalRendering.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
         }
@@ -177,7 +177,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             cameraX, cameraY, cameraZ
         );
         
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             PixelCuller.endCulling();
             MyRenderHelper.recoverFaceCulling();
         }
@@ -270,7 +270,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                         entity.getCameraPosVec(RenderStates.tickDelta)
                             .distanceTo(client.gameRenderer.getCamera().getPos());
                     //avoid rendering player too near and block view except mirror
-                    if (distanceToCamera > 1 || PortalLayers.isRenderingOddNumberOfMirrors()) {
+                    if (distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors()) {
                         CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
                         renderEntity(
                             entity,
@@ -316,10 +316,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrices,
-                PortalLayers.getRenderingPortal(),
+                PortalRendering.getRenderingPortal(),
                 true
             );
             PixelCuller.startCulling();
@@ -345,7 +345,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             PixelCuller.endCulling();
         }
     }
@@ -359,7 +359,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private boolean redirectGlowing(Entity entity) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return false;
         }
         return entity.isGlowing();
@@ -375,7 +375,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (isReloadingOtherWorldRenderers) {
             return;
         }
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return;
         }
         if (clientWorldLoader.getIsLoadingFakedWorld()) {
@@ -405,7 +405,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private RenderLayer redirectGetTranslucent() {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return null;
         }
         return RenderLayer.getTranslucent();
@@ -413,7 +413,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("HEAD"))
     private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
@@ -424,7 +424,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
         
-        if (PortalLayers.isRenderingOddNumberOfMirrors()) {
+        if (PortalRendering.isRenderingOddNumberOfMirrors()) {
             MyRenderHelper.applyMirrorFaceCulling();
         }
     }
@@ -450,7 +450,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
 //            AlternateSkyRenderer.renderAlternateSky(matrixStack_1, float_1);
 //        }
         
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
             GL11.glDisable(GL11.GL_FOG);
             RenderSystem.enableFog();
@@ -496,7 +496,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
         
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             needsTerrainUpdate = true;
         }
     }
@@ -510,7 +510,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
-        if (PortalLayers.isRendering() && (!OFInterface.isOptifinePresent)) {
+        if (PortalRendering.isRendering() && (!OFInterface.isOptifinePresent)) {
             portal_updateChunks();
         }
         else {
@@ -526,7 +526,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         constant = @Constant(doubleValue = 768.0D)
     )
     private double modifyRebuildRange(double original) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return 256.0;
         }
         else {
@@ -543,7 +543,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
-        RenderStates.shouldForceDisableCull = PortalLayers.isRenderingOddNumberOfMirrors();
+        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
         immediate.draw(layer);
         RenderStates.shouldForceDisableCull = false;
     }
@@ -556,7 +556,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectVertexDraw1(VertexConsumerProvider.Immediate immediate) {
-        RenderStates.shouldForceDisableCull = PortalLayers.isRenderingOddNumberOfMirrors();
+        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
         immediate.draw();
         RenderStates.shouldForceDisableCull = false;
     }
@@ -571,8 +571,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
         if (Global.edgelessSky) {
-            if (PortalLayers.isRendering()) {
-                if (PortalLayers.getRenderingPortal() instanceof GlobalTrackedPortal) {
+            if (PortalRendering.isRendering()) {
+                if (PortalRendering.getRenderingPortal() instanceof GlobalTrackedPortal) {
                     MyGameRenderer.renderSkyFor(
                         RenderDimensionRedirect.getRedirectedDimension(RenderStates.originalPlayerDimension),
                         matrixStack, f
@@ -626,7 +626,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             if (client.world.getDimension().getType() == RenderStates.originalPlayerDimension) {
                 return;
             }

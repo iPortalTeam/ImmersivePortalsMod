@@ -12,7 +12,7 @@ import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -41,7 +41,7 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return;
         }
 //        OFHelper.copyFromShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
@@ -72,7 +72,7 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //currently only support one-layer portal
             return;
         }
@@ -82,11 +82,11 @@ public class RendererDeferred extends PortalRenderer {
             return;
         }
         
-        PortalLayers.pushPortalLayer(portal);
+        PortalRendering.pushPortalLayer(portal);
         
         renderPortalContent(portal);
         
-        PortalLayers.popPortalLayer();
+        PortalRendering.popPortalLayer();
         
         deferredBuffer.fb.beginWrite(true);
         
@@ -151,7 +151,7 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return;
         }
         

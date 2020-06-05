@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.render.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,7 +12,7 @@ public class MixinDynamicLights {
     //avoid updating dynamic light when rendering portal
     @Inject(method = "update", at = @At("HEAD"), cancellable = true)
     private static void onUpdate(WorldRenderer renderGlobal, CallbackInfo ci) {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             ci.cancel();
         }
     }

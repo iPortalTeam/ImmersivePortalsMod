@@ -9,14 +9,14 @@ import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.minecraft.client.MinecraftClient;
 
 public class ModMainClient {
     
     public static void switchToCorrectRenderer() {
-        if (PortalLayers.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //do not switch when rendering
             return;
         }

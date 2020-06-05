@@ -7,7 +7,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.context_management.PortalLayers;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -91,8 +91,8 @@ public abstract class PortalRenderer {
             return;
         }
         
-        if (PortalLayers.isRendering()) {
-            Portal outerPortal = PortalLayers.getRenderingPortal();
+        if (PortalRendering.isRendering()) {
+            Portal outerPortal = PortalRendering.getRenderingPortal();
             if (Portal.isParallelPortal(portal, outerPortal)) {
                 return;
             }
@@ -113,9 +113,9 @@ public abstract class PortalRenderer {
     
     protected final double getRenderRange() {
         double range = client.options.viewDistance * 16;
-        if (PortalLayers.getPortalLayer() > 1) {
+        if (PortalRendering.getPortalLayer() > 1) {
             //do not render deep layers of mirror when far away
-            range /= (PortalLayers.getPortalLayer());
+            range /= (PortalRendering.getPortalLayer());
         }
         if (RenderStates.isLaggy) {
             range = 16;
@@ -141,7 +141,7 @@ public abstract class PortalRenderer {
     protected final void renderPortalContent(
         Portal portal
     ) {
-        if (PortalLayers.getPortalLayer() > PortalLayers.getMaxPortalLayer()) {
+        if (PortalRendering.getPortalLayer() > PortalRendering.getMaxPortalLayer()) {
             return;
         }
         
@@ -156,11 +156,11 @@ public abstract class PortalRenderer {
         
         assert cameraEntity.world == client.world;
         
-        PortalLayers.onBeginPortalWorldRendering();
+        PortalRendering.onBeginPortalWorldRendering();
         
         invokeWorldRendering(newEyePos, newLastTickEyePos, newWorld);
         
-        PortalLayers.onEndPortalWorldRendering();
+        PortalRendering.onEndPortalWorldRendering();
         
         GlStateManager.enableDepthTest();
         GlStateManager.disableBlend();
