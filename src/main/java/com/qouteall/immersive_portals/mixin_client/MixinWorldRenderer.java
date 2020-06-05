@@ -4,16 +4,19 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PixelCuller;
 import com.qouteall.immersive_portals.render.TransformationManager;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -33,6 +36,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -47,6 +51,9 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Iterator;
+import java.util.Set;
+
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
@@ -59,7 +66,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     @Final
-    public MinecraftClient client;
+    private MinecraftClient client;
     
     @Shadow
     private double lastTranslucentSortX;
@@ -124,6 +131,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     protected abstract void updateChunks(long limitTime);
     
+    @Shadow
+    private Set<ChunkBuilder.BuiltChunk> chunksToRebuild;
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -143,12 +153,35 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (isTranslucent) {
             CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
             CGlobal.renderer.onBeforeTranslucentRendering(matrices);
-            FarSceneryRenderer.onBeforeTranslucentRendering(matrices);
         }
+        
+        ObjectList<?> visibleChunks = this.visibleChunks;
+        if (renderLayer == RenderLayer.getSolid()) {
+            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
+        }
+        
+        if (PortalRendering.isRendering()) {
+            PixelCuller.updateCullingPlaneInner(
+                matrices,
+                PortalRendering.getRenderingPortal(),
+                true
+            );
+            PixelCuller.startCulling();
+            if (PortalRendering.isRenderingOddNumberOfMirrors()) {
+                MyRenderHelper.applyMirrorFaceCulling();
+            }
+        }
+        
         renderLayer(
             renderLayer, matrices,
             cameraX, cameraY, cameraZ
         );
+        
+        if (PortalRendering.isRendering()) {
+            PixelCuller.endCulling();
+            MyRenderHelper.recoverFaceCulling();
+        }
+        
         if (isTranslucent) {
             CGlobal.renderer.onAfterTranslucentRendering(matrices);
         }
@@ -196,55 +229,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //apply culling and apply optimization
-    @Inject(
-        method = "renderLayer",
-        at = @At("HEAD")
-    )
-    private void onStartRenderLayer(
-        RenderLayer renderLayer_1,
-        MatrixStack matrixStack_1,
-        double double_1,
-        double double_2,
-        double double_3,
-        CallbackInfo ci
-    ) {
-        ObjectList<?> visibleChunks = this.visibleChunks;
-        if (renderLayer_1 == RenderLayer.getSolid()) {
-            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
-        }
-        
-        if (CGlobal.renderer.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(
-                matrixStack_1,
-                CGlobal.renderer.getRenderingPortal(),
-                true
-            );
-            PixelCuller.startCulling();
-            if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
-                MyRenderHelper.applyMirrorFaceCulling();
-            }
-        }
-    }
-    
-    @Inject(
-        method = "renderLayer",
-        at = @At("TAIL")
-    )
-    private void onStopRenderLayer(
-        RenderLayer renderLayer_1,
-        MatrixStack matrixStack_1,
-        double double_1,
-        double double_2,
-        double double_3,
-        CallbackInfo ci
-    ) {
-        if (CGlobal.renderer.isRendering()) {
-            PixelCuller.endCulling();
-            MyRenderHelper.recoverFaceCulling();
-        }
-    }
-    
     //to let the player be rendered when rendering portal
     @Redirect(
         method = "render",
@@ -254,7 +238,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private boolean redirectIsThirdPerson(Camera camera) {
-        if (CGlobal.renderer.shouldRenderPlayerItself()) {
+        if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
             return true;
         }
         return camera.isThirdPerson();
@@ -280,16 +264,25 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
         if (entity == camera.getFocusedEntity()) {
-            if (CGlobal.renderer.shouldRenderPlayerItself()) {
+            if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
                 MyGameRenderer.renderPlayerItself(() -> {
-                    CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
-                    renderEntity(
-                        entity,
-                        cameraX, cameraY, cameraZ,
-                        tickDelta,
-                        matrixStack, vertexConsumerProvider
-                    );
-                    CrossPortalEntityRenderer.afterRenderingEntity(entity);
+                    double distanceToCamera =
+                        entity.getCameraPosVec(RenderStates.tickDelta)
+                            .distanceTo(client.gameRenderer.getCamera().getPos());
+                    //avoid rendering player too near and block view except mirror
+                    if (distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors()) {
+                        CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
+                        renderEntity(
+                            entity,
+                            cameraX, cameraY, cameraZ,
+                            tickDelta,
+                            matrixStack, vertexConsumerProvider
+                        );
+                        CrossPortalEntityRenderer.afterRenderingEntity(entity);
+                    }
+                    else {
+                        Helper.log("dis");
+                    }
                 });
                 return;
             }
@@ -323,10 +316,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrices,
-                CGlobal.renderer.getRenderingPortal(),
+                PortalRendering.getRenderingPortal(),
                 true
             );
             PixelCuller.startCulling();
@@ -352,7 +345,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             PixelCuller.endCulling();
         }
     }
@@ -382,7 +375,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (isReloadingOtherWorldRenderers) {
             return;
         }
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return;
         }
         if (clientWorldLoader.getIsLoadingFakedWorld()) {
@@ -407,11 +400,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "renderLayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;"
+            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;",
+            ordinal = 0
         )
     )
     private RenderLayer redirectGetTranslucent() {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return null;
         }
         return RenderLayer.getTranslucent();
@@ -419,7 +413,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("HEAD"))
     private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
@@ -430,7 +424,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
         
-        if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
+        if (PortalRendering.isRenderingOddNumberOfMirrors()) {
             MyRenderHelper.applyMirrorFaceCulling();
         }
     }
@@ -456,7 +450,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
 //            AlternateSkyRenderer.renderAlternateSky(matrixStack_1, float_1);
 //        }
         
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
             GL11.glDisable(GL11.GL_FOG);
             RenderSystem.enableFog();
@@ -502,11 +496,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
         
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             needsTerrainUpdate = true;
         }
     }
     
+    //reduce lag spike
     @Redirect(
         method = "render",
         at = @At(
@@ -515,8 +510,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
-        if (CGlobal.renderer.isRendering()) {
-            updateChunks(0);
+        if (PortalRendering.isRendering() && (!OFInterface.isOptifinePresent)) {
+            portal_updateChunks();
         }
         else {
             updateChunks(limitTime);
@@ -531,7 +526,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         constant = @Constant(doubleValue = 768.0D)
     )
     private double modifyRebuildRange(double original) {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             return 256.0;
         }
         else {
@@ -548,9 +543,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
-        MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
+        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
         immediate.draw(layer);
-        MyRenderHelper.shouldForceDisableCull = false;
+        RenderStates.shouldForceDisableCull = false;
     }
     
     @Redirect(
@@ -561,9 +556,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectVertexDraw1(VertexConsumerProvider.Immediate immediate) {
-        MyRenderHelper.shouldForceDisableCull = MyRenderHelper.isRenderingOddNumberOfMirrors();
+        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
         immediate.draw();
-        MyRenderHelper.shouldForceDisableCull = false;
+        RenderStates.shouldForceDisableCull = false;
     }
     
     //redirect sky rendering dimension
@@ -576,12 +571,14 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
         if (Global.edgelessSky) {
-            if (CGlobal.renderer.isRendering()) {
-                MyGameRenderer.renderSkyFor(
-                    RenderDimensionRedirect.getRedirectedDimension(MyRenderHelper.originalPlayerDimension),
-                    matrixStack, f
-                );
-                return;
+            if (PortalRendering.isRendering()) {
+                if (PortalRendering.getRenderingPortal() instanceof GlobalTrackedPortal) {
+                    MyGameRenderer.renderSkyFor(
+                        RenderDimensionRedirect.getRedirectedDimension(RenderStates.originalPlayerDimension),
+                        matrixStack, f
+                    );
+                    return;
+                }
             }
         }
         
@@ -617,6 +614,24 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             MyGameRenderer.forceResetFogState();
             GL11.glEnable(GL11.GL_FOG);
         }
+    }
+    
+    //the camera position is used for translucent sort
+    //avoid messing it
+    @Redirect(
+        method = "setupTerrain",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
+        )
+    )
+    private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
+        if (PortalRendering.isRendering()) {
+            if (client.world.getDimension().getType() == RenderStates.originalPlayerDimension) {
+                return;
+            }
+        }
+        chunkBuilder.setCameraPosition(cameraPosition);
     }
     
     @Override
@@ -658,4 +673,38 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             entity, cameraX, cameraY, cameraZ, tickDelta, matrixStack, vertexConsumerProvider
         );
     }
+    
+    private void portal_updateChunks() {
+        
+        ChunkBuilder chunkBuilder = this.chunkBuilder;
+        boolean uploaded = chunkBuilder.upload();
+        this.needsTerrainUpdate |= uploaded;//no short circuit
+        
+        int limit = 1;
+//        if (CGlobal.renderer.getPortalLayer() > 1) {
+//            limit = 1;
+//        }
+        
+        int num = 0;
+        for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
+            ChunkBuilder.BuiltChunk builtChunk = iterator.next();
+            
+            //vanilla's updateChunks() does not check shouldRebuild()
+            //so it may create many rebuild tasks and cancelling it which creates performance cost
+            if (builtChunk.shouldBuild()) {
+                builtChunk.scheduleRebuild(chunkBuilder);
+                builtChunk.cancelRebuild();
+                
+                iterator.remove();
+                
+                num++;
+                
+                if (num >= limit) {
+                    break;
+                }
+            }
+        }
+        
+    }
+    
 }

@@ -113,7 +113,6 @@ repositories {
 		dirs 'deps'
 	}
 
-	//for requiem
 	jcenter()
 	maven {
 		name = 'JitPack'
@@ -121,5 +120,11 @@ repositories {
 	}
 	maven {
 		url = 'https://maven.fabricmc.net'
+	}
+}
+
+task printClasspath {
+	doLast {
+		configurations.testCompile.each { println it }
 	}
 }

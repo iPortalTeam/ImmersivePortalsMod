@@ -6,9 +6,9 @@ import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
@@ -31,7 +31,7 @@ public class ModEntryClient implements ClientModInitializer {
             Mirror.entityType,
             BreakableMirror.entityType,
             GlobalTrackedPortal.entityType,
-            BorderPortal.entityType,
+            WorldWrappingPortal.entityType,
             VerticalConnectingPortal.entityType,
             GeneralBreakablePortal.entityType
         }).peek(

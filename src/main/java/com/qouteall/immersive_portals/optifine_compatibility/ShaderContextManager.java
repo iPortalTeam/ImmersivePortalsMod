@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.World;
@@ -125,7 +125,7 @@ public class ShaderContextManager {
         }
     }
     
-    private void checkState(
+    private static void checkState(
         ClientWorld currentClientWorld,
         DimensionType dimensionToSwitchTo,
         PerDimensionContext newContext
@@ -148,7 +148,7 @@ public class ShaderContextManager {
         }
     }
     
-    int forceCorrectedNum = 0;
+    public static int forceCorrectedNum = 0;
     
     private void forceSwitchToContextAndRun(
         PerDimensionContext contextToSwitchTo,
@@ -173,7 +173,7 @@ public class ShaderContextManager {
         if (currentContextDimension == null) {
             return false;
         }
-        return MyRenderHelper.isDimensionRendered(currentContextDimension);
+        return RenderStates.isDimensionRendered(currentContextDimension);
     }
     
     public void onPlayerTraveled(DimensionType from, DimensionType to) {

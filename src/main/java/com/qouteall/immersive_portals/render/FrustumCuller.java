@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -11,51 +11,77 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Comparator;
-import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class FrustumCuller {
-    private static enum State {
-        none,
-        cullingInPortal,
-        cullingOutsidePortal
+    public static interface BoxPredicate {
+        boolean test(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
     }
     
-    private State currentState;
-    private Vec3d[] downLeftUpRightPlaneNormals;
-    private Vec3d nearPlanePosInLocalCoordinate;
-    private Vec3d nearPlaneNormal;
+    public static interface PosPredicate {
+        boolean test(double x, double y, double z);
+    }
+    
+    
+    private BoxPredicate canDetermineInvisibleFunc;
+    
+    private static final BoxPredicate nonePredicate =
+        (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) -> false;
     
     public FrustumCuller() {
     }
     
     public void update(double cameraX, double cameraY, double cameraZ) {
+        canDetermineInvisibleFunc = getCanDetermineInvisibleFunc(cameraX, cameraY, cameraZ);
+    }
+    
+    public boolean canDetermineInvisible(
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ
+    ) {
+        return canDetermineInvisibleFunc.test(
+            minX, minY, minZ, maxX, maxY, maxZ
+        );
+    }
+    
+    private BoxPredicate getCanDetermineInvisibleFunc(
+        double cameraX,
+        double cameraY,
+        double cameraZ
+    ) {
         if (!CGlobal.doUseAdvancedFrustumCulling) {
-            currentState = State.none;
-            return;
+            return nonePredicate;
         }
         
-        if (CGlobal.renderer.isRendering()) {
-            Portal portal = CGlobal.renderer.getRenderingPortal();
-            currentState = State.cullingInPortal;
-    
+        if (PortalRendering.isRendering()) {
+            Portal portal = PortalRendering.getRenderingPortal();
+            
             Vec3d portalOriginInLocalCoordinate = portal.destination.add(
                 -cameraX, -cameraY, -cameraZ
             );
-            downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
+            Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                 portalOriginInLocalCoordinate,
                 portal.getFourVerticesLocalRotated(0)
             );
+            
+            Vec3d downPlane = downLeftUpRightPlaneNormals[0];
+            Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
+            Vec3d upPlane = downLeftUpRightPlaneNormals[2];
+            Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
+            
+            return
+                (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) ->
+                    isFullyOutsideFrustum(
+                        minX, minY, minZ, maxX, maxY, maxZ,
+                        leftPlane, rightPlane, upPlane, downPlane
+                    );
         }
         else {
             if (!CGlobal.useSuperAdvancedFrustumCulling) {
-                currentState = State.none;
-                return;
+                return nonePredicate;
             }
-    
+            
             Portal portal = getCurrentNearestVisibleCullablePortal();
             if (portal != null) {
-                currentState = State.cullingOutsidePortal;
                 
                 Vec3d portalOrigin = portal.getPos();
                 Vec3d portalOriginInLocalCoordinate = portalOrigin.add(
@@ -63,80 +89,43 @@ public class FrustumCuller {
                     -cameraY,
                     -cameraZ
                 );
-                downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
+                Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                     portalOriginInLocalCoordinate,
                     portal.getFourVerticesLocalCullable(0)
                 );
-                nearPlanePosInLocalCoordinate = portalOriginInLocalCoordinate;
-                nearPlaneNormal = portal.getNormal().multiply(-1);
+    
+                Vec3d downPlane = downLeftUpRightPlaneNormals[0];
+                Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
+                Vec3d upPlane = downLeftUpRightPlaneNormals[2];
+                Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
+                
+                Vec3d nearPlanePosInLocalCoordinate = portalOriginInLocalCoordinate;
+                Vec3d nearPlaneNormal = portal.getNormal().multiply(-1);
+                
+                return
+                    (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) -> {
+                        boolean isBehindNearPlane = testBoxTwoVertices(
+                            minX, minY, minZ, maxX, maxY, maxZ,
+                            nearPlaneNormal.x, nearPlaneNormal.y, nearPlaneNormal.z,
+                            nearPlanePosInLocalCoordinate.x,
+                            nearPlanePosInLocalCoordinate.y,
+                            nearPlanePosInLocalCoordinate.z
+                        ) == BatchTestResult.all_true;
+                        
+                        if (!isBehindNearPlane) {
+                            return false;
+                        }
+                        
+                        boolean fullyInFrustum = isFullyInFrustum(
+                            minX, minY, minZ, maxX, maxY, maxZ,
+                            leftPlane, rightPlane, upPlane, downPlane
+                        );
+                        return fullyInFrustum;
+                    };
             }
             else {
-                currentState = State.none;
+                return nonePredicate;
             }
-        }
-    }
-    
-    private Vec3d getDownPlane() {
-        return downLeftUpRightPlaneNormals[0];
-    }
-    
-    private Vec3d getLeftPlane() {
-        return downLeftUpRightPlaneNormals[1];
-    }
-    
-    private Vec3d getUpPlane() {
-        return downLeftUpRightPlaneNormals[2];
-    }
-    
-    private Vec3d getRightPlane() {
-        return downLeftUpRightPlaneNormals[3];
-    }
-    
-    public boolean canDetermineInvisible(Supplier<Box> boxInLocalCoordinateSupplier) {
-        if (currentState == State.none) {
-            return false;
-        }
-        
-        //test
-//        if (CrossPortalEntityRenderer.isRendering) {
-//            return false;
-//        }
-        
-        if (OFInterface.isShadowPass.getAsBoolean()) {
-            return false;
-        }
-        
-        Box boxInLocalCoordinate = boxInLocalCoordinateSupplier.get();
-        
-        Vec3d leftPlane = getLeftPlane();
-        Vec3d rightPlane = getRightPlane();
-        Vec3d upPlane = getUpPlane();
-        Vec3d downPlane = getDownPlane();
-        
-        if (currentState == State.cullingInPortal) {
-            return isFullyOutsideFrustum(
-                boxInLocalCoordinate, leftPlane, rightPlane, upPlane, downPlane
-            );
-        }
-        else {
-            boolean isBehindNearPlane = testBoxAllTrue(
-                boxInLocalCoordinate,
-                (x, y, z) -> isInFrontOf(
-                    x - nearPlanePosInLocalCoordinate.x,
-                    y - nearPlanePosInLocalCoordinate.y,
-                    z - nearPlanePosInLocalCoordinate.z,
-                    nearPlaneNormal
-                )
-            );
-            
-            if (!isBehindNearPlane) {
-                return false;
-            }
-            
-            boolean fullyInFrustum = isFullyInFrustum(
-                boxInLocalCoordinate, leftPlane, rightPlane, upPlane, downPlane
-            );
-            return fullyInFrustum;
         }
     }
     
@@ -167,11 +156,81 @@ public class FrustumCuller {
         both
     }
     
-    public static interface PosPredicate {
-        boolean test(double x, double y, double z);
+    public static BatchTestResult testBoxTwoVertices(
+        double minX, double minY, double minZ,
+        double maxX, double maxY, double maxZ,
+        double planeNormalX, double planeNormalY, double planeNormalZ,
+        double planePosX, double planePosY, double planePosZ
+    ) {
+        double p1x;
+        double p1y;
+        double p1z;
+        double p2x;
+        double p2y;
+        double p2z;
+        
+        if (planeNormalX > 0) {
+            p1x = minX;
+            p2x = maxX;
+        }
+        else {
+            p1x = maxX;
+            p2x = minX;
+        }
+        
+        if (planeNormalY > 0) {
+            p1y = minY;
+            p2y = maxY;
+        }
+        else {
+            p1y = maxY;
+            p2y = minY;
+        }
+        
+        if (planeNormalZ > 0) {
+            p1z = minZ;
+            p2z = maxZ;
+        }
+        else {
+            p1z = maxZ;
+            p2z = minZ;
+        }
+        
+        boolean r1 = isInFrontOf(
+            p1x - planePosX, p1y - planePosY, p1z - planePosZ,
+            planeNormalX, planeNormalY, planeNormalZ
+        );
+        
+        boolean r2 = isInFrontOf(
+            p2x - planePosX, p2y - planePosY, p2z - planePosZ,
+            planeNormalX, planeNormalY, planeNormalZ
+        );
+        
+        if (r1 && r2) {
+            return BatchTestResult.all_true;
+        }
+        
+        if ((!r1) && (!r2)) {
+            return BatchTestResult.all_false;
+        }
+        
+        return BatchTestResult.both;
     }
     
-    private static BatchTestResult testBox(Box box, PosPredicate predicate) {
+    public static BatchTestResult testBoxTwoVertices(
+        double minX, double minY, double minZ,
+        double maxX, double maxY, double maxZ,
+        Vec3d planeNormal
+    ) {
+        return testBoxTwoVertices(
+            minX, minY, minZ, maxX, maxY, maxZ,
+            planeNormal.x, planeNormal.y, planeNormal.z,
+            0, 0, 0
+        );
+    }
+    
+    @Deprecated
+    private static BatchTestResult testBox_(Box box, PosPredicate predicate) {
         boolean firstResult = predicate.test(box.x1, box.y1, box.z1);
         if (predicate.test(box.x1, box.y1, box.z2) != firstResult) return BatchTestResult.both;
         if (predicate.test(box.x1, box.y2, box.z1) != firstResult) return BatchTestResult.both;
@@ -183,7 +242,8 @@ public class FrustumCuller {
         return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
     }
     
-    private static boolean testBoxAllTrue(Box box, PosPredicate predicate) {
+    @Deprecated
+    private static boolean testBoxAllTrue_(Box box, PosPredicate predicate) {
         if (!predicate.test(box.x1, box.y1, box.z1)) return false;
         if (!predicate.test(box.x1, box.y1, box.z2)) return false;
         if (!predicate.test(box.x1, box.y2, box.z1)) return false;
@@ -199,17 +259,61 @@ public class FrustumCuller {
         return x * planeNormal.x + y * planeNormal.y + z * planeNormal.z >= 0;
     }
     
+    private static boolean isInFrontOf(
+        double x, double y, double z,
+        double planeNormalX, double planeNormalY, double planeNormalZ
+    ) {
+        return x * planeNormalX + y * planeNormalY + z * planeNormalZ >= 0;
+    }
+    
     private static boolean isFullyOutsideFrustum(
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
+        Vec3d leftPlane,
+        Vec3d rightPlane,
+        Vec3d upPlane,
+        Vec3d downPlane
+    ) {
+        BatchTestResult left = testBoxTwoVertices(
+            minX, minY, minZ, maxX, maxY, maxZ, leftPlane
+        );
+        BatchTestResult right = testBoxTwoVertices(
+            minX, minY, minZ, maxX, maxY, maxZ, rightPlane
+        );
+        if (left == BatchTestResult.all_false && right == BatchTestResult.all_true) {
+            return true;
+        }
+        if (left == BatchTestResult.all_true && right == BatchTestResult.all_false) {
+            return true;
+        }
+        
+        BatchTestResult up = testBoxTwoVertices(
+            minX, minY, minZ, maxX, maxY, maxZ, upPlane
+        );
+        BatchTestResult down = testBoxTwoVertices(
+            minX, minY, minZ, maxX, maxY, maxZ, downPlane
+        );
+        if (up == BatchTestResult.all_false && down == BatchTestResult.all_true) {
+            return true;
+        }
+        if (up == BatchTestResult.all_true && down == BatchTestResult.all_false) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    @Deprecated
+    private static boolean isFullyOutsideFrustum_(
         Box boxInLocalCoordinate,
         Vec3d leftPlane,
         Vec3d rightPlane,
         Vec3d upPlane,
         Vec3d downPlane
     ) {
-        BatchTestResult left = testBox(
+        BatchTestResult left = testBox_(
             boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, leftPlane)
         );
-        BatchTestResult right = testBox(
+        BatchTestResult right = testBox_(
             boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, rightPlane)
         );
         if (left == BatchTestResult.all_false && right == BatchTestResult.all_true) {
@@ -219,10 +323,10 @@ public class FrustumCuller {
             return true;
         }
         
-        BatchTestResult up = testBox(
+        BatchTestResult up = testBox_(
             boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, upPlane)
         );
-        BatchTestResult down = testBox(
+        BatchTestResult down = testBox_(
             boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, downPlane)
         );
         if (up == BatchTestResult.all_false && down == BatchTestResult.all_true) {
@@ -236,21 +340,42 @@ public class FrustumCuller {
     }
     
     private static boolean isFullyInFrustum(
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
+        Vec3d leftPlane,
+        Vec3d rightPlane,
+        Vec3d upPlane,
+        Vec3d downPlane
+    ) {
+        return testBoxTwoVertices(minX, minY, minZ, maxX, maxY, maxZ, leftPlane)
+            == BatchTestResult.all_true
+            && testBoxTwoVertices(minX, minY, minZ, maxX, maxY, maxZ, rightPlane)
+            == BatchTestResult.all_true
+            && testBoxTwoVertices(minX, minY, minZ, maxX, maxY, maxZ, upPlane)
+            == BatchTestResult.all_true
+            && testBoxTwoVertices(minX, minY, minZ, maxX, maxY, maxZ, downPlane)
+            == BatchTestResult.all_true;
+    }
+    
+    @Deprecated
+    private static boolean isFullyInFrustum_(
         Box boxInLocalCoordinate,
         Vec3d leftPlane,
         Vec3d rightPlane,
         Vec3d upPlane,
         Vec3d downPlane
     ) {
-        return testBoxAllTrue(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, leftPlane)) &&
-            testBoxAllTrue(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, rightPlane)) &&
-            testBoxAllTrue(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, upPlane)) &&
-            testBoxAllTrue(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, downPlane));
+        return testBoxAllTrue_(
+            boxInLocalCoordinate,
+            (x, y, z) -> isInFrontOf(x, y, z, leftPlane)
+        ) &&
+            testBoxAllTrue_(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, rightPlane)) &&
+            testBoxAllTrue_(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, upPlane)) &&
+            testBoxAllTrue_(boxInLocalCoordinate, (x, y, z) -> isInFrontOf(x, y, z, downPlane));
     }
     
     private static Portal getCurrentNearestVisibleCullablePortal() {
         Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-        return CHelper.getClientNearbyPortals(10).filter(
+        return CHelper.getClientNearbyPortals(16).filter(
             portal -> portal.isInFrontOfPortal(cameraPos)
         ).filter(
             Portal::isCullable

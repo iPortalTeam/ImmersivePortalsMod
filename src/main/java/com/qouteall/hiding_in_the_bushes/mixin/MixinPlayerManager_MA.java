@@ -21,7 +21,6 @@ public class MixinPlayerManager_MA {
         boolean bl,
         CallbackInfoReturnable<ServerPlayerEntity> cir
     ) {
-        //TODO respawn in the same dimension does not need that
         Global.chunkDataSyncManager.onPlayerRespawn(player);
     }
 }

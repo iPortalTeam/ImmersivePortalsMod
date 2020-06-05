@@ -45,20 +45,9 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     )
     private void onAfterClientTick(CallbackInfo ci) {
         ModMain.postClientTickSignal.emit();
+        
         CGlobal.clientTeleportationManager.manageTeleportation(0);
     }
-    
-//    @Inject(
-//        method = "tick",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/world/ClientWorld;tick(Ljava/util/function/BooleanSupplier;)V"
-//        )
-//    )
-//    private void onBeforeClientTick(CallbackInfo ci) {
-//        MyRenderHelper.updatePreRenderInfo(1);
-//        CGlobal.clientTeleportationManager.manageTeleportation(1);
-//    }
     
     @Inject(
         method = "render",

@@ -15,6 +15,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,7 +55,8 @@ public class CustomizablePortalGeneration {
     }
     
     public static Entry readEntry(String str) {
-        String[] components = str.split(",");
+        String[] components = Arrays.stream(str.split(","))
+            .map(String::trim).toArray(String[]::new);
         if (components.length != 5) {
             Helper.err("Invalid Entry " + str);
             return null;
@@ -144,7 +146,7 @@ public class CustomizablePortalGeneration {
             firePos,
             toWorld,
             Global.netherPortalFindingRadius,
-            Global.netherPortalFindingRadius,
+            Global.netherPortalFindingRadius-10,
             (pos) -> Helper.divide(Helper.scale(pos, entry.toSpaceRatio), entry.fromSpaceRatio),
             //this side area
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),

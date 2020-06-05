@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
@@ -10,13 +9,14 @@ import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.minecraft.client.MinecraftClient;
 
 public class ModMainClient {
     
     public static void switchToCorrectRenderer() {
-        if (CGlobal.renderer.isRendering()) {
+        if (PortalRendering.isRendering()) {
             //do not switch when rendering
             return;
         }
@@ -74,8 +74,6 @@ public class ModMainClient {
             CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
-        
-        FarSceneryRenderer.init();
         
         O_O.loadConfigFabric();
         

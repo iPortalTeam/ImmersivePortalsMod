@@ -17,24 +17,24 @@ public class OFHelper {
     public static void copyFromShaderFbTo(Framebuffer destFb, int copyComponent) {
         GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, OFGlobal.getDfb.get());
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destFb.fbo);
-    
+        
         GL30.glBlitFramebuffer(
             0, 0, Shaders.renderWidth, Shaders.renderHeight,
             0, 0, destFb.textureWidth, destFb.textureHeight,
             copyComponent, GL_NEAREST
         );
-    
+        
         int errorCode = GL11.glGetError();
-        if (errorCode != GL_NO_ERROR) {
+        if (errorCode != GL_NO_ERROR && Global.renderMode == Global.RenderMode.normal) {
             String message = "[Immersive Portals] Detected Video Card's Incapability of Depth Format Conversion. " +
-                "Switched to Compatibility Renderer";
+                "Switch to Compatibility Renderer";
             Helper.err("OpenGL Error" + errorCode);
             Helper.log(message);
             CHelper.printChat(message);
             
             Global.renderMode = Global.RenderMode.compatibility;
         }
-    
+        
         OFGlobal.bindToShaderFrameBuffer.run();
     }
     

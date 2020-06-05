@@ -5,12 +5,15 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -46,7 +49,7 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {
-        int portalLayer = getPortalLayer();
+        int portalLayer = PortalRendering.getPortalLayer();
         
         initStencilForLayer(portalLayer);
         
@@ -99,7 +102,7 @@ public class RendererMixed extends PortalRenderer {
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
         OFHelper.copyFromShaderFbTo(
-            deferredFbs[getPortalLayer()].fb,
+            deferredFbs[PortalRendering.getPortalLayer()].fb,
             GL_DEPTH_BUFFER_BIT
         );
         
@@ -114,12 +117,12 @@ public class RendererMixed extends PortalRenderer {
             CGlobal.shaderManager = new ShaderManager();
         }
         
-        if (deferredFbs.length != maxPortalLayer.get() + 1) {
+        if (deferredFbs.length != PortalRendering.getMaxPortalLayer() + 1) {
             for (SecondaryFrameBuffer fb : deferredFbs) {
                 fb.fb.delete();
             }
             
-            deferredFbs = new SecondaryFrameBuffer[maxPortalLayer.get() + 1];
+            deferredFbs = new SecondaryFrameBuffer[PortalRendering.getMaxPortalLayer() + 1];
             for (int i = 0; i < deferredFbs.length; i++) {
                 deferredFbs[i] = new SecondaryFrameBuffer();
             }
@@ -145,7 +148,7 @@ public class RendererMixed extends PortalRenderer {
         GlStateManager.colorMask(true, true, true, true);
         Shaders.useProgram(Shaders.ProgramNone);
         
-        if (MyRenderHelper.getRenderedPortalNum() == 0) {
+        if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
         
@@ -166,19 +169,19 @@ public class RendererMixed extends PortalRenderer {
         if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {
             return;
         }
-        
-        portalLayers.push(portal);
+    
+        PortalRendering.pushPortalLayer(portal);
         
         OFGlobal.bindToShaderFrameBuffer.run();
-        manageCameraAndRenderPortalContent(portal);
+        renderPortalContent(portal);
         
-        int innerLayer = getPortalLayer();
+        int innerLayer = PortalRendering.getPortalLayer();
+    
+        PortalRendering.popPortalLayer();
         
-        portalLayers.pop();
+        int outerLayer = PortalRendering.getPortalLayer();
         
-        int outerLayer = getPortalLayer();
-        
-        if (innerLayer > maxPortalLayer.get()) {
+        if (innerLayer > PortalRendering.getMaxPortalLayer()) {
             return;
         }
         
@@ -194,7 +197,7 @@ public class RendererMixed extends PortalRenderer {
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
         Portal portal, MatrixStack matrixStack
     ) {
-        int portalLayer = getPortalLayer();
+        int portalLayer = PortalRendering.getPortalLayer();
         
         initStencilForLayer(portalLayer);
         
@@ -222,16 +225,32 @@ public class RendererMixed extends PortalRenderer {
     }
     
     @Override
-    protected void renderPortalContentWithContextSwitched(
-        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
+    protected void invokeWorldRendering(
+        Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
     ) {
-        OFGlobal.shaderContextManager.switchContextAndRun(
-            () -> {
-                OFGlobal.bindToShaderFrameBuffer.run();
-                super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
+        MyGameRenderer.switchAndRenderTheWorld(
+            newWorld, newEyePos,
+            newLastTickEyePos,
+            runnable -> {
+                OFGlobal.shaderContextManager.switchContextAndRun(()->{
+                    OFGlobal.bindToShaderFrameBuffer.run();
+                    runnable.run();
+                });
             }
         );
     }
+    
+//    @Override
+//    protected void renderPortalContentWithContextSwitched(
+//        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
+//    ) {
+//        OFGlobal.shaderContextManager.switchContextAndRun(
+//            () -> {
+//                OFGlobal.bindToShaderFrameBuffer.run();
+//                super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
+//            }
+//        );
+//    }
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {

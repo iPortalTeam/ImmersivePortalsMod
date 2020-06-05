@@ -51,9 +51,9 @@ public class Portal extends Entity {
     public Quaternion rotation;
     
     public double motionAffinity = 0;
-
+    
     private boolean interactable = true;
-
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -63,6 +63,7 @@ public class Portal extends Entity {
     ) {
         super(entityType_1, world_1);
     }
+    
     
     @Override
     protected void initDataTracker() {
@@ -122,7 +123,7 @@ public class Portal extends Entity {
         else {
             motionAffinity = 0;
         }
-        if(compoundTag.contains("interactable")) {
+        if (compoundTag.contains("interactable")) {
             interactable = compoundTag.getBoolean("interactable");
         }
     }
@@ -177,20 +178,22 @@ public class Portal extends Entity {
     /**
      * Determines whether the player should be able to reach through the portal or not.
      * Can be overridden by a sub class.
+     *
      * @return the interactability of the portal
      */
     public boolean isInteractable() {
         return interactable;
     }
-
+    
     /**
      * Changes the reach-through behavior of the portal.
+     *
      * @param interactable the interactability of the portal
      */
     public void setInteractable(boolean interactable) {
         this.interactable = interactable;
     }
-
+    
     public void updateCache() {
         boundingBoxCache = null;
         normal = null;
@@ -281,14 +284,7 @@ public class Portal extends Entity {
             destination != null;
     }
     
-    public boolean canRenderPortalInsideMe(Portal anotherPortal) {
-        if (anotherPortal.dimension != dimensionTo) {
-            return false;
-        }
-        return canRenderEntityInsideMe(anotherPortal.getPos(), 0.5);
-    }
-    
-    public boolean canRenderEntityInsideMe(Vec3d entityPos, double valve) {
+    public boolean isInside(Vec3d entityPos, double valve) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
         return v > valve;
     }
@@ -523,6 +519,18 @@ public class Portal extends Entity {
                 .add(getNormal().multiply(0.2)),
             getPointInPlane(-width / 2, -height / 2)
                 .add(getNormal().multiply(-0.2))
+        ).union(new Box(
+            getPointInPlane(-width / 2, height / 2)
+                .add(getNormal().multiply(0.2)),
+            getPointInPlane(width / 2, -height / 2)
+                .add(getNormal().multiply(-0.2))
+        ));
+    }
+    
+    public Box getThinAreaBox(){
+        return new Box(
+            getPointInPlane(width / 2, height / 2),
+            getPointInPlane(-width / 2, -height / 2)
         );
     }
     
@@ -625,15 +633,52 @@ public class Portal extends Entity {
             axisH.multiply(yInPlane)
         );
     }
-
+    
+    public World getDestinationWorld() {
+        return getDestinationWorld(world.isClient());
+    }
+    
     /**
      * @return The {@link World} of this portal's {@link #dimensionTo}.
      */
     public World getDestinationWorld(boolean isClient) {
         if (isClient) {
             return CHelper.getClientWorld(dimensionTo);
-        } else {
+        }
+        else {
             return McHelper.getServer().getWorld(dimensionTo);
         }
+    }
+    
+    public static boolean isParallelPortal(Portal currPortal, Portal outerPortal) {
+        if (currPortal.dimension != outerPortal.dimensionTo) {
+            return false;
+        }
+        if (currPortal.dimensionTo != outerPortal.dimension) {
+            return false;
+        }
+        if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
+            return false;
+        }
+        return !outerPortal.isInside(currPortal.getPos(), 0.1);
+    }
+    
+    public static boolean isReversePortal(Portal a, Portal b) {
+        return a.dimensionTo == b.dimension &&
+            a.dimension == b.dimensionTo &&
+            a.getPos().distanceTo(b.destination) < 1 &&
+            a.destination.distanceTo(b.getPos()) < 1 &&
+            a.getNormal().dotProduct(b.getContentDirection()) > 0.5;
+    }
+    
+    public static boolean isFlippedPortal(Portal a, Portal b) {
+        if (a == b) {
+            return false;
+        }
+        return a.dimension == b.dimension &&
+            a.dimensionTo == b.dimensionTo &&
+            a.getPos().distanceTo(b.getPos()) < 1 &&
+            a.destination.distanceTo(b.destination) < 1 &&
+            a.getNormal().dotProduct(b.getNormal()) < -0.5;
     }
 }

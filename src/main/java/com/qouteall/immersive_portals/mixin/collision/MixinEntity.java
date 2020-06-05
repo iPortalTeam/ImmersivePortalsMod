@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -60,10 +61,12 @@ public abstract class MixinEntity implements IEEntity {
     
     @Shadow protected abstract BlockPos getLandingPos();
     
+    @Shadow public boolean inanimate;
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
-        tickCollidingPortal();
+        tickCollidingPortal(1);
     }
     
     @Redirect(
@@ -196,13 +199,25 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
+    //avoid suffocation damage when crossing world wrapping portal with barrier
+    @Inject(
+        method = "isInsideWall",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
+        if (collidingPortal instanceof WorldWrappingPortal) {
+            cir.setReturnValue(false);
+        }
+    }
+    
     @Override
     public Portal getCollidingPortal() {
         return collidingPortal;
     }
     
     @Override
-    public void tickCollidingPortal() {
+    public void tickCollidingPortal(float tickDelta) {
         Entity this_ = (Entity) (Object) this;
         
         if (collidingPortal != null) {
@@ -215,7 +230,7 @@ public abstract class MixinEntity implements IEEntity {
         // of entities discovering nearby portals
         world.getProfiler().push("getCollidingPortal");
         Portal nowCollidingPortal =
-            CollisionHelper.getCollidingPortalUnreliable(this_);
+            CollisionHelper.getCollidingPortalUnreliable(this_, tickDelta);
         world.getProfiler().pop();
         
         if (nowCollidingPortal == null) {

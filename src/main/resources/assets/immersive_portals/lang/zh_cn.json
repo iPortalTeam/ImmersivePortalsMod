@@ -36,5 +36,18 @@
   "imm_ptl.command.make_portal.success": "已生成传送门 %sx%s %s%s -> %s%s",
   "imm_ptl.command.tpme.success": "将玩家传送至 %s",
   "imm_ptl.command.tp.success": "传送实体 %d 至 %s",
-  "imm_ptl.laggy": "由于卡顿，暂时减少传送门渲染 (可设置关闭)"
+  "imm_ptl.laggy": "由于卡顿，暂时减少传送门渲染 (可设置关闭)",
+  "imm_ptl.portal_render_limit": "传送门渲染数量限制",
+  "imm_ptl.pure_mirror": "镜面无玻璃材质",
+  "imm_ptl.portal_gen": "自定义传送门建造",
+  "imm_ptl.missing_mixin": "Immersive Portals mod requires MixinBootstrap. MixinBootstrap is not installed.",
+  "imm_ptl.download_mixinbootstrap": "Download MixinBootstrap",
+  "imm_ptl.not_pointing_portal": "你没有将准心指向一个传送门",
+  "imm_ptl.clear_border_warning": "警告! 这个指令将会清除空间折叠区域外部边界上所有方块\n该操作无法撤销。建议先备份存档。\n再次使用该指令以执行操作。",
+  "imm_ptl.not_in_wrapping_zone": "你没有处于任何空间折叠区域内",
+  "imm_ptl.removed_invalid_wrapping_portals": "已移除异常空间折叠传送门 %1$s",
+  "imm_ptl.removed_portal": "已移除传送门 %1$s",
+  "imm_ptl.cannot_find_zone": "无法找到该空间折叠区域",
+  "imm_ptl.finished": "已完成",
+  "imm_ptl.start_clearing_border": "开始清除外部边界"
 }

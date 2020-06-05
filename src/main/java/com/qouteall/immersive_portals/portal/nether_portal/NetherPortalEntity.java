@@ -42,7 +42,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
         Random random = world.getRandom();
         
         for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
-            if (random.nextInt(8) == 0) {
+            if (random.nextInt(10) == 0) {
                 double px = (random.nextDouble() * 2 - 1) * (width / 2);
                 double py = (random.nextDouble() * 2 - 1) * (height / 2);
                 
@@ -62,7 +62,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             }
         }
         
-        if (random.nextInt(400) == 0) {
+        if (random.nextInt(800) == 0) {
             world.playSound(
                 getX(),
                 getY(),

@@ -41,4 +41,6 @@ public class OFInterface {
     
     public static Consumer<Entity> updateEntityTypeForShader = (a) -> {
     };
+    
+    public static BooleanSupplier isInternalShader = returnFalse;
 }

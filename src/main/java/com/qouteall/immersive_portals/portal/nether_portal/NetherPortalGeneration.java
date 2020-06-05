@@ -252,7 +252,7 @@ public class NetherPortalGeneration {
             firePos,
             toWorld,
             searchingRadius,
-            searchingRadius,
+            searchingRadius - 10,
             (fromPos1) -> mapPosition(
                 fromPos1,
                 fromWorld.getDimension().getType(),
@@ -646,6 +646,10 @@ public class NetherPortalGeneration {
         int z,
         int range
     ) {
+        if (range < 0) {
+            range = 5;
+        }
+        
         if (Global.blameOpenJdk) {
             return blockPosStreamNaive(
                 world, x, z, range

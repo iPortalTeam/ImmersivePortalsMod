@@ -9,9 +9,9 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
-import com.qouteall.immersive_portals.portal.global_portals.BorderPortal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
@@ -229,12 +229,14 @@ public class MyRegistry {
             ).setImmuneToFire().build()
         );
     
-        BorderPortal.entityType = Registry.register(
+        WorldWrappingPortal.entityType = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier("immersive_portals", "border_portal"),
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 BorderPortal::new
+                EntityCategory.MISC,
+                WorldWrappingPortal::new
             ).size(
                 new EntityDimensions(1, 1, true)
             ).setImmuneToFire().build()

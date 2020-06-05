@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
@@ -44,15 +46,15 @@ public class RendererDebug extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
-        if (MyRenderHelper.getRenderedPortalNum() != 0) {
+        if (RenderStates.getRenderedPortalNum() != 0) {
             return;
         }
         
         if (!testShouldRenderPortal(portal, matrixStack)) {
             return;
         }
-        
-        portalLayers.push(portal);
+    
+        PortalRendering.pushPortalLayer(portal);
         
         GlStateManager.clearColor(1, 0, 1, 1);
         GlStateManager.clearDepth(1);
@@ -62,9 +64,9 @@ public class RendererDebug extends PortalRenderer {
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         
-        manageCameraAndRenderPortalContent(portal);
-        
-        portalLayers.pop();
+        renderPortalContent(portal);
+    
+        PortalRendering.popPortalLayer();
     }
     
     private boolean testShouldRenderPortal(

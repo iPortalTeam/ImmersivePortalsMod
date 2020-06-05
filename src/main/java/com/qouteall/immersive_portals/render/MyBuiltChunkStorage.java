@@ -1,11 +1,11 @@
 package com.qouteall.immersive_portals.render;
 
 import com.google.common.collect.Streams;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.ObjectBuffer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.WorldRenderer;
@@ -112,7 +112,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     private void manageNeighbor(Preset preset) {
-        boolean isRenderingPortal = CGlobal.renderer.isRendering();
+        boolean isRenderingPortal = PortalRendering.isRendering();
         if (!isRenderingPortal) {
             if (shouldUpdateMainPresetNeighbor) {
                 shouldUpdateMainPresetNeighbor = false;
@@ -131,12 +131,12 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     @Override
-    public void scheduleRebuild(int int_1, int int_2, int int_3, boolean boolean_1) {
-        //this method may get called by another thread?
+    public void scheduleRebuild(int cx, int cy, int cz, boolean isImportant) {
+        //TODO change it
         ChunkBuilder.BuiltChunk builtChunk = provideBuiltChunk(
-            new BlockPos(int_1 * 16, int_2 * 16, int_3 * 16)
+            new BlockPos(cx * 16, cy * 16, cz * 16)
         );
-        builtChunk.scheduleRebuild(boolean_1);
+        builtChunk.scheduleRebuild(isImportant);
     }
     
     private Preset myCreatePreset(double playerXCoord, double playerZCoord) {
@@ -206,7 +206,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 builtChunk.setOrigin(
                     basePos.getX(), basePos.getY(), basePos.getZ()
                 );
-                //MinecraftClient.getInstance().getProfiler().pop();
+                
                 return builtChunk;
             }
         );
@@ -291,5 +291,16 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         else {
             return null;
         }
+    }
+    
+    public String getDebugString() {
+        return String.format(
+            "All:%s Needs Rebuild:%s",
+            builtChunkMap.size(),
+            builtChunkMap.values().stream()
+                .filter(
+                    builtChunk -> builtChunk.needsRebuild()
+                ).count()
+        );
     }
 }

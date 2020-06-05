@@ -13,12 +13,10 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.far_scenery.FSRenderingContext;
-import com.qouteall.immersive_portals.far_scenery.FarSceneryRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
@@ -50,7 +48,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
-public class MyCommandClient {
+public class ClientDebugCommand {
     
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
@@ -87,7 +85,7 @@ public class MyCommandClient {
                         "chunkZ", IntegerArgumentType.integer()
                     )
                     .executes(
-                        MyCommandClient::isClientChunkLoaded
+                        ClientDebugCommand::isClientChunkLoaded
                     )
                 )
             )
@@ -202,7 +200,7 @@ public class MyCommandClient {
         );
         builder = builder.then(CommandManager
             .literal("report_resource_consumption")
-            .executes(MyCommandClient::reportResourceConsumption)
+            .executes(ClientDebugCommand::reportResourceConsumption)
         );
         builder = builder.then(CommandManager
             .literal("report_render_info_num")
@@ -227,7 +225,7 @@ public class MyCommandClient {
         builder = builder.then(CommandManager
             .literal("report_rendering")
             .executes(context -> {
-                String str = MyRenderHelper.lastPortalRenderInfos
+                String str = RenderStates.lastPortalRenderInfos
                     .stream()
                     .map(
                         list -> list.stream()
@@ -405,6 +403,25 @@ public class MyCommandClient {
                 return 0;
             })
         );
+        builder.then(CommandManager
+            .literal("report_rebuild_status")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                MinecraftClient.getInstance().execute(() -> {
+                    CGlobal.clientWorldLoader.clientWorldMap.forEach((dim, world) -> {
+                        MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
+                            CGlobal.clientWorldLoader.getWorldRenderer(dim))
+                            .getBuiltChunkStorage();
+                        McHelper.serverLog(
+                            player,
+                            dim.toString() + builtChunkStorage.getDebugString()
+                        );
+                    });
+                });
+                
+                return 0;
+            })
+        );
         registerSwitchCommand(
             builder,
             "render_fewer_on_fast_graphic",
@@ -417,19 +434,10 @@ public class MyCommandClient {
         );
         registerSwitchCommand(
             builder,
-            "far_scenery",
-            cond -> FSRenderingContext.isFarSceneryEnabled = cond
-        );
-        registerSwitchCommand(
-            builder,
             "smooth_chunk_unload",
             cond -> CGlobal.smoothChunkUnload = cond
         );
-        registerSwitchCommand(
-            builder,
-            "update_far_scenery",
-            cond -> FarSceneryRenderer.shouldUpdateFarScenery = cond
-        );
+     
         registerSwitchCommand(
             builder,
             "early_light_update",
@@ -460,6 +468,11 @@ public class MyCommandClient {
             builder,
             "portal_placeholder_passthrough",
             cond -> Global.portalPlaceholderPassthrough = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "early_cull_portal",
+            cond -> CGlobal.earlyFrustumCullingPortal = cond
         );
         
         builder.then(CommandManager

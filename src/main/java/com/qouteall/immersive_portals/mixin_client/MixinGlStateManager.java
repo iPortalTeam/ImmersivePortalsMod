@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +21,7 @@ public abstract class MixinGlStateManager {
         cancellable = true
     )
     private static void onEnableCull(CallbackInfo ci) {
-        if (MyRenderHelper.shouldForceDisableCull) {
+        if (RenderStates.shouldForceDisableCull) {
             disableCull();
             ci.cancel();
         }

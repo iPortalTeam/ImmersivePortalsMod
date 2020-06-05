@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -24,8 +25,8 @@ public class MixinMapRenderer {
         int i,
         CallbackInfo ci
     ) {
-        if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
-            MyRenderHelper.shouldForceDisableCull = true;
+        if (PortalRendering.isRenderingOddNumberOfMirrors()) {
+            RenderStates.shouldForceDisableCull = true;
         }
     }
     
@@ -44,8 +45,8 @@ public class MixinMapRenderer {
         if (vertexConsumerProvider instanceof VertexConsumerProvider.Immediate) {
             ((VertexConsumerProvider.Immediate) vertexConsumerProvider).draw();
         }
-        if (MyRenderHelper.isRenderingOddNumberOfMirrors()) {
-            MyRenderHelper.shouldForceDisableCull = false;
+        if (PortalRendering.isRenderingOddNumberOfMirrors()) {
+            RenderStates.shouldForceDisableCull = false;
         }
     }
 }

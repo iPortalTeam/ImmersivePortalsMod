@@ -33,7 +33,11 @@ public class ShaderCullingManager {
     
     public static boolean cullingEnabled = true;
     
+    private static boolean initialized = false;
+    
     private static void init() {
+        initialized = true;
+        
         try {
             InputStream inputStream =
                 MinecraftClient.getInstance().getResourceManager().getResource(
@@ -57,7 +61,7 @@ public class ShaderCullingManager {
             return rawCode;
         }
         
-        if (toReplace == null) {
+        if (!initialized) {
             init();
         }
         
@@ -73,6 +77,10 @@ public class ShaderCullingManager {
     }
     
     public static void update() {
+        if (!initialized) {
+            init();
+        }
+        
         if (PixelCuller.isCullingEnabled) {
             double[] equation = PixelCuller.getActiveCullingPlaneEquation();
             if (equation != null) {
@@ -98,25 +106,6 @@ public class ShaderCullingManager {
     @Deprecated
     public static void loadUniforms() {
         update();
-//        if (CGlobal.renderer.isRendering()) {
-//            double[] equation = PixelCuller.getActiveCullingPlaneEquation();
-//            if (equation != null) {
-//                uniform_equationXYZ.setValue(
-//                    (float) equation[0],
-//                    (float) equation[1],
-//                    (float) equation[2]
-//                );
-//                uniform_equationW.setValue((float) equation[3]);
-//            }
-//            else {
-//                uniform_equationXYZ.setValue(0, 0, 0);
-//                uniform_equationW.setValue(2333);
-//            }
-//        }
-//        else {
-//            uniform_equationXYZ.setValue(0, 0, 0);
-//            uniform_equationW.setValue(2333);
-//        }
     }
     
     public static boolean shouldModifyShaderCode(Program program) {
