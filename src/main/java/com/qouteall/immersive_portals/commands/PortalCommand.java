@@ -310,19 +310,17 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("set_portal_destination")
-            .then(
-                CommandManager.argument("dim", DimensionArgumentType.dimension())
-                    .then(
-                        CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                            .executes(
-                                context -> processPortalTargetedCommand(
-                                    context,
-                                    portal -> {
-                                        invokeSetPortalDestination(context, portal);
-                                    }
-                                )
-                            )
+            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
+                    .executes(
+                        context -> processPortalTargetedCommand(
+                            context,
+                            portal -> {
+                                invokeSetPortalDestination(context, portal);
+                            }
+                        )
                     )
+                )
             )
         );
         
@@ -572,7 +570,6 @@ public class PortalCommand {
                                 ))
                             )
                         )
-                    
                     )
                 )
             )
