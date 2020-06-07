@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -206,7 +207,7 @@ public class CollisionHelper {
         );
     }
     
-    public static World getWorld(boolean isClient, DimensionType dimension) {
+    public static World getWorld(boolean isClient, RegistryKey<World> dimension) {
         if (isClient) {
             return CHelper.getClientWorld(dimension);
         }

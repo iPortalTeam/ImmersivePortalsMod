@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
@@ -63,8 +64,8 @@ public class CustomizablePortalGeneration {
             Helper.err("Invalid Entry " + str);
             return null;
         }
-        
-        DimensionType fromDim = DimensionType.byId(new Identifier(components[0]));
+    
+        RegistryKey<World> fromDim = DimId.idToKey(new Identifier(components[0]));
         if (fromDim == null) {
             Helper.err("Invalid dimension type " + components[0]);
             return null;
@@ -74,7 +75,7 @@ public class CustomizablePortalGeneration {
             Helper.err("Invalid space ratio");
             return null;
         }
-        DimensionType toDim = DimensionType.byId(new Identifier(components[2]));
+        RegistryKey<World> toDim = DimId.idToKey(new Identifier(components[2]));
         if (toDim == null) {
             Helper.err("Invalid dimension type " + components[2]);
         }
@@ -133,8 +134,8 @@ public class CustomizablePortalGeneration {
         Block frameBlock
     ) {
         initCache();
-        
-        DimensionType fromDim = fromWorld.getRegistryKey();
+    
+        RegistryKey<World> fromDim = fromWorld.getRegistryKey();
         Entry entry = entryCache.stream().filter(
             entry_ -> entry_.fromDimension == fromDim && entry_.frameBlock == frameBlock
         ).findFirst().orElse(null);

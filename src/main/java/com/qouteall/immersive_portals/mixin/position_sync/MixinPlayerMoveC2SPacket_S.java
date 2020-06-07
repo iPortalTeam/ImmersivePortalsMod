@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
+import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
+import net.fabricmc.api.EnvType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.registry.RegistryKey;
@@ -19,16 +21,16 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
         method = "read",
         at = @At("HEAD")
     )
-    private void onRead(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
-        playerDimension = DimensionType.byRawId(packetByteBuf_1.readInt());
+    private void onRead(PacketByteBuf buf, CallbackInfo ci) {
+        playerDimension = DimId.readWorldId(buf, EnvType.SERVER);
     }
     
     @Inject(
         method = "write",
         at = @At("HEAD")
     )
-    private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
-        packetByteBuf_1.writeInt(playerDimension.getRawId());
+    private void onWrite(PacketByteBuf buf, CallbackInfo ci) {
+        DimId.writeWorldId(buf, playerDimension, EnvType.CLIENT);
     }
     
     @Override

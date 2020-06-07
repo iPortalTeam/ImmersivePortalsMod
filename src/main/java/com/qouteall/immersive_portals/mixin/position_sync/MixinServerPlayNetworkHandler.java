@@ -13,7 +13,10 @@ import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,9 +43,6 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     private int ticks;
     
     @Shadow
-    protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView_1);
-    
-    @Shadow
     private boolean ridingEntity;
     
     @Shadow
@@ -56,6 +56,8 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     @Shadow protected abstract boolean isHost();
     
+    @Shadow protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView, Box box);
+    
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
         method = "onPlayerMove",
@@ -67,7 +69,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         cancellable = true
     )
     private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
-        DimensionType packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
+        RegistryKey<World> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
         
         assert packetDimension != null;
         
@@ -75,7 +77,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             cancelTeleportRequest();
         }
         
-        if (player.dimension != packetDimension) {
+        if (player.world.getRegistryKey() != packetDimension) {
             Global.serverTeleportationManager.acceptDubiousMovePacket(
                 player, packet, packetDimension
             );
@@ -114,7 +116,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     ) {
         Helper.log(String.format("request teleport %s %s (%d %d %d)->(%d %d %d)",
             player.getName().asString(),
-            player.dimension,
+            player.world.getRegistryKey(),
             (int) player.getX(), (int) player.getY(), (int) player.getZ(),
             (int) destX, (int) destY, (int) destZ
         ));
@@ -145,7 +147,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             this.requestedTeleportId
         );
         //noinspection ConstantConditions
-        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.dimension);
+        ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.world.getRegistryKey());
         this.player.networkHandler.sendPacket(lookPacket);
         
         if (Global.teleportationDebugEnabled) {
@@ -159,12 +161,13 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onPlayerMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks(Lnet/minecraft/world/WorldView;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/Box;)Z"
         )
     )
     private boolean onCheckPlayerCollision(
         ServerPlayNetworkHandler serverPlayNetworkHandler,
-        WorldView worldView_1
+        WorldView worldView,
+        Box box
     ) {
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
@@ -176,7 +179,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (portalsNearby) {
             return true;
         }
-        return isPlayerNotCollidingWithBlocks(worldView_1);
+        return isPlayerNotCollidingWithBlocks(worldView, box);
     }
     
     @Inject(

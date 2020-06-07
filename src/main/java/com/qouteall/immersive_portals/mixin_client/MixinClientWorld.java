@@ -67,7 +67,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
         RegistryKey<World> registryKey,
         RegistryKey<DimensionType> registryKey2,
         DimensionType dimensionType,
-        int i,
+        int chunkLoadDistance,
         Supplier<Profiler> supplier,
         WorldRenderer worldRenderer,
         boolean bl,

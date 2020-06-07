@@ -15,7 +15,7 @@ public class MixinLivingEntity {
         cancellable = true
     )
     private void onCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (entity.dimension != ((Entity) (Object) this).dimension) {
+        if (entity.world != ((Entity) (Object) this).world) {
             cir.setReturnValue(false);
         }
     }

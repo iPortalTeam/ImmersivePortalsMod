@@ -58,7 +58,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     ) {
         serverPlayNetworkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(
-                entity.dimension,
+                entity.world.getRegistryKey(),
                 packet_1
             )
         );
@@ -77,7 +77,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     ) {
         serverPlayNetworkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(
-                entity.dimension,
+                entity.world.getRegistryKey(),
                 packet_1
             )
         );
@@ -110,7 +110,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     @Override
     public void updateCameraPosition_(ServerPlayerEntity player) {
-        IEThreadedAnvilChunkStorage storage = McHelper.getIEStorage(entity.dimension);
+        IEThreadedAnvilChunkStorage storage = McHelper.getIEStorage(entity.world.getRegistryKey());
         
         if (player != this.entity) {
             McHelper.checkDimension(this.entity);
@@ -123,7 +123,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             boolean isWatchedNow =
                 NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
                     player,
-                    this.entity.dimension,
+                    this.entity.world.getRegistryKey(),
                     this.entity.chunkX,
                     this.entity.chunkZ,
                     maxWatchDistance
@@ -159,7 +159,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Override
     public void resendSpawnPacketToTrackers() {
         Packet<?> spawnPacket = entity.createSpawnPacket();
-        Packet redirected = MyNetwork.createRedirectedMessage(entity.dimension, spawnPacket);
+        Packet redirected = MyNetwork.createRedirectedMessage(entity.world.getRegistryKey(), spawnPacket);
         playersTracking.forEach(player -> {
             player.networkHandler.sendPacket(redirected);
         });

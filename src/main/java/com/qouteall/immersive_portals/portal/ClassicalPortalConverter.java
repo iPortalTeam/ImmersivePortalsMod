@@ -138,19 +138,19 @@ public class ClassicalPortalConverter {
         ).filter(Objects::nonNull).findFirst().orElse(null);
         
         if (thisSideShape == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_failed"), MessageType.SYSTEM);
+            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_failed"), false);
         }
         else {
             NetherPortalGeneration.generateBreakablePortalEntities(
                 new NetherPortalGeneration.Info(
                     oldWorld.getRegistryKey(),
-                    player.dimension,
+                    player.world.getRegistryKey(),
                     oldPortalShape,
                     thisSideShape
                 ),
                 entityType
             );
-            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_succeeded"), MessageType.SYSTEM);
+            player.sendMessage(new TranslatableText("imm_ptl.auto_portal_generation_succeeded"), false);
         }
     }
     

@@ -127,7 +127,7 @@ public class RendererDeferred extends PortalRenderer {
     
     private boolean testShouldRenderPortal(Portal portal, MatrixStack matrixStack) {
         //reset projection matrix
-        client.gameRenderer.method_22709(RenderStates.projectionMatrix);
+        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
         
         deferredBuffer.fb.beginWrite(true);
         return QueryManager.renderAndGetDoesAnySamplePassed(() -> {

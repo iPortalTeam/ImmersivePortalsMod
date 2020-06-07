@@ -38,6 +38,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -584,8 +585,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         
         if (OFInterface.isShaders.getAsBoolean()) {
-            DimensionType dim = MinecraftClient.getInstance().world.getRegistryKey();
-            DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
+            RegistryKey<World> dim = MinecraftClient.getInstance().world.getRegistryKey();
+            RegistryKey<World> redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
             
             MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
             return;

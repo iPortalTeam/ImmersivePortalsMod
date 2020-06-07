@@ -85,7 +85,7 @@ public class ShaderContextManager {
     public void switchContextAndRun(Runnable func) {
         RegistryKey<World> oldContextDimension = this.currentContextDimension;
         ClientWorld currentClientWorld = MinecraftClient.getInstance().world;
-        DimensionType dimensionToSwitchTo = currentClientWorld.getRegistryKey();
+        RegistryKey<World> dimensionToSwitchTo = currentClientWorld.getRegistryKey();
         
         if (currentContextDimension == null) {
             //currently the context was not switched
