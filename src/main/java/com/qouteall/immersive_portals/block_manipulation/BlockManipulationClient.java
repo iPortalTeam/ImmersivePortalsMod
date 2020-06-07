@@ -69,7 +69,7 @@ public class BlockManipulationClient {
                     updateTargetedBlockThroughPortal(
                             cameraPos,
                             client.player.getRotationVec(partialTicks),
-                            client.player.dimension,
+                            client.player.world.getRegistryKey(),
                             distanceToPortalPointing,
                             reachDistance,
                             pair.getFirst()
@@ -281,7 +281,7 @@ public class BlockManipulationClient {
         ItemStack itemStack = client.player.getStackInHand(hand);
         BlockHitResult blockHitResult = (BlockHitResult) remoteHitResult;
         
-        Pair<BlockHitResult, DimensionType> result =
+        Pair<BlockHitResult, RegistryKey<World>> result =
             BlockManipulationServer.getHitResultForPlacing(targetWorld, blockHitResult);
         blockHitResult = result.getLeft();
         targetWorld = CGlobal.clientWorldLoader.getWorld(result.getRight());

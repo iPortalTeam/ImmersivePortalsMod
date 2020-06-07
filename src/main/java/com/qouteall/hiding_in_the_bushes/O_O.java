@@ -60,8 +60,8 @@ public class O_O {
     
     public static void onPlayerTravelOnServer(
         ServerPlayerEntity player,
-        DimensionType from,
-        DimensionType to
+        RegistryKey<World> from,
+        RegistryKey<World> to
     ) {
         RequiemCompat.onPlayerTeleportedServer(player);
     }

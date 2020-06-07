@@ -1,6 +1,5 @@
 package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
@@ -15,7 +14,6 @@ import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
@@ -39,85 +37,85 @@ import net.minecraft.world.World;
 
 public class MyRegistry {
     public static void registerMyDimensionsFabric() {
-        ModMain.alternate1 = FabricDimensionType.builder()
-            .factory((world, type) -> new AlternateDimension(
-                world, type, AlternateDimension::getChunkGenerator1,
-                () -> ModMain.alternate1
-            ))
-            .skyLight(true)
-            .defaultPlacer(
-                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-                    new BlockPattern.TeleportTarget(
-                        Vec3d.ZERO,
-                        Vec3d.ZERO,
-                        0
-                    )
-            )
-            .buildAndRegister(new Identifier("immersive_portals", "alternate1"));
-        
-        ModMain.alternate2 = FabricDimensionType.builder()
-            .factory((world, type) -> new AlternateDimension(
-                world, type, AlternateDimension::getChunkGenerator2,
-                () -> ModMain.alternate2
-            ))
-            .skyLight(true)
-            .defaultPlacer(
-                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-                    new BlockPattern.TeleportTarget(
-                        Vec3d.ZERO,
-                        Vec3d.ZERO,
-                        0
-                    )
-            )
-            .buildAndRegister(new Identifier("immersive_portals", "alternate2"));
-        
-        ModMain.alternate3 = FabricDimensionType.builder()
-            .factory((world, type) -> new AlternateDimension(
-                world, type, AlternateDimension::getChunkGenerator3,
-                () -> ModMain.alternate3
-            ))
-            .skyLight(true)
-            .defaultPlacer(
-                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-                    new BlockPattern.TeleportTarget(
-                        Vec3d.ZERO,
-                        Vec3d.ZERO,
-                        0
-                    )
-            )
-            .buildAndRegister(new Identifier("immersive_portals", "alternate3"));
-        
-        ModMain.alternate4 = FabricDimensionType.builder()
-            .factory((world, type) -> new AlternateDimension(
-                world, type, AlternateDimension::getChunkGenerator4,
-                () -> ModMain.alternate4
-            ))
-            .skyLight(true)
-            .defaultPlacer(
-                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-                    new BlockPattern.TeleportTarget(
-                        Vec3d.ZERO,
-                        Vec3d.ZERO,
-                        0
-                    )
-            )
-            .buildAndRegister(new Identifier("immersive_portals", "alternate4"));
-        
-        ModMain.alternate5 = FabricDimensionType.builder()
-            .factory((world, type) -> new AlternateDimension(
-                world, type, AlternateDimension::getChunkGenerator5,
-                () -> ModMain.alternate5
-            ))
-            .skyLight(true)
-            .defaultPlacer(
-                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-                    new BlockPattern.TeleportTarget(
-                        Vec3d.ZERO,
-                        Vec3d.ZERO,
-                        0
-                    )
-            )
-            .buildAndRegister(new Identifier("immersive_portals", "alternate5"));
+//        ModMain.alternate1 = FabricDimensionType.builder()
+//            .factory((world, type) -> new AlternateDimension(
+//                world, type, AlternateDimension::getChunkGenerator1,
+//                () -> ModMain.alternate1
+//            ))
+//            .skyLight(true)
+//            .defaultPlacer(
+//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+//                    new BlockPattern.TeleportTarget(
+//                        Vec3d.ZERO,
+//                        Vec3d.ZERO,
+//                        0
+//                    )
+//            )
+//            .buildAndRegister(new Identifier("immersive_portals", "alternate1"));
+//
+//        ModMain.alternate2 = FabricDimensionType.builder()
+//            .factory((world, type) -> new AlternateDimension(
+//                world, type, AlternateDimension::getChunkGenerator2,
+//                () -> ModMain.alternate2
+//            ))
+//            .skyLight(true)
+//            .defaultPlacer(
+//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+//                    new BlockPattern.TeleportTarget(
+//                        Vec3d.ZERO,
+//                        Vec3d.ZERO,
+//                        0
+//                    )
+//            )
+//            .buildAndRegister(new Identifier("immersive_portals", "alternate2"));
+//
+//        ModMain.alternate3 = FabricDimensionType.builder()
+//            .factory((world, type) -> new AlternateDimension(
+//                world, type, AlternateDimension::getChunkGenerator3,
+//                () -> ModMain.alternate3
+//            ))
+//            .skyLight(true)
+//            .defaultPlacer(
+//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+//                    new BlockPattern.TeleportTarget(
+//                        Vec3d.ZERO,
+//                        Vec3d.ZERO,
+//                        0
+//                    )
+//            )
+//            .buildAndRegister(new Identifier("immersive_portals", "alternate3"));
+//
+//        ModMain.alternate4 = FabricDimensionType.builder()
+//            .factory((world, type) -> new AlternateDimension(
+//                world, type, AlternateDimension::getChunkGenerator4,
+//                () -> ModMain.alternate4
+//            ))
+//            .skyLight(true)
+//            .defaultPlacer(
+//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+//                    new BlockPattern.TeleportTarget(
+//                        Vec3d.ZERO,
+//                        Vec3d.ZERO,
+//                        0
+//                    )
+//            )
+//            .buildAndRegister(new Identifier("immersive_portals", "alternate4"));
+//
+//        ModMain.alternate5 = FabricDimensionType.builder()
+//            .factory((world, type) -> new AlternateDimension(
+//                world, type, AlternateDimension::getChunkGenerator5,
+//                () -> ModMain.alternate5
+//            ))
+//            .skyLight(true)
+//            .defaultPlacer(
+//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
+//                    new BlockPattern.TeleportTarget(
+//                        Vec3d.ZERO,
+//                        Vec3d.ZERO,
+//                        0
+//                    )
+//            )
+//            .buildAndRegister(new Identifier("immersive_portals", "alternate5"));
     }
     
     public static void registerBlocksFabric() {

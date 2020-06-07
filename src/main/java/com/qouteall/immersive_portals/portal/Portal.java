@@ -4,6 +4,7 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
@@ -77,7 +78,7 @@ public class Portal extends Entity {
         height = compoundTag.getDouble("height");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
-        dimensionTo = DimensionType.byRawId(compoundTag.getInt("dimensionTo"));
+        dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", world.isClient);
         destination = Helper.getVec3d(compoundTag, "destination");
         if (compoundTag.contains("specificPlayer")) {
             specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
@@ -135,7 +136,7 @@ public class Portal extends Entity {
         compoundTag.putDouble("height", height);
         Helper.putVec3d(compoundTag, "axisW", axisW);
         Helper.putVec3d(compoundTag, "axisH", axisH);
-        compoundTag.putInt("dimensionTo", dimensionTo.getRawId());
+        DimId.putWorldId(compoundTag, "dimensionTo", dimensionTo);
         Helper.putVec3d(compoundTag, "destination", destination);
         
         if (specificPlayerId != null) {
@@ -291,7 +292,7 @@ public class Portal extends Entity {
     }
     
     public boolean shouldEntityTeleport(Entity entity) {
-        return entity.dimension == this.dimension &&
+        return entity.world == this.world &&
             isTeleportable() &&
             isMovedThroughPortal(
                 entity.getCameraPosVec(0),
@@ -312,7 +313,7 @@ public class Portal extends Entity {
             Direction.getFacing(
                 getNormal().x, getNormal().y, getNormal().z
             ),
-            dimension, (int) getX(), (int) getY(), (int) getZ(),
+            world.getRegistryKey(), (int) getX(), (int) getY(), (int) getZ(),
             dimensionTo, (int) destination.x, (int) destination.y, (int) destination.z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : ""
         );
@@ -588,10 +589,10 @@ public class Portal extends Entity {
     }
     
     public static boolean isParallelPortal(Portal currPortal, Portal outerPortal) {
-        if (currPortal.dimension != outerPortal.dimensionTo) {
+        if (currPortal.world.getRegistryKey() != outerPortal.dimensionTo) {
             return false;
         }
-        if (currPortal.dimensionTo != outerPortal.dimension) {
+        if (currPortal.dimensionTo != outerPortal.world.getRegistryKey()) {
             return false;
         }
         if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
@@ -601,8 +602,8 @@ public class Portal extends Entity {
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {
-        return a.dimensionTo == b.dimension &&
-            a.dimension == b.dimensionTo &&
+        return a.dimensionTo == b.world.getRegistryKey() &&
+            a.world.getRegistryKey() == b.dimensionTo &&
             a.getPos().distanceTo(b.destination) < 1 &&
             a.destination.distanceTo(b.getPos()) < 1 &&
             a.getNormal().dotProduct(b.getContentDirection()) > 0.5;
@@ -612,7 +613,7 @@ public class Portal extends Entity {
         if (a == b) {
             return false;
         }
-        return a.dimension == b.dimension &&
+        return a.world == b.world &&
             a.dimensionTo == b.dimensionTo &&
             a.getPos().distanceTo(b.getPos()) < 1 &&
             a.destination.distanceTo(b.destination) < 1 &&

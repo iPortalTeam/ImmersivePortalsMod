@@ -5,8 +5,11 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationServer;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
+import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
+import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.Entity;
@@ -16,6 +19,7 @@ import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -24,11 +28,16 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import java.io.IOException;
 import java.util.UUID;
 
 public class MyNetwork {
+    public static final Identifier id_stcRedirected =
+        new Identifier("imm_ptl", "rd");
+    public static final Identifier id_stcDimSync =
+        new Identifier("imm_ptl", "dim_sync");
     public static final Identifier id_ctsTeleport =
         new Identifier("imm_ptl", "teleport");
     public static final Identifier id_stcCustom =
@@ -37,8 +46,6 @@ public class MyNetwork {
         new Identifier("imm_ptl", "spawn_entity");
     public static final Identifier id_stcDimensionConfirm =
         new Identifier("imm_ptl", "dim_confirm");
-    public static final Identifier id_stcRedirected =
-        new Identifier("imm_ptl", "rd");
     public static final Identifier id_stcUpdateGlobalPortal =
         new Identifier("imm_ptl", "upd_glb_ptl");
     public static final Identifier id_ctsPlayerAction =
@@ -59,7 +66,7 @@ public class MyNetwork {
             id_ctsRightClick,
             MyNetwork::processCtsRightClick
         );
-    
+        
     }
     
     public static Packet createRedirectedMessage(
@@ -74,8 +81,8 @@ public class MyNetwork {
             throw new IllegalArgumentException(e);
         }
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-    
-        DimId.writeWorldId(buf,dimension);
+        
+        DimId.writeWorldId(buf, dimension, EnvType.SERVER);
         
         buf.writeInt(messageType);
         
@@ -87,6 +94,20 @@ public class MyNetwork {
         }
         
         return new CustomPayloadS2CPacket(id_stcRedirected, buf);
+    }
+    
+    public static Packet createDimSync() {
+        Validate.notNull(DimensionIdRecord.serverRecord);
+        
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        
+        CompoundTag idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
+        buf.writeCompoundTag(idMapTag);
+    
+        CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
+        buf.writeCompoundTag(typeMapTag);
+    
+        return new CustomPayloadC2SPacket(id_stcDimSync, buf);
     }
     
     public static Packet createEmptyPacketByType(
@@ -108,7 +129,7 @@ public class MyNetwork {
         Vec3d pos
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf,dimensionType);
+        DimId.writeWorldId(buf, dimensionType, EnvType.SERVER);
         buf.writeDouble(pos.x);
         buf.writeDouble(pos.y);
         buf.writeDouble(pos.z);
@@ -121,9 +142,15 @@ public class MyNetwork {
     ) {
         EntityType entityType = entity.getType();
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf,entity.world.getRegistryKey());
+        DimId.writeWorldId(
+            buf, entity.world.getRegistryKey(),
+            entity.world.isClient ? EnvType.CLIENT : EnvType.SERVER
+        );
         buf.writeInt(entity.getEntityId());
-        DimId.writeWorldId(buf,entity.world.getRegistryKey());
+        DimId.writeWorldId(
+            buf, entity.world.getRegistryKey(),
+            entity.world.isClient ? EnvType.CLIENT : EnvType.SERVER
+        );
         CompoundTag tag = new CompoundTag();
         entity.toTag(tag);
         buf.writeCompoundTag(tag);
@@ -135,14 +162,14 @@ public class MyNetwork {
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         
-        DimId.writeWorldId(buf,storage.world.get().getRegistryKey());
+        DimId.writeWorldId(buf, storage.world.get().getRegistryKey(), EnvType.SERVER);
         buf.writeCompoundTag(storage.toTag(new CompoundTag()));
         
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
     }
     
     private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dim = DimId.readWorldId(buf);
+        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.SERVER);
         Vec3d posBefore = new Vec3d(
             buf.readDouble(),
             buf.readDouble(),
@@ -161,7 +188,7 @@ public class MyNetwork {
     }
     
     private static void processCtsPlayerAction(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dim = DimId.readWorldId(buf);
+        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.SERVER);
         PlayerActionC2SPacket packet = new PlayerActionC2SPacket();
         try {
             packet.read(buf);
@@ -179,7 +206,7 @@ public class MyNetwork {
     }
     
     private static void processCtsRightClick(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dim = DimId.readWorldId(buf);
+        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.SERVER);
         PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket();
         try {
             packet.read(buf);

@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
+import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
@@ -76,8 +77,8 @@ public class ClientWorldLoader {
                 if (helper.lightmapTexture == mc.gameRenderer.getLightmapTextureManager()) {
                     Helper.err(String.format(
                         "Lightmap Texture Conflict %s %s",
-                        helper.world.getDimension().getType(),
-                        mc.world.getDimension().getType()
+                        helper.world.getRegistryKey(),
+                        mc.world.getRegistryKey()
                     ));
                     lightmapTextureConflict = true;
                 }
@@ -129,7 +130,7 @@ public class ClientWorldLoader {
         isInitialized = false;
         
         ModMain.clientTaskList.forceClearTasks();
-    
+        
         ticksSinceEnteringWorld = 0;
     }
     
@@ -149,7 +150,7 @@ public class ClientWorldLoader {
         if (!clientWorldMap.containsKey(dimension)) {
             return createFakedClientWorld(dimension);
         }
-    
+        
         return clientWorldMap.get(dimension);
     }
     
@@ -164,7 +165,9 @@ public class ClientWorldLoader {
                 );
             }
         );
-        assert result.world.getDimension().getType() == dimension;
+    
+        Validate.isTrue(result.world.getRegistryKey() == dimension);
+        
         return result;
     }
     
@@ -173,11 +176,11 @@ public class ClientWorldLoader {
             assert (mc.world != null);
             assert (mc.worldRenderer != null);
             
-            DimensionType playerDimension = mc.world.getDimension().getType();
+            RegistryKey<World> playerDimension = mc.world.getRegistryKey();
             clientWorldMap.put(playerDimension, mc.world);
             worldRendererMap.put(playerDimension, mc.worldRenderer);
             renderHelperMap.put(
-                mc.world.getDimension().getType(),
+                mc.world.getRegistryKey(),
                 new DimensionRenderHelper(mc.world)
             );
             
@@ -189,8 +192,7 @@ public class ClientWorldLoader {
     
     //fool minecraft using the faked world
     private ClientWorld createFakedClientWorld(RegistryKey<World> dimension) {
-        assert mc.world.getDimension().getType() == mc.player.dimension;
-        assert (mc.player.dimension != dimension);
+        Validate.isTrue(mc.player.world.getRegistryKey() != dimension);
         
         isLoadingFakedWorld = true;
         
@@ -211,13 +213,19 @@ public class ClientWorldLoader {
             ((IEClientPlayNetworkHandler) newNetworkHandler).setPlayerListEntries(
                 ((IEClientPlayNetworkHandler) mc.player.networkHandler).getPlayerListEntries()
             );
+            RegistryKey<DimensionType> dimensionTypeKey =
+                DimensionTypeSync.getDimensionTypeKey(dimension);
             newWorld = new ClientWorld(
                 newNetworkHandler,
                 ((ClientWorld.Properties) ((IEWorld) mc.world).myGetProperties()),
                 dimension,
+                dimensionTypeKey,
+                DimensionTypeSync.getDimensionType(dimensionTypeKey),
                 chunkLoadDistance,
                 () -> mc.getProfiler(),
-                worldRenderer
+                worldRenderer,
+                mc.world.isDebugWorld(),
+                23333333
             );
         }
         catch (Exception e) {

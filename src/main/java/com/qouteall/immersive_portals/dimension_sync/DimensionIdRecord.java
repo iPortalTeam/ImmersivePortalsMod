@@ -92,7 +92,7 @@ public class DimensionIdRecord {
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
     }
     
-    private static DimensionIdRecord tagToRecord(CompoundTag tag) {
+    public static DimensionIdRecord tagToRecord(CompoundTag tag) {
         CompoundTag intids = tag.getCompound("intids");
         
         if (intids == null) {
@@ -111,7 +111,7 @@ public class DimensionIdRecord {
         return new DimensionIdRecord(bimap);
     }
     
-    private static CompoundTag recordToTag(DimensionIdRecord record) {
+    public static CompoundTag recordToTag(DimensionIdRecord record) {
         CompoundTag intids = new CompoundTag();
         record.idMap.forEach((key, intid) -> {
             intids.put(key.getValue().toString(), IntTag.of(intid));

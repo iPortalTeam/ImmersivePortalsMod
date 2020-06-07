@@ -6,6 +6,8 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
@@ -14,9 +16,9 @@ public class SelectDimensionScreen extends Screen {
     public final Screen parent;
     private DimListWidget dimListWidget;
     private ButtonWidget confirmButton;
-    private Consumer<DimensionType> outerCallback;
+    private Consumer<RegistryKey<World>> outerCallback;
     
-    protected SelectDimensionScreen(Screen parent, Consumer<DimensionType> callback) {
+    protected SelectDimensionScreen(Screen parent, Consumer<RegistryKey<World>> callback) {
         super(new TranslatableText("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
@@ -36,12 +38,12 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimTermWidget> callback = w -> dimListWidget.setSelected(w);
         
-        Registry.DIMENSION_TYPE.stream().forEach(dimensionType -> {
-            dimListWidget.terms.add(
-                new DimTermWidget(dimensionType, dimListWidget, callback)
-            );
-        });
-        dimListWidget.update();
+//        Registry.DIMENSION_TYPE.stream().forEach(dimensionType -> {
+//            dimListWidget.terms.add(
+//                new DimTermWidget(dimensionType, dimListWidget, callback)
+//            );
+//        });
+//        dimListWidget.update();
         
         confirmButton = (ButtonWidget) this.addButton(new ButtonWidget(
             this.width / 2 - 75, this.height - 28, 150, 20,

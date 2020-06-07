@@ -4,11 +4,11 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
+import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
+import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
-import com.qouteall.immersive_portals.my_util.ICustomStcPacket;
-import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -29,24 +29,28 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class MyNetworkClient {
     
     public static void init() {
+        
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcRedirected,
+            MyNetworkClient::processRedirectedMessage
+        );
+        
+        ClientSidePacketRegistry.INSTANCE.register(
+            MyNetwork.id_stcDimSync,
+            MyNetworkClient::processDimSync
+        );
         
         ClientSidePacketRegistry.INSTANCE.register(
             MyNetwork.id_stcSpawnEntity,
@@ -59,21 +63,17 @@ public class MyNetworkClient {
         );
         
         ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcRedirected,
-            MyNetworkClient::processRedirectedMessage
-        );
-        
-        ClientSidePacketRegistry.INSTANCE.register(
             MyNetwork.id_stcUpdateGlobalPortal,
             MyNetworkClient::processGlobalPortalUpdate
         );
+        
     }
     
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
         String entityTypeString = buf.readString();
         int entityId = buf.readInt();
         
-        RegistryKey<World> dim = DimId.readWorldId(buf);
+        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.CLIENT);
         
         CompoundTag compoundTag = buf.readCompoundTag();
         
@@ -86,7 +86,7 @@ public class MyNetworkClient {
         //without this delay it will flash? or it's random?
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
-            
+
 //            if (world.getEntityById(entityId) != null) {
 //                Helper.err(String.format(
 //                    "duplicate entity %s %s %s",
@@ -103,7 +103,7 @@ public class MyNetworkClient {
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
-    
+            
             //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {
                 CGlobal.clientWorldLoader.getWorld(
@@ -116,8 +116,8 @@ public class MyNetworkClient {
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
-    
-        RegistryKey<World> dimension = DimId.readWorldId(buf);
+        
+        RegistryKey<World> dimension = DimId.readWorldId(buf, EnvType.CLIENT);
         Vec3d pos = new Vec3d(
             buf.readDouble(),
             buf.readDouble(),
@@ -136,7 +136,7 @@ public class MyNetworkClient {
         PacketContext context,
         PacketByteBuf buf
     ) {
-        RegistryKey<World> dimension = DimId.readWorldId(buf);
+        RegistryKey<World> dimension = DimId.readWorldId(buf, EnvType.CLIENT);
         int messageType = buf.readInt();
         Packet packet = MyNetwork.createEmptyPacketByType(messageType);
         try {
@@ -147,6 +147,21 @@ public class MyNetworkClient {
         }
         
         processRedirectedPacket(dimension, packet);
+    }
+    
+    public static void processDimSync(
+        PacketContext context, PacketByteBuf buf
+    ) {
+        CompoundTag idMap = buf.readCompoundTag();
+        
+        DimensionIdRecord.clientRecord = DimensionIdRecord.tagToRecord(idMap);
+        
+        CompoundTag typeMap = buf.readCompoundTag();
+        
+        DimensionTypeSync.acceptTypeMapData(typeMap);
+        
+        Helper.log("Received Dimension Int Id Sync");
+        Helper.log("\n" + DimensionIdRecord.clientRecord);
     }
     
     private static int reportedError = 0;
@@ -191,7 +206,7 @@ public class MyNetworkClient {
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dimensionType = DimId.readWorldId(buf);
+        RegistryKey<World> dimensionType = DimId.readWorldId(buf, EnvType.CLIENT);
         CompoundTag compoundTag = buf.readCompoundTag();
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
@@ -209,7 +224,7 @@ public class MyNetworkClient {
         PlayerActionC2SPacket packet
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimension);
+        DimId.writeWorldId(buf, dimension, EnvType.CLIENT);
         try {
             packet.write(buf);
         }
@@ -225,7 +240,7 @@ public class MyNetworkClient {
         PlayerInteractBlockC2SPacket packet
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf,dimension);
+        DimId.writeWorldId(buf, dimension, EnvType.CLIENT);
         try {
             packet.write(buf);
         }
@@ -242,7 +257,7 @@ public class MyNetworkClient {
         UUID portalEntityId
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf,dimensionBefore);
+        DimId.writeWorldId(buf, dimensionBefore, EnvType.CLIENT);
         buf.writeDouble(posBefore.x);
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);

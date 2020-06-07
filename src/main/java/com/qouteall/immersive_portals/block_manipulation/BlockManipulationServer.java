@@ -69,7 +69,7 @@ public class BlockManipulationServer {
         Vec3d playerPos = player.getPos();
         double multiplier = HandReachTweak.getActualHandReachMultiplier(player);
         double distanceSquare = 6 * 6 * multiplier * multiplier;
-        if (player.dimension == dimension) {
+        if (player.world.getRegistryKey() == dimension) {
             if (playerPos.squaredDistanceTo(pos) < distanceSquare) {
                 return true;
             }
@@ -132,7 +132,7 @@ public class BlockManipulationServer {
         ).findFirst().orElse(null);
         
         if (portal == null) {
-            return new Pair<>(blockHitResult, world.getDimension().getType());
+            return new Pair<>(blockHitResult, world.getRegistryKey());
         }
         
         Vec3d newCenter = portal.transformPoint(hitCenter.add(sideVec));

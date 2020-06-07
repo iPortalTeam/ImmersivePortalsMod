@@ -1,14 +1,15 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Optional;
@@ -21,25 +22,25 @@ public class WorldInfoSender {
         ModMain.postServerTickSignal.connect(() -> {
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
-                    Set<DimensionType> visibleDimensions = getVisibleDimensions(player);
+                    Set<RegistryKey<World>> visibleDimensions = getVisibleDimensions(player);
                     
-                    if (player.dimension != DimensionType.OVERWORLD) {
+                    if (player.world.getRegistryKey() != World.OVERWORLD) {
                         sendWorldInfo(
                             player,
-                            McHelper.getServer().getWorld(DimensionType.OVERWORLD)
+                            McHelper.getServer().getWorld(World.OVERWORLD)
                         );
                     }
                     
-                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
-                        if (thisWorld.getDimension() instanceof AlternateDimension) {
-                            if (visibleDimensions.contains(thisWorld.getDimension().getType())) {
-                                sendWorldInfo(
-                                    player,
-                                    thisWorld
-                                );
-                            }
-                        }
-                    });
+//                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
+//                        if (thisWorld.getDimension() instanceof AlternateDimension) {
+//                            if (visibleDimensions.contains(thisWorld.getDimension().getType())) {
+//                                sendWorldInfo(
+//                                    player,
+//                                    thisWorld
+//                                );
+//                            }
+//                        }
+//                    });
                     
                 }
             }
@@ -48,7 +49,7 @@ public class WorldInfoSender {
     
     //send the daytime and weather info to player when player is in nether
     public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
-        DimensionType remoteDimension = world.getDimension().getType();
+        RegistryKey<World> remoteDimension = world.getRegistryKey();
         
         player.networkHandler.sendPacket(
             MyNetwork.createRedirectedMessage(
@@ -100,7 +101,7 @@ public class WorldInfoSender {
         }
     }
     
-    public static Set<DimensionType> getVisibleDimensions(ServerPlayerEntity player) {
+    public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {
         return Stream.concat(
             ChunkVisibilityManager.getChunkLoaders(player)
                 .map(chunkLoader -> chunkLoader.center.dimension),

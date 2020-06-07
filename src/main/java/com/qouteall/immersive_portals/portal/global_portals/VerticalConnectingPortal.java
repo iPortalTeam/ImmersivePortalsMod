@@ -106,7 +106,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
                 break;
         }
         
-        verticalConnectingPortal.dimensionTo = toWorld.getDimension().getType();
+        verticalConnectingPortal.dimensionTo = toWorld.getRegistryKey();
         verticalConnectingPortal.width = 23333333333.0d;
         verticalConnectingPortal.height = 23333333333.0d;
         return verticalConnectingPortal;
@@ -140,14 +140,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             .findFirst().orElse(null);
     }
     
-    public static int getHeight(RegistryKey<World> RegistryKey<World>) {
-        return McHelper.getServer().getWorld(RegistryKey<World>).getDimensionHeight();
-//        if (RegistryKey<World> == RegistryKey<World>.THE_NETHER) {
-//            if (O_O.isNetherHigherModPresent()) {
-//                return 256;
-//            }
-//            return 128;
-//        }
-//        return 256;
+    public static int getHeight(RegistryKey<World> dim) {
+        return McHelper.getServer().getWorld(dim).getDimensionHeight();
     }
 }

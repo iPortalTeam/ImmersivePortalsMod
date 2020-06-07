@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.altius_world;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
@@ -10,6 +11,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
@@ -20,9 +23,9 @@ public class AltiusInfo {
     //store identifier because forge
     private List<Identifier> dimsFromTopToDown;
     
-    public AltiusInfo(List<DimensionType> dimsFromTopToDown) {
+    public AltiusInfo(List<RegistryKey<World>> dimsFromTopToDown) {
         this.dimsFromTopToDown = dimsFromTopToDown.stream().map(
-            dimensionType -> DimensionType.getId(dimensionType)
+            dimensionType -> dimensionType.getValue()
         ).collect(Collectors.toList());
     }
     
@@ -32,11 +35,11 @@ public class AltiusInfo {
     
     public static AltiusInfo fromTag(CompoundTag tag) {
         ListTag listTag = tag.getList("dimensions", 8);
-        List<DimensionType> dimensionTypeList = new ArrayList<>();
+        List<RegistryKey<World>> dimensionTypeList = new ArrayList<>();
         listTag.forEach(t -> {
             StringTag t1 = (StringTag) t;
             String dimId = t1.asString();
-            DimensionType dimensionType = Registry.DIMENSION_TYPE.get(new Identifier(dimId));
+            RegistryKey<World> dimensionType = DimId.idToKey(dimId);
             if (dimensionType != null) {
                 dimensionTypeList.add(dimensionType);
             }
@@ -60,7 +63,7 @@ public class AltiusInfo {
     }
     
     public static AltiusInfo getInfoFromServer() {
-        return ((IELevelProperties) McHelper.getServer().getWorld(DimensionType.OVERWORLD)
+        return ((IELevelProperties) McHelper.getServer().getWorld(World.OVERWORLD)
             .getLevelProperties()).getAltiusInfo();
     }
     
@@ -73,7 +76,7 @@ public class AltiusInfo {
             Helper.err("Dimension List is empty?");
             return;
         }
-        DimensionType topDimension = DimensionType.byId(dimsFromTopToDown.get(0));
+        RegistryKey<World> topDimension = DimId.idToKey(dimsFromTopToDown.get(0));
         if (topDimension == null) {
             Helper.err("Invalid Dimension " + dimsFromTopToDown.get(0));
             return;
@@ -85,8 +88,8 @@ public class AltiusInfo {
                 dimsFromTopToDown.stream(),
                 (top, down) -> {
                     VerticalConnectingPortal.connectMutually(
-                        DimensionType.byId(top), DimensionType.byId(down),
-                        0, VerticalConnectingPortal.getHeight(DimensionType.byId(down))
+                        DimId.idToKey(top), DimId.idToKey(down),
+                        0, VerticalConnectingPortal.getHeight(DimId.idToKey(down))
                     );
                     return null;
                 }

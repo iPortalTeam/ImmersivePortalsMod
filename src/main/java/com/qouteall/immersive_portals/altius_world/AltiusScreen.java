@@ -9,6 +9,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
@@ -72,18 +74,18 @@ public class AltiusScreen extends Screen {
         O_O.registerDimensionsForge();
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
-        dimListWidget.terms.add(
-            new DimTermWidget(ModMain.alternate4, dimListWidget, callback)
-        );
-        dimListWidget.terms.add(
-            new DimTermWidget(ModMain.alternate2, dimListWidget, callback)
-        );
-        dimListWidget.terms.add(
-            new DimTermWidget(DimensionType.OVERWORLD, dimListWidget, callback)
-        );
-        dimListWidget.terms.add(
-            new DimTermWidget(DimensionType.THE_NETHER, dimListWidget, callback)
-        );
+//        dimListWidget.terms.add(
+//            new DimTermWidget(ModMain.alternate4, dimListWidget, callback)
+//        );
+//        dimListWidget.terms.add(
+//            new DimTermWidget(ModMain.alternate2, dimListWidget, callback)
+//        );
+//        dimListWidget.terms.add(
+//            new DimTermWidget(DimensionType.OVERWORLD, dimListWidget, callback)
+//        );
+//        dimListWidget.terms.add(
+//            new DimTermWidget(DimensionType.THE_NETHER, dimListWidget, callback)
+//        );
     }
     
     //nullable
@@ -237,7 +239,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void removeDuplicate(int insertedIndex) {
-        DimensionType inserted = dimListWidget.terms.get(insertedIndex).dimension;
+        RegistryKey<World> inserted = dimListWidget.terms.get(insertedIndex).dimension;
         for (int i = dimListWidget.terms.size() - 1; i >= 0; i--) {
             if (dimListWidget.terms.get(i).dimension == inserted) {
                 if (i != insertedIndex) {

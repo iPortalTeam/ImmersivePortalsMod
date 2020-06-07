@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.dimension_sync;
 
+import net.fabricmc.api.EnvType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.StringTag;
@@ -12,13 +13,33 @@ import net.minecraft.world.World;
 
 public class DimId {
     
-    public static void writeWorldId(PacketByteBuf buf, RegistryKey<World> dimension) {
-        buf.writeIdentifier(dimension.getValue());
+    private static final boolean useIntegerId = true;
+    
+    public static void writeWorldId(
+        PacketByteBuf buf, RegistryKey<World> dimension, EnvType envType
+    ) {
+        if (useIntegerId) {
+            DimensionIdRecord record = envType == EnvType.CLIENT ?
+                DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
+            int intId = record.getIntId(dimension);
+            buf.writeInt(intId);
+        }
+        else {
+            buf.writeIdentifier(dimension.getValue());
+        }
     }
     
-    public static RegistryKey<World> readWorldId(PacketByteBuf buf) {
-        Identifier identifier = buf.readIdentifier();
-        return idToKey(identifier);
+    public static RegistryKey<World> readWorldId(PacketByteBuf buf, EnvType envType) {
+        if (useIntegerId) {
+            DimensionIdRecord record = envType == EnvType.CLIENT ?
+                DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
+            int intId = buf.readInt();
+            return record.getDim(intId);
+        }
+        else {
+            Identifier identifier = buf.readIdentifier();
+            return idToKey(identifier);
+        }
     }
     
     public static RegistryKey<World> idToKey(Identifier identifier) {
@@ -33,11 +54,13 @@ public class DimId {
         tag.putString(tagName, dim.getValue().toString());
     }
     
-    public static RegistryKey<World> getWorldId(CompoundTag tag, String tagName) {
+    public static RegistryKey<World> getWorldId(CompoundTag tag, String tagName, boolean isClient) {
         Tag term = tag.get(tagName);
         if (term instanceof IntTag) {
             int intId = ((IntTag) term).getInt();
-            return DimensionIdRecord.clientRecord.getDim(intId);
+            DimensionIdRecord record = isClient ?
+                DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
+            return record.getDim(intId);
         }
         
         if (term instanceof StringTag) {
