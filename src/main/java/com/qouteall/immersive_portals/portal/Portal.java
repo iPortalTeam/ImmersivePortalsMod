@@ -18,6 +18,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -31,7 +32,7 @@ public class Portal extends Entity {
     public double height = 0;
     public Vec3d axisW;
     public Vec3d axisH;
-    public DimensionType dimensionTo;
+    public RegistryKey<World> dimensionTo;
     public Vec3d destination;
     
     //additional properties
@@ -287,70 +288,6 @@ public class Portal extends Entity {
     public boolean isInside(Vec3d entityPos, double valve) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
         return v > valve;
-    }
-    
-    //0 and 3 are connected
-    //1 and 2 are connected
-    //0 and 1 are in same dimension but facing opposite
-    //2 and 3 are in same dimension but facing opposite
-    public static void initBiWayBiFacedPortal(
-        Portal[] portals,
-        DimensionType dimension1,
-        Vec3d center1,
-        DimensionType dimension2,
-        Vec3d center2,
-        Direction.Axis normalAxis,
-        Vec3d portalSize
-    ) {
-        Pair<Direction.Axis, Direction.Axis> anotherTwoAxis = Helper.getAnotherTwoAxis(normalAxis);
-        Direction.Axis wAxis = anotherTwoAxis.getLeft();
-        Direction.Axis hAxis = anotherTwoAxis.getRight();
-        
-        float width = (float) Helper.getCoordinate(portalSize, wAxis);
-        float height = (float) Helper.getCoordinate(portalSize, hAxis);
-        
-        Vec3d wAxisVec = Vec3d.of(Helper.getUnitFromAxis(wAxis));
-        Vec3d hAxisVec = Vec3d.of(Helper.getUnitFromAxis(hAxis));
-        
-        portals[0].updatePosition(center1.x, center1.y, center1.z);
-        portals[1].updatePosition(center1.x, center1.y, center1.z);
-        portals[2].updatePosition(center2.x, center2.y, center2.z);
-        portals[3].updatePosition(center2.x, center2.y, center2.z);
-        
-        portals[0].destination = center2;
-        portals[1].destination = center2;
-        portals[2].destination = center1;
-        portals[3].destination = center1;
-        
-        assert portals[0].dimension == dimension1;
-        assert portals[1].dimension == dimension1;
-        assert portals[2].dimension == dimension2;
-        assert portals[3].dimension == dimension2;
-        
-        portals[0].dimensionTo = dimension2;
-        portals[1].dimensionTo = dimension2;
-        portals[2].dimensionTo = dimension1;
-        portals[3].dimensionTo = dimension1;
-        
-        portals[0].axisW = wAxisVec;
-        portals[1].axisW = wAxisVec.multiply(-1);
-        portals[2].axisW = wAxisVec;
-        portals[3].axisW = wAxisVec.multiply(-1);
-        
-        portals[0].axisH = hAxisVec;
-        portals[1].axisH = hAxisVec;
-        portals[2].axisH = hAxisVec;
-        portals[3].axisH = hAxisVec;
-        
-        portals[0].width = width;
-        portals[1].width = width;
-        portals[2].width = width;
-        portals[3].width = width;
-        
-        portals[0].height = height;
-        portals[1].height = height;
-        portals[2].height = height;
-        portals[3].height = height;
     }
     
     public boolean shouldEntityTeleport(Entity entity) {

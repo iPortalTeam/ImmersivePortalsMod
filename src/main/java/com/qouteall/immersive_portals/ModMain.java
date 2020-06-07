@@ -24,12 +24,6 @@ public class ModMain {
     public static Block portalHelperBlock;
     public static BlockItem portalHelperBlockItem;
     
-    public static DimensionType alternate1;
-    public static DimensionType alternate2;
-    public static DimensionType alternate3;
-    public static DimensionType alternate4;
-    public static DimensionType alternate5;
-    
     public static void init() {
         Helper.log("initializing common");
         

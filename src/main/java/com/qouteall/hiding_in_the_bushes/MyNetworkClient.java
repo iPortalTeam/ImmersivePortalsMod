@@ -3,6 +3,7 @@ package com.qouteall.hiding_in_the_bushes;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
+import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
@@ -29,6 +30,8 @@ import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.io.ByteArrayInputStream;
@@ -44,10 +47,6 @@ import java.util.stream.Collectors;
 public class MyNetworkClient {
     
     public static void init() {
-        ClientSidePacketRegistry.INSTANCE.register(
-            MyNetwork.id_stcCustom,
-            MyNetworkClient::handleCustomPacketStc
-        );
         
         ClientSidePacketRegistry.INSTANCE.register(
             MyNetwork.id_stcSpawnEntity,
@@ -70,35 +69,13 @@ public class MyNetworkClient {
         );
     }
     
-    @Deprecated
-    private static void handleCustomPacketStc(PacketContext context, PacketByteBuf buf) {
-        ByteBuffer byteBuffer = buf.nioBuffer();
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteBuffer.array());
-        ObjectInputStream objectInputStream;
-        try {
-            objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            Object obj = objectInputStream.readObject();
-            ICustomStcPacket customStcPacket = (ICustomStcPacket) obj;
-            customStcPacket.handle();
-        }
-        catch (IOException | ClassNotFoundException | ClassCastException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-    
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
         String entityTypeString = buf.readString();
         int entityId = buf.readInt();
-        int dimId = buf.readInt();
-        DimensionType dimensionType = DimensionType.byRawId(dimId);
-        CompoundTag compoundTag = buf.readCompoundTag();
         
-        if (dimensionType == null) {
-            Helper.err(String.format(
-                "Invalid dimension for spawning entity %s %s %s",
-                dimId, entityTypeString, compoundTag
-            ));
-        }
+        RegistryKey<World> dim = DimId.readWorldId(buf);
+        
+        CompoundTag compoundTag = buf.readCompoundTag();
         
         Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
         if (!entityType.isPresent()) {
@@ -108,7 +85,7 @@ public class MyNetworkClient {
         
         //without this delay it will flash? or it's random?
         MinecraftClient.getInstance().execute(() -> {
-            ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimensionType);
+            ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
             
 //            if (world.getEntityById(entityId) != null) {
 //                Helper.err(String.format(
@@ -139,7 +116,8 @@ public class MyNetworkClient {
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
-        DimensionType dimension = DimensionType.byRawId(buf.readInt());
+    
+        RegistryKey<World> dimension = DimId.readWorldId(buf);
         Vec3d pos = new Vec3d(
             buf.readDouble(),
             buf.readDouble(),
@@ -154,36 +132,12 @@ public class MyNetworkClient {
         });
     }
     
-    private static void processSpawnLoadingIndicator(PacketContext context, PacketByteBuf buf) {
-        DimensionType dimension = DimensionType.byRawId(buf.readInt());
-        Vec3d pos = new Vec3d(
-            buf.readDouble(),
-            buf.readDouble(),
-            buf.readDouble()
-        );
-        
-        MinecraftClient.getInstance().execute(() -> {
-            ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimension);
-            if (world == null) {
-                return;
-            }
-            
-            LoadingIndicatorEntity indicator = new LoadingIndicatorEntity(
-                LoadingIndicatorEntity.entityType, world
-            );
-            indicator.updatePosition(pos.x, pos.y, pos.z);
-            
-            world.addEntity(233333333, indicator);
-        });
-    }
-    
     public static void processRedirectedMessage(
         PacketContext context,
         PacketByteBuf buf
     ) {
-        int dimensionId = buf.readInt();
+        RegistryKey<World> dimension = DimId.readWorldId(buf);
         int messageType = buf.readInt();
-        DimensionType dimension = DimensionType.byRawId(dimensionId);
         Packet packet = MyNetwork.createEmptyPacketByType(messageType);
         try {
             packet.read(buf);
@@ -192,23 +146,12 @@ public class MyNetworkClient {
             throw new IllegalArgumentException(e);
         }
         
-        if (dimension == null) {
-            Helper.err(String.format(
-                "Invalid redirected packet %s %s \nRegistered dimensions %s",
-                dimensionId, packet,
-                Registry.DIMENSION_TYPE.stream().map(
-                    dim -> dim.toString() + " " + dim.getRawId()
-                ).collect(Collectors.joining("\n"))
-            ));
-            return;
-        }
-        
         processRedirectedPacket(dimension, packet);
     }
     
     private static int reportedError = 0;
     
-    private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
+    private static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
         MinecraftClient mc = MinecraftClient.getInstance();
         mc.execute(() -> {
             ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
@@ -248,7 +191,7 @@ public class MyNetworkClient {
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
-        DimensionType dimensionType = DimensionType.byRawId(buf.readInt());
+        RegistryKey<World> dimensionType = DimId.readWorldId(buf);
         CompoundTag compoundTag = buf.readCompoundTag();
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
@@ -262,11 +205,11 @@ public class MyNetworkClient {
     }
     
     public static Packet createCtsPlayerAction(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         PlayerActionC2SPacket packet
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimension.getRawId());
+        DimId.writeWorldId(buf, dimension);
         try {
             packet.write(buf);
         }
@@ -278,11 +221,11 @@ public class MyNetworkClient {
     }
     
     public static Packet createCtsRightClick(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         PlayerInteractBlockC2SPacket packet
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimension.getRawId());
+        DimId.writeWorldId(buf,dimension);
         try {
             packet.write(buf);
         }
@@ -294,12 +237,12 @@ public class MyNetworkClient {
     }
     
     public static Packet createCtsTeleport(
-        DimensionType dimensionBefore,
+        RegistryKey<World> dimensionBefore,
         Vec3d posBefore,
         UUID portalEntityId
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(dimensionBefore.getRawId());
+        DimId.writeWorldId(buf,dimensionBefore);
         buf.writeDouble(posBefore.x);
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);

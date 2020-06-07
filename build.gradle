@@ -11,10 +11,11 @@ version = project.mod_version
 group = project.maven_group
 
 minecraft {
+	accessWidener = file("src/main/resources/imm_ptl.accesswidener")
 }
 
 repositories {
-	//optifabric
+
 	maven { url 'https://jitpack.io' }
 
 }
@@ -45,14 +46,19 @@ dependencies {
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-	modImplementation "me.shedaniel.cloth:config-2:4.1.0-unstable"
-	modImplementation "io.github.prospector:modmenu:1.11.4+build.9"
+	modImplementation "me.shedaniel.cloth:config-2:4.5.0-unstable"
+	modImplementation "io.github.prospector:modmenu:1.11.8+build.13"
 
-	include "me.shedaniel.cloth:config-2:4.1.0-unstable"
-	include "io.github.prospector:modmenu:1.11.4+build.9"
+	include "me.shedaniel.cloth:config-2:4.5.0-unstable"
+	include "io.github.prospector:modmenu:1.11.8+build.13"
 
 	//For javax.annotation.Nullable
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+	// https://github.com/OnyxStudios/Cardinal-Components-API
+//	modApi "io.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.4.0-nightly.1.16-pre2"
+//	include "io.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.4.0-nightly.1.16-pre2"
+
 }
 
 processResources {

@@ -14,6 +14,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -51,7 +52,7 @@ public class CHelper {
     
     //do not inline this
     //or it will crash in server
-    public static World getClientWorld(DimensionType dimension) {
+    public static World getClientWorld(RegistryKey<World> dimension) {
         return CGlobal.clientWorldLoader.getWorld(dimension);
     }
     

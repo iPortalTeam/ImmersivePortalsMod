@@ -94,7 +94,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.mirrorInteractableThroughPortal
             ).setDefaultValue(false).build();
             BooleanListEntry entryPureMirror = builder.entryBuilder().startBooleanToggle(
-                "imm_ptl.pure_mirror",
+                new TranslatableText("imm_ptl.pure_mirror"),
                 currConfig.pureMirror
             ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(

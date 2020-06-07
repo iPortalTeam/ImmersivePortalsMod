@@ -42,6 +42,8 @@ import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Collection;
@@ -1080,7 +1082,7 @@ public class PortalCommand {
         CommandContext<ServerCommandSource> context,
         Portal pointedPortal,
         ServerPlayerEntity player,
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         Vec3d destination,
         boolean biFaced,
         boolean biWay
@@ -1205,7 +1207,7 @@ public class PortalCommand {
     
     private static int teleport(
         Collection<? extends Entity> entities,
-        DimensionType targetDim,
+        RegistryKey<World> targetDim,
         Vec3d targetPos
     ) {
         ServerWorld targetWorld = McHelper.getServer().getWorld(targetDim);

@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals.render.context_management;
 
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
 
@@ -17,25 +19,25 @@ public class StaticFieldsSwappingManager<Context> {
     private Consumer<Context> copyToObject;
     
     public static class ContextRecord<Ctx> {
-        public DimensionType dimension;
+        public RegistryKey<World> dimension;
         public Ctx context;
         
         //sometimes the static fields contain the latest context
         //and our context object contains out-dated info
         public boolean isHoldingLatestContext = false;
         
-        public ContextRecord(DimensionType dimension, Ctx context, boolean isHoldingLatestContext) {
+        public ContextRecord(RegistryKey<World> dimension, Ctx context, boolean isHoldingLatestContext) {
             this.dimension = dimension;
             this.context = context;
             this.isHoldingLatestContext = isHoldingLatestContext;
         }
     }
     
-    private DimensionType outerDimension;
+    private RegistryKey<World> outerDimension;
     private Stack<ContextRecord<Context>> swappedContext = new Stack<>();
     
     //this will be managed by other classes
-    public final Map<DimensionType, ContextRecord<Context>> contextMap = new HashMap<>();
+    public final Map<RegistryKey<World>, ContextRecord<Context>> contextMap = new HashMap<>();
     
     public StaticFieldsSwappingManager(
         Consumer<Context> copyFromObject,
@@ -51,7 +53,7 @@ public class StaticFieldsSwappingManager<Context> {
         return !swappedContext.empty();
     }
     
-    public void setOuterDimension(DimensionType dim) {
+    public void setOuterDimension(RegistryKey<World> dim) {
         Validate.isTrue(!isSwapped());
         
         outerDimension = dim;
@@ -65,7 +67,7 @@ public class StaticFieldsSwappingManager<Context> {
         });
     }
     
-    public DimensionType getCurrentDimension() {
+    public RegistryKey<World> getCurrentDimension() {
         if (swappedContext.empty()) {
             Validate.notNull(outerDimension);
             return outerDimension;
@@ -75,8 +77,8 @@ public class StaticFieldsSwappingManager<Context> {
         }
     }
     
-    public void pushSwapping(DimensionType newDimension) {
-        DimensionType currentDimension = getCurrentDimension();
+    public void pushSwapping(RegistryKey<World> newDimension) {
+        RegistryKey<World> currentDimension = getCurrentDimension();
         
         ContextRecord<Context> oldContext = contextMap.get(currentDimension);
         ContextRecord<Context> newContext = contextMap.get(newDimension);
@@ -99,7 +101,7 @@ public class StaticFieldsSwappingManager<Context> {
         transferDataFromObjectToStaticFields(innerContext);
     }
     
-    public void swapAndInvoke(DimensionType newDimension, Runnable func) {
+    public void swapAndInvoke(RegistryKey<World> newDimension, Runnable func) {
         pushSwapping(newDimension);
         func.run();
         popSwapping();
@@ -118,11 +120,11 @@ public class StaticFieldsSwappingManager<Context> {
     }
     
     //called when player teleports
-    public void updateOuterDimensionAndChangeContext(DimensionType newDimension) {
+    public void updateOuterDimensionAndChangeContext(RegistryKey<World> newDimension) {
         Validate.isTrue(!isSwapped());
         Validate.notNull(outerDimension);
-        
-        DimensionType oldDimension = this.outerDimension;
+    
+        RegistryKey<World> oldDimension = this.outerDimension;
         
         transferDataFromStaticFieldsToObject(contextMap.get(oldDimension));
         

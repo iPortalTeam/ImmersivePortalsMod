@@ -19,6 +19,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -27,7 +28,7 @@ import java.util.List;
 public class BlockManipulationServer {
     
     public static void processBreakBlock(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         PlayerActionC2SPacket packet,
         ServerPlayerEntity player
     ) {
@@ -42,7 +43,7 @@ public class BlockManipulationServer {
     }
     
     private static boolean shouldFinishMining(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         PlayerActionC2SPacket packet,
         ServerPlayerEntity player
     
@@ -60,7 +61,7 @@ public class BlockManipulationServer {
     }
     
     private static boolean canPlayerReach(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
@@ -83,7 +84,7 @@ public class BlockManipulationServer {
     }
     
     private static void doDestroyBlock(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         PlayerActionC2SPacket packet,
         ServerPlayerEntity player
     ) {
@@ -114,7 +115,7 @@ public class BlockManipulationServer {
         return !blockState.isAir() && progress >= 1.0F;
     }
     
-    public static Pair<BlockHitResult, DimensionType> getHitResultForPlacing(
+    public static Pair<BlockHitResult, RegistryKey<World>> getHitResultForPlacing(
         World world,
         BlockHitResult blockHitResult
     ) {
@@ -148,7 +149,7 @@ public class BlockManipulationServer {
     }
     
     public static void processRightClickBlock(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         PlayerInteractBlockC2SPacket packet,
         ServerPlayerEntity player
     ) {
@@ -161,7 +162,7 @@ public class BlockManipulationServer {
     }
     
     public static void doProcessRightClick(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         ServerPlayerEntity player,
         Hand hand,
         BlockHitResult blockHitResult

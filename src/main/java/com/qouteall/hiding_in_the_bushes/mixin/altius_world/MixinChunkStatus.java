@@ -23,30 +23,28 @@ public class MixinChunkStatus {
     private static ReentrantLock featureGenLock;
     
     @Redirect(
-        method = "method_12151",
+        method = "*",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;generateFeatures(Lnet/minecraft/world/ChunkRegion;Lnet/minecraft/world/gen/StructureAccessor;)V"
         )
     )
     private static void redirectGenerateFeatures(
-        ChunkGenerator chunkGenerator,
-        ChunkRegion chunkRegion,
-        StructureAccessor accessor
+       ChunkGenerator chunkGenerator, ChunkRegion region, StructureAccessor accessor
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
         try {
-            chunkGenerator.generateFeatures(chunkRegion,accessor);
+            chunkGenerator.generateFeatures(region,accessor);
         }
         catch (Throwable e) {
             Helper.err(String.format(
                 "Error when generating terrain %s %d %d",
-                chunkRegion.getWorld().getRegistryKey(),
-                chunkRegion.getCenterChunkX(),
-                chunkRegion.getCenterChunkZ()
+                region.getWorld().getRegistryKey(),
+                region.getCenterChunkX(),
+                region.getCenterChunkZ()
             ));
             e.printStackTrace();
         }
@@ -56,28 +54,22 @@ public class MixinChunkStatus {
     }
     
     @Redirect(
-        method = "method_16556",
+        method = "*",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/biome/source/BiomeAccess;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/structure/StructureManager;J)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/structure/StructureManager;J)V"
         )
     )
     private static void redirectSetStructureStarts(
-        StructureAccessor accessor,
-        BiomeAccess biomeAccess,
-        Chunk chunk,
         ChunkGenerator generator,
-        StructureManager manager,
-        long seed
+        StructureAccessor structureAccessor, Chunk chunk, StructureManager structureManager, long l
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
         try {
-            generator.setStructureStarts(
-                accessor, biomeAccess, chunk, generator, manager, seed
-            );
+            generator.setStructureStarts(structureAccessor, chunk, structureManager, l);
         }
         catch (Throwable e) {
             Helper.err(String.format(
@@ -92,10 +84,10 @@ public class MixinChunkStatus {
     }
     
     @Redirect(
-        method = "method_16565",
+        method = "*",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;addStructureReferences(Lnet/minecraft/world/IWorld;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;addStructureReferences(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;)V"
         )
     )
     private static void redirectAddStructureReference(

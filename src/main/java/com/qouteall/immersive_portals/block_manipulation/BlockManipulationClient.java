@@ -18,15 +18,17 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 public class BlockManipulationClient {
     private static final MinecraftClient client = MinecraftClient.getInstance();
     
-    public static DimensionType remotePointedDim;
+    public static RegistryKey<World> remotePointedDim;
     public static HitResult remoteHitResult;
     public static boolean isContextSwitched = false;
     
@@ -97,7 +99,7 @@ public class BlockManipulationClient {
     private static void updateTargetedBlockThroughPortal(
         Vec3d cameraPos,
         Vec3d viewVector,
-        DimensionType playerDimension,
+        RegistryKey<World> playerDimension,
         double beginDistance,
         double endDistance,
         Portal portal

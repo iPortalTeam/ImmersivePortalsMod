@@ -16,6 +16,8 @@ import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
@@ -94,7 +96,7 @@ public class NewChunkTrackingGraph {
         }
     }
     
-    private static final Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
+    private static final Map<RegistryKey<World>, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
     
     public static final ArrayList<ChunkVisibilityManager.ChunkLoader>
         additionalChunkLoaders = new ArrayList<>();
@@ -102,7 +104,7 @@ public class NewChunkTrackingGraph {
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
-    private static Long2ObjectLinkedOpenHashMap<ChunkRecord> getChunkRecordMap(DimensionType dimension) {
+    private static Long2ObjectLinkedOpenHashMap<ChunkRecord> getChunkRecordMap(RegistryKey<World> dimension) {
         return data.computeIfAbsent(dimension, k -> new Long2ObjectLinkedOpenHashMap<>());
     }
     
@@ -209,7 +211,7 @@ public class NewChunkTrackingGraph {
     }
     
     private static void setIsLoadedByPortal(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         ChunkPos chunkPos,
         boolean isLoadedNow
     ) {
@@ -224,7 +226,7 @@ public class NewChunkTrackingGraph {
     
     public static boolean isPlayerWatchingChunk(
         ServerPlayerEntity player,
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         int x, int z
     ) {
         ChunkRecord record = getChunkRecordMap(dimension)
@@ -237,7 +239,7 @@ public class NewChunkTrackingGraph {
     
     public static boolean isPlayerWatchingChunkWithinRaidus(
         ServerPlayerEntity player,
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         int x, int z,
         int radiusBlocks
     ) {
@@ -260,7 +262,7 @@ public class NewChunkTrackingGraph {
     }
     
     public static Stream<ServerPlayerEntity> getPlayersViewingChunk(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         int x, int z
     ) {
         ChunkRecord record = getChunkRecordMap(dimension)
@@ -278,7 +280,7 @@ public class NewChunkTrackingGraph {
      * send light updates and cause client to rebuild the chunk multiple times
      */
     public static Stream<ServerPlayerEntity> getFarWatchers(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         int x, int z
     ) {
         return getPlayersViewingChunk(dimension, x, z)
@@ -305,7 +307,7 @@ public class NewChunkTrackingGraph {
         ));
     }
     
-    public static boolean shouldLoadDimension(DimensionType dimension) {
+    public static boolean shouldLoadDimension(RegistryKey<World> dimension) {
         if (!data.containsKey(dimension)) {
             return false;
         }

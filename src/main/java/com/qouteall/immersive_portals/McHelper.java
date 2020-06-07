@@ -1,9 +1,7 @@
 package com.qouteall.immersive_portals;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -12,7 +10,9 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.MessageType;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -24,11 +24,10 @@ import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
@@ -50,7 +49,7 @@ public class McHelper {
     public static WeakReference<MinecraftServer> refMinecraftServer =
         new WeakReference<>(null);
     
-    public static IEThreadedAnvilChunkStorage getIEStorage(DimensionType dimension) {
+    public static IEThreadedAnvilChunkStorage getIEStorage(RegistryKey<World> dimension) {
         return (IEThreadedAnvilChunkStorage) (
             (ServerChunkManager) getServer().getWorld(dimension).getChunkManager()
         ).threadedAnvilChunkStorage;
@@ -73,14 +72,14 @@ public class McHelper {
     }
     
     public static ServerWorld getOverWorldOnServer() {
-        return getServer().getWorld(DimensionType.OVERWORLD);
+        return getServer().getWorld(World.OVERWORLD);
     }
     
     public static void serverLog(
         ServerPlayerEntity player,
         String text
     ) {
-        player.sendMessage(new LiteralText(text), MessageType.SYSTEM);
+        player.sendMessage(new LiteralText(text), false);
     }
     
     public static Box getChunkBoundingBox(ChunkPos chunkPos) {
@@ -304,7 +303,7 @@ public class McHelper {
     }
     
     public static int getRenderDistanceOnServer() {
-        return getIEStorage(DimensionType.OVERWORLD).getWatchDistance();
+        return getIEStorage(World.OVERWORLD).getWatchDistance();
     }
     
     public static void setPosAndLastTickPos(
@@ -373,7 +372,7 @@ public class McHelper {
     }
     
     public static WorldChunk getServerChunkIfPresent(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         int x, int z
     ) {
         //TODO cleanup
@@ -556,7 +555,7 @@ public class McHelper {
         );
     }
 
-    public static Identifier dimensionTypeId(DimensionType dimType) {
-        return Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(dimType));
+    public static Identifier dimensionTypeId(RegistryKey<World> dimType) {
+        return dimType.getValue();
     }
 }

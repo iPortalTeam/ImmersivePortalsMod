@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
@@ -13,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShaderContextManager {
-    private Map<DimensionType, PerDimensionContext> managedContext = new HashMap<>();
-    private Map<DimensionType, PerDimensionContext> abundantContext = new HashMap<>();
+    private Map<RegistryKey<World>, PerDimensionContext> managedContext = new HashMap<>();
+    private Map<RegistryKey<World>, PerDimensionContext> abundantContext = new HashMap<>();
     
     //null indicates that the context is not switched
-    private DimensionType currentContextDimension;
+    private RegistryKey<World> currentContextDimension;
     
     private PerDimensionContext recordedOriginalContext = new PerDimensionContext();
     
@@ -58,7 +59,7 @@ public class ShaderContextManager {
         isCleaningUp = false;
     }
     
-    public PerDimensionContext getOrCreateContext(DimensionType dimension) {
+    public PerDimensionContext getOrCreateContext(RegistryKey<World> dimension) {
         if (!doUseDuplicateContextForCurrentDimension) {
             if (isContextSwitched()) {
                 if (dimension == CHelper.getOriginalDimension()) {
@@ -82,7 +83,7 @@ public class ShaderContextManager {
     }
     
     public void switchContextAndRun(Runnable func) {
-        DimensionType oldContextDimension = this.currentContextDimension;
+        RegistryKey<World> oldContextDimension = this.currentContextDimension;
         ClientWorld currentClientWorld = MinecraftClient.getInstance().world;
         DimensionType dimensionToSwitchTo = currentClientWorld.getDimension().getType();
         
@@ -110,10 +111,10 @@ public class ShaderContextManager {
         currentContextDimension = oldContextDimension;
     }
     
-    private void check(DimensionType dimensionToSwitchTo) {
+    private void check(RegistryKey<World> dimensionToSwitchTo) {
         World shadersCurrentWorld = OFGlobal.getCurrentWorld.get();
         if (shadersCurrentWorld != null) {
-            DimensionType shaderCurrentDimension = shadersCurrentWorld.getDimension().getType();
+            RegistryKey<World> shaderCurrentDimension = shadersCurrentWorld.getDimension().getType();
             if (shaderCurrentDimension != dimensionToSwitchTo) {
                 Helper.err(
                     "Shader Context Abnormal. Shader: " +
@@ -127,10 +128,10 @@ public class ShaderContextManager {
     
     private static void checkState(
         ClientWorld currentClientWorld,
-        DimensionType dimensionToSwitchTo,
+        RegistryKey<World> dimensionToSwitchTo,
         PerDimensionContext newContext
     ) {
-        DimensionType newContextDimension = newContext.currentWorld.getDimension().getType();
+        RegistryKey<World> newContextDimension = newContext.currentWorld.getDimension().getType();
         
         if (newContextDimension != dimensionToSwitchTo) {
             Helper.err(
@@ -176,7 +177,7 @@ public class ShaderContextManager {
         return RenderStates.isDimensionRendered(currentContextDimension);
     }
     
-    public void onPlayerTraveled(DimensionType from, DimensionType to) {
+    public void onPlayerTraveled(RegistryKey<World> from, RegistryKey<World> to) {
         if (managedContext.containsKey(from)) {
             assert !abundantContext.containsKey(from);
             abundantContext.put(from, managedContext.remove(from));

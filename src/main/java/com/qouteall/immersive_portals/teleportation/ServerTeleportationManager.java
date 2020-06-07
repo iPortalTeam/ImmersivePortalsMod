@@ -17,7 +17,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
+import net.minecraft.world.dimension.RegistryKey<World>;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,7 +33,7 @@ public class ServerTeleportationManager {
     private Set<ServerPlayerEntity> teleportingEntities = new HashSet<>();
     private WeakHashMap<Entity, Long> lastTeleportGameTime = new WeakHashMap<>();
     public boolean isFiringMyChangeDimensionEvent = false;
-    public final WeakHashMap<ServerPlayerEntity, Pair<DimensionType, Vec3d>> lastPosition =
+    public final WeakHashMap<ServerPlayerEntity, Pair<RegistryKey<World>, Vec3d>> lastPosition =
         new WeakHashMap<>();
     
     public ServerTeleportationManager() {
@@ -76,7 +78,7 @@ public class ServerTeleportationManager {
     
     public void onPlayerTeleportedInClient(
         ServerPlayerEntity player,
-        DimensionType dimensionBefore,
+        RegistryKey<World> dimensionBefore,
         Vec3d oldEyePos,
         UUID portalId
     ) {
@@ -90,7 +92,7 @@ public class ServerTeleportationManager {
                 Helper.err(player.toString() + "is teleporting frequently");
             }
     
-            DimensionType dimensionTo = portal.dimensionTo;
+            RegistryKey<World> dimensionTo = portal.dimensionTo;
             Vec3d newEyePos = portal.transformPoint(oldEyePos);
             
             teleportPlayer(player, dimensionTo, newEyePos);
@@ -108,7 +110,7 @@ public class ServerTeleportationManager {
         }
     }
     
-    private Portal findPortal(DimensionType dimensionBefore, UUID portalId) {
+    private Portal findPortal(RegistryKey<World> dimensionBefore, UUID portalId) {
         ServerWorld originalWorld = McHelper.getServer().getWorld(dimensionBefore);
         Entity portalEntity = originalWorld.getEntity(portalId);
         if (portalEntity == null) {
@@ -135,7 +137,7 @@ public class ServerTeleportationManager {
     
     private boolean canPlayerTeleport(
         ServerPlayerEntity player,
-        DimensionType dimensionBefore,
+        RegistryKey<World> dimensionBefore,
         Vec3d posBefore,
         Entity portalEntity
     ) {
@@ -149,7 +151,7 @@ public class ServerTeleportationManager {
     
     public static boolean canPlayerReachPos(
         ServerPlayerEntity player,
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         Vec3d pos
     ) {
         Vec3d playerPos = player.getPos();
@@ -166,7 +168,7 @@ public class ServerTeleportationManager {
     
     public void teleportPlayer(
         ServerPlayerEntity player,
-        DimensionType dimensionTo,
+        RegistryKey<World> dimensionTo,
         Vec3d newEyePos
     ) {
         ServerWorld fromWorld = (ServerWorld) player.world;
@@ -187,7 +189,7 @@ public class ServerTeleportationManager {
     
     public void invokeTpmeCommand(
         ServerPlayerEntity player,
-        DimensionType dimensionTo,
+        RegistryKey<World> dimensionTo,
         Vec3d newPos
     ) {
         ServerWorld fromWorld = (ServerWorld) player.world;
@@ -214,7 +216,7 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link ServerPlayerEntity#changeDimension(DimensionType)}
+     * {@link ServerPlayerEntity#changeDimension(RegistryKey<World>)}
      */
     private void changePlayerDimension(
         ServerPlayerEntity player,
@@ -277,7 +279,7 @@ public class ServerTeleportationManager {
         
         //this is used for the advancement of "we need to go deeper"
         //and the advancement of travelling for long distance through nether
-        if (toWorld.getDimension().getType() == DimensionType.THE_NETHER) {
+        if (toWorld.getDimension().getType() == RegistryKey<World>.THE_NETHER) {
             //this is used for
             ((IEServerPlayerEntity) player).setEnteredNetherPos(player.getPos());
         }
@@ -385,11 +387,11 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link Entity#changeDimension(DimensionType)}
+     * {@link Entity#changeDimension(RegistryKey<World>)}
      */
     public void changeEntityDimension(
         Entity entity,
-        DimensionType toDimension,
+        RegistryKey<World> toDimension,
         Vec3d newEyePos
     ) {
         ServerWorld fromWorld = (ServerWorld) entity.world;
@@ -426,7 +428,7 @@ public class ServerTeleportationManager {
     public void acceptDubiousMovePacket(
         ServerPlayerEntity player,
         PlayerMoveC2SPacket packet,
-        DimensionType dimension
+        RegistryKey<World> dimension
     ) {
         double x = packet.getX(player.getX());
         double y = packet.getY(player.getY());

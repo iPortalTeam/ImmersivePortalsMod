@@ -5,8 +5,8 @@ import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Predicate;
 
@@ -35,18 +35,18 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static void connect(
-        DimensionType from,
+        RegistryKey<World> from,
         ConnectorType connectorType,
-        DimensionType to
+        RegistryKey<World> to
     ) {
         int upY = connectorType == ConnectorType.ceil ? getHeight(from) : getHeight(to);
         connect(from, connectorType, to, 0, upY);
     }
     
     public static void connect(
-        DimensionType from,
+        RegistryKey<World> from,
         ConnectorType connectorType,
-        DimensionType to,
+        RegistryKey<World> to,
         int downY,
         int upY
     ) {
@@ -70,8 +70,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     public static void connectMutually(
-        DimensionType up,
-        DimensionType down,
+        RegistryKey<World> up,
+        RegistryKey<World> down,
         int downY,
         int upY
     ) {
@@ -114,13 +114,13 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     
     public static void removeConnectingPortal(
         ConnectorType connectorType,
-        DimensionType dimension
+        RegistryKey<World> dimension
     ) {
         removeConnectingPortal(getPredicate(connectorType), dimension);
     }
     
     private static void removeConnectingPortal(
-        Predicate<GlobalTrackedPortal> predicate, DimensionType dimension
+        Predicate<GlobalTrackedPortal> predicate, RegistryKey<World> dimension
     ) {
         ServerWorld endWorld = McHelper.getServer().getWorld(dimension);
         GlobalPortalStorage storage = GlobalPortalStorage.get(endWorld);
@@ -140,9 +140,9 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             .findFirst().orElse(null);
     }
     
-    public static int getHeight(DimensionType dimensionType) {
-        return McHelper.getServer().getWorld(dimensionType).getDimensionHeight();
-//        if (dimensionType == DimensionType.THE_NETHER) {
+    public static int getHeight(RegistryKey<World> RegistryKey<World>) {
+        return McHelper.getServer().getWorld(RegistryKey<World>).getDimensionHeight();
+//        if (RegistryKey<World> == RegistryKey<World>.THE_NETHER) {
 //            if (O_O.isNetherHigherModPresent()) {
 //                return 256;
 //            }

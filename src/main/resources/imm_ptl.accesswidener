@@ -1,0 +1,3 @@
+accessWidener v1 named
+Accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
+Accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Ljava/nio/file/Path;

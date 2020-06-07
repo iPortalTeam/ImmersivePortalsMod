@@ -10,6 +10,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
@@ -26,7 +28,7 @@ public class O_O {
     
     @Environment(EnvType.CLIENT)
     public static void onPlayerChangeDimensionClient(
-        DimensionType from, DimensionType to
+        RegistryKey<World> from, RegistryKey<World> to
     ) {
         RequiemCompat.onPlayerTeleportedClient();
     }

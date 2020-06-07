@@ -14,6 +14,7 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
@@ -35,7 +36,7 @@ public class AlternateSkyRenderer {
             return false;
         }
         return globalPortals.stream().anyMatch(portal ->
-            portal.getY() > 128 && portal.dimensionTo == DimensionType.THE_END
+            portal.getY() > 128 && portal.dimensionTo == World.END
         );
     }
     

@@ -12,6 +12,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
@@ -23,16 +25,16 @@ import java.util.stream.Stream;
 
 public class CustomizablePortalGeneration {
     public static class Entry {
-        public DimensionType fromDimension;
+        public RegistryKey<World> fromDimension;
         public int fromSpaceRatio;
-        public DimensionType toDimension;
+        public RegistryKey<World> toDimension;
         public int toSpaceRatio;
         public Block frameBlock;
         
         public Entry(
-            DimensionType fromDimension,
+            RegistryKey<World> fromDimension,
             int fromSpaceRatio,
-            DimensionType toDimension,
+            RegistryKey<World> toDimension,
             int toSpaceRatio,
             Block frameBlock
         ) {

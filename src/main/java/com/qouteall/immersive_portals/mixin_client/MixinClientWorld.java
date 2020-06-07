@@ -10,6 +10,8 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -61,11 +63,15 @@ public abstract class MixinClientWorld implements IEClientWorld {
     )
     void onConstructed(
         ClientPlayNetworkHandler clientPlayNetworkHandler,
-        ClientWorld.Properties levelInfo,
+        ClientWorld.Properties properties,
+        RegistryKey<World> registryKey,
+        RegistryKey<DimensionType> registryKey2,
         DimensionType dimensionType,
-        int chunkLoadDistance,
+        int i,
         Supplier<Profiler> supplier,
         WorldRenderer worldRenderer,
+        boolean bl,
+        long l,
         CallbackInfo ci
     ) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;

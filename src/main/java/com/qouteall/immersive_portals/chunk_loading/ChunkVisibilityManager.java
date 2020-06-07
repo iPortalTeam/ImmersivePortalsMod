@@ -10,7 +10,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -24,7 +26,7 @@ public class ChunkVisibilityManager {
     public static final int secondaryPortalLoadingRange = 16;
     
     public static interface ChunkPosConsumer {
-        void consume(DimensionType dimensionType, int x, int z, int distanceToSource);
+        void consume(RegistryKey<World> dimensionType, int x, int z, int distanceToSource);
     }
     
     //the players and portals are chunk loaders
@@ -181,7 +183,7 @@ public class ChunkVisibilityManager {
     }
     
     private static Stream<GlobalTrackedPortal> getGlobalPortals(
-        DimensionType dimension
+        RegistryKey<World> dimension
     ) {
         List<GlobalTrackedPortal> data = GlobalPortalStorage.get(
             McHelper.getServer().getWorld(dimension)

@@ -32,6 +32,8 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
@@ -70,7 +72,7 @@ public class ClientTeleportationManager {
     }
     
     public void acceptSynchronizationDataFromServer(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         Vec3d pos,
         boolean forceAccept
     ) {
@@ -79,7 +81,7 @@ public class ClientTeleportationManager {
                 return;
             }
         }
-        if (client.player.dimension != dimension) {
+        if (client.player.world.getRegistryKey() != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
         getOutOfLoadingScreen(dimension, pos);
@@ -183,7 +185,7 @@ public class ClientTeleportationManager {
         
         ClientPlayerEntity player = client.player;
         
-        DimensionType toDimension = portal.dimensionTo;
+        RegistryKey<World> toDimension = portal.dimensionTo;
         
         Vec3d oldEyePos = McHelper.getEyePos(player);
         
@@ -191,7 +193,7 @@ public class ClientTeleportationManager {
         Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(player));
         
         ClientWorld fromWorld = client.world;
-        DimensionType fromDimension = fromWorld.getDimension().getType();
+        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         
         if (fromDimension != toDimension) {
             ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(toDimension);
@@ -237,11 +239,11 @@ public class ClientTeleportationManager {
         }
     }
     
-    private void forceTeleportPlayer(DimensionType toDimension, Vec3d destination) {
+    private void forceTeleportPlayer(RegistryKey<World> toDimension, Vec3d destination) {
         Helper.log("force teleported " + toDimension + destination);
         
         ClientWorld fromWorld = client.world;
-        DimensionType fromDimension = fromWorld.getDimension().getType();
+        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         ClientPlayerEntity player = client.player;
         if (fromDimension == toDimension) {
             player.updatePosition(
@@ -268,9 +270,9 @@ public class ClientTeleportationManager {
     ) {
         Entity vehicle = player.getVehicle();
         player.detach();
-        
-        DimensionType toDimension = toWorld.getDimension().getType();
-        DimensionType fromDimension = fromWorld.getDimension().getType();
+    
+        RegistryKey<World> toDimension = toWorld.getRegistryKey();
+        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         
         ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
         ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
@@ -283,7 +285,7 @@ public class ClientTeleportationManager {
         
         player.world = toWorld;
         
-        player.dimension = toDimension;
+        
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
         
@@ -352,10 +354,10 @@ public class ClientTeleportationManager {
         }
     }
     
-    private void getOutOfLoadingScreen(DimensionType dimension, Vec3d playerPos) {
+    private void getOutOfLoadingScreen(RegistryKey<World> dimension, Vec3d playerPos) {
         if (((IEMinecraftClient) client).getCurrentScreen() instanceof DownloadingTerrainScreen) {
             Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
-            if (client.player.dimension != dimension) {
+            if (client.player.world.getRegistryKey() != dimension) {
                 Helper.err("Manually fix dimension state while loading terrain");
                 ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(dimension);
                 changePlayerDimension(client.player, client.world, toWorld, playerPos);
@@ -405,7 +407,6 @@ public class ClientTeleportationManager {
         ClientWorld oldWorld = (ClientWorld) entity.world;
         O_O.segregateClientEntity(oldWorld, entity);
         entity.world = newWorld;
-        entity.dimension = newWorld.getDimension().getType();
         entity.updatePosition(newPos.x, newPos.y, newPos.z);
         newWorld.addEntity(entity.getEntityId(), entity);
     }

@@ -16,6 +16,8 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
 
@@ -26,9 +28,9 @@ import java.util.Set;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
-    public final Map<DimensionType, ClientWorld> clientWorldMap = new HashMap<>();
-    public final Map<DimensionType, WorldRenderer> worldRendererMap = new HashMap<>();
-    public final Map<DimensionType, DimensionRenderHelper> renderHelperMap = new HashMap<>();
+    public final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
+    public final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
+    public final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
     private Set<DimensionalChunkPos> unloadedChunks = new HashSet<>();
     
     private MinecraftClient mc = MinecraftClient.getInstance();
@@ -132,14 +134,14 @@ public class ClientWorldLoader {
     }
     
     //@Nullable
-    public WorldRenderer getWorldRenderer(DimensionType dimension) {
+    public WorldRenderer getWorldRenderer(RegistryKey<World> dimension) {
         initializeIfNeeded();
         
         return worldRendererMap.get(dimension);
     }
     
     //Create world if missing
-    public ClientWorld getWorld(DimensionType dimension) {
+    public ClientWorld getWorld(RegistryKey<World> dimension) {
         Validate.notNull(dimension);
         
         initializeIfNeeded();
@@ -151,7 +153,7 @@ public class ClientWorldLoader {
         return clientWorldMap.get(dimension);
     }
     
-    public DimensionRenderHelper getDimensionRenderHelper(DimensionType dimension) {
+    public DimensionRenderHelper getDimensionRenderHelper(RegistryKey<World> dimension) {
         initializeIfNeeded();
         
         DimensionRenderHelper result = renderHelperMap.computeIfAbsent(
@@ -186,7 +188,7 @@ public class ClientWorldLoader {
     }
     
     //fool minecraft using the faked world
-    private ClientWorld createFakedClientWorld(DimensionType dimension) {
+    private ClientWorld createFakedClientWorld(RegistryKey<World> dimension) {
         assert mc.world.getDimension().getType() == mc.player.dimension;
         assert (mc.player.dimension != dimension);
         

@@ -53,5 +53,6 @@
     "mm:early_risers": [
       "com.qouteall.hiding_in_the_bushes.LaunchMixinWithOptifineRunnable"
     ]
-  }
+  },
+  "accessWidener" : "imm_ptl.accesswidener"
 }

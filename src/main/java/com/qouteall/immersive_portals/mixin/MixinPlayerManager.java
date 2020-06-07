@@ -7,6 +7,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,9 +39,9 @@ public class MixinPlayerManager {
         at = @At("HEAD"),
         cancellable = true
     )
-    public void sendToDimension(Packet<?> packet, DimensionType dimension, CallbackInfo ci) {
+    public void sendToDimension(Packet<?> packet, RegistryKey<World> dimension, CallbackInfo ci) {
         players.stream()
-            .filter(player -> player.dimension == dimension)
+            .filter(player -> player.world.getRegistryKey() == dimension)
             .forEach(player -> player.networkHandler.sendPacket(
                 MyNetwork.createRedirectedMessage(
                     dimension,

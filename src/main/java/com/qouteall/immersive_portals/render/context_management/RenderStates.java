@@ -17,7 +17,9 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.lang.ref.WeakReference;
@@ -28,13 +30,13 @@ import java.util.Set;
 
 public class RenderStates {
     
-    public static DimensionType originalPlayerDimension;
+    public static RegistryKey<World> originalPlayerDimension;
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;
     public static GameMode originalGameMode;
     public static float tickDelta = 0;
     
-    public static Set<DimensionType> renderedDimensions = new HashSet<>();
+    public static Set<RegistryKey<World>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<Portal>>> lastPortalRenderInfos = new ArrayList<>();
     public static List<List<WeakReference<Portal>>> portalRenderInfos = new ArrayList<>();
     
@@ -70,7 +72,7 @@ public class RenderStates {
             return;
         }
         
-        originalPlayerDimension = cameraEntity.dimension;
+        originalPlayerDimension = cameraEntity.world.getRegistryKey();
         originalPlayerPos = cameraEntity.getPos();
         originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
@@ -158,7 +160,7 @@ public class RenderStates {
         MinecraftClient mc = MinecraftClient.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(mc.world.getDimension().getType()).lightmapTexture);
+            .getDimensionRenderHelper(mc.world.getRegistryKey()).lightmapTexture);
         
         if (getRenderedPortalNum() != 0) {
             //recover chunk renderer dispatcher
@@ -180,7 +182,7 @@ public class RenderStates {
         return portalRenderInfos.size();
     }
     
-    public static boolean isDimensionRendered(DimensionType dimensionType) {
+    public static boolean isDimensionRendered(RegistryKey<World> dimensionType) {
         if (dimensionType == originalPlayerDimension) {
             return true;
         }

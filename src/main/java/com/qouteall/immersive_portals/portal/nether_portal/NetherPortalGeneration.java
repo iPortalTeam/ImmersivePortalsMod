@@ -23,10 +23,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -92,35 +93,35 @@ public class NetherPortalGeneration {
         return foundAirCube;
     }
     
-    public static DimensionType getDestinationDimension(
-        DimensionType fromDimension
+    public static RegistryKey<World> getDestinationDimension(
+        RegistryKey<World> fromDimension
     ) {
-        if (fromDimension == DimensionType.THE_NETHER) {
-            return DimensionType.OVERWORLD;
+        if (fromDimension == World.NETHER) {
+            return World.OVERWORLD;
         }
-        else if (fromDimension == DimensionType.THE_END) {
+        else if (fromDimension == World.END) {
             return null;
         }
         else {
             //you can access nether in any other dimension
             //including alternate dimensions
-            return DimensionType.THE_NETHER;
+            return World.NETHER;
         }
     }
     
     public static BlockPos mapPosition(
         BlockPos pos,
-        DimensionType dimensionFrom,
-        DimensionType dimensionTo
+        RegistryKey<World> dimensionFrom,
+        RegistryKey<World> dimensionTo
     ) {
-        if (dimensionFrom == DimensionType.OVERWORLD && dimensionTo == DimensionType.THE_NETHER) {
+        if (dimensionFrom == World.OVERWORLD && dimensionTo == World.NETHER) {
             return new BlockPos(
                 pos.getX() / 8,
                 pos.getY(),
                 pos.getZ() / 8
             );
         }
-        else if (dimensionFrom == DimensionType.THE_NETHER && dimensionTo == DimensionType.OVERWORLD) {
+        else if (dimensionFrom == World.NETHER && dimensionTo == World.OVERWORLD) {
             return new BlockPos(
                 pos.getX() * 8,
                 pos.getY(),
@@ -207,14 +208,14 @@ public class NetherPortalGeneration {
     }
     
     public static class Info {
-        DimensionType from;
-        DimensionType to;
+        RegistryKey<World> from;
+        RegistryKey<World> to;
         BlockPortalShape fromShape;
         BlockPortalShape toShape;
         
         public Info(
-            DimensionType from,
-            DimensionType to,
+            RegistryKey<World> from,
+            RegistryKey<World> to,
             BlockPortalShape fromShape,
             BlockPortalShape toShape
         ) {
@@ -231,9 +232,9 @@ public class NetherPortalGeneration {
         ServerWorld fromWorld,
         BlockPos firePos
     ) {
-        DimensionType fromDimension = fromWorld.getDimension().getType();
+        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         
-        DimensionType toDimension = getDestinationDimension(fromDimension);
+        RegistryKey<World> toDimension = getDestinationDimension(fromDimension);
         
         if (toDimension == null) return false;
         
@@ -242,7 +243,7 @@ public class NetherPortalGeneration {
         int searchingRadius = Global.netherPortalFindingRadius;
         
         if (Global.reversibleNetherPortalLinking) {
-            if (fromDimension == DimensionType.OVERWORLD) {
+            if (fromDimension == World.OVERWORLD) {
                 searchingRadius /= 8;
             }
         }
@@ -255,8 +256,8 @@ public class NetherPortalGeneration {
             searchingRadius - 10,
             (fromPos1) -> mapPosition(
                 fromPos1,
-                fromWorld.getDimension().getType(),
-                toWorld.getDimension().getType()
+                fromWorld.getRegistryKey(),
+                toWorld.getRegistryKey()
             ),
             //this side area
             blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
@@ -327,8 +328,8 @@ public class NetherPortalGeneration {
             return null;
         }
         
-        DimensionType fromDimension = fromWorld.getDimension().getType();
-        DimensionType toDimension = toWorld.getDimension().getType();
+        RegistryKey<World> fromDimension = fromWorld.getDimension().getType();
+        RegistryKey<World> toDimension = toWorld.getDimension().getType();
         
         Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
             fromDimension, startingPos.getX(), startingPos.getY(), startingPos.getZ()
@@ -447,8 +448,8 @@ public class NetherPortalGeneration {
         Predicate<BlockPos> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGeneratedFunc,
         Consumer<Info> portalEntityGeneratingFunc,
-        DimensionType fromDimension,
-        DimensionType toDimension,
+        RegistryKey<World> fromDimension,
+        RegistryKey<World> toDimension,
         BlockPortalShape foundShape,
         BlockPos fromPos,
         BlockPos toPos,
