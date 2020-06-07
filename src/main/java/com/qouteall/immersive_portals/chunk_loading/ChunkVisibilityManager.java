@@ -95,7 +95,7 @@ public class ChunkVisibilityManager {
     private static ChunkLoader playerDirectLoader(ServerPlayerEntity player) {
         return new ChunkLoader(
             new DimensionalChunkPos(
-                player.dimension,
+                player.world.getRegistryKey(),
                 player.chunkX, player.chunkZ
             ),
             McHelper.getRenderDistanceOnServer()
@@ -232,7 +232,7 @@ public class ChunkVisibilityManager {
                 )
             ),
             
-            getGlobalPortals(player.dimension)
+            getGlobalPortals(player.world.getRegistryKey())
                 .flatMap(
                     portal -> Stream.concat(
                         Stream.of(globalPortalDirectLoader(

@@ -584,7 +584,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         
         if (OFInterface.isShaders.getAsBoolean()) {
-            DimensionType dim = MinecraftClient.getInstance().world.getDimension().getType();
+            DimensionType dim = MinecraftClient.getInstance().world.getRegistryKey();
             DimensionType redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
             
             MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
@@ -628,7 +628,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     )
     private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
         if (PortalRendering.isRendering()) {
-            if (client.world.getDimension().getType() == RenderStates.originalPlayerDimension) {
+            if (client.world.getRegistryKey() == RenderStates.originalPlayerDimension) {
                 return;
             }
         }

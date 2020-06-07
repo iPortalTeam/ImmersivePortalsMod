@@ -17,7 +17,7 @@ public class MixinDebugHud {
         returnValue.add("Rendered Portal Num: " + RenderStates.lastPortalRenderInfos.size());
 //        ClientWorld world = MinecraftClient.getInstance().world;
 //        if (world != null) {
-//            returnValue.add("In: " + world.getDimension().getType());
+//            returnValue.add("In: " + world.getRegistryKey());
 //        }
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.add("Debug: " + RenderStates.debugText);

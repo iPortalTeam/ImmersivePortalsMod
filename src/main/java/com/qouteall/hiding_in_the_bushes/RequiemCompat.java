@@ -68,7 +68,7 @@ public class RequiemCompat {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         MobEntity possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
-            if (possessedEntity.dimension != player.dimension) {
+            if (possessedEntity.world != player.world) {
                 Helper.log("Move Requiem Possessed Entity at Client");
                 ClientTeleportationManager.moveClientEntityAcrossDimension(
                     possessedEntity,
@@ -86,11 +86,11 @@ public class RequiemCompat {
         
         MobEntity possessedEntity = getPossessedEntity(player);
         if (possessedEntity != null) {
-            if (possessedEntity.dimension != player.dimension) {
+            if (possessedEntity.world != player.world) {
                 Helper.log("Move Requiem Posessed Entity at Server");
                 Global.serverTeleportationManager.changeEntityDimension(
                     possessedEntity,
-                    player.dimension,
+                    player.world.getRegistryKey(),
                     McHelper.getEyePos(player)
                 );
             }

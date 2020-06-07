@@ -13,6 +13,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,7 +32,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     @Shadow
     private Vec3d enteredNetherPos;
     
-    private HashMultimap<DimensionType, Entity> myRemovedEntities;
+    private HashMultimap<RegistryKey<World>, Entity> myRemovedEntities;
     
     @Shadow
     private boolean inTeleportationState;
@@ -84,7 +85,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         at = @At("RETURN")
     )
     private void onCopyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-        HashMultimap<DimensionType, Entity> oldPlayerRemovedEntities =
+        HashMultimap<RegistryKey<World>, Entity> oldPlayerRemovedEntities =
             ((MixinServerPlayerEntity) (Object) oldPlayer).myRemovedEntities;
         if (oldPlayerRemovedEntities != null) {
             myRemovedEntities = HashMultimap.create();
@@ -100,7 +101,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         if (entity_1 instanceof PlayerEntity) {
             this.networkHandler.sendPacket(
                 MyNetwork.createRedirectedMessage(
-                    entity_1.dimension,
+                    entity_1.world.getRegistryKey(),
                     new EntitiesDestroyS2CPacket(entity_1.getEntityId())
                 )
             );
@@ -111,7 +112,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
             }
             //do not use entity.dimension
             //or it will work abnormally when changeDimension() is run
-            myRemovedEntities.put(entity_1.world.getDimension().getType(), entity_1);
+            myRemovedEntities.put(entity_1.world.getRegistryKey(), entity_1);
         }
         
     }
@@ -122,7 +123,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     @Overwrite
     public void onStartedTracking(Entity entity_1) {
         if (myRemovedEntities != null) {
-            myRemovedEntities.remove(entity_1.dimension, entity_1);
+            myRemovedEntities.remove(entity_1.world.getRegistryKey(), entity_1);
         }
     }
     

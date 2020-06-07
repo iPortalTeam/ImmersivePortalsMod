@@ -37,12 +37,12 @@ public class CHelper {
     }
     
     //NOTE this may not be reliable
-    public static DimensionType getOriginalDimension() {
+    public static RegistryKey<World> getOriginalDimension() {
         if (PortalRendering.isRendering()) {
             return RenderStates.originalPlayerDimension;
         }
         else {
-            return MinecraftClient.getInstance().player.dimension;
+            return MinecraftClient.getInstance().player.world.getRegistryKey();
         }
     }
     

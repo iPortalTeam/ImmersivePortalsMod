@@ -328,8 +328,8 @@ public class NetherPortalGeneration {
             return null;
         }
         
-        RegistryKey<World> fromDimension = fromWorld.getDimension().getType();
-        RegistryKey<World> toDimension = toWorld.getDimension().getType();
+        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
+        RegistryKey<World> toDimension = toWorld.getRegistryKey();
         
         Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
             fromDimension, startingPos.getX(), startingPos.getY(), startingPos.getZ()
@@ -461,7 +461,7 @@ public class NetherPortalGeneration {
         BlockPos.Mutable temp = new BlockPos.Mutable();
         
         IntBox toWorldHeightLimit =
-            NetherPortalMatcher.getHeightLimit(toWorld.getDimension().getType());
+            NetherPortalMatcher.getHeightLimit(toWorld.getRegistryKey());
         
         Stream<BlockPos> blockPosStream = fromNearToFarColumned(
             toWorld,
@@ -502,7 +502,7 @@ public class NetherPortalGeneration {
             indicatorEntity.setText(
                 new TranslatableText(
                     "imm_ptl.searching_for_frame",
-                    toWorld.getDimension().getType().toString(),
+                    toWorld.getRegistryKey().toString(),
                     String.format("%s %s %s", fromPos.getX(), fromPos.getY(), fromPos.getZ()),
                     new LiteralText(Integer.toString(i / 1000) + "k")
                 )

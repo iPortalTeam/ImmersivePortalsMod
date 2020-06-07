@@ -8,6 +8,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,8 +34,8 @@ public class MixinChunkHolder implements IEChunkHolder {
      */
     @Overwrite
     private void sendPacketToPlayersWatching(Packet<?> packet_1, boolean onlyOnRenderDistanceEdge) {
-        DimensionType dimension =
-            ((IEThreadedAnvilChunkStorage) playersWatchingChunkProvider).getWorld().getDimension().getType();
+        RegistryKey<World> dimension =
+            ((IEThreadedAnvilChunkStorage) playersWatchingChunkProvider).getWorld().getRegistryKey();
         
         Consumer<ServerPlayerEntity> func = player ->
             player.networkHandler.sendPacket(

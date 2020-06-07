@@ -138,7 +138,7 @@ public class BreakableMirror extends Mirror {
         );
         breakableMirror.updatePosition(pos.x, pos.y, pos.z);
         breakableMirror.destination = pos;
-        breakableMirror.dimensionTo = world.getDimension().getType();
+        breakableMirror.dimensionTo = world.getRegistryKey();
         
         Pair<Direction, Direction> dirs =
             Helper.getPerpendicularDirections(facing);

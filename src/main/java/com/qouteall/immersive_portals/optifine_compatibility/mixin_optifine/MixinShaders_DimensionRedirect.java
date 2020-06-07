@@ -30,11 +30,11 @@ public class MixinShaders_DimensionRedirect {
 //    @Inject(method = "init", at = @At("HEAD"), remap = false)
 //    private static void onInit(CallbackInfo ci) {
 //        MinecraftClient mc = MinecraftClient.getInstance();
-//        DimensionType currDimension = mc.world.getDimension().getType();
+//        DimensionType currDimension = mc.world.getRegistryKey();
 //
 //        Helper.log("Shader init " + currDimension);
 //
-//        if (RenderDimensionRedirect.isNoShader(currentWorld.getDimension().getType())) {
+//        if (RenderDimensionRedirect.isNoShader(currentWorld.getRegistryKey())) {
 //            shaderPack = new ShaderPackDefault();
 //            Helper.log("Set to internal shader");
 //        }
@@ -66,7 +66,7 @@ public class MixinShaders_DimensionRedirect {
 //    private static ClientWorld redirectWorldForShadowCamera(MinecraftClient client) {
 //        return CGlobal.clientWorldLoader.getWorld(
 //            RenderDimensionRedirect.getRedirectedDimension(
-//                client.world.getDimension().getType()
+//                client.world.getRegistryKey()
 //            )
 //        );
 //    }
@@ -84,7 +84,7 @@ public class MixinShaders_DimensionRedirect {
 //    private static ClientWorld redirectWorldInBeginRender(MinecraftClient client) {
 //        return CGlobal.clientWorldLoader.getWorld(
 //            RenderDimensionRedirect.getRedirectedDimension(
-//                client.world.getDimension().getType()
+//                client.world.getRegistryKey()
 //            )
 //        );
 //    }

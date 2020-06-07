@@ -20,6 +20,7 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -190,7 +191,7 @@ public class McHelper {
                     finishBehavior.obj = onNotFound;
                 }
             },
-            McHelper.getServer().getWorkerExecutor()
+            Util.getServerWorkerExecutor()
         );
         ModMain.serverTaskList.addTask(() -> {
             if (future.isDone()) {
@@ -360,15 +361,7 @@ public class McHelper {
     }
     
     public static void checkDimension(Entity entity) {
-        if (entity.dimension != entity.world.getDimension().getType()) {
-            Helper.err(String.format(
-                "Entity dimension field abnormal. Force corrected. %s %s %s",
-                entity,
-                entity.dimension,
-                entity.world.getDimension().getType()
-            ));
-            entity.dimension = entity.world.getDimension().getType();
-        }
+        //no need in 1.16
     }
     
     public static WorldChunk getServerChunkIfPresent(

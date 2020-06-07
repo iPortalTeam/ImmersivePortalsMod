@@ -33,7 +33,7 @@ public class WorldInfoSender {
                     
 //                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
 //                        if (thisWorld.getDimension() instanceof AlternateDimension) {
-//                            if (visibleDimensions.contains(thisWorld.getDimension().getType())) {
+//                            if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
 //                                sendWorldInfo(
 //                                    player,
 //                                    thisWorld

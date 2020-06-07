@@ -39,7 +39,7 @@ public class DimensionalChunkPos {
     
     @Override
     public int hashCode() {
-        return Objects.hash(dimension.getRawId(), x, z);
+        return Objects.hash(dimension, x, z);
     }
     
     @Override

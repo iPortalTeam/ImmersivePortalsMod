@@ -38,7 +38,7 @@ public abstract class MixinServerWorld implements IEServerWorld {
         )
     )
     private LongSet redirectGetForcedChunks(ServerWorld world) {
-        if (NewChunkTrackingGraph.shouldLoadDimension(world.getDimension().getType())) {
+        if (NewChunkTrackingGraph.shouldLoadDimension(world.getRegistryKey())) {
             return dummy;
         }
         else {

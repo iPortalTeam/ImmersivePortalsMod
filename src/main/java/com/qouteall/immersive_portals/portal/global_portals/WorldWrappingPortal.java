@@ -95,7 +95,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         portal.width = Helper.getCoordinate(areaSize, axises.getLeft().getAxis());
         portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
         
-        portal.dimensionTo = serverWorld.getDimension().getType();
+        portal.dimensionTo = serverWorld.getRegistryKey();
     }
     
     public static class WrappingZone {

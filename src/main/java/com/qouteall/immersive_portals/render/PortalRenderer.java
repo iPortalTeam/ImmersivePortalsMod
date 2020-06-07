@@ -20,6 +20,7 @@ import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Comparator;
 import java.util.List;
@@ -50,8 +51,7 @@ public abstract class PortalRenderer {
     public abstract boolean shouldSkipClearing();
     
     protected void renderPortals(MatrixStack matrixStack) {
-        assert client.cameraEntity.world == client.world;
-        assert client.cameraEntity.dimension == client.world.getDimension().getType();
+        Validate.isTrue(client.cameraEntity.world == client.world);
         
         List<Portal> portalsNearbySorted = getPortalsNearbySorted();
         

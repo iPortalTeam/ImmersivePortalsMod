@@ -161,7 +161,7 @@ public class NewChunkTrackingGraph {
         
         McHelper.getServer().getWorlds().forEach(world -> {
     
-            LongSortedSet currentLoadedChunks = getChunkRecordMap(world.getDimension().getType()).keySet();
+            LongSortedSet currentLoadedChunks = getChunkRecordMap(world.getRegistryKey()).keySet();
     
             currentLoadedChunks.forEach(
                 (long longChunkPos) -> {
@@ -172,7 +172,7 @@ public class NewChunkTrackingGraph {
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(chunkLoader -> chunkLoader.foreachChunkPos(
                 (dim, x, z, dis) -> {
-                    if (world.getDimension().getType() == dim) {
+                    if (world.getRegistryKey() == dim) {
                         additionalLoadedChunks.add(ChunkPos.toLong(x, z));
                         MyLoadingTicket.load(world, new ChunkPos(x, z));
                     }
@@ -284,7 +284,7 @@ public class NewChunkTrackingGraph {
         int x, int z
     ) {
         return getPlayersViewingChunk(dimension, x, z)
-            .filter(player -> player.dimension != dimension ||
+            .filter(player -> player.world.getRegistryKey() != dimension ||
                 Helper.getChebyshevDistance(x, z, player.chunkX, player.chunkZ) > 4);
     }
     

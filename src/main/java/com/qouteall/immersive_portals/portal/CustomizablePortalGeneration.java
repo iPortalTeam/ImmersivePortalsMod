@@ -134,7 +134,7 @@ public class CustomizablePortalGeneration {
     ) {
         initCache();
         
-        DimensionType fromDim = fromWorld.getDimension().getType();
+        DimensionType fromDim = fromWorld.getRegistryKey();
         Entry entry = entryCache.stream().filter(
             entry_ -> entry_.fromDimension == fromDim && entry_.frameBlock == frameBlock
         ).findFirst().orElse(null);

@@ -161,10 +161,10 @@ public class PortalCommand {
                         DimensionArgumentType.dimension()
                     ).executes(
                         context -> {
-                            DimensionType from = DimensionArgumentType.getDimensionArgument(
+                            RegistryKey<World> from = DimensionArgumentType.getDimensionArgument(
                                 context, "from"
                             );
-                            DimensionType to = DimensionArgumentType.getDimensionArgument(
+                            RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(
                                 context, "to"
                             );
                             
@@ -183,10 +183,10 @@ public class PortalCommand {
                 .then(CommandManager.argument("to", DimensionArgumentType.dimension())
                     .executes(
                         context -> {
-                            DimensionType from = DimensionArgumentType.getDimensionArgument(
+                            RegistryKey<World> from = DimensionArgumentType.getDimensionArgument(
                                 context, "from"
                             );
-                            DimensionType to = DimensionArgumentType.getDimensionArgument(
+                            RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(
                                 context, "to"
                             );
                             
@@ -205,7 +205,7 @@ public class PortalCommand {
             .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                 .executes(
                     context -> {
-                        DimensionType dim = DimensionArgumentType.getDimensionArgument(
+                        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                             context, "dim"
                         );
                         
@@ -223,7 +223,7 @@ public class PortalCommand {
             .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                 .executes(
                     context -> {
-                        DimensionType dim = DimensionArgumentType.getDimensionArgument(
+                        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                             context, "dim"
                         );
                         
@@ -695,7 +695,7 @@ public class PortalCommand {
                     
                     Global.serverTeleportationManager.invokeTpmeCommand(
                         context.getSource().getPlayer(),
-                        entity.world.getDimension().getType(),
+                        entity.world.getRegistryKey(),
                         entity.getPos()
                     );
                     
@@ -717,7 +717,7 @@ public class PortalCommand {
                     
                     Global.serverTeleportationManager.invokeTpmeCommand(
                         player,
-                        player.world.getDimension().getType(),
+                        player.world.getRegistryKey(),
                         dest
                     );
                     
@@ -735,7 +735,7 @@ public class PortalCommand {
             .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                 .then(CommandManager.argument("dest", Vec3ArgumentType.vec3())
                     .executes(context -> {
-                        DimensionType dim = DimensionArgumentType.getDimensionArgument(
+                        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                             context,
                             "dim"
                         );
@@ -771,7 +771,7 @@ public class PortalCommand {
                         
                         int numTeleported = teleport(
                             entities,
-                            target.world.getDimension().getType(),
+                            target.world.getRegistryKey(),
                             target.getPos()
                         );
                         
@@ -795,7 +795,7 @@ public class PortalCommand {
                         
                         int numTeleported = teleport(
                             entities,
-                            context.getSource().getWorld().getDimension().getType(),
+                            context.getSource().getWorld().getRegistryKey(),
                             dest
                         );
                         
@@ -816,7 +816,7 @@ public class PortalCommand {
                         .executes(context -> {
                             Collection<? extends Entity> entities =
                                 EntityArgumentType.getEntities(context, "from");
-                            DimensionType dim = DimensionArgumentType.getDimensionArgument(
+                            RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                                 context,
                                 "dim"
                             );
@@ -824,7 +824,7 @@ public class PortalCommand {
                             
                             int numTeleported = teleport(
                                 entities,
-                                context.getSource().getWorld().getDimension().getType(),
+                                context.getSource().getWorld().getRegistryKey(),
                                 dest
                             );
                             
@@ -866,7 +866,7 @@ public class PortalCommand {
         builder.then(CommandManager.literal("goback")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-                net.minecraft.util.Pair<DimensionType, Vec3d> lastPos =
+                net.minecraft.util.Pair<RegistryKey<World>, Vec3d> lastPos =
                     Global.serverTeleportationManager.lastPosition.get(player);
                 if (lastPos == null) {
                     sendMessage(context, "You haven't teleported");
@@ -1131,7 +1131,7 @@ public class PortalCommand {
     
     public static void reloadPortal(Portal portal) {
         portal.updateCache();
-        McHelper.getIEStorage(portal.dimension).resendSpawnPacketToTrackers(portal);
+        McHelper.getIEStorage(portal.world.getRegistryKey()).resendSpawnPacketToTrackers(portal);
     }
     
     public static void sendMessage(CommandContext<ServerCommandSource> context, String message) {
@@ -1153,7 +1153,7 @@ public class PortalCommand {
             "imm_ptl.command.make_portal.success",
             Double.toString(portal.width),
             Double.toString(portal.height),
-            McHelper.dimensionTypeId(portal.world.getDimension().getType()).toString(),
+            McHelper.dimensionTypeId(portal.world.getRegistryKey()).toString(),
             portal.getPos().toString(),
             McHelper.dimensionTypeId(portal.dimensionTo).toString(),
             portal.destination.toString()
@@ -1164,7 +1164,7 @@ public class PortalCommand {
     private static int placePortalAbsolute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         double width = DoubleArgumentType.getDouble(context, "width");
         double height = DoubleArgumentType.getDouble(context, "height");
-        DimensionType to = DimensionArgumentType.getDimensionArgument(context, "to");
+        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to");
         Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
         
         Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
@@ -1186,7 +1186,7 @@ public class PortalCommand {
     private static int placePortalShift(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         double width = DoubleArgumentType.getDouble(context, "width");
         double height = DoubleArgumentType.getDouble(context, "height");
-        DimensionType to = DimensionArgumentType.getDimensionArgument(context, "to");
+        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to");
         double dist = DoubleArgumentType.getDouble(context, "dist");
         
         Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
@@ -1236,7 +1236,6 @@ public class PortalCommand {
                     McHelper.setPosAndLastTickPos(entity, targetPos, targetPos);
                     McHelper.updateBoundingBox(entity);
                     entity.world = targetWorld;
-                    entity.dimension = targetWorld.getDimension().getType();
                     targetWorld.onDimensionChanged(entity);
                 }
             }

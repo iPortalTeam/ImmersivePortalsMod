@@ -34,6 +34,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -106,7 +107,7 @@ public class ClientDebugCommand {
                             int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             Chunk chunk = McHelper.getServer()
-                                .getWorld(player.dimension)
+                                .getWorld(player.world.getRegistryKey())
                                 .getChunk(
                                     chunkX, chunkZ,
                                     ChunkStatus.FULL, false
@@ -206,7 +207,7 @@ public class ClientDebugCommand {
             .literal("report_render_info_num")
             .executes(context -> {
                 String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
-                context.getSource().getPlayer().sendMessage(new LiteralText(str), MessageType.SYSTEM);
+                context.getSource().getPlayer().sendMessage(new LiteralText(str), false);
                 return 0;
             })
         );
@@ -541,7 +542,7 @@ public class ClientDebugCommand {
         CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
             str.append(String.format(
                 "%s %s\n",
-                world.getDimension().getType(),
+                world.getRegistryKey(),
                 ((MyClientChunkManager) world.getChunkManager()).getLoadedChunkCount()
             ));
         });
@@ -565,7 +566,7 @@ public class ClientDebugCommand {
             world -> {
                 str.append(String.format(
                     "%s %s\n",
-                    world.getDimension().getType(),
+                    world.getRegistryKey(),
                     world.getForcedChunks().size()
                 ));
             }
@@ -575,7 +576,7 @@ public class ClientDebugCommand {
         
         Helper.log(str);
         
-        context.getSource().getPlayer().sendMessage(new LiteralText(result), MessageType.SYSTEM);
+        context.getSource().getPlayer().sendMessage(new LiteralText(result), false);
         
         return 0;
     }
@@ -636,7 +637,7 @@ public class ClientDebugCommand {
             
             addPortalFunctionality = (playerEntity) -> {
                 Vec3d toPos = playerEntity.getPos();
-                DimensionType toDimension = player.dimension;
+                RegistryKey<World> toDimension = player.world.getRegistryKey();
                 
                 Portal portal = new Portal(Portal.entityType, fromWorld);
                 portal.setPos(fromPos.x, fromPos.y, fromPos.z);
@@ -679,11 +680,11 @@ public class ClientDebugCommand {
         
         McHelper.serverLog(
             playerMP,
-            "On Server " + playerMP.dimension + " " + playerMP.getPos()
+            "On Server " + playerMP.world.getRegistryKey() + " " + playerMP.getPos()
         );
         McHelper.serverLog(
             playerMP,
-            "On Client " + playerSP.dimension + " " + playerSP.getPos()
+            "On Client " + playerSP.world.getRegistryKey() + " " + playerSP.getPos()
         );
         return 0;
     }

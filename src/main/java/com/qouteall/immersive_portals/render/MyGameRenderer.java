@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.hiding_in_the_bushes.alternate_dimension.AlternateDimension;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
@@ -39,9 +38,10 @@ import net.minecraft.util.Util;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.dimension.OverworldDimension;
 import org.lwjgl.opengl.GL11;
 
 import java.util.function.Consumer;
@@ -62,14 +62,13 @@ public class MyGameRenderer {
         Vec3d oldEyePos = McHelper.getEyePos(cameraEntity);
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
         
-        DimensionType oldEntityDimension = cameraEntity.dimension;
+        RegistryKey<World> oldEntityDimension = cameraEntity.world.getRegistryKey();
         ClientWorld oldEntityWorld = ((ClientWorld) cameraEntity.world);
         
-        DimensionType newDimension = newWorld.dimension.getType();
+        RegistryKey<World> newDimension = newWorld.getRegistryKey();
         
         //switch the camera entity pos
         McHelper.setEyePos(cameraEntity, thisTickCameraPos, lastTickCameraPos);
-        cameraEntity.dimension = newDimension;
         cameraEntity.world = newWorld;
         
         GlStateManager.enableAlphaTest();
@@ -125,10 +124,10 @@ public class MyGameRenderer {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.pushMatrix();
         FogRendererContext.swappingManager.pushSwapping(
-            RenderDimensionRedirect.getRedirectedDimension(newWorld.getDimension().getType())
+            RenderDimensionRedirect.getRedirectedDimension(newDimension)
         );
         ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
-        if (BlockManipulationClient.remotePointedDim == newWorld.getDimension().getType()) {
+        if (BlockManipulationClient.remotePointedDim == newDimension) {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
@@ -182,7 +181,6 @@ public class MyGameRenderer {
         CHelper.checkGlError();
         
         //restore the camera entity pos
-        cameraEntity.dimension = oldEntityDimension;
         cameraEntity.world = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
     }
@@ -242,17 +240,10 @@ public class MyGameRenderer {
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
         
-        boolean bl2 = client.world.getDimension().isFogThick(
-            MathHelper.floor(d),
-            MathHelper.floor(e)
-        ) || client.inGameHud.getBossBarHud().shouldThickenFog();
+        boolean bl2 = client.world.getSkyProperties().useThickFog(MathHelper.floor(d), MathHelper.floor(e)) ||
+            client.inGameHud.getBossBarHud().shouldThickenFog();
         
-        BackgroundRenderer.applyFog(
-            camera,
-            BackgroundRenderer.FogType.FOG_TERRAIN,
-            Math.max(g - 16.0F, 32.0F),
-            bl2
-        );
+        BackgroundRenderer.applyFog(camera, BackgroundRenderer.FogType.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
         BackgroundRenderer.setFogBlack();
     }
     
@@ -295,46 +286,49 @@ public class MyGameRenderer {
     public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
         if (PortalRendering.isRendering()) {
             if (CGlobal.renderFewerInFastGraphic) {
-                if (!MinecraftClient.getInstance().options.fancyGraphics) {
-                    MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
-                }
+                //TODO recover
+//                if (!MinecraftClient.getInstance().options.fancyGraphics) {
+//                    MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
+//                }
             }
         }
     }
     
     public static void renderSkyFor(
-        DimensionType dimension,
+        RegistryKey<World> dimension,
         MatrixStack matrixStack,
         float tickDelta
     ) {
+    
+        client.worldRenderer.renderSky(matrixStack, tickDelta);
         
-        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
-        
-        if (client.world.getDimension() instanceof AlternateDimension &&
-            newWorld.getDimension() instanceof OverworldDimension
-        ) {
-            //avoid redirecting alternate to overworld
-            //or sky will be dark when camera pos is low
-            client.worldRenderer.renderSky(matrixStack, tickDelta);
-            return;
-        }
-        
-        WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
-        
-        ClientWorld oldWorld = client.world;
-        WorldRenderer oldWorldRenderer = client.worldRenderer;
-        FogRendererContext.swappingManager.pushSwapping(dimension);
-        MyGameRenderer.forceResetFogState();
-        
-        client.world = newWorld;
-        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
-        
-        newWorldRenderer.renderSky(matrixStack, tickDelta);
-        
-        client.world = oldWorld;
-        ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-        FogRendererContext.swappingManager.popSwapping();
-        MyGameRenderer.forceResetFogState();
+//        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
+//
+//        if (client.world.getDimension() instanceof AlternateDimension &&
+//            newWorld.getDimension() instanceof OverworldDimension
+//        ) {
+//            //avoid redirecting alternate to overworld
+//            //or sky will be dark when camera pos is low
+//            client.worldRenderer.renderSky(matrixStack, tickDelta);
+//            return;
+//        }
+//
+//        WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
+//
+//        ClientWorld oldWorld = client.world;
+//        WorldRenderer oldWorldRenderer = client.worldRenderer;
+//        FogRendererContext.swappingManager.pushSwapping(dimension);
+//        MyGameRenderer.forceResetFogState();
+//
+//        client.world = newWorld;
+//        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
+//
+//        newWorldRenderer.renderSky(matrixStack, tickDelta);
+//
+//        client.world = oldWorld;
+//        ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
+//        FogRendererContext.swappingManager.popSwapping();
+//        MyGameRenderer.forceResetFogState();
     }
     
     

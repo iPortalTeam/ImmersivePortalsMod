@@ -160,16 +160,16 @@ public abstract class MixinEntity implements IEEntity {
         at = @At("RETURN")
     )
     private void onReadFinished(CompoundTag compound, CallbackInfo ci) {
-        if (dimension == null) {
-            Helper.err("Invalid Dimension Id Read From NBT " + this);
-            if (world != null) {
-                dimension = world.getDimension().getType();
-            }
-            else {
-                Helper.err("World Field is Null");
-                dimension = DimensionType.OVERWORLD;
-            }
-        }
+//        if (dimension == null) {
+//            Helper.err("Invalid Dimension Id Read From NBT " + this);
+//            if (world != null) {
+//                dimension = world.getRegistryKey();
+//            }
+//            else {
+//                Helper.err("World Field is Null");
+//                dimension = DimensionType.OVERWORLD;
+//            }
+//        }
     }
     
     //for teleportation debug
@@ -187,7 +187,7 @@ public abstract class MixinEntity implements IEEntity {
                     Helper.log(String.format(
                         "%s %s teleported from %s %s %s to %s %s %s",
                         getName().asString(),
-                        dimension,
+                        world.getRegistryKey(),
                         (int) getX(), (int) getY(), (int) getZ(),
                         (int) nx, (int) ny, (int) nz
                     ));
@@ -219,7 +219,7 @@ public abstract class MixinEntity implements IEEntity {
         Entity this_ = (Entity) (Object) this;
         
         if (collidingPortal != null) {
-            if (collidingPortal.dimension != dimension) {
+            if (collidingPortal.world != world) {
                 collidingPortal = null;
             }
         }

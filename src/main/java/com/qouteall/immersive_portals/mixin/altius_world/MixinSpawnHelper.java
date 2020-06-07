@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin.altius_world;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +31,7 @@ public class MixinSpawnHelper {
         int height = chunk.sampleHeightmap(type, x, z);
         int dimHeight = chunk.getWorld().getDimensionHeight();
         if (AltiusInfo.isAltius()) {
-            if (chunk.getWorld().getDimension().getType() == DimensionType.THE_NETHER) {
+            if (chunk.getWorld().getRegistryKey() == World.NETHER) {
                 return Math.min(height, dimHeight - 3);
             }
         }

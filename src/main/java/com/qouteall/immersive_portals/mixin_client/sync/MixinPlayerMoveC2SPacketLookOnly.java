@@ -22,7 +22,7 @@ public class MixinPlayerMoveC2SPacketLookOnly {
     private void onConstruct(float float_1, float float_2, boolean boolean_1, CallbackInfo ci) {
         DimensionType dimension = MinecraftClient.getInstance().player.dimension;
         ((IEPlayerMoveC2SPacket) this).setPlayerDimension(dimension);
-        assert dimension == MinecraftClient.getInstance().world.getDimension().getType();
+        assert dimension == MinecraftClient.getInstance().world.getRegistryKey();
     }
     
     
