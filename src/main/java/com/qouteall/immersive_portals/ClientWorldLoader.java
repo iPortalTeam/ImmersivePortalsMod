@@ -211,7 +211,7 @@ public class ClientWorldLoader {
             );
             newWorld = new ClientWorld(
                 newNetworkHandler,
-                ((ClientWorld.class_5271) ((IEWorld) mc.world).myGetProperties()),
+                ((ClientWorld.Properties) ((IEWorld) mc.world).myGetProperties()),
                 dimension,
                 chunkLoadDistance,
                 () -> mc.getProfiler(),

@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.Helper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.class_5284;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.crash.CrashException;
@@ -30,6 +29,7 @@ import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.ChunkGeneratorType;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 import net.minecraft.world.gen.feature.EndCityFeature;
 import net.minecraft.world.gen.feature.Feature;
@@ -57,7 +57,7 @@ public class ErrorTerrainGenerator extends FloatingIslandsChunkGenerator {
     public ErrorTerrainGenerator(
         BiomeSource biomeSource,
         long seed,
-        class_5284 config
+        ChunkGeneratorType config
     ) {
         super(biomeSource, seed, config);
         AIR = Blocks.AIR.getDefaultState();

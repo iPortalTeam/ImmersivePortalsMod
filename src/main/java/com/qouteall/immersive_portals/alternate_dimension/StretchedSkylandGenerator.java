@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.alternate_dimension;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.class_5284;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.gen.chunk.ChunkGeneratorType;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 
 public class StretchedSkylandGenerator extends FloatingIslandsChunkGenerator {
@@ -18,7 +18,7 @@ public class StretchedSkylandGenerator extends FloatingIslandsChunkGenerator {
     public StretchedSkylandGenerator(
         BiomeSource biomeSource,
         long seed,
-        class_5284 config
+        ChunkGeneratorType config
     ) {
         super(biomeSource, seed, config);
         AIR = Blocks.AIR.getDefaultState();

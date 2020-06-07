@@ -536,12 +536,12 @@ public class McHelper {
         double maxEntityRadius,
         Predicate<T> predicate
     ) {
-        int xMin = (int) Math.floor(box.x1 - maxEntityRadius);
-        int yMin = (int) Math.floor(box.y1 - maxEntityRadius);
-        int zMin = (int) Math.floor(box.z1 - maxEntityRadius);
-        int xMax = (int) Math.ceil(box.x2 + maxEntityRadius);
-        int yMax = (int) Math.ceil(box.y2 + maxEntityRadius);
-        int zMax = (int) Math.ceil(box.z2 + maxEntityRadius);
+        int xMin = (int) Math.floor(box.minX - maxEntityRadius);
+        int yMin = (int) Math.floor(box.minY - maxEntityRadius);
+        int zMin = (int) Math.floor(box.minZ - maxEntityRadius);
+        int xMax = (int) Math.ceil(box.maxX + maxEntityRadius);
+        int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
+        int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
         
         return findEntities(
             entityClass,

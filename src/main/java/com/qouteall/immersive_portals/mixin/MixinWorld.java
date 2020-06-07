@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin;
 
 import com.qouteall.immersive_portals.ducks.IEWorld;
-import net.minecraft.class_5269;
+import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkManager;
 import org.spongepowered.asm.mixin.Final;
@@ -18,7 +18,7 @@ public class MixinWorld implements IEWorld {
     
     @Shadow
     @Final
-    protected class_5269 properties;
+    protected MutableWorldProperties properties;
     
     @Override
     public void setChunkManager(ChunkManager manager) {
@@ -26,7 +26,7 @@ public class MixinWorld implements IEWorld {
     }
     
     @Override
-    public class_5269 myGetProperties() {
+    public MutableWorldProperties myGetProperties() {
         return properties;
     }
 }

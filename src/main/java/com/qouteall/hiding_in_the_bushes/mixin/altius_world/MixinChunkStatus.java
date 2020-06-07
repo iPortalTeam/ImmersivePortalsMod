@@ -44,7 +44,7 @@ public class MixinChunkStatus {
         catch (Throwable e) {
             Helper.err(String.format(
                 "Error when generating terrain %s %d %d",
-                chunkRegion.getWorld().getDimension().getType(),
+                chunkRegion.getWorld().getRegistryKey(),
                 chunkRegion.getCenterChunkX(),
                 chunkRegion.getCenterChunkZ()
             ));

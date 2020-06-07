@@ -231,27 +231,27 @@ public class FrustumCuller {
     
     @Deprecated
     private static BatchTestResult testBox_(Box box, PosPredicate predicate) {
-        boolean firstResult = predicate.test(box.x1, box.y1, box.z1);
-        if (predicate.test(box.x1, box.y1, box.z2) != firstResult) return BatchTestResult.both;
-        if (predicate.test(box.x1, box.y2, box.z1) != firstResult) return BatchTestResult.both;
-        if (predicate.test(box.x1, box.y2, box.z2) != firstResult) return BatchTestResult.both;
-        if (predicate.test(box.x2, box.y1, box.z1) != firstResult) return BatchTestResult.both;
-        if (predicate.test(box.x2, box.y1, box.z2) != firstResult) return BatchTestResult.both;
-        if (predicate.test(box.x2, box.y2, box.z1) != firstResult) return BatchTestResult.both;
-        if (predicate.test(box.x2, box.y2, box.z2) != firstResult) return BatchTestResult.both;
+        boolean firstResult = predicate.test(box.minX, box.minY, box.minZ);
+        if (predicate.test(box.minX, box.minY, box.maxZ) != firstResult) return BatchTestResult.both;
+        if (predicate.test(box.minX, box.maxY, box.minZ) != firstResult) return BatchTestResult.both;
+        if (predicate.test(box.minX, box.maxY, box.maxZ) != firstResult) return BatchTestResult.both;
+        if (predicate.test(box.maxX, box.minY, box.minZ) != firstResult) return BatchTestResult.both;
+        if (predicate.test(box.maxX, box.minY, box.maxZ) != firstResult) return BatchTestResult.both;
+        if (predicate.test(box.maxX, box.maxY, box.minZ) != firstResult) return BatchTestResult.both;
+        if (predicate.test(box.maxX, box.maxY, box.maxZ) != firstResult) return BatchTestResult.both;
         return firstResult ? BatchTestResult.all_true : BatchTestResult.all_false;
     }
     
     @Deprecated
     private static boolean testBoxAllTrue_(Box box, PosPredicate predicate) {
-        if (!predicate.test(box.x1, box.y1, box.z1)) return false;
-        if (!predicate.test(box.x1, box.y1, box.z2)) return false;
-        if (!predicate.test(box.x1, box.y2, box.z1)) return false;
-        if (!predicate.test(box.x1, box.y2, box.z2)) return false;
-        if (!predicate.test(box.x2, box.y1, box.z1)) return false;
-        if (!predicate.test(box.x2, box.y1, box.z2)) return false;
-        if (!predicate.test(box.x2, box.y2, box.z1)) return false;
-        if (!predicate.test(box.x2, box.y2, box.z2)) return false;
+        if (!predicate.test(box.minX, box.minY, box.minZ)) return false;
+        if (!predicate.test(box.minX, box.minY, box.maxZ)) return false;
+        if (!predicate.test(box.minX, box.maxY, box.minZ)) return false;
+        if (!predicate.test(box.minX, box.maxY, box.maxZ)) return false;
+        if (!predicate.test(box.maxX, box.minY, box.minZ)) return false;
+        if (!predicate.test(box.maxX, box.minY, box.maxZ)) return false;
+        if (!predicate.test(box.maxX, box.maxY, box.minZ)) return false;
+        if (!predicate.test(box.maxX, box.maxY, box.maxZ)) return false;
         return true;
     }
     

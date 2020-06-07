@@ -1,10 +1,10 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
-import net.minecraft.class_5284;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.world.gen.chunk.ChunkGeneratorType;
 import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
@@ -15,7 +15,7 @@ public class NormalSkylandGenerator extends FloatingIslandsChunkGenerator {
     public NormalSkylandGenerator(
         BiomeSource biomeSource,
         long seed,
-        class_5284 config
+        ChunkGeneratorType config
     ) {
         super(biomeSource, seed, config);
     }

@@ -370,14 +370,14 @@ public class Helper {
     
     public static Vec3d[] eightVerticesOf(Box box) {
         return new Vec3d[]{
-            new Vec3d(box.x1, box.y1, box.z1),
-            new Vec3d(box.x1, box.y1, box.z2),
-            new Vec3d(box.x1, box.y2, box.z1),
-            new Vec3d(box.x1, box.y2, box.z2),
-            new Vec3d(box.x2, box.y1, box.z1),
-            new Vec3d(box.x2, box.y1, box.z2),
-            new Vec3d(box.x2, box.y2, box.z1),
-            new Vec3d(box.x2, box.y2, box.z2)
+            new Vec3d(box.minX, box.minY, box.minZ),
+            new Vec3d(box.minX, box.minY, box.maxZ),
+            new Vec3d(box.minX, box.maxY, box.minZ),
+            new Vec3d(box.minX, box.maxY, box.maxZ),
+            new Vec3d(box.maxX, box.minY, box.minZ),
+            new Vec3d(box.maxX, box.minY, box.maxZ),
+            new Vec3d(box.maxX, box.maxY, box.minZ),
+            new Vec3d(box.maxX, box.maxY, box.maxZ)
         };
     }
     

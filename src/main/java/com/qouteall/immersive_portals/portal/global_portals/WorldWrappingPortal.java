@@ -141,10 +141,10 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
             
             return new IntBox(
                 new BlockPos(
-                    Math.round(floatBox.x1), 0, Math.round(floatBox.z1)
+                    Math.round(floatBox.minX), 0, Math.round(floatBox.minZ)
                 ),
                 new BlockPos(
-                    Math.round(floatBox.x2) - 1, 256, Math.round(floatBox.z2) - 1
+                    Math.round(floatBox.maxX) - 1, 256, Math.round(floatBox.maxZ) - 1
                 )
             );
         }
@@ -159,10 +159,10 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
             
             return new IntBox(
                 new BlockPos(
-                    Math.round(floatBox.x1) - 1, 0, Math.round(floatBox.z1) - 1
+                    Math.round(floatBox.minX) - 1, 0, Math.round(floatBox.minZ) - 1
                 ),
                 new BlockPos(
-                    Math.round(floatBox.x2), 256, Math.round(floatBox.z2)
+                    Math.round(floatBox.maxX), 256, Math.round(floatBox.maxZ)
                 )
             );
         }
@@ -174,8 +174,8 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
                 "[%d] %s %s %s ~ %s %s\n",
                 id,
                 isInwardZone ? "inward" : "outward",
-                area.x1, area.z1,
-                area.x2, area.z2
+                area.minX, area.minZ,
+                area.maxX, area.maxZ
             );
         }
     }

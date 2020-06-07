@@ -29,14 +29,14 @@ public class CollisionHelper {
         boolean zForward = planeNormal.z > 0;
         
         Vec3d pushedPos = new Vec3d(
-            xForward ? box.x1 : box.x2,
-            yForward ? box.y1 : box.y2,
-            zForward ? box.z1 : box.z2
+            xForward ? box.minX : box.maxX,
+            yForward ? box.minY : box.maxY,
+            zForward ? box.minZ : box.maxZ
         );
         Vec3d staticPos = new Vec3d(
-            xForward ? box.x2 : box.x1,
-            yForward ? box.y2 : box.y1,
-            zForward ? box.z2 : box.z1
+            xForward ? box.maxX : box.minX,
+            yForward ? box.maxY : box.minY,
+            zForward ? box.maxZ : box.minZ
         );
         
         double tOfPushedPos = Helper.getCollidingT(planePos, planeNormal, pushedPos, planeNormal);

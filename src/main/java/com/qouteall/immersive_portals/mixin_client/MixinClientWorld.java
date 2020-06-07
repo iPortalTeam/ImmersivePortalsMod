@@ -61,7 +61,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
     )
     void onConstructed(
         ClientPlayNetworkHandler clientPlayNetworkHandler,
-        ClientWorld.class_5271 levelInfo,
+        ClientWorld.Properties levelInfo,
         DimensionType dimensionType,
         int chunkLoadDistance,
         Supplier<Profiler> supplier,
