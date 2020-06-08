@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 
 @Mixin(Language.class)
 public interface MixinLanguage {
-    @Accessor("translations")
-    Map<String, String> portal_getTranslations();
-
-    @Accessor("field_11489")
-    Pattern portal_getPattern();
+//    @Accessor("translations")
+//    Map<String, String> portal_getTranslations();
+//
+//    @Accessor("field_11489")
+//    Pattern portal_getPattern();
 }

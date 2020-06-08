@@ -14,7 +14,6 @@ import net.minecraft.resource.ResourcePackProfile;
 import net.minecraft.resource.ServerResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
 import net.minecraft.util.registry.RegistryTracker;
@@ -72,7 +71,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     }
     
     @Inject(
-        method = "Lnet/minecraft/server/MinecraftServer;run()V",
+        method = "method_29741",
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
@@ -88,7 +87,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         CallbackInfo ci
     ) {
         portal_areAllWorldsLoaded = true;
-        DimensionIdRecord.saveServerSideDimInfo();
+        DimensionIdRecord.onServerStarted();
     }
     
     @Override

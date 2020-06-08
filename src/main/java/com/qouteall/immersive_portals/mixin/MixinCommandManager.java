@@ -18,11 +18,11 @@ public class MixinCommandManager {
     private CommandDispatcher<ServerCommandSource> dispatcher;
     
     @Inject(
-        method = "Lnet/minecraft/server/command/CommandManager;<init>(Z)V",
+        method = "<init>",
         at = @At("RETURN")
     )
-    private void initCommands(boolean isOnServer, CallbackInfo ci) {
-        if (!isOnServer) {
+    private void initCommands(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
+        if (environment == CommandManager.RegistrationEnvironment.INTEGRATED) {
             PortalCommand.registerClientDebugCommand(dispatcher);
         }
         PortalCommand.register(dispatcher);

@@ -71,6 +71,7 @@ public class MyNetworkClient {
     
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
         String entityTypeString = buf.readString();
+    
         int entityId = buf.readInt();
         
         RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.CLIENT);

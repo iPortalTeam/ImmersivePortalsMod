@@ -107,7 +107,7 @@ public class MyNetwork {
         CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
         buf.writeCompoundTag(typeMapTag);
     
-        return new CustomPayloadC2SPacket(id_stcDimSync, buf);
+        return new CustomPayloadS2CPacket(id_stcDimSync, buf);
     }
     
     public static Packet createEmptyPacketByType(
@@ -142,10 +142,7 @@ public class MyNetwork {
     ) {
         EntityType entityType = entity.getType();
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(
-            buf, entity.world.getRegistryKey(),
-            entity.world.isClient ? EnvType.CLIENT : EnvType.SERVER
-        );
+        buf.writeString(EntityType.getId(entityType).toString());
         buf.writeInt(entity.getEntityId());
         DimId.writeWorldId(
             buf, entity.world.getRegistryKey(),

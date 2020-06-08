@@ -10,8 +10,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +31,8 @@ public class DimensionIdRecord {
     public static DimensionIdRecord clientRecord;
     
     public static DimensionIdRecord serverRecord;
+    
+    private static DimensionIdRecord fabricRecord;
     
     private final BiMap<RegistryKey<World>, Integer> idMap;
     private final BiMap<Integer, RegistryKey<World>> inverseMap;
@@ -61,7 +65,7 @@ public class DimensionIdRecord {
     @Override
     public String toString() {
         return idMap.entrySet().stream().map(
-            e -> e.getKey().toString() + "->" + e.getValue()
+            e -> e.getKey().getValue().toString() + " -> " + e.getValue()
         ).collect(Collectors.joining("\n"));
     }
     
@@ -88,7 +92,9 @@ public class DimensionIdRecord {
     }
     
     private static File getIPDimIdFile() {
-        Path saveDir = McHelper.getServer().session.directory;
+        MinecraftServer server = McHelper.getServer();
+        Validate.notNull(server);
+        Path saveDir = server.session.directory;
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
     }
     
@@ -123,63 +129,85 @@ public class DimensionIdRecord {
     }
     
     public static void onReadFabricRegistryServerSide(CompoundTag fabricRegistryRecord) {
-        DimensionIdRecord ipRecord = readIPDimensionRegistry();
-        
-        if (ipRecord != null) {
-            Helper.log("Successfully retrieved Immersive Portals' dimension id info");
-            serverRecord = ipRecord;
-            return;
-        }
-        
-        DimensionIdRecord fabricRecord = readIdsFromFabricRegistryRecord(fabricRegistryRecord);
+        fabricRecord = readIdsFromFabricRegistryRecord(fabricRegistryRecord);
         
         if (fabricRecord != null) {
-            Helper.log("Retrieved Fabric's dimension id info although IP's is missing");
-            serverRecord = fabricRecord;
-            return;
+            Helper.log("Retrieved Fabric's dimension id record");
+            Helper.log("\n" + fabricRecord.toString());
         }
-        
-        Helper.err("Cannot retrieve dimension integer id info. The world may get corrupted!!!");
-        serverRecord = null;
+        else {
+            Helper.log("Cannot retrieve dimension id info from Fabric's record");
+        }
     }
     
-    private static void createServerIdRecordIfMissing() {
+    private static void completeServerIdRecord() {
         if (serverRecord == null) {
             Helper.log("Dimension Id Record is Missing");
-            
-            Set<RegistryKey<World>> keys = McHelper.getServer().getWorldRegistryKeys();
-            
-            HashBiMap<RegistryKey<World>, Integer> bimap = HashBiMap.create();
-            
-            bimap.put(World.OVERWORLD, 0);
-            bimap.put(World.NETHER, -1);
-            bimap.put(World.END, 1);
-            
-            List<RegistryKey<World>> keysList = new ArrayList<>(keys);
-            keysList.sort(Comparator.comparing(RegistryKey::toString));
-            
-            Helper.log("Sorted Dimension Key List:");
-            Helper.log(Helper.myToString(keysList.stream()));
-            
-            keysList.forEach(dim -> {
-                if (!bimap.containsKey(dim)) {
-                    int newid = bimap.values().stream().mapToInt(i -> i).max().orElse(1) + 1;
-                    bimap.put(dim, newid);
-                }
-            });
-            
-            serverRecord = new DimensionIdRecord(bimap);
-            
-            Helper.log("Created Dimension Id Record");
+            serverRecord = new DimensionIdRecord(HashBiMap.create());
         }
+        
+        Helper.log("Start Completing Dimension Id Record");
+        Helper.log("Before:\n" + serverRecord);
+        
+        Set<RegistryKey<World>> keys = McHelper.getServer().getWorldRegistryKeys();
+        
+        BiMap<RegistryKey<World>, Integer> bimap = serverRecord.idMap;
+        
+        if (!bimap.containsKey(World.OVERWORLD)) {
+            bimap.put(World.OVERWORLD, 0);
+        }
+        if (!bimap.containsKey(World.NETHER)) {
+            bimap.put(World.NETHER, -1);
+        }
+        if (!bimap.containsKey(World.END)) {
+            bimap.put(World.END, 1);
+        }
+        
+        List<RegistryKey<World>> keysList = new ArrayList<>(keys);
+        keysList.sort(Comparator.comparing(RegistryKey::toString));
+        
+        Helper.log("Sorted Dimension Key List:\n" + Helper.myToString(keysList.stream()));
+        
+        keysList.forEach(dim -> {
+            if (!bimap.containsKey(dim)) {
+                int newid = bimap.values().stream().mapToInt(i -> i).max().orElse(1) + 1;
+                bimap.put(dim, newid);
+            }
+        });
+        
+        Helper.log("After:\n" + serverRecord);
     }
     
-    public static void saveServerSideDimInfo() {
-        createServerIdRecordIfMissing();
+    public static void onServerStarted() {
+        DimensionIdRecord ipRecord = readIPDimensionRegistry();
+        if (ipRecord == null) {
+            Helper.log("Immersive Portals' dimension id record is missing");
+            
+            if (fabricRecord != null) {
+                Helper.log("Found Fabric's dimension id record");
+                Helper.log("\n" + fabricRecord);
+                
+                serverRecord = fabricRecord;
+                fabricRecord = null;
+            }
+            else {
+                Helper.log("Cannot retrieve Fabric's dimension id record.");
+                Helper.log("If this is not a newly created world," +
+                    " existing portal data may be corrupted!!!"
+                );
+                serverRecord = null;
+            }
+        }
+        else {
+            serverRecord = ipRecord;
+            Helper.log("Successfully read IP's dimension id record");
+        }
         
-        File file = getIPDimIdFile();
+        completeServerIdRecord();
         
         try {
+            File file = getIPDimIdFile();
+            
             FileOutputStream fileInputStream = new FileOutputStream(file);
             
             CompoundTag tag = recordToTag(serverRecord);
@@ -187,8 +215,6 @@ public class DimensionIdRecord {
             NbtIo.writeCompressed(tag, fileInputStream);
             
             Helper.log("Dimension Id Info Saved to File");
-            
-            Helper.log("\n" + serverRecord.toString());
         }
         catch (IOException e) {
             throw new RuntimeException(
