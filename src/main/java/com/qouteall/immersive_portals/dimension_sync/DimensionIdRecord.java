@@ -145,7 +145,7 @@ public class DimensionIdRecord {
     
     private static void createServerIdRecordIfMissing() {
         if (serverRecord == null) {
-            Helper.err("Dimension Id Record is Missing");
+            Helper.log("Dimension Id Record is Missing");
             
             Set<RegistryKey<World>> keys = McHelper.getServer().getWorldRegistryKeys();
             
@@ -221,7 +221,8 @@ public class DimensionIdRecord {
         dimensionTypeTag.getKeys().forEach(dim -> {
             Tag t = dimensionTypeTag.get(dim);
             if (t instanceof IntTag) {
-                bimap.put(DimId.idToKey(dim), ((IntTag) t).getInt());
+                int data = ((IntTag) t).getInt();
+                bimap.put(DimId.idToKey(dim), data - 1);
             }
             else {
                 Helper.err(String.format(

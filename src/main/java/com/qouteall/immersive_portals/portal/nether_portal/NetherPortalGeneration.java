@@ -461,7 +461,7 @@ public class NetherPortalGeneration {
         BlockPos.Mutable temp = new BlockPos.Mutable();
         
         IntBox toWorldHeightLimit =
-            NetherPortalMatcher.getHeightLimit(toWorld.getRegistryKey());
+            NetherPortalMatcher.getHeightLimit(toWorld);
         
         Stream<BlockPos> blockPosStream = fromNearToFarColumned(
             toWorld,

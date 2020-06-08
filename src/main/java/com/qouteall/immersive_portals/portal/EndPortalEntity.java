@@ -36,7 +36,7 @@ public class EndPortalEntity extends Portal {
         
         portal.destination = new Vec3d(0, 120, 0);
         
-        portal.dimensionTo = DimensionType.THE_END;
+        portal.dimensionTo = World.END;
         
         portal.axisW = new Vec3d(0, 0, 1);
         portal.axisH = new Vec3d(1, 0, 0);
@@ -83,8 +83,8 @@ public class EndPortalEntity extends Portal {
     }
     
     private void generateObsidianPlatform() {
-        ServerWorld endWorld = McHelper.getServer().getWorld(DimensionType.THE_END);
-        BlockPos spawnPoint = endWorld.getForcedSpawnPoint();
+        ServerWorld endWorld = McHelper.getServer().getWorld(World.END);
+        BlockPos spawnPoint = endWorld.getSpawnPos();
         
         int int_1 = spawnPoint.getX();
         int int_2 = spawnPoint.getY() - 1;

@@ -21,6 +21,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -132,7 +133,7 @@ public class CrossPortalEntityRenderer {
                 //no need to render entity projection for mirrors
                 return;
             }
-            DimensionType projectionDimension = collidingPortal.dimensionTo;
+            RegistryKey<World> projectionDimension = collidingPortal.dimensionTo;
             if (client.world.getRegistryKey() == projectionDimension) {
                 renderProjectedEntity(entity, collidingPortal, matrixStack);
             }
@@ -264,7 +265,7 @@ public class CrossPortalEntityRenderer {
         if (!PortalRendering.isRendering()) {
             return false;
         }
-        if (client.cameraEntity.dimension == RenderStates.originalPlayerDimension) {
+        if (client.cameraEntity.world.getRegistryKey() == RenderStates.originalPlayerDimension) {
             return true;
         }
         return false;

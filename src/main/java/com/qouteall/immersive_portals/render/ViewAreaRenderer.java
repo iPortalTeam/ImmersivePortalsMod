@@ -21,6 +21,8 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
@@ -322,7 +324,7 @@ public class ViewAreaRenderer {
         return getFogColorOf(portal.dimensionTo);
     }
     
-    private static Vec3d getFogColorOf(DimensionType dimension) {
+    private static Vec3d getFogColorOf(RegistryKey<World> dimension) {
         Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
         
         FogRendererContext.swappingManager.swapAndInvoke(

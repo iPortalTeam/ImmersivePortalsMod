@@ -54,9 +54,12 @@ public class NetherPortalMatcher {
     );
     
     public static IntBox getHeightLimit(
-        DimensionType dimension
+        World world
     ) {
-        return dimension == DimensionType.THE_NETHER ? heightLimitNether : heightLimitOverworld;
+        return new IntBox(
+            new BlockPos(Integer.MIN_VALUE, 2, Integer.MIN_VALUE),
+            new BlockPos(Integer.MAX_VALUE, world.getDimensionHeight() - 2, Integer.MAX_VALUE)
+        );
     }
     
     public static Stream<BlockPos> forOneDirection(

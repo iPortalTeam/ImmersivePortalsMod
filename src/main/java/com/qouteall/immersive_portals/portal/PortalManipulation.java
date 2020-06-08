@@ -45,7 +45,7 @@ public class PortalManipulation {
         ServerWorld world = McHelper.getServer().getWorld(portal.dimensionTo);
         
         Portal newPortal = entityType.create(world);
-        newPortal.dimensionTo = portal.dimension;
+        newPortal.dimensionTo = portal.world.getRegistryKey();
         newPortal.updatePosition(portal.destination.x, portal.destination.y, portal.destination.z);
         newPortal.destination = portal.getPos();
         newPortal.specificPlayerId = portal.specificPlayerId;

@@ -38,7 +38,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"), MessageType.SYSTEM);
+            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"), false);
             return;
         }
         
@@ -59,7 +59,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"),MessageType.SYSTEM);
+            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"), false);
             return;
         }
         
@@ -76,14 +76,16 @@ public class BorderBarrierFiller {
         boolean warned = warnedPlayers.containsKey(player);
         if (!warned) {
             warnedPlayers.put(player, null);
-            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"),MessageType.SYSTEM);
+            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"),
+                false);
         }
         else {
             warnedPlayers.remove(player);
             
-            player.sendMessage(new TranslatableText("imm_ptl.start_clearing_border"),MessageType.SYSTEM);
+            player.sendMessage(new TranslatableText("imm_ptl.start_clearing_border"),
+                false);
             
-            startFillingBorder(world, borderBox, l->player.sendMessage(l,MessageType.SYSTEM));
+            startFillingBorder(world, borderBox, l -> player.sendMessage(l, false));
         }
     }
     
