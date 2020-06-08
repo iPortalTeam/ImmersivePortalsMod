@@ -92,7 +92,7 @@ public class OFInterfaceInitializer {
         };
 //        OFInterface.initShaderCullingManager = ShaderCullingManager::init;
         OFInterface.isFogDisabled = () -> Config.isFogOff();
-        OFInterface.updateEntityTypeForShader = Shaders::nextEntity;
+//        OFInterface.updateEntityTypeForShader = Shaders::nextEntity;
     
         OFInterface.isInternalShader = () -> Shaders.getShaderPack() instanceof ShaderPackDefault;
     }
