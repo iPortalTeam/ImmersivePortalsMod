@@ -11,19 +11,10 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(World.class)
 public class MixinWorld implements IEWorld {
-    @Shadow
-    @Final
-    @Mutable
-    protected ChunkManager chunkManager;
     
     @Shadow
     @Final
     protected MutableWorldProperties properties;
-    
-    @Override
-    public void setChunkManager(ChunkManager manager) {
-        chunkManager = manager;
-    }
     
     @Override
     public MutableWorldProperties myGetProperties() {

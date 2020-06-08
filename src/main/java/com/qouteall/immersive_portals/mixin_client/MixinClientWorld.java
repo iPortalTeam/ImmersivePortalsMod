@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.profiler.Profiler;
@@ -30,6 +31,11 @@ public abstract class MixinClientWorld implements IEClientWorld {
     @Final
     @Mutable
     private ClientPlayNetworkHandler netHandler;
+    
+    @Mutable
+    @Shadow
+    @Final
+    private ClientChunkManager chunkManager;
     
     @Shadow
     public abstract Entity getEntityById(int id);
@@ -75,8 +81,9 @@ public abstract class MixinClientWorld implements IEClientWorld {
         CallbackInfo ci
     ) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;
-        MyClientChunkManager chunkManager = new MyClientChunkManager(clientWorld, chunkLoadDistance);
-        ((IEWorld) this).setChunkManager(chunkManager);
+        MyClientChunkManager myClientChunkManager =
+            new MyClientChunkManager(clientWorld, chunkLoadDistance);
+        chunkManager = myClientChunkManager;
     }
     
     //avoid entity duplicate when an entity travels
@@ -89,5 +96,5 @@ public abstract class MixinClientWorld implements IEClientWorld {
             .filter(world -> world != (Object) this)
             .forEach(world -> world.removeEntity(entityId));
     }
-
+    
 }

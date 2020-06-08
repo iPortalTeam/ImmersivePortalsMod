@@ -4,7 +4,6 @@ import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.chunk.ChunkManager;
 
 public interface IEWorld {
-    void setChunkManager(ChunkManager manager);
     
     MutableWorldProperties myGetProperties();
 }
