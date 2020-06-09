@@ -157,6 +157,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     //server will check the collision when receiving position packet from client
     //we treat collision specially when player is halfway through a portal
+    //"isPlayerNotCollidingWithBlocks" is wrong now
     @Redirect(
         method = "onPlayerMove",
         at = @At(

@@ -51,6 +51,13 @@ public class DimensionTypeSync {
     @Environment(EnvType.CLIENT)
     public static void acceptTypeMapData(CompoundTag tag) {
         clientTypeMap = typeMapFromTag(tag);
+        
+        Helper.log("Received Dimension Type Sync");
+        Helper.log("\n" + Helper.myToString(
+            clientTypeMap.entrySet().stream().map(
+                e -> e.getKey().toString() + " -> " + e.getValue()
+            )
+        ));
     }
     
     public static CompoundTag createTagFromServerWorldInfo() {
