@@ -3,13 +3,13 @@ package com.qouteall.immersive_portals.mixin.altius_world;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.class_5311;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorType;
+import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +29,7 @@ public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
     
     @Shadow @Final private int field_24779;
     
-    public MixinSurfaceChunkGenerator(BiomeSource biomeSource, class_5311 arg) {
+    public MixinSurfaceChunkGenerator(BiomeSource biomeSource, StructuresConfig arg) {
         super(biomeSource, arg);
     }
     

@@ -11,14 +11,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RegistrySyncManager.class)
 public class MixinFabricRegistrySyncManager {
-    @Inject(method = "apply", at = @At("HEAD"))
-    private static void onApply(
-        CompoundTag tag,
-        RemappableRegistry.RemapMode mode,
-        CallbackInfoReturnable<CompoundTag> cir
-    ) {
-        if (mode == RemappableRegistry.RemapMode.AUTHORITATIVE) {
-            DimensionIdRecord.onReadFabricRegistryServerSide(tag);
-        }
-    }
+//    @Inject(method = "apply", at = @At("HEAD"))
+//    private static void onApply(
+//        CompoundTag tag,
+//        RemappableRegistry.RemapMode mode,
+//        CallbackInfoReturnable<CompoundTag> cir
+//    ) {
+//        if (mode == RemappableRegistry.RemapMode.AUTHORITATIVE) {
+//            DimensionIdRecord.onReadFabricRegistryServerSide(tag);
+//        }
+//    }
 }

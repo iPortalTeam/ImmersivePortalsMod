@@ -86,9 +86,9 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         this.textureWidth = width;
         this.textureHeight = height;
         this.fbo = GlStateManager.genFramebuffers();
-        this.colorAttachment = TextureUtil.method_24956();
+        this.colorAttachment = TextureUtil.generateId();
         if (this.useDepthAttachment) {
-            this.depthAttachment = TextureUtil.method_24956();
+            this.depthAttachment = TextureUtil.generateId();
             GlStateManager.bindTexture(this.depthAttachment);
             GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 9728);
             GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 9728);

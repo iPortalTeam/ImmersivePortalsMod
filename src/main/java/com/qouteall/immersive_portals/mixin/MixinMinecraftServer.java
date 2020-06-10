@@ -7,7 +7,7 @@ import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
-import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
+import com.qouteall.immersive_portals.dimension_sync.DimensionIdManagement;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.resource.ResourcePackProfile;
@@ -87,7 +87,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         CallbackInfo ci
     ) {
         portal_areAllWorldsLoaded = true;
-        DimensionIdRecord.onServerStarted();
+        DimensionIdManagement.onServerStarted();
     }
     
     @Override
