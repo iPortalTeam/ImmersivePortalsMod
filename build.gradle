@@ -45,11 +45,11 @@ dependencies {
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-	modApi "me.shedaniel.cloth:config-2:2.9.3"
-	modImplementation "io.github.prospector:modmenu:1.10.1+build.30"
+	modApi "me.shedaniel.cloth:config-2:2.14.1"
+	modImplementation "io.github.prospector:modmenu:1.10.2+build.32"
 
-	include "me.shedaniel.cloth:config-2:2.9.3"
-	include "io.github.prospector:modmenu:1.10.1+build.30"
+	include "me.shedaniel.cloth:config-2:2.14.1"
+	include "io.github.prospector:modmenu:1.10.2+build.32"
 
 //	modCompile 'ignored:netherHigher:1.0.2+build.3'
 //	modCompile 'ignored:config:2-2.9.3'

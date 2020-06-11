@@ -24,7 +24,7 @@ public class OFInterfaceInitializer {
         
         OFInterface.isShaders = Config::isShaders;
         OFInterface.isShadowPass = () -> Config.isShaders() && Shaders.isShadowPass;
-       
+        
         OFInterface.beforeRenderCenter = (partialTicks) -> {
             if (Config.isShaders()) {
                 MinecraftClient mc = MinecraftClient.getInstance();
@@ -92,8 +92,9 @@ public class OFInterfaceInitializer {
         };
 //        OFInterface.initShaderCullingManager = ShaderCullingManager::init;
         OFInterface.isFogDisabled = () -> Config.isFogOff();
-//        OFInterface.updateEntityTypeForShader = Shaders::nextEntity;
-    
+        OFInterface.updateEntityTypeForShader = (e) -> {
+        };
+        
         OFInterface.isInternalShader = () -> Shaders.getShaderPack() instanceof ShaderPackDefault;
     }
 }

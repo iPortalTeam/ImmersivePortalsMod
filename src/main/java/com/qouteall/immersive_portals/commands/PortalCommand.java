@@ -515,6 +515,34 @@ public class PortalCommand {
                 ))
             )
         );
+    
+        builder.then(CommandManager.literal("move_portal_destination")
+            .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
+                .executes(context -> processPortalTargetedCommand(
+                    context, portal -> {
+                        try {
+                            double distance =
+                                DoubleArgumentType.getDouble(context, "distance");
+                        
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            Vec3d viewVector = player.getRotationVector();
+                            Direction facing = Direction.getFacing(
+                                viewVector.x, viewVector.y, viewVector.z
+                            );
+                            Vec3d offset = new Vec3d(facing.getVector()).multiply(distance);
+    
+                            portal.destination = portal.destination.add(
+                                portal.untransformLocalVec(offset)
+                            );
+                            reloadPortal(portal);
+                        }
+                        catch (CommandSyntaxException e) {
+                            sendMessage(context, "This command can only be invoked by player");
+                        }
+                    }
+                ))
+            )
+        );
         
         
         builder.then(CommandManager.literal("set_portal_specific_accessor")

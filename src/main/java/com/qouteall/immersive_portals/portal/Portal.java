@@ -509,6 +509,22 @@ public class Portal extends Entity {
         return new Vec3d(temp);
     }
     
+    public Vec3d untransformLocalVec(Vec3d localVec) {
+        if (rotation == null) {
+            return localVec;
+        }
+        
+        Vector3f temp = new Vector3f(localVec);
+        Quaternion r = rotation.copy();
+        r.conjugate();
+        temp.rotate(r);
+        return new Vec3d(temp);
+    }
+    
+    public Vec3d untransformPoint(Vec3d point) {
+        return getPos().add(untransformLocalVec(point.subtract(destination)));
+    }
+    
     public Vec3d getCullingPoint() {
         return destination;
     }
@@ -527,7 +543,7 @@ public class Portal extends Entity {
         ));
     }
     
-    public Box getThinAreaBox(){
+    public Box getThinAreaBox() {
         return new Box(
             getPointInPlane(width / 2, height / 2),
             getPointInPlane(-width / 2, -height / 2)

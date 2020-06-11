@@ -36,7 +36,7 @@ public class MixinCreateWorldScreen extends Screen {
     }
     
     @Inject(
-        method = "init",
+        method = "Lnet/minecraft/client/gui/screen/world/CreateWorldScreen;init()V",
         at = @At("HEAD")
     )
     private void onInitEnded(CallbackInfo ci) {
