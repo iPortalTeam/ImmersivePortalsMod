@@ -202,12 +202,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         double cameraY,
         double cameraZ
     ) {
-        boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
-        if (isTranslucent) {
-//            CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
-//            CGlobal.renderer.onBeforeTranslucentRendering(matrices);
-        }
-        
         ObjectList<?> visibleChunks = this.visibleChunks;
         if (renderLayer == RenderLayer.getSolid()) {
             MyGameRenderer.doPruneVisibleChunks(visibleChunks);
@@ -233,10 +227,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             PixelCuller.endCulling();
             MyRenderHelper.recoverFaceCulling();
-        }
-        
-        if (isTranslucent) {
-//            CGlobal.renderer.onAfterTranslucentRendering(matrices);
         }
         
         if (renderLayer == RenderLayer.getCutout()) {
