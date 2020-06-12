@@ -34,6 +34,8 @@ public class ViewAreaRenderer {
         Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
         Vec3d cameraPos, float partialTicks, float layerWidth
     ) {
+        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         
         Vec3d posInPlayerCoordinate = portal.getPos().subtract(cameraPos);

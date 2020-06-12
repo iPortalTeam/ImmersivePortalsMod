@@ -163,10 +163,10 @@ public class PortalCommand {
                         context -> {
                             RegistryKey<World> from = DimensionArgumentType.getDimensionArgument(
                                 context, "from"
-                            );
+                            ).getRegistryKey();
                             RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(
                                 context, "to"
-                            );
+                            ).getRegistryKey();
                             
                             VerticalConnectingPortal.connect(
                                 from, VerticalConnectingPortal.ConnectorType.floor, to
@@ -185,10 +185,10 @@ public class PortalCommand {
                         context -> {
                             RegistryKey<World> from = DimensionArgumentType.getDimensionArgument(
                                 context, "from"
-                            );
+                            ).getRegistryKey();
                             RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(
                                 context, "to"
-                            );
+                            ).getRegistryKey();
                             
                             VerticalConnectingPortal.connect(
                                 from, VerticalConnectingPortal.ConnectorType.ceil, to
@@ -207,7 +207,7 @@ public class PortalCommand {
                     context -> {
                         RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                             context, "dim"
-                        );
+                        ).getRegistryKey();
                         
                         VerticalConnectingPortal.removeConnectingPortal(
                             VerticalConnectingPortal.ConnectorType.floor, dim
@@ -225,7 +225,7 @@ public class PortalCommand {
                     context -> {
                         RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                             context, "dim"
-                        );
+                        ).getRegistryKey();
                         
                         VerticalConnectingPortal.removeConnectingPortal(
                             VerticalConnectingPortal.ConnectorType.ceil, dim
@@ -565,7 +565,7 @@ public class PortalCommand {
                                             DimensionArgumentType.getDimensionArgument(
                                                 context,
                                                 "dimension"
-                                            ),
+                                            ).getRegistryKey(),
                                             Vec3ArgumentType.getVec3(context, "destination"),
                                             BoolArgumentType.getBool(context, "isBiFaced"),
                                             BoolArgumentType.getBool(context, "isBiWay")
@@ -738,7 +738,7 @@ public class PortalCommand {
                         RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                             context,
                             "dim"
-                        );
+                        ).getRegistryKey();
                         Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
                         
                         Global.serverTeleportationManager.invokeTpmeCommand(
@@ -819,7 +819,7 @@ public class PortalCommand {
                             RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
                                 context,
                                 "dim"
-                            );
+                            ).getRegistryKey();
                             Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
                             
                             int numTeleported = teleport(
@@ -971,7 +971,7 @@ public class PortalCommand {
     ) throws CommandSyntaxException {
         portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
             context, "dim"
-        );
+        ).getRegistryKey();
         portal.destination = Vec3ArgumentType.getVec3(
             context, "dest"
         );
@@ -1164,7 +1164,7 @@ public class PortalCommand {
     private static int placePortalAbsolute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         double width = DoubleArgumentType.getDouble(context, "width");
         double height = DoubleArgumentType.getDouble(context, "height");
-        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to");
+        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to").getRegistryKey();
         Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
         
         Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
@@ -1186,7 +1186,7 @@ public class PortalCommand {
     private static int placePortalShift(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         double width = DoubleArgumentType.getDouble(context, "width");
         double height = DoubleArgumentType.getDouble(context, "height");
-        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to");
+        RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to").getRegistryKey();
         double dist = DoubleArgumentType.getDouble(context, "dist");
         
         Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());

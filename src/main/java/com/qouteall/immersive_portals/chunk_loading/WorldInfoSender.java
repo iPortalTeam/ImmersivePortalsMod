@@ -30,7 +30,7 @@ public class WorldInfoSender {
                             McHelper.getServer().getWorld(World.OVERWORLD)
                         );
                     }
-                    
+
 //                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
 //                        if (thisWorld.getDimension() instanceof AlternateDimension) {
 //                            if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
@@ -65,40 +65,22 @@ public class WorldInfoSender {
         );
         
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
+    
         if (world.isRaining()) {
-            player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    remoteDimension,
-                    new GameStateChangeS2CPacket(1, 0.0F)
-                )
-            );
-            player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    remoteDimension,
-                    new GameStateChangeS2CPacket(7, world.getRainGradient(1.0F))
-                )
-            );
-            player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    remoteDimension,
-                    new GameStateChangeS2CPacket(8, world.getThunderGradient(1.0F))
-                )
-            );
+            player.networkHandler.sendPacket(new GameStateChangeS2CPacket(
+                GameStateChangeS2CPacket.field_25646,
+                0.0F
+            ));
         }
-        else {
-            player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    remoteDimension,
-                    new GameStateChangeS2CPacket(7, world.getRainGradient(1.0F))
-                )
-            );
-            player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    remoteDimension,
-                    new GameStateChangeS2CPacket(8, world.getThunderGradient(1.0F))
-                )
-            );
-        }
+    
+        player.networkHandler.sendPacket(new GameStateChangeS2CPacket(
+            GameStateChangeS2CPacket.field_25652,
+            world.getRainGradient(1.0F)
+        ));
+        player.networkHandler.sendPacket(new GameStateChangeS2CPacket(
+            GameStateChangeS2CPacket.field_25653,
+            world.getThunderGradient(1.0F)
+        ));
     }
     
     public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {

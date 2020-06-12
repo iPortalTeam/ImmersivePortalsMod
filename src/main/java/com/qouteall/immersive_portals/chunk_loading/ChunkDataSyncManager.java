@@ -68,7 +68,8 @@ public class ChunkDataSyncManager {
                         chunkPos.dimension,
                         new LightUpdateS2CPacket(
                             chunkPos.getChunkPos(),
-                            ieStorage.getLightingProvider()
+                            ieStorage.getLightingProvider(),
+                            true
                         )
                     )
                 );
@@ -98,7 +99,7 @@ public class ChunkDataSyncManager {
         
         Packet lightPacketRedirected = MyNetwork.createRedirectedMessage(
             dimension,
-            new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider())
+            new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider(), true)
         );
         
         McHelper.getServer().getProfiler().pop();

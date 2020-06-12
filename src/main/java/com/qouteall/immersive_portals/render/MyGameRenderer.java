@@ -22,6 +22,7 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -109,7 +110,10 @@ public class MyGameRenderer {
         ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
         HitResult oldCrosshairTarget = client.crosshairTarget;
         Camera oldCamera = client.gameRenderer.getCamera();
-        
+        ShaderEffect oldTransparencyShader =
+            ((IEWorldRenderer) oldWorldRenderer).portal_getTransparencyShader();
+        ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
+    
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
         //switch
@@ -132,6 +136,9 @@ public class MyGameRenderer {
         }
         ieGameRenderer.setCamera(newCamera);
         
+        ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(null);
+        ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
+    
         //update lightmap
         if (!RenderStates.isDimensionRendered(newDimension)) {
             helper.lightmapTexture.update(0);
@@ -163,6 +170,9 @@ public class MyGameRenderer {
         client.crosshairTarget = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
         
+        ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(oldTransparencyShader);
+        ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(newTransparencyShader);
+    
         FogRendererContext.swappingManager.popSwapping();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
@@ -183,6 +193,8 @@ public class MyGameRenderer {
         //restore the camera entity pos
         cameraEntity.world = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
+        
+//        client.getFramebuffer().beginWrite(false);
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {

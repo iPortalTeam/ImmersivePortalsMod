@@ -155,20 +155,21 @@ public class DimensionIdManagement {
             if (fabric_activeTag_field == null) {
                 fabric_activeTag_field = LevelStorage.Session.class.getField("fabric_activeTag");
             }
-        
+            
             LevelStorage.Session session = McHelper.getServer().session;
-        
+            
             CompoundTag tag = (CompoundTag) fabric_activeTag_field.get(session);
-        
+            
             if (tag == null) {
                 return null;
             }
-        
+            
             return readIdsFromFabricRegistryRecord(tag);
         }
         catch (Throwable e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(
+                "Cannot get Fabric registry info", e
+            );
         }
     }
     

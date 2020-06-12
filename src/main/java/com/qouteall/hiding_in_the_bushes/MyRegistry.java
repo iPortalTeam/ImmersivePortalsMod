@@ -274,7 +274,7 @@ public class MyRegistry {
     
     public static void registerEffectAndPotion() {
         Registry.register(
-            Registry.ATTRIBUTES,
+            Registry.ATTRIBUTE,
             "immersive_portals:hand_reach_multiplier",
             HandReachTweak.handReachMultiplierAttribute
         );
