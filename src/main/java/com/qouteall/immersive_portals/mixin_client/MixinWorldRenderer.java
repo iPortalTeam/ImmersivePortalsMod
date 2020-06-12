@@ -20,6 +20,7 @@ import com.qouteall.immersive_portals.render.context_management.RenderDimensionR
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
@@ -53,6 +54,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -136,6 +138,50 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     private Set<ChunkBuilder.BuiltChunk> chunksToRebuild;
     
+    @Shadow
+    private ShaderEffect transparencyShader;
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw()V",
+            ordinal = 1,
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onBeforeTranslucentRendering(
+        MatrixStack matrices,
+        float tickDelta,
+        long limitTime,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+        CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+    }
+    
+    @Inject(
+        method = "render",
+        at = @At("RETURN")
+    )
+    private void onAfterTranslucentRendering(
+        MatrixStack matrices,
+        float tickDelta,
+        long limitTime,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f,
+        CallbackInfo ci
+    ) {
+        CGlobal.renderer.onAfterTranslucentRendering(matrices);
+    }
+    
     @Redirect(
         method = "render",
         at = @At(
@@ -154,7 +200,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
         if (isTranslucent) {
             CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
-            CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+//            CGlobal.renderer.onBeforeTranslucentRendering(matrices);
         }
         
         ObjectList<?> visibleChunks = this.visibleChunks;
@@ -185,7 +231,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         
         if (isTranslucent) {
-            CGlobal.renderer.onAfterTranslucentRendering(matrices);
+//            CGlobal.renderer.onAfterTranslucentRendering(matrices);
         }
         
         if (renderLayer == RenderLayer.getCutout()) {
@@ -586,7 +632,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
         if (OFInterface.isShaders.getAsBoolean()) {
             RegistryKey<World> dim = MinecraftClient.getInstance().world.getRegistryKey();
-            RegistryKey<World> redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(dim);
+            RegistryKey<World> redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(
+                dim);
             
             MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
             return;
@@ -674,6 +721,16 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         renderEntity(
             entity, cameraX, cameraY, cameraZ, tickDelta, matrixStack, vertexConsumerProvider
         );
+    }
+    
+    @Override
+    public ShaderEffect portal_getTransparencyShader() {
+        return transparencyShader;
+    }
+    
+    @Override
+    public void portal_setTransparencyShader(ShaderEffect arg) {
+        transparencyShader = arg;
     }
     
     private void portal_updateChunks() {
