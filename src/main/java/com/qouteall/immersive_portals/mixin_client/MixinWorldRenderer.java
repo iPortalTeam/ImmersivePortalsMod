@@ -24,6 +24,7 @@ import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -179,7 +180,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
+        CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
         CGlobal.renderer.onAfterTranslucentRendering(matrices);
+    
+        //make hand rendering normal
+        DiffuseLighting.method_27869(matrices.peek().getModel());
     }
     
     @Redirect(
@@ -199,7 +204,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         boolean isTranslucent = renderLayer == RenderLayer.getTranslucent();
         if (isTranslucent) {
-            CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
+//            CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
 //            CGlobal.renderer.onBeforeTranslucentRendering(matrices);
         }
         

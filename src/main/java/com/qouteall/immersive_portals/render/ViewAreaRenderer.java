@@ -313,6 +313,8 @@ public class ViewAreaRenderer {
         }
         
         GlStateManager.enableTexture();
+        
+        //this is important
         GlStateManager.enableCull();
         
         MinecraftClient.getInstance().getProfiler().pop();

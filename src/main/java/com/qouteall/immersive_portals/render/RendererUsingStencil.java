@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
@@ -55,9 +56,7 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-//        if (isRendering()) {
-//            doPortalRendering(matrixStack);
-//        }
+    
     }
     
     @Override
