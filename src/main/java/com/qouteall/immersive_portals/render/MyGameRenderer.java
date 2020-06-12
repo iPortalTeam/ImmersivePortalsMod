@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
@@ -193,8 +194,6 @@ public class MyGameRenderer {
         //restore the camera entity pos
         cameraEntity.world = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
-        
-//        client.getFramebuffer().beginWrite(false);
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {

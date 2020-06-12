@@ -502,7 +502,7 @@ public class NetherPortalGeneration {
             indicatorEntity.setText(
                 new TranslatableText(
                     "imm_ptl.searching_for_frame",
-                    toWorld.getRegistryKey().toString(),
+                    toWorld.getRegistryKey().getValue(),
                     String.format("%s %s %s", fromPos.getX(), fromPos.getY(), fromPos.getZ()),
                     new LiteralText(Integer.toString(i / 1000) + "k")
                 )
