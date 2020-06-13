@@ -1,7 +1,13 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -312,8 +318,8 @@ public class McHelper {
         Vec3d pos,
         Vec3d lastTickPos
     ) {
-    
-    
+        
+        
         //NOTE do not call entity.setPosition() because it may tick the entity
         entity.setPos(pos.x, pos.y, pos.z);
         entity.lastRenderX = lastTickPos.x;
@@ -547,8 +553,19 @@ public class McHelper {
             e -> e.getBoundingBox().intersects(box) && predicate.test(e)
         );
     }
-
+    
     public static Identifier dimensionTypeId(RegistryKey<World> dimType) {
         return dimType.getValue();
+    }
+    
+    public static <T> String serializeToJson(T object, Codec<T> codec) {
+        DataResult<JsonElement> r = codec.encode(object, JsonOps.INSTANCE, new JsonObject());
+        Either<JsonElement, DataResult.PartialResult<JsonElement>> either = r.get();
+        JsonElement result = either.left().orElse(null);
+        if (result != null) {
+            return Global.gson.toJson(result);
+        }
+        
+        return either.right().map(DataResult.PartialResult::toString).orElse("");
     }
 }

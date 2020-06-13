@@ -153,7 +153,8 @@ public class DimensionIdManagement {
     private static DimensionIdRecord getFabricRecord() {
         try {
             if (fabric_activeTag_field == null) {
-                fabric_activeTag_field = LevelStorage.Session.class.getField("fabric_activeTag");
+                fabric_activeTag_field = LevelStorage.Session.class.getDeclaredField("fabric_activeTag");
+                fabric_activeTag_field.setAccessible(true);
             }
             
             LevelStorage.Session session = McHelper.getServer().session;

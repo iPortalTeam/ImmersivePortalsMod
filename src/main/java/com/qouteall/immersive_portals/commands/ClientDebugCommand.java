@@ -1,10 +1,15 @@
 package com.qouteall.immersive_portals.commands;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
@@ -34,12 +39,14 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import java.lang.ref.Reference;
 import java.net.URLClassLoader;
@@ -192,7 +199,7 @@ public class ClientDebugCommand {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 List<Entity> entities = player.world.getEntities(
                     Entity.class,
-                    new Box(player.getPos(),player.getPos()).expand(32),
+                    new Box(player.getPos(), player.getPos()).expand(32),
                     e -> true
                 );
                 McHelper.serverLog(player, entities.toString());
@@ -354,9 +361,9 @@ public class ClientDebugCommand {
             .literal("erase_chunk")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-    
+                
                 eraseChunk(new ChunkPos(new BlockPos(player.getPos())), player.world, 0, 256);
-    
+                
                 return 0;
             })
         );
@@ -364,9 +371,9 @@ public class ClientDebugCommand {
             .literal("erase_chunk_large")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-    
+                
                 ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-    
+                
                 for (int dx = -4; dx <= 4; dx++) {
                     for (int dz = -4; dz <= 4; dz++) {
                         eraseChunk(
@@ -386,9 +393,9 @@ public class ClientDebugCommand {
             .literal("erase_chunk_large_middle")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-            
+                
                 ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-            
+                
                 for (int dx = -4; dx <= 4; dx++) {
                     for (int dz = -4; dz <= 4; dz++) {
                         eraseChunk(
@@ -423,6 +430,22 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
+        builder.then(CommandManager
+            .literal("print_generator_config")
+            .executes(context -> {
+                McHelper.getServer().getWorlds().forEach(world -> {
+                    ChunkGenerator generator = world.getChunkManager().getChunkGenerator();
+                    Helper.log(world.getRegistryKey().getValue());
+                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.field_24746));
+                    Helper.log(McHelper.serializeToJson(
+                        world.getDimension(),
+                        DimensionType.CODEC.codec()
+                    ));
+                });
+                
+                return 0;
+            })
+        );
         registerSwitchCommand(
             builder,
             "render_fewer_on_fast_graphic",
@@ -438,7 +461,7 @@ public class ClientDebugCommand {
             "smooth_chunk_unload",
             cond -> CGlobal.smoothChunkUnload = cond
         );
-     
+        
         registerSwitchCommand(
             builder,
             "early_light_update",
@@ -449,7 +472,7 @@ public class ClientDebugCommand {
             "super_advanced_frustum_culling",
             cond -> CGlobal.useSuperAdvancedFrustumCulling = cond
         );
-    
+        
         registerSwitchCommand(
             builder,
             "teleportation_debug",

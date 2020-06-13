@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -73,8 +74,14 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager.enableDepthTest();
         GL11.glEnable(GL_STENCIL_TEST);
         
-        ((IEFrameBuffer) client.getFramebuffer())
-            .setIsStencilBufferEnabledAndReload(true);
+        IEFrameBuffer ieFrameBuffer = (IEFrameBuffer) client.getFramebuffer();
+        if (!ieFrameBuffer.getIsStencilBufferEnabled()) {
+            ieFrameBuffer.setIsStencilBufferEnabledAndReload(true);
+            if (MinecraftClient.isFabulousGraphicsOrBetter()) {
+                client.worldRenderer.reload();
+            }
+        }
+        
     }
     
     @Override

@@ -1,0 +1,13 @@
+{
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "minecraft:floating_islands",
+    "biome_source": {
+      "large_biomes": false,
+      "type": "minecraft:vanilla_layered",
+      "seed": 1
+    },
+    "seed": 1
+  },
+  "type": "immersive_portals:surface_type"
+}
