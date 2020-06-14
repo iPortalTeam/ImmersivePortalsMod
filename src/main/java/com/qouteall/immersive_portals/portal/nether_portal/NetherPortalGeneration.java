@@ -303,10 +303,6 @@ public class NetherPortalGeneration {
         return thisSideShape.obj != null;
     }
     
-    private static boolean isLapis(IWorld world, BlockPos blockPos) {
-        return world.getBlockState(blockPos).getBlock() == Blocks.LAPIS_BLOCK;
-    }
-    
     //return this side shape if the generation starts
     public static BlockPortalShape startGeneratingPortal(
         ServerWorld fromWorld,

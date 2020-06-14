@@ -292,7 +292,7 @@ public class PerDimensionContext {
     public Program[] ProgramsAll;
     public Program activeProgram;
     public int activeProgramID;
-    public ProgramStack programStackLeash;
+    public ProgramStack programStack;
     public boolean hasDeferredPrograms;
     public IntBuffer activeDrawBuffers;
     public int activeCompositeMipmapSetting;
@@ -617,7 +617,7 @@ public class PerDimensionContext {
         ProgramsAll = programs.getPrograms();
         activeProgram = ProgramNone;
         activeProgramID = 0;
-        programStackLeash = new ProgramStack();
+        programStack = new ProgramStack();
 //        hasDeferredPrograms = false;
         activeDrawBuffers = null;
 //        activeCompositeMipmapSetting = 0;

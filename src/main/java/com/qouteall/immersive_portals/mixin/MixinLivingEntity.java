@@ -22,11 +22,15 @@ public class MixinLivingEntity {
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTickEnded(CallbackInfo ci) {
         Entity this_ = (Entity) (Object) this;
-        if (attacker.world != this_.world) {
-            attacker = null;
+        if (attacker != null) {
+            if (attacker.world != this_.world) {
+                attacker = null;
+            }
         }
-        if (attacking.world != this_.world) {
-            attacking = null;
+        if (attacking != null) {
+            if (attacking.world != this_.world) {
+                attacking = null;
+            }
         }
     }
     
