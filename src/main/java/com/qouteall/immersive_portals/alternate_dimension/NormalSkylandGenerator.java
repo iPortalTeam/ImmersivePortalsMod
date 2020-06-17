@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
@@ -16,6 +17,18 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 public class NormalSkylandGenerator extends ChunkGenerator {
+    
+    public static final Codec<NormalSkylandGenerator> codec = RecordCodecBuilder.create(instance ->
+        instance.group(
+            Codec.LONG.fieldOf("seed").stable().forGetter(
+                g -> g.worldSeed
+            )
+        ).apply(
+            instance,
+            instance.stable(NormalSkylandGenerator::new)
+        )
+    );
+    
     private long worldSeed;
     
     public NormalSkylandGenerator(
@@ -31,12 +44,13 @@ public class NormalSkylandGenerator extends ChunkGenerator {
     
     @Override
     protected Codec<? extends ChunkGenerator> method_28506() {
-        return null;
+        return codec;
     }
     
     @Override
     public ChunkGenerator withSeed(long seed) {
-        return null;
+        worldSeed = seed;
+        return this;
     }
     
     @Override
