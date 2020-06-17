@@ -36,6 +36,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     @Final
     private MetricsData metricsData;
     
+    @Shadow @Final protected RegistryTracker.Modifiable dimensionTracker;
     private boolean portal_areAllWorldsLoaded;
     
     @Inject(
@@ -98,5 +99,10 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     @Override
     public boolean portal_getAreAllWorldsLoaded() {
         return portal_areAllWorldsLoaded;
+    }
+    
+    @Override
+    public RegistryTracker.Modifiable portal_getDimensionTracker() {
+        return dimensionTracker;
     }
 }

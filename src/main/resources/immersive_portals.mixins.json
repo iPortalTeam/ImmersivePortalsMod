@@ -16,6 +16,7 @@
     "MixinWorldChunk",
     "alternate_dimension.MixinAvoidSunlightGoal",
     "alternate_dimension.MixinBedBlock",
+    "alternate_dimension.MixinDimensionType",
     "altius_world.MixinChunkGenerator",
     "altius_world.MixinLevelInfo",
     "altius_world.MixinLevelProperties",

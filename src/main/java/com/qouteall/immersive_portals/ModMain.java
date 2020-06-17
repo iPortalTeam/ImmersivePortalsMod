@@ -11,6 +11,10 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 
 public class ModMain {
@@ -20,6 +24,19 @@ public class ModMain {
     public static final MyTaskList clientTaskList = new MyTaskList();
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
+    
+    public static final RegistryKey<DimensionOptions> alternate2Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate2")
+    );
+    public static final RegistryKey<DimensionOptions> alternate4Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate4")
+    );
+    public static final RegistryKey<DimensionType> surfaceType = RegistryKey.of(
+        Registry.DIMENSION_TYPE_KEY,
+        new Identifier("immersive_portals:surface_type")
+    );
     
     public static Block portalHelperBlock;
     public static BlockItem portalHelperBlockItem;
