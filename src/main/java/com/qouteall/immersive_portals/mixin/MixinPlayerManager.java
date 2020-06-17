@@ -29,7 +29,7 @@ public class MixinPlayerManager {
         method = "onPlayerConnect",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;<init>(ILnet/minecraft/world/GameMode;JZLjava/util/Set;Lnet/minecraft/util/registry/RegistryTracker$Modifiable;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/util/registry/RegistryKey;IIZZZZ)V"
+            target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;<init>(ILnet/minecraft/world/GameMode;Lnet/minecraft/world/GameMode;JZLjava/util/Set;Lnet/minecraft/util/registry/RegistryTracker$Modifiable;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/util/registry/RegistryKey;IIZZZZ)V"
         )
     )
     private void onConnectionEstablished(

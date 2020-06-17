@@ -154,7 +154,7 @@ public class BlockManipulationServer {
         ServerPlayerEntity player
     ) {
         Hand hand = packet.getHand();
-        BlockHitResult blockHitResult = packet.getHitY();
+        BlockHitResult blockHitResult = packet.getBlockHitResult();
         
         ServerWorld world = McHelper.getServer().getWorld(dimension);
         

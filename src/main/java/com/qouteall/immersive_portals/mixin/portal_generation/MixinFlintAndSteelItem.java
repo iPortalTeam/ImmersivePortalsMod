@@ -22,26 +22,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FlintAndSteelItem.class)
 public class MixinFlintAndSteelItem {
-    @Inject(
-        method = "canIgnite",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private static void onCanIgnite(
-        BlockState block,
-        WorldAccess world,
-        BlockPos pos,
-        CallbackInfoReturnable<Boolean> cir
-    ) {
-        for (Direction direction : Direction.values()) {
-            if (O_O.isObsidian(world, pos.offset(direction))) {
-                if (block.isAir()) {
-                    cir.setReturnValue(true);
-                    cir.cancel();
-                }
-            }
-        }
-    }
+//    @Inject(
+//        method = "canIgnite",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private static void onCanIgnite(
+//        BlockState block,
+//        WorldAccess world,
+//        BlockPos pos,
+//        CallbackInfoReturnable<Boolean> cir
+//    ) {
+//        for (Direction direction : Direction.values()) {
+//            if (O_O.isObsidian(world, pos.offset(direction))) {
+//                if (block.isAir()) {
+//                    cir.setReturnValue(true);
+//                    cir.cancel();
+//                }
+//            }
+//        }
+//    }
     
     @Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
     private void onUseFlintAndSteel(
