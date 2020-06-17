@@ -624,7 +624,7 @@ public abstract class MixinShaders_Swap {
     @Shadow
     public static int activeProgramID;
     @Shadow
-    private static ProgramStack programStackLeash;
+    private static ProgramStack programStack;
     @Shadow
     private static boolean hasDeferredPrograms;
     @Shadow
@@ -1237,7 +1237,7 @@ public abstract class MixinShaders_Swap {
             ProgramsAll = context.ProgramsAll;
             activeProgram = context.activeProgram;
             activeProgramID = context.activeProgramID;
-            programStackLeash = context.programStackLeash;
+            programStack = context.programStack;
             hasDeferredPrograms = context.hasDeferredPrograms;
             activeDrawBuffers = context.activeDrawBuffers;
             activeCompositeMipmapSetting = context.activeCompositeMipmapSetting;
@@ -1622,7 +1622,7 @@ public abstract class MixinShaders_Swap {
             context.ProgramsAll = ProgramsAll;
             context.activeProgram = activeProgram;
             context.activeProgramID = activeProgramID;
-            context.programStackLeash = programStackLeash;
+            context.programStack = programStack;
             context.hasDeferredPrograms = hasDeferredPrograms;
             context.activeDrawBuffers = activeDrawBuffers;
             context.activeCompositeMipmapSetting = activeCompositeMipmapSetting;

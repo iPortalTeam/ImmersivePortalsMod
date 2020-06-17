@@ -50,6 +50,9 @@ public class ServerTeleportationManager {
         if (entity instanceof ServerPlayerEntity) {
             return;
         }
+        if (entity instanceof Portal) {
+            return;
+        }
         if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
             return;
         }
@@ -377,6 +380,8 @@ public class ServerTeleportationManager {
             newEyePos.x, newEyePos.y, newEyePos.z
         );
         McHelper.updateBoundingBox(entity);
+        
+        ((ServerWorld) entity.world).checkChunk(entity);
         
         entity.setVelocity(portal.transformLocalVec(velocity));
         

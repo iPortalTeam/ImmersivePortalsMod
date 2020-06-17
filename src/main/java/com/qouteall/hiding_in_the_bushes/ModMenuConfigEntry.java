@@ -38,7 +38,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             IntegerSliderEntry entryPortalRenderLimit = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.portal_render_limit"),
                 currConfig.portalRenderLimit,
-                1, 1000
+                0, 1000
             ).setDefaultValue(200).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.compatibility_render_mode"),

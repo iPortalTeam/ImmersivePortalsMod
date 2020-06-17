@@ -42,4 +42,9 @@ public class Mirror extends Portal {
         return localVec.add(getNormal().multiply(len * -2));
     }
     
+    
+    @Override
+    public Vec3d untransformLocalVec(Vec3d localVec) {
+        return transformLocalVec(localVec);
+    }
 }
