@@ -1,32 +1,66 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
+import com.mojang.serialization.Codec;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGenerator;
-import net.minecraft.world.gen.chunk.FloatingIslandsChunkGeneratorConfig;
+import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
-public class NormalSkylandGenerator extends FloatingIslandsChunkGenerator {
+public class NormalSkylandGenerator extends ChunkGenerator {
+    private long worldSeed;
+    
     public NormalSkylandGenerator(
-        IWorld iWorld,
-        BiomeSource biomeSource,
-        FloatingIslandsChunkGeneratorConfig floatingIslandsChunkGeneratorConfig
+        long seed
     ) {
-        super(iWorld, biomeSource, floatingIslandsChunkGeneratorConfig);
+        super(
+            new VanillaLayeredBiomeSource(seed, false, false),
+            new StructuresConfig(true)
+        );
+        
+        worldSeed = seed;
     }
     
     @Override
-    public boolean hasStructure(
-        Biome biome, StructureFeature<? extends FeatureConfig> structureFeature
+    protected Codec<? extends ChunkGenerator> method_28506() {
+        return null;
+    }
+    
+    @Override
+    public ChunkGenerator withSeed(long seed) {
+        return null;
+    }
+    
+    @Override
+    public void buildSurface(
+        ChunkRegion region, Chunk chunk
     ) {
-        if (structureFeature == StructureFeature.MINESHAFT) {
-            //no mineshaft
-            return false;
-        }
-        return super.hasStructure(biome, structureFeature);
+    
+    }
+    
+    @Override
+    public void populateNoise(
+        WorldAccess world, StructureAccessor accessor, Chunk chunk
+    ) {
+    
+    }
+    
+    @Override
+    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
+        return 0;
+    }
+    
+    @Override
+    public BlockView getColumnSample(int x, int z) {
+        return null;
     }
     
     //make end city and woodland mansion be able to generate

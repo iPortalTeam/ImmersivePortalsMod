@@ -1,20 +1,24 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
+import net.fabricmc.fabric.mixin.registry.sync.MixinSimpleRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.SkeletonEntity;
@@ -29,12 +33,14 @@ import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.MobSpawnerEntry;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
+import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.feature.Feature;
 import org.apache.commons.lang3.Validate;
@@ -51,7 +57,7 @@ import java.util.stream.IntStream;
 public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     //no need to register it
     public static final Feature<DefaultFeatureConfig> instance =
-        new SpongeDungeonFeature(DefaultFeatureConfig::deserialize);
+        new SpongeDungeonFeature(DefaultFeatureConfig.CODEC);
     
     private static RandomSelector<BlockState> spawnerShieldSelector =
         new RandomSelector.Builder<BlockState>()
@@ -74,7 +80,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
         new RandomSelector.Builder<EntityType<?>>()
-            .add(10, EntityType.ZOMBIE_PIGMAN)
+            .add(10, EntityType.ZOMBIFIED_PIGLIN)
             .add(10, EntityType.HUSK)
             .add(30, EntityType.SKELETON)
             .add(10, EntityType.WITHER_SKELETON)
@@ -113,30 +119,6 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             .add(10, vehicleTypeSelector)
             .build();
     
-    public SpongeDungeonFeature(Function<Dynamic<?>, ? extends DefaultFeatureConfig> configDeserializer) {
-        super(configDeserializer);
-    }
-    
-    @Override
-    public boolean generate(
-        IWorld world,
-        ChunkGenerator<? extends ChunkGeneratorConfig> generator,
-        Random random,
-        BlockPos pos,
-        DefaultFeatureConfig config
-    ) {
-        ChunkPos chunkPos = new ChunkPos(pos);
-        
-        random.setSeed(chunkPos.toLong() + random.nextInt(2333));
-        
-        if (random.nextDouble() < 0.03) {
-            generateOnce(world, random, chunkPos);
-        }
-        
-        return true;
-        
-    }
-    
     private static final BlockPos[] shieldPoses = new BlockPos[]{
         new BlockPos(0, -2, 0),
         new BlockPos(1, -1, 0),
@@ -151,10 +133,14 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     };
     
     private static List<Block> shulkerBoxes = Registry.BLOCK.stream()
-        .filter(block -> block.getMaterial(block.getDefaultState()) == Material.SHULKER_BOX)
+        .filter(block -> block instanceof ShulkerBoxBlock)
         .collect(Collectors.toList());
     
-    public void generateOnce(IWorld world, Random random, ChunkPos chunkPos) {
+    public SpongeDungeonFeature(Codec<DefaultFeatureConfig> codec) {
+        super(codec);
+    }
+    
+    public void generateOnce(WorldAccess world, Random random, ChunkPos chunkPos) {
         int height = heightSelector.select(random).apply(random);
         BlockPos spawnerPos = chunkPos.toBlockPos(
             random.nextInt(16),
@@ -189,7 +175,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     }
     
     public void initShulkerBoxTreasure(
-        IWorld world,
+        WorldAccess world,
         Random random,
         BlockPos shulkerBoxPos
     ) {
@@ -205,7 +191,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         treasureSelector.select(random).accept(random, ((ShulkerBoxBlockEntity) blockEntity));
     }
     
-    public void initSpawnerBlockEntity(IWorld world, Random random, BlockPos spawnerPos) {
+    public void initSpawnerBlockEntity(WorldAccess world, Random random, BlockPos spawnerPos) {
         BlockEntity blockEntity = world.getBlockEntity(spawnerPos);
         if (!(blockEntity instanceof MobSpawnerBlockEntity)) {
             //Helper.err("No Spawner Block Entity???");
@@ -225,12 +211,12 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         );
         mobSpawner.getLogic().setEntityId(spawnedEntity.getType());
         
-        CompoundTag logicTag = mobSpawner.getLogic().serialize(new CompoundTag());
+        CompoundTag logicTag = mobSpawner.getLogic().toTag(new CompoundTag());
         logicTag.putShort("RequiredPlayerRange", (short) 32);
         //logicTag.putShort("MinSpawnDelay",(short) 10);
         //logicTag.putShort("MaxSpawnDelay",(short) 100);
         //logicTag.putShort("MaxNearbyEntities",(short) 200);
-        mobSpawner.getLogic().deserialize(logicTag);
+        mobSpawner.getLogic().fromTag(logicTag);
     }
     
     private static void removeUnnecessaryTag(Tag tag) {
@@ -441,7 +427,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
                 ItemStack stack = new ItemStack(() -> Items.LINGERING_POTION, 1);
                 ArrayList<StatusEffectInstance> effects = new ArrayList<>();
                 effects.add(new StatusEffectInstance(
-                    Registry.STATUS_EFFECT.getRandom(random),
+                    ((DefaultedRegistry<StatusEffect>) Registry.STATUS_EFFECT).getRandom(random),
                     1200, 4
                 ));
                 PotionUtil.setCustomPotionEffects(stack, effects);
@@ -449,7 +435,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             })
             .add(10, random -> {
                 ItemStack stack = new ItemStack(() -> Items.ENCHANTED_BOOK, 1);
-                stack.addEnchantment(Registry.ENCHANTMENT.getRandom(random), 5);
+                stack.addEnchantment(((DefaultedRegistry<Enchantment>) Registry.ENCHANTMENT).getRandom(random), 5);
                 return stack;
             })
             .build();
@@ -459,14 +445,35 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             .add(20, (random, shulker) -> {
                 ItemStack toFill = filledTreasureSelector.select(random);
                 IntStream.range(
-                    0, shulker.getInvSize()
-                ).forEach(i -> shulker.setInvStack(i, toFill.copy()));
+                    0, shulker.size()
+                ).forEach(i -> shulker.setStack(i, toFill.copy()));
             })
             .add(5, (random, shulker) -> {
-                shulker.setInvStack(
-                    random.nextInt(shulker.getInvSize()),
+                shulker.setStack(
+                    random.nextInt(shulker.size()),
                     singleTreasureSelector.select(random).apply(random)
                 );
             })
             .build();
+    
+    @Override
+    public boolean generate(
+        ServerWorldAccess serverWorldAccess,
+        StructureAccessor accessor,
+        ChunkGenerator generator,
+        Random random,
+        BlockPos pos,
+        DefaultFeatureConfig config
+    ) {
+        ChunkPos chunkPos = new ChunkPos(pos);
+    
+        random.setSeed(chunkPos.toLong() + random.nextInt(2333));
+    
+        if (random.nextDouble() < 0.03) {
+            generateOnce(serverWorldAccess, random, chunkPos);
+        }
+    
+        return true;
+    }
+    
 }
