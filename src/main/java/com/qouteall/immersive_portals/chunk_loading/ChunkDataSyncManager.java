@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
@@ -13,6 +14,8 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
+
+import java.util.function.Supplier;
 
 //the chunks near player are managed by vanilla
 //we only manage the chunks that's seen by portal and not near player
@@ -89,14 +92,18 @@ public class ChunkDataSyncManager {
         
         McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
-        Packet chunkDataPacketRedirected = MyNetwork.createRedirectedMessage(
-            dimension,
-            new ChunkDataS2CPacket(((WorldChunk) chunk), 65535)
+        Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
+            () -> MyNetwork.createRedirectedMessage(
+                dimension,
+                new ChunkDataS2CPacket(((WorldChunk) chunk), 65535)
+            )
         );
         
-        Packet lightPacketRedirected = MyNetwork.createRedirectedMessage(
-            dimension,
-            new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider())
+        Supplier<Packet> lightPacketRedirected = Helper.cached(
+            () -> MyNetwork.createRedirectedMessage(
+                dimension,
+                new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider())
+            )
         );
         
         McHelper.getServer().getProfiler().pop();
@@ -104,9 +111,9 @@ public class ChunkDataSyncManager {
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunk.getPos().x, chunk.getPos().z
         ).forEach(player -> {
-            player.networkHandler.sendPacket(chunkDataPacketRedirected);
+            player.networkHandler.sendPacket(chunkDataPacketRedirected.get());
             
-            player.networkHandler.sendPacket(lightPacketRedirected);
+            player.networkHandler.sendPacket(lightPacketRedirected.get());
             
             ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
         });
@@ -132,7 +139,7 @@ public class ChunkDataSyncManager {
                     (IEThreadedAnvilChunkStorage) chunkManager.threadedAnvilChunkStorage;
                 storage.onPlayerRespawn(oldPlayer);
             });
-    
+        
         NewChunkTrackingGraph.forceRemovePlayer(oldPlayer);
     }
     

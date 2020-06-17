@@ -532,7 +532,7 @@ public class PortalCommand {
                             Vec3d offset = new Vec3d(facing.getVector()).multiply(distance);
     
                             portal.destination = portal.destination.add(
-                                portal.untransformLocalVec(offset)
+                                portal.transformLocalVec(offset)
                             );
                             reloadPortal(portal);
                         }

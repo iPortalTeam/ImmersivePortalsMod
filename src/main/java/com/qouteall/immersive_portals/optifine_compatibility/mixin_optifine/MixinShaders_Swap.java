@@ -44,6 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+// ugly hack. don't look at it
 @Mixin(value = Shaders.class, remap = false)
 public abstract class MixinShaders_Swap {
     

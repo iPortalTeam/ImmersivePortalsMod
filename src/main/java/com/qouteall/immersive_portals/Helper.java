@@ -1042,4 +1042,18 @@ public class Helper {
         
         return portal;
     }
+    
+    public static <T> Supplier<T> cached(Supplier<T> supplier) {
+        return new Supplier<T>() {
+            T cache = null;
+            
+            @Override
+            public T get() {
+                if (cache == null) {
+                    cache = supplier.get();
+                }
+                return cache;
+            }
+        };
+    }
 }
