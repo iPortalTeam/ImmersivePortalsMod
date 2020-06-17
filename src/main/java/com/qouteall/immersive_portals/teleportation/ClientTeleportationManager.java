@@ -103,6 +103,10 @@ public class ClientTeleportationManager {
                     boolean teleported = tryTeleport(tickDelta);
                     if (!teleported) {
                         break;
+                    }else {
+                        if (i != 0) {
+                            Helper.log("Nested teleport");
+                        }
                     }
                 }
             }
@@ -143,7 +147,7 @@ public class ClientTeleportationManager {
             teleportPlayer(portal);
             
             moveStartPoint = portal.transformPoint(collidingPos)
-                .add(portal.getContentDirection().multiply(0.00001));
+                .add(portal.getContentDirection().multiply(0.0001));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
             return true;
@@ -219,7 +223,7 @@ public class ClientTeleportationManager {
             disableTeleportFor(40);
         }
         
-        Helper.log("Client Teleported " + portal);
+        Helper.log(String.format("Client Teleported %s %s", portal, tickTimeForTeleportation));
         
         //update colliding portal
         ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
