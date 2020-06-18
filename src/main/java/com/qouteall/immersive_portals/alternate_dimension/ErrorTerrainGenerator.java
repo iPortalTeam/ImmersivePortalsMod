@@ -171,6 +171,10 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         
     }
     
+    @Override
+    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
+        return 64;
+    }
     
     //may be incorrect
     @Override
@@ -232,17 +236,6 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         avoidSandLag(region);
     }
     
-    @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
-        return 64;
-    }
-    
-    //make end city and woodland mansion be able to generate
-    @Override
-    public int getHeightOnGround(int x, int z, Heightmap.Type heightmapType) {
-        return 64;
-    }
-    
     //carve more
     @Override
     public void carve(
@@ -285,44 +278,6 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         }
         
     }
-//
-//    @Override
-//    public void generateFeatures(ChunkRegion region, StructureAccessor accessor) {
-//        super.generateFeatures(region, accessor);
-//
-//        int xs = region.getCenterChunkX() * 16;
-//        int zs = region.getCenterChunkZ() * 16;
-//        BlockPos blockPos = new BlockPos(xs, 0, zs);
-//        Biome biome = this.biomeSource.getBiomeForNoiseGen(
-//            (region.getCenterChunkX() << 2) + 2,
-//            2,
-//            (region.getCenterChunkZ() << 2) + 2
-//        );
-//        ChunkRandom chunkRandom = new ChunkRandom();
-//
-//        for (int num = 1; num < 4; num++) {
-//            long m = chunkRandom.setPopulationSeed(region.getSeed() + num * 2333, xs, zs);
-//
-//            GenerationStep.Feature step = GenerationStep.Feature.UNDERGROUND_ORES;
-//
-//            try {
-//                biome.generateFeatureStep(step, accessor, this, region, m, chunkRandom, blockPos);
-//            }
-//            catch (Exception var18) {
-//                CrashReport crashReport = CrashReport.create(var18, "Biome decoration");
-//                crashReport.addElement("Generation").add(
-//                    "CenterX",
-//                    (Object) region.getCenterChunkX()
-//                ).add("CenterZ", (Object) region.getCenterChunkZ()).add("Step", (Object) step).add(
-//                    "Seed",
-//                    (Object) m
-//                ).add("Biome", (Object) Registry.BIOME.getId(biome));
-//                throw new CrashException(crashReport);
-//            }
-//        }
-//
-//    }
-    
     
     private static void avoidSandLag(ChunkRegion region) {
         Chunk centerChunk = region.getChunk(region.getCenterChunkX(), region.getCenterChunkZ());

@@ -81,7 +81,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     }
     
     @Inject(
-        method = "loadWorld",
+        method = "createWorlds",
         at = @At("RETURN")
     )
     private void onFinishedLoadingAllWorlds(

@@ -39,7 +39,7 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         float f
     ) {
         MinecraftClient.getInstance().textRenderer.draw(
-            matrixStack, dimension.toString(), width + 32 + 3, (float) (x), 0xFFFFFFFF
+            matrixStack, dimension.getValue().toString(), width + 32 + 3, (float) (x), 0xFFFFFFFF
         );
     }
     

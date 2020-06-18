@@ -68,7 +68,7 @@ public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
                     if (bl) {
                         for(o = 0; o < 5; ++o) {
                             if (o <= random.nextInt(5)) {
-                                chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
+                                chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()), Blocks.OBSIDIAN.getDefaultState(), false);
                             }
                         }
                     }
@@ -76,7 +76,7 @@ public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
             
                 for(o = 4; o >= 0; --o) {
                     if (o <= random.nextInt(5)) {
-                        chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
+                        chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()), Blocks.OBSIDIAN.getDefaultState(), false);
                     }
                 }
             }

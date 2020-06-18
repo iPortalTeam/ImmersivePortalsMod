@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class AltiusScreen extends Screen {
-    Screen parent;
+    CreateWorldScreen parent;
     private ButtonWidget backButton;
     private ButtonWidget toggleButton;
     private ButtonWidget addDimensionButton;
@@ -28,7 +29,7 @@ public class AltiusScreen extends Screen {
     public boolean isEnabled = false;
     private DimListWidget dimListWidget;
     
-    public AltiusScreen(Screen parent) {
+    public AltiusScreen(CreateWorldScreen parent) {
         super(new TranslatableText("imm_ptl.altius_screen"));
         this.parent = parent;
         
@@ -74,18 +75,18 @@ public class AltiusScreen extends Screen {
         O_O.registerDimensionsForge();
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
-//        dimListWidget.terms.add(
-//            new DimTermWidget(ModMain.alternate4, dimListWidget, callback)
-//        );
-//        dimListWidget.terms.add(
-//            new DimTermWidget(ModMain.alternate2, dimListWidget, callback)
-//        );
-//        dimListWidget.terms.add(
-//            new DimTermWidget(DimensionType.OVERWORLD, dimListWidget, callback)
-//        );
-//        dimListWidget.terms.add(
-//            new DimTermWidget(DimensionType.THE_NETHER, dimListWidget, callback)
-//        );
+        dimListWidget.terms.add(
+            new DimTermWidget(ModMain.alternate4, dimListWidget, callback)
+        );
+        dimListWidget.terms.add(
+            new DimTermWidget(ModMain.alternate2, dimListWidget, callback)
+        );
+        dimListWidget.terms.add(
+            new DimTermWidget(World.OVERWORLD, dimListWidget, callback)
+        );
+        dimListWidget.terms.add(
+            new DimTermWidget(World.NETHER, dimListWidget, callback)
+        );
     }
     
     //nullable

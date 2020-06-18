@@ -12,8 +12,10 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.SaveProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.level.LevelProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +65,9 @@ public class AltiusInfo {
     }
     
     public static AltiusInfo getInfoFromServer() {
-        return ((IELevelProperties) McHelper.getServer().getWorld(World.OVERWORLD)
-            .getLevelProperties()).getAltiusInfo();
+        SaveProperties saveProperties = McHelper.getServer().getSaveProperties();
+        
+        return ((IELevelProperties) saveProperties).getAltiusInfo();
     }
     
     public static boolean isAltius() {

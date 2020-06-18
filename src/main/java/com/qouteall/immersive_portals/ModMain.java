@@ -52,6 +52,27 @@ public class ModMain {
         new Identifier("immersive_portals:surface_type")
     );
     
+    public static final RegistryKey<World> alternate1 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate1")
+    );
+    public static final RegistryKey<World> alternate2 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate2")
+    );
+    public static final RegistryKey<World> alternate3 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate3")
+    );
+    public static final RegistryKey<World> alternate4 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate4")
+    );
+    public static final RegistryKey<World> alternate5 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate5")
+    );
+    
     public static DimensionType surfaceTypeObject;
     
     public static Block portalHelperBlock;

@@ -45,7 +45,7 @@ public abstract class MixinCreateWorldScreen extends Screen {
         MoreOptionsDialog moreOptionsDialog,
         CallbackInfo ci
     ) {
-        altiusScreen = new AltiusScreen((Screen) (Object) this);
+        altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
     }
     
     @Inject(
@@ -55,14 +55,14 @@ public abstract class MixinCreateWorldScreen extends Screen {
     private void onInitEnded(CallbackInfo ci) {
         
         altiusButton = (ButtonWidget) this.addButton(new ButtonWidget(
-            this.width / 2 - 75, 187 - 25, 150, 20,
+            width / 2 + 5, 151, 150, 20,
             new TranslatableText("imm_ptl.altius_screen_button"),
             (buttonWidget) -> {
                 openAltiusScreen();
             }
         ));
-        altiusButton.visible = true;
-    
+        altiusButton.visible = false;
+        
     }
     
     @Inject(
@@ -71,10 +71,10 @@ public abstract class MixinCreateWorldScreen extends Screen {
     )
     private void onMoreOptionsOpen(boolean moreOptionsOpen, CallbackInfo ci) {
         if (moreOptionsOpen) {
-            altiusButton.visible = false;
+            altiusButton.visible = true;
         }
         else {
-            altiusButton.visible = true;
+            altiusButton.visible = false;
         }
     }
     

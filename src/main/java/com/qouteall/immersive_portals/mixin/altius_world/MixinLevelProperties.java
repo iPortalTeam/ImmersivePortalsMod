@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
@@ -8,17 +9,21 @@ import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
+import net.minecraft.world.level.storage.SaveVersionInfo;
 import net.minecraft.world.timer.Timer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.UUID;
 
 @Mixin(LevelProperties.class)
@@ -63,39 +68,53 @@ public class MixinLevelProperties implements IELevelProperties {
         altiusInfo = ((IELevelProperties) (Object) levelInfo).getAltiusInfo();
     }
     
-//    @Inject(
-//        method = "<init>(Lnet/minecraft/nbt/CompoundTag;Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;)V",
-//        at = @At("RETURN")
-//    )
-//    private void onConstructedFromTag(
-//        CompoundTag compoundTag,
-//        DataFixer dataFixer,
-//        int i,
-//        CompoundTag compoundTag2,
-//        CallbackInfo ci
-//    ) {
-//        if (compoundTag.contains("altius")) {
-//            Tag tag = compoundTag.get("altius");
-//            altiusInfo = AltiusInfo.fromTag(((CompoundTag) tag));
-//        }
-//        if (compoundTag.contains("generatorName", 8)) {
-//            String generatorName = compoundTag.getString("generatorName");
-//            if (generatorName.equals("imm_ptl_altius")) {
-//                Helper.log("Upgraded old altius world to new altius world");
-//                altiusInfo = AltiusInfo.getDummy();
-//            }
-//        }
-//    }
+    @Inject(
+        method = "method_29029",
+        at = @At("RETURN"),
+        cancellable = true
+    )
+    private static void onReadDataFromTag(
+        Dynamic<Tag> dynamic,
+        DataFixer dataFixer,
+        int i,
+        CompoundTag compoundTag,
+        LevelInfo levelInfo,
+        SaveVersionInfo saveVersionInfo,
+        GeneratorOptions generatorOptions,
+        Lifecycle lifecycle,
+        CallbackInfoReturnable<LevelProperties> cir
+    ) {
+        LevelProperties levelProperties = cir.getReturnValue();
+        
+        MixinLevelProperties this_ = (MixinLevelProperties) (Object) levelProperties;
+        
+        AltiusInfo levelInfoAltiusInfo = ((IELevelProperties) (Object) levelInfo).getAltiusInfo();
+        if (levelInfoAltiusInfo != null) {
+            this_.altiusInfo = levelInfoAltiusInfo;
+            return;
+        }
+        
+        if (compoundTag.contains("altius")) {
+            Tag tag = compoundTag.get("altius");
+            
+            this_.altiusInfo = AltiusInfo.fromTag(((CompoundTag) tag));
+        }
+    }
     
-//    @Inject(
-//        method = "updateProperties",
-//        at = @At("RETURN")
-//    )
-//    private void onUpdateProperties(CompoundTag levelTag, CompoundTag playerTag, CallbackInfo ci) {
-//        if (altiusInfo != null) {
-//            levelTag.put("altius", altiusInfo.toTag());
-//        }
-//    }
+    @Inject(
+        method = "updateProperties",
+        at = @At("RETURN")
+    )
+    private void onUpdateProperties(
+        RegistryTracker registryTracker,
+        CompoundTag infoTag,
+        CompoundTag playerTag,
+        CallbackInfo ci
+    ) {
+        if (altiusInfo != null) {
+            infoTag.put("altius", altiusInfo.toTag());
+        }
+    }
     
     @Override
     public AltiusInfo getAltiusInfo() {
