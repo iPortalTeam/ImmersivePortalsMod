@@ -171,7 +171,7 @@ public abstract class PortalRenderer {
         
         MyRenderHelper.restoreViewPort();
         
-        MyGameRenderer.updateFogColor();
+//        MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
     }
     

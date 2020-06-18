@@ -20,6 +20,8 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -322,30 +324,18 @@ public class ViewAreaRenderer {
     
     private static Vec3d getCurrentFogColor(Portal portal) {
         
-        if (Global.edgelessSky) {
-            return getFogColorOf(RenderStates.originalPlayerDimension);
+        if (OFInterface.isShaders.getAsBoolean()) {
+            return Vec3d.ZERO;
         }
         
-        return getFogColorOf(portal.dimensionTo);
+        //TODO handle edgelessSky option
+        
+        return FogRendererContext.getFogColorOf(
+            ((ClientWorld) portal.getDestinationWorld()),
+            portal.transformPoint(McHelper.getCurrentCameraPos())
+        );
     }
     
-    private static Vec3d getFogColorOf(RegistryKey<World> dimension) {
-        Helper.SimpleBox<Vec3d> boxOfFogColor = new Helper.SimpleBox<>(null);
-        
-        FogRendererContext.swappingManager.swapAndInvoke(
-            RenderDimensionRedirect.getRedirectedDimension(dimension),
-            () -> {
-                boxOfFogColor.obj = FogRendererContext.getCurrentFogColor.get();
-            }
-        );
-        
-        Vec3d fogColor = boxOfFogColor.obj;
-        
-        if (OFInterface.isShaders.getAsBoolean()) {
-            fogColor = Vec3d.ZERO;
-        }
-        return fogColor;
-    }
     
     private static boolean isCloseToPortal(
         Portal portal,

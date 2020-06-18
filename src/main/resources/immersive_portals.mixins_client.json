@@ -5,6 +5,7 @@
   "mixins": [
     "alternate_dimension.MixinBackgroundRenderer_A",
     "alternate_dimension.MixinClientWorld_A",
+    "alternate_dimension.MixinWorldRenderer_A",
     "altius_world.MixinCreateWorldScreen",
     "altius_world.MixinWorldRenderer_A",
     "block_manipulation.MixinClientPlayerInteractionManager",

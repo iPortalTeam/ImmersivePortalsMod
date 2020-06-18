@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client.alternate_dimension;
 
+import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
@@ -11,19 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientWorld.class)
 public class MixinClientWorld_A {
-//    //avoid alternate dimension dark
-//    @Inject(
-//        method = "getSkyDarknessHeight",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void onGetSkyDarknessHeight(CallbackInfoReturnable<Double> cir) {
-//        ClientWorld clientWorld = (ClientWorld) (Object) this;
-//        if (clientWorld.getDimension() instanceof AlternateDimension) {
-//            cir.setReturnValue(-100d);
-//            cir.cancel();
-//        }
-//    }
 //
 //    @Redirect(
 //        method = "method_23777",

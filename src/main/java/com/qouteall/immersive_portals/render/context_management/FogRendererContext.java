@@ -1,7 +1,11 @@
 package com.qouteall.immersive_portals.render.context_management;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ducks.IECamera;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -47,6 +51,31 @@ public class FogRendererContext {
                 )
             )
         );
+    }
+    
+    public static Vec3d getFogColorOf(
+        ClientWorld world, Vec3d pos
+    ) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        
+        swappingManager.pushSwapping(world.getRegistryKey());
+        
+        Camera newCamera = new Camera();
+        ((IECamera) newCamera).mySetPos(pos);
+        
+        BackgroundRenderer.render(
+            newCamera,
+            RenderStates.tickDelta,
+            world,
+            client.options.viewDistance,
+            client.gameRenderer.getSkyDarkness(RenderStates.tickDelta)
+        );
+        
+        Vec3d result = getCurrentFogColor.get();
+        
+        swappingManager.popSwapping();
+        
+        return result;
     }
     
     public static void onPlayerTeleport(RegistryKey<World> from, RegistryKey<World> to) {
