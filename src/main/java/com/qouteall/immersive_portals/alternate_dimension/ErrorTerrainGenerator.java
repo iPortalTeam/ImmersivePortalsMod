@@ -9,23 +9,34 @@ import com.qouteall.immersive_portals.Helper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.structure.StructureManager;
+import net.minecraft.structure.StructureStart;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.gen.ChunkRandom;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.StructureConfig;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.gen.feature.EndCityFeature;
 import net.minecraft.world.gen.feature.MineshaftFeature;
 import net.minecraft.world.gen.feature.OceanMonumentFeature;
@@ -33,6 +44,10 @@ import net.minecraft.world.gen.feature.StrongholdFeature;
 import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.WoodlandMansionFeature;
 
+import java.util.BitSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -156,10 +171,6 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         
     }
     
-    @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
-        return 64;
-    }
     
     //may be incorrect
     @Override
@@ -221,6 +232,98 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         avoidSandLag(region);
     }
     
+    @Override
+    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
+        return 64;
+    }
+    
+    //make end city and woodland mansion be able to generate
+    @Override
+    public int getHeightOnGround(int x, int z, Heightmap.Type heightmapType) {
+        return 64;
+    }
+    
+    //carve more
+    @Override
+    public void carve(
+        long seed, BiomeAccess access, Chunk chunk, GenerationStep.Carver carver
+    ) {
+        BiomeAccess biomeAccess = access.withSource(this.biomeSource);
+        ChunkRandom chunkRandom = new ChunkRandom();
+        ChunkPos chunkPos = chunk.getPos();
+        Biome biome = this.biomeSource.getBiomeForNoiseGen(
+            chunkPos.x << 2, 0, chunkPos.z << 2
+        );
+        BitSet bitSet = ((ProtoChunk) chunk).method_28510(carver);
+        
+        for (int num = 0; num < 4; num++) {
+            for (int cx = chunkPos.x - 8; cx <= chunkPos.x + 8; ++cx) {
+                for (int cz = chunkPos.z - 8; cz <= chunkPos.z + 8; ++cz) {
+                    List<ConfiguredCarver<?>> list = biome.getCarversForStep(carver);
+                    ListIterator listIterator = list.listIterator();
+                    
+                    while (listIterator.hasNext()) {
+                        int n = listIterator.nextIndex();
+                        ConfiguredCarver<?> configuredCarver = (ConfiguredCarver) listIterator.next();
+                        chunkRandom.setCarverSeed(seed + (long) n + num * 2333, cx, cz);
+                        if (configuredCarver.shouldCarve(chunkRandom, cx, cz)) {
+                            configuredCarver.carve(
+                                chunk,
+                                biomeAccess::getBiome,
+                                chunkRandom,
+                                this.getSeaLevel(),
+                                cx,
+                                cz,
+                                chunkPos.x,
+                                chunkPos.z,
+                                bitSet
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+//
+//    @Override
+//    public void generateFeatures(ChunkRegion region, StructureAccessor accessor) {
+//        super.generateFeatures(region, accessor);
+//
+//        int xs = region.getCenterChunkX() * 16;
+//        int zs = region.getCenterChunkZ() * 16;
+//        BlockPos blockPos = new BlockPos(xs, 0, zs);
+//        Biome biome = this.biomeSource.getBiomeForNoiseGen(
+//            (region.getCenterChunkX() << 2) + 2,
+//            2,
+//            (region.getCenterChunkZ() << 2) + 2
+//        );
+//        ChunkRandom chunkRandom = new ChunkRandom();
+//
+//        for (int num = 1; num < 4; num++) {
+//            long m = chunkRandom.setPopulationSeed(region.getSeed() + num * 2333, xs, zs);
+//
+//            GenerationStep.Feature step = GenerationStep.Feature.UNDERGROUND_ORES;
+//
+//            try {
+//                biome.generateFeatureStep(step, accessor, this, region, m, chunkRandom, blockPos);
+//            }
+//            catch (Exception var18) {
+//                CrashReport crashReport = CrashReport.create(var18, "Biome decoration");
+//                crashReport.addElement("Generation").add(
+//                    "CenterX",
+//                    (Object) region.getCenterChunkX()
+//                ).add("CenterZ", (Object) region.getCenterChunkZ()).add("Step", (Object) step).add(
+//                    "Seed",
+//                    (Object) m
+//                ).add("Biome", (Object) Registry.BIOME.getId(biome));
+//                throw new CrashException(crashReport);
+//            }
+//        }
+//
+//    }
+    
+    
     private static void avoidSandLag(ChunkRegion region) {
         Chunk centerChunk = region.getChunk(region.getCenterChunkX(), region.getCenterChunkZ());
         BlockPos.Mutable temp = new BlockPos.Mutable();
@@ -245,11 +348,4 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
             }
         }
     }
-    
-    //make end city and woodland mansion be able to generate
-    @Override
-    public int getHeightOnGround(int x, int z, Heightmap.Type heightmapType) {
-        return 64;
-    }
-    
 }

@@ -8,7 +8,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.datafixer.fix.BiomesFix;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
@@ -19,6 +21,7 @@ import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.FixedBiomeSource;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
@@ -26,6 +29,7 @@ import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -65,6 +69,49 @@ public class VoidChunkGenerator extends ChunkGenerator {
     
     @Override
     public void populateNoise(
+        WorldAccess world, StructureAccessor accessor, Chunk chunk
+    ) {
+        //nothing
+    }
+    
+    @Override
+    public void carve(
+        long seed, BiomeAccess access, Chunk chunk, GenerationStep.Carver carver
+    ) {
+        //nothing
+    }
+    
+    @Nullable
+    @Override
+    public BlockPos locateStructure(
+        ServerWorld world,
+        StructureFeature<?> feature,
+        BlockPos center,
+        int radius,
+        boolean skipExistingChunks
+    ) {
+        return null;
+    }
+    
+    @Override
+    public void generateFeatures(ChunkRegion region, StructureAccessor accessor) {
+        //nothing
+    }
+    
+    @Override
+    public void populateEntities(ChunkRegion region) {
+        //nothing
+    }
+    
+    @Override
+    public void setStructureStarts(
+        StructureAccessor structureAccessor, Chunk chunk, StructureManager structureManager, long l
+    ) {
+        //nothing
+    }
+    
+    @Override
+    public void addStructureReferences(
         WorldAccess world, StructureAccessor accessor, Chunk chunk
     ) {
         //nothing

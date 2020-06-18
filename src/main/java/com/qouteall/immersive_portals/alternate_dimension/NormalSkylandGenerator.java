@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.alternate_dimension;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
@@ -13,10 +15,15 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorType;
+import net.minecraft.world.gen.chunk.NoiseConfig;
+import net.minecraft.world.gen.chunk.NoiseSamplingConfig;
+import net.minecraft.world.gen.chunk.SlideConfig;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
+
+import java.util.Optional;
 
 public class NormalSkylandGenerator extends ChunkGenerator {
     
@@ -42,10 +49,17 @@ public class NormalSkylandGenerator extends ChunkGenerator {
         proxy = new SurfaceChunkGenerator(
             this.getBiomeSource(),
             seed,
-            ChunkGeneratorType.Preset.END.getChunkGeneratorType()
+            new ChunkGeneratorType.Preset("floating_islands", (preset) -> {
+                return ChunkGeneratorType.Preset.createIslandsType(
+                    new StructuresConfig(false),
+                    Blocks.STONE.getDefaultState(),
+                    Blocks.WATER.getDefaultState(),
+                    preset,
+                    false
+                );
+            }).getChunkGeneratorType()
         );
     }
-    
     
     @Override
     protected Codec<? extends ChunkGenerator> method_28506() {
