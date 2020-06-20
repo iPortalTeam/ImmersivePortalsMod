@@ -134,7 +134,7 @@ public class DimensionIdManagement {
         List<RegistryKey<World>> keysList = new ArrayList<>(keys);
         keysList.sort(Comparator.comparing(RegistryKey::toString));
         
-        Helper.log("Sorted Dimension Key List:\n" + Helper.myToString(keysList.stream()));
+        Helper.log("Server Loaded Dimensions:\n" + Helper.myToString(keysList.stream()));
         
         keysList.forEach(dim -> {
             if (!bimap.containsKey(dim)) {
@@ -178,18 +178,10 @@ public class DimensionIdManagement {
      * {@link RegistrySyncManager#apply(CompoundTag, RemappableRegistry.RemapMode)}
      */
     private static DimensionIdRecord readIdsFromFabricRegistryRecord(CompoundTag fabricRegistryRecord) {
-        CompoundTag mainTag = fabricRegistryRecord.getCompound("registries");
+        CompoundTag dimensionTypeTag = fabricRegistryRecord.getCompound("minecraft:dimension_type");
         
-        if (mainTag == null) {
-            Helper.err("Missing 'registries' " + fabricRegistryRecord);
-            return null;
-        }
-        
-        CompoundTag dimensionTypeTag = mainTag.getCompound("dimension_type");
-        
-        if (dimensionTypeTag == null) {
-            Helper.err("Missing 'dimension_type' " + fabricRegistryRecord);
-            Helper.err("The dimension type id record is already overridden!");
+        if (dimensionTypeTag.isEmpty()) {
+            Helper.err("Missing 'minecraft:dimension_type' " + fabricRegistryRecord);
             return null;
         }
         

@@ -41,7 +41,7 @@ public class WorldInfoSender {
 //                            }
 //                        }
 //                    });
-                    
+                
                 }
             }
         });
@@ -65,20 +65,20 @@ public class WorldInfoSender {
         );
         
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
-    
+        
         if (world.isRaining()) {
             player.networkHandler.sendPacket(new GameStateChangeS2CPacket(
-                GameStateChangeS2CPacket.field_25646,
+                GameStateChangeS2CPacket.RAIN_STARTED,
                 0.0F
             ));
         }
-    
+        
         player.networkHandler.sendPacket(new GameStateChangeS2CPacket(
-            GameStateChangeS2CPacket.field_25652,
+            GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
             world.getRainGradient(1.0F)
         ));
         player.networkHandler.sendPacket(new GameStateChangeS2CPacket(
-            GameStateChangeS2CPacket.field_25653,
+            GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
             world.getThunderGradient(1.0F)
         ));
     }

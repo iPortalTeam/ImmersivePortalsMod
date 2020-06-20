@@ -55,6 +55,7 @@ public class NormalSkylandGenerator extends ChunkGenerator {
                     Blocks.STONE.getDefaultState(),
                     Blocks.WATER.getDefaultState(),
                     preset,
+                    false,
                     false
                 );
             }).getChunkGeneratorType()

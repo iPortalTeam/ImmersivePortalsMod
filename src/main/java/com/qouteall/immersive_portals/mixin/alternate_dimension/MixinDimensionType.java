@@ -41,53 +41,17 @@ public class MixinDimensionType {
         return null;
     }
     
-    @Inject(
-        method = "method_28517",
-        at = @At("RETURN"),
-        cancellable = true
-    )
-    private static void onInitDimensionOptions(
-        long seed,
-        CallbackInfoReturnable<SimpleRegistry<DimensionOptions>> cir
-    ) {
-        SimpleRegistry<DimensionOptions> registry = cir.getReturnValue();
-    
-        registry.add(
-            ModMain.alternate1Option,
-            new DimensionOptions(
-                () -> ModMain.surfaceTypeObject,
-                new NormalSkylandGenerator(seed)
-            )
-        );
-        registry.markLoaded(ModMain.alternate1Option);
-        
-        registry.add(
-            ModMain.alternate2Option,
-            new DimensionOptions(
-                () -> ModMain.surfaceTypeObject,
-                new NormalSkylandGenerator(seed)
-            )
-        );
-        registry.markLoaded(ModMain.alternate2Option);
-    
-        registry.add(
-            ModMain.alternate3Option,
-            new DimensionOptions(
-                () -> ModMain.surfaceTypeObject,
-                new ErrorTerrainGenerator(seed)
-            )
-        );
-        registry.markLoaded(ModMain.alternate3Option);
-        
-        registry.add(
-            ModMain.alternate4Option,
-            new DimensionOptions(
-                () -> ModMain.surfaceTypeObject,
-                new ErrorTerrainGenerator(seed)
-            )
-        );
-        registry.markLoaded(ModMain.alternate4Option);
-    }
+//    @Inject(
+//        method = "method_28517",
+//        at = @At("RETURN"),
+//        cancellable = true
+//    )
+//    private static void onInitDimensionOptions(
+//        long seed,
+//        CallbackInfoReturnable<SimpleRegistry<DimensionOptions>> cir
+//    ) {
+
+//    }
     
     @Inject(
         method = "addRegistryDefaults",

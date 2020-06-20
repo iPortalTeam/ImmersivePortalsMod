@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEEntity;
@@ -426,6 +427,28 @@ public class ClientDebugCommand {
                         );
                     });
                 });
+                
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("is_altius")
+            .executes(context -> {
+                
+                boolean altius = AltiusInfo.isAltius();
+                
+                if (altius) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("yes"),
+                        false
+                    );
+                }
+                else {
+                    context.getSource().sendFeedback(
+                        new LiteralText("no"),
+                        false
+                    );
+                }
                 
                 return 0;
             })
