@@ -1,7 +1,11 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.OptionalDynamic;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resource.DataPackSettings;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameMode;
@@ -15,6 +19,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MixinLevelInfo implements IELevelProperties {
     
     AltiusInfo altiusInfo;
+    
+    @Inject(
+        method = "method_28383",
+        at = @At("RETURN"),
+        cancellable = true
+    )
+    private static void onReadLevelInfoFromDynamic(
+        Dynamic<?> dynamic,
+        DataPackSettings dataPackSettings,
+        CallbackInfoReturnable<LevelInfo> cir
+    ) {
+        DataResult<?> altiusElement = dynamic.getElement("altius");
+        Object obj = altiusElement.get().left().orElse(null);
+        if (obj != null) {
+            if (obj instanceof CompoundTag) {
+                MixinLevelInfo this_ = (MixinLevelInfo) (Object) cir.getReturnValue();
+                this_.altiusInfo = AltiusInfo.fromTag(((CompoundTag) obj));
+            }
+        }
+    }
     
     @Inject(
         method = "method_28382",

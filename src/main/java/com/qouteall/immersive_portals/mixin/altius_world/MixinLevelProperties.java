@@ -77,7 +77,7 @@ public class MixinLevelProperties implements IELevelProperties {
         Dynamic<Tag> dynamic,
         DataFixer dataFixer,
         int i,
-        CompoundTag compoundTag,
+        CompoundTag playerTag,
         LevelInfo levelInfo,
         SaveVersionInfo saveVersionInfo,
         GeneratorOptions generatorOptions,
@@ -94,10 +94,9 @@ public class MixinLevelProperties implements IELevelProperties {
             return;
         }
         
-        if (compoundTag.contains("altius")) {
-            Tag tag = compoundTag.get("altius");
-            
-            this_.altiusInfo = AltiusInfo.fromTag(((CompoundTag) tag));
+        Tag altiusTag = dynamic.getElement("altius", null);
+        if (altiusTag != null) {
+            this_.altiusInfo = AltiusInfo.fromTag(((CompoundTag) altiusTag));
         }
     }
     

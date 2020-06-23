@@ -17,6 +17,8 @@ import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.source.BiomeArray;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -29,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 //this class is modified based on ClientChunkManager
 //re-write this class upon updating mod
@@ -108,8 +111,15 @@ public class MyClientChunkManager extends ClientChunkManager {
             }
             else {
                 if (biomeArray == null) {
-                    LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", x, z);
-                    return null;
+                    LOGGER.error(
+                        "Missing Biome Array: {} {} {} Client Biome May be Incorrect",
+                        world.getRegistryKey().getValue(), x, z
+                    );
+                    biomeArray = new BiomeArray(
+                        Stream.generate(() -> Biomes.PLAINS)
+                            .limit(BiomeArray.DEFAULT_LENGTH)
+                            .toArray(Biome[]::new)
+                    );
                 }
                 
                 worldChunk = new WorldChunk(this.world, new ChunkPos(x, z), biomeArray);
