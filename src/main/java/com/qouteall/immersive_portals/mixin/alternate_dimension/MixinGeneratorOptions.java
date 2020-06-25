@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.alternate_dimension;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.alternate_dimension.NormalSkylandGenerator;
@@ -65,6 +66,40 @@ public class MixinGeneratorOptions {
             () -> ModMain.surfaceTypeObject,
             ErrorTerrainGenerator::new
         );
+        
+        portal_recoverVanillaDimensions(seed, simpleRegistry);
+    }
+    
+    // DFU may error with alternate dimensions and drop the nether and the end
+    // Should be removed in later versions
+    private void portal_recoverVanillaDimensions(
+        long seed,
+        SimpleRegistry<DimensionOptions> simpleRegistry
+    ) {
+        if (!simpleRegistry.containsId(DimensionOptions.NETHER.getValue())) {
+            SimpleRegistry<DimensionOptions> dimensionOptions = DimensionType.method_28517(seed);
+            
+            simpleRegistry.add(
+                DimensionOptions.NETHER,
+                dimensionOptions.get(DimensionOptions.NETHER)
+            );
+            simpleRegistry.markLoaded(DimensionOptions.NETHER);
+            
+            Helper.err("Missing Nether. Recovered");
+        }
+        
+        if (!simpleRegistry.containsId(DimensionOptions.END.getValue())) {
+            SimpleRegistry<DimensionOptions> dimensionOptions = DimensionType.method_28517(seed);
+            
+            simpleRegistry.add(
+                DimensionOptions.END,
+                dimensionOptions.get(DimensionOptions.END)
+            );
+            simpleRegistry.markLoaded(DimensionOptions.END);
+            
+            Helper.err("Missing The End. Recovered");
+        }
+        
     }
     
     void portal_addIfMissing(

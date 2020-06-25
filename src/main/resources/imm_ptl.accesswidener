@@ -2,3 +2,8 @@ accessWidener v1 named
 Accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
 Accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Ljava/nio/file/Path;
 Accessible method net/minecraft/world/gen/chunk/ChunkGeneratorType$Preset createIslandsType (Lnet/minecraft/world/gen/chunk/StructuresConfig;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/gen/chunk/ChunkGeneratorType$Preset;ZZ)Lnet/minecraft/world/gen/chunk/ChunkGeneratorType;
+Accessible field net/minecraft/world/dimension/DimensionType THE_NETHER Lnet/minecraft/world/dimension/DimensionType;
+Accessible field net/minecraft/world/dimension/DimensionType THE_END Lnet/minecraft/world/dimension/DimensionType;
+Accessible method net/minecraft/world/dimension/DimensionType createNetherGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
+Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
+
