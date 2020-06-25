@@ -4,6 +4,8 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.alternate_dimension.NormalSkylandGenerator;
+import com.qouteall.immersive_portals.ducks.IESimpleRegistry;
+import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.dimension.DimensionOptions;
@@ -19,6 +21,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+// Uses hacky ways to add dimension
+// Should be replaced by better ways later
 @Mixin(GeneratorOptions.class)
 public class MixinGeneratorOptions {
     @Inject(
@@ -35,7 +39,7 @@ public class MixinGeneratorOptions {
     ) {
         SimpleRegistry<DimensionOptions> registry = simpleRegistry;
         
-        portal_addIfMissing(
+        portal_addCustomDimension(
             seed,
             registry,
             ModMain.alternate1Option,
@@ -43,7 +47,7 @@ public class MixinGeneratorOptions {
             NormalSkylandGenerator::new
         );
         
-        portal_addIfMissing(
+        portal_addCustomDimension(
             seed,
             registry,
             ModMain.alternate2Option,
@@ -51,7 +55,7 @@ public class MixinGeneratorOptions {
             NormalSkylandGenerator::new
         );
         
-        portal_addIfMissing(
+        portal_addCustomDimension(
             seed,
             registry,
             ModMain.alternate3Option,
@@ -59,7 +63,7 @@ public class MixinGeneratorOptions {
             ErrorTerrainGenerator::new
         );
         
-        portal_addIfMissing(
+        portal_addCustomDimension(
             seed,
             registry,
             ModMain.alternate4Option,
@@ -102,7 +106,7 @@ public class MixinGeneratorOptions {
         
     }
     
-    void portal_addIfMissing(
+    void portal_addCustomDimension(
         long argSeed,
         SimpleRegistry<DimensionOptions> registry,
         RegistryKey<DimensionOptions> key,
@@ -117,7 +121,9 @@ public class MixinGeneratorOptions {
                     chunkGeneratorCreator.apply(argSeed)
                 )
             );
-            registry.markLoaded(key);
         }
+        //stop the dimension from being saved to level.dat
+        //avoids messing with dfu
+        ((IESimpleRegistry) registry).markUnloaded(key);
     }
 }
