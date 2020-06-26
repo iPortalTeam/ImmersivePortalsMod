@@ -169,7 +169,9 @@ public class McHelper {
     ) {
         int[] progress = new int[1];
         Helper.SimpleBox<Boolean> isAborted = new Helper.SimpleBox<>(false);
-        Helper.SimpleBox<Runnable> finishBehavior = new Helper.SimpleBox<>(null);
+        Helper.SimpleBox<Runnable> finishBehavior = new Helper.SimpleBox<>(() -> {
+            Helper.err("Error Occured!!!");
+        });
         CompletableFuture<Void> future = CompletableFuture.runAsync(
             () -> {
                 T result = stream.peek(
@@ -549,7 +551,7 @@ public class McHelper {
             e -> e.getBoundingBox().intersects(box) && predicate.test(e)
         );
     }
-
+    
     public static Identifier dimensionTypeId(DimensionType dimType) {
         return Objects.requireNonNull(Registry.DIMENSION_TYPE.getId(dimType));
     }
