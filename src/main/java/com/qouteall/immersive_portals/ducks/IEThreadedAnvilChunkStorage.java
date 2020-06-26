@@ -7,6 +7,8 @@ import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.chunk.WorldChunk;
 
+import java.io.File;
+
 public interface IEThreadedAnvilChunkStorage {
     int getWatchDistance();
     
@@ -24,4 +26,6 @@ public interface IEThreadedAnvilChunkStorage {
     );
     
     void resendSpawnPacketToTrackers(Entity entity);
+    
+    File portal_getSaveDir();
 }

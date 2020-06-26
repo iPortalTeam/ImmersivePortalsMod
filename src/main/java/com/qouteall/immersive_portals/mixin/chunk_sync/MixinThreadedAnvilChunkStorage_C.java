@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,6 +62,10 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     @Final
     private MessageListener<ChunkTaskPrioritySystem.Task<Runnable>> mainExecutor;
     
+    @Shadow
+    @Final
+    private File saveDir;
+    
     @Override
     public int getWatchDistance() {
         return watchDistance;
@@ -79,6 +84,11 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     @Override
     public ChunkHolder getChunkHolder_(long long_1) {
         return getChunkHolder(long_1);
+    }
+    
+    @Override
+    public File portal_getSaveDir() {
+        return saveDir;
     }
     
     /**
@@ -124,7 +134,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
         future.thenAcceptAsync((either) -> {
             either.mapLeft((worldChunk) -> {
                 this.totalChunksLoadedCount.getAndIncrement();
-    
+                
                 Global.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
                 
                 return Either.left(worldChunk);
