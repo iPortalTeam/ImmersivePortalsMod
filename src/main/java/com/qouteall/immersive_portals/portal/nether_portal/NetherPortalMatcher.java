@@ -149,7 +149,7 @@ public class NetherPortalMatcher {
     ) {
         IntBox airCube = getAirCubeOnSolidGround(
             areaSize.add(5, 0, 5), world, searchingCenter,
-            findingRadius / 8 - 5
+            8
         );
         if (airCube == null) {
             Helper.log("Cannot Find Portal Placement on Ground");
@@ -159,7 +159,7 @@ public class NetherPortalMatcher {
         if (world.getBlockState(airCube.l.add(0, -1, 0)).getBlock() == Blocks.LAVA) {
             Helper.log("Generated Portal On Lava Lake");
             
-            return levitateBox(world, airCube);
+            return levitateBox(world, airCube.getSubBoxInCenter(areaSize));
         }
         
         Helper.log("Generated Portal On Ground");
@@ -233,18 +233,18 @@ public class NetherPortalMatcher {
     ) {
         IntBox result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
             areaSize, world, searchingCenter,
-            30, findingRadius / 8
+            30, 8
         );
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
                 areaSize, world, searchingCenter,
-                10, findingRadius / 8
+                10, 8
             );
         }
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
                 areaSize, world, searchingCenter,
-                1, findingRadius / 8
+                1, 8
             );
         }
         return result;
