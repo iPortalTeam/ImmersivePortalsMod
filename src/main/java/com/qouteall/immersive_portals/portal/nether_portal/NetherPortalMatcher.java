@@ -146,7 +146,7 @@ public class NetherPortalMatcher {
     ) {
         IntBox aboveLavaLake = getAirCubeOnGround(
             areaSize.add(20, 20, 20), world, searchingCenter,
-            findingRadius / 8 - 5,
+            10,
             blockPos -> isLavaLake(world, blockPos)
         );
         if (aboveLavaLake != null) {
