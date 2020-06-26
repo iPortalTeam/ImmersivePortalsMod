@@ -22,15 +22,28 @@ import java.util.stream.Collectors;
 public class PortalRendering {
     private static final Stack<Portal> portalLayers = new Stack<>();
     private static boolean isRenderingCache = false;
+    private static boolean isRenderingOddNumberOfMirrorsCache = false;
     
     public static void pushPortalLayer(Portal portal) {
         portalLayers.push(portal);
-        isRenderingCache = getPortalLayer() != 0;
+        updateCache();
     }
     
     public static void popPortalLayer() {
         portalLayers.pop();
+        updateCache();
+    }
+    
+    private static void updateCache() {
         isRenderingCache = getPortalLayer() != 0;
+        
+        int number = 0;
+        for (Portal portal : portalLayers) {
+            if (portal instanceof Mirror) {
+                number++;
+            }
+        }
+        isRenderingOddNumberOfMirrorsCache = (number % 2 == 1);
     }
     
     //0 for rendering outer world
@@ -42,6 +55,10 @@ public class PortalRendering {
     
     public static boolean isRendering() {
         return isRenderingCache;
+    }
+    
+    public static boolean isRenderingOddNumberOfMirrors() {
+        return isRenderingOddNumberOfMirrorsCache;
     }
     
     public static int getMaxPortalLayer() {
@@ -68,17 +85,6 @@ public class PortalRendering {
         RenderStates.renderedDimensions.add(
             portalLayers.peek().dimensionTo
         );
-    }
-    
-    public static boolean isRenderingOddNumberOfMirrors() {
-        Stack<Portal> portalLayers = PortalRendering.portalLayers;
-        int number = 0;
-        for (Portal portal : portalLayers) {
-            if (portal instanceof Mirror) {
-                number++;
-            }
-        }
-        return number % 2 == 1;
     }
     
     public static void adjustCameraPos(Camera camera) {

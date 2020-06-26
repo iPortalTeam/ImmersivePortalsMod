@@ -147,28 +147,24 @@ public class NetherPortalMatcher {
         BlockPos searchingCenter,
         int findingRadius
     ) {
-        IntBox aboveLavaLake = getAirCubeOnGround(
-            areaSize.add(20, 20, 20), world, searchingCenter,
-            findingRadius / 8 - 5,
-            blockPos -> isLavaLake(world, blockPos)
-        );
-        if (aboveLavaLake != null) {
-            Helper.log("Generated Portal Above Lava Lake");
-            return aboveLavaLake.getSubBoxInCenter(areaSize);
-        }
-        
-        IntBox biggerArea = getAirCubeOnSolidGround(
+        IntBox airCube = getAirCubeOnSolidGround(
             areaSize.add(5, 0, 5), world, searchingCenter,
             findingRadius / 8 - 5
         );
-        if (biggerArea == null) {
+        if (airCube == null) {
             Helper.log("Cannot Find Portal Placement on Ground");
             return null;
         }
         
+        if (world.getBlockState(airCube.l.add(0, -1, 0)).getBlock() == Blocks.LAVA) {
+            Helper.log("Generated Portal On Lava Lake");
+            
+            return levitateBox(world, airCube);
+        }
+        
         Helper.log("Generated Portal On Ground");
         
-        return pushDownBox(world, biggerArea.getSubBoxInCenter(areaSize));
+        return pushDownBox(world, airCube.getSubBoxInCenter(areaSize));
     }
     
     private static boolean isLavaLake(
