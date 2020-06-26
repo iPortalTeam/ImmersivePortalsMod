@@ -31,6 +31,7 @@
     "block_manipulation.MixinStatusEffect",
     "chunk_sync.MixinChunkHolder",
     "chunk_sync.MixinChunkTicketManager",
+    "chunk_sync.MixinServerPlayerEntity",
     "chunk_sync.MixinThreadedAnvilChunkStorage_C",
     "collision.MixinAbstractDecorationEntity",
     "collision.MixinAbstractMinecartEntity",

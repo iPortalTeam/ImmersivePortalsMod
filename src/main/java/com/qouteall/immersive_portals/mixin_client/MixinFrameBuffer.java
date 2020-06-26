@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.IntBuffer;
@@ -64,6 +65,8 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     @Shadow
     public abstract void endRead();
     
+    @Shadow public abstract void initFbo(int width, int height, boolean getError);
+    
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(
         int int_1,
@@ -75,127 +78,156 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         isStencilBufferEnabled = false;
     }
     
-    /**
-     * @author qouteall
-     */
-    @Overwrite
-    public void initFbo(int width, int height, boolean getError) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        this.viewportWidth = width;
-        this.viewportHeight = height;
-        this.textureWidth = width;
-        this.textureHeight = height;
-        this.fbo = GlStateManager.genFramebuffers();
-        this.colorAttachment = TextureUtil.generateId();
-        if (this.useDepthAttachment) {
-            this.depthAttachment = TextureUtil.generateId();
-            GlStateManager.bindTexture(this.depthAttachment);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 9728);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 9728);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10496);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10496);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_MODE, 0);
-            if (isStencilBufferEnabled) {
-                //https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
-                GlStateManager.texImage2D(
-                    GL11.GL_TEXTURE_2D, 0, ARBFramebufferObject.GL_DEPTH24_STENCIL8,
-                    this.textureWidth, this.textureHeight,
-                    0, ARBFramebufferObject.GL_DEPTH_STENCIL,
-                    GL30.GL_UNSIGNED_INT_24_8, (IntBuffer) null
-                );
-            }
-            else {
-                GlStateManager.texImage2D(
-                    GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT,
-                    this.textureWidth, this.textureHeight,
-                    0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (IntBuffer) null
-                );
-            }
+    @Redirect(
+        method = "initFbo",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;texImage2D(IIIIIIIILjava/nio/IntBuffer;)V"
+        )
+    )
+    private void redirectTexImage2d(
+        int target,
+        int level,
+        int internalFormat,
+        int width,
+        int height,
+        int border,
+        int format,
+        int type,
+        IntBuffer pixels
+    ) {
+        if (internalFormat == 6402 && isStencilBufferEnabled) {
+            GlStateManager.texImage2D(
+                target,
+                level,
+                ARBFramebufferObject.GL_DEPTH24_STENCIL8,
+                width,
+                height,
+                border,
+                ARBFramebufferObject.GL_DEPTH_STENCIL,
+                GL30.GL_UNSIGNED_INT_24_8,
+                pixels
+            );
         }
-        
-        this.setTexFilter(9728);
-        GlStateManager.bindTexture(this.colorAttachment);
-        GlStateManager.texImage2D(
-            GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8,
-            this.textureWidth, this.textureHeight,
-            0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (IntBuffer) null
-        );
-        GlStateManager.bindFramebuffer(FramebufferInfo.FRAME_BUFFER, this.fbo);
-        GlStateManager.framebufferTexture2D(
-            FramebufferInfo.FRAME_BUFFER,
-            FramebufferInfo.COLOR_ATTACHMENT,
-            GL11.GL_TEXTURE_2D,
-            this.colorAttachment,
-            0
-        );
-        if (this.useDepthAttachment) {
-            if (isStencilBufferEnabled) {
-                GlStateManager.framebufferTexture2D(
-                    FramebufferInfo.FRAME_BUFFER,
-                    GL30.GL_DEPTH_STENCIL_ATTACHMENT,
-                    GL11.GL_TEXTURE_2D,
-                    this.depthAttachment,
-                    0
-                );
-            }
-            else {
-                GlStateManager.framebufferTexture2D(
-                    FramebufferInfo.FRAME_BUFFER,
-                    FramebufferInfo.DEPTH_ATTACHMENT,
-                    GL11.GL_TEXTURE_2D,
-                    this.depthAttachment,
-                    0
-                );
-            }
+        else {
+            GlStateManager.texImage2D(
+                target,
+                level,
+                internalFormat,
+                width,
+                height,
+                border,
+                format,
+                type,
+                pixels
+            );
         }
-        
-        this.checkFramebufferStatus();
-        this.clear(getError);
-        this.endRead();
+    }
+    
+    @Redirect(
+        method = "initFbo",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;framebufferTexture2D(IIIII)V"
+        )
+    )
+    private void redirectFrameBufferTexture2d(
+        int target,
+        int attachment,
+        int textureTarget,
+        int texture,
+        int level
+    ) {
+        if (attachment == FramebufferInfo.DEPTH_ATTACHMENT && isStencilBufferEnabled) {
+            GlStateManager.framebufferTexture2D(
+                target,
+                GL30.GL_DEPTH_STENCIL_ATTACHMENT,
+                textureTarget,
+                texture,
+                level
+            );
+        }
+        else {
+            GlStateManager.framebufferTexture2D(target, attachment, textureTarget, texture, level);
+        }
     }
 
-//    @Inject(
-//        method = "initFbo",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lcom/mojang/blaze3d/platform/GlStateManager;bindRenderbuffer(II)V"
-//        ),
-//        cancellable = true
-//    )
-//    private void onInitFrameBuffer(int int_1, int int_2, boolean isMac, CallbackInfo ci) {
-//        if (isStencilBufferEnabled) {
-//            Framebuffer this_ = (Framebuffer) (Object) this;
-//
-//            GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, this_.depthAttachment);
-//            GL30.glRenderbufferStorage(
-//                GL30.GL_RENDERBUFFER,
-//                org.lwjgl.opengl.EXTPackedDepthStencil.GL_DEPTH24_STENCIL8_EXT,
-//                this_.textureWidth,
-//                this_.textureHeight
-//            );
-//            GL30.glFramebufferRenderbuffer(
-//                GL30.GL_FRAMEBUFFER,
-//                org.lwjgl.opengl.EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT,
-//                GL30.GL_RENDERBUFFER,
-//                this_.depthAttachment
-//            );
-//            GL30.glFramebufferRenderbuffer(
-//                GL30.GL_FRAMEBUFFER,
-//                org.lwjgl.opengl.EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT,
-//                GL30.GL_RENDERBUFFER,
-//                this_.depthAttachment
-//            );
-//
-//            this_.checkFramebufferStatus();
-//            this_.clear(isMac);
-//            this_.endRead();
-//
-//            CHelper.checkGlError();
-//
-//            Helper.log("Frame Buffer Reloaded with Stencil Buffer");
-//
-//            ci.cancel();
+//    /**
+//     * @author qouteall
+//     */
+//    @Overwrite
+//    public void initFbo(int width, int height, boolean getError) {
+//        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+//        this.viewportWidth = width;
+//        this.viewportHeight = height;
+//        this.textureWidth = width;
+//        this.textureHeight = height;
+//        this.fbo = GlStateManager.genFramebuffers();
+//        this.colorAttachment = TextureUtil.generateId();
+//        if (this.useDepthAttachment) {
+//            this.depthAttachment = TextureUtil.generateId();
+//            GlStateManager.bindTexture(this.depthAttachment);
+//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 9728);
+//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 9728);
+//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10496);
+//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10496);
+//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_MODE, 0);
+//            if (isStencilBufferEnabled) {
+//                //https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
+//                GlStateManager.texImage2D(
+//                    GL11.GL_TEXTURE_2D, 0, ARBFramebufferObject.GL_DEPTH24_STENCIL8,
+//                    this.textureWidth, this.textureHeight,
+//                    0, ARBFramebufferObject.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8, (IntBuffer) null
+//                );
+//            }
+//            else {
+//                GlStateManager.texImage2D(
+//                    GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT,
+//                    this.textureWidth, this.textureHeight,
+//                    0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (IntBuffer) null
+//                );
+//            }
 //        }
+//
+//        this.setTexFilter(9728);
+//        GlStateManager.bindTexture(this.colorAttachment);
+//        GlStateManager.texImage2D(
+//            GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8,
+//            this.textureWidth, this.textureHeight,
+//            0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (IntBuffer) null
+//        );
+//        GlStateManager.bindFramebuffer(FramebufferInfo.FRAME_BUFFER, this.fbo);
+//        GlStateManager.framebufferTexture2D(
+//            FramebufferInfo.FRAME_BUFFER,
+//            FramebufferInfo.COLOR_ATTACHMENT,
+//            GL11.GL_TEXTURE_2D,
+//            this.colorAttachment,
+//            0
+//        );
+//        if (this.useDepthAttachment) {
+//            if (isStencilBufferEnabled) {
+//                GlStateManager.framebufferTexture2D(
+//                    FramebufferInfo.FRAME_BUFFER,
+//                    GL30.GL_DEPTH_STENCIL_ATTACHMENT,
+//                    GL11.GL_TEXTURE_2D,
+//                    this.depthAttachment,
+//                    0
+//                );
+//            }
+//            else {
+//                GlStateManager.framebufferTexture2D(
+//                    FramebufferInfo.FRAME_BUFFER,
+//                    FramebufferInfo.DEPTH_ATTACHMENT,
+//                    GL11.GL_TEXTURE_2D,
+//                    this.depthAttachment,
+//                    0
+//                );
+//            }
+//        }
+//
+//        this.checkFramebufferStatus();
+//        this.clear(getError);
+//        this.endRead();
 //    }
     
     @Override

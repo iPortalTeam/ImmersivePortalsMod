@@ -45,6 +45,8 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     public abstract void stopTracking();
     
+    @Shadow protected abstract int getMaxTrackDistance();
+    
     @Redirect(
         method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToOtherNearbyPlayers(Lnet/minecraft/network/Packet;)V",
         at = @At(
@@ -117,7 +119,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             
             Vec3d relativePos = (player.getPos()).subtract(this.entry.getLastPos());
             int maxWatchDistance = Math.min(
-                this.maxDistance,
+                this.getMaxTrackDistance(),
                 (storage.getWatchDistance() - 1) * 16
             );
             boolean isWatchedNow =
