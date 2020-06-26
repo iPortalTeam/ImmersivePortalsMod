@@ -16,7 +16,7 @@ public class RegionFileDetector {
         ServerWorld world,
         ChunkPos pos
     ) {
-        File saveDir = McHelper.getIEStorage(world.getDimension().getType()).portal_getSaveDir();
+        File saveDir = McHelper.getIEStorage(world.getRegistryKey()).portal_getSaveDir();
     
         File regionDir = new File(saveDir, "region");
         

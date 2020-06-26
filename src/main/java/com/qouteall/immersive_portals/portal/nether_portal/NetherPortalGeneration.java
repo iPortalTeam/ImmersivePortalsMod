@@ -458,8 +458,8 @@ public class NetherPortalGeneration {
         int airCubeSearchingRadius,
         Consumer<BlockPortalShape> newFrameGeneratedFunc,
         Consumer<Info> portalEntityGeneratingFunc,
-        DimensionType fromDimension,
-        DimensionType toDimension,
+        RegistryKey<World> fromDimension,
+        RegistryKey<World> toDimension,
         BlockPortalShape foundShape,
         LoadingIndicatorEntity indicatorEntity,
         BlockPos toPos
@@ -471,7 +471,7 @@ public class NetherPortalGeneration {
         ModMain.serverTaskList.addTask(() -> {
             
             IntBox toWorldHeightLimit =
-                NetherPortalMatcher.getHeightLimit(toWorld.dimension.getType());
+                NetherPortalMatcher.getHeightLimit(toWorld);
             
             IntBox airCubePlacement =
                 findAirCubePlacement(
