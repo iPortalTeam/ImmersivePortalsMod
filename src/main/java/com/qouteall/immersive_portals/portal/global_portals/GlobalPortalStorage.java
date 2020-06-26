@@ -164,17 +164,6 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     private static void upgradeData(ServerWorld world) {
-        LongOpenHashSet forcedChunks = new LongOpenHashSet();
-        forcedChunks.addAll(world.getForcedChunks());
-        
-        forcedChunks.forEach((long curr) -> {
-            world.setChunkForced(
-                ChunkPos.getPackedX(curr),
-                ChunkPos.getPackedZ(curr),
-                false
-            );
-        });
-        
-        Helper.log("World info upgraded for " + world.getRegistryKey());
+        //removed
     }
 }
