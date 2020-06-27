@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.MessageType;
@@ -290,11 +291,14 @@ public class McHelper {
     
     public static List<GlobalTrackedPortal> getGlobalPortals(World world) {
         List<GlobalTrackedPortal> result;
-        if (world.isClient) {
+        if (world instanceof ClientWorld) {
             result = CHelper.getClientGlobalPortal(world);
         }
-        else {
+        else if (world instanceof ServerWorld) {
             result = GlobalPortalStorage.get(((ServerWorld) world)).data;
+        }
+        else {
+            result = null;
         }
         return result != null ? result : Collections.emptyList();
     }
