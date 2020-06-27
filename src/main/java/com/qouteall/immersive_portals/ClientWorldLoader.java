@@ -34,7 +34,7 @@ public class ClientWorldLoader {
     public final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
     private Set<DimensionalChunkPos> unloadedChunks = new HashSet<>();
     
-    private MinecraftClient mc = MinecraftClient.getInstance();
+    private MinecraftClient client = MinecraftClient.getInstance();
     
     private boolean isInitialized = false;
     
@@ -58,12 +58,12 @@ public class ClientWorldLoader {
         if (CGlobal.isClientRemoteTickingEnabled) {
             isClientRemoteTicking = true;
             clientWorldMap.values().forEach(world -> {
-                if (mc.world != world) {
+                if (client.world != world) {
                     tickRemoteWorld(world);
                 }
             });
             worldRendererMap.values().forEach(worldRenderer -> {
-                if (worldRenderer != mc.worldRenderer) {
+                if (worldRenderer != client.worldRenderer) {
                     worldRenderer.tick();
                 }
             });
@@ -73,12 +73,12 @@ public class ClientWorldLoader {
         boolean lightmapTextureConflict = false;
         for (DimensionRenderHelper helper : renderHelperMap.values()) {
             helper.tick();
-            if (helper.world != mc.world) {
-                if (helper.lightmapTexture == mc.gameRenderer.getLightmapTextureManager()) {
+            if (helper.world != client.world) {
+                if (helper.lightmapTexture == client.gameRenderer.getLightmapTextureManager()) {
                     Helper.err(String.format(
                         "Lightmap Texture Conflict %s %s",
                         helper.world.getRegistryKey(),
-                        mc.world.getRegistryKey()
+                        client.world.getRegistryKey()
                     ));
                     lightmapTextureConflict = true;
                 }
@@ -95,10 +95,10 @@ public class ClientWorldLoader {
     private static int reportedErrorNum = 0;
     
     private void tickRemoteWorld(ClientWorld newWorld) {
-        ClientWorld oldWorld = mc.world;
+        ClientWorld oldWorld = client.world;
         
-        mc.world = newWorld;
-        ((IEParticleManager) mc.particleManager).mySetWorld(newWorld);
+        client.world = newWorld;
+        ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
         
         try {
             newWorld.tickEntities();
@@ -111,8 +111,8 @@ public class ClientWorldLoader {
             }
         }
         finally {
-            mc.world = oldWorld;
-            ((IEParticleManager) mc.particleManager).mySetWorld(oldWorld);
+            client.world = oldWorld;
+            ((IEParticleManager) client.particleManager).mySetWorld(oldWorld);
         }
     }
     
@@ -173,18 +173,18 @@ public class ClientWorldLoader {
     
     private void initializeIfNeeded() {
         if (!isInitialized) {
-            assert (mc.world != null);
-            assert (mc.worldRenderer != null);
+            assert (client.world != null);
+            assert (client.worldRenderer != null);
             
-            RegistryKey<World> playerDimension = mc.world.getRegistryKey();
-            clientWorldMap.put(playerDimension, mc.world);
-            worldRendererMap.put(playerDimension, mc.worldRenderer);
+            RegistryKey<World> playerDimension = client.world.getRegistryKey();
+            clientWorldMap.put(playerDimension, client.world);
+            worldRendererMap.put(playerDimension, client.worldRenderer);
             renderHelperMap.put(
-                mc.world.getRegistryKey(),
-                new DimensionRenderHelper(mc.world)
+                client.world.getRegistryKey(),
+                new DimensionRenderHelper(client.world)
             );
             
-            isHardCore = mc.world.getLevelProperties().isHardcore();
+            isHardCore = client.world.getLevelProperties().isHardcore();
             
             isInitialized = true;
         }
@@ -192,45 +192,44 @@ public class ClientWorldLoader {
     
     //fool minecraft using the faked world
     private ClientWorld createFakedClientWorld(RegistryKey<World> dimension) {
-        Validate.isTrue(mc.player.world.getRegistryKey() != dimension);
+        Validate.isTrue(client.player.world.getRegistryKey() != dimension);
         
         isLoadingFakedWorld = true;
         
         //TODO get load distance
         int chunkLoadDistance = 3;
         
-        WorldRenderer worldRenderer = new WorldRenderer(mc, mc.getBufferBuilders());
+        WorldRenderer worldRenderer = new WorldRenderer(client, client.getBufferBuilders());
         
         ClientWorld newWorld;
         try {
             ClientPlayNetworkHandler newNetworkHandler = new ClientPlayNetworkHandler(
-                mc,
+                client,
                 new ChatScreen("You should not be seeing me. I'm just a faked screen."),
                 new ClientConnection(NetworkSide.CLIENTBOUND),
                 new GameProfile(null, "faked_profiler_id")
             );
             //multiple net handlers share the same playerListEntries object
             ((IEClientPlayNetworkHandler) newNetworkHandler).setPlayerListEntries(
-                ((IEClientPlayNetworkHandler) mc.player.networkHandler).getPlayerListEntries()
+                ((IEClientPlayNetworkHandler) client.player.networkHandler).getPlayerListEntries()
             );
             RegistryKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
-                (ClientWorld.Properties) ((IEWorld) mc.world).myGetProperties();
+                (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
             newWorld = new ClientWorld(
                 newNetworkHandler,
                 new ClientWorld.Properties(
-                    currentProperty.getDifficulty(), currentProperty.isHardcore(),
-                    currentProperty.getSkyDarknessHeight() < 1.0
+                    currentProperty.getDifficulty(), currentProperty.isHardcore(), currentProperty.flatWorld
                 ),
                 dimension,
                 dimensionTypeKey,
                 DimensionTypeSync.getDimensionType(dimensionTypeKey),
                 chunkLoadDistance,
-                () -> mc.getProfiler(),
+                () -> client.getProfiler(),
                 worldRenderer,
-                mc.world.isDebugWorld(),
-                23333333
+                client.world.isDebugWorld(),
+                client.world.getBiomeAccess().seed
             );
         }
         catch (Exception e) {
@@ -242,7 +241,7 @@ public class ClientWorldLoader {
         
         worldRenderer.setWorld(newWorld);
         
-        worldRenderer.apply(mc.getResourceManager());
+        worldRenderer.apply(client.getResourceManager());
         
         ((IEClientPlayNetworkHandler) ((IEClientWorld) newWorld).getNetHandler())
             .setWorld(newWorld);
