@@ -165,7 +165,7 @@ public class ClientWorldLoader {
                 );
             }
         );
-    
+        
         Validate.isTrue(result.world.getRegistryKey() == dimension);
         
         return result;
@@ -215,9 +215,14 @@ public class ClientWorldLoader {
             );
             RegistryKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
+            ClientWorld.Properties currentProperty =
+                (ClientWorld.Properties) ((IEWorld) mc.world).myGetProperties();
             newWorld = new ClientWorld(
                 newNetworkHandler,
-                ((ClientWorld.Properties) ((IEWorld) mc.world).myGetProperties()),
+                new ClientWorld.Properties(
+                    currentProperty.getDifficulty(), currentProperty.isHardcore(),
+                    currentProperty.getSkyDarknessHeight() < 1.0
+                ),
                 dimension,
                 dimensionTypeKey,
                 DimensionTypeSync.getDimensionType(dimensionTypeKey),

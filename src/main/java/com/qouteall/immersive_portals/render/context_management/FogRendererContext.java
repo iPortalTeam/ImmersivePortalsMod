@@ -54,37 +54,43 @@ public class FogRendererContext {
     }
     
     public static Vec3d getFogColorOf(
-        ClientWorld world, Vec3d pos
+        ClientWorld destWorld, Vec3d pos
     ) {
         MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld oldWorld = client.world;
         
-        RegistryKey<World> newWorldKey = world.getRegistryKey();
+        RegistryKey<World> newWorldKey = destWorld.getRegistryKey();
         
         swappingManager.contextMap.computeIfAbsent(
             newWorldKey,
             k -> new StaticFieldsSwappingManager.ContextRecord<>(
-                k, new FogRendererContext(), false
+                k, new FogRendererContext(), true
             )
         );
         
         swappingManager.pushSwapping(newWorldKey);
+        client.world = destWorld;
         
         Camera newCamera = new Camera();
         ((IECamera) newCamera).mySetPos(pos);
         
-        BackgroundRenderer.render(
-            newCamera,
-            RenderStates.tickDelta,
-            world,
-            client.options.viewDistance,
-            client.gameRenderer.getSkyDarkness(RenderStates.tickDelta)
-        );
-        
-        Vec3d result = getCurrentFogColor.get();
-        
-        swappingManager.popSwapping();
-        
-        return result;
+        try {
+            BackgroundRenderer.render(
+                newCamera,
+                RenderStates.tickDelta,
+                destWorld,
+                client.options.viewDistance,
+                client.gameRenderer.getSkyDarkness(RenderStates.tickDelta)
+            );
+            
+            Vec3d result = getCurrentFogColor.get();
+            
+            return result;
+        }
+        finally {
+            swappingManager.popSwapping();
+            client.world = oldWorld;
+        }
     }
     
     public static void onPlayerTeleport(RegistryKey<World> from, RegistryKey<World> to) {

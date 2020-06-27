@@ -23,7 +23,7 @@ public class WorldInfoSender {
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
                     Set<RegistryKey<World>> visibleDimensions = getVisibleDimensions(player);
-                    
+
                     if (player.world.getRegistryKey() != World.OVERWORLD) {
                         sendWorldInfo(
                             player,
@@ -31,17 +31,17 @@ public class WorldInfoSender {
                         );
                     }
 
-//                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
-//                        if (thisWorld.getDimension() instanceof AlternateDimension) {
-//                            if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
-//                                sendWorldInfo(
-//                                    player,
-//                                    thisWorld
-//                                );
-//                            }
-//                        }
-//                    });
-                
+                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
+                        if (ModMain.isAlternateDimension(thisWorld)) {
+                            if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
+                                sendWorldInfo(
+                                    player,
+                                    thisWorld
+                                );
+                            }
+                        }
+                    });
+
                 }
             }
         });

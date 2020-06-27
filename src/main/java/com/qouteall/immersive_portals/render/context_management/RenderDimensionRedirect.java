@@ -61,16 +61,17 @@ public class RenderDimensionRedirect {
     }
     
     public static RegistryKey<World> getRedirectedDimension(RegistryKey<World> dimension) {
-        if (redirectMap.containsKey(dimension)) {
-            RegistryKey<World> r = redirectMap.get(dimension);
-            if (r == null) {
-                return dimension;
-            }
-            return r;
-        }
-        else {
-            return dimension;
-        }
+        return dimension;
+//        if (redirectMap.containsKey(dimension)) {
+//            RegistryKey<World> r = redirectMap.get(dimension);
+//            if (r == null) {
+//                return dimension;
+//            }
+//            return r;
+//        }
+//        else {
+//            return dimension;
+//        }
     }
     
     public static boolean hasSkylight(DimensionType dimension) {

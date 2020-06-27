@@ -20,7 +20,7 @@ public class MixinWorldRenderer_A {
     )
     private double redirectGetSkyDarknessHeight(ClientWorld.Properties properties) {
         if (ModMain.isAlternateDimension(MinecraftClient.getInstance().world)) {
-            return -1000;
+            return -10000;
         }
         return properties.getSkyDarknessHeight();
     }

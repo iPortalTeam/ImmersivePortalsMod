@@ -6,4 +6,5 @@ Accessible field net/minecraft/world/dimension/DimensionType THE_NETHER Lnet/min
 Accessible field net/minecraft/world/dimension/DimensionType THE_END Lnet/minecraft/world/dimension/DimensionType;
 Accessible method net/minecraft/world/dimension/DimensionType createNetherGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
 Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
-
+Accessible field net/minecraft/world/biome/source/BiomeAccess seed J
+Accessible field net/minecraft/client/world/ClientWorld$Properties flatWorld Z
