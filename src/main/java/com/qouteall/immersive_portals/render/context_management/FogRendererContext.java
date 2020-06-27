@@ -58,7 +58,16 @@ public class FogRendererContext {
     ) {
         MinecraftClient client = MinecraftClient.getInstance();
         
-        swappingManager.pushSwapping(world.getRegistryKey());
+        RegistryKey<World> newWorldKey = world.getRegistryKey();
+        
+        swappingManager.contextMap.computeIfAbsent(
+            newWorldKey,
+            k -> new StaticFieldsSwappingManager.ContextRecord<>(
+                k, new FogRendererContext(), false
+            )
+        );
+        
+        swappingManager.pushSwapping(newWorldKey);
         
         Camera newCamera = new Camera();
         ((IECamera) newCamera).mySetPos(pos);
