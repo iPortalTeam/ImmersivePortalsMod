@@ -18,6 +18,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
@@ -210,21 +211,31 @@ public class ClientWorldLoader {
                 new GameProfile(null, "faked_profiler_id")
             );
             //multiple net handlers share the same playerListEntries object
+            ClientPlayNetworkHandler mainNetHandler = client.player.networkHandler;
             ((IEClientPlayNetworkHandler) newNetworkHandler).setPlayerListEntries(
-                ((IEClientPlayNetworkHandler) client.player.networkHandler).getPlayerListEntries()
+                ((IEClientPlayNetworkHandler) mainNetHandler).getPlayerListEntries()
             );
             RegistryKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
+            RegistryTracker dimensionTracker = mainNetHandler.method_29091();
+            ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setDimensionTracker(
+                dimensionTracker);
+            DimensionType dimensionType = dimensionTracker
+                .getDimensionTypeRegistry().get(dimensionTypeKey);
+            
+            ClientWorld.Properties properties = new ClientWorld.Properties(
+                currentProperty.getDifficulty(),
+                currentProperty.isHardcore(),
+                currentProperty.flatWorld
+            );
             newWorld = new ClientWorld(
                 newNetworkHandler,
-                new ClientWorld.Properties(
-                    currentProperty.getDifficulty(), currentProperty.isHardcore(), currentProperty.flatWorld
-                ),
+                properties,
                 dimension,
                 dimensionTypeKey,
-                DimensionTypeSync.getDimensionType(dimensionTypeKey),
+                dimensionType,
                 chunkLoadDistance,
                 () -> client.getProfiler(),
                 worldRenderer,

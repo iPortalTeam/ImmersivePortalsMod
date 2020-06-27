@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
@@ -61,6 +62,9 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     
     @Shadow
     public abstract void onEntityPassengersSet(EntityPassengersSetS2CPacket entityPassengersSetS2CPacket_1);
+    
+    @Shadow
+    private RegistryTracker dimensionTracker;
     
     @Override
     public void setWorld(ClientWorld world) {
@@ -240,5 +244,10 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             this.positionLookSetup = true;
             this.client.openScreen((Screen) null);
         }
+    }
+    
+    @Override
+    public void portal_setDimensionTracker(RegistryTracker arg) {
+        dimensionTracker = arg;
     }
 }
