@@ -13,10 +13,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
@@ -57,7 +57,12 @@ public class CHelper {
     }
     
     public static List<GlobalTrackedPortal> getClientGlobalPortal(World world) {
-        return ((IEClientWorld) world).getGlobalPortals();
+        if (world instanceof ClientWorld) {
+            return ((IEClientWorld) world).getGlobalPortals();
+        }
+        else {
+            return null;
+        }
     }
     
     public static Stream<Portal> getClientNearbyPortals(double range) {
