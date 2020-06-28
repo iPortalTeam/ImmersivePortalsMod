@@ -73,15 +73,19 @@ public class NetherPortalGeneration {
         if (foundAirCube == null) {
             Helper.log("Cannot find normal portal placement");
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
-                neededAreaSize,
-                toWorld,
-                mappedPosInOtherDimension,
-                findingRadius
+                neededAreaSize, toWorld, mappedPosInOtherDimension, 10
+            );
+        }
+    
+        if (foundAirCube == null) {
+            Helper.log("Cannot find air cube within 10 blocks");
+            foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
+                neededAreaSize, toWorld, mappedPosInOtherDimension, 16
             );
         }
         
         if (foundAirCube == null) {
-            Helper.err("No place to put portal? " +
+            Helper.err("Cannot find air cube within 16 blocks? " +
                 "Force placed portal. It will occupy normal blocks.");
             
             foundAirCube = IntBox.getBoxByBasePointAndSize(
@@ -386,7 +390,10 @@ public class NetherPortalGeneration {
             );
         };
     
-        if (!RegionFileDetector.doesRegionFileExist(toWorld, new ChunkPos(toPos))) {
+//        boolean shouldSkip = !RegionFileDetector.doesRegionFileExist(toWorld, new ChunkPos(toPos));
+        boolean shouldSkip = !McHelper.getIEStorage(toDimension)
+            .portal_isChunkGenerated(new ChunkPos(toPos));
+        if (shouldSkip) {
             Helper.log("Skip Portal Frame Searching Because The Region is not Generated");
             generateNewFrameFunc.run();
             indicatorEntity.remove();
