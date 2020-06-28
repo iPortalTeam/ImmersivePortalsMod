@@ -207,10 +207,10 @@ public class NetherPortalGeneration {
     }
     
     public static class Info {
-        DimensionType from;
-        DimensionType to;
-        BlockPortalShape fromShape;
-        BlockPortalShape toShape;
+        public DimensionType from;
+        public DimensionType to;
+        public BlockPortalShape fromShape;
+        public BlockPortalShape toShape;
         
         public Info(
             DimensionType from,
@@ -491,6 +491,8 @@ public class NetherPortalGeneration {
                 fromDimension, toDimension, foundShape, toShape
             );
             portalEntityGeneratingFunc.accept(info);
+    
+            O_O.postPortalSpawnEventForge(info);
             
             return true;
         });
