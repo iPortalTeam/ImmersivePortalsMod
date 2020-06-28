@@ -55,7 +55,7 @@ public class MixinFlintAndSteelItem {
             BlockPos firePos = targetPos.offset(side);
             BlockState targetBlockState = world.getBlockState(targetPos);
             Block targetBlock = targetBlockState.getBlock();
-            if (BreakableMirror.isGlass(world, targetPos)) {
+            if (BreakableMirror.isGlass(((World) world), targetPos)) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );

@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.chunk.Chunk;
@@ -48,7 +49,7 @@ public class FrameSearching {
                     oops.printStackTrace();
                 }
             },
-            McHelper.getServer().getWorkerExecutor()
+            Util.getServerWorkerExecutor()
         );
         
     }
