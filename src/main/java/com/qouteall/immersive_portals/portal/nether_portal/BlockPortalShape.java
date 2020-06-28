@@ -269,7 +269,7 @@ public class BlockPortalShape {
             blockPos.getY() - anchor.getY() + newAnchor.getY(),
             blockPos.getZ() - anchor.getZ() + newAnchor.getZ()
         );
-    
+        
         //does this have optimization effect?
         if (!isObsidian.test(mapper.apply(firstFramePos))) {
             return false;
@@ -365,6 +365,41 @@ public class BlockPortalShape {
         portal.initCullableRange(
             p1LocalX, p2LocalX,
             p1LocalY, p2LocalY
+        );
+    }
+    
+    public BlockPortalShape matchShapeWithMovedFirstFramePos(
+        Predicate<BlockPos> isAir,
+        Predicate<BlockPos> isObsidian,
+        BlockPos newFirstObsidianPos,
+        BlockPos.Mutable temp
+    ) {
+        boolean testFrame = frameAreaWithoutCorner.stream().map(blockPos1 -> temp.set(
+            blockPos1.getX() - firstFramePos.getX() + newFirstObsidianPos.getX(),
+            blockPos1.getY() - firstFramePos.getY() + newFirstObsidianPos.getY(),
+            blockPos1.getZ() - firstFramePos.getZ() + newFirstObsidianPos.getZ()
+        )).allMatch(isObsidian);
+        
+        if (!testFrame) {
+            return null;
+        }
+        
+        boolean testAir = area.stream().map(blockPos -> temp.set(
+            blockPos.getX() - firstFramePos.getX() + newFirstObsidianPos.getX(),
+            blockPos.getY() - firstFramePos.getY() + newFirstObsidianPos.getY(),
+            blockPos.getZ() - firstFramePos.getZ() + newFirstObsidianPos.getZ()
+        )).allMatch(isAir);
+        
+        if (!testAir) {
+            return null;
+        }
+        
+        BlockPos offset = newFirstObsidianPos.subtract(firstFramePos);
+        return new BlockPortalShape(
+            area.stream().map(
+                blockPos -> blockPos.add(offset)
+            ).collect(Collectors.toSet()),
+            axis
         );
     }
     

@@ -34,7 +34,7 @@ public class MixinFlintAndSteelItem {
         CallbackInfoReturnable<Boolean> cir
     ) {
         for (Direction direction : Direction.values()) {
-            if (O_O.isObsidian(world, pos.offset(direction))) {
+            if (O_O.isObsidian(world.getBlockState(pos.offset(direction)))) {
                 if (block.isAir()) {
                     cir.setReturnValue(true);
                     cir.cancel();
@@ -55,7 +55,7 @@ public class MixinFlintAndSteelItem {
             BlockPos firePos = targetPos.offset(side);
             BlockState targetBlockState = world.getBlockState(targetPos);
             Block targetBlock = targetBlockState.getBlock();
-            if (BreakableMirror.isGlass(world,targetPos)) {
+            if (BreakableMirror.isGlass(world, targetPos)) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );

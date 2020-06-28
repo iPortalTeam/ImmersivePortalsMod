@@ -96,7 +96,7 @@ public class NewChunkTrackingGraph {
     
     private static final Map<DimensionType, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
     
-    public static final ArrayList<ChunkVisibilityManager.ChunkLoader>
+    private static final ArrayList<ChunkVisibilityManager.ChunkLoader>
         additionalChunkLoaders = new ArrayList<>();
     
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
@@ -312,5 +312,14 @@ public class NewChunkTrackingGraph {
         Long2ObjectLinkedOpenHashMap<ChunkRecord> map =
             data.get(dimension);
         return !map.isEmpty();
+    }
+    
+    public static void addAdditionalChunkLoader(ChunkVisibilityManager.ChunkLoader chunkLoader) {
+        additionalChunkLoaders.add(chunkLoader);
+        purge();
+    }
+    
+    public static void removeAdditionalChunkLoader(ChunkVisibilityManager.ChunkLoader chunkLoader) {
+        additionalChunkLoaders.remove(chunkLoader);
     }
 }

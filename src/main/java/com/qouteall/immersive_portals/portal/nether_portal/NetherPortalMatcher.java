@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -133,6 +134,10 @@ public class NetherPortalMatcher {
     
     public static boolean isAirOrFire(IWorld world, BlockPos pos) {
         return world.isAir(pos) || world.getBlockState(pos).getBlock() == Blocks.FIRE;
+    }
+    
+    public static boolean isAirOrFire(BlockState blockState) {
+        return blockState.isAir() || blockState.getBlock() == Blocks.FIRE;
     }
     
     //------------------------------------------------------------
