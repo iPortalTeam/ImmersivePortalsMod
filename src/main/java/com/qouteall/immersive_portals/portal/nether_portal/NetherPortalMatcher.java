@@ -150,9 +150,18 @@ public class NetherPortalMatcher {
         int findingRadius
     ) {
         IntBox airCube = getAirCubeOnSolidGround(
-            areaSize.add(5, 0, 5), world, searchingCenter,
-            8
+            areaSize.add(7, 0, 7), world, searchingCenter,
+            8, true
         );
+        
+        if (airCube == null) {
+            Helper.log("Cannot Find Portal Placement on Solid Ground");
+            airCube = getAirCubeOnSolidGround(
+                areaSize.add(5, 0, 5), world, searchingCenter,
+                8, false
+            );
+        }
+        
         if (airCube == null) {
             Helper.log("Cannot Find Portal Placement on Ground");
             return null;
@@ -206,7 +215,8 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         IWorld world,
         BlockPos searchingCenter,
-        int findingRadius
+        int findingRadius,
+        boolean solidGround
     ) {
         return NetherPortalGeneration.fromNearToFarColumned(
             ((ServerWorld) world),
@@ -215,10 +225,10 @@ public class NetherPortalMatcher {
         ).filter(
             blockPos -> isAirOnGround(world, blockPos)
         ).filter(
-            blockPos -> isAirOnGround(
+            blockPos -> solidGround ? isAirOnGround(
                 world,
                 blockPos.add(areaSize.getX() - 1, 0, areaSize.getZ() - 1)
-            )
+            ) : true
         ).map(
             basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
         ).filter(
