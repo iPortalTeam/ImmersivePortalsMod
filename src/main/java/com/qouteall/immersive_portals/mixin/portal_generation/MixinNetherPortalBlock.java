@@ -27,10 +27,10 @@ public class MixinNetherPortalBlock {
         BlockPos pos,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if(world instanceof ServerWorld) {
+        if (world instanceof ServerWorld) {
             boolean isNearObsidian = Arrays.stream(Direction.values())
-                .anyMatch(direction -> O_O.isObsidian(world, pos.offset(direction)));
-    
+                .anyMatch(direction -> O_O.isObsidian(world.getBlockState(pos.offset(direction))));
+            
             if (!isNearObsidian) {
                 cir.setReturnValue(false);
                 cir.cancel();
@@ -41,7 +41,7 @@ public class MixinNetherPortalBlock {
                 ((ServerWorld) world),
                 pos
             );
-    
+            
             cir.setReturnValue(result);
             cir.cancel();
         }

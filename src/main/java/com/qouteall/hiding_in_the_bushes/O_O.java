@@ -1,9 +1,11 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.FabricLoader;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -72,8 +74,10 @@ public class O_O {
         myConfig.saveConfigFile();
     }
     
-    public static boolean isObsidian(WorldAccess world, BlockPos obsidianPos) {
-        return world.getBlockState(obsidianPos) == Blocks.OBSIDIAN.getDefaultState();
+    private static BlockState obsidianState = Blocks.OBSIDIAN.getDefaultState();
+    
+    public static boolean isObsidian(BlockState blockState) {
+        return blockState == obsidianState;
     }
     
     public static void registerDimensionsForge() {
@@ -123,5 +127,9 @@ public class O_O {
     
     public static boolean isDedicatedServer() {
         return net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+    }
+    
+    public static void postPortalSpawnEventForge(NetherPortalGeneration.Info info){
+    
     }
 }

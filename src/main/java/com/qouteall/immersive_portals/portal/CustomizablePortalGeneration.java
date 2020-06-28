@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePorta
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -149,16 +150,16 @@ public class CustomizablePortalGeneration {
             firePos,
             toWorld,
             Global.netherPortalFindingRadius,
-            Global.netherPortalFindingRadius-10,
+            Global.netherPortalFindingRadius - 10,
             (pos) -> Helper.divide(Helper.scale(pos, entry.toSpaceRatio), entry.fromSpaceRatio),
             //this side area
-            blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld, blockPos),
+            NetherPortalMatcher::isAirOrFire,
             //this side frame
-            blockPos -> fromWorld.getBlockState(blockPos).getBlock() == entry.frameBlock,
+            blockState -> blockState.getBlock() == entry.frameBlock,
             //other side area
-            (w, blockPos) -> w.isAir(blockPos),
+            BlockState::isAir,
             //other side frame
-            (w, blockPos) -> w.getBlockState(blockPos).getBlock() == entry.frameBlock,
+            (blockState) -> blockState.getBlock() == entry.frameBlock,
             (shape) -> NetherPortalGeneration.embodyNewFrame(
                 toWorld, shape, entry.frameBlock.getDefaultState()
             ),

@@ -1,6 +1,6 @@
 {
   "imm_ptl.loading_chunks": "Loading Chunks %1$s/%2$s",
-  "imm_ptl.searching_for_frame": "Searching for existing frame\nIn:%1$s\nAround:%2$s\nSearched:%3$s",
+  "imm_ptl.searching_for_frame": "Searching for existing frame",
   "imm_ptl.generating_new_frame": "Existing Frame Cannot Be Found\nGenerating New Frame",
   "block.immersive_portals.portal_helper": "Portal Helper",
   "imm_ptl.max_portal_layer": "Max Portal Layer",

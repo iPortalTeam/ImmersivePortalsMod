@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -138,6 +139,10 @@ public class NetherPortalMatcher {
         return world.isAir(pos) || world.getBlockState(pos).getBlock() == Blocks.FIRE;
     }
     
+    public static boolean isAirOrFire(BlockState blockState) {
+        return blockState.isAir() || blockState.getBlock() == Blocks.FIRE;
+    }
+    
     //------------------------------------------------------------
     //detect air cube on ground
     
@@ -148,9 +153,18 @@ public class NetherPortalMatcher {
         int findingRadius
     ) {
         IntBox airCube = getAirCubeOnSolidGround(
-            areaSize.add(5, 0, 5), world, searchingCenter,
-            8
+            areaSize.add(7, 0, 7), world, searchingCenter,
+            8, true
         );
+        
+        if (airCube == null) {
+            Helper.log("Cannot Find Portal Placement on Solid Ground");
+            airCube = getAirCubeOnSolidGround(
+                areaSize.add(5, 0, 5), world, searchingCenter,
+                8, false
+            );
+        }
+        
         if (airCube == null) {
             Helper.log("Cannot Find Portal Placement on Ground");
             return null;
@@ -204,7 +218,8 @@ public class NetherPortalMatcher {
         BlockPos areaSize,
         WorldAccess world,
         BlockPos searchingCenter,
-        int findingRadius
+        int findingRadius,
+        boolean solidGround
     ) {
         return NetherPortalGeneration.fromNearToFarColumned(
             ((ServerWorld) world),
@@ -213,10 +228,10 @@ public class NetherPortalMatcher {
         ).filter(
             blockPos -> isAirOnGround(world, blockPos)
         ).filter(
-            blockPos -> isAirOnGround(
+            blockPos -> solidGround ? isAirOnGround(
                 world,
                 blockPos.add(areaSize.getX() - 1, 0, areaSize.getZ() - 1)
-            )
+            ) : true
         ).map(
             basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
         ).filter(

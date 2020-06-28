@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -11,6 +12,7 @@ import net.minecraft.server.world.ChunkTaskPrioritySystem;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.thread.MessageListener;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Final;
@@ -23,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -66,6 +69,9 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     @Final
     private File saveDir;
     
+    @Shadow
+    protected abstract CompoundTag getUpdatedChunkTag(ChunkPos pos) throws IOException;
+    
     @Override
     public int getWatchDistance() {
         return watchDistance;
@@ -89,6 +95,18 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     @Override
     public File portal_getSaveDir() {
         return saveDir;
+    }
+    
+    @Override
+    public boolean portal_isChunkGenerated(ChunkPos chunkPos) {
+        try {
+            CompoundTag tag = getUpdatedChunkTag(chunkPos);
+            return tag != null;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     /**

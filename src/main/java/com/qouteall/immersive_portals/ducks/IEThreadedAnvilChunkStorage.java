@@ -5,6 +5,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
 
 import java.io.File;
@@ -28,4 +29,6 @@ public interface IEThreadedAnvilChunkStorage {
     void resendSpawnPacketToTrackers(Entity entity);
     
     File portal_getSaveDir();
+    
+    boolean portal_isChunkGenerated(ChunkPos chunkPos);
 }
