@@ -313,8 +313,8 @@ public class Portal extends Entity {
             Direction.getFacing(
                 getNormal().x, getNormal().y, getNormal().z
             ),
-            world.getRegistryKey(), (int) getX(), (int) getY(), (int) getZ(),
-            dimensionTo, (int) destination.x, (int) destination.y, (int) destination.z,
+            world.getRegistryKey().getValue(), (int) getX(), (int) getY(), (int) getZ(),
+            dimensionTo.getValue(), (int) destination.x, (int) destination.y, (int) destination.z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : ""
         );
     }
