@@ -53,7 +53,8 @@ public class FrameSearching {
         
     }
     
-    // return null for not found
+    // Return null for not found
+    // After removing the usage of stream API, it becomes 100 times faster!!!
     private static BlockPortalShape searchPortalFrame(
         ChunkRegion region,
         int regionRadius,
