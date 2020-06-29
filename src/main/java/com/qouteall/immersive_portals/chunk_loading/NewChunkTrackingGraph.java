@@ -176,7 +176,7 @@ public class NewChunkTrackingGraph {
                 if (loader == null) return;
                 loader.foreachChunkPos(
                     (dim, x, z, dis) -> {
-                        if (world.dimension.getType() == dim) {
+                        if (world.getRegistryKey() == dim) {
                             additionalLoadedChunks.add(ChunkPos.toLong(x, z));
                             MyLoadingTicket.load(world, new ChunkPos(x, z));
                         }

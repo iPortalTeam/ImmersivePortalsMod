@@ -170,7 +170,7 @@ public class MyNetworkClient {
     
     private static int reportedError = 0;
     
-    private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
+    private static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
         client.execute(() -> {
             ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
             
@@ -209,7 +209,7 @@ public class MyNetworkClient {
             if (reportedError < 200) {
                 reportedError += 1;
                 throw new IllegalStateException(
-                    "handling packet in " + packetWorld.getDimension().getType(), e
+                    "handling packet in " + packetWorld.getRegistryKey(), e
                 );
             }
         }
