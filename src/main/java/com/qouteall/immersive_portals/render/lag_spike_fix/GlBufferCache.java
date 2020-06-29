@@ -41,9 +41,10 @@ public class GlBufferCache {
         int viewDistance = client.options.viewDistance;
         int diameter = viewDistance * 2 + 1;
         bufferIdBuffer.setCacheSize(
-            diameter * diameter * 3 * 16 * 4
+            diameter * diameter * 16 * 4 * 2
+            //every column has 16 sections, every section has 4 layers
         );
-        bufferIdBuffer.reserveObjectsByRatio(1.0 / 1000);
+        bufferIdBuffer.reserveObjectsByRatio(1.0 / 500);
         
         client.getProfiler().pop();
     }
