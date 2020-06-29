@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.lag_spike_fix.GlBufferCache;
 import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.minecraft.client.MinecraftClient;
@@ -81,15 +82,17 @@ public class ModMainClient {
         DubiousThings.init();
         
         CrossPortalEntityRenderer.init();
-    
+        
         SmoothLoading.init();
-    
+        
+        GlBufferCache.init();
+        
         OFInterface.isOptifinePresent = O_O.detectOptiFine();
         if (OFInterface.isOptifinePresent) {
             OFInterfaceInitializer.init();
             OFBuiltChunkNeighborFix.init();
         }
-    
+        
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }
     
