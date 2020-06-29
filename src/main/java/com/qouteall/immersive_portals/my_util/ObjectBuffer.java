@@ -16,6 +16,14 @@ public class ObjectBuffer<T> {
         this.destroyer = destroyer;
     }
     
+    public void setCacheSize(int newVal) {
+        cacheSize = newVal;
+        while (objects.size() > cacheSize) {
+            T obj = objects.pollFirst();
+            destroyer.accept(obj);
+        }
+    }
+    
     public void reserveObjects(int num) {
         int requirement = cacheSize - objects.size();
         int supply = Math.max(0, Math.min(num, requirement));
@@ -23,6 +31,10 @@ public class ObjectBuffer<T> {
         for (int i = 0; i < supply; i++) {
             objects.addFirst(creator.get());
         }
+    }
+    
+    public void reserveObjectsByRatio(double ratio) {
+        reserveObjects((int) (cacheSize * ratio));
     }
     
     public T takeObject() {

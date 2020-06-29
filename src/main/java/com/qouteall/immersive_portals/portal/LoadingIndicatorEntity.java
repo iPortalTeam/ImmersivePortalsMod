@@ -35,7 +35,10 @@ public class LoadingIndicatorEntity extends Entity {
     public void tick() {
         super.tick();
     
-        if (!world.isClient()) {
+        if (world.isClient()) {
+        }
+        else {
+            // remove after quitting server and rejoining
             if (!isAlive) {
                 remove();
             }

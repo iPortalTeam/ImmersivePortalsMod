@@ -57,6 +57,9 @@ public class Global {
     
     public static int portalRenderLimit = 200;
     
+    public static boolean smoothLoading = false;
+    
+    public static boolean cacheGlBuffer = true;
     
     public static enum RenderMode {
         normal,
