@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,6 +43,8 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class MyNetworkClient {
+    
+    private static MinecraftClient client = MinecraftClient.getInstance();
     
     public static void init() {
         ClientSidePacketRegistry.INSTANCE.register(
@@ -109,7 +112,7 @@ public class MyNetworkClient {
         //without this delay it will flash? or it's random?
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimensionType);
-            
+
 //            if (world.getEntityById(entityId) != null) {
 //                Helper.err(String.format(
 //                    "duplicate entity %s %s %s",
@@ -126,7 +129,7 @@ public class MyNetworkClient {
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
-    
+            
             //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {
                 CGlobal.clientWorldLoader.getWorld(
@@ -209,42 +212,52 @@ public class MyNetworkClient {
     private static int reportedError = 0;
     
     private static void processRedirectedPacket(DimensionType dimension, Packet packet) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        mc.execute(() -> {
+        client.execute(() -> {
             ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
+            
+            if (SmoothLoading.filterPacket(packetWorld, packet)) {
+                return;
+            }
             
             assert packetWorld != null;
             
             assert packetWorld.getChunkManager() instanceof MyClientChunkManager;
             
-            ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
-            
-            if ((netHandler).getWorld() != packetWorld) {
-                ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
-                Helper.err("The world field of client net handler is wrong");
-            }
-            
-            ClientWorld originalWorld = mc.world;
-            //some packet handling may use mc.world so switch it
-            mc.world = packetWorld;
-            ((IEParticleManager) mc.particleManager).mySetWorld(packetWorld);
-            
-            try {
-                packet.apply(netHandler);
-            }
-            catch (Throwable e) {
-                if (reportedError < 200) {
-                    reportedError += 1;
-                    throw new IllegalStateException(
-                        "handling packet in " + dimension, e
-                    );
-                }
-            }
-            finally {
-                mc.world = originalWorld;
-                ((IEParticleManager) mc.particleManager).mySetWorld(originalWorld);
-            }
+            doProcessRedirectedMessage(packetWorld, packet);
         });
+    }
+    
+    public static void doProcessRedirectedMessage(
+        ClientWorld packetWorld,
+        Packet packet
+    ) {
+        ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
+        
+        if ((netHandler).getWorld() != packetWorld) {
+            ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
+            Helper.err("The world field of client net handler is wrong");
+        }
+        
+        ClientWorld originalWorld = client.world;
+        //some packet handling may use mc.world so switch it
+        client.world = packetWorld;
+        ((IEParticleManager) client.particleManager).mySetWorld(packetWorld);
+        
+        try {
+            packet.apply(netHandler);
+        }
+        catch (Throwable e) {
+            if (reportedError < 200) {
+                reportedError += 1;
+                throw new IllegalStateException(
+                    "handling packet in " + packetWorld.getDimension().getType(), e
+                );
+            }
+        }
+        finally {
+            client.world = originalWorld;
+            ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
+        }
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {

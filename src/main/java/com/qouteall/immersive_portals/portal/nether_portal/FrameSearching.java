@@ -46,6 +46,7 @@ public class FrameSearching {
                 }
                 catch (Throwable oops) {
                     oops.printStackTrace();
+                    onNotFound.run();
                 }
             },
             McHelper.getServer().getWorkerExecutor()

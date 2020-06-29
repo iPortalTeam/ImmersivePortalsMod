@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
+import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
@@ -67,6 +68,7 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
         CGlobal.clientWorldLoader.cleanUp();
         CrossPortalEntityRenderer.cleanUp();
+        SmoothLoading.cleanUp();
     }
     
     @Override
