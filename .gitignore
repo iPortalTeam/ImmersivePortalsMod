@@ -27,4 +27,3 @@ run_server/
 
 compiler_output/
 deps/
-*.gitignore
