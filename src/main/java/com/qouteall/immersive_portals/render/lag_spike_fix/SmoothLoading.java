@@ -15,7 +15,6 @@ import net.minecraft.network.packet.s2c.play.LightUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.util.math.ChunkPos;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,11 +29,9 @@ public class SmoothLoading {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
     public static class WorldInfo {
-        public WeakReference<ClientWorld> world;
         public List<Packet<ClientPlayPacketListener>> packets = new ArrayList<>();
         
-        public WorldInfo(WeakReference<ClientWorld> world) {
-            this.world = world;
+        public WorldInfo() {
         }
         
         public void removeChunkLoadingPackets(int cx, int cz) {
@@ -80,11 +77,11 @@ public class SmoothLoading {
             
             packets.sort(Comparator.comparingDouble((Packet<ClientPlayPacketListener> packet) -> {
                 ChunkPos chunkPos = getChunkPosOf(packet);
-                return Helper.getChebyshevDistance(
+                return -Helper.getChebyshevDistance(
                     chunkPos.x, chunkPos.z,
                     centerX, centerZ
                 );
-            }).reversed());
+            }));
         }
     }
     
@@ -102,7 +99,7 @@ public class SmoothLoading {
     
     private static WorldInfo getWorldInfo(ClientWorld world) {
         return data.computeIfAbsent(
-            world, k -> new WorldInfo(new WeakReference<>(k))
+            world, k -> new WorldInfo()
         );
     }
     
