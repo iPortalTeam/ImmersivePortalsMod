@@ -10,6 +10,8 @@ public class ObjectBuffer<T> {
     private Supplier<T> creator;
     private Consumer<T> destroyer;
     
+    private int currentConsumption = 0;
+    
     public ObjectBuffer(int cacheSize, Supplier<T> creator, Consumer<T> destroyer) {
         this.cacheSize = cacheSize;
         this.creator = creator;
@@ -31,6 +33,8 @@ public class ObjectBuffer<T> {
         for (int i = 0; i < supply; i++) {
             objects.addFirst(creator.get());
         }
+        
+        currentConsumption = 0;
     }
     
     public void reserveObjectsByRatio(double ratio) {
@@ -39,6 +43,7 @@ public class ObjectBuffer<T> {
     
     public T takeObject() {
         if (objects.isEmpty()) {
+            currentConsumption++;
             return creator.get();
         }
         else {
