@@ -24,10 +24,15 @@ public class WorldInfoSender {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
                     Set<RegistryKey<World>> visibleDimensions = getVisibleDimensions(player);
                     
+                    if (player.world.getRegistryKey() != World.OVERWORLD) {
+                        sendWorldInfo(
+                            player,
+                            McHelper.getServer().getWorld(World.OVERWORLD)
+                        );
+                    }
+                    
                     McHelper.getServer().getWorlds().forEach(thisWorld -> {
-                        if (ModMain.isAlternateDimension(thisWorld) ||
-                            thisWorld.getRegistryKey() == World.OVERWORLD
-                        ) {
+                        if (ModMain.isAlternateDimension(thisWorld)) {
                             if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
                                 sendWorldInfo(
                                     player,
@@ -69,31 +74,31 @@ public class WorldInfoSender {
                     0.0F
                 )
             ));
-        }
-        else {
+            
             player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
                 world.getRegistryKey(),
                 new GameStateChangeS2CPacket(
-                    GameStateChangeS2CPacket.RAIN_STOPPED,
-                    0.0F
+                    GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
+                    world.getRainGradient(1.0F)
+                )
+            ));
+            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+                world.getRegistryKey(),
+                new GameStateChangeS2CPacket(
+                    GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
+                    world.getThunderGradient(1.0F)
                 )
             ));
         }
-        
-        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
-            world.getRegistryKey(),
-            new GameStateChangeS2CPacket(
-                GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
-                world.getRainGradient(1.0F)
-            )
-        ));
-        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
-            world.getRegistryKey(),
-            new GameStateChangeS2CPacket(
-                GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
-                world.getThunderGradient(1.0F)
-            )
-        ));
+        else {
+//            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+//                world.getRegistryKey(),
+//                new GameStateChangeS2CPacket(
+//                    GameStateChangeS2CPacket.RAIN_STOPPED,
+//                    0.0F
+//                )
+//            ));
+        }
     }
     
     public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {

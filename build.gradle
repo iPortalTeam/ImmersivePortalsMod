@@ -59,6 +59,10 @@ dependencies {
 //	modApi "io.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.4.0-nightly.1.16-pre2"
 //	include "io.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.4.0-nightly.1.16-pre2"
 
+	//make the game launch faster in dev
+	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.5") {
+		exclude module : "fabric-loader"
+	}
 }
 
 processResources {
