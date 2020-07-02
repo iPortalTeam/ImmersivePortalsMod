@@ -99,6 +99,10 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     
     @Override
     public boolean portal_isChunkGenerated(ChunkPos chunkPos) {
+        if (world.getChunkManager().isChunkLoaded(chunkPos.x, chunkPos.z)) {
+            return true;
+        }
+        
         try {
             CompoundTag tag = getUpdatedChunkTag(chunkPos);
             return tag != null;
