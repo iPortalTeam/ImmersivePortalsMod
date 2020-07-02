@@ -13,6 +13,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -241,7 +242,6 @@ public class Portal extends Entity {
     public void tick() {
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
-            //TODO implement player-only portal
         }
         else {
             if (!isPortalValid()) {
@@ -278,12 +278,22 @@ public class Portal extends Entity {
     }
     
     public boolean isPortalValid() {
-        return dimensionTo != null &&
+        boolean valid = dimensionTo != null &&
             width != 0 &&
             height != 0 &&
             axisW != null &&
             axisH != null &&
             destination != null;
+        if (valid) {
+            if (world instanceof ServerWorld) {
+                ServerWorld destWorld = McHelper.getServer().getWorld(dimensionTo);
+                if (destWorld == null) {
+                    Helper.err("Missing Dimension " + dimensionTo.getValue());
+                    return false;
+                }
+            }
+        }
+        return valid;
     }
     
     public boolean isInside(Vec3d entityPos, double valve) {
