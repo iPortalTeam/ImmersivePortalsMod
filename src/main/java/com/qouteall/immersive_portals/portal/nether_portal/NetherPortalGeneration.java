@@ -407,7 +407,22 @@ public class NetherPortalGeneration {
         
         NewChunkTrackingGraph.addAdditionalChunkLoader(chunkLoader);
         
+        Runnable finalizer = () -> {
+            indicatorEntity.remove();
+            NewChunkTrackingGraph.removeAdditionalChunkLoader(chunkLoader);
+        };
+        
         ModMain.serverTaskList.addTask(() -> {
+            boolean isPortalIntact = foundShape.isPortalIntact(
+                blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld.getBlockState(blockPos)),
+                blockPos -> O_O.isObsidian(fromWorld.getBlockState(blockPos))
+            );
+            
+            if (!isPortalIntact) {
+                finalizer.run();
+                return true;
+            }
+            
             int[] loadedChunkNum = {0};
             chunkLoader.foreachChunkPos((dim, x, z, dist) -> {
                 WorldChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
@@ -429,6 +444,7 @@ public class NetherPortalGeneration {
                 
                 indicatorEntity.setText(new TranslatableText("imm_ptl.searching_for_frame"));
                 
+                
                 startSearchingPortalFrame(
                     chunkRegion,
                     loaderRadius,
@@ -439,10 +455,7 @@ public class NetherPortalGeneration {
                     toDimension,
                     foundShape,
                     toPos,
-                    () -> {
-                        indicatorEntity.remove();
-                        NewChunkTrackingGraph.removeAdditionalChunkLoader(chunkLoader);
-                    },
+                    finalizer,
                     generateNewFrameFunc
                 );
                 
