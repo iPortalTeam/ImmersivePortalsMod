@@ -247,7 +247,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         Biome biome = this.biomeSource.getBiomeForNoiseGen(
             chunkPos.x << 2, 0, chunkPos.z << 2
         );
-        BitSet bitSet = ((ProtoChunk) chunk).method_28510(carver);
+        BitSet bitSet = ((ProtoChunk) chunk).getOrCreateCarvingMask(carver);
         
         for (int num = 0; num < 4; num++) {
             for (int cx = chunkPos.x - 8; cx <= chunkPos.x + 8; ++cx) {

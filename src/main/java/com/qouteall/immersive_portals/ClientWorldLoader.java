@@ -219,7 +219,7 @@ public class ClientWorldLoader {
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
-            RegistryTracker dimensionTracker = mainNetHandler.method_29091();
+            RegistryTracker dimensionTracker = mainNetHandler.getRegistryTracker();
             ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setDimensionTracker(
                 dimensionTracker);
             DimensionType dimensionType = dimensionTracker

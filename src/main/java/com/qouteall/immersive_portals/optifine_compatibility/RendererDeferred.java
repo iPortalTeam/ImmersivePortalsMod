@@ -94,6 +94,8 @@ public class RendererDeferred extends PortalRenderer {
         RenderSystem.colorMask(true, true, true, false);
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
+//        RenderSystem.disableCull();
+//        RenderSystem.disableAlphaTest();
         MyRenderHelper.drawFrameBufferUp(
             portal,
             client.getFramebuffer(),

@@ -61,9 +61,9 @@ public class RendererMixed extends PortalRenderer {
         
         Framebuffer mcFrameBuffer = client.getFramebuffer();
     
-        if (OFHelper.isChocapicShader()) {
+//        if (OFHelper.isChocapicShader()) {
             MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
-        }
+//        }
         
         deferredFbs[portalLayer].fb.beginWrite(true);
         MyRenderHelper.myDrawFrameBuffer(mcFrameBuffer, false, true);
