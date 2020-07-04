@@ -268,7 +268,8 @@ public class ViewAreaRenderer {
             GlStateManager.disableCull();
         }
         
-//        GlStateManager.disableTexture();
+        //should not affect shader pipeline
+        GlStateManager.disableTexture();
         PixelCuller.endCulling();
         
         Tessellator tessellator = Tessellator.getInstance();

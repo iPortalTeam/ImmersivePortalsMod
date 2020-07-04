@@ -176,6 +176,18 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         return 64;
     }
     
+    @Override
+    public int getMaxY() {
+        return 128;
+    }
+    
+    //if it's not 0, the sea biome will cause huge lag spike because of light updates
+    //don't know why
+    @Override
+    public int getSeaLevel() {
+        return 0;
+    }
+    
     //may be incorrect
     @Override
     public BlockView getColumnSample(int x, int z) {
@@ -189,8 +201,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     
     @Override
     public ChunkGenerator withSeed(long seed) {
-        worldSeed = seed;
-        return this;
+        return new ErrorTerrainGenerator(seed);
     }
     
     @Override

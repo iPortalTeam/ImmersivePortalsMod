@@ -75,8 +75,7 @@ public class NormalSkylandGenerator extends ChunkGenerator {
     
     @Override
     public ChunkGenerator withSeed(long seed) {
-        worldSeed = seed;
-        return this;
+        return new NormalSkylandGenerator(seed);
     }
     
     @Override
