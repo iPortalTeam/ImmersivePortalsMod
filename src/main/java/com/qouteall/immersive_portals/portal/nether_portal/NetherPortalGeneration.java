@@ -414,8 +414,8 @@ public class NetherPortalGeneration {
         
         ModMain.serverTaskList.addTask(() -> {
             boolean isPortalIntact = foundShape.isPortalIntact(
-                blockPos -> NetherPortalMatcher.isAirOrFire(fromWorld.getBlockState(blockPos)),
-                blockPos -> O_O.isObsidian(fromWorld.getBlockState(blockPos))
+                blockPos -> thisSideAreaPredicate.test(fromWorld.getBlockState(blockPos)),
+                blockPos -> thisSideFramePredicate.test(fromWorld.getBlockState(blockPos))
             );
             
             if (!isPortalIntact) {
