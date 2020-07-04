@@ -72,7 +72,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     }
     
     @Inject(
-        method = "method_29741",
+        method = "runServer",
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
