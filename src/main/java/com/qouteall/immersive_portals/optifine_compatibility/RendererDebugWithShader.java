@@ -27,10 +27,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
-        if (Shaders.isShadowPass) {
-            assert false;
-            //ViewAreaRenderer.drawPortalViewTriangle(portal);
-        }
+    
     }
     
     @Override
@@ -83,7 +80,7 @@ public class RendererDebugWithShader extends PortalRenderer {
             deferredBuffer.fb.viewportWidth,
             deferredBuffer.fb.viewportHeight
         );
-        
+
         OFGlobal.bindToShaderFrameBuffer.run();
     }
     
@@ -102,18 +99,6 @@ public class RendererDebugWithShader extends PortalRenderer {
             }
         );
     }
-    
-//    @Override
-//    protected void renderPortalContentWithContextSwitched(
-//        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
-//    ) {
-//        OFGlobal.shaderContextManager.switchContextAndRun(
-//            () -> {
-//                OFGlobal.bindToShaderFrameBuffer.run();
-//                super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
-//            }
-//        );
-//    }
     
     @Override
     public void onRenderCenterEnded(MatrixStack matrixStack) {

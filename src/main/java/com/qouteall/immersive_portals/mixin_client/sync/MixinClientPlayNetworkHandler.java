@@ -63,8 +63,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     @Shadow
     public abstract void onEntityPassengersSet(EntityPassengersSetS2CPacket entityPassengersSetS2CPacket_1);
     
-    @Shadow
-    private RegistryTracker dimensionTracker;
+    @Shadow private RegistryTracker registryTracker;
     
     @Override
     public void setWorld(ClientWorld world) {
@@ -248,6 +247,6 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     
     @Override
     public void portal_setDimensionTracker(RegistryTracker arg) {
-        dimensionTracker = arg;
+        registryTracker = arg;
     }
 }
