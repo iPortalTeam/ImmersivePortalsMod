@@ -228,7 +228,7 @@ public class ClientWorldLoader {
             ClientWorld.Properties properties = new ClientWorld.Properties(
                 currentProperty.getDifficulty(),
                 currentProperty.isHardcore(),
-                currentProperty.flatWorld
+                currentProperty.getSkyDarknessHeight() < 1.0
             );
             newWorld = new ClientWorld(
                 newNetworkHandler,

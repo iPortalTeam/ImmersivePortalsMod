@@ -73,6 +73,7 @@ public class FogRendererContext {
         
         Camera newCamera = new Camera();
         ((IECamera) newCamera).mySetPos(pos);
+        ((IECamera) newCamera).portal_setFocusedEntity(client.cameraEntity);
         
         try {
             BackgroundRenderer.render(

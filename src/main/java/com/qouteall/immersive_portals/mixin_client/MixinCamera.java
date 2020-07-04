@@ -84,4 +84,9 @@ public abstract class MixinCamera implements IECamera {
     public void mySetPos(Vec3d pos) {
         setPos(pos);
     }
+    
+    @Override
+    public void portal_setFocusedEntity(Entity arg) {
+        focusedEntity = arg;
+    }
 }

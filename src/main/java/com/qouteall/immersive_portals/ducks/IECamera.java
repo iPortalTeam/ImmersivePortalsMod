@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.ducks;
 
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
 public interface IECamera {
@@ -13,4 +14,6 @@ public interface IECamera {
     float getLastCameraY();
     
     void setCameraY(float cameraY, float lastCameraY);
+    
+    void portal_setFocusedEntity(Entity arg);
 }
