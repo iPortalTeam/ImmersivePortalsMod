@@ -59,7 +59,7 @@ public class Global {
     
     public static boolean smoothLoading = false;
     
-    public static boolean cacheGlBuffer = true;
+    public static boolean cacheGlBuffer = false;
     
     public static enum RenderMode {
         normal,
