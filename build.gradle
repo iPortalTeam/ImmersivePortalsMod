@@ -37,27 +37,19 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
-
-	//modImplementation "io.github.Ladysnake:Requiem:1.1.4"
-	//modImplementation "io.github.Ladysnake:Requiem:1.1.4:api"
-
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-	modImplementation "me.shedaniel.cloth:config-2:4.5.0-unstable"
-	modImplementation "io.github.prospector:modmenu:1.11.8+build.13"
+	include "me.shedaniel.cloth:config-2:4.5.6"
+	include "io.github.prospector:modmenu:1.12.2+build.17"
 
-	include "me.shedaniel.cloth:config-2:4.5.0-unstable"
-	include "io.github.prospector:modmenu:1.11.8+build.13"
+	modImplementation "me.shedaniel.cloth:config-2:4.5.6"
+	modImplementation "io.github.prospector:modmenu:1.12.2+build.17"
 
 	//For javax.annotation.Nullable
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
 	// https://github.com/OnyxStudios/Cardinal-Components-API
-//	modApi "io.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.4.0-nightly.1.16-pre2"
-//	include "io.github.OnyxStudios.Cardinal-Components-API:Cardinal-Components-API:2.4.0-nightly.1.16-pre2"
 
 	//make the game launch faster in dev
 	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.5") {
