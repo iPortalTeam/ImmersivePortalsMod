@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
@@ -530,6 +531,11 @@ public class ClientDebugCommand {
             builder,
             "cache_gl_buffer",
             cond -> Global.cacheGlBuffer = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "add_custom_ticket_for_direct_loading",
+            cond -> NewChunkTrackingGraph.addCustomTicketForDirectLoading = cond
         );
         
         builder.then(CommandManager

@@ -27,6 +27,8 @@ import java.util.stream.Stream;
 
 public class NewChunkTrackingGraph {
     
+    public static boolean addCustomTicketForDirectLoading = false;
+    
     public static class PlayerWatchRecord {
         public ServerPlayerEntity player;
         public long lastWatchTime;
@@ -95,6 +97,9 @@ public class NewChunkTrackingGraph {
     }
     
     private static boolean shouldAddCustomTicket(ArrayList<PlayerWatchRecord> records) {
+        if (addCustomTicketForDirectLoading) {
+            return true;
+        }
         return Helper.indexOf(records, r -> !r.isDirectLoading) != -1;
     }
     

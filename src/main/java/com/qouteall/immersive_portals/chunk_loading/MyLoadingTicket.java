@@ -38,7 +38,6 @@ public class MyLoadingTicket {
     public static void addTicketIfNotLoaded(ServerWorld world, ChunkPos chunkPos) {
         boolean isNewlyAdded = getRecord(world).add(chunkPos.toLong());
         if (isNewlyAdded) {
-            Helper.log(chunkPos);
             getTicketManager(world).addTicket(
                 ticketType, chunkPos, getLoadingRadius(), chunkPos
             );
