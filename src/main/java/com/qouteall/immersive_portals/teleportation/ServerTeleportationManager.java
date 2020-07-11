@@ -59,7 +59,7 @@ public class ServerTeleportationManager {
         }
         //a new born entity may have last tick pos 0 0 0
         double motion = McHelper.lastTickPosOf(entity).squaredDistanceTo(entity.getPos());
-        if (motion > 2) {
+        if (motion > 20) {
             return;
         }
         ModMain.serverTaskList.addTask(() -> {

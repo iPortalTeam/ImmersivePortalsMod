@@ -306,7 +306,7 @@ public class Portal extends Entity {
             isTeleportable() &&
             isMovedThroughPortal(
                 entity.getCameraPosVec(0),
-                entity.getCameraPosVec(1)
+                entity.getCameraPosVec(1).add(entity.getVelocity())
             );
     }
     
