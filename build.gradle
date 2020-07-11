@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-	modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
+	//modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
 
 	//Deps required for optifabric
 	compile 'org.zeroturnaround:zt-zip:1.13'

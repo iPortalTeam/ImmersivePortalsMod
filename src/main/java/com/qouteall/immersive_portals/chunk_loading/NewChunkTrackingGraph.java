@@ -5,8 +5,6 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
@@ -18,86 +16,91 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class NewChunkTrackingGraph {
-    public static interface ShouldRemoveWatchPredicate {
-        boolean test(ServerPlayerEntity player, long lastWatchTime, int distanceToSource);
+    
+    public static class PlayerWatchRecord {
+        public ServerPlayerEntity player;
+        public long lastWatchTime;
+        public int distanceToSource;
+        public boolean isDirectLoading;
+        
+        public PlayerWatchRecord(ServerPlayerEntity player, long lastWatchTime, int distanceToSource, boolean isDirectLoading) {
+            this.player = player;
+            this.lastWatchTime = lastWatchTime;
+            this.distanceToSource = distanceToSource;
+            this.isDirectLoading = isDirectLoading;
+        }
     }
     
-    public static class ChunkRecord {
-        public ArrayList<ServerPlayerEntity> watchingPlayers = new ArrayList<>();
-        public LongList lastWatchTimeList = new LongArrayList();
-        public IntList distanceToSourceList = new IntArrayList();
-        
-        public void updateWatchingStatus(
-            ServerPlayerEntity player,
-            long currGameTime,
-            int distanceToSource,
-            Runnable addWatchInformer
-        ) {
-            int index = watchingPlayers.indexOf(player);
-            if (index == -1) {
-                watchingPlayers.add(player);
-                lastWatchTimeList.add(currGameTime);
-                distanceToSourceList.add(distanceToSource);
-                
-                addWatchInformer.run();
-                return;
-            }
+    private static void updateWatchingStatus(
+        ArrayList<PlayerWatchRecord> records,
+        ServerPlayerEntity player,
+        long currGameTime,
+        int distanceToSource,
+        boolean isDirectLoading,
+        Runnable addWatchInformer
+    ) {
+        int i = Helper.indexOf(records, r -> r.player == player);
+        if (i == -1) {
+            records.add(new PlayerWatchRecord(
+                player, currGameTime, distanceToSource, isDirectLoading
+            ));
             
-            long lastWatchTime = lastWatchTimeList.getLong(index);
-            if (lastWatchTime == currGameTime) {
+            addWatchInformer.run();
+        }
+        else {
+            PlayerWatchRecord record = records.get(i);
+            
+            if (record.lastWatchTime == currGameTime) {
                 //being updated again in the same turn
-                int oldDistance = distanceToSourceList.getInt(index);
+                int oldDistance = record.distanceToSource;
                 int newDistance = Math.min(oldDistance, distanceToSource);
-                distanceToSourceList.set(index, newDistance);
+                record.distanceToSource = newDistance;
+                record.isDirectLoading = isDirectLoading;
             }
             else {
                 //being updated at the first time in this turn
-                distanceToSourceList.set(index, distanceToSource);
-                lastWatchTimeList.set(index, currGameTime);
+                record.distanceToSource = distanceToSource;
+                record.lastWatchTime = currGameTime;
+                record.isDirectLoading = (record.isDirectLoading | isDirectLoading);
             }
-        }
-        
-        public void removeInactiveWatcher(
-            ShouldRemoveWatchPredicate predicate,
-            Consumer<ServerPlayerEntity> informer
-        ) {
-            assert watchingPlayers.size() == lastWatchTimeList.size();
-            assert lastWatchTimeList.size() == distanceToSourceList.size();
-            
-            //this is not the most efficent
-            int size = watchingPlayers.size();
-            int placingIndex = 0;
-            for (int i = size - 1; i >= 0; i--) {
-                boolean shouldRemove = predicate.test(
-                    watchingPlayers.get(i),
-                    lastWatchTimeList.getLong(i),
-                    distanceToSourceList.getInt(i)
-                );
-                if (shouldRemove) {
-                    ServerPlayerEntity removed = watchingPlayers.remove(i);
-                    lastWatchTimeList.removeLong(i);
-                    distanceToSourceList.removeInt(i);
-                    informer.accept(removed);
-                }
-            }
-        }
-        
-        public boolean isBeingWatchedByAnyPlayer() {
-            return !watchingPlayers.isEmpty();
         }
     }
     
-    private static final Map<RegistryKey<World>, Long2ObjectLinkedOpenHashMap<ChunkRecord>> data = new HashMap<>();
+    private static void removeInactiveWatchers(
+        ArrayList<PlayerWatchRecord> records,
+        Predicate<PlayerWatchRecord> predicate,
+        Consumer<ServerPlayerEntity> informer
+    ) {
+        records.removeIf(r -> {
+            boolean shouldRemove = predicate.test(r);
+            if (shouldRemove) {
+                informer.accept(r.player);
+            }
+            return shouldRemove;
+        });
+    }
+    
+    private static boolean isBeingWatchedByAnyPlayer(ArrayList<PlayerWatchRecord> records) {
+        return !records.isEmpty();
+    }
+    
+    private static boolean shouldAddCustomTicket(ArrayList<PlayerWatchRecord> records) {
+        return Helper.indexOf(records, r -> !r.isDirectLoading) != -1;
+    }
+    
+    // Every chunk has a list of watching records
+    private static final Map<RegistryKey<World>, Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>>>
+        data = new HashMap<>();
     
     private static final ArrayList<WeakReference<ChunkVisibilityManager.ChunkLoader>>
         additionalChunkLoaders = new ArrayList<>();
@@ -105,7 +108,7 @@ public class NewChunkTrackingGraph {
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
     
-    private static Long2ObjectLinkedOpenHashMap<ChunkRecord> getChunkRecordMap(RegistryKey<World> dimension) {
+    private static Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> getChunkRecordMap(RegistryKey<World> dimension) {
         return data.computeIfAbsent(dimension, k -> new Long2ObjectLinkedOpenHashMap<>());
     }
     
@@ -114,13 +117,16 @@ public class NewChunkTrackingGraph {
         ChunkVisibilityManager.getChunkLoaders(player)
             .forEach(chunkLoader -> chunkLoader.foreachChunkPos(
                 (dimension, x, z, distanceToSource) -> {
-                    getChunkRecordMap(dimension).computeIfAbsent(
+                    ArrayList<PlayerWatchRecord> records = getChunkRecordMap(dimension).computeIfAbsent(
                         ChunkPos.toLong(x, z),
-                        k -> new ChunkRecord()
-                    ).updateWatchingStatus(
+                        k -> new ArrayList<>()
+                    );
+                    updateWatchingStatus(
+                        records,
                         player,
                         gameTime,
                         distanceToSource,
+                        chunkLoader.isDirectLoader,
                         () -> beginWatchChunkSignal.emit(
                             player,
                             new DimensionalChunkPos(
@@ -139,10 +145,13 @@ public class NewChunkTrackingGraph {
         data.forEach((dimension, chunkRecords) -> {
             chunkRecords.long2ObjectEntrySet().removeIf(entry -> {
                 long chunkPosLong = entry.getLongKey();
-                ChunkRecord chunkRecord = entry.getValue();
-                chunkRecord.removeInactiveWatcher(
-                    (player, lastWatchTime, distanceToSource) -> {
-                        return currTime - lastWatchTime > unloadTimeValve || player.removed;
+                
+                ArrayList<PlayerWatchRecord> records = entry.getValue();
+                
+                removeInactiveWatchers(
+                    records,
+                    (r) -> {
+                        return currTime - r.lastWatchTime > unloadTimeValve || r.player.removed;
                     },
                     player -> {
                         if (player.removed) return;
@@ -156,19 +165,23 @@ public class NewChunkTrackingGraph {
                         );
                     }
                 );
-                return !chunkRecord.isBeingWatchedByAnyPlayer();
+                
+                return !isBeingWatchedByAnyPlayer(records);
             });
         });
         
         McHelper.getServer().getWorlds().forEach(world -> {
-    
-            LongSortedSet currentLoadedChunks = getChunkRecordMap(world.getRegistryKey()).keySet();
-    
-            currentLoadedChunks.forEach(
-                (long longChunkPos) -> {
-                    MyLoadingTicket.load(world, new ChunkPos(longChunkPos));
+            
+            Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> chunkRecordMap = getChunkRecordMap(world.getRegistryKey());
+            
+            chunkRecordMap.long2ObjectEntrySet().forEach(entry -> {
+                long longChunkPos = entry.getLongKey();
+                ArrayList<PlayerWatchRecord> records = entry.getValue();
+                
+                if (shouldAddCustomTicket(records)) {
+                    MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(longChunkPos));
                 }
-            );
+            });
             
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(weakRef -> {
@@ -178,7 +191,7 @@ public class NewChunkTrackingGraph {
                     (dim, x, z, dis) -> {
                         if (world.getRegistryKey() == dim) {
                             additionalLoadedChunks.add(ChunkPos.toLong(x, z));
-                            MyLoadingTicket.load(world, new ChunkPos(x, z));
+                            MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(x, z));
                         }
                     }
                 );
@@ -187,7 +200,7 @@ public class NewChunkTrackingGraph {
             
             LongList chunksToUnload = new LongArrayList();
             MyLoadingTicket.getRecord(world).forEach((long longChunkPos) -> {
-                if (!currentLoadedChunks.contains(longChunkPos) &&
+                if (!chunkRecordMap.containsKey(longChunkPos) &&
                     !additionalLoadedChunks.contains(longChunkPos)
                 ) {
                     chunksToUnload.add(longChunkPos);
@@ -195,7 +208,7 @@ public class NewChunkTrackingGraph {
             });
             
             chunksToUnload.forEach((long longChunkPos) -> {
-                MyLoadingTicket.unload(world, new ChunkPos(longChunkPos));
+                MyLoadingTicket.removeTicket(world, new ChunkPos(longChunkPos));
             });
         });
     }
@@ -205,6 +218,8 @@ public class NewChunkTrackingGraph {
     }
     
     private static void tick() {
+        McHelper.getServer().getProfiler().push("portal_chunk_tracking");
+        
         long gameTime = McHelper.getOverWorldOnServer().getTime();
         McHelper.getCopiedPlayerList().forEach(player -> {
             if (player.getEntityId() % 40 == gameTime % 40) {
@@ -214,6 +229,8 @@ public class NewChunkTrackingGraph {
         if (gameTime % 40 == 0) {
             updateAndPurge();
         }
+        
+        McHelper.getServer().getProfiler().pop();
     }
     
     private static void setIsLoadedByPortal(
@@ -233,14 +250,28 @@ public class NewChunkTrackingGraph {
     public static boolean isPlayerWatchingChunk(
         ServerPlayerEntity player,
         RegistryKey<World> dimension,
-        int x, int z
+        int x, int z,
+        Predicate<PlayerWatchRecord> predicate
     ) {
-        ChunkRecord record = getChunkRecordMap(dimension)
+        ArrayList<PlayerWatchRecord> record = getChunkRecordMap(dimension)
             .get(ChunkPos.toLong(x, z));
         if (record == null) {
             return false;
         }
-        return record.watchingPlayers.indexOf(player) != -1;
+        int i = Helper.indexOf(record, r -> r.player == player);
+        if (i == -1) {
+            return false;
+        }
+        
+        return predicate.test(record.get(i));
+    }
+    
+    public static boolean isPlayerWatchingChunk(
+        ServerPlayerEntity player,
+        RegistryKey<World> dimension,
+        int x, int z
+    ) {
+        return isPlayerWatchingChunk(player, dimension, x, z, r -> true);
     }
     
     public static boolean isPlayerWatchingChunkWithinRaidus(
@@ -249,17 +280,10 @@ public class NewChunkTrackingGraph {
         int x, int z,
         int radiusBlocks
     ) {
-        ChunkRecord record = getChunkRecordMap(dimension)
-            .get(ChunkPos.toLong(x, z));
-        if (record == null) {
-            return false;
-        }
-        int index = record.watchingPlayers.indexOf(player);
-        if (index == -1) {
-            return false;
-        }
-        int distanceToSource = record.distanceToSourceList.getInt(index);
-        return distanceToSource * 16 <= radiusBlocks;
+        return isPlayerWatchingChunk(
+            player, dimension, x, z,
+            r -> r.distanceToSource * 16 <= radiusBlocks
+        );
     }
     
     public static void cleanup() {
@@ -271,12 +295,12 @@ public class NewChunkTrackingGraph {
         RegistryKey<World> dimension,
         int x, int z
     ) {
-        ChunkRecord record = getChunkRecordMap(dimension)
+        ArrayList<PlayerWatchRecord> records = getChunkRecordMap(dimension)
             .get(ChunkPos.toLong(x, z));
-        if (record == null) {
+        if (records == null) {
             return Stream.empty();
         }
-        return record.watchingPlayers.stream();
+        return records.stream().map(r -> r.player);
     }
     
     /**
@@ -296,8 +320,9 @@ public class NewChunkTrackingGraph {
     
     public static void forceRemovePlayer(ServerPlayerEntity player) {
         data.forEach((dim, map) -> map.forEach(
-            (chunkPos, chunkRecord) -> chunkRecord.removeInactiveWatcher(
-                (player1, l, d) -> player1 == player,
+            (chunkPos, records) -> removeInactiveWatchers(
+                records,
+                (r) -> r.player == player,
                 p -> {
                     //it solves issue but making respawn laggier
                     p.networkHandler.sendPacket(
@@ -317,7 +342,7 @@ public class NewChunkTrackingGraph {
         if (!data.containsKey(dimension)) {
             return false;
         }
-        Long2ObjectLinkedOpenHashMap<ChunkRecord> map =
+        Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> map =
             data.get(dimension);
         return !map.isEmpty();
     }

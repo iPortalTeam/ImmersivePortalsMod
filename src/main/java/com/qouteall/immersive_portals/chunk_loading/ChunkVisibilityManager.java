@@ -34,10 +34,16 @@ public class ChunkVisibilityManager {
     public static class ChunkLoader {
         public DimensionalChunkPos center;
         public int radius;
+        public boolean isDirectLoader = false;
         
         public ChunkLoader(DimensionalChunkPos center, int radius) {
+            this(center, radius, false);
+        }
+        
+        public ChunkLoader(DimensionalChunkPos center, int radius, boolean isDirectLoader) {
             this.center = center;
             this.radius = radius;
+            this.isDirectLoader = isDirectLoader;
         }
         
         public void foreachChunkPos(ChunkPosConsumer func) {
@@ -99,8 +105,8 @@ public class ChunkVisibilityManager {
                 player.world.getRegistryKey(),
                 player.chunkX, player.chunkZ
             ),
-            McHelper.getRenderDistanceOnServer()
-            //ServerPerformanceAdjust.getPlayerLoadingDistance(player)
+            McHelper.getRenderDistanceOnServer(),
+            true
         );
     }
     

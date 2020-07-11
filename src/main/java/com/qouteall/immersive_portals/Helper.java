@@ -612,7 +612,7 @@ public class Helper {
     ) {
         a.normalize();
         b.normalize();
-    
+        
         double dot = dotProduct4d(a, b);
         
         if (dot < 0.0f) {
@@ -624,7 +624,7 @@ public class Helper {
         if (dot > DOT_THRESHOLD) {
             // If the inputs are too close for comfort, linearly interpolate
             // and normalize the result.
-        
+            
             Quaternion result = quaternionNumAdd(
                 quaternionScale(a.copy(), 1 - t),
                 quaternionScale(b.copy(), t)
@@ -632,15 +632,15 @@ public class Helper {
             result.normalize();
             return result;
         }
-    
+        
         double theta_0 = Math.acos(dot);
         double theta = theta_0 * t;
         double sin_theta = Math.sin(theta);
         double sin_theta_0 = Math.sin(theta_0);
-    
+        
         double s0 = Math.cos(theta) - dot * sin_theta / sin_theta_0;
         double s1 = sin_theta / sin_theta_0;
-    
+        
         return quaternionNumAdd(
             quaternionScale(a.copy(), (float) s0),
             quaternionScale(b.copy(), (float) s1)
@@ -1030,9 +1030,9 @@ public class Helper {
             return null;
         }
         
-        Vec3d axisH =  Vec3d.of(hitResult.getSide().getVector());
-        Vec3d axisW = axisH.crossProduct( Vec3d.of(lookingDirection.getOpposite().getVector()));
-        Vec3d pos =  Vec3d.ofCenter(hitResult.getBlockPos())
+        Vec3d axisH = Vec3d.of(hitResult.getSide().getVector());
+        Vec3d axisW = axisH.crossProduct(Vec3d.of(lookingDirection.getOpposite().getVector()));
+        Vec3d pos = Vec3d.ofCenter(hitResult.getBlockPos())
             .add(axisH.multiply(0.5 + height / 2));
         
         World world = hitPortals.isEmpty()
@@ -1064,5 +1064,16 @@ public class Helper {
                 return cache;
             }
         };
+    }
+    
+    // I cannot find existing indexOf with predicate
+    public static <T> int indexOf(List<T> list, Predicate<T> predicate) {
+        for (int i = 0; i < list.size(); i++) {
+            T ele = list.get(i);
+            if (predicate.test(ele)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
