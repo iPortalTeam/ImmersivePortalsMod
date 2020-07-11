@@ -19,6 +19,7 @@ import com.qouteall.immersive_portals.render.context_management.DimensionRenderH
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -55,16 +56,23 @@ public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
     
     
-    
     public static void renderWorldNew(
-        ClientWorld newWorld,
-        Vec3d cameraPos,
-        Matrix4f additionalCameraTransformation,
+        RenderInfo renderInfo,
         Consumer<Runnable> invokeWrapper
     ) {
-    
+        RenderInfo.pushRenderInfo(renderInfo);
+        
+        switchAndRenderTheWorld(
+            renderInfo.world,
+            renderInfo.cameraPos,
+            renderInfo.cameraPos,
+            invokeWrapper
+        );
+        
+        RenderInfo.popRenderInfo();
     }
     
+    @Deprecated
     public static void switchAndRenderTheWorld(
         ClientWorld newWorld,
         Vec3d thisTickCameraPos,

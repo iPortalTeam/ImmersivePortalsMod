@@ -6,6 +6,8 @@ import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.TransformationManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix3f;
@@ -19,6 +21,8 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+// TODO remove this and use RenderInfo
+@Environment(EnvType.CLIENT)
 public class PortalRendering {
     private static final Stack<Portal> portalLayers = new Stack<>();
     private static boolean isRenderingCache = false;
@@ -88,13 +92,35 @@ public class PortalRendering {
     }
     
     public static void adjustCameraPos(Camera camera) {
+        Vec3d pos = getRenderingCameraPos();
+        ((IECamera) camera).mySetPos(pos);
+    }
+    
+    public static Vec3d getRenderingCameraPos() {
         Vec3d pos = RenderStates.originalCamera.getPos();
         for (Portal portal : portalLayers) {
             pos = portal.transformPoint(pos);
         }
-        ((IECamera) camera).mySetPos(pos);
+        return pos;
     }
     
+    public static Matrix4f getAdditionalTransformation(Portal portal) {
+        if (portal instanceof Mirror) {
+            return TransformationManager.getMirrorTransformation(portal.getNormal());
+        }
+        else {
+            if (portal.rotation != null) {
+                return new Matrix4f(portal.rotation);
+            }
+            else {
+                Matrix4f result = new Matrix4f();
+                result.loadIdentity();
+                return result;
+            }
+        }
+    }
+    
+    @Deprecated
     public static void applyAdditionalTransformations(MatrixStack matrixStack) {
         portalLayers.forEach(portal -> {
             if (portal instanceof Mirror) {

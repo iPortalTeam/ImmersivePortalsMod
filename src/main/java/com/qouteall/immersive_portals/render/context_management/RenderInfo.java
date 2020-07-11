@@ -6,6 +6,7 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
+import java.util.Stack;
 
 public class RenderInfo {
     public ClientWorld world;
@@ -22,5 +23,15 @@ public class RenderInfo {
         this.cameraPos = cameraPos;
         this.additionalTransformation = additionalTransformation;
         this.portal = portal;
+    }
+    
+    private static final Stack<RenderInfo> renderInfoStack = new Stack<>();
+    
+    public static void pushRenderInfo(RenderInfo renderInfo) {
+        renderInfoStack.push(renderInfo);
+    }
+    
+    public static void popRenderInfo() {
+        renderInfoStack.pop();
     }
 }

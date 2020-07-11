@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.util.math.MatrixStack;
@@ -142,11 +143,10 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     protected void invokeWorldRendering(
-        Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
+        RenderInfo renderInfo
     ) {
-        MyGameRenderer.switchAndRenderTheWorld(
-            newWorld, newEyePos,
-            newLastTickEyePos,
+        MyGameRenderer.renderWorldNew(
+            renderInfo,
             runnable -> {
                 setStencilStateForWorldRendering();
                 runnable.run();

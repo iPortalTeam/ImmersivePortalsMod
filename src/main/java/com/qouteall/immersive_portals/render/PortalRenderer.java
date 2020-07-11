@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class PortalRenderer {
@@ -151,8 +153,8 @@ public abstract class PortalRenderer {
         
         Entity cameraEntity = client.cameraEntity;
         
-        Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(cameraEntity));
-        Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(cameraEntity));
+//        Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(cameraEntity));
+//        Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(cameraEntity));
         
         ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(portal.dimensionTo);
         
@@ -162,7 +164,12 @@ public abstract class PortalRenderer {
         
         PortalRendering.onBeginPortalWorldRendering();
         
-        invokeWorldRendering(newEyePos, newLastTickEyePos, newWorld);
+        invokeWorldRendering(new RenderInfo(
+            newWorld,
+            PortalRendering.getRenderingCameraPos(),
+            PortalRendering.getAdditionalTransformation(portal),
+            portal
+        ));
         
         PortalRendering.onEndPortalWorldRendering();
         
@@ -176,13 +183,10 @@ public abstract class PortalRenderer {
     }
     
     protected void invokeWorldRendering(
-        Vec3d newEyePos,
-        Vec3d newLastTickEyePos,
-        ClientWorld newWorld
+        RenderInfo renderInfo
     ) {
-        MyGameRenderer.switchAndRenderTheWorld(
-            newWorld, newEyePos,
-            newLastTickEyePos,
+        MyGameRenderer.renderWorldNew(
+            renderInfo,
             Runnable::run
         );
     }
@@ -204,23 +208,5 @@ public abstract class PortalRenderer {
 //        return false;
     }
     
-//    @Deprecated
-//    protected void renderPortalContentWithContextSwitched(
-//        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
-//    ) {
-//
-//
-//        WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(portal.dimensionTo);
-//        ClientWorld destClientWorld = CGlobal.clientWorldLoader.getWorld(portal.dimensionTo);
-//
-//        CHelper.checkGlError();
-//
-//        MyGameRenderer.renderWorldDeprecated(
-//            worldRenderer, destClientWorld, oldCameraPos, oldWorld
-//        );
-//
-//        CHelper.checkGlError();
-//
-//    }
     
 }

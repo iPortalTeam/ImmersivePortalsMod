@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -115,11 +116,10 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     protected void invokeWorldRendering(
-        Vec3d newEyePos, Vec3d newLastTickEyePos, ClientWorld newWorld
+        RenderInfo renderInfo
     ) {
-        MyGameRenderer.switchAndRenderTheWorld(
-            newWorld, newEyePos,
-            newLastTickEyePos,
+        MyGameRenderer.renderWorldNew(
+            renderInfo,
             runnable -> {
                 OFGlobal.shaderContextManager.switchContextAndRun(() -> {
                     OFGlobal.bindToShaderFrameBuffer.run();
