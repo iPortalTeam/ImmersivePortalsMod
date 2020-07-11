@@ -46,7 +46,7 @@ public class BlockManipulationClient {
         return bhr == null || bhr.getType() == HitResult.Type.MISS;
     }
 
-    public static void updatePointedBlock(float partialTicks) {
+    public static void updatePointedBlock(float tickDelta) {
         if (client.interactionManager == null || client.world == null) {
             return;
         }
@@ -59,7 +59,7 @@ public class BlockManipulationClient {
         float reachDistance = client.interactionManager.getReachDistance();
 
         PortalCommand.getPlayerPointingPortalRaw(
-            client.player, partialTicks, reachDistance, true
+            client.player, tickDelta, reachDistance, true
         ).ifPresent(pair -> {
             if(pair.getFirst().isInteractable()) {
                 double distanceToPortalPointing = pair.getSecond().distanceTo(cameraPos);
@@ -68,7 +68,7 @@ public class BlockManipulationClient {
 
                     updateTargetedBlockThroughPortal(
                             cameraPos,
-                            client.player.getRotationVec(partialTicks),
+                            client.player.getRotationVec(tickDelta),
                             client.player.world.getRegistryKey(),
                             distanceToPortalPointing,
                             reachDistance,

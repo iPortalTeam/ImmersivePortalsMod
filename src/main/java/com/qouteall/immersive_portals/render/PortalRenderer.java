@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
@@ -13,24 +13,22 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class PortalRenderer {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
+    
+   
     
     //this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
@@ -167,7 +165,7 @@ public abstract class PortalRenderer {
         invokeWorldRendering(new RenderInfo(
             newWorld,
             PortalRendering.getRenderingCameraPos(),
-            PortalRendering.getAdditionalTransformation(portal),
+            getAdditionalCameraTransformation(portal),
             portal
         ));
         
@@ -208,5 +206,21 @@ public abstract class PortalRenderer {
 //        return false;
     }
     
+    
+    private static Matrix4f getAdditionalCameraTransformation(Portal portal) {
+        if (portal instanceof Mirror) {
+            return TransformationManager.getMirrorTransformation(portal.getNormal());
+        }
+        else {
+            if (portal.rotation != null) {
+                return new Matrix4f(portal.rotation);
+            }
+            else {
+                Matrix4f result = new Matrix4f();
+                result.loadIdentity();
+                return result;
+            }
+        }
+    }
     
 }

@@ -11,17 +11,5 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = ShadersRender.class, remap = false)
 public class MixinShadersRender {
-    
-//    @Inject(
-//        method = "updateActiveRenderInfo",
-//        at = @At("RETURN")
-//    )
-//    private static void onUpdateCameraForRenderingShadow(
-//        Camera camera,
-//        MinecraftClient mc,
-//        float partialTicks,
-//        CallbackInfo ci
-//    ) {
-//        PortalRendering.adjustCameraPos(camera);
-//    }
+
 }

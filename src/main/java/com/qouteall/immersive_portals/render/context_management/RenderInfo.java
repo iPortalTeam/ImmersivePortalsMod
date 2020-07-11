@@ -15,9 +15,12 @@ import java.util.Stack;
 public class RenderInfo {
     public ClientWorld world;
     public Vec3d cameraPos;
+    @Nullable
     public Matrix4f additionalTransformation;
     @Nullable
     public Portal portal;
+    
+    private static final Stack<RenderInfo> renderInfoStack = new Stack<>();
     
     public RenderInfo(
         ClientWorld world, Vec3d cameraPos,
@@ -29,8 +32,6 @@ public class RenderInfo {
         this.portal = portal;
     }
     
-    private static final Stack<RenderInfo> renderInfoStack = new Stack<>();
-    
     public static void pushRenderInfo(RenderInfo renderInfo) {
         renderInfoStack.push(renderInfo);
     }
@@ -40,35 +41,19 @@ public class RenderInfo {
     }
     
     public static void adjustCameraPos(Camera camera) {
-        
         if (!renderInfoStack.isEmpty()) {
             RenderInfo currRenderInfo = renderInfoStack.peek();
             ((IECamera) camera).portal_setPos(currRenderInfo.cameraPos);
         }
-
-//        Vec3d pos = getRenderingCameraPos();
-//        ((IECamera) camera).mySetPos(pos);
     }
     
     public static void applyAdditionalTransformations(MatrixStack matrixStack) {
-        
         for (RenderInfo renderInfo : renderInfoStack) {
             Matrix4f matrix = renderInfo.additionalTransformation;
-            matrixStack.peek().getModel().multiply(matrix);
-            matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+            if (matrix != null) {
+                matrixStack.peek().getModel().multiply(matrix);
+                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+            }
         }
-
-//        portalLayers.forEach(portal -> {
-//            if (portal instanceof Mirror) {
-//                Matrix4f matrix = TransformationManager.getMirrorTransformation(portal.getNormal());
-//                matrixStack.peek().getModel().multiply(matrix);
-//                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
-//            }
-//            else if (portal.rotation != null) {
-//                Quaternion rot = portal.rotation.copy();
-//                rot.conjugate();
-//                matrixStack.multiply(rot);
-//            }
-//        });
     }
 }

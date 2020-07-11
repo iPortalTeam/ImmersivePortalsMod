@@ -99,20 +99,4 @@ public class PortalRendering {
         return pos;
     }
     
-    public static Matrix4f getAdditionalTransformation(Portal portal) {
-        if (portal instanceof Mirror) {
-            return TransformationManager.getMirrorTransformation(portal.getNormal());
-        }
-        else {
-            if (portal.rotation != null) {
-                return new Matrix4f(portal.rotation);
-            }
-            else {
-                Matrix4f result = new Matrix4f();
-                result.loadIdentity();
-                return result;
-            }
-        }
-    }
-    
 }

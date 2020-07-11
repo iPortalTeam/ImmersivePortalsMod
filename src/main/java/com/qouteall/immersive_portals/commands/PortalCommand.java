@@ -44,7 +44,6 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -517,7 +516,7 @@ public class PortalCommand {
                 ))
             )
         );
-    
+        
         builder.then(CommandManager.literal("move_portal_destination")
             .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
                 .executes(context -> processPortalTargetedCommand(
@@ -525,14 +524,14 @@ public class PortalCommand {
                         try {
                             double distance =
                                 DoubleArgumentType.getDouble(context, "distance");
-                        
+                            
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             Vec3d viewVector = player.getRotationVector();
                             Direction facing = Direction.getFacing(
                                 viewVector.x, viewVector.y, viewVector.z
                             );
                             Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
-    
+                            
                             portal.destination = portal.destination.add(
                                 portal.transformLocalVec(offset)
                             );
@@ -1316,13 +1315,21 @@ public class PortalCommand {
     ) {
         Vec3d from = player.getCameraPosVec(tickDelta);
         Vec3d to = from.add(player.getRotationVec(tickDelta).multiply(maxDistance));
+        World world = player.world;
+        return raytracePortals(world, from, to, includeGlobalPortal);
+    }
+    
+    public static Optional<Pair<Portal, Vec3d>> raytracePortals(
+        World world, Vec3d from, Vec3d to, boolean includeGlobalPortal
+    ) {
         Stream<Portal> portalStream = McHelper.getEntitiesNearby(
-            player,
+            world,
+            from,
             Portal.class,
-            maxDistance
+            from.distanceTo(to)
         );
         if (includeGlobalPortal) {
-            List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(player.world);
+            List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
             portalStream = Streams.concat(
                 portalStream,
                 globalPortals.stream()

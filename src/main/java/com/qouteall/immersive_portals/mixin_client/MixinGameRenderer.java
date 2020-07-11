@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
+import com.qouteall.immersive_portals.render.CrossPortalThirdPersonView;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -106,6 +107,24 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         RenderStates.onTotalRenderEnd();
     }
     
+    //special rendering in third person view
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/GameRenderer;renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"
+        )
+    )
+    private void redirectRenderingWorld(
+        GameRenderer gameRenderer, float tickDelta, long limitTime, MatrixStack matrix
+    ) {
+        if (CrossPortalThirdPersonView.renderCrossPortalThirdPersonView()) {
+            return;
+        }
+        
+        gameRenderer.renderWorld(tickDelta, limitTime, matrix);
+    }
+    
     @Inject(method = "renderWorld", at = @At("TAIL"))
     private void onRenderCenterEnded(
         float float_1,
@@ -168,25 +187,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
             }
         }
     }
-    
-//    @Inject(
-//        method = "renderWorld",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V",
-//            shift = At.Shift.AFTER
-//        )
-//    )
-//    private void onCameraUpdated(
-//        float tickDelta,
-//        long limitTime,
-//        MatrixStack matrix,
-//        CallbackInfo ci
-//    ) {
-//        if (PortalRendering.isRendering()) {
-//            PortalRendering.adjustCameraPos(camera);
-//        }
-//    }
     
     @Override
     public void setLightmapTextureManager(LightmapTextureManager manager) {
