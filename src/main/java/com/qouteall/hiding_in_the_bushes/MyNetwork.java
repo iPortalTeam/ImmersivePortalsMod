@@ -82,7 +82,7 @@ public class MyNetwork {
         }
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         
-        DimId.writeWorldId(buf, dimension, EnvType.SERVER);
+        DimId.writeWorldId(buf, dimension, false);
         
         buf.writeInt(messageType);
         
@@ -129,7 +129,7 @@ public class MyNetwork {
         Vec3d pos
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimensionType, EnvType.SERVER);
+        DimId.writeWorldId(buf, dimensionType, false);
         buf.writeDouble(pos.x);
         buf.writeDouble(pos.y);
         buf.writeDouble(pos.z);
@@ -146,7 +146,7 @@ public class MyNetwork {
         buf.writeInt(entity.getEntityId());
         DimId.writeWorldId(
             buf, entity.world.getRegistryKey(),
-            entity.world.isClient ? EnvType.CLIENT : EnvType.SERVER
+            entity.world.isClient
         );
         CompoundTag tag = new CompoundTag();
         entity.toTag(tag);
@@ -159,14 +159,14 @@ public class MyNetwork {
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         
-        DimId.writeWorldId(buf, storage.world.get().getRegistryKey(), EnvType.SERVER);
+        DimId.writeWorldId(buf, storage.world.get().getRegistryKey(), false);
         buf.writeCompoundTag(storage.toTag(new CompoundTag()));
         
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
     }
     
     private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.SERVER);
+        RegistryKey<World> dim = DimId.readWorldId(buf, false);
         Vec3d posBefore = new Vec3d(
             buf.readDouble(),
             buf.readDouble(),
@@ -185,7 +185,7 @@ public class MyNetwork {
     }
     
     private static void processCtsPlayerAction(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.SERVER);
+        RegistryKey<World> dim = DimId.readWorldId(buf, false);
         PlayerActionC2SPacket packet = new PlayerActionC2SPacket();
         try {
             packet.read(buf);
@@ -203,7 +203,7 @@ public class MyNetwork {
     }
     
     private static void processCtsRightClick(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.SERVER);
+        RegistryKey<World> dim = DimId.readWorldId(buf, false);
         PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket();
         try {
             packet.read(buf);

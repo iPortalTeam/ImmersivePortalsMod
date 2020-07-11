@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.dimension_sync;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import net.fabricmc.api.EnvType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -16,10 +17,10 @@ public class DimId {
     private static final boolean useIntegerId = true;
     
     public static void writeWorldId(
-        PacketByteBuf buf, RegistryKey<World> dimension, EnvType envType
+        PacketByteBuf buf, RegistryKey<World> dimension, boolean isClient
     ) {
         if (useIntegerId) {
-            DimensionIdRecord record = envType == EnvType.CLIENT ?
+            DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
             int intId = record.getIntId(dimension);
             buf.writeInt(intId);
@@ -29,9 +30,15 @@ public class DimId {
         }
     }
     
-    public static RegistryKey<World> readWorldId(PacketByteBuf buf, EnvType envType) {
+    public static RegistryKey<World> readWorldId(PacketByteBuf buf, boolean isClient) {
+        if (isClient) {
+            if (O_O.isDedicatedServer()) {
+                throw new IllegalStateException("oops");
+            }
+        }
+        
         if (useIntegerId) {
-            DimensionIdRecord record = envType == EnvType.CLIENT ?
+            DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
             int intId = buf.readInt();
             return record.getDim(intId);

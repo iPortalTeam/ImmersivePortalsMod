@@ -39,6 +39,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
@@ -46,11 +47,23 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
+    
+    
+    
+    public static void renderWorldNew(
+        ClientWorld newWorld,
+        Vec3d cameraPos,
+        Matrix4f additionalCameraTransformation,
+        Consumer<Runnable> invokeWrapper
+    ) {
+    
+    }
     
     public static void switchAndRenderTheWorld(
         ClientWorld newWorld,
@@ -58,9 +71,9 @@ public class MyGameRenderer {
         Vec3d lastTickCameraPos,
         Consumer<Runnable> invokeWrapper
     ) {
-    
+        
         Entity cameraEntity = client.cameraEntity;
-    
+        
         Vec3d oldEyePos = McHelper.getEyePos(cameraEntity);
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(cameraEntity);
         
@@ -114,7 +127,7 @@ public class MyGameRenderer {
         ShaderEffect oldTransparencyShader =
             ((IEWorldRenderer) oldWorldRenderer).portal_getTransparencyShader();
         ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
-    
+        
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
         //switch
@@ -139,7 +152,7 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
-    
+        
         //update lightmap
         if (!RenderStates.isDimensionRendered(newDimension)) {
             helper.lightmapTexture.update(0);
@@ -173,7 +186,7 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(oldTransparencyShader);
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(newTransparencyShader);
-    
+        
         FogRendererContext.swappingManager.popSwapping();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
@@ -310,9 +323,9 @@ public class MyGameRenderer {
         MatrixStack matrixStack,
         float tickDelta
     ) {
-    
-        client.worldRenderer.renderSky(matrixStack, tickDelta);
         
+        client.worldRenderer.renderSky(matrixStack, tickDelta);
+
 //        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
 //
 //        if (client.world.getDimension() instanceof AlternateDimension &&

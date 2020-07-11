@@ -22,7 +22,7 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
         at = @At("HEAD")
     )
     private void onRead(PacketByteBuf buf, CallbackInfo ci) {
-        playerDimension = DimId.readWorldId(buf, EnvType.SERVER);
+        playerDimension = DimId.readWorldId(buf, false);
     }
     
     @Inject(
@@ -30,7 +30,7 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
         at = @At("HEAD")
     )
     private void onWrite(PacketByteBuf buf, CallbackInfo ci) {
-        DimId.writeWorldId(buf, playerDimension, EnvType.CLIENT);
+        DimId.writeWorldId(buf, playerDimension, true);
     }
     
     @Override

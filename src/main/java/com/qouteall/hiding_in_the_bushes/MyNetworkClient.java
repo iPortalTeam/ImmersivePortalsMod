@@ -77,7 +77,7 @@ public class MyNetworkClient {
     
         int entityId = buf.readInt();
         
-        RegistryKey<World> dim = DimId.readWorldId(buf, EnvType.CLIENT);
+        RegistryKey<World> dim = DimId.readWorldId(buf, true);
         
         CompoundTag compoundTag = buf.readCompoundTag();
         
@@ -121,7 +121,7 @@ public class MyNetworkClient {
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
         
-        RegistryKey<World> dimension = DimId.readWorldId(buf, EnvType.CLIENT);
+        RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         Vec3d pos = new Vec3d(
             buf.readDouble(),
             buf.readDouble(),
@@ -140,7 +140,7 @@ public class MyNetworkClient {
         PacketContext context,
         PacketByteBuf buf
     ) {
-        RegistryKey<World> dimension = DimId.readWorldId(buf, EnvType.CLIENT);
+        RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         int messageType = buf.readInt();
         Packet packet = MyNetwork.createEmptyPacketByType(messageType);
         try {
@@ -220,7 +220,7 @@ public class MyNetworkClient {
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dimensionType = DimId.readWorldId(buf, EnvType.CLIENT);
+        RegistryKey<World> dimensionType = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
         MinecraftClient.getInstance().execute(() -> {
             ClientWorld world =
@@ -238,7 +238,7 @@ public class MyNetworkClient {
         PlayerActionC2SPacket packet
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimension, EnvType.CLIENT);
+        DimId.writeWorldId(buf, dimension, true);
         try {
             packet.write(buf);
         }
@@ -254,7 +254,7 @@ public class MyNetworkClient {
         PlayerInteractBlockC2SPacket packet
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimension, EnvType.CLIENT);
+        DimId.writeWorldId(buf, dimension, true);
         try {
             packet.write(buf);
         }
@@ -271,7 +271,7 @@ public class MyNetworkClient {
         UUID portalEntityId
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        DimId.writeWorldId(buf, dimensionBefore, EnvType.CLIENT);
+        DimId.writeWorldId(buf, dimensionBefore, true);
         buf.writeDouble(posBefore.x);
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);
