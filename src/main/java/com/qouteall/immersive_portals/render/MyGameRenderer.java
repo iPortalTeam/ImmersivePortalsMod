@@ -72,8 +72,7 @@ public class MyGameRenderer {
         RenderInfo.popRenderInfo();
     }
     
-    @Deprecated
-    public static void switchAndRenderTheWorld(
+    private static void switchAndRenderTheWorld(
         ClientWorld newWorld,
         Vec3d thisTickCameraPos,
         Vec3d lastTickCameraPos,

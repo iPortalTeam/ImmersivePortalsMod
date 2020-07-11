@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,7 +32,7 @@ public class TransformationManager {
         
         matrixStack.multiply(finalRotation);
         
-        PortalRendering.applyAdditionalTransformations(matrixStack);
+        RenderInfo.applyAdditionalTransformations(matrixStack);
         
     }
     

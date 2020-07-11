@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
@@ -20,7 +22,7 @@ public abstract class MixinCamera implements IECamera {
     private static double lastClipSpaceResult = 1;
     
     @Shadow
-    private net.minecraft.util.math.Vec3d pos;
+    private Vec3d pos;
     @Shadow
     private BlockView area;
     @Shadow
@@ -31,7 +33,18 @@ public abstract class MixinCamera implements IECamera {
     private float lastCameraY;
     
     @Shadow
-    protected abstract void setPos(net.minecraft.util.math.Vec3d vec3d_1);
+    protected abstract void setPos(Vec3d vec3d_1);
+    
+    @Inject(
+        method = "update",
+        at = @At("RETURN")
+    )
+    private void onUpdateFinished(
+        BlockView area, Entity focusedEntity, boolean thirdPerson,
+        boolean inverseView, float tickDelta, CallbackInfo ci
+    ) {
+        RenderInfo.adjustCameraPos((Camera) (Object) this);
+    }
     
     @Inject(
         method = "getSubmergedFluidState",
@@ -81,7 +94,7 @@ public abstract class MixinCamera implements IECamera {
     }
     
     @Override
-    public void mySetPos(Vec3d pos) {
+    public void portal_setPos(Vec3d pos) {
         setPos(pos);
     }
     

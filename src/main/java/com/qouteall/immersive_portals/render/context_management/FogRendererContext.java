@@ -9,7 +9,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -72,7 +71,7 @@ public class FogRendererContext {
         client.world = destWorld;
         
         Camera newCamera = new Camera();
-        ((IECamera) newCamera).mySetPos(pos);
+        ((IECamera) newCamera).portal_setPos(pos);
         ((IECamera) newCamera).portal_setFocusedEntity(client.cameraEntity);
         
         try {

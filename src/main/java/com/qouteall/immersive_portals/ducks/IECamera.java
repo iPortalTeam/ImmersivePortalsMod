@@ -7,7 +7,7 @@ import net.minecraft.util.math.Vec3d;
 public interface IECamera {
     void resetState(Vec3d pos, ClientWorld currWorld);
     
-    void mySetPos(Vec3d pos);
+    void portal_setPos(Vec3d pos);
     
     float getCameraY();
     

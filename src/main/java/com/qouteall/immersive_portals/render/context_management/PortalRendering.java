@@ -91,11 +91,6 @@ public class PortalRendering {
         );
     }
     
-    public static void adjustCameraPos(Camera camera) {
-        Vec3d pos = getRenderingCameraPos();
-        ((IECamera) camera).mySetPos(pos);
-    }
-    
     public static Vec3d getRenderingCameraPos() {
         Vec3d pos = RenderStates.originalCamera.getPos();
         for (Portal portal : portalLayers) {
@@ -120,19 +115,4 @@ public class PortalRendering {
         }
     }
     
-    @Deprecated
-    public static void applyAdditionalTransformations(MatrixStack matrixStack) {
-        portalLayers.forEach(portal -> {
-            if (portal instanceof Mirror) {
-                Matrix4f matrix = TransformationManager.getMirrorTransformation(portal.getNormal());
-                matrixStack.peek().getModel().multiply(matrix);
-                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
-            }
-            else if (portal.rotation != null) {
-                Quaternion rot = portal.rotation.copy();
-                rot.conjugate();
-                matrixStack.multiply(rot);
-            }
-        });
-    }
 }
