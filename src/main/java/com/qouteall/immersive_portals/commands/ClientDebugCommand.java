@@ -1,15 +1,10 @@
 package com.qouteall.immersive_portals.commands;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
@@ -30,7 +25,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.MessageType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -41,7 +35,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -534,8 +527,8 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "add_custom_ticket_for_direct_loading",
-            cond -> NewChunkTrackingGraph.addCustomTicketForDirectLoading = cond
+            "add_custom_ticket_for_direct_loading_delayed",
+            cond -> NewChunkTrackingGraph.addCustomTicketForDirectLoadingDelayed = cond
         );
         
         builder.then(CommandManager

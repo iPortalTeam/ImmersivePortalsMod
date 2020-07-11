@@ -14,13 +14,16 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
@@ -72,7 +75,7 @@ public class CHelper {
             Portal.class,
             player.world,
             player.getPos(),
-            (int)(range / 16),
+            (int) (range / 16),
             p -> true
         );
         if (globalPortals == null) {
@@ -215,6 +218,29 @@ public class CHelper {
             }
             element.apply.apply(currCoordinate, currCoordinate + currLen);
             currCoordinate += currLen;
+        }
+    }
+    
+    public static <T> T withWorldSwitched(Entity entity, Portal portal, Supplier<T> func) {
+        
+        World oldWorld = entity.world;
+        Vec3d eyePos = McHelper.getEyePos(entity);
+        Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
+        
+        entity.world = portal.getDestinationWorld();
+        McHelper.setEyePos(
+            entity,
+            portal.transformPoint(eyePos),
+            portal.transformPoint(lastTickEyePos)
+        );
+        
+        try {
+            T result = func.get();
+            return result;
+        }
+        finally {
+            entity.world = oldWorld;
+            McHelper.setEyePos(entity, eyePos, lastTickEyePos);
         }
     }
     

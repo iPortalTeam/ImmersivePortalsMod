@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 public class NewChunkTrackingGraph {
     
-    public static boolean addCustomTicketForDirectLoading = false;
+    public static boolean addCustomTicketForDirectLoadingDelayed = true;
     
     public static class PlayerWatchRecord {
         public ServerPlayerEntity player;
@@ -96,11 +96,28 @@ public class NewChunkTrackingGraph {
         return !records.isEmpty();
     }
     
-    private static boolean shouldAddCustomTicket(ArrayList<PlayerWatchRecord> records) {
-        if (addCustomTicketForDirectLoading) {
-            return true;
-        }
-        return Helper.indexOf(records, r -> !r.isDirectLoading) != -1;
+    private static boolean shouldAddCustomTicket(
+        ServerWorld world,
+        long chunkPos,
+        ArrayList<PlayerWatchRecord> records
+    ) {
+        boolean isIndirectLoading = Helper.indexOf(records, r -> !r.isDirectLoading) != -1;
+        
+        return isIndirectLoading;
+
+//        if (isIndirectLoading) {
+//            return true;
+//        }
+//
+//        if (addCustomTicketForDirectLoadingDelayed) {
+//            boolean chunkLoaded =
+//                world.isChunkLoaded(ChunkPos.getPackedX(chunkPos), ChunkPos.getPackedZ(chunkPos));
+//
+//            return chunkLoaded;
+//        }
+//        else {
+//            return false;
+//        }
     }
     
     // Every chunk has a list of watching records
@@ -183,7 +200,7 @@ public class NewChunkTrackingGraph {
                 long longChunkPos = entry.getLongKey();
                 ArrayList<PlayerWatchRecord> records = entry.getValue();
                 
-                if (shouldAddCustomTicket(records)) {
+                if (shouldAddCustomTicket(world, longChunkPos, records)) {
                     MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(longChunkPos));
                 }
             });
@@ -362,5 +379,17 @@ public class NewChunkTrackingGraph {
     public static void removeAdditionalChunkLoader(ChunkVisibilityManager.ChunkLoader chunkLoader) {
         // WeakReference does not have equals()
         additionalChunkLoaders.removeIf(weakRef -> weakRef.get() == chunkLoader);
+    }
+    
+    // When changing a player's dimension on server, it will remove all
+    // loading tickets of this player. Without this, the chunks nearby player
+    // may have no ticket for a short period of time (because the chunk tracking refreshes
+    // every 2 seconds) and the chunk may be unloaded and reloaded.
+    public static void onBeforePlayerChangeDimension(ServerPlayerEntity player) {
+        ChunkVisibilityManager.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
+            if (isPlayerWatchingChunk(player, dim, x, z)) {
+                MyLoadingTicket.addTicketIfNotLoaded(((ServerWorld) player.world), new ChunkPos(x, z));
+            }
+        });
     }
 }

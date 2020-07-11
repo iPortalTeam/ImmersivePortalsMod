@@ -99,7 +99,7 @@ public class ChunkVisibilityManager {
         }
     }
     
-    private static ChunkLoader playerDirectLoader(ServerPlayerEntity player) {
+    public static ChunkLoader playerDirectLoader(ServerPlayerEntity player) {
         return new ChunkLoader(
             new DimensionalChunkPos(
                 player.world.getRegistryKey(),

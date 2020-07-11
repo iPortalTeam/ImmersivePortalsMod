@@ -20,6 +20,7 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -206,8 +207,8 @@ public abstract class PortalRenderer {
 //        return false;
     }
     
-    
-    private static Matrix4f getAdditionalCameraTransformation(Portal portal) {
+    @Nullable
+    public static Matrix4f getAdditionalCameraTransformation(Portal portal) {
         if (portal instanceof Mirror) {
             return TransformationManager.getMirrorTransformation(portal.getNormal());
         }
@@ -216,9 +217,7 @@ public abstract class PortalRenderer {
                 return new Matrix4f(portal.rotation);
             }
             else {
-                Matrix4f result = new Matrix4f();
-                result.loadIdentity();
-                return result;
+                return null;
             }
         }
     }

@@ -5,6 +5,7 @@ import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -219,7 +220,7 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link ServerPlayerEntity#changeDimension(RegistryKey<World>)}
+     * {@link ServerPlayerEntity#changeDimension(ServerWorld)}
      */
     private void changePlayerDimension(
         ServerPlayerEntity player,
@@ -227,6 +228,8 @@ public class ServerTeleportationManager {
         ServerWorld toWorld,
         Vec3d newEyePos
     ) {
+        NewChunkTrackingGraph.onBeforePlayerChangeDimension(player);
+        
         teleportingEntities.add(player);
         
         Entity vehicle = player.getVehicle();
