@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.alternate_dimension;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
@@ -39,37 +40,39 @@ public class MixinGeneratorOptions {
     ) {
         SimpleRegistry<DimensionOptions> registry = simpleRegistry;
         
-        portal_addCustomDimension(
-            seed,
-            registry,
-            ModMain.alternate1Option,
-            () -> ModMain.surfaceTypeObject,
-            NormalSkylandGenerator::new
-        );
-        
-        portal_addCustomDimension(
-            seed,
-            registry,
-            ModMain.alternate2Option,
-            () -> ModMain.surfaceTypeObject,
-            NormalSkylandGenerator::new
-        );
-        
-        portal_addCustomDimension(
-            seed,
-            registry,
-            ModMain.alternate3Option,
-            () -> ModMain.surfaceTypeObject,
-            ErrorTerrainGenerator::new
-        );
-        
-        portal_addCustomDimension(
-            seed,
-            registry,
-            ModMain.alternate4Option,
-            () -> ModMain.surfaceTypeObject,
-            ErrorTerrainGenerator::new
-        );
+        if (Global.enableAlternateDimensions) {
+            portal_addCustomDimension(
+                seed,
+                registry,
+                ModMain.alternate1Option,
+                () -> ModMain.surfaceTypeObject,
+                NormalSkylandGenerator::new
+            );
+            
+            portal_addCustomDimension(
+                seed,
+                registry,
+                ModMain.alternate2Option,
+                () -> ModMain.surfaceTypeObject,
+                NormalSkylandGenerator::new
+            );
+            
+            portal_addCustomDimension(
+                seed,
+                registry,
+                ModMain.alternate3Option,
+                () -> ModMain.surfaceTypeObject,
+                ErrorTerrainGenerator::new
+            );
+            
+            portal_addCustomDimension(
+                seed,
+                registry,
+                ModMain.alternate4Option,
+                () -> ModMain.surfaceTypeObject,
+                ErrorTerrainGenerator::new
+            );
+        }
         
         portal_recoverVanillaDimensions(seed, simpleRegistry);
     }

@@ -61,6 +61,8 @@ public class Global {
     
     public static boolean cacheGlBuffer = false;
     
+    public static boolean enableAlternateDimensions = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

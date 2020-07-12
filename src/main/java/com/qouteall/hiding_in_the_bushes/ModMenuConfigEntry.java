@@ -97,6 +97,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.pure_mirror"),
                 currConfig.pureMirror
             ).setDefaultValue(false).build();
+            BooleanListEntry entryEnableAlternateDimensions = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.enable_alternate_dimensions"),
+                currConfig.enableAlternateDimensions
+            ).setDefaultValue(true).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 new TranslatableText("imm_ptl.render_redirect"),
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
@@ -124,6 +128,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryReversibleNetherPortalLinking);
             category.addEntry(entryMirrorInteractableThroughPortal);
             category.addEntry(entryPureMirror);
+            category.addEntry(entryEnableAlternateDimensions);
             category.addEntry(entryDimensionRenderRedirect);
             category.addEntry(entryPortalGeneration);
             return builder
@@ -147,6 +152,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
+                    newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

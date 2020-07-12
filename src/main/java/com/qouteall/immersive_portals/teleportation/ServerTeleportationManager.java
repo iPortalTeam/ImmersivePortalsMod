@@ -279,9 +279,9 @@ public class ServerTeleportationManager {
         Helper.log(String.format(
             "%s :: (%s %s %s %s)->(%s %s %s %s)",
             player.getName().asString(),
-            fromWorld.getRegistryKey(),
+            fromWorld.getRegistryKey().getValue(),
             oldPos.getX(), oldPos.getY(), oldPos.getZ(),
-            toWorld.getRegistryKey(),
+            toWorld.getRegistryKey().getValue(),
             (int) player.getX(), (int) player.getY(), (int) player.getZ()
         ));
         

@@ -38,6 +38,7 @@ public class MyConfig {
     public boolean mirrorInteractableThroughPortal = false;
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
+    public boolean enableAlternateDimensions = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public List<String> customizedPortalGeneration = defaultPortalGenList;
     
@@ -113,6 +114,7 @@ public class MyConfig {
         Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
+        Global.enableAlternateDimensions = enableAlternateDimensions;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

@@ -326,8 +326,8 @@ public class ClientTeleportationManager {
         
         Helper.log(String.format(
             "Client Changed Dimension from %s to %s time: %s",
-            fromDimension,
-            toDimension,
+            fromDimension.getValue(),
+            toDimension.getValue(),
             tickTimeForTeleportation
         ));
         
