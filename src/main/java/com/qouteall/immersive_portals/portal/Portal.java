@@ -14,7 +14,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -22,7 +21,6 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
 
@@ -299,15 +297,6 @@ public class Portal extends Entity {
     public boolean isInside(Vec3d entityPos, double valve) {
         double v = entityPos.subtract(destination).dotProduct(getContentDirection());
         return v > valve;
-    }
-    
-    public boolean shouldEntityTeleport(Entity entity) {
-        return entity.world == this.world &&
-            isTeleportable() &&
-            isMovedThroughPortal(
-                entity.getCameraPosVec(0),
-                entity.getCameraPosVec(1).add(entity.getVelocity())
-            );
     }
     
     public void onEntityTeleportedOnServer(Entity entity) {

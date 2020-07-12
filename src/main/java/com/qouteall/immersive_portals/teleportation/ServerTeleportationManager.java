@@ -47,6 +47,15 @@ public class ServerTeleportationManager {
         );
     }
     
+    public static boolean shouldEntityTeleport(Portal portal, Entity entity) {
+        return entity.world == portal.world &&
+            portal.isTeleportable() &&
+            portal.isMovedThroughPortal(
+                entity.getCameraPosVec(0),
+                entity.getCameraPosVec(1).add(entity.getVelocity())
+            );
+    }
+    
     public void tryToTeleportRegularEntity(Portal portal, Entity entity) {
         if (entity instanceof ServerPlayerEntity) {
             return;
@@ -76,7 +85,7 @@ public class ServerTeleportationManager {
         ).stream().filter(
             e -> !(e instanceof Portal)
         ).filter(
-            portal::shouldEntityTeleport
+            entity -> shouldEntityTeleport(portal, entity)
         );
     }
     
@@ -334,7 +343,7 @@ public class ServerTeleportationManager {
             ).forEach(entity -> {
                 McHelper.getGlobalPortals(entity.world).stream()
                     .filter(
-                        globalPortal -> globalPortal.shouldEntityTeleport(entity)
+                        globalPortal -> shouldEntityTeleport(globalPortal, entity)
                     )
                     .findFirst()
                     .ifPresent(
