@@ -13,23 +13,15 @@ public class ModEntry implements ModInitializer {
         ModMain.init();
         RequiemCompat.init();
         
-        Helper.log("Start Registering");
-        
         MyRegistry.registerEntitiesFabric();
-        
-        Helper.log("Entities Registered");
         
         MyRegistry.registerMyDimensionsFabric();
         
-        Helper.log("Dimensions Registered");
-        
         MyRegistry.registerBlocksFabric();
-        
-        Helper.log("Blocks Registered");
         
         MyRegistry.registerEffectAndPotion();
         
-        Helper.log("Status Effects Registered");
+        MyRegistry.registerChunkGenerators();
         
         O_O.isReachEntityAttributesPresent = FabricLoader.INSTANCE.isModLoaded(
             "reach-entity-attributes");
@@ -39,7 +31,7 @@ public class ModEntry implements ModInitializer {
         else {
             Helper.log("Reach entity attributes mod is not present");
         }
-    
+        
         LanguageHack.activate("immersive_portals");
     }
     

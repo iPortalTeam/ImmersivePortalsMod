@@ -1,10 +1,8 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
+import com.qouteall.hiding_in_the_bushes.MyRegistry;
 import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
-import com.qouteall.immersive_portals.alternate_dimension.NormalSkylandGenerator;
-import com.qouteall.immersive_portals.alternate_dimension.VoidChunkGenerator;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
@@ -20,8 +18,6 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
-
-import java.util.function.Supplier;
 
 public class ModMain {
     public static final Signal postClientTickSignal = new Signal();
@@ -101,25 +97,8 @@ public class ModMain {
         FormulaGenerator.init();
         
         GlobalPortalStorage.init();
-        
-        Registry.register(
-            Registry.CHUNK_GENERATOR,
-            new Identifier("immersive_portals:normal_skyland"),
-            NormalSkylandGenerator.codec
-        );
-        
-        Registry.register(
-            Registry.CHUNK_GENERATOR,
-            new Identifier("immersive_portals:chaos_terrain"),
-            ErrorTerrainGenerator.codec
-        );
-        
-        Registry.register(
-            Registry.CHUNK_GENERATOR,
-            new Identifier("immersive_portals:void_generator"),
-            VoidChunkGenerator.codec
-        );
-        
+    
+        MyRegistry.registerChunkGenerators();
     }
     
 }

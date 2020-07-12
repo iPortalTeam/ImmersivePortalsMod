@@ -1,6 +1,9 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
+import com.qouteall.immersive_portals.alternate_dimension.NormalSkylandGenerator;
+import com.qouteall.immersive_portals.alternate_dimension.VoidChunkGenerator;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
@@ -303,6 +306,26 @@ public class MyRegistry {
             Registry.POTION,
             new Identifier("immersive_portals", "longer_reach_potion"),
             HandReachTweak.longerReachPotion
+        );
+    }
+    
+    public static void registerChunkGenerators() {
+        Registry.register(
+            Registry.CHUNK_GENERATOR,
+            new Identifier("immersive_portals:normal_skyland"),
+            NormalSkylandGenerator.codec
+        );
+        
+        Registry.register(
+            Registry.CHUNK_GENERATOR,
+            new Identifier("immersive_portals:chaos_terrain"),
+            ErrorTerrainGenerator.codec
+        );
+        
+        Registry.register(
+            Registry.CHUNK_GENERATOR,
+            new Identifier("immersive_portals:void_generator"),
+            VoidChunkGenerator.codec
         );
     }
 }
