@@ -1,13 +1,13 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.Shaders;
 
 import java.util.HashMap;
@@ -31,6 +31,8 @@ public class ShaderContextManager {
     public ShaderContextManager() {
     
     }
+    
+   
     
     public boolean isContextSwitched() {
         return currentContextDimension != null;
@@ -62,7 +64,7 @@ public class ShaderContextManager {
     public PerDimensionContext getOrCreateContext(RegistryKey<World> dimension) {
         if (!doUseDuplicateContextForCurrentDimension) {
             if (isContextSwitched()) {
-                if (dimension == CHelper.getOriginalDimension()) {
+                if (dimension == getOriginalDimension()) {
                     return recordedOriginalContext;
                 }
             }
@@ -89,7 +91,7 @@ public class ShaderContextManager {
         
         if (currentContextDimension == null) {
             //currently the context was not switched
-            currentContextDimension = CHelper.getOriginalDimension();
+            currentContextDimension = getOriginalDimension();
             OFGlobal.copyContextToObject.accept(recordedOriginalContext);
         }
         
@@ -224,4 +226,12 @@ public class ShaderContextManager {
         return newContext;
     }
     
+    public static RegistryKey<World> getOriginalDimension() {
+        if (RenderInfo.isRendering()) {
+            return RenderStates.originalPlayerDimension;
+        }
+        else {
+            return MinecraftClient.getInstance().player.world.getRegistryKey();
+        }
+    }
 }

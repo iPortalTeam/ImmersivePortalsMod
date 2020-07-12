@@ -19,16 +19,12 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
-import static org.lwjgl.opengl.GL11.glDisable;
 
 public class RendererDeferred extends PortalRenderer {
     private SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
@@ -115,7 +111,7 @@ public class RendererDeferred extends PortalRenderer {
     }
     
     @Override
-    protected void invokeWorldRendering(
+    public void invokeWorldRendering(
         RenderInfo renderInfo
     ) {
         MyGameRenderer.renderWorldNew(

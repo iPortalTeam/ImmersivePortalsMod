@@ -56,4 +56,13 @@ public class RenderInfo {
             }
         }
     }
+    
+    /**
+     * it's different from {@link PortalRendering#isRendering()}
+     * when rendering cross portal third person view, this is true
+     * but {@link PortalRendering#isRendering()} is false
+     * */
+    public static boolean isRendering() {
+        return !renderInfoStack.empty();
+    }
 }

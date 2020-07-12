@@ -8,10 +8,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -142,7 +139,7 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     @Override
-    protected void invokeWorldRendering(
+    public void invokeWorldRendering(
         RenderInfo renderInfo
     ) {
         MyGameRenderer.renderWorldNew(

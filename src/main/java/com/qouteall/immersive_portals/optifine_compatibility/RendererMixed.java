@@ -17,8 +17,6 @@ import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -226,7 +224,7 @@ public class RendererMixed extends PortalRenderer {
     }
     
     @Override
-    protected void invokeWorldRendering(
+    public void invokeWorldRendering(
         RenderInfo renderInfo
     ) {
         MyGameRenderer.renderWorldNew(

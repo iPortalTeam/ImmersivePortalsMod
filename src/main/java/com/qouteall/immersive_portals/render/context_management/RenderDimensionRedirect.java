@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -30,7 +31,7 @@ public class RenderDimensionRedirect {
             RegistryKey<World> from = DimId.idToKey(new Identifier(key));
             RegistryKey<World> to = DimId.idToKey(new Identifier(value));
             if (from == null) {
-                ModMain.clientTaskList.addTask(()->{
+                ModMain.clientTaskList.addTask(() -> {
                     CHelper.printChat("Invalid Dimension " + key);
                     return true;
                 });
@@ -38,7 +39,7 @@ public class RenderDimensionRedirect {
             }
             if (to == null) {
                 if (!value.equals("vanilla")) {
-                    ModMain.clientTaskList.addTask(()->{
+                    ModMain.clientTaskList.addTask(() -> {
                         CHelper.printChat("Invalid Dimension " + value);
                         return true;
                     });
@@ -61,34 +62,31 @@ public class RenderDimensionRedirect {
     }
     
     public static RegistryKey<World> getRedirectedDimension(RegistryKey<World> dimension) {
-        return dimension;
-//        if (redirectMap.containsKey(dimension)) {
-//            RegistryKey<World> r = redirectMap.get(dimension);
-//            if (r == null) {
-//                return dimension;
-//            }
-//            return r;
-//        }
-//        else {
-//            return dimension;
-//        }
+        if (redirectMap.containsKey(dimension)) {
+            RegistryKey<World> r = redirectMap.get(dimension);
+            if (r == null) {
+                return dimension;
+            }
+            return r;
+        }
+        else {
+            return dimension;
+        }
     }
     
-    public static boolean hasSkylight(DimensionType dimension) {
-        return dimension.hasSkyLight();
-
-//        updateRedirectMap();
-//        DimensionType redirectedDimension = getRedirectedDimension(getDimension().getType());
-//        if (redirectedDimension == getDimension().getType()) {
-//            return dimension.hasSkyLight();
-//        }
-//
-//        //if it's redirected, it's probably redirected to a vanilla dimension
-//        if (redirectedDimension == DimensionType.OVERWORLD) {
-//            return true;
-//        }
-//        else {
-//            return false;
-//        }
+    public static boolean hasSkylight(ClientWorld world) {
+        updateRedirectMap();
+        RegistryKey<World> redirectedDimension = getRedirectedDimension(world.getRegistryKey());
+        if (redirectedDimension == world.getRegistryKey()) {
+            return world.getDimension().hasSkyLight();
+        }
+        
+        //if it's redirected, it's probably redirected to a vanilla dimension
+        if (redirectedDimension == World.OVERWORLD) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

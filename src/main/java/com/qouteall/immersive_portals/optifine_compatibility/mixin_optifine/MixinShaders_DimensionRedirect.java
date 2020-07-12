@@ -20,73 +20,73 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Shaders.class)
 public class MixinShaders_DimensionRedirect {
-//
-//    @Shadow(remap = false)
-//    private static ClientWorld currentWorld;
-//
-//    @Shadow(remap = false)
-//    private static IShaderPack shaderPack;
-//
-//    @Inject(method = "init", at = @At("HEAD"), remap = false)
-//    private static void onInit(CallbackInfo ci) {
-//        MinecraftClient mc = MinecraftClient.getInstance();
-//        DimensionType currDimension = mc.world.getRegistryKey();
-//
-//        Helper.log("Shader init " + currDimension);
-//
-//        if (RenderDimensionRedirect.isNoShader(currentWorld.getRegistryKey())) {
-//            shaderPack = new ShaderPackDefault();
-//            Helper.log("Set to internal shader");
-//        }
-//    }
-//
+    
+    @Shadow(remap = false)
+    private static ClientWorld currentWorld;
+    
+    @Shadow(remap = false)
+    private static IShaderPack shaderPack;
+    
+    @Inject(method = "init", at = @At("HEAD"), remap = false)
+    private static void onInit(CallbackInfo ci) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        RegistryKey<World> currDimension = client.world.getRegistryKey();
+        
+        Helper.log("Shader init " + currDimension);
+        
+        if (RenderDimensionRedirect.isNoShader(currentWorld.getRegistryKey())) {
+            shaderPack = new ShaderPackDefault();
+            Helper.log("Set to internal shader");
+        }
+    }
+    
 //    @Redirect(
 //        method = "init",
 //        at = @At(
 //            value = "INVOKE",
-//            target = "Lnet/minecraft/world/dimension/DimensionType;getRawId()I",
+//            target = "Lnet/minecraft/world/World;getRegistryKey()Lnet/minecraft/util/registry/RegistryKey;",
 //            remap = true
 //        ),
 //        remap = false
 //    )
-//    private static int redirectGetDimensionRawId(RegistryKey<World> dimensionType) {
-//        return RenderDimensionRedirect.getRedirectedDimension(dimensionType).getRawId();
+//    private static RegistryKey<World> redirectGetDimensionRawId(World world) {
+//        return RenderDimensionRedirect.getRedirectedDimension(world.getRegistryKey());
 //    }
-//
-//    //redirect dimension for shadow camera
-//    @Redirect(
-//        method = "setCameraShadow",
-//        at = @At(
-//            value = "FIELD",
-//            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
-//            remap = true
-//        ),
-//        remap = false
-//    )
-//    private static ClientWorld redirectWorldForShadowCamera(MinecraftClient client) {
-//        return CGlobal.clientWorldLoader.getWorld(
-//            RenderDimensionRedirect.getRedirectedDimension(
-//                client.world.getRegistryKey()
-//            )
-//        );
-//    }
-//
-//    @Redirect(
-//        method = "beginRender",
-//        at = @At(
-//            value = "FIELD",
-//            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
-//            ordinal = 1,
-//            remap = true
-//        ),
-//        remap = false
-//    )
-//    private static ClientWorld redirectWorldInBeginRender(MinecraftClient client) {
-//        return CGlobal.clientWorldLoader.getWorld(
-//            RenderDimensionRedirect.getRedirectedDimension(
-//                client.world.getRegistryKey()
-//            )
-//        );
-//    }
+    
+    //redirect dimension for shadow camera
+    @Redirect(
+        method = "setCameraShadow",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
+            remap = true
+        ),
+        remap = false
+    )
+    private static ClientWorld redirectWorldForShadowCamera(MinecraftClient client) {
+        return CGlobal.clientWorldLoader.getWorld(
+            RenderDimensionRedirect.getRedirectedDimension(
+                client.world.getRegistryKey()
+            )
+        );
+    }
+    
+    @Redirect(
+        method = "beginRender",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
+            ordinal = 1,
+            remap = true
+        ),
+        remap = false
+    )
+    private static ClientWorld redirectWorldInBeginRender(MinecraftClient client) {
+        return CGlobal.clientWorldLoader.getWorld(
+            RenderDimensionRedirect.getRedirectedDimension(
+                client.world.getRegistryKey()
+            )
+        );
+    }
     
 }

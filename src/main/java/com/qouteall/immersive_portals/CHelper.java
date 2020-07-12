@@ -39,16 +39,6 @@ public class CHelper {
         );
     }
     
-    //NOTE this may not be reliable
-    public static RegistryKey<World> getOriginalDimension() {
-        if (PortalRendering.isRendering()) {
-            return RenderStates.originalPlayerDimension;
-        }
-        else {
-            return MinecraftClient.getInstance().player.world.getRegistryKey();
-        }
-    }
-    
     public static boolean shouldDisableFog() {
         return OFInterface.shouldDisableFog.getAsBoolean();
     }

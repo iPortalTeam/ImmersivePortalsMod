@@ -13,9 +13,6 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
-import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL13;
 
 public class RendererDebugWithShader extends PortalRenderer {
@@ -86,7 +83,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     }
     
     @Override
-    protected void invokeWorldRendering(
+    public void invokeWorldRendering(
         RenderInfo renderInfo
     ) {
         MyGameRenderer.renderWorldNew(

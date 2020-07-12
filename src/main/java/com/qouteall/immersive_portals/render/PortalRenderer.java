@@ -17,6 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 
@@ -181,7 +182,7 @@ public abstract class PortalRenderer {
         MyGameRenderer.resetFogState();
     }
     
-    protected void invokeWorldRendering(
+    public void invokeWorldRendering(
         RenderInfo renderInfo
     ) {
         MyGameRenderer.renderWorldNew(
@@ -214,7 +215,9 @@ public abstract class PortalRenderer {
         }
         else {
             if (portal.rotation != null) {
-                return new Matrix4f(portal.rotation);
+                Quaternion rot = portal.rotation.copy();
+                rot.conjugate();
+                return new Matrix4f(rot);
             }
             else {
                 return null;

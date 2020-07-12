@@ -66,15 +66,16 @@ public class CrossPortalThirdPersonView {
         
         Vec3d renderingCameraPos = getThirdPersonCameraPos(thirdPersonPos, portal, hitPos);
         ((IECamera) RenderStates.originalCamera).portal_setPos(renderingCameraPos);
-        MyGameRenderer.renderWorldNew(
-            new RenderInfo(
-                CGlobal.clientWorldLoader.getWorld(portal.dimensionTo),
-                renderingCameraPos,
-                PortalRenderer.getAdditionalCameraTransformation(portal),
-                portal
-            ),
-            Runnable::run
+        
+        
+        RenderInfo renderInfo = new RenderInfo(
+            CGlobal.clientWorldLoader.getWorld(portal.dimensionTo),
+            renderingCameraPos,
+            PortalRenderer.getAdditionalCameraTransformation(portal),
+            portal
         );
+        
+        CGlobal.renderer.invokeWorldRendering(renderInfo);
         
         return true;
     }
