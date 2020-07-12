@@ -40,19 +40,6 @@ public class MixinShaders_DimensionRedirect {
         }
     }
     
-//    @Redirect(
-//        method = "init",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/world/World;getRegistryKey()Lnet/minecraft/util/registry/RegistryKey;",
-//            remap = true
-//        ),
-//        remap = false
-//    )
-//    private static RegistryKey<World> redirectGetDimensionRawId(World world) {
-//        return RenderDimensionRedirect.getRedirectedDimension(world.getRegistryKey());
-//    }
-    
     //redirect dimension for shadow camera
     @Redirect(
         method = "setCameraShadow",
