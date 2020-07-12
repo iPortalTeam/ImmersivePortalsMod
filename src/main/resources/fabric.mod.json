@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "immersive_portals",
-  "version": "0.18",
+  "version": "${version}",
   "name": "Immersive Portals",
   "description": "See through portals and travel between dimensions seamlessly.",
   "authors": [
