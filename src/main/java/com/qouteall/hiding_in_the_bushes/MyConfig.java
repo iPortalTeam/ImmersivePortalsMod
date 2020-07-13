@@ -2,7 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.portal.CustomizablePortalGeneration;
+import com.qouteall.immersive_portals.portal.CustomizablePortalGenerationOld;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.FabricLoader;
@@ -120,7 +120,7 @@ public class MyConfig {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
         }
         
-        CustomizablePortalGeneration.onConfigChanged(customizedPortalGeneration);
+        CustomizablePortalGenerationOld.onConfigChanged(customizedPortalGeneration);
     }
     
     public static Map<String, String> listToMap(List<String> redirectList) {

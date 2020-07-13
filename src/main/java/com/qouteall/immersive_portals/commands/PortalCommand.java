@@ -707,6 +707,43 @@ public class PortalCommand {
                 )
             )
         );
+        
+        builder.then(CommandManager.literal("cb_make_portal")
+            .then(CommandManager.argument("width", DoubleArgumentType.doubleArg())
+                .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
+                    .then(CommandManager.argument("from", EntityArgumentType.entity())
+                        .then(CommandManager.argument("to", EntityArgumentType.entity())
+                            .executes(context -> {
+                                double width = DoubleArgumentType.getDouble(context, "width");
+                                double height = DoubleArgumentType.getDouble(context, "height");
+                                
+                                Entity fromEntity = EntityArgumentType.getEntity(context, "from");
+                                Entity toEntity = EntityArgumentType.getEntity(context, "to");
+                                
+                                Portal portal = Portal.entityType.create(fromEntity.world);
+                                
+                                portal.dimensionTo = toEntity.world.getRegistryKey();
+                                portal.destination = toEntity.getPos();
+                                portal.width = width;
+                                portal.height = height;
+                                
+                                Vec3d normal = fromEntity.getRotationVec(1);
+                                Vec3d rightVec = getRightVec(fromEntity);
+                                
+                                Vec3d axisH = rightVec.crossProduct(normal).normalize();
+                                
+                                portal.axisW = rightVec;
+                                portal.axisH = axisH;
+                                
+                                portal.world.spawnEntity(portal);
+                                
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
     }
     
     private static void registerUtilityCommands(
@@ -1365,5 +1402,17 @@ public class PortalCommand {
         portal.cullableXEnd = 0;
         portal.cullableYStart = 0;
         portal.cullableYEnd = 0;
+    }
+    
+    /**
+     * {@link Entity#getRotationVector()}
+     */
+    private static Vec3d getRightVec(Entity entity) {
+        float yaw = entity.yaw;
+        float radians = -yaw * 0.017453292F;
+        
+        return new Vec3d(
+            Math.sin(radians), 0, Math.cos(radians)
+        );
     }
 }

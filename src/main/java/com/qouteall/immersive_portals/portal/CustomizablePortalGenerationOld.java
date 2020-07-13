@@ -16,7 +16,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CustomizablePortalGeneration {
+public class CustomizablePortalGenerationOld {
     public static class Entry {
         public RegistryKey<World> fromDimension;
         public int fromSpaceRatio;
@@ -120,7 +119,7 @@ public class CustomizablePortalGeneration {
     private static void initCache() {
         if (entryCache == null) {
             entryCache = configContent.stream()
-                .map(CustomizablePortalGeneration::readEntry)
+                .map(CustomizablePortalGenerationOld::readEntry)
                 .filter(Objects::nonNull)
                 .flatMap(entry -> Stream.of(
                     entry, entry.getReverse()
@@ -151,6 +150,7 @@ public class CustomizablePortalGeneration {
             toWorld,
             Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius - 10,
+            s -> true,
             (pos) -> Helper.divide(Helper.scale(pos, entry.toSpaceRatio), entry.fromSpaceRatio),
             //this side area
             NetherPortalMatcher::isAirOrFire,

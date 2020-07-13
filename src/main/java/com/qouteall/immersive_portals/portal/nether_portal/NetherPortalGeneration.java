@@ -25,7 +25,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Arrays;
@@ -255,6 +254,7 @@ public class NetherPortalGeneration {
             toWorld,
             searchingRadius,
             searchingRadius - 10,
+            s -> true,
             (fromPos1) -> mapPosition(
                 fromPos1,
                 fromWorld.getRegistryKey(),
@@ -285,7 +285,7 @@ public class NetherPortalGeneration {
             fromWorld,
             Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius,
-            (fromPos1) -> getRandomShift().add(fromPos1),
+            s -> true, (fromPos1) -> getRandomShift().add(fromPos1),
             NetherPortalMatcher::isAirOrFire,
             blockState -> blockState.getBlock() == ModMain.portalHelperBlock,
             BlockState::isAir,
@@ -312,6 +312,7 @@ public class NetherPortalGeneration {
         ServerWorld toWorld,
         int existingFrameSearchingRadius,
         int airCubeSearchingRadius,
+        Predicate<BlockPortalShape> fromShapePredicate,
         Function<BlockPos, BlockPos> positionMapping,
         Predicate<BlockState> thisSideAreaPredicate,
         Predicate<BlockState> thisSideFramePredicate,

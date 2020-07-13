@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
@@ -468,6 +469,8 @@ public class McHelper {
         CrossPortalEntityRenderer.onEntityTickClient(entity);
     }
     
+  
+    
     public static interface ChunkAccessor {
         WorldChunk getChunk(int x, int z);
     }
@@ -577,7 +580,54 @@ public class McHelper {
         return either.right().map(DataResult.PartialResult::toString).orElse("");
     }
     
-    public static Vec3d getCurrentCameraPos(){
+    public static Vec3d getCurrentCameraPos() {
         return MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+    }
+    
+    public static class MyDecodeException extends RuntimeException {
+    
+        public MyDecodeException(String message) {
+            super(message);
+        }
+    }
+    
+    public static <T, Serialized> T decodeFailHard(
+        Codec<T> codec,
+        DynamicOps<Serialized> ops,
+        Serialized target
+    ) {
+        return codec.decode(ops, target)
+            .getOrThrow(false, s -> {
+                throw new MyDecodeException("Cannot decode" + s + target);
+            }).getFirst();
+    }
+    
+    public static <Serialized> Serialized getElementFailHard(
+        DynamicOps<Serialized> ops,
+        Serialized target,
+        String key
+    ) {
+        return ops.get(target, key).getOrThrow(false, s -> {
+            throw new MyDecodeException("Cannot find" + key + s + target);
+        });
+    }
+    
+    public static <T, Serialized> void encode(
+        Codec<T> codec,
+        DynamicOps<Serialized> ops,
+        Serialized target,
+        T object
+    ) {
+        codec.encode(object, ops, target);
+    }
+    
+    public static <Serialized, T> T decodeElementFailHard(
+        DynamicOps<Serialized> ops, Serialized input,
+        Codec<T> codec, String key
+    ) {
+        return decodeFailHard(
+            codec, ops,
+            getElementFailHard(ops, input, key)
+        );
     }
 }
