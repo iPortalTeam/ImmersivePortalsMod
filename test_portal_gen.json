@@ -8,16 +8,16 @@
     "space_ratio_to": 8,
     "two_way": true,
     "form": {
-      "type": "imm_ptl:any_shape",
+      "type": "imm_ptl:nether_portal_like",
       "from_frame_block": "minecraft:lapis_block",
-      "from_area_block": "minecraft:air",
-      "to_frame_block": "minecraft:lapis_block"
+      "area_block": "minecraft:air",
+      "to_frame_block": "minecraft:lapis_block",
+      "generate_frame_if_not_found": true
     },
     "trigger": {
       "type": "imm_ptl:use_item",
       "item": "minecraft:flint_and_steel"
-    },
-    "generate_frame_if_not_found": true
+    }
   },
   "portal_helper_like": {
     "from": [
@@ -28,16 +28,16 @@
     "space_ratio_to": 1,
     "two_way": true,
     "form": {
-      "type": "imm_ptl:any_shape",
+      "type": "imm_ptl:nether_portal_like",
       "from_frame_block": "minecraft:redstone_block",
-      "from_area_block": "minecraft:air",
-      "to_frame_block": "minecraft:redstone_block"
+      "area_block": "minecraft:air",
+      "to_frame_block": "minecraft:redstone_block",
+      "generate_frame_if_not_found": false
     },
     "trigger": {
       "type": "imm_ptl:use_item",
       "item": "minecraft:flint_and_steel"
-    },
-    "generate_frame_if_not_found": false
+    }
   },
   "example2": {
     "from": [
@@ -48,11 +48,10 @@
     "space_ratio_to": 1,
     "two_way": true,
     "form": {
-      "type": "imm_ptl:ground_square",
+      "type": "imm_ptl:floor_square",
       "length": 2,
       "from_frame_block": "minecraft:grass",
-      "from_area_block": "minecraft:water",
-      "to_frame_block": "minecraft:grass",
+      "area_block": "minecraft:water",
       "up_frame_block": [
         "minecraft:flower...",
         "minecraft:dead_bush"
@@ -61,8 +60,7 @@
     "trigger": {
       "type": "imm_ptl:throw_item",
       "item": "minecraft:diamond"
-    },
-    "generate_frame_if_not_found": true
+    }
   },
   "example3": {
     "from": [
@@ -73,15 +71,15 @@
     "space_ratio_to": 1,
     "two_way": true,
     "form": {
-      "type": "imm_ptl:any_shape",
+      "type": "imm_ptl:nether_portal_like",
       "from_frame_block": "minecraft:glowstone",
       "from_area_block": "minecraft:air",
-      "to_frame_block": "minecraft:glowstone"
+      "to_frame_block": "minecraft:glowstone",
+      "generate_frame_if_not_found": true
     },
     "trigger": {
       "type": "imm_ptl:use_item",
       "item": "minecraft:water_bucket"
-    },
-    "generate_frame_if_not_found": true
+    }
   }
 }
