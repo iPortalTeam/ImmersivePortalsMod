@@ -18,10 +18,9 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-//Well it will create millions of short-lived BlockPos objects
-//It will generate intense GC pressure
-//This is not frequently invoked so I don't want to optimize it
 public class NetherPortalMatcher {
+    // bad in performance
+    @Deprecated
     public static Stream<BlockPos> fromNearToFarWithinHeightLimit(
         BlockPos searchingCenter,
         int maxRadius,
@@ -54,6 +53,7 @@ public class NetherPortalMatcher {
         new BlockPos(Integer.MAX_VALUE, 126, Integer.MAX_VALUE)
     );
     
+    @Deprecated
     public static IntBox getHeightLimit(
         World world
     ) {
@@ -63,6 +63,7 @@ public class NetherPortalMatcher {
         );
     }
     
+    @Deprecated
     public static Stream<BlockPos> forOneDirection(
         BlockPos startPos,
         Direction facing,
@@ -75,6 +76,7 @@ public class NetherPortalMatcher {
     }
     
     //@Nullable
+    @Deprecated
     private static IntBox detectStick(
         WorldAccess world,
         BlockPos center,
@@ -116,6 +118,7 @@ public class NetherPortalMatcher {
     }
     
     //@Nullable
+    @Deprecated
     private static BlockPos detectStickForOneDirection(
         BlockPos startPos,
         Direction facing,

@@ -144,13 +144,12 @@ public class CustomizablePortalGenerationOld {
         }
         
         ServerWorld toWorld = McHelper.getServer().getWorld(entry.toDimension);
-        return NetherPortalGeneration.startGeneratingPortal(
+        return NetherPortalGeneration.triggerGeneratingPortal(
             fromWorld,
             firePos,
             toWorld,
             Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius - 10,
-            s -> true,
             (pos) -> Helper.divide(Helper.scale(pos, entry.toSpaceRatio), entry.fromSpaceRatio),
             //this side area
             NetherPortalMatcher::isAirOrFire,

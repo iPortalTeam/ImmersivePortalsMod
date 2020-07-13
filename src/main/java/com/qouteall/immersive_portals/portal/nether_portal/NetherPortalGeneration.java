@@ -51,7 +51,6 @@ public class NetherPortalGeneration {
     public static IntBox findAirCubePlacement(
         ServerWorld toWorld,
         BlockPos mappedPosInOtherDimension,
-        IntBox heightLimit,
         Direction.Axis axis,
         BlockPos neededAreaSize,
         int findingRadius
@@ -183,7 +182,7 @@ public class NetherPortalGeneration {
         portalArray[2].dimensionTo = info.from;
         portalArray[3].dimensionTo = info.from;
         
-        Vec3d offset =  Vec3d.of(info.toShape.innerAreaBox.l.subtract(
+        Vec3d offset = Vec3d.of(info.toShape.innerAreaBox.l.subtract(
             info.fromShape.innerAreaBox.l
         ));
         portalArray[0].destination = portalArray[0].getPos().add(offset);
@@ -248,13 +247,12 @@ public class NetherPortalGeneration {
             }
         }
         
-        BlockPortalShape thisSideShape = startGeneratingPortal(
+        BlockPortalShape thisSideShape = triggerGeneratingPortal(
             fromWorld,
             firePos,
             toWorld,
             searchingRadius,
             searchingRadius - 10,
-            s -> true,
             (fromPos1) -> mapPosition(
                 fromPos1,
                 fromWorld.getRegistryKey(),
@@ -279,13 +277,13 @@ public class NetherPortalGeneration {
         BlockPos firePos
     ) {
         Helper.SimpleBox<BlockPortalShape> thisSideShape = new Helper.SimpleBox<>(null);
-        thisSideShape.obj = startGeneratingPortal(
+        thisSideShape.obj = triggerGeneratingPortal(
             fromWorld,
             firePos,
             fromWorld,
             Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius,
-            s -> true, (fromPos1) -> getRandomShift().add(fromPos1),
+            (fromPos1) -> getRandomShift().add(fromPos1),
             NetherPortalMatcher::isAirOrFire,
             blockState -> blockState.getBlock() == ModMain.portalHelperBlock,
             BlockState::isAir,
@@ -305,65 +303,57 @@ public class NetherPortalGeneration {
         return thisSideShape.obj != null;
     }
     
-    //return this side shape if the generation starts
-    public static BlockPortalShape startGeneratingPortal(
+    public static BlockPortalShape triggerGeneratingPortal(
         ServerWorld fromWorld,
         BlockPos startingPos,
         ServerWorld toWorld,
         int existingFrameSearchingRadius,
         int airCubeSearchingRadius,
-        Predicate<BlockPortalShape> fromShapePredicate,
         Function<BlockPos, BlockPos> positionMapping,
         Predicate<BlockState> thisSideAreaPredicate,
         Predicate<BlockState> thisSideFramePredicate,
         Predicate<BlockState> otherSideAreaPredicate,
         Predicate<BlockState> otherSideFramePredicate,
-        Consumer<BlockPortalShape> newFrameGeneratedFunc,
+        Consumer<BlockPortalShape> newFrameGenerateFunc,
         Consumer<Info> portalEntityGeneratingFunc
     ) {
-        if (!fromWorld.isChunkLoaded(startingPos)) {
-            Helper.log("Cancel Nether Portal Generation Because Chunk Not Loaded");
+        if (!checkPortalGeneration(fromWorld, startingPos)) {
             return null;
         }
         
-        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
-        RegistryKey<World> toDimension = toWorld.getRegistryKey();
-        
-        Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
-            fromDimension, startingPos.getX(), startingPos.getY(), startingPos.getZ()
-        ));
-        
-        BlockPortalShape foundShape = Arrays.stream(Direction.Axis.values())
-            .map(
-                axis -> {
-                    return BlockPortalShape.findArea(
-                        startingPos,
-                        axis,
-                        (pos) -> thisSideAreaPredicate.test(fromWorld.getBlockState(pos)),
-                        (pos) -> thisSideFramePredicate.test(fromWorld.getBlockState(pos))
-                    );
-                }
-            ).filter(
-                Objects::nonNull
-            ).findFirst().orElse(null);
+        BlockPortalShape foundShape =
+            findFrameShape(fromWorld, startingPos, thisSideAreaPredicate, thisSideFramePredicate);
         
         if (foundShape == null) {
             return null;
         }
         
-        BlockPos fromPos = foundShape.innerAreaBox.getCenter();
+        BlockPos toPos = positionMapping.apply(foundShape.innerAreaBox.getCenter());
+        
+        if (isOtherGenerationRunning(fromWorld, foundShape)) return null;
+        
+        startGeneratingPortal(
+            fromWorld, toWorld, foundShape, toPos,
+            existingFrameSearchingRadius, airCubeSearchingRadius,
+            thisSideAreaPredicate, thisSideFramePredicate, otherSideAreaPredicate,
+            otherSideFramePredicate, newFrameGenerateFunc, portalEntityGeneratingFunc
+        );
+        
+        return foundShape;
+    }
+    
+    public static void startGeneratingPortal(
+        ServerWorld fromWorld, ServerWorld toWorld,
+        BlockPortalShape foundShape, BlockPos toPos,
+        int existingFrameSearchingRadius, int airCubeSearchingRadius,
+        Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate,
+        Predicate<BlockState> otherSideAreaPredicate, Predicate<BlockState> otherSideFramePredicate,
+        Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<Info> portalEntityGeneratingFunc
+    ) {
+        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
+        RegistryKey<World> toDimension = toWorld.getRegistryKey();
         
         Vec3d indicatorPos = foundShape.innerAreaBox.getCenterVec();
-        
-        boolean isOtherGenerationRunning = McHelper.getEntitiesNearby(
-            fromWorld, indicatorPos, LoadingIndicatorEntity.class, 1
-        ).findAny().isPresent();
-        if (isOtherGenerationRunning) {
-            Helper.log(
-                "Aborted Nether Portal Generation Because Another Generation is Running Nearby"
-            );
-            return null;
-        }
         
         LoadingIndicatorEntity indicatorEntity =
             LoadingIndicatorEntity.entityType.create(fromWorld);
@@ -373,16 +363,13 @@ public class NetherPortalGeneration {
         );
         fromWorld.spawnEntity(indicatorEntity);
         
-        BlockPos toPos = positionMapping.apply(fromPos);
-        
         Runnable generateNewFrameFunc = () -> {
             generateNewFrame(
                 toWorld,
                 airCubeSearchingRadius,
-                newFrameGeneratedFunc,
+                newFrameGenerateFunc,
                 portalEntityGeneratingFunc,
                 fromDimension,
-                toDimension,
                 foundShape,
                 indicatorEntity,
                 toPos
@@ -395,7 +382,7 @@ public class NetherPortalGeneration {
             Helper.log("Skip Portal Frame Searching Because The Region is not Generated");
             generateNewFrameFunc.run();
             indicatorEntity.remove();
-            return foundShape;
+            return;
         }
         
         int loaderRadius = Math.floorDiv(existingFrameSearchingRadius, 16) + 1;
@@ -445,7 +432,6 @@ public class NetherPortalGeneration {
                 
                 indicatorEntity.setText(new TranslatableText("imm_ptl.searching_for_frame"));
                 
-                
                 startSearchingPortalFrame(
                     chunkRegion,
                     loaderRadius,
@@ -463,33 +449,72 @@ public class NetherPortalGeneration {
                 return true;
             }
         });
+    }
+    
+    public static boolean isOtherGenerationRunning(ServerWorld fromWorld, BlockPortalShape foundShape) {
+        Vec3d indicatorPos = foundShape.innerAreaBox.getCenterVec();
         
-        return foundShape;
+        boolean isOtherGenerationRunning = McHelper.getEntitiesNearby(
+            fromWorld, indicatorPos, LoadingIndicatorEntity.class, 1
+        ).findAny().isPresent();
+        if (isOtherGenerationRunning) {
+            Helper.log(
+                "Aborted Portal Generation Because Another Generation is Running Nearby"
+            );
+            return true;
+        }
+        return false;
+    }
+    
+    public static boolean checkPortalGeneration(ServerWorld fromWorld, BlockPos startingPos) {
+        if (!fromWorld.isChunkLoaded(startingPos)) {
+            Helper.log("Cancel Nether Portal Generation Because Chunk Not Loaded");
+            return false;
+        }
+        
+        Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
+            fromWorld.getRegistryKey(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
+        ));
+        return true;
+    }
+    
+    private static BlockPortalShape findFrameShape(ServerWorld fromWorld, BlockPos startingPos, Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate) {
+        return Arrays.stream(Direction.Axis.values())
+            .map(
+                axis -> {
+                    return BlockPortalShape.findArea(
+                        startingPos,
+                        axis,
+                        (pos) -> thisSideAreaPredicate.test(fromWorld.getBlockState(pos)),
+                        (pos) -> thisSideFramePredicate.test(fromWorld.getBlockState(pos))
+                    );
+                }
+            ).filter(
+                Objects::nonNull
+            ).findFirst().orElse(null);
     }
     
     private static void generateNewFrame(
         ServerWorld toWorld,
         int airCubeSearchingRadius,
-        Consumer<BlockPortalShape> newFrameGeneratedFunc,
+        Consumer<BlockPortalShape> newFrameGenerateFunc,
         Consumer<Info> portalEntityGeneratingFunc,
         RegistryKey<World> fromDimension,
-        RegistryKey<World> toDimension,
         BlockPortalShape foundShape,
         LoadingIndicatorEntity indicatorEntity,
         BlockPos toPos
     ) {
+        RegistryKey<World> toDimension = toWorld.getRegistryKey();
+        
         indicatorEntity.setText(new TranslatableText(
             "imm_ptl.generating_new_frame"
         ));
         
         ModMain.serverTaskList.addTask(() -> {
             
-            IntBox toWorldHeightLimit =
-                NetherPortalMatcher.getHeightLimit(toWorld);
-            
             IntBox airCubePlacement =
                 findAirCubePlacement(
-                    toWorld, toPos, toWorldHeightLimit,
+                    toWorld, toPos,
                     foundShape.axis, foundShape.totalAreaBox.getSize(),
                     airCubeSearchingRadius
                 );
@@ -500,7 +525,7 @@ public class NetherPortalGeneration {
                 ).add(foundShape.anchor)
             );
             
-            newFrameGeneratedFunc.accept(toShape);
+            newFrameGenerateFunc.accept(toShape);
             
             Info info = new Info(
                 fromDimension, toDimension, foundShape, toShape
@@ -622,7 +647,7 @@ public class NetherPortalGeneration {
         portalArray[2].dimensionTo = info.from;
         portalArray[3].dimensionTo = info.from;
         
-        Vec3d offset =  Vec3d.of(info.toShape.innerAreaBox.l.subtract(
+        Vec3d offset = Vec3d.of(info.toShape.innerAreaBox.l.subtract(
             info.fromShape.innerAreaBox.l
         ));
         portalArray[0].destination = portalArray[0].getPos().add(offset);
