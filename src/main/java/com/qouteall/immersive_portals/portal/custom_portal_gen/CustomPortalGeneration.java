@@ -2,12 +2,16 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.form.PortalGenForm;
-import com.qouteall.immersive_portals.portal.custom_portal_gen.trigger.PortalGenTrigger;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +19,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 import java.util.function.Function;
@@ -28,6 +31,9 @@ public class CustomPortalGeneration {
         new Identifier("imm_ptl:custom_portal_gen_schema")
     );
     
+    public static RegistryKey<Registry<CustomPortalGeneration>> registryRegistryKey =
+        RegistryKey.ofRegistry(new Identifier("imm_ptl:custom_portal_generation"));
+    
     public static final Codec<CustomPortalGeneration> codecV1 = RecordCodecBuilder.create(instance -> {
         return instance.group(
             dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
@@ -36,7 +42,7 @@ public class CustomPortalGeneration {
             Codec.INT.fieldOf("space_ratio_to").forGetter(o -> o.spaceRatioTo),
             Codec.BOOL.fieldOf("two_way").forGetter(o -> o.twoWay),
             PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
-            PortalGenTrigger.codec.fieldOf("trigger").forGetter(o -> o.trigger)
+            PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger)
         ).apply(instance, instance.stable(CustomPortalGeneration::new));
     });
     
@@ -50,9 +56,10 @@ public class CustomPortalGeneration {
         return registry;
     });
     
-    public static final Codec<CustomPortalGeneration> codec = schemaRegistry.dispatchStable(
+    public static final MapCodec<CustomPortalGeneration> codec = schemaRegistry.dispatchStableMap(
         "schema_version", e -> codecV1, Function.identity()
     );
+    
     
     public final List<RegistryKey<World>> fromDimensions;
     public final RegistryKey<World> toDimension;
@@ -95,5 +102,21 @@ public class CustomPortalGeneration {
     
     public BlockPos mapPosition(BlockPos from) {
         return Helper.divide(Helper.scale(from, spaceRatioTo), spaceRatioFrom);
+    }
+    
+    @Override
+    public String toString() {
+        return McHelper.serializeToJson(
+            this,
+            codec.codec()
+        );
+    }
+    
+    public boolean perform(ServerWorld world, BlockPos startPos) {
+        if (!fromDimensions.contains(world.getRegistryKey())) {
+            return false;
+        }
+    
+        return form.perform(this, world, startPos);
     }
 }

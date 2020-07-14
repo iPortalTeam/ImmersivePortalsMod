@@ -7,3 +7,4 @@ Accessible field net/minecraft/world/dimension/DimensionType THE_END Lnet/minecr
 Accessible method net/minecraft/world/dimension/DimensionType createNetherGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
 Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
 Accessible field net/minecraft/world/biome/source/BiomeAccess seed J
+Accessible field net/minecraft/server/MinecraftServer serverResourceManager Lnet/minecraft/resource/ServerResourceManager;
