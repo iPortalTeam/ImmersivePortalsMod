@@ -160,6 +160,14 @@ public class BlockPortalShape {
         if (!isAir.test(startingPos)) {
             return null;
         }
+    
+        return findShapeWithoutRegardingStartingPos(startingPos, axis, isAir, isObsidian);
+    }
+    
+    public static BlockPortalShape findShapeWithoutRegardingStartingPos(
+        BlockPos startingPos, Direction.Axis axis, Predicate<BlockPos> isAir, Predicate<BlockPos> isObsidian
+    ) {
+        startingPos = startingPos.toImmutable();
         
         Set<BlockPos> area = new HashSet<>();
         area.add(startingPos);
@@ -169,7 +177,8 @@ public class BlockPortalShape {
             isAir,
             isObsidian,
             Helper.getAnotherFourDirections(axis),
-            area
+            area,
+            startingPos
         );
         
         if (!isNormalFrame) {
@@ -188,26 +197,32 @@ public class BlockPortalShape {
     
     //return false to abort
     private static boolean findAreaRecursively(
-        BlockPos startingPos,
+        BlockPos currPos,
         Predicate<BlockPos> isAir,
         Predicate<BlockPos> isObsidian,
         Direction[] directions,
-        Set<BlockPos> foundArea
+        Set<BlockPos> foundArea,
+        BlockPos initialPos
     ) {
         if (foundArea.size() > 400) {
-            return true;
+            return false;
+        }
+        BlockPos delta = initialPos.subtract(currPos);
+        if (Math.abs(delta.getX()) > 20 || Math.abs(delta.getY()) > 20 || Math.abs(delta.getZ()) > 20) {
+            return false;
         }
         for (Direction direction : directions) {
-            BlockPos newPos = startingPos.add(direction.getVector());
+            BlockPos newPos = currPos.add(direction.getVector());
             if (!foundArea.contains(newPos)) {
                 if (isAir.test(newPos)) {
-                    foundArea.add(newPos);
+                    foundArea.add(newPos.toImmutable());
                     boolean shouldContinue = findAreaRecursively(
                         newPos,
                         isAir,
                         isObsidian,
                         directions,
-                        foundArea
+                        foundArea,
+                        initialPos
                     );
                     if (!shouldContinue) {
                         return false;

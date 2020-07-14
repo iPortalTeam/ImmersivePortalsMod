@@ -1,0 +1,21 @@
+{
+  "schema_version": "imm_ptl:v1",
+  "from": [
+    "minecraft:overworld"
+  ],
+  "to": "minecraft:overworld",
+  "space_ratio_from": 1,
+  "space_ratio_to": 1,
+  "two_way": true,
+  "form": {
+    "type": "imm_ptl:nether_portal_like",
+    "from_frame_block": "minecraft:redstone_block",
+    "area_block": "minecraft:air",
+    "to_frame_block": "minecraft:redstone_block",
+    "generate_frame_if_not_found": false
+  },
+  "trigger": {
+    "type": "imm_ptl:use_item",
+    "item": "minecraft:flint_and_steel"
+  }
+}

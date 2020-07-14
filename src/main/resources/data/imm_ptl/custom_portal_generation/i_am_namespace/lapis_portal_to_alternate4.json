@@ -1,0 +1,21 @@
+{
+  "schema_version": "imm_ptl:v1",
+  "from": [
+    "minecraft:overworld"
+  ],
+  "to": "immersive_portals:alternate4",
+  "space_ratio_from": 1,
+  "space_ratio_to": 8,
+  "two_way": true,
+  "form": {
+    "type": "imm_ptl:nether_portal_like",
+    "from_frame_block": "minecraft:lapis_block",
+    "area_block": "minecraft:air",
+    "to_frame_block": "minecraft:lapis_block",
+    "generate_frame_if_not_found": true
+  },
+  "trigger": {
+    "type": "imm_ptl:use_item",
+    "item": "minecraft:flint_and_steel"
+  }
+}

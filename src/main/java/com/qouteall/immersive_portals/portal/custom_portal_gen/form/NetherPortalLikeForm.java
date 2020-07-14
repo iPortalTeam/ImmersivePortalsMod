@@ -58,13 +58,6 @@ public class NetherPortalLikeForm extends PortalGenForm {
     
     @Override
     public boolean perform(CustomPortalGeneration cpg, ServerWorld fromWorld, BlockPos startingPos) {
-        //for example, using flint and stell will create a fire block
-        //temporarily remove the fire and add it back
-        BlockState startPosBlock = fromWorld.getBlockState(startingPos);
-        fromWorld.setBlockState(startingPos, areaBlock.getDefaultState());
-        
-        Runnable finalizer = () -> fromWorld.setBlockState(startingPos, startPosBlock);
-        
         Predicate<BlockState> areaPredicate = blockState -> blockState.getBlock() == areaBlock;
         Predicate<BlockState> thisSideFramePredicate = blockState -> blockState.getBlock() == fromFrameBlock;
         Predicate<BlockState> otherSideFramePredicate = blockState -> blockState.getBlock() == toFrameBlock;
@@ -73,7 +66,6 @@ public class NetherPortalLikeForm extends PortalGenForm {
         
         if (toWorld == null) {
             Helper.err("Cannot find dimension " + cpg.toDimension.getValue());
-            finalizer.run();
             return false;
         }
         
@@ -83,7 +75,6 @@ public class NetherPortalLikeForm extends PortalGenForm {
         );
         
         if (fromShape == null) {
-            finalizer.run();
             return false;
         }
         
@@ -95,8 +86,6 @@ public class NetherPortalLikeForm extends PortalGenForm {
             fromShape,
             toPos,
             128,
-            areaPredicate,
-            thisSideFramePredicate,
             areaPredicate,
             otherSideFramePredicate,
             toShape -> {
@@ -133,9 +122,14 @@ public class NetherPortalLikeForm extends PortalGenForm {
                 );
                 
                 return toShape;
+            },
+            () -> {
+                // check portal integrity while loading chunk
+                // omitted
+                return true;
             }
         );
-    
+        
         return true;
     }
 }

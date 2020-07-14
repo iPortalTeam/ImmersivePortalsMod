@@ -117,6 +117,10 @@ public class CustomPortalGeneration {
             return false;
         }
     
+        if (!world.isChunkLoaded(startPos)) {
+            return false;
+        }
+    
         return form.perform(this, world, startPos);
     }
 }

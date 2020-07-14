@@ -30,6 +30,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -322,6 +323,10 @@ public class NetherPortalGeneration {
             return null;
         }
         
+        if (!thisSideAreaPredicate.test(fromWorld.getBlockState(startingPos))) {
+            return null;
+        }
+        
         BlockPortalShape fromShape =
             findFrameShape(fromWorld, startingPos, thisSideAreaPredicate, thisSideFramePredicate);
         
@@ -336,7 +341,7 @@ public class NetherPortalGeneration {
         startGeneratingPortal(
             fromWorld, toWorld, fromShape, toPos,
             existingFrameSearchingRadius,
-            thisSideAreaPredicate, thisSideFramePredicate, otherSideAreaPredicate,
+            otherSideAreaPredicate,
             otherSideFramePredicate, newFrameGenerateFunc, portalEntityGeneratingFunc,
             () -> {
                 IntBox airCubePlacement =
@@ -353,6 +358,12 @@ public class NetherPortalGeneration {
                 );
                 
                 return toShape;
+            },
+            () -> {
+                return fromShape.isPortalIntact(
+                    blockPos -> thisSideAreaPredicate.test(fromWorld.getBlockState(blockPos)),
+                    blockPos -> thisSideFramePredicate.test(fromWorld.getBlockState(blockPos))
+                );
             }
         );
         
@@ -363,11 +374,11 @@ public class NetherPortalGeneration {
         ServerWorld fromWorld, ServerWorld toWorld,
         BlockPortalShape fromShape, BlockPos toPos,
         int existingFrameSearchingRadius,
-        Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate,
         Predicate<BlockState> otherSideAreaPredicate, Predicate<BlockState> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<Info> portalEntityGeneratingFunc,
         //return null for not generate new frame
-        Supplier<BlockPortalShape> newFramePlacer
+        Supplier<BlockPortalShape> newFramePlacer,
+        BooleanSupplier portalIntegrityChecker
     ) {
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         RegistryKey<World> toDimension = toWorld.getRegistryKey();
@@ -426,10 +437,8 @@ public class NetherPortalGeneration {
         };
         
         ModMain.serverTaskList.addTask(() -> {
-            boolean isPortalIntact = fromShape.isPortalIntact(
-                blockPos -> thisSideAreaPredicate.test(fromWorld.getBlockState(blockPos)),
-                blockPos -> thisSideFramePredicate.test(fromWorld.getBlockState(blockPos))
-            );
+            
+            boolean isPortalIntact = portalIntegrityChecker.getAsBoolean();
             
             if (!isPortalIntact) {
                 finalizer.run();
@@ -511,7 +520,7 @@ public class NetherPortalGeneration {
         return Arrays.stream(Direction.Axis.values())
             .map(
                 axis -> {
-                    return BlockPortalShape.findArea(
+                    return BlockPortalShape.findShapeWithoutRegardingStartingPos(
                         startingPos,
                         axis,
                         (pos) -> thisSideAreaPredicate.test(fromWorld.getBlockState(pos)),
