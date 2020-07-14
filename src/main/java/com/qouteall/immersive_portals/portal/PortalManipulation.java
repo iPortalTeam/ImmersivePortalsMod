@@ -41,7 +41,7 @@ public class PortalManipulation {
         );
     }
     
-    public static Portal completeBiWayPortal(Portal portal, EntityType<Portal> entityType) {
+    public static Portal completeBiWayPortal(Portal portal, EntityType<? extends Portal> entityType) {
         ServerWorld world = McHelper.getServer().getWorld(portal.dimensionTo);
         
         Portal newPortal = entityType.create(world);

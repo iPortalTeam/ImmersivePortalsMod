@@ -366,6 +366,7 @@ public class NetherPortalGeneration {
         Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate,
         Predicate<BlockState> otherSideAreaPredicate, Predicate<BlockState> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<Info> portalEntityGeneratingFunc,
+        //return null for not generate new frame
         Supplier<BlockPortalShape> newFramePlacer
     ) {
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
@@ -388,14 +389,16 @@ public class NetherPortalGeneration {
             
             BlockPortalShape toShape = newFramePlacer.get();
             
-            newFrameGenerateFunc.accept(toShape);
-            
-            Info info = new Info(
-                fromDimension, toWorld.getRegistryKey(), fromShape, toShape
-            );
-            portalEntityGeneratingFunc.accept(info);
-            
-            O_O.postPortalSpawnEventForge(info);
+            if (toShape != null) {
+                newFrameGenerateFunc.accept(toShape);
+                
+                Info info = new Info(
+                    fromDimension, toWorld.getRegistryKey(), fromShape, toShape
+                );
+                portalEntityGeneratingFunc.accept(info);
+                
+                O_O.postPortalSpawnEventForge(info);
+            }
         };
         
         boolean shouldSkip = !McHelper.getIEStorage(toDimension)
@@ -504,7 +507,7 @@ public class NetherPortalGeneration {
         return true;
     }
     
-    private static BlockPortalShape findFrameShape(ServerWorld fromWorld, BlockPos startingPos, Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate) {
+    public static BlockPortalShape findFrameShape(ServerWorld fromWorld, BlockPos startingPos, Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate) {
         return Arrays.stream(Direction.Axis.values())
             .map(
                 axis -> {
@@ -550,12 +553,12 @@ public class NetherPortalGeneration {
     }
     
     public static void fillInPlaceHolderBlocks(
-        ServerWorld fromWorld,
+        ServerWorld world,
         BlockPortalShape blockPortalShape
     ) {
         blockPortalShape.area.forEach(
             blockPos -> setPortalContentBlock(
-                fromWorld, blockPos, blockPortalShape.axis
+                world, blockPos, blockPortalShape.axis
             )
         );
     }

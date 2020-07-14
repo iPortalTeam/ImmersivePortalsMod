@@ -51,7 +51,9 @@
     "form": {
       "type": "imm_ptl:floor_square",
       "length": 2,
-      "from_frame_block": "minecraft:grass",
+      "frame_block": [
+        "minecraft:grass"
+      ],
       "area_block": "minecraft:water",
       "up_frame_block": [
         "minecraft:flower...",

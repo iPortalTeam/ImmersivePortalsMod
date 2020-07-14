@@ -1,17 +1,21 @@
 package com.qouteall.immersive_portals.portal.custom_portal_gen;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.form.PortalGenForm;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.trigger.PortalGenTrigger;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 import java.util.function.Function;
@@ -70,5 +74,26 @@ public class CustomPortalGeneration {
         this.twoWay = twoWay;
         this.form = form;
         this.trigger = trigger;
+    }
+    
+    public CustomPortalGeneration getReverse() {
+        if (fromDimensions.size() == 1) {
+            return new CustomPortalGeneration(
+                Lists.newArrayList(toDimension),
+                fromDimensions.get(0),
+                spaceRatioTo,
+                spaceRatioFrom,
+                false,
+                form.getReverse(),
+                trigger
+            );
+        }
+        
+        Helper.err("Cannot get reverse custom portal gen");
+        return null;
+    }
+    
+    public BlockPos mapPosition(BlockPos from) {
+        return Helper.divide(Helper.scale(from, spaceRatioTo), spaceRatioFrom);
     }
 }
