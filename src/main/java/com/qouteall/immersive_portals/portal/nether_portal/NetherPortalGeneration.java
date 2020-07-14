@@ -363,7 +363,7 @@ public class NetherPortalGeneration {
         );
         fromWorld.spawnEntity(indicatorEntity);
         
-        Runnable generateNewFrameFunc = () -> {
+        Runnable onGenerateNewFrame = () -> {
             generateNewFrame(
                 toWorld,
                 airCubeSearchingRadius,
@@ -380,7 +380,7 @@ public class NetherPortalGeneration {
             .portal_isChunkGenerated(new ChunkPos(toPos));
         if (shouldSkip) {
             Helper.log("Skip Portal Frame Searching Because The Region is not Generated");
-            generateNewFrameFunc.run();
+            onGenerateNewFrame.run();
             indicatorEntity.remove();
             return;
         }
@@ -432,18 +432,22 @@ public class NetherPortalGeneration {
                 
                 indicatorEntity.setText(new TranslatableText("imm_ptl.searching_for_frame"));
                 
-                startSearchingPortalFrame(
-                    chunkRegion,
-                    loaderRadius,
-                    otherSideAreaPredicate,
-                    otherSideFramePredicate,
-                    portalEntityGeneratingFunc,
-                    fromDimension,
-                    toDimension,
-                    foundShape,
-                    toPos,
-                    finalizer,
-                    generateNewFrameFunc
+                FrameSearching.startSearchingPortalFrameAsync(
+                    chunkRegion, loaderRadius,
+                    toPos, foundShape,
+                    otherSideAreaPredicate, otherSideFramePredicate,
+                    (shape) -> {
+                        Info info = new Info(
+                            fromDimension, toDimension, foundShape, shape
+                        );
+                        
+                        portalEntityGeneratingFunc.accept(info);
+                        finalizer.run();
+                    },
+                    () -> {
+                        onGenerateNewFrame.run();
+                        finalizer.run();
+                    }
                 );
                 
                 return true;
@@ -510,72 +514,27 @@ public class NetherPortalGeneration {
             "imm_ptl.generating_new_frame"
         ));
         
-        ModMain.serverTaskList.addTask(() -> {
-            
-            IntBox airCubePlacement =
-                findAirCubePlacement(
-                    toWorld, toPos,
-                    foundShape.axis, foundShape.totalAreaBox.getSize(),
-                    airCubeSearchingRadius
-                );
-            
-            BlockPortalShape toShape = foundShape.getShapeWithMovedAnchor(
-                airCubePlacement.l.subtract(
-                    foundShape.totalAreaBox.l
-                ).add(foundShape.anchor)
+        IntBox airCubePlacement =
+            findAirCubePlacement(
+                toWorld, toPos,
+                foundShape.axis, foundShape.totalAreaBox.getSize(),
+                airCubeSearchingRadius
             );
-            
-            newFrameGenerateFunc.accept(toShape);
-            
-            Info info = new Info(
-                fromDimension, toDimension, foundShape, toShape
-            );
-            portalEntityGeneratingFunc.accept(info);
-            
-            O_O.postPortalSpawnEventForge(info);
-            
-            return true;
-        });
-    }
-    
-    private static void startSearchingPortalFrame(
-        ChunkRegion toWorldRegion,
-        int regionRadius,
-        Predicate<BlockState> otherSideAreaPredicate,
-        Predicate<BlockState> otherSideFramePredicate,
-        Consumer<Info> portalEntityGeneratingFunc,
-        RegistryKey<World> fromDimension,
-        RegistryKey<World> toDimension,
-        BlockPortalShape foundShape,
-        BlockPos toPos,
-        Runnable finishBehavior,
-        Runnable onNotFound
-    ) {
         
-        //avoid blockpos object creation
-        BlockPos.Mutable temp = new BlockPos.Mutable();
-        
-        Consumer<BlockPortalShape> onFound = toShape -> {
-            Info info = new Info(
-                fromDimension, toDimension, foundShape, toShape
-            );
-            
-            portalEntityGeneratingFunc.accept(info);
-        };
-        
-        FrameSearching.startSearchingPortalFrameAsync(
-            toWorldRegion, regionRadius,
-            toPos, foundShape,
-            otherSideAreaPredicate, otherSideFramePredicate,
-            (shape) -> {
-                onFound.accept(shape);
-                finishBehavior.run();
-            },
-            () -> {
-                onNotFound.run();
-                finishBehavior.run();
-            }
+        BlockPortalShape toShape = foundShape.getShapeWithMovedAnchor(
+            airCubePlacement.l.subtract(
+                foundShape.totalAreaBox.l
+            ).add(foundShape.anchor)
         );
+        
+        newFrameGenerateFunc.accept(toShape);
+        
+        Info info = new Info(
+            fromDimension, toDimension, foundShape, toShape
+        );
+        portalEntityGeneratingFunc.accept(info);
+        
+        O_O.postPortalSpawnEventForge(info);
     }
     
     public static Stream<BlockPos> blockPosStreamNaive(
