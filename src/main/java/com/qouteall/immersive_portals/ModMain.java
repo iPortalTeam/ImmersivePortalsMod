@@ -98,7 +98,6 @@ public class ModMain {
         
         GlobalPortalStorage.init();
     
-        MyRegistry.registerChunkGenerators();
     }
     
 }
