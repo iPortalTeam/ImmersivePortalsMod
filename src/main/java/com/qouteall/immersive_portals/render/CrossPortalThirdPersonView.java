@@ -1,9 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.datafixers.util.Pair;
-import com.qouteall.ClippedBlockView;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.commands.PortalCommand;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -16,7 +14,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RayTraceContext;
-import net.minecraft.world.World;
 
 public class CrossPortalThirdPersonView {
     public static final MinecraftClient client = MinecraftClient.getInstance();

@@ -42,6 +42,14 @@ public class PortalManipulation {
     }
     
     public static Portal completeBiWayPortal(Portal portal, EntityType<? extends Portal> entityType) {
+        Portal newPortal = createReversePortal(portal, entityType);
+    
+        newPortal.world.spawnEntity(newPortal);
+        
+        return newPortal;
+    }
+    
+    public static Portal createReversePortal(Portal portal, EntityType<? extends Portal> entityType) {
         ServerWorld world = McHelper.getServer().getWorld(portal.dimensionTo);
         
         Portal newPortal = entityType.create(world);
@@ -77,9 +85,6 @@ public class PortalManipulation {
         newPortal.motionAffinity = portal.motionAffinity;
         
         newPortal.specificPlayerId = portal.specificPlayerId;
-        
-        world.spawnEntity(newPortal);
-        
         return newPortal;
     }
     

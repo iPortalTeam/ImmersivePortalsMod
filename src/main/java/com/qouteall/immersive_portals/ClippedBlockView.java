@@ -1,4 +1,4 @@
-package com.qouteall;
+package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.portal.Portal;

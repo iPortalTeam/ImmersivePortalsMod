@@ -105,6 +105,7 @@ public class CustomPortalGenManagement {
             for (CustomPortalGeneration gen : throwItemGen.get(entity.getStack().getItem())) {
                 boolean result = gen.perform(((ServerWorld) entity.world), entity.getBlockPos());
                 if (result) {
+                    entity.remove();
                     return;
                 }
             }

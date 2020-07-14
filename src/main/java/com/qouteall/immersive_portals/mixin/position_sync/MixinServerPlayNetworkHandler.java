@@ -171,14 +171,14 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         Box box
     ) {
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
-            return false;
+            return true;
         }
         boolean portalsNearby = McHelper.getServerPortalsNearby(
             player,
             5
         ).findAny().isPresent();
         if (portalsNearby) {
-            return false;
+            return true;
         }
         return isPlayerNotCollidingWithBlocks(worldView, box);
     }

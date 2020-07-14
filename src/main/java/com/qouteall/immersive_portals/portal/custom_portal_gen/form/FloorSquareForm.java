@@ -71,6 +71,10 @@ public class FloorSquareForm extends PortalGenForm {
             return frameBlock.contains(blockState.getBlock());
         };
         Predicate<BlockState> otherSideFramePredicate = framePredicate;
+    
+        if (!areaPredicate.test(fromWorld.getBlockState(startingPos))) {
+            return false;
+        }
         
         ServerWorld toWorld = McHelper.getServer().getWorld(cpg.toDimension);
         
@@ -142,7 +146,7 @@ public class FloorSquareForm extends PortalGenForm {
         
         // create the portal
         GeneralBreakablePortal pa = GeneralBreakablePortal.entityType.create(fromWorld);
-        fromShape.initPortalPosAxisShape(pa, false);
+        fromShape.initPortalPosAxisShape(pa, true);
         
         pa.destination = toShape.innerAreaBox.getCenterVec();
         pa.dimensionTo = toWorld.getRegistryKey();
@@ -153,7 +157,7 @@ public class FloorSquareForm extends PortalGenForm {
         );
         
         GeneralBreakablePortal pb = (GeneralBreakablePortal)
-            PortalManipulation.completeBiWayPortal(pa, GeneralBreakablePortal.entityType);
+            PortalManipulation.createReversePortal(pa, GeneralBreakablePortal.entityType);
         
         pa.blockPortalShape = fromShape;
         pb.blockPortalShape = toShape;
@@ -169,7 +173,7 @@ public class FloorSquareForm extends PortalGenForm {
     private boolean isFloorSquareShape(BlockPortalShape shape, ServerWorld fromWorld) {
         BlockPos areaSize = shape.innerAreaBox.getSize();
         boolean roughTest = areaSize.getX() == length &&
-            areaSize.getY() == length &&
+            areaSize.getZ() == length &&
             shape.area.size() == (length * length);
         if (!roughTest) {
             return false;
