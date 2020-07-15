@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
@@ -36,6 +37,11 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         
         if (fromShape == null) {
             return false;
+        }
+    
+        // clear the area
+        for (BlockPos areaPos : fromShape.area) {
+            fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
         }
         
         BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter());
@@ -85,7 +91,9 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                 // check portal integrity while loading chunk
                 // omitted
                 return true;
-            }
+            },
+            //avoid linking to the beginning frame
+            s -> fromWorld != toWorld || fromShape.anchor != s.anchor
         );
         
         return true;

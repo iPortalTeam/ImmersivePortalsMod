@@ -117,11 +117,7 @@ public class CustomPortalGeneration {
     }
     
     public boolean initAndCheck() {
-        // if the dimension is missing, do not load
-        fromDimensions.removeIf(dim -> McHelper.getServer().getWorld(dim) == null);
-        if (fromDimensions.isEmpty()) {
-            return false;
-        }
+        // if from dimension is not present, nothing happens
         
         if (McHelper.getServer().getWorld(toDimension) == null) {
             return false;

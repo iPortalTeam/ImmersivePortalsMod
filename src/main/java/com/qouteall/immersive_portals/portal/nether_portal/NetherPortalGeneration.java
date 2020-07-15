@@ -206,7 +206,7 @@ public class NetherPortalGeneration {
         fromWorld.spawnEntity(portalArray[1]);
         toWorld.spawnEntity(portalArray[2]);
         toWorld.spawnEntity(portalArray[3]);
-    
+        
         return portalArray;
     }
     
@@ -366,8 +366,8 @@ public class NetherPortalGeneration {
                     blockPos -> thisSideAreaPredicate.test(fromWorld.getBlockState(blockPos)),
                     blockPos -> thisSideFramePredicate.test(fromWorld.getBlockState(blockPos))
                 );
-            }
-        );
+            },
+            s -> true);
         
         return fromShape;
     }
@@ -380,7 +380,8 @@ public class NetherPortalGeneration {
         Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<Info> portalEntityGeneratingFunc,
         //return null for not generate new frame
         Supplier<BlockPortalShape> newFramePlacer,
-        BooleanSupplier portalIntegrityChecker
+        BooleanSupplier portalIntegrityChecker,
+        Predicate<BlockPortalShape> foundShapePredicate
     ) {
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         RegistryKey<World> toDimension = toWorld.getRegistryKey();
@@ -425,10 +426,7 @@ public class NetherPortalGeneration {
         
         int loaderRadius = Math.floorDiv(existingFrameSearchingRadius, 16) + 1;
         ChunkVisibilityManager.ChunkLoader chunkLoader = new ChunkVisibilityManager.ChunkLoader(
-            new DimensionalChunkPos(
-                toDimension, new ChunkPos(toPos)
-            ),
-            loaderRadius
+            new DimensionalChunkPos(toDimension, new ChunkPos(toPos)), loaderRadius
         );
         
         NewChunkTrackingGraph.addAdditionalChunkLoader(chunkLoader);
@@ -472,6 +470,7 @@ public class NetherPortalGeneration {
                     chunkRegion, loaderRadius,
                     toPos, fromShape,
                     otherSideAreaPredicate, otherSideFramePredicate,
+                    foundShapePredicate,
                     (shape) -> {
                         Info info = new Info(
                             fromDimension, toDimension, fromShape, shape
@@ -483,8 +482,7 @@ public class NetherPortalGeneration {
                     () -> {
                         onGenerateNewFrame.run();
                         finalizer.run();
-                    }
-                );
+                    });
                 
                 return true;
             }

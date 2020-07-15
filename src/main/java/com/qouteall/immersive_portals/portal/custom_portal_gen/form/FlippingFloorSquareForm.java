@@ -190,8 +190,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
             return false;
         }
         
-        return shape.frameAreaWithCorner.stream().allMatch(
-            blockPos -> (upFrameBlock).test(fromWorld.getBlockState(blockPos))
+        return shape.frameAreaWithoutCorner.stream().allMatch(
+            blockPos -> (upFrameBlock).test(fromWorld.getBlockState(blockPos.up()))
         ) && shape.area.stream().allMatch(
             blockPos -> (bottomBlock).test(fromWorld.getBlockState(blockPos.down()))
         );

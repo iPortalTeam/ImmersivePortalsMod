@@ -722,6 +722,8 @@ public class PortalCommand {
                                 
                                 Portal portal = Portal.entityType.create(fromEntity.world);
                                 
+                                portal.updatePosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
+                                
                                 portal.dimensionTo = toEntity.world.getRegistryKey();
                                 portal.destination = toEntity.getPos();
                                 portal.width = width;
@@ -1408,7 +1410,7 @@ public class PortalCommand {
      * {@link Entity#getRotationVector()}
      */
     private static Vec3d getRightVec(Entity entity) {
-        float yaw = entity.yaw;
+        float yaw = entity.yaw + 90;
         float radians = -yaw * 0.017453292F;
         
         return new Vec3d(
