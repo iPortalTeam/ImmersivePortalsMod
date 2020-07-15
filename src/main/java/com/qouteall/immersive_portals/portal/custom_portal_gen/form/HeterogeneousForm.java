@@ -5,6 +5,7 @@ import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGenManagement;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -20,40 +21,27 @@ import java.util.function.Predicate;
 
 public class HeterogeneousForm extends NetherPortalLikeForm {
     
-    public final Identifier areaBlockTagId;
-    public final Identifier frameBlockTagId;
-    
-    public Tag<Block> areaBlockTag;
-    public Tag<Block> frameBlockTag;
+    public final SimpleBlockPredicate areaBlock;
+    public final SimpleBlockPredicate frameBlock;
     
     public static final Codec<HeterogeneousForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound),
-            Identifier.CODEC.fieldOf("area_block_tag").forGetter(o -> o.areaBlockTagId),
-            Identifier.CODEC.fieldOf("frame_block_tag").forGetter(o -> o.frameBlockTagId)
+            SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
+            SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock)
         ).apply(instance, HeterogeneousForm::new);
     });
     
     public HeterogeneousForm(
-        boolean generateFrameIfNotFound, Identifier areaBlockTagId, Identifier frameBlockTagId
+        boolean generateFrameIfNotFound, SimpleBlockPredicate areaBlock, SimpleBlockPredicate frameBlock
     ) {
         super(generateFrameIfNotFound);
-        this.areaBlockTagId = areaBlockTagId;
-        this.frameBlockTagId = frameBlockTagId;
+        this.areaBlock = areaBlock;
+        this.frameBlock = frameBlock;
     }
     
     @Override
     public boolean initAndCheck() {
-        
-        areaBlockTag = CustomPortalGenManagement.readBlockTag(areaBlockTagId);
-        if (areaBlockTag == null) {
-            return false;
-        }
-        
-        frameBlockTag = CustomPortalGenManagement.readBlockTag(frameBlockTagId);
-        if (frameBlockTag == null) {
-            return false;
-        }
         
         return super.initAndCheck();
     }
@@ -72,17 +60,17 @@ public class HeterogeneousForm extends NetherPortalLikeForm {
     
     @Override
     public Predicate<BlockState> getOtherSideFramePredicate() {
-        return blockState -> blockState.isIn(frameBlockTag);
+        return frameBlock;
     }
     
     @Override
     public Predicate<BlockState> getThisSideFramePredicate() {
-        return blockState -> blockState.isIn(frameBlockTag);
+        return frameBlock;
     }
     
     @Override
     public Predicate<BlockState> getAreaPredicate() {
-        return blockState -> blockState.isIn(areaBlockTag);
+        return areaBlock;
     }
     
     @Override
@@ -93,7 +81,7 @@ public class HeterogeneousForm extends NetherPortalLikeForm {
     @Override
     public PortalGenForm getReverse() {
         return new HeterogeneousForm(
-            generateFrameIfNotFound, areaBlockTagId, frameBlockTagId
+            generateFrameIfNotFound, areaBlock, frameBlock
         );
     }
 }

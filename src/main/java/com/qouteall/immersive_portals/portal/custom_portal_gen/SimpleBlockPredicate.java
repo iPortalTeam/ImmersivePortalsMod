@@ -18,6 +18,8 @@ import java.util.function.Predicate;
 
 // it could be either specified by a block or a block tag
 public class SimpleBlockPredicate implements Predicate<BlockState> {
+    public static final SimpleBlockPredicate pass = new SimpleBlockPredicate();
+    
     private final Tag<Block> tag;
     private final Block block;
     
@@ -31,17 +33,27 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         this.tag = null;
     }
     
+    private SimpleBlockPredicate() {
+        this.tag = null;
+        this.block = null;
+    }
+    
     @Override
     public boolean test(BlockState blockState) {
         if (tag != null) {
             return blockState.isIn(tag);
         }
         else {
-            return blockState.getBlock() == block;
+            if (block != null) {
+                return blockState.getBlock() == block;
+            }
+            else {
+                return true;
+            }
         }
     }
     
-    public static DataResult<SimpleBlockPredicate> deserialize(String string) {
+    private static DataResult<SimpleBlockPredicate> deserialize(String string) {
         MinecraftServer server = McHelper.getServer();
         
         if (server == null) {
@@ -66,7 +78,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         return DataResult.error("Unknown block or block tag:" + string);
     }
     
-    public static String serialize(SimpleBlockPredicate predicate) {
+    private static String serialize(SimpleBlockPredicate predicate) {
         MinecraftServer server = McHelper.getServer();
         
         if (server == null) {
@@ -80,11 +92,11 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         }
         
         Tag<Block> tag = predicate.tag;
-    
+        
         RegistryTagManager tagManager = server.serverResourceManager.getRegistryTagManager();
-    
+        
         Identifier id = tagManager.blocks().getId(tag);
-    
+        
         if (id == null) {
             throw new RuntimeException(
                 "Cannot get id from tag " + tag
