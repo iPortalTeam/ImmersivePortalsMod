@@ -82,7 +82,7 @@ public class PortalManipulation {
             newPortal.rotation.conjugate();
         }
         
-        newPortal.motionAffinity = portal.motionAffinity;
+        newPortal.setMotionAffinity(portal.getMotionAffinity());
         
         newPortal.specificPlayerId = portal.specificPlayerId;
         return newPortal;
@@ -120,7 +120,7 @@ public class PortalManipulation {
         
         newPortal.rotation = portal.rotation;
         
-        newPortal.motionAffinity = portal.motionAffinity;
+        newPortal.setMotionAffinity(portal.getMotionAffinity());
     
         newPortal.specificPlayerId = portal.specificPlayerId;
         
@@ -154,7 +154,7 @@ public class PortalManipulation {
     
         newPortal.rotation = portal.rotation;
     
-        newPortal.motionAffinity = portal.motionAffinity;
+        newPortal.setMotionAffinity(portal.getMotionAffinity());
     
         newPortal.specificPlayerId = portal.specificPlayerId;
     

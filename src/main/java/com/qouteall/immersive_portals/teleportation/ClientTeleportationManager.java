@@ -36,7 +36,6 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
 import java.util.List;
@@ -382,10 +381,10 @@ public class ClientTeleportationManager {
         
         if (!portals.isEmpty()) {
             Portal portal = portals.get(0);
-            if (portal.motionAffinity > 0) {
+            if (portal.getMotionAffinity() > 0) {
                 changeMotion(player, portal);
             }
-            else if (portal.motionAffinity < 0) {
+            else if (portal.getMotionAffinity() < 0) {
                 if (player.getVelocity().length() > 0.7) {
                     changeMotion(player, portal);
                 }
@@ -395,7 +394,7 @@ public class ClientTeleportationManager {
     
     private void changeMotion(Entity player, Portal portal) {
         Vec3d velocity = player.getVelocity();
-        player.setVelocity(velocity.multiply(1 + portal.motionAffinity));
+        player.setVelocity(velocity.multiply(1 + portal.getMotionAffinity()));
 //        Vec3d velocityOnNormal =
 //            portal.getNormal().multiply(velocity.dotProduct(portal.getNormal()));
 //        player.setVelocity(

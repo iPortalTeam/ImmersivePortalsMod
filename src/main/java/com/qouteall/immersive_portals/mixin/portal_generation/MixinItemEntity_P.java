@@ -29,8 +29,10 @@ public abstract class MixinItemEntity_P {
             return;
         }
         
-        // check every 3 ticks
-        if (this_.getEntityId() % 3 == this_.world.getTime() % 3) {
+        final int interval = 19;
+        
+        // check every 19 ticks
+        if (this_.getEntityId() % interval == this_.world.getTime() % interval) {
             this_.world.getProfiler().push("imm_ptl_item_tick");
             CustomPortalGenManagement.onItemTick(this_);
             this_.world.getProfiler().pop();

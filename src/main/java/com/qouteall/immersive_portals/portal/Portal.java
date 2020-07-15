@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.SignalArged;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -51,9 +52,11 @@ public class Portal extends Entity {
     
     public Quaternion rotation;
     
-    public double motionAffinity = 0;
+    private double motionAffinity = 0;
     
     private boolean interactable = true;
+    
+    public PortalExtension extension = new PortalExtension();
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -118,15 +121,13 @@ public class Portal extends Entity {
                 compoundTag.getFloat("rotationA")
             );
         }
-        if (compoundTag.contains("motionAffinity")) {
-            motionAffinity = compoundTag.getDouble("motionAffinity");
-        }
-        else {
-            motionAffinity = 0;
-        }
+        
         if (compoundTag.contains("interactable")) {
             interactable = compoundTag.getBoolean("interactable");
         }
+    
+        extension = new PortalExtension();
+        extension.readFromNbt(compoundTag);
     }
     
     @Override
@@ -161,8 +162,10 @@ public class Portal extends Entity {
             compoundTag.putDouble("rotationC", rotation.getY());
             compoundTag.putDouble("rotationD", rotation.getZ());
         }
-        compoundTag.putDouble("motionAffinity", motionAffinity);
+        
         compoundTag.putBoolean("interactable", interactable);
+        
+        extension.writeToNbt(compoundTag);
     }
     
     public boolean isCullable() {
@@ -249,6 +252,7 @@ public class Portal extends Entity {
             }
             serverPortalTickSignal.emit(this);
         }
+        extension.tick(this);
     }
     
     @Override
@@ -633,5 +637,13 @@ public class Portal extends Entity {
             a.getPos().distanceTo(b.getPos()) < 1 &&
             a.destination.distanceTo(b.destination) < 1 &&
             a.getNormal().dotProduct(b.getNormal()) < -0.5;
+    }
+    
+    public double getMotionAffinity() {
+        return motionAffinity;
+    }
+    
+    public void setMotionAffinity(double motionAffinity) {
+        this.motionAffinity = motionAffinity;
     }
 }

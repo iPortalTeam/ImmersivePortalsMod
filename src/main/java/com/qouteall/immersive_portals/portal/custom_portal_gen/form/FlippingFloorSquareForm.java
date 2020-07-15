@@ -3,10 +3,8 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
-import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
@@ -14,7 +12,6 @@ import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePorta
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.PlantBlock;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -105,7 +102,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
             return false;
         }
         
-        if (!isFloorSquareShape(fromShape, fromWorld)) {
+        if (!checkFromShape(fromShape, fromWorld)) {
             return false;
         }
         
@@ -171,17 +168,21 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
         
-        pa.motionAffinity = 0.1;
-        pb.motionAffinity = 0.1;
+        pa.setMotionAffinity(0.1);
+        pb.setMotionAffinity(0.1);
         
         pa.world.spawnEntity(pa);
         pb.world.spawnEntity(pb);
+        
+        // special flipping portal
+        pa.extension.isSpecialFlippingPortal = true;
+        pb.extension.isSpecialFlippingPortal = true;
         
         cpg.onPortalGenerated(pa);
         cpg.onPortalGenerated(pb);
     }
     
-    private boolean isFloorSquareShape(BlockPortalShape shape, ServerWorld fromWorld) {
+    private boolean checkFromShape(BlockPortalShape shape, ServerWorld fromWorld) {
         BlockPos areaSize = shape.innerAreaBox.getSize();
         boolean areaSizeTest = areaSize.getX() == length &&
             areaSize.getZ() == length &&

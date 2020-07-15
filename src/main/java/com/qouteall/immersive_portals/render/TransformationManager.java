@@ -118,7 +118,16 @@ public class TransformationManager {
             visualRotation.hamiltonProduct(b);
             
             Vec3d oldViewVector = player.getRotationVec(RenderStates.tickDelta);
-            Vec3d newViewVector = portal.transformLocalVec(oldViewVector);
+            Vec3d newViewVector;
+            
+            if (portal.extension.isSpecialFlippingPortal) {
+                // does not maintain the visual looking vector for special flipping portals
+                newViewVector = oldViewVector;
+            }
+            else {
+                // make the visual looking vector to not change after teleporting
+                newViewVector = portal.transformLocalVec(oldViewVector);
+            }
             
             player.yaw = getYawFromViewVector(newViewVector);
             player.prevYaw = player.yaw;
