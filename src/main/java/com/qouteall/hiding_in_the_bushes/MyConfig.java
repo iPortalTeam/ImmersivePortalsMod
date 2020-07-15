@@ -57,7 +57,11 @@ public class MyConfig {
         if (configFile.exists()) {
             try {
                 String data = Files.lines(configFile.toPath()).collect(Collectors.joining());
-                return Global.gson.fromJson(data, MyConfig.class);
+                MyConfig result = Global.gson.fromJson(data, MyConfig.class);
+                if (result == null) {
+                    return new MyConfig();
+                }
+                return result;
             }
             catch (IOException e) {
                 e.printStackTrace();
