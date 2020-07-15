@@ -5,9 +5,7 @@ import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.IntBox;
-import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
@@ -17,12 +15,12 @@ import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneratio
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.PlantBlock;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 
 import java.util.List;
@@ -71,7 +69,7 @@ public class FloorSquareForm extends PortalGenForm {
             return frameBlock.contains(blockState.getBlock());
         };
         Predicate<BlockState> otherSideFramePredicate = framePredicate;
-    
+        
         if (!areaPredicate.test(fromWorld.getBlockState(startingPos))) {
             return false;
         }
@@ -111,7 +109,13 @@ public class FloorSquareForm extends PortalGenForm {
                         new BlockPos(toPos.getX(), y, toPos.getZ())
                     );
                 }),
-            box -> NetherPortalMatcher.isAllAir(toWorld, box)
+            box -> box.stream().allMatch(
+                blockPos ->{
+                    BlockState blockState = toWorld.getBlockState(blockPos);
+                    // regard plant block as air
+                    return blockState.isAir() || blockState.getBlock() instanceof PlantBlock;
+                }
+            )
         );
         
         // find placement
@@ -163,6 +167,9 @@ public class FloorSquareForm extends PortalGenForm {
         pb.blockPortalShape = toShape;
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
+    
+        pa.motionAffinity = 0.1;
+        pb.motionAffinity = 0.1;
         
         pa.world.spawnEntity(pa);
         pb.world.spawnEntity(pb);

@@ -8,6 +8,7 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
@@ -60,9 +61,9 @@ public class CustomPortalGenManagement {
         
         result.stream().forEach(gen -> {
             Helper.log("Loaded Custom Portal Gen " + gen.toString());
-    
+            
             load(gen);
-    
+            
             if (gen.twoWay) {
                 load(gen.getReverse());
             }
@@ -86,14 +87,21 @@ public class CustomPortalGenManagement {
         if (context.getWorld().isClient()) {
             return;
         }
-        for (CustomPortalGeneration gen : useItemGen.get(context.getStack().getItem())) {
-            boolean result = gen.perform(
-                ((ServerWorld) context.getWorld()),
-                context.getBlockPos().offset(context.getSide())
-            );
-            if (result) {
-                return;
-            }
+        
+        Item item = context.getStack().getItem();
+        if (useItemGen.containsKey(item)) {
+            ModMain.serverTaskList.addTask(() -> {
+                for (CustomPortalGeneration gen : useItemGen.get(item)) {
+                    boolean result = gen.perform(
+                        ((ServerWorld) context.getWorld()),
+                        context.getBlockPos().offset(context.getSide())
+                    );
+                    if (result) {
+                        break;
+                    }
+                }
+                return true;
+            });
         }
     }
     
@@ -102,12 +110,18 @@ public class CustomPortalGenManagement {
             return;
         }
         if (entity.getThrower() != null) {
-            for (CustomPortalGeneration gen : throwItemGen.get(entity.getStack().getItem())) {
-                boolean result = gen.perform(((ServerWorld) entity.world), entity.getBlockPos());
-                if (result) {
-                    entity.remove();
-                    return;
-                }
+            Item item = entity.getStack().getItem();
+            if (throwItemGen.containsKey(item)) {
+                ModMain.serverTaskList.addTask(() -> {
+                    for (CustomPortalGeneration gen : throwItemGen.get(item)) {
+                        boolean result = gen.perform(((ServerWorld) entity.world), entity.getBlockPos());
+                        if (result) {
+                            entity.remove();
+                            break;
+                        }
+                    }
+                    return true;
+                });
             }
         }
     }

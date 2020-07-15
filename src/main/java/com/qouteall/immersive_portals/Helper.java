@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nullable;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -274,7 +275,7 @@ public class Helper {
         }
     }
     
-    //@Nullable
+    @Nullable
     public static <T> T getLastSatisfying(Stream<T> stream, Predicate<T> predicate) {
         SimpleBox<T> box = new SimpleBox<T>(null);
         stream.filter(curr -> {

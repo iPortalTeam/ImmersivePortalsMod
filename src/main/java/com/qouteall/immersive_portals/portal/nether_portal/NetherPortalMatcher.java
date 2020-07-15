@@ -10,7 +10,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -213,7 +212,7 @@ public class NetherPortalMatcher {
                 basePoint.subtract(new Vec3i(-areaSize.getX() / 2, 0, -areaSize.getZ() / 2))
             )
         ).filter(
-            box -> isAllAir(world, box)
+            box -> isAirCubeMediumPlace(world, box)
         ).findFirst().orElse(null);
     }
     
@@ -238,7 +237,7 @@ public class NetherPortalMatcher {
         ).map(
             basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
         ).filter(
-            box -> isAllAir(world, box)
+            box -> isAirCubeMediumPlace(world, box)
         ).findFirst().orElse(null);
     }
     
@@ -316,11 +315,11 @@ public class NetherPortalMatcher {
                 areaSize, basePoint
             )
         ).filter(
-            box -> isAllAir(world, box)
+            box -> isAirCubeMediumPlace(world, box)
         ).findFirst().orElse(null);
     }
     
-    public static boolean isAllAir(WorldAccess world, IntBox box) {
+    public static boolean isAirCubeMediumPlace(WorldAccess world, IntBox box) {
         //the box out of height limit is not accepted
         if (box.h.getY() + 5 >= ((World) world).getDimensionHeight()) {
             return false;
@@ -329,7 +328,10 @@ public class NetherPortalMatcher {
             return false;
         }
         
-        
+        return isAllAir(world, box);
+    }
+    
+    public static boolean isAllAir(WorldAccess world, IntBox box) {
         boolean roughTest = Arrays.stream(box.getEightVertices()).allMatch(
             blockPos -> isAir(world, blockPos)
         );
@@ -348,7 +350,7 @@ public class NetherPortalMatcher {
     ) {
         Integer maxUpShift = Helper.getLastSatisfying(
             IntStream.range(1, 40).boxed(),
-            upShift -> isAllAir(
+            upShift -> isAirCubeMediumPlace(
                 world,
                 airCube.getMoved(new Vec3i(0, upShift, 0))
             )
@@ -365,7 +367,7 @@ public class NetherPortalMatcher {
     ) {
         Integer downShift = Helper.getLastSatisfying(
             IntStream.range(0, 40).boxed(),
-            i -> isAllAir(
+            i -> isAirCubeMediumPlace(
                 world,
                 airCube.getMoved(new Vec3i(0, -i, 0))
             )
