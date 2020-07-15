@@ -81,9 +81,9 @@ public class PortalManipulation {
             newPortal.rotation = new Quaternion(portal.rotation);
             newPortal.rotation.conjugate();
         }
-        
-        newPortal.setMotionAffinity(portal.getMotionAffinity());
-        
+    
+        newPortal.extension.motionAffinity = portal.extension.motionAffinity;
+    
         newPortal.specificPlayerId = portal.specificPlayerId;
         return newPortal;
     }
@@ -119,8 +119,8 @@ public class PortalManipulation {
         );
         
         newPortal.rotation = portal.rotation;
-        
-        newPortal.setMotionAffinity(portal.getMotionAffinity());
+    
+        newPortal.extension.motionAffinity = portal.extension.motionAffinity;
     
         newPortal.specificPlayerId = portal.specificPlayerId;
         
@@ -154,7 +154,7 @@ public class PortalManipulation {
     
         newPortal.rotation = portal.rotation;
     
-        newPortal.setMotionAffinity(portal.getMotionAffinity());
+        newPortal.extension.motionAffinity = portal.extension.motionAffinity;
     
         newPortal.specificPlayerId = portal.specificPlayerId;
     

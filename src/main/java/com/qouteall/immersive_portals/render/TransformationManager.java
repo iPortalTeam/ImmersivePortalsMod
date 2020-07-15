@@ -126,7 +126,7 @@ public class TransformationManager {
                 
                 Vec3d projectionToPlane = oldViewVector.subtract(
                     Helper.getProjection(oldViewVector, portal.getNormal())
-                );
+                ).normalize();
                 double threshold = Math.sqrt(2.0) / 2.0;
                 if (Math.abs(rotatingAxis.dotProduct(projectionToPlane)) > threshold) {
                     newViewVector = Helper.getFlippedVec(oldViewVector, portal.getNormal());

@@ -52,8 +52,6 @@ public class Portal extends Entity {
     
     public Quaternion rotation;
     
-    private double motionAffinity = 0;
-    
     private boolean interactable = true;
     
     public PortalExtension extension = new PortalExtension();
@@ -639,11 +637,4 @@ public class Portal extends Entity {
             a.getNormal().dotProduct(b.getNormal()) < -0.5;
     }
     
-    public double getMotionAffinity() {
-        return motionAffinity;
-    }
-    
-    public void setMotionAffinity(double motionAffinity) {
-        this.motionAffinity = motionAffinity;
-    }
 }

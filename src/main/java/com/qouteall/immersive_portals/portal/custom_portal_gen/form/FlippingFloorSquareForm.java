@@ -137,11 +137,19 @@ public class FlippingFloorSquareForm extends PortalGenForm {
                 .flatMap(z -> IntStream.range(5, toWorld.getDimensionHeight() - 5).map(
                     y -> toWorld.getDimensionHeight() - y
                 ).mapToObj(y -> new BlockPos(x, y, z)))
-            ).map(blockPos -> IntBox.getBoxByBasePointAndSize(areaSize, blockPos))
+            )
+            .map(blockPos -> IntBox.getBoxByBasePointAndSize(areaSize, blockPos))
+            .filter(intBox -> intBox.getSurfaceLayer(Direction.DOWN)
+                .getMoved(Direction.DOWN.getVector())
+                .stream().allMatch(
+                    blockPos-> !toWorld.getBlockState(blockPos).isAir()
+                )
+            )
             .filter(intBox -> intBox.stream().allMatch(
                 pos -> !toWorld.getBlockState(pos).isOpaqueFullCube(toWorld, pos)
             ))
-            .findFirst().orElseGet(() -> IntBox.getBoxByBasePointAndSize(areaSize, toPos));
+            .findFirst().orElseGet(() -> IntBox.getBoxByBasePointAndSize(areaSize, toPos))
+            .getMoved(Direction.DOWN.getVector());
     }
     
     private void createPortals(
@@ -167,16 +175,16 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pb.blockPortalShape = toShape;
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
-        
-        pa.setMotionAffinity(0.1);
-        pb.setMotionAffinity(0.1);
-        
-        pa.world.spawnEntity(pa);
-        pb.world.spawnEntity(pb);
-        
+    
+        pa.extension.motionAffinity = 0.1;
+        pb.extension.motionAffinity = 0.1;
+    
         // special flipping portal
         pa.extension.isSpecialFlippingPortal = true;
         pb.extension.isSpecialFlippingPortal = true;
+        
+        pa.world.spawnEntity(pa);
+        pb.world.spawnEntity(pb);
         
         cpg.onPortalGenerated(pa);
         cpg.onPortalGenerated(pb);
