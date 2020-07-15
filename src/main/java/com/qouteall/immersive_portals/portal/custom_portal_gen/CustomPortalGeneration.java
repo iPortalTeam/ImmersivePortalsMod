@@ -2,10 +2,8 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.Helper;
@@ -104,6 +102,20 @@ public class CustomPortalGeneration {
         return Helper.divide(Helper.scale(from, spaceRatioTo), spaceRatioFrom);
     }
     
+    // if the dimension is missing, do not load
+    public boolean checkShouldLoad() {
+        fromDimensions.removeIf(dim -> McHelper.getServer().getWorld(dim) == null);
+        if (fromDimensions.isEmpty()) {
+            return false;
+        }
+        
+        if (McHelper.getServer().getWorld(toDimension) == null) {
+            return false;
+        }
+        
+        return true;
+    }
+    
     @Override
     public String toString() {
         return McHelper.serializeToJson(
@@ -116,11 +128,21 @@ public class CustomPortalGeneration {
         if (!fromDimensions.contains(world.getRegistryKey())) {
             return false;
         }
-    
+        
         if (!world.isChunkLoaded(startPos)) {
             return false;
         }
+        
+        ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
+        
+        if (toWorld == null) {
+            Helper.err("Missing dimension " + toDimension.getValue());
+            return false;
+        }
     
-        return form.perform(this, world, startPos);
+        world.getProfiler().push("custom_portal_gen_perform");
+        boolean result = form.perform(this, world, startPos, toWorld);
+        world.getProfiler().pop();
+        return result;
     }
 }

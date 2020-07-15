@@ -19,6 +19,10 @@ public abstract class MixinItemEntity_P {
         at = @At("RETURN")
     )
     private void onItemTickEnded(CallbackInfo ci) {
-        CustomPortalGenManagement.onItemTick((ItemEntity) (Object) this);
+    
+        ItemEntity this_ = (ItemEntity) (Object) this;
+        this_.world.getProfiler().push("imm_ptl_item_tick");
+        CustomPortalGenManagement.onItemTick(this_);
+        this_.world.getProfiler().pop();
     }
 }

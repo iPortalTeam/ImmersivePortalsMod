@@ -12,7 +12,6 @@ import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGener
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PlantBlock;
@@ -63,7 +62,11 @@ public class FloorSquareForm extends PortalGenForm {
     }
     
     @Override
-    public boolean perform(CustomPortalGeneration cpg, ServerWorld fromWorld, BlockPos startingPos) {
+    public boolean perform(
+        CustomPortalGeneration cpg,
+        ServerWorld fromWorld, BlockPos startingPos,
+        ServerWorld toWorld
+    ) {
         Predicate<BlockState> areaPredicate = blockState -> blockState.getBlock() == areaBlock;
         Predicate<BlockState> framePredicate = blockState -> {
             return frameBlock.contains(blockState.getBlock());
@@ -71,13 +74,6 @@ public class FloorSquareForm extends PortalGenForm {
         Predicate<BlockState> otherSideFramePredicate = framePredicate;
         
         if (!areaPredicate.test(fromWorld.getBlockState(startingPos))) {
-            return false;
-        }
-        
-        ServerWorld toWorld = McHelper.getServer().getWorld(cpg.toDimension);
-        
-        if (toWorld == null) {
-            Helper.err("Cannot find dimension " + cpg.toDimension.getValue());
             return false;
         }
         

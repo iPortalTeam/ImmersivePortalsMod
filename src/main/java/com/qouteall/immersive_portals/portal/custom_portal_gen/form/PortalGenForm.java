@@ -40,6 +40,8 @@ public abstract class PortalGenForm {
     
     // Return true for succeeded
     public abstract boolean perform(
-        CustomPortalGeneration cpg, ServerWorld fromWorld, BlockPos startingPos
+        CustomPortalGeneration cpg,
+        ServerWorld fromWorld, BlockPos startingPos,
+        ServerWorld toWorld
     );
 }

@@ -57,17 +57,14 @@ public class NetherPortalLikeForm extends PortalGenForm {
     }
     
     @Override
-    public boolean perform(CustomPortalGeneration cpg, ServerWorld fromWorld, BlockPos startingPos) {
-        Predicate<BlockState> areaPredicate = blockState -> blockState.getBlock() == areaBlock;
-        Predicate<BlockState> thisSideFramePredicate = blockState -> blockState.getBlock() == fromFrameBlock;
-        Predicate<BlockState> otherSideFramePredicate = blockState -> blockState.getBlock() == toFrameBlock;
-        
-        ServerWorld toWorld = McHelper.getServer().getWorld(cpg.toDimension);
-        
-        if (toWorld == null) {
-            Helper.err("Cannot find dimension " + cpg.toDimension.getValue());
-            return false;
-        }
+    public boolean perform(
+        CustomPortalGeneration cpg,
+        ServerWorld fromWorld, BlockPos startingPos,
+        ServerWorld toWorld
+    ) {
+        Predicate<BlockState> areaPredicate = getAreaPredicate();
+        Predicate<BlockState> thisSideFramePredicate = getThisSideFramePredicate();
+        Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();
         
         BlockPortalShape fromShape = NetherPortalGeneration.findFrameShape(
             fromWorld, startingPos,
@@ -89,12 +86,7 @@ public class NetherPortalLikeForm extends PortalGenForm {
             areaPredicate,
             otherSideFramePredicate,
             toShape -> {
-                //generate new frame
-                NetherPortalGeneration.embodyNewFrame(
-                    toWorld,
-                    toShape,
-                    toFrameBlock.getDefaultState()
-                );
+                generateNewFrame(fromWorld, fromShape, toWorld, toShape);
             },
             info -> {
                 //generate portal entity
@@ -131,5 +123,30 @@ public class NetherPortalLikeForm extends PortalGenForm {
         );
         
         return true;
+    }
+    
+    public void generateNewFrame(
+        ServerWorld fromWorld,
+        BlockPortalShape fromShape,
+        ServerWorld toWorld,
+        BlockPortalShape toShape
+    ) {
+        NetherPortalGeneration.embodyNewFrame(
+            toWorld,
+            toShape,
+            toFrameBlock.getDefaultState()
+        );
+    }
+    
+    public Predicate<BlockState> getOtherSideFramePredicate() {
+        return blockState -> blockState.getBlock() == toFrameBlock;
+    }
+    
+    public Predicate<BlockState> getThisSideFramePredicate() {
+        return blockState -> blockState.getBlock() == fromFrameBlock;
+    }
+    
+    public Predicate<BlockState> getAreaPredicate() {
+        return blockState -> blockState.getBlock() == areaBlock;
     }
 }

@@ -13,11 +13,16 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.util.registry.SimpleRegistry;
+
+import java.util.List;
 
 public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> useItemGen = HashMultimap.create();
@@ -54,12 +59,19 @@ public class CustomPortalGenManagement {
         if (result == null) {
             DataResult.PartialResult<SimpleRegistry<CustomPortalGeneration>> r =
                 dataResult.get().right().get();
-            Helper.err("Error when parsing custom portal generation");
-            Helper.err(r.message());
+            sendMessageToFirstLoggedPlayer(new LiteralText(
+                "Error when parsing custom portal generation\n" +
+                    r.message()
+            ));
             return;
         }
         
         result.stream().forEach(gen -> {
+            if (!gen.checkShouldLoad()) {
+                Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
+                return;
+            }
+            
             Helper.log("Loaded Custom Portal Gen " + gen.toString());
             
             load(gen);
@@ -124,5 +136,26 @@ public class CustomPortalGenManagement {
                 });
             }
         }
+    }
+    
+    public static void sendMessageToFirstLoggedPlayer(Text text) {
+        Helper.log(text.asString());
+        ModMain.serverTaskList.addTask(() -> {
+            MinecraftServer server = McHelper.getServer();
+            if (server == null) {
+                return false;
+            }
+            
+            List<ServerPlayerEntity> playerList = server.getPlayerManager().getPlayerList();
+            if (playerList.isEmpty()) {
+                return false;
+            }
+            
+            for (ServerPlayerEntity player : playerList) {
+                player.sendMessage(text, false);
+            }
+            
+            return true;
+        });
     }
 }
