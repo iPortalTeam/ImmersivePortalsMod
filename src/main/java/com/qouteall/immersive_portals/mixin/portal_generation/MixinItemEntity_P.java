@@ -12,15 +12,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 public abstract class MixinItemEntity_P {
-    @Shadow public abstract ItemStack getStack();
+    @Shadow
+    public abstract ItemStack getStack();
     
     @Inject(
         method = "tick",
-        at = @At("RETURN")
+        at = @At("TAIL")
     )
     private void onItemTickEnded(CallbackInfo ci) {
-    
         ItemEntity this_ = (ItemEntity) (Object) this;
+        if (this_.removed) {
+            return;
+        }
         this_.world.getProfiler().push("imm_ptl_item_tick");
         CustomPortalGenManagement.onItemTick(this_);
         this_.world.getProfiler().pop();

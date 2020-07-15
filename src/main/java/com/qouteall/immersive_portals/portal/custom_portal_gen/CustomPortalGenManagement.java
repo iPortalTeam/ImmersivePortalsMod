@@ -9,19 +9,24 @@ import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import net.minecraft.block.Block;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.RegistryTagManager;
+import net.minecraft.tag.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.util.registry.SimpleRegistry;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class CustomPortalGenManagement {
@@ -67,7 +72,7 @@ public class CustomPortalGenManagement {
         }
         
         result.stream().forEach(gen -> {
-            if (!gen.checkShouldLoad()) {
+            if (!gen.initAndCheck()) {
                 Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
                 return;
             }
@@ -128,7 +133,7 @@ public class CustomPortalGenManagement {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(((ServerWorld) entity.world), entity.getBlockPos());
                         if (result) {
-                            entity.remove();
+                            entity.getStack().decrement(1);
                             break;
                         }
                     }
@@ -157,5 +162,19 @@ public class CustomPortalGenManagement {
             
             return true;
         });
+    }
+    
+    @Nullable
+    public static Tag<Block> readBlockTag(Identifier identifier) {
+        RegistryTagManager tagManager = McHelper.getServer().serverResourceManager.getRegistryTagManager();
+        
+        Tag<Block> tag = tagManager.blocks().get(identifier);
+        if (tag == null) {
+            CustomPortalGenManagement.sendMessageToFirstLoggedPlayer(new LiteralText(
+                "Missing block tag " + identifier
+            ));
+        }
+        
+        return tag;
     }
 }

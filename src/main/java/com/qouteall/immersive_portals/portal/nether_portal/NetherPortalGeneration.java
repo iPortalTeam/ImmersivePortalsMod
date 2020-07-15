@@ -149,7 +149,7 @@ public class NetherPortalGeneration {
     }
     
     //create portal entity and generate placeholder blocks
-    public static void generateBreakablePortalEntities(
+    public static BreakablePortalEntity[] generateBreakablePortalEntities(
         Info info,
         EntityType<? extends BreakablePortalEntity> entityType
     ) {
@@ -206,6 +206,8 @@ public class NetherPortalGeneration {
         fromWorld.spawnEntity(portalArray[1]);
         toWorld.spawnEntity(portalArray[2]);
         toWorld.spawnEntity(portalArray[3]);
+    
+        return portalArray;
     }
     
     public static class Info {

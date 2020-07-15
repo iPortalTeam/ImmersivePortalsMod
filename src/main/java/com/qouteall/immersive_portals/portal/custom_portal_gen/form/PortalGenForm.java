@@ -21,10 +21,13 @@ public abstract class PortalGenForm {
         );
         
         Registry.register(
-            registry, new Identifier("imm_ptl:nether_portal_like"), NetherPortalLikeForm.codec
+            registry, new Identifier("imm_ptl:classical"), ClassicalForm.codec
         );
         Registry.register(
-            registry, new Identifier("imm_ptl:floor_square"), FloorSquareForm.codec
+            registry, new Identifier("imm_ptl:heterogeneous"), HeterogeneousForm.codec
+        );
+        Registry.register(
+            registry, new Identifier("imm_ptl:flipping_floor_square"), FlippingFloorSquareForm.codec
         );
         
         return registry;
@@ -44,4 +47,8 @@ public abstract class PortalGenForm {
         ServerWorld fromWorld, BlockPos startingPos,
         ServerWorld toWorld
     );
+    
+    public boolean initAndCheck() {
+        return true;
+    }
 }

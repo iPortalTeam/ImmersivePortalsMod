@@ -4,10 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGenManagement;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
@@ -17,38 +17,53 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.PlantBlock;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.Tag;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.registry.Registry;
 
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-public class FloorSquareForm extends PortalGenForm {
+public class FlippingFloorSquareForm extends PortalGenForm {
     
     public static final ListCodec<Block> blockListCodec = new ListCodec<>(Registry.BLOCK);
     
-    public static final Codec<FloorSquareForm> codec = RecordCodecBuilder.create(instance -> {
+    public static final Codec<FlippingFloorSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Codec.INT.fieldOf("length").forGetter(o -> o.length),
-            blockListCodec.fieldOf("frame_block").forGetter(o -> o.frameBlock),
-            Registry.BLOCK.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            blockListCodec.fieldOf("up_frame_block").forGetter(o -> o.upFrameBlock)
-        ).apply(instance, instance.stable(FloorSquareForm::new));
+            Identifier.CODEC.fieldOf("frame_block_tag").forGetter(o -> o.frameBlockTagId),
+            Identifier.CODEC.fieldOf("area_block_tag").forGetter(o -> o.areaBlockTagId),
+            Identifier.CODEC.optionalFieldOf("up_frame_block_tag", null)
+                .forGetter(o -> o.upFrameBlockTagId),
+            Identifier.CODEC.optionalFieldOf("bottom_block_tag", null)
+                .forGetter(o -> o.bottomBlockTagId),
+            Codec.INT.fieldOf("length").forGetter(o -> o.length)
+        ).apply(instance, instance.stable(FlippingFloorSquareForm::new));
     });
     
-    public int length;
-    public List<Block> frameBlock;
-    public Block areaBlock;
-    public List<Block> upFrameBlock;
+    public Identifier frameBlockTagId;
+    public Identifier areaBlockTagId;
+    public Identifier upFrameBlockTagId;
+    public Identifier bottomBlockTagId;
     
-    public FloorSquareForm(int length, List<Block> frameBlock, Block areaBlock, List<Block> upFrameBlock) {
+    public int length;
+    public Tag<Block> frameBlockTag;
+    public Tag<Block> areaBlockTag;
+    public Tag<Block> upFrameBlockTag;
+    public Tag<Block> bottomBlockTag;
+    
+    public FlippingFloorSquareForm(
+        Identifier frameBlockTagId, Identifier areaBlockTagId,
+        Identifier upFrameBlockTagId, Identifier bottomBlockTagId,
+        int length
+    ) {
+        this.frameBlockTagId = frameBlockTagId;
+        this.areaBlockTagId = areaBlockTagId;
+        this.upFrameBlockTagId = upFrameBlockTagId;
+        this.bottomBlockTagId = bottomBlockTagId;
         this.length = length;
-        this.frameBlock = frameBlock;
-        this.areaBlock = areaBlock;
-        this.upFrameBlock = upFrameBlock;
     }
     
     @Override
@@ -62,18 +77,45 @@ public class FloorSquareForm extends PortalGenForm {
     }
     
     @Override
+    public boolean initAndCheck() {
+        frameBlockTag = CustomPortalGenManagement.readBlockTag(frameBlockTagId);
+        if (frameBlockTag == null) {
+            return false;
+        }
+        
+        areaBlockTag = CustomPortalGenManagement.readBlockTag(areaBlockTagId);
+        if (areaBlockTag == null) {
+            return false;
+        }
+        
+        upFrameBlockTag = CustomPortalGenManagement.readBlockTag(upFrameBlockTagId);
+        if (upFrameBlockTag == null) {
+            return false;
+        }
+        
+        bottomBlockTag = CustomPortalGenManagement.readBlockTag(bottomBlockTagId);
+        if (bottomBlockTag == null) {
+            return false;
+        }
+        
+        return super.initAndCheck();
+    }
+    
+    @Override
     public boolean perform(
         CustomPortalGeneration cpg,
         ServerWorld fromWorld, BlockPos startingPos,
         ServerWorld toWorld
     ) {
-        Predicate<BlockState> areaPredicate = blockState -> blockState.getBlock() == areaBlock;
-        Predicate<BlockState> framePredicate = blockState -> {
-            return frameBlock.contains(blockState.getBlock());
-        };
-        Predicate<BlockState> otherSideFramePredicate = framePredicate;
+        Predicate<BlockState> areaPredicate = blockState -> blockState.isIn(areaBlockTag);
+        Predicate<BlockState> framePredicate = blockState -> blockState.isIn(frameBlockTag);
+        Predicate<BlockState> bottomPredicate = blockState -> blockState.isIn(bottomBlockTag);
         
         if (!areaPredicate.test(fromWorld.getBlockState(startingPos))) {
+            return false;
+        }
+        
+        if (!bottomPredicate.test(fromWorld.getBlockState(startingPos.down()))) {
             return false;
         }
         
@@ -106,7 +148,7 @@ public class FloorSquareForm extends PortalGenForm {
                     );
                 }),
             box -> box.stream().allMatch(
-                blockPos ->{
+                blockPos -> {
                     BlockState blockState = toWorld.getBlockState(blockPos);
                     // regard plant block as air
                     return blockState.isAir() || blockState.getBlock() instanceof PlantBlock;
@@ -163,7 +205,7 @@ public class FloorSquareForm extends PortalGenForm {
         pb.blockPortalShape = toShape;
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
-    
+        
         pa.motionAffinity = 0.1;
         pb.motionAffinity = 0.1;
         
@@ -175,22 +217,24 @@ public class FloorSquareForm extends PortalGenForm {
     
     private boolean isFloorSquareShape(BlockPortalShape shape, ServerWorld fromWorld) {
         BlockPos areaSize = shape.innerAreaBox.getSize();
-        boolean roughTest = areaSize.getX() == length &&
+        boolean areaSizeTest = areaSize.getX() == length &&
             areaSize.getZ() == length &&
             shape.area.size() == (length * length);
-        if (!roughTest) {
+        if (!areaSizeTest) {
             return false;
         }
         
-        //empty indicates not checking up frame block
-        if (upFrameBlock.isEmpty()) {
+        if (upFrameBlockTag == null) {
             return true;
         }
         
-        Predicate<BlockState> upFrameBlockPredicate = s -> upFrameBlock.contains(s.getBlock());
+        Predicate<BlockState> upFrameBlockPredicate = s -> s.isIn(upFrameBlockTag);
+        Predicate<BlockState> bottomPredicate = blockState -> blockState.isIn(bottomBlockTag);
         
         return shape.frameAreaWithCorner.stream().allMatch(
             blockPos -> upFrameBlockPredicate.test(fromWorld.getBlockState(blockPos))
+        ) && shape.area.stream().allMatch(
+            blockPos -> bottomPredicate.test(fromWorld.getBlockState(blockPos.down()))
         );
     }
 }

@@ -3,6 +3,8 @@ package com.qouteall.immersive_portals.mixin.position_sync;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.ducks.IEPlayerEntity;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
@@ -171,6 +173,9 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         Box box
     ) {
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+            return false;
+        }
+        if (((IEEntity) player).getCollidingPortal() != null) {
             return false;
         }
         boolean portalsNearby = McHelper.getServerPortalsNearby(

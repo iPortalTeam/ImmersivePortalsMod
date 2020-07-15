@@ -8,7 +8,10 @@ import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.form.PortalGenForm;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -18,12 +21,17 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class CustomPortalGeneration {
     public static final Codec<List<RegistryKey<World>>> dimensionListCodec =
         new ListCodec<>(World.CODEC);
+    public static final Codec<List<String>> stringListCodec =
+        new ListCodec<>(Codec.STRING);
     
     public static RegistryKey<Registry<Codec<CustomPortalGeneration>>> schemaRegistryKey = RegistryKey.ofRegistry(
         new Identifier("imm_ptl:custom_portal_gen_schema")
@@ -36,11 +44,13 @@ public class CustomPortalGeneration {
         return instance.group(
             dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
             World.CODEC.fieldOf("to").forGetter(o -> o.toDimension),
-            Codec.INT.fieldOf("space_ratio_from").forGetter(o -> o.spaceRatioFrom),
-            Codec.INT.fieldOf("space_ratio_to").forGetter(o -> o.spaceRatioTo),
+            Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
+            Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
             Codec.BOOL.fieldOf("two_way").forGetter(o -> o.twoWay),
             PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
-            PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger)
+            PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
+            stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
+                .forGetter(o -> o.postInvokeCommands)
         ).apply(instance, instance.stable(CustomPortalGeneration::new));
     });
     
@@ -66,11 +76,13 @@ public class CustomPortalGeneration {
     public final boolean twoWay;
     public final PortalGenForm form;
     public final PortalGenTrigger trigger;
+    public final List<String> postInvokeCommands;
     
     public CustomPortalGeneration(
         List<RegistryKey<World>> fromDimensions, RegistryKey<World> toDimension,
         int spaceRatioFrom, int spaceRatioTo, boolean twoWay,
-        PortalGenForm form, PortalGenTrigger trigger
+        PortalGenForm form, PortalGenTrigger trigger,
+        List<String> postInvokeCommands
     ) {
         this.fromDimensions = fromDimensions;
         this.toDimension = toDimension;
@@ -79,6 +91,7 @@ public class CustomPortalGeneration {
         this.twoWay = twoWay;
         this.form = form;
         this.trigger = trigger;
+        this.postInvokeCommands = postInvokeCommands;
     }
     
     public CustomPortalGeneration getReverse() {
@@ -90,7 +103,8 @@ public class CustomPortalGeneration {
                 spaceRatioFrom,
                 false,
                 form.getReverse(),
-                trigger
+                trigger,
+                postInvokeCommands
             );
         }
         
@@ -102,14 +116,18 @@ public class CustomPortalGeneration {
         return Helper.divide(Helper.scale(from, spaceRatioTo), spaceRatioFrom);
     }
     
-    // if the dimension is missing, do not load
-    public boolean checkShouldLoad() {
+    public boolean initAndCheck() {
+        // if the dimension is missing, do not load
         fromDimensions.removeIf(dim -> McHelper.getServer().getWorld(dim) == null);
         if (fromDimensions.isEmpty()) {
             return false;
         }
         
         if (McHelper.getServer().getWorld(toDimension) == null) {
+            return false;
+        }
+        
+        if (!form.initAndCheck()) {
             return false;
         }
         
@@ -139,10 +157,23 @@ public class CustomPortalGeneration {
             Helper.err("Missing dimension " + toDimension.getValue());
             return false;
         }
-    
+        
         world.getProfiler().push("custom_portal_gen_perform");
         boolean result = form.perform(this, world, startPos, toWorld);
         world.getProfiler().pop();
         return result;
+    }
+    
+    public void onPortalGenerated(Portal portal) {
+        if (postInvokeCommands.isEmpty()) {
+            return;
+        }
+    
+        ServerCommandSource commandSource = portal.getCommandSource();
+        CommandManager commandManager = McHelper.getServer().getCommandManager();
+    
+        for (String command : postInvokeCommands) {
+            commandManager.execute(commandSource, command);
+        }
     }
 }

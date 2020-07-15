@@ -1,59 +1,22 @@
 package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
+import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 
 import java.util.function.Predicate;
 
-public class NetherPortalLikeForm extends PortalGenForm {
-    public static final Codec<NetherPortalLikeForm> codec = RecordCodecBuilder.create(instance -> {
-        return instance.group(
-            Registry.BLOCK.fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
-            Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
-        ).apply(instance, instance.stable(NetherPortalLikeForm::new));
-    });
-    
-    public final Block fromFrameBlock;
-    public final Block areaBlock;
-    public final Block toFrameBlock;
+public abstract class NetherPortalLikeForm extends PortalGenForm {
     public final boolean generateFrameIfNotFound;
     
-    public NetherPortalLikeForm(
-        Block fromFrameBlock, Block areaBlock, Block toFrameBlock, boolean generateFrameIfNotFound
-    ) {
-        this.fromFrameBlock = fromFrameBlock;
-        this.areaBlock = areaBlock;
-        this.toFrameBlock = toFrameBlock;
+    public NetherPortalLikeForm(boolean generateFrameIfNotFound) {
         this.generateFrameIfNotFound = generateFrameIfNotFound;
-    }
-    
-    @Override
-    public Codec<? extends PortalGenForm> getCodec() {
-        return codec;
-    }
-    
-    @Override
-    public PortalGenForm getReverse() {
-        return new NetherPortalLikeForm(
-            toFrameBlock,
-            areaBlock,
-            fromFrameBlock,
-            generateFrameIfNotFound
-        );
     }
     
     @Override
@@ -90,9 +53,12 @@ public class NetherPortalLikeForm extends PortalGenForm {
             },
             info -> {
                 //generate portal entity
-                NetherPortalGeneration.generateBreakablePortalEntities(
+                BreakablePortalEntity[] result = NetherPortalGeneration.generateBreakablePortalEntities(
                     info, GeneralBreakablePortal.entityType
                 );
+                for (BreakablePortalEntity portal : result) {
+                    cpg.onPortalGenerated(portal);
+                }
             },
             () -> {
                 //place frame
@@ -125,28 +91,16 @@ public class NetherPortalLikeForm extends PortalGenForm {
         return true;
     }
     
-    public void generateNewFrame(
+    public abstract void generateNewFrame(
         ServerWorld fromWorld,
         BlockPortalShape fromShape,
         ServerWorld toWorld,
         BlockPortalShape toShape
-    ) {
-        NetherPortalGeneration.embodyNewFrame(
-            toWorld,
-            toShape,
-            toFrameBlock.getDefaultState()
-        );
-    }
+    );
     
-    public Predicate<BlockState> getOtherSideFramePredicate() {
-        return blockState -> blockState.getBlock() == toFrameBlock;
-    }
+    public abstract Predicate<BlockState> getOtherSideFramePredicate();
     
-    public Predicate<BlockState> getThisSideFramePredicate() {
-        return blockState -> blockState.getBlock() == fromFrameBlock;
-    }
+    public abstract Predicate<BlockState> getThisSideFramePredicate();
     
-    public Predicate<BlockState> getAreaPredicate() {
-        return blockState -> blockState.getBlock() == areaBlock;
-    }
+    public abstract Predicate<BlockState> getAreaPredicate();
 }
