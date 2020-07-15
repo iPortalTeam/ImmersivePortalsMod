@@ -121,8 +121,19 @@ public class TransformationManager {
             Vec3d newViewVector;
             
             if (portal.extension.isSpecialFlippingPortal) {
-                // does not maintain the visual looking vector for special flipping portals
-                newViewVector = oldViewVector;
+                
+                Vec3d rotatingAxis = Helper.getRotatingAxis(portal.rotation);
+                
+                Vec3d projectionToPlane = oldViewVector.subtract(
+                    Helper.getProjection(oldViewVector, portal.getNormal())
+                );
+                double threshold = Math.sqrt(2.0) / 2.0;
+                if (Math.abs(rotatingAxis.dotProduct(projectionToPlane)) > threshold) {
+                    newViewVector = Helper.getFlippedVec(oldViewVector, portal.getNormal());
+                }
+                else {
+                    newViewVector = oldViewVector;
+                }
             }
             else {
                 // make the visual looking vector to not change after teleporting

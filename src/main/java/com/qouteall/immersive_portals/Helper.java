@@ -690,6 +690,23 @@ public class Helper {
         return quaternion;
     }
     
+    public static Vec3d getRotatingAxis(Quaternion quaternion) {
+        return new Vec3d(
+            quaternion.getX(),
+            quaternion.getY(),
+            quaternion.getZ()
+        ).normalize();
+    }
+    
+    public static Vec3d getFlippedVec(Vec3d vec, Vec3d flippingAxis) {
+        Vec3d component = getProjection(vec, flippingAxis);
+        return vec.subtract(component).multiply(-1).add(component);
+    }
+    
+    public static Vec3d getProjection(Vec3d vec, Vec3d direction) {
+        return direction.multiply(vec.dotProduct(direction));
+    }
+    
     //naive interpolation is better?
     //not better
     public static Quaternion interpolateQuaternionNaive(

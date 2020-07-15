@@ -8,6 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 
@@ -47,32 +48,6 @@ public class PortalExtension {
     
     @Environment(EnvType.CLIENT)
     private void tickClient(Portal portal) {
-        if (isSpecialFlippingPortal) {
-            
-            updateFlippingPortalClientRotation(portal);
-        }
-    }
     
-    /**
-     * The flipping portal rotates 180 degrees.
-     * The rotating axis can be in one plane and the actual transformation won't change
-     * Change the rotating axis so that the rotating animation after the player cross the portal will be better
-     * The default way is to not change the player's looking vec
-     * {@link TransformationManager#onClientPlayerTeleported(Portal)}
-     */
-    @Environment(EnvType.CLIENT)
-    private void updateFlippingPortalClientRotation(Portal portal) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null) {
-            Vec3d cameraPos = player.getCameraPosVec(1);
-            Vec3d delta = cameraPos.subtract(portal.getPos());
-            Vec3d newRotatingAxis = delta.crossProduct(portal.getNormal()).normalize();
-            if (newRotatingAxis.lengthSquared() > 0.1) {
-                portal.rotation = new Quaternion(
-                    new Vector3f(newRotatingAxis),
-                    180, true
-                );
-            }
-        }
     }
 }
