@@ -24,6 +24,7 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -469,7 +470,8 @@ public class McHelper {
         CrossPortalEntityRenderer.onEntityTickClient(entity);
     }
     
-  
+   
+    
     
     public static interface ChunkAccessor {
         WorldChunk getChunk(int x, int z);
@@ -629,5 +631,26 @@ public class McHelper {
             codec, ops,
             getElementFailHard(ops, input, key)
         );
+    }
+    
+    public static void sendMessageToFirstLoggedPlayer(Text text) {
+        Helper.log(text.asString());
+        ModMain.serverTaskList.addTask(() -> {
+            MinecraftServer server = getServer();
+            if (server == null) {
+                return false;
+            }
+            
+            List<ServerPlayerEntity> playerList = server.getPlayerManager().getPlayerList();
+            if (playerList.isEmpty()) {
+                return false;
+            }
+            
+            for (ServerPlayerEntity player : playerList) {
+                player.sendMessage(text, false);
+            }
+            
+            return true;
+        });
     }
 }

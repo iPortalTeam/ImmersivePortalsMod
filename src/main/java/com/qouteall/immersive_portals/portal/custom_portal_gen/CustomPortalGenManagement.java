@@ -14,12 +14,10 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.RegistryTagManager;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.RegistryOps;
@@ -27,7 +25,6 @@ import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.util.registry.SimpleRegistry;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> useItemGen = HashMultimap.create();
@@ -64,7 +61,7 @@ public class CustomPortalGenManagement {
         if (result == null) {
             DataResult.PartialResult<SimpleRegistry<CustomPortalGeneration>> r =
                 dataResult.get().right().get();
-            sendMessageToFirstLoggedPlayer(new LiteralText(
+            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
                 "Error when parsing custom portal generation\n" +
                     r.message()
             ));
@@ -143,34 +140,13 @@ public class CustomPortalGenManagement {
         }
     }
     
-    public static void sendMessageToFirstLoggedPlayer(Text text) {
-        Helper.log(text.asString());
-        ModMain.serverTaskList.addTask(() -> {
-            MinecraftServer server = McHelper.getServer();
-            if (server == null) {
-                return false;
-            }
-            
-            List<ServerPlayerEntity> playerList = server.getPlayerManager().getPlayerList();
-            if (playerList.isEmpty()) {
-                return false;
-            }
-            
-            for (ServerPlayerEntity player : playerList) {
-                player.sendMessage(text, false);
-            }
-            
-            return true;
-        });
-    }
-    
     @Nullable
     public static Tag<Block> readBlockTag(Identifier identifier) {
         RegistryTagManager tagManager = McHelper.getServer().serverResourceManager.getRegistryTagManager();
         
         Tag<Block> tag = tagManager.blocks().get(identifier);
         if (tag == null) {
-            CustomPortalGenManagement.sendMessageToFirstLoggedPlayer(new LiteralText(
+            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
                 "Missing block tag " + identifier
             ));
         }
