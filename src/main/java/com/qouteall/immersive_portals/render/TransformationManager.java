@@ -27,6 +27,7 @@ public class TransformationManager {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
     public static void processTransformation(Camera camera, MatrixStack matrixStack) {
+        // override vanilla camera transformation
         matrixStack.peek().getModel().loadIdentity();
         matrixStack.peek().getNormal().loadIdentity();
         
@@ -68,33 +69,6 @@ public class TransformationManager {
 //        return progress;
         return Math.sin(progress * (Math.PI / 2));
 //        return Math.sqrt(1 - (1 - progress) * (1 - progress));
-    }
-    
-    /**
-     * Entity#getRotationVector(float, float)
-     */
-    private static float getYawFromViewVector(Vec3d viewVector) {
-        double lx = viewVector.x;
-        double lz = viewVector.z;
-        double len = Math.sqrt(lx * lx + lz * lz);
-        lx /= len;
-        lz /= len;
-        
-        if (lz >= 0) {
-            return (float) -Math.asin(lx) / 0.017453292F;
-        }
-        else {
-            if (lx > 0) {
-                return (float) -Math.acos(lz) / 0.017453292F;
-            }
-            else {
-                return (float) Math.acos(lz) / 0.017453292F;
-            }
-        }
-    }
-    
-    private static float getPitchFromViewVector(Vec3d viewVector) {
-        return (float) -Math.asin(viewVector.y) / 0.017453292F;
     }
     
     public static void onClientPlayerTeleported(

@@ -148,6 +148,7 @@ public class DQuaternion {
         return result;
     }
     
+    // should be the same as the above
     public static DQuaternion getCameraRotation1(double pitch, double yaw) {
         double p = Math.toRadians(pitch) / 2;
         double y = Math.toRadians(yaw) / 2;
@@ -225,12 +226,7 @@ public class DQuaternion {
     }
     
     /**
-     * p = pitch/2
-     * y = yaw/2
-     * qx=-sinp siny, qy=cosp cosy, qz=sinp cosy, qw=-cosp siny
-     * the pitch may be illegal (-180 to 180)
-     * the result is radians
-     * if the input is not a valid camera rotation, it may still work?
+     * {@link DQuaternion#getCameraRotation1(double, double)}
      */
     public static Pair<Double, Double> getPitchYawFromRotation(DQuaternion quaternion) {
         double x = quaternion.getX();
