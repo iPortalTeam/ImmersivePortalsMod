@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
+import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
@@ -14,24 +15,28 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
 public class TransformationManager {
-    public static Quaternion inertialRotation;
+    public static DQuaternion inertialRotation;
     private static long interpolationStartTime = 0;
     private static long interpolationEndTime = 1;
-    public static Quaternion portalRotation;
+    public static DQuaternion portalRotation;
+    
+    public static final MinecraftClient client = MinecraftClient.getInstance();
     
     public static void processTransformation(Camera camera, MatrixStack matrixStack) {
         matrixStack.peek().getModel().loadIdentity();
         matrixStack.peek().getNormal().loadIdentity();
         
-        Quaternion cameraRotation = RotationHelper.getCameraRotation(camera.getPitch(), camera.getYaw());
-        Quaternion finalRotation = getFinalRotation(cameraRotation);
+        DQuaternion cameraRotation = DQuaternion.getCameraRotation(camera.getPitch(), camera.getYaw());
+    
+        Pair<Double, Double> heh = DQuaternion.getPitchYawFromRotation(cameraRotation);
         
-        matrixStack.multiply(finalRotation);
+        DQuaternion finalRotation = getFinalRotation(cameraRotation);
+        
+        matrixStack.multiply(finalRotation.toMcQuaternion());
         
         RenderInfo.applyAdditionalTransformations(matrixStack);
         
@@ -44,7 +49,7 @@ public class TransformationManager {
         return progress >= -0.1 && progress <= 1.1;
     }
     
-    public static Quaternion getFinalRotation(Quaternion cameraRotation) {
+    public static DQuaternion getFinalRotation(DQuaternion cameraRotation) {
         double progress = (RenderStates.renderStartNanoTime - interpolationStartTime) /
             ((double) interpolationEndTime - interpolationStartTime);
         
@@ -54,10 +59,10 @@ public class TransformationManager {
         
         progress = mapProgress(progress);
         
-        return RotationHelper.interpolateQuaternion(
-            RotationHelper.ortholize(inertialRotation),
-            RotationHelper.ortholize(cameraRotation.copy()),
-            (float) progress
+        return DQuaternion.interpolate(
+            inertialRotation,
+            cameraRotation,
+            progress
         );
     }
     
@@ -98,26 +103,23 @@ public class TransformationManager {
         Portal portal
     ) {
         if (portal.rotation != null) {
-            MinecraftClient client = MinecraftClient.getInstance();
             ClientPlayerEntity player = client.player;
+    
+            DQuaternion camRot = DQuaternion.getCameraRotation(player.pitch, player.yaw);
+            DQuaternion currentCameraRotation = getFinalRotation(camRot);
             
-            Quaternion currentCameraRotation =
-                getFinalRotation(RotationHelper.getCameraRotation(player.pitch, player.yaw));
-            
-            Quaternion visualRotation =
-                currentCameraRotation.copy();
-            Quaternion b = portal.rotation.copy();
-            b.conjugate();
-            visualRotation.hamiltonProduct(b);
-            visualRotation.normalize();
+            DQuaternion visualRotation =
+                currentCameraRotation.hamiltonProduct(
+                    DQuaternion.fromMcQuaternion(portal.rotation).getConjugated()
+                );
             
             Vec3d oldViewVector = player.getRotationVec(RenderStates.tickDelta);
             Vec3d newViewVector;
             
-            Pair<Double, Double> pitchYaw = RotationHelper.getPitchYawFromRotation(visualRotation);
+            Pair<Double, Double> pitchYaw = DQuaternion.getPitchYawFromRotation(visualRotation);
             
-            player.yaw = (float) Math.toDegrees(pitchYaw.getRight());
-            player.pitch = (float) Math.toDegrees(pitchYaw.getLeft());
+            player.yaw = (float) (double)(pitchYaw.getRight());
+            player.pitch = (float) (double)(pitchYaw.getLeft());
             
             if (player.pitch > 90) {
                 player.pitch = 90 - (player.pitch - 90);
@@ -133,9 +135,9 @@ public class TransformationManager {
             player.lastRenderYaw = player.renderYaw;
             player.lastRenderPitch = player.renderPitch;
             
-            Quaternion newCameraRotation = RotationHelper.getCameraRotation(player.pitch, player.yaw);
+            DQuaternion newCameraRotation = DQuaternion.getCameraRotation(player.pitch, player.yaw);
             
-            if (!RotationHelper.isClose(newCameraRotation, visualRotation, 0.001f)) {
+            if (!DQuaternion.isClose(newCameraRotation, visualRotation, 0.001f)) {
                 inertialRotation = visualRotation;
                 interpolationStartTime = RenderStates.renderStartNanoTime;
                 interpolationEndTime = interpolationStartTime +
@@ -173,18 +175,4 @@ public class TransformationManager {
         return matrix;
     }
 
-//    private static void www(){
-//        float x1 = this.getX();
-//        float y1 = this.getY();
-//        float z1 = this.getZ();
-//        float w1 = this.getW();
-//        float x2 = other.getX();
-//        float y2 = other.getY();
-//        float z2 = other.getZ();
-//        float w2 = other.getW();
-//        this.x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2;
-//        this.y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2;
-//        this.z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2;
-//        this.w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2;
-//    }
 }
