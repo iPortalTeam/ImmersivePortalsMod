@@ -32,8 +32,6 @@ public class TransformationManager {
         
         DQuaternion cameraRotation = DQuaternion.getCameraRotation(camera.getPitch(), camera.getYaw());
     
-        Pair<Double, Double> heh = DQuaternion.getPitchYawFromRotation(cameraRotation);
-        
         DQuaternion finalRotation = getFinalRotation(cameraRotation);
         
         matrixStack.multiply(finalRotation.toMcQuaternion());
