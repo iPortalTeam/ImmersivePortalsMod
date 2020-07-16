@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
+import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -11,7 +12,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -27,7 +28,7 @@ public class TransformationManager {
         matrixStack.peek().getModel().loadIdentity();
         matrixStack.peek().getNormal().loadIdentity();
         
-        Quaternion cameraRotation = getCameraRotation(camera.getPitch(), camera.getYaw());
+        Quaternion cameraRotation = RotationHelper.getCameraRotation(camera.getPitch(), camera.getYaw());
         Quaternion finalRotation = getFinalRotation(cameraRotation);
         
         matrixStack.multiply(finalRotation);
@@ -53,9 +54,9 @@ public class TransformationManager {
         
         progress = mapProgress(progress);
         
-        return Helper.interpolateQuaternion(
-            Helper.ortholize(inertialRotation),
-            Helper.ortholize(cameraRotation.copy()),
+        return RotationHelper.interpolateQuaternion(
+            RotationHelper.ortholize(inertialRotation),
+            RotationHelper.ortholize(cameraRotation.copy()),
             (float) progress
         );
     }
@@ -64,14 +65,6 @@ public class TransformationManager {
 //        return progress;
         return Math.sin(progress * (Math.PI / 2));
 //        return Math.sqrt(1 - (1 - progress) * (1 - progress));
-    }
-    
-    public static Quaternion getCameraRotation(float pitch, float yaw) {
-        Quaternion cameraRotation = Vector3f.POSITIVE_X.getDegreesQuaternion(pitch);
-        cameraRotation.hamiltonProduct(
-            Vector3f.POSITIVE_Y.getDegreesQuaternion(yaw + 180.0F)
-        );
-        return cameraRotation;
     }
     
     /**
@@ -109,51 +102,40 @@ public class TransformationManager {
             ClientPlayerEntity player = client.player;
             
             Quaternion currentCameraRotation =
-                getFinalRotation(getCameraRotation(player.pitch, player.yaw));
+                getFinalRotation(RotationHelper.getCameraRotation(player.pitch, player.yaw));
             
             Quaternion visualRotation =
                 currentCameraRotation.copy();
             Quaternion b = portal.rotation.copy();
             b.conjugate();
             visualRotation.hamiltonProduct(b);
+            visualRotation.normalize();
             
             Vec3d oldViewVector = player.getRotationVec(RenderStates.tickDelta);
             Vec3d newViewVector;
             
-            if (portal.extension.isSpecialFlippingPortal) {
-                
-                Vec3d rotatingAxis = Helper.getRotatingAxis(portal.rotation);
-                
-                Vec3d projectionToPlane = oldViewVector.subtract(
-                    Helper.getProjection(oldViewVector, portal.getNormal())
-                ).normalize();
-                double threshold = Math.sqrt(2.0) / 2.0;
-                if (Math.abs(rotatingAxis.dotProduct(projectionToPlane)) > threshold) {
-                    newViewVector = Helper.getFlippedVec(oldViewVector, portal.getNormal());
-                }
-                else {
-                    newViewVector = oldViewVector;
-                }
+            Pair<Double, Double> pitchYaw = RotationHelper.getPitchYawFromRotation(visualRotation);
+            
+            player.yaw = (float) Math.toDegrees(pitchYaw.getRight());
+            player.pitch = (float) Math.toDegrees(pitchYaw.getLeft());
+            
+            if (player.pitch > 90) {
+                player.pitch = 90 - (player.pitch - 90);
             }
-            else {
-                // make the visual looking vector to not change after teleporting
-                newViewVector = portal.transformLocalVec(oldViewVector);
+            else if (player.pitch < -90) {
+                player.pitch = -90 + (-90 - player.pitch);
             }
             
-            player.yaw = getYawFromViewVector(newViewVector);
             player.prevYaw = player.yaw;
-            player.pitch = getPitchFromViewVector(newViewVector);
             player.prevPitch = player.pitch;
-            
             player.renderYaw = player.yaw;
             player.renderPitch = player.pitch;
-            
             player.lastRenderYaw = player.renderYaw;
             player.lastRenderPitch = player.renderPitch;
             
-            Quaternion newCameraRotation = getCameraRotation(player.pitch, player.yaw);
+            Quaternion newCameraRotation = RotationHelper.getCameraRotation(player.pitch, player.yaw);
             
-            if (!Helper.isClose(newCameraRotation, visualRotation, 0.001f)) {
+            if (!RotationHelper.isClose(newCameraRotation, visualRotation, 0.001f)) {
                 inertialRotation = visualRotation;
                 interpolationStartTime = RenderStates.renderStartNanoTime;
                 interpolationEndTime = interpolationStartTime +
@@ -190,4 +172,19 @@ public class TransformationManager {
         ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
         return matrix;
     }
+
+//    private static void www(){
+//        float x1 = this.getX();
+//        float y1 = this.getY();
+//        float z1 = this.getZ();
+//        float w1 = this.getW();
+//        float x2 = other.getX();
+//        float y2 = other.getY();
+//        float z2 = other.getZ();
+//        float w2 = other.getW();
+//        this.x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2;
+//        this.y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2;
+//        this.z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2;
+//        this.w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2;
+//    }
 }

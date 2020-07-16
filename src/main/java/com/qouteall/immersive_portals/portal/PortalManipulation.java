@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.my_util.RotationHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
@@ -89,8 +89,8 @@ public class PortalManipulation {
     }
     
     public static void rotatePortalBody(Portal newPortal, Quaternion rotation) {
-        newPortal.axisW = Helper.getRotated(rotation, newPortal.axisW);
-        newPortal.axisH = Helper.getRotated(rotation, newPortal.axisH);
+        newPortal.axisW = RotationHelper.getRotated(rotation, newPortal.axisW);
+        newPortal.axisH = RotationHelper.getRotated(rotation, newPortal.axisH);
     }
     
     public static Portal completeBiFacedPortal(Portal portal, EntityType<Portal> entityType) {
