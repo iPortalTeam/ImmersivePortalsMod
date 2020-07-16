@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
-import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -19,10 +18,11 @@ import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
 public class TransformationManager {
-    public static DQuaternion inertialRotation;
+    private static DQuaternion interpolationStart;
+    private static DQuaternion lastCameraRotation;
+    
     private static long interpolationStartTime = 0;
     private static long interpolationEndTime = 1;
-    public static DQuaternion portalRotation;
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
@@ -32,7 +32,7 @@ public class TransformationManager {
         matrixStack.peek().getNormal().loadIdentity();
         
         DQuaternion cameraRotation = DQuaternion.getCameraRotation(camera.getPitch(), camera.getYaw());
-    
+        
         DQuaternion finalRotation = getFinalRotation(cameraRotation);
         
         matrixStack.multiply(finalRotation.toMcQuaternion());
@@ -58,8 +58,13 @@ public class TransformationManager {
         
         progress = mapProgress(progress);
         
+        DQuaternion cameraRotDelta = cameraRotation.hamiltonProduct(lastCameraRotation.getConjugated());
+        interpolationStart = interpolationStart.hamiltonProduct(cameraRotDelta);
+        
+        lastCameraRotation = cameraRotation;
+        
         return DQuaternion.interpolate(
-            inertialRotation,
+            interpolationStart,
             cameraRotation,
             progress
         );
@@ -76,22 +81,22 @@ public class TransformationManager {
     ) {
         if (portal.rotation != null) {
             ClientPlayerEntity player = client.player;
-    
-            DQuaternion camRot = DQuaternion.getCameraRotation(player.pitch, player.yaw);
-            DQuaternion currentCameraRotation = getFinalRotation(camRot);
             
-            DQuaternion visualRotation =
-                currentCameraRotation.hamiltonProduct(
+            DQuaternion currentCameraRotation = DQuaternion.getCameraRotation(player.pitch, player.yaw);
+            DQuaternion currentCameraRotationInterpolated = getFinalRotation(currentCameraRotation);
+            
+            DQuaternion rotationThroughPortal =
+                currentCameraRotationInterpolated.hamiltonProduct(
                     DQuaternion.fromMcQuaternion(portal.rotation).getConjugated()
                 );
             
             Vec3d oldViewVector = player.getRotationVec(RenderStates.tickDelta);
             Vec3d newViewVector;
             
-            Pair<Double, Double> pitchYaw = DQuaternion.getPitchYawFromRotation(visualRotation);
+            Pair<Double, Double> pitchYaw = DQuaternion.getPitchYawFromRotation(rotationThroughPortal);
             
-            player.yaw = (float) (double)(pitchYaw.getRight());
-            player.pitch = (float) (double)(pitchYaw.getLeft());
+            player.yaw = (float) (double) (pitchYaw.getRight());
+            player.pitch = (float) (double) (pitchYaw.getLeft());
             
             if (player.pitch > 90) {
                 player.pitch = 90 - (player.pitch - 90);
@@ -109,15 +114,20 @@ public class TransformationManager {
             
             DQuaternion newCameraRotation = DQuaternion.getCameraRotation(player.pitch, player.yaw);
             
-            if (!DQuaternion.isClose(newCameraRotation, visualRotation, 0.001f)) {
-                inertialRotation = visualRotation;
+            if (!DQuaternion.isClose(newCameraRotation, rotationThroughPortal, 0.001f)) {
+                interpolationStart = rotationThroughPortal;
+                lastCameraRotation = newCameraRotation;
                 interpolationStartTime = RenderStates.renderStartNanoTime;
                 interpolationEndTime = interpolationStartTime +
-                    Helper.secondToNano(1);
+                    Helper.secondToNano(getAnimationDurationSeconds());
             }
             
             updateCamera(client);
         }
+    }
+    
+    private static double getAnimationDurationSeconds() {
+        return 1;
     }
     
     private static void updateCamera(MinecraftClient client) {
@@ -146,5 +156,5 @@ public class TransformationManager {
         ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
         return matrix;
     }
-
+    
 }
