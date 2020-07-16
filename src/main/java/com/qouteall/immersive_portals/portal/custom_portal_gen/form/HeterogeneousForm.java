@@ -41,12 +41,6 @@ public class HeterogeneousForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public boolean initAndCheck() {
-        
-        return super.initAndCheck();
-    }
-    
-    @Override
     public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
         //clone
         BlockPos offset = toShape.innerAreaBox.l.subtract(fromShape.innerAreaBox.l);

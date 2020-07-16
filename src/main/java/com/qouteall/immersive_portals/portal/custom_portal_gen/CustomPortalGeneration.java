@@ -164,10 +164,10 @@ public class CustomPortalGeneration {
         if (postInvokeCommands.isEmpty()) {
             return;
         }
-    
+        
         ServerCommandSource commandSource = portal.getCommandSource();
         CommandManager commandManager = McHelper.getServer().getCommandManager();
-    
+        
         for (String command : postInvokeCommands) {
             commandManager.execute(commandSource, command);
         }

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
+import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
@@ -66,11 +67,6 @@ public class FlippingFloorSquareForm extends PortalGenForm {
     @Override
     public PortalGenForm getReverse() {
         return this;
-    }
-    
-    @Override
-    public boolean initAndCheck() {
-        return super.initAndCheck();
     }
     
     @Override
@@ -139,15 +135,23 @@ public class FlippingFloorSquareForm extends PortalGenForm {
                 ).mapToObj(y -> new BlockPos(x, y, z)))
             )
             .map(blockPos -> IntBox.getBoxByBasePointAndSize(areaSize, blockPos))
+            .filter(intBox -> intBox.stream().allMatch(
+                pos -> {
+                    BlockState blockState = toWorld.getBlockState(pos);
+                    return !blockState.isOpaqueFullCube(toWorld, pos) &&
+                        blockState.getBlock() != PortalPlaceholderBlock.instance;
+                }
+            ))
             .filter(intBox -> intBox.getSurfaceLayer(Direction.DOWN)
                 .getMoved(Direction.DOWN.getVector())
                 .stream().allMatch(
-                    blockPos-> !toWorld.getBlockState(blockPos).isAir()
+                    blockPos -> {
+                        BlockState blockState = toWorld.getBlockState(blockPos);
+                        return blockState.isOpaqueFullCube(toWorld, blockPos) &&
+                            blockState.getBlock() != PortalPlaceholderBlock.instance;
+                    }
                 )
             )
-            .filter(intBox -> intBox.stream().allMatch(
-                pos -> !toWorld.getBlockState(pos).isOpaqueFullCube(toWorld, pos)
-            ))
             .findFirst().orElseGet(() -> IntBox.getBoxByBasePointAndSize(areaSize, toPos))
             .getMoved(Direction.DOWN.getVector());
     }
@@ -175,10 +179,10 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pb.blockPortalShape = toShape;
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
-    
+        
         pa.extension.motionAffinity = 0.1;
         pb.extension.motionAffinity = 0.1;
-    
+        
         // special flipping portal
         pa.extension.isSpecialFlippingPortal = true;
         pb.extension.isSpecialFlippingPortal = true;

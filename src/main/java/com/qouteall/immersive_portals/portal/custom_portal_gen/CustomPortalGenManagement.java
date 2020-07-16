@@ -30,9 +30,11 @@ public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> useItemGen = HashMultimap.create();
     private static final Multimap<Item, CustomPortalGeneration> throwItemGen = HashMultimap.create();
     
-    public static void onServerStarted() {
+    public static void onDatapackReload() {
         useItemGen.clear();
         throwItemGen.clear();
+        
+        Helper.log("Loading custom portal gen");
         
         MinecraftServer server = McHelper.getServer();
         
@@ -79,12 +81,15 @@ public class CustomPortalGenManagement {
             load(gen);
             
             if (gen.twoWay) {
-                load(gen.getReverse());
+                CustomPortalGeneration reverse = gen.getReverse();
+                if (gen.initAndCheck()) {
+                    load(reverse);
+                }
             }
         });
     }
     
-    public static void load(CustomPortalGeneration gen) {
+    private static void load(CustomPortalGeneration gen) {
         PortalGenTrigger trigger = gen.trigger;
         if (trigger instanceof PortalGenTrigger.UseItemTrigger) {
             useItemGen.put(((PortalGenTrigger.UseItemTrigger) trigger).item, gen);
@@ -138,19 +143,5 @@ public class CustomPortalGenManagement {
                 });
             }
         }
-    }
-    
-    @Nullable
-    public static Tag<Block> readBlockTag(Identifier identifier) {
-        RegistryTagManager tagManager = McHelper.getServer().serverResourceManager.getRegistryTagManager();
-        
-        Tag<Block> tag = tagManager.blocks().get(identifier);
-        if (tag == null) {
-            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
-                "Missing block tag " + identifier
-            ));
-        }
-        
-        return tag;
     }
 }
