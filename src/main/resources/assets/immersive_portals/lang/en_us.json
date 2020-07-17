@@ -13,7 +13,7 @@
   "imm_ptl.render_yourself_in_portal": "Render Yourself in Portal",
   "imm_ptl.active_loading": "Actively Load Remote Chunks",
   "imm_ptl.teleportation_debug": "Teleportation Debug",
-  "imm_ptl.correct_cross_portal_entity_rendering": "Correct Cross Portal Entity Rendering (lower FPS)",
+  "imm_ptl.correct_cross_portal_entity_rendering": "Cross Portal Entity Rendering",
   "imm_ptl.load_fewer_chunks": "Load Fewer Chunks From Portals",
   "imm_ptl.multi_threaded_nether_portal_searching": "Multi Threaded Nether Portal Searching",
   "imm_ptl.edgeless_sky": "Edgeless Sky",

@@ -324,7 +324,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                         CrossPortalEntityRenderer.afterRenderingEntity(entity);
                     }
                     else {
-                        Helper.log("dis");
+//                        Helper.log("dis");
                     }
                 });
                 return;

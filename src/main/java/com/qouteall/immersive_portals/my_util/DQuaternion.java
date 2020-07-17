@@ -11,7 +11,6 @@ import java.util.Objects;
 /**
  * Quaternion but in double and immutable
  * Minecraft's quaternion {@link Quaternion} uses float and has precision issues
- * Going through a flipping portal looking downward can rotate the view a little bit using float quaternion
  */
 public class DQuaternion {
     public final double x;
@@ -227,6 +226,7 @@ public class DQuaternion {
     
     /**
      * {@link DQuaternion#getCameraRotation1(double, double)}
+     * also works for non camera rotations. don
      */
     public static Pair<Double, Double> getPitchYawFromRotation(DQuaternion quaternion) {
         double x = quaternion.getX();

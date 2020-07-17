@@ -26,6 +26,10 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         ServerWorld fromWorld, BlockPos startingPos,
         ServerWorld toWorld
     ) {
+        if (!NetherPortalGeneration.checkPortalGeneration(fromWorld, startingPos)) {
+            return false;
+        }
+        
         Predicate<BlockState> areaPredicate = getAreaPredicate();
         Predicate<BlockState> thisSideFramePredicate = getThisSideFramePredicate();
         Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();

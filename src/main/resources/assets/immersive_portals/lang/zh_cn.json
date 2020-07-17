@@ -11,7 +11,7 @@
   "imm_ptl.render_yourself_in_portal": "在传送门中渲染自己",
   "imm_ptl.active_loading": "完全加载仅传送门可视区块",
   "imm_ptl.teleportation_debug": "调试坐标同步",
-  "imm_ptl.correct_cross_portal_entity_rendering": "正确渲染跨传送门实体（降低帧率）",
+  "imm_ptl.correct_cross_portal_entity_rendering": "渲染跨传送门实体",
   "imm_ptl.load_fewer_chunks": "通过传送门加载更少区块",
   "effect.immersive_portals.longer_reach": "触及范围增大",
   "item.minecraft.potion.effect.longer_reach_potion": "触及范围增大药水",
@@ -49,5 +49,6 @@
   "imm_ptl.removed_portal": "已移除传送门 %1$s",
   "imm_ptl.cannot_find_zone": "无法找到该空间折叠区域",
   "imm_ptl.finished": "已完成",
-  "imm_ptl.start_clearing_border": "开始清除外部边界"
+  "imm_ptl.start_clearing_border": "开始清除外部边界",
+  "imm_ptl.enable_alternate_dimensions": "Enable Alternate Dimensions"
 }
