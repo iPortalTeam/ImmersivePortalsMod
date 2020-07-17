@@ -165,7 +165,7 @@ public class CustomPortalGeneration {
             return;
         }
         
-        ServerCommandSource commandSource = portal.getCommandSource();
+        ServerCommandSource commandSource = portal.getCommandSource().withLevel(4);
         CommandManager commandManager = McHelper.getServer().getCommandManager();
         
         for (String command : postInvokeCommands) {
