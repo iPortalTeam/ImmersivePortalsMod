@@ -117,12 +117,6 @@ public class CustomPortalGenManagement {
                             if (trigger.consume) {
                                 context.getStack().decrement(1);
                             }
-                            else if (trigger.damage) {
-                                context.getStack().damage(
-                                    1, context.getWorld().random,
-                                    ((ServerPlayerEntity) context.getPlayer())
-                                );
-                            }
                         }
                         break;
                     }

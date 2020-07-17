@@ -22,12 +22,10 @@ public abstract class PortalGenTrigger {
     public static class UseItemTrigger extends PortalGenTrigger {
         public final Item item;
         public final boolean consume;
-        public final boolean damage;
         
-        public UseItemTrigger(Item item, boolean consume, boolean damage) {
+        public UseItemTrigger(Item item, boolean consume) {
             this.item = item;
             this.consume = consume;
-            this.damage = damage;
         }
         
         @Override
@@ -52,8 +50,7 @@ public abstract class PortalGenTrigger {
     public static final Codec<UseItemTrigger> useItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Registry.ITEM.fieldOf("item").forGetter(o -> o.item),
-            Codec.BOOL.optionalFieldOf("consume", false).forGetter(o -> o.consume),
-            Codec.BOOL.optionalFieldOf("damage", false).forGetter(o -> o.damage)
+            Codec.BOOL.optionalFieldOf("consume", false).forGetter(o -> o.consume)
         ).apply(instance, instance.stable(UseItemTrigger::new));
     });
     
