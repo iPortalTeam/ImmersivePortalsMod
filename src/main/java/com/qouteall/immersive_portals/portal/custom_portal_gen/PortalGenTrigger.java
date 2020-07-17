@@ -20,10 +20,14 @@ public abstract class PortalGenTrigger {
     public abstract Codec<? extends PortalGenTrigger> getCodec();
     
     public static class UseItemTrigger extends PortalGenTrigger {
-        public Item item;
+        public final Item item;
+        public final boolean consume;
+        public final boolean damage;
         
-        public UseItemTrigger(Item item) {
+        public UseItemTrigger(Item item, boolean consume, boolean damage) {
             this.item = item;
+            this.consume = consume;
+            this.damage = damage;
         }
         
         @Override
@@ -33,12 +37,12 @@ public abstract class PortalGenTrigger {
     }
     
     public static class ThrowItemTrigger extends PortalGenTrigger {
-        public Item item;
+        public final Item item;
         
         public ThrowItemTrigger(Item item) {
             this.item = item;
         }
-    
+        
         @Override
         public Codec<? extends PortalGenTrigger> getCodec() {
             return throwItemTriggerCodec;
@@ -47,10 +51,11 @@ public abstract class PortalGenTrigger {
     
     public static final Codec<UseItemTrigger> useItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.ITEM.fieldOf("item").forGetter(o -> o.item)
+            Registry.ITEM.fieldOf("item").forGetter(o -> o.item),
+            Codec.BOOL.optionalFieldOf("consume", false).forGetter(o -> o.consume),
+            Codec.BOOL.optionalFieldOf("damage", false).forGetter(o -> o.damage)
         ).apply(instance, instance.stable(UseItemTrigger::new));
     });
-    
     
     public static final Codec<ThrowItemTrigger> throwItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
@@ -70,7 +75,7 @@ public abstract class PortalGenTrigger {
         Registry.register(
             codecRegistry, new Identifier("imm_ptl:throw_item"), throwItemTriggerCodec
         );
-    
+        
         triggerCodec = codecRegistry.dispatchStable(
             PortalGenTrigger::getCodec,
             Function.identity()

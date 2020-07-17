@@ -13,6 +13,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
@@ -110,6 +111,19 @@ public class CustomPortalGenManagement {
                         context.getBlockPos().offset(context.getSide())
                     );
                     if (result) {
+                        if (gen.trigger instanceof PortalGenTrigger.UseItemTrigger) {
+                            PortalGenTrigger.UseItemTrigger trigger =
+                                (PortalGenTrigger.UseItemTrigger) gen.trigger;
+                            if (trigger.consume) {
+                                context.getStack().decrement(1);
+                            }
+                            else if (trigger.damage) {
+                                context.getStack().damage(
+                                    1, context.getWorld().random,
+                                    ((ServerPlayerEntity) context.getPlayer())
+                                );
+                            }
+                        }
                         break;
                     }
                 }

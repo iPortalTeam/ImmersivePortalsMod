@@ -226,7 +226,7 @@ public class DQuaternion {
     
     /**
      * {@link DQuaternion#getCameraRotation1(double, double)}
-     * also works for non camera rotations. don
+     * also works for non camera rotations. don't know why
      */
     public static Pair<Double, Double> getPitchYawFromRotation(DQuaternion quaternion) {
         double x = quaternion.getX();
