@@ -9,22 +9,16 @@ import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import net.minecraft.block.Block;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.tag.RegistryTagManager;
-import net.minecraft.tag.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.util.registry.SimpleRegistry;
-
-import javax.annotation.Nullable;
 
 public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> useItemGen = HashMultimap.create();
@@ -80,7 +74,7 @@ public class CustomPortalGenManagement {
             
             load(gen);
             
-            if (gen.twoWay) {
+            if (gen.reversible) {
                 CustomPortalGeneration reverse = gen.getReverse();
                 if (gen.initAndCheck()) {
                     load(reverse);

@@ -21,13 +21,16 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class CustomPortalGeneration {
+    public static final RegistryKey<World> theSameDimension = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("imm_ptl:the_same_dimension")
+    );
+    
     public static final Codec<List<RegistryKey<World>>> dimensionListCodec =
         new ListCodec<>(World.CODEC);
     public static final Codec<List<String>> stringListCodec =
@@ -46,7 +49,7 @@ public class CustomPortalGeneration {
             World.CODEC.fieldOf("to").forGetter(o -> o.toDimension),
             Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
             Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
-            Codec.BOOL.fieldOf("two_way").forGetter(o -> o.twoWay),
+            Codec.BOOL.optionalFieldOf("reversible", true).forGetter(o -> o.reversible),
             PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
             PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
             stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
@@ -73,14 +76,14 @@ public class CustomPortalGeneration {
     public final RegistryKey<World> toDimension;
     public final int spaceRatioFrom;
     public final int spaceRatioTo;
-    public final boolean twoWay;
+    public final boolean reversible;
     public final PortalGenForm form;
     public final PortalGenTrigger trigger;
     public final List<String> postInvokeCommands;
     
     public CustomPortalGeneration(
         List<RegistryKey<World>> fromDimensions, RegistryKey<World> toDimension,
-        int spaceRatioFrom, int spaceRatioTo, boolean twoWay,
+        int spaceRatioFrom, int spaceRatioTo, boolean reversible,
         PortalGenForm form, PortalGenTrigger trigger,
         List<String> postInvokeCommands
     ) {
@@ -88,7 +91,7 @@ public class CustomPortalGeneration {
         this.toDimension = toDimension;
         this.spaceRatioFrom = spaceRatioFrom;
         this.spaceRatioTo = spaceRatioTo;
-        this.twoWay = twoWay;
+        this.reversible = reversible;
         this.form = form;
         this.trigger = trigger;
         this.postInvokeCommands = postInvokeCommands;
@@ -119,8 +122,11 @@ public class CustomPortalGeneration {
     public boolean initAndCheck() {
         // if from dimension is not present, nothing happens
         
-        if (McHelper.getServer().getWorld(toDimension) == null) {
-            return false;
+        RegistryKey<World> toDimension = this.toDimension;
+        if (toDimension != theSameDimension) {
+            if (McHelper.getServer().getWorld(toDimension) == null) {
+                return false;
+            }
         }
         
         if (!form.initAndCheck()) {
@@ -144,13 +150,20 @@ public class CustomPortalGeneration {
         }
         
         if (!world.isChunkLoaded(startPos)) {
+            Helper.log("Skip custom portal generation because chunk not loaded");
             return false;
         }
         
-        ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
+        RegistryKey<World> destDimension = this.toDimension;
+        
+        if (destDimension == theSameDimension) {
+            destDimension = world.getRegistryKey();
+        }
+        
+        ServerWorld toWorld = McHelper.getServer().getWorld(destDimension);
         
         if (toWorld == null) {
-            Helper.err("Missing dimension " + toDimension.getValue());
+            Helper.err("Missing dimension " + destDimension.getValue());
             return false;
         }
         
@@ -165,7 +178,7 @@ public class CustomPortalGeneration {
             return;
         }
         
-        ServerCommandSource commandSource = portal.getCommandSource().withLevel(4);
+        ServerCommandSource commandSource = portal.getCommandSource().withLevel(4).withSilent();
         CommandManager commandManager = McHelper.getServer().getCommandManager();
         
         for (String command : postInvokeCommands) {
