@@ -34,7 +34,7 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 public class ViewAreaRenderer {
     private static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
-        Vec3d cameraPos, float partialTicks, float layerWidth
+        Vec3d cameraPos, float tickDelta, float layerWidth
     ) {
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
         

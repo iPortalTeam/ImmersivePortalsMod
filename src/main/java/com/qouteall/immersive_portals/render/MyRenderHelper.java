@@ -247,12 +247,12 @@ public class MyRenderHelper {
     }
     
     public static void restoreViewPort() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        MinecraftClient client = MinecraftClient.getInstance();
         GlStateManager.viewport(
             0,
             0,
-            mc.getWindow().getFramebufferWidth(),
-            mc.getWindow().getFramebufferHeight()
+            client.getWindow().getFramebufferWidth(),
+            client.getWindow().getFramebufferHeight()
         );
     }
 }

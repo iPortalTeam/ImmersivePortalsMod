@@ -103,9 +103,9 @@ public abstract class MixinShaders {
     //avoid changing vertex format when rebuilding
     @Inject(method = "loadShaderPack", at = @At("HEAD"))
     private static void onAboutToLoadShaderPack(CallbackInfo ci) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.worldRenderer != null) {
-            mc.worldRenderer.reload();
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.worldRenderer != null) {
+            client.worldRenderer.reload();
         }
     }
     

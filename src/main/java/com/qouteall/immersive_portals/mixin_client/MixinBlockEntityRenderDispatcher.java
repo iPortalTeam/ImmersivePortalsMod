@@ -21,7 +21,7 @@ public class MixinBlockEntityRenderDispatcher {
         at = @At("HEAD"),
         cancellable = true
     )
-    private <E extends BlockEntity> void onRenderTileEntity(
+    private <E extends BlockEntity> void onRenderBlockEntity(
         E blockEntity,
         float tickDelta,
         MatrixStack matrix,

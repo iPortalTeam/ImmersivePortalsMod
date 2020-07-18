@@ -300,10 +300,10 @@ public class ClientDebugCommand {
         builder.then(CommandManager
             .literal("check_light")
             .executes(context -> {
-                MinecraftClient mc = MinecraftClient.getInstance();
-                mc.execute(() -> {
-                    mc.world.getChunkManager().getLightingProvider().updateSectionStatus(
-                        ChunkSectionPos.from(new BlockPos(mc.player.getPos())),
+                MinecraftClient client = MinecraftClient.getInstance();
+                client.execute(() -> {
+                    client.world.getChunkManager().getLightingProvider().updateSectionStatus(
+                        ChunkSectionPos.from(new BlockPos(client.player.getPos())),
                         false
                     );
                 });

@@ -160,20 +160,20 @@ public class RenderStates {
     }
     
     public static void onTotalRenderEnd() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        MinecraftClient client = MinecraftClient.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(mc.world.getRegistryKey()).lightmapTexture);
+            .getDimensionRenderHelper(client.world.getRegistryKey()).lightmapTexture);
         
         if (getRenderedPortalNum() != 0) {
             //recover chunk renderer dispatcher
-            ((IEWorldRenderer) mc.worldRenderer).getBuiltChunkStorage().updateCameraPosition(
-                mc.cameraEntity.getX(),
-                mc.cameraEntity.getZ()
+            ((IEWorldRenderer) client.worldRenderer).getBuiltChunkStorage().updateCameraPosition(
+                client.cameraEntity.getX(),
+                client.cameraEntity.getZ()
             );
         }
         
-        Vec3d currCameraPos = mc.gameRenderer.getCamera().getPos();
+        Vec3d currCameraPos = client.gameRenderer.getCamera().getPos();
         cameraPosDelta = currCameraPos.subtract(lastCameraPos);
         if (cameraPosDelta.lengthSquared() > 1) {
             cameraPosDelta = Vec3d.ZERO;
