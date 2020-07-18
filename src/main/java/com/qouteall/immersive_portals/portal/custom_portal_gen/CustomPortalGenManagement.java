@@ -18,6 +18,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.dynamic.RegistryOps;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.util.registry.SimpleRegistry;
 
@@ -139,7 +140,10 @@ public class CustomPortalGenManagement {
             if (throwItemGen.containsKey(item)) {
                 ModMain.serverTaskList.addTask(() -> {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
-                        boolean result = gen.perform(((ServerWorld) entity.world), entity.getBlockPos());
+                        boolean result = gen.perform(
+                            ((ServerWorld) entity.world),
+                            entity.getBlockPos()
+                        );
                         if (result) {
                             entity.getStack().decrement(1);
                             break;
