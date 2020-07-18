@@ -130,7 +130,11 @@ public class CustomPortalGenManagement {
         if (entity.world.isClient()) {
             return;
         }
-        if (entity.getThrower() != null) {
+        if (entity.getThrower() == null) {
+            return;
+        }
+        
+        if (entity.cannotPickup()) {
             Item item = entity.getStack().getItem();
             if (throwItemGen.containsKey(item)) {
                 ModMain.serverTaskList.addTask(() -> {

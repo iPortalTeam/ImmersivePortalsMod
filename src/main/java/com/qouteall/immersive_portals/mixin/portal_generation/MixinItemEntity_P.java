@@ -29,13 +29,8 @@ public abstract class MixinItemEntity_P {
             return;
         }
         
-        final int interval = 19;
-        
-        // check every 19 ticks
-        if (this_.getEntityId() % interval == this_.world.getTime() % interval) {
-            this_.world.getProfiler().push("imm_ptl_item_tick");
-            CustomPortalGenManagement.onItemTick(this_);
-            this_.world.getProfiler().pop();
-        }
+        this_.world.getProfiler().push("imm_ptl_item_tick");
+        CustomPortalGenManagement.onItemTick(this_);
+        this_.world.getProfiler().pop();
     }
 }
