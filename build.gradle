@@ -127,6 +127,6 @@ repositories {
 
 task printClasspath {
 	doLast {
-		configurations.testCompile.each { println "\""+ (it.toString().replace("\\","/")) + "\"," }
+		configurations.compileClasspath.each { println "\""+ (it.toString().replace("\\","/")) + "\"," }
 	}
 }
