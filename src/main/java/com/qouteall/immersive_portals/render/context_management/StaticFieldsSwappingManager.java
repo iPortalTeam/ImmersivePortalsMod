@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.render.context_management;
 
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;

@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin.portal_generation;
 
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGenManagement;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

@@ -30,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
 //this class is modified based on ClientChunkManager

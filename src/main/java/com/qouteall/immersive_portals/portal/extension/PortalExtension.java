@@ -1,16 +1,9 @@
 package com.qouteall.immersive_portals.portal.extension;
 
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.TransformationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
 
 // the additional features of a portal
 public class PortalExtension {

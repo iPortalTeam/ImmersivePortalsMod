@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.dimension_sync;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
-import net.fabricmc.api.EnvType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.StringTag;

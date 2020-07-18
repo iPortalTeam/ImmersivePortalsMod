@@ -1,29 +1,5 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.MessageType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 public class ClassicalPortalConverter {
 //
 //    public static interface PortalConverter {

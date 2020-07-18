@@ -7,7 +7,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.ShaderPackDefault;
 import net.optifine.shaders.Shaders;

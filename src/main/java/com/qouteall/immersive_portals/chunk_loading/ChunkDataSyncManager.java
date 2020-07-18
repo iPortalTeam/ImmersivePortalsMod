@@ -15,7 +15,6 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Supplier;
 

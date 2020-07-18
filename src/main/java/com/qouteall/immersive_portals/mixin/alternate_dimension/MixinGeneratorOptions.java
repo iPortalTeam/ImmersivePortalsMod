@@ -6,7 +6,6 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.alternate_dimension.NormalSkylandGenerator;
 import com.qouteall.immersive_portals.ducks.IESimpleRegistry;
-import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.dimension.DimensionOptions;

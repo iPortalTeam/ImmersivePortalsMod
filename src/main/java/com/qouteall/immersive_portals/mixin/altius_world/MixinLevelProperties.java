@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin.altius_world;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.UUID;
 
 @Mixin(LevelProperties.class)

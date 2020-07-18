@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -12,7 +11,6 @@ import net.minecraft.tag.RegistryTagManager;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import org.apache.commons.lang3.Validate;
 
 import java.util.function.Predicate;
 

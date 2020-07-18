@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.hiding_in_the_bushes.MyRegistry;
 import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
