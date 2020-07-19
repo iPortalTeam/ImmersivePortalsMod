@@ -13,6 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
 
+import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -160,7 +161,7 @@ public class BlockPortalShape {
         if (!isAir.test(startingPos)) {
             return null;
         }
-    
+        
         return findShapeWithoutRegardingStartingPos(startingPos, axis, isAir, isObsidian);
     }
     
@@ -172,11 +173,12 @@ public class BlockPortalShape {
         Set<BlockPos> area = new HashSet<>();
         area.add(startingPos);
         
-        boolean isNormalFrame = findAreaRecursively(
+        Direction[] directions = Helper.getAnotherFourDirections(axis);
+        boolean isNormalFrame = findAreaBreadthFirst(
             startingPos,
             isAir,
             isObsidian,
-            Helper.getAnotherFourDirections(axis),
+            directions,
             area,
             startingPos
         );
@@ -185,17 +187,44 @@ public class BlockPortalShape {
             return null;
         }
         
-        BlockPortalShape result =
-            new BlockPortalShape(area, axis);
-        
-        if (!result.isFrameIntact(isObsidian)) {
-            return null;
-        }
-        
-        return result;
+        return new BlockPortalShape(area, axis);
     }
     
-    //return false to abort
+    private static boolean findAreaBreadthFirst(
+        BlockPos startingPos,
+        Predicate<BlockPos> isAir,
+        Predicate<BlockPos> isObsidian,
+        Direction[] directions,
+        Set<BlockPos> foundArea,
+        BlockPos initialPos
+    ) {
+        
+        ArrayDeque<BlockPos> newlyAdded = new ArrayDeque<>();
+        newlyAdded.addLast(startingPos);
+        
+        while (!newlyAdded.isEmpty()) {
+            BlockPos last = newlyAdded.pollFirst();
+            for (Direction direction : directions) {
+                BlockPos curr = last.offset(direction);
+                if (!foundArea.contains(curr)) {
+                    if (isAir.test(curr)) {
+                        newlyAdded.addLast(curr.toImmutable());
+                        foundArea.add(curr.toImmutable());
+                    }
+                    else if (isObsidian.test(curr)) {
+                        //nothing happens
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    @Deprecated
     private static boolean findAreaRecursively(
         BlockPos currPos,
         Predicate<BlockPos> isAir,
@@ -340,8 +369,8 @@ public class BlockPortalShape {
             wDirection = anotherFourDirections[1];
             hDirection = anotherFourDirections[0];
         }
-        portal.axisW =  Vec3d.of(wDirection.getVector());
-        portal.axisH =  Vec3d.of(hDirection.getVector());
+        portal.axisW = Vec3d.of(wDirection.getVector());
+        portal.axisH = Vec3d.of(hDirection.getVector());
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
         
