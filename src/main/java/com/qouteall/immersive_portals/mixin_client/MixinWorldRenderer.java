@@ -178,31 +178,19 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
         CGlobal.renderer.onAfterTranslucentRendering(matrices);
-    
+        
         //make hand rendering normal
         DiffuseLighting.method_27869(matrices.peek().getModel());
     }
     
-    @Redirect(
+    @Inject(
         method = "render",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
         )
     )
-    private void redirectRenderLayer(
-        WorldRenderer worldRenderer,
-        RenderLayer renderLayer,
-        MatrixStack matrices,
-        double cameraX,
-        double cameraY,
-        double cameraZ
-    ) {
-        ObjectList<?> visibleChunks = this.visibleChunks;
-        if (renderLayer == RenderLayer.getSolid()) {
-            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
-        }
-        
+    private void onBeforeRenderingLayer(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrices,
@@ -214,21 +202,92 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
         }
-        
-        renderLayer(
-            renderLayer, matrices,
-            cameraX, cameraY, cameraZ
-        );
-        
+    }
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onAfterRenderingLayer(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
             PixelCuller.endCulling();
             MyRenderHelper.recoverFaceCulling();
         }
-        
-        if (renderLayer == RenderLayer.getCutout()) {
-            CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
-        }
     }
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/RenderLayer;getSolid()Lnet/minecraft/client/render/RenderLayer;"
+        )
+    )
+    private void onBeginRenderingSolid(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
+        MyGameRenderer.doPruneVisibleChunks(this.visibleChunks);
+    }
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/SkyProperties;isDarkened()Z"
+        )
+    )
+    private void onAfterCutoutRendering(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
+        CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
+    }
+    
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
+//        )
+//    )
+//    private void redirectRenderLayer(
+//        WorldRenderer worldRenderer,
+//        RenderLayer renderLayer,
+//        MatrixStack matrices,
+//        double cameraX,
+//        double cameraY,
+//        double cameraZ
+//    ) {
+//
+//        if (renderLayer == RenderLayer.getSolid()) {
+//            ObjectList<?> visibleChunks = this.visibleChunks;
+//            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
+//        }
+//
+//        if (PortalRendering.isRendering()) {
+//            PixelCuller.updateCullingPlaneInner(
+//                matrices,
+//                PortalRendering.getRenderingPortal(),
+//                true
+//            );
+//            PixelCuller.startCulling();
+//            if (PortalRendering.isRenderingOddNumberOfMirrors()) {
+//                MyRenderHelper.applyMirrorFaceCulling();
+//            }
+//        }
+//
+//        renderLayer(
+//            renderLayer, matrices,
+//            cameraX, cameraY, cameraZ
+//        );
+//
+//        if (PortalRendering.isRendering()) {
+//            PixelCuller.endCulling();
+//            MyRenderHelper.recoverFaceCulling();
+//        }
+//
+//        if (renderLayer == RenderLayer.getCutout()) {
+//            CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
+//        }
+//    }
     
     @Redirect(
         method = "render",

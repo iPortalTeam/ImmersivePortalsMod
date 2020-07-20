@@ -57,7 +57,7 @@ dependencies {
 		exclude module : "fabric-loader"
 	}
 
-	modImplementation "me.jellysquid.mods:sodium:0.2333.0-SNAPSHOT"
+//	modImplementation "me.jellysquid.mods:sodium:0.2333.0-SNAPSHOT"
 }
 
 processResources {
