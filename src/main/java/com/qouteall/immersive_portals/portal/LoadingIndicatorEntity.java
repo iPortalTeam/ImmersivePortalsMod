@@ -57,13 +57,14 @@ public class LoadingIndicatorEntity extends Entity {
             tickClient();
         }
         else {
-            // remove after quitting server and rejoining
+            // remove after quitting server and restarting
             if (!isValid) {
                 remove();
             }
         }
     }
     
+    @Environment(EnvType.CLIENT)
     private void tickClient() {
         addParticles();
         
@@ -72,6 +73,7 @@ public class LoadingIndicatorEntity extends Entity {
         }
     }
     
+    @Environment(EnvType.CLIENT)
     private void addParticles() {
         int num = age < 100 ? 50 : 20;
         
