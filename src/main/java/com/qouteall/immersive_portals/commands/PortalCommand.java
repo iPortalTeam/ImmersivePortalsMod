@@ -452,6 +452,18 @@ public class PortalCommand {
                                     )
                         )
                     )
+                )
+            )
+        );
+        
+        builder.then(CommandManager.literal("cb_set_portal_nbt")
+                     .then(CommandManager.argument("portal", EntityArgumentType.entities())
+                        .then(CommandManager.argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+                            .executes(context -> processPortalArgumentedCommand(
+                                context,
+                                (portal) -> invokeSetPortalNBT(context, portal)
+                            )
+                        )
                 );
     }
 
@@ -705,6 +717,50 @@ public class PortalCommand {
                     sendMessage(context, "removed " + portal.toString());
                     portal.remove();
                 });
+    
+    private static void invokeSetPortalNBT(CommandContext<ServerCommandSource> context, Portal portal) throws CommandSyntaxException {
+
+        CompoundTag newNbt = NbtCompoundTagArgumentType.getCompoundTag(
+            context, "nbt"
+        );
+
+        CompoundTag portalNbt = portal.toTag(new CompoundTag());
+
+        newNbt.getKeys().forEach(
+            key -> portalNbt.put(key, newNbt.get(key))
+        );
+
+        UUID uuid = portal.getUuid();
+        portal.fromTag(portalNbt);
+        portal.setUuid(uuid);
+
+        reloadPortal(portal);
+
+        sendPortalInfo(context, portal);
+    }
+    
+    private static void removeMultidestEntry(
+        CommandContext<ServerCommandSource> context,
+        Portal pointedPortal,
+        ServerPlayerEntity player
+    ) {
+        PortalManipulation.getPortalClutter(
+            pointedPortal.world,
+            pointedPortal.getPos(),
+            pointedPortal.getNormal(),
+            p -> true
+        ).stream().filter(
+            portal -> player.getUuid().equals(portal.specificPlayerId) || portal.specificPlayerId == null
+        ).forEach(
+            portal -> {
+                PortalManipulation.removeConnectedPortals(
+                    portal,
+                    (p) -> sendMessage(context, "removed " + p.toString())
+                );
+                sendMessage(context, "removed " + portal.toString());
+                portal.remove();
+            }
+        );
     }
 
     private static void setMultidestEntry(CommandContext<ServerCommandSource> context, Portal pointedPortal,
