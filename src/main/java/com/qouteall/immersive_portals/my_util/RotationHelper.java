@@ -7,8 +7,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 
-import javax.annotation.Nullable;
-
 public class RotationHelper {
     //NOTE this will mutate a and return a
     public static Quaternion quaternionNumAdd(Quaternion a, Quaternion b) {

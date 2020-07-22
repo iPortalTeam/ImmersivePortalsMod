@@ -240,6 +240,7 @@ public class McHelper {
         });
     }
     
+    // TODO remove this
     public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
         World world,
         Vec3d center,
@@ -444,24 +445,6 @@ public class McHelper {
             maxEntitySizeHalf,
             predicate
         );
-//        world.getProfiler().visit("getEntitiesPortal");
-//        int i = MathHelper.floor((box.x1 - maxEntitySizeHalf) / 16.0D);
-//        int j = MathHelper.ceil((box.x2 + maxEntitySizeHalf) / 16.0D);
-//        int k = MathHelper.floor((box.z1 - maxEntitySizeHalf) / 16.0D);
-//        int l = MathHelper.ceil((box.z2 + maxEntitySizeHalf) / 16.0D);
-//        List<T> list = Lists.newArrayList();
-//        ChunkManager chunkManager = world.getChunkManager();
-//
-//        for (int m = i; m < j; ++m) {
-//            for (int n = k; n < l; ++n) {
-//                WorldChunk worldChunk = chunkManager.getWorldChunk(m, n, false);
-//                if (worldChunk != null) {
-//                    worldChunk.getEntities(entityClass, box, list, predicate);
-//                }
-//            }
-//        }
-
-//        return list;
     }
     
     

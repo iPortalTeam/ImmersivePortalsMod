@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.altius_world;
 
-import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.MinecraftClient;
@@ -12,7 +11,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -71,8 +69,6 @@ public class AltiusScreen extends Screen {
             15,
             this
         );
-        
-        O_O.registerDimensionsForge();
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
         dimListWidget.terms.add(

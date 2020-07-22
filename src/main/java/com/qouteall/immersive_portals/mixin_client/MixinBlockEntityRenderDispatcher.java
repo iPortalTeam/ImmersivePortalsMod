@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin_client;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -21,7 +20,7 @@ public class MixinBlockEntityRenderDispatcher {
         at = @At("HEAD"),
         cancellable = true
     )
-    private <E extends BlockEntity> void onRenderTileEntity(
+    private <E extends BlockEntity> void onRenderBlockEntity(
         E blockEntity,
         float tickDelta,
         MatrixStack matrix,

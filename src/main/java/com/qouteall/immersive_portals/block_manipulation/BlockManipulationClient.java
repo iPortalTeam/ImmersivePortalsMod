@@ -23,7 +23,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 public class BlockManipulationClient {
     private static final MinecraftClient client = MinecraftClient.getInstance();

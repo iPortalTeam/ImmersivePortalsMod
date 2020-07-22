@@ -25,12 +25,12 @@ public class OFInterfaceInitializer {
         OFInterface.isShaders = Config::isShaders;
         OFInterface.isShadowPass = () -> Config.isShaders() && Shaders.isShadowPass;
         
-        OFInterface.beforeRenderCenter = (partialTicks) -> {
+        OFInterface.beforeRenderCenter = (tickDelta) -> {
             if (Config.isShaders()) {
-                MinecraftClient mc = MinecraftClient.getInstance();
+                MinecraftClient client = MinecraftClient.getInstance();
                 
                 Shaders.activeProgram = Shaders.ProgramNone;
-                Shaders.beginRender(mc, mc.gameRenderer.getCamera(), partialTicks, 0);
+                Shaders.beginRender(client, client.gameRenderer.getCamera(), tickDelta, 0);
             }
             
         };

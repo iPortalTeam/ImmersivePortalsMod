@@ -22,6 +22,7 @@
     "alternate_dimension.MixinSimpleRegistry",
     "alternate_dimension.MixinStructureFeature",
     "altius_world.MixinChunkGenerator",
+    "altius_world.MixinChunkStatus",
     "altius_world.MixinLevelInfo",
     "altius_world.MixinLevelProperties",
     "altius_world.MixinMinecraftServer_A",

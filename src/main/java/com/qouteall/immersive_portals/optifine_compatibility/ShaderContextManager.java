@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;

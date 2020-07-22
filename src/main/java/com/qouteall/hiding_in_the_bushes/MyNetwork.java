@@ -9,7 +9,6 @@ import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.Entity;
@@ -19,7 +18,6 @@ import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -103,17 +101,11 @@ public class MyNetwork {
         
         CompoundTag idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
         buf.writeCompoundTag(idMapTag);
-    
+        
         CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
         buf.writeCompoundTag(typeMapTag);
-    
+        
         return new CustomPayloadS2CPacket(id_stcDimSync, buf);
-    }
-    
-    public static Packet createEmptyPacketByType(
-        int messageType
-    ) {
-        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
     }
     
     public static void sendRedirectedMessage(
@@ -219,4 +211,5 @@ public class MyNetwork {
             return true;
         });
     }
+    
 }

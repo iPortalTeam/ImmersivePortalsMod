@@ -1,16 +1,12 @@
 package com.qouteall.immersive_portals.alternate_dimension;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.SeedMixer;
 import net.minecraft.world.biome.source.VoronoiBiomeAccessType;
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ChaosBiomeSource extends BiomeSource {

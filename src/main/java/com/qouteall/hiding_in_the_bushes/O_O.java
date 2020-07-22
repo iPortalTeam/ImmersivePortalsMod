@@ -11,12 +11,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -78,10 +75,6 @@ public class O_O {
     
     public static boolean isObsidian(BlockState blockState) {
         return blockState == obsidianState;
-    }
-    
-    public static void registerDimensionsForge() {
-    
     }
     
     public static boolean detectOptiFine() {

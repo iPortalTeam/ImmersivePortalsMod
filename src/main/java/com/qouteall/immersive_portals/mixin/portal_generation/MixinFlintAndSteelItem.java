@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin.portal_generation;
 
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
-import com.qouteall.immersive_portals.portal.CustomizablePortalGenerationOld;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -64,13 +63,6 @@ public class MixinFlintAndSteelItem {
                 boolean result = NetherPortalGeneration.activatePortalHelper(
                     ((ServerWorld) world),
                     firePos
-                );
-            }
-            else {
-                CustomizablePortalGenerationOld.onFireLit(
-                    ((ServerWorld) world),
-                    firePos,
-                    targetBlock
                 );
             }
         }

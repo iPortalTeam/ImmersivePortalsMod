@@ -1,18 +1,7 @@
 package com.qouteall.hiding_in_the_bushes.mixin.alternate_dimension;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.SpawnRestriction;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.MobSpawnerLogic;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
-import java.util.Random;
 
 @Mixin(MobSpawnerLogic.class)
 public class MixinMobSpawnerLogic {

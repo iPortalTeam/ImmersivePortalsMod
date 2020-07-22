@@ -390,14 +390,15 @@ public class NetherPortalGeneration {
         
         LoadingIndicatorEntity indicatorEntity =
             LoadingIndicatorEntity.entityType.create(fromWorld);
-        indicatorEntity.isAlive = true;
+        indicatorEntity.isValid = true;
+        indicatorEntity.portalShape = fromShape;
         indicatorEntity.updatePosition(
             indicatorPos.x, indicatorPos.y, indicatorPos.z
         );
         fromWorld.spawnEntity(indicatorEntity);
         
         Runnable onGenerateNewFrame = () -> {
-            indicatorEntity.setText(new TranslatableText(
+            indicatorEntity.inform(new TranslatableText(
                 "imm_ptl.generating_new_frame"
             ));
             
@@ -456,7 +457,7 @@ public class NetherPortalGeneration {
             int allChunksNeedsLoading = (loaderRadius * 2 + 1) * (loaderRadius * 2 + 1);
             
             if (allChunksNeedsLoading > loadedChunkNum[0]) {
-                indicatorEntity.setText(new TranslatableText(
+                indicatorEntity.inform(new TranslatableText(
                     "imm_ptl.loading_chunks", loadedChunkNum[0], allChunksNeedsLoading
                 ));
                 return false;
@@ -464,7 +465,7 @@ public class NetherPortalGeneration {
             else {
                 ChunkRegion chunkRegion = chunkLoader.createChunkRegion();
                 
-                indicatorEntity.setText(new TranslatableText("imm_ptl.searching_for_frame"));
+                indicatorEntity.inform(new TranslatableText("imm_ptl.searching_for_frame"));
                 
                 FrameSearching.startSearchingPortalFrameAsync(
                     chunkRegion, loaderRadius,

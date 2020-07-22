@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.OptionalDynamic;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.nbt.CompoundTag;

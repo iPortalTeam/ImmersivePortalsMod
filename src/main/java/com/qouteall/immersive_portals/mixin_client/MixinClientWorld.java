@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;
@@ -61,6 +60,17 @@ public abstract class MixinClientWorld implements IEClientWorld {
     public void setGlobalPortals(List<GlobalTrackedPortal> arg) {
         globalTrackedPortals = arg;
     }
+    
+//    @Redirect(
+//        method = "<init>",
+//        at = @At(
+//            value = "NEW",
+//            target = "net/minecraft/client/world/ClientChunkManager"
+//        )
+//    )
+//    private ClientChunkManager replaceChunkManager(ClientWorld world, int loadDistance) {
+//        return new MyClientChunkManager(world, loadDistance);
+//    }
     
     //use my client chunk manager
     @Inject(

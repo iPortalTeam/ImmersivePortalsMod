@@ -2,28 +2,11 @@ package com.qouteall.immersive_portals.dimension_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
-import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
-import net.fabricmc.fabric.impl.registry.sync.RemappableRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DimensionIdRecord {
@@ -44,7 +27,7 @@ public class DimensionIdRecord {
         RegistryKey<World> result = inverseMap.get(integerId);
         if (result == null) {
             throw new RuntimeException(
-                "Missing Dimension Integer Id " + integerId
+                "Missing Dimension " + integerId
             );
         }
         return result;
@@ -54,7 +37,7 @@ public class DimensionIdRecord {
         Integer result = idMap.get(dim);
         if (result == null) {
             throw new RuntimeException(
-                "Missing Dimension Integer Id " + dim
+                "Missing Dimension " + dim
             );
         }
         return result;

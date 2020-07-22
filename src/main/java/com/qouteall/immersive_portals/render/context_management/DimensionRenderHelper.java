@@ -6,22 +6,21 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.world.World;
 
 public class DimensionRenderHelper {
-    private MinecraftClient mc;
+    private static final MinecraftClient client = MinecraftClient.getInstance();
     public World world;
     
     public final LightmapTextureManager lightmapTexture;
     
     public DimensionRenderHelper(World world) {
-        mc = MinecraftClient.getInstance();
         this.world = world;
     
-        if (mc.world == world) {
-            IEGameRenderer gameRenderer = (IEGameRenderer) mc.gameRenderer;
+        if (client.world == world) {
+            IEGameRenderer gameRenderer = (IEGameRenderer) client.gameRenderer;
         
-            lightmapTexture = mc.gameRenderer.getLightmapTextureManager();
+            lightmapTexture = client.gameRenderer.getLightmapTextureManager();
         }
         else {
-            lightmapTexture = new LightmapTextureManager(mc.gameRenderer, mc);
+            lightmapTexture = new LightmapTextureManager(client.gameRenderer, client);
         }
     }
     
@@ -30,7 +29,7 @@ public class DimensionRenderHelper {
     }
     
     public void cleanUp() {
-        if (lightmapTexture != mc.gameRenderer.getLightmapTextureManager()) {
+        if (lightmapTexture != client.gameRenderer.getLightmapTextureManager()) {
             lightmapTexture.close();
         }
     }

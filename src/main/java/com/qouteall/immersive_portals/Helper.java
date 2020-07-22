@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -22,8 +21,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.RayTraceContext;
@@ -292,12 +289,6 @@ public class Helper {
     
     public interface CallableWithoutException<T> {
         public T run();
-    }
-    
-    public static Vec3d interpolatePos(Entity entity, float partialTicks) {
-        Vec3d currPos = entity.getPos();
-        Vec3d lastTickPos = McHelper.lastTickPosOf(entity);
-        return lastTickPos.add(currPos.subtract(lastTickPos).multiply(partialTicks));
     }
     
     public static Runnable noException(Callable func) {
@@ -716,17 +707,17 @@ public class Helper {
     @Environment(EnvType.CLIENT)
     private static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
         boolean wasContextSwitched = BlockManipulationClient.isContextSwitched;
-        MinecraftClient mc = MinecraftClient.getInstance();
-        ClientWorld lastWorld = mc.world;
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld lastWorld = client.world;
         
         try {
             BlockManipulationClient.isContextSwitched = true;
-            mc.world = world;
+            client.world = world;
             
             return func.get();
         }
         finally {
-            mc.world = lastWorld;
+            client.world = lastWorld;
             BlockManipulationClient.isContextSwitched = wasContextSwitched;
         }
     }

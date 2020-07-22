@@ -1,11 +1,10 @@
-package com.qouteall.hiding_in_the_bushes.mixin.altius_world;
+package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.StructureAccessor;

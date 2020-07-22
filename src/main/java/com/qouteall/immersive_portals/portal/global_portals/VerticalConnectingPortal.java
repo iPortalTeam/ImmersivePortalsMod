@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
-import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;

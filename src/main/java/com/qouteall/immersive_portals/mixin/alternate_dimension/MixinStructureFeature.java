@@ -1,16 +1,7 @@
 package com.qouteall.immersive_portals.mixin.alternate_dimension;
 
-import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.gen.ChunkRandom;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(StructureFeature.class)
 public class MixinStructureFeature {

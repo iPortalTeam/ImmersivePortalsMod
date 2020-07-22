@@ -106,11 +106,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
             ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true)
                 .setExpanded(true).build();
-            StringListListEntry entryPortalGeneration = builder.entryBuilder().startStrList(
-                new TranslatableText("imm_ptl.portal_gen"),
-                currConfig.customizedPortalGeneration
-            ).setDefaultValue(MyConfig.defaultPortalGenList).setInsertInFront(true)
-                .setExpanded(true).build();
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryLagAttackProof);
             category.addEntry(entryPortalRenderLimit);
@@ -130,7 +125,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryPureMirror);
             category.addEntry(entryEnableAlternateDimensions);
             category.addEntry(entryDimensionRenderRedirect);
-            category.addEntry(entryPortalGeneration);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -156,7 +150,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );
-                    newConfig.customizedPortalGeneration = entryPortalGeneration.getValue();
+                    
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();
                 })

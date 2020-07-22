@@ -3,11 +3,9 @@ package com.qouteall.immersive_portals.alternate_dimension;
 import com.mojang.serialization.Codec;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
-import net.fabricmc.fabric.mixin.registry.sync.MixinSimpleRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
@@ -80,7 +78,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
         new RandomSelector.Builder<EntityType<?>>()
-            .add(10, EntityType.ZOMBIFIED_PIGLIN)
+//            .add(10, EntityType.ZOMBIFIED_PIGLIN)
             .add(10, EntityType.HUSK)
             .add(30, EntityType.SKELETON)
             .add(10, EntityType.WITHER_SKELETON)
@@ -92,7 +90,6 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             .add(10, EntityType.CAVE_SPIDER)
             .add(10, EntityType.GIANT)
             .add(10, EntityType.MAGMA_CUBE)
-//            .add(10, EntityType.GUARDIAN)
             .add(10, EntityType.ENDERMAN)
             .add(10, EntityType.SNOW_GOLEM)
             .add(10, EntityType.ARMOR_STAND)

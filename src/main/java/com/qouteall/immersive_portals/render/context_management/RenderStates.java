@@ -12,8 +12,6 @@ import com.qouteall.immersive_portals.render.MyRenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
@@ -22,9 +20,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
-import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -160,20 +156,20 @@ public class RenderStates {
     }
     
     public static void onTotalRenderEnd() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        MinecraftClient client = MinecraftClient.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
-            .getDimensionRenderHelper(mc.world.getRegistryKey()).lightmapTexture);
+            .getDimensionRenderHelper(client.world.getRegistryKey()).lightmapTexture);
         
         if (getRenderedPortalNum() != 0) {
             //recover chunk renderer dispatcher
-            ((IEWorldRenderer) mc.worldRenderer).getBuiltChunkStorage().updateCameraPosition(
-                mc.cameraEntity.getX(),
-                mc.cameraEntity.getZ()
+            ((IEWorldRenderer) client.worldRenderer).getBuiltChunkStorage().updateCameraPosition(
+                client.cameraEntity.getX(),
+                client.cameraEntity.getZ()
             );
         }
         
-        Vec3d currCameraPos = mc.gameRenderer.getCamera().getPos();
+        Vec3d currCameraPos = client.gameRenderer.getCamera().getPos();
         cameraPosDelta = currCameraPos.subtract(lastCameraPos);
         if (cameraPosDelta.lengthSquared() > 1) {
             cameraPosDelta = Vec3d.ZERO;
