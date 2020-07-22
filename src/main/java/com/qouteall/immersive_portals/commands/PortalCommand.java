@@ -452,9 +452,13 @@ public class PortalCommand {
                                     )
                         )
                     )
+<<<<<<< HEAD
                 )
             )
         );
+=======
+                );
+>>>>>>> parent of 18a10e8... Merge pull request #1 from JoelOsler/pr/341
     }
 
     private static void registerUtilityCommands(LiteralArgumentBuilder<ServerCommandSource> builder) {
@@ -701,6 +705,7 @@ public class PortalCommand {
                     sendMessage(context, "removed " + portal.toString());
                     portal.remove();
                 });
+<<<<<<< HEAD
     }
 
     private static void invokeSetPortalNBT(CommandContext<ServerCommandSource> context, Portal portal)
@@ -733,6 +738,8 @@ public class PortalCommand {
                     sendMessage(context, "removed " + portal.toString());
                     portal.remove();
                 });
+=======
+>>>>>>> parent of 18a10e8... Merge pull request #1 from JoelOsler/pr/341
     }
 
     private static void setMultidestEntry(CommandContext<ServerCommandSource> context, Portal pointedPortal,
@@ -934,5 +941,181 @@ public class PortalCommand {
         float radians = -yaw * 0.017453292F;
 
         return new Vec3d(Math.sin(radians), 0, Math.cos(radians));
+<<<<<<< HEAD
     }
 }
+=======
+    }}
+
+    
+    
+
+        
+                
+
+        
+
+        
+
+        
+
+         
+
+        
+
+    
+            
+
+        
+
+                 
+
+        
+
+     
+            
+
+        
+
+        
+
+      
+                
+
+      
+                 
+                
+
+         
+
+     
+                 
+                
+                
+
+         
+
+     
+
+     
+
+        
+
+          
+
+    
+
+    
+
+    
+         
+        
+        
+    
+
+     
+               
+            
+
+        
+
+        
+
+        
+
+         
+             
+               
+
+     
+
+         
+
+    
+
+     
+
+     
+                 
+                 
+                
+
+    
+
+        
+
+        
+
+        
+
+        
+
+        
+
+    
+
+        
+
+        
+
+        
+
+        
+
+        
+
+      
+
+        
+
+              
+
+            
+
+        
+
+    
+
+    
+             
+
+        
+
+          
+
+    
+
+    
+            
+
+    
+                
+                
+                        
+
+    
+                
+                        
+                        
+                        
+                        
+                
+
+     
+            
+
+        
+
+        
+
+        
+
+        
+        
+        
+
+        
+
+        
+    
+>>>>>>> parent of 18a10e8... Merge pull request #1 from JoelOsler/pr/341
