@@ -27,7 +27,7 @@ public class DimensionIdRecord {
         RegistryKey<World> result = inverseMap.get(integerId);
         if (result == null) {
             throw new RuntimeException(
-                "Missing Dimension Integer Id " + integerId
+                "Missing Dimension " + integerId
             );
         }
         return result;
@@ -37,7 +37,7 @@ public class DimensionIdRecord {
         Integer result = idMap.get(dim);
         if (result == null) {
             throw new RuntimeException(
-                "Missing Dimension Integer Id " + dim
+                "Missing Dimension " + dim
             );
         }
         return result;

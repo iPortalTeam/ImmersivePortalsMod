@@ -78,7 +78,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     
     private static RandomSelector<EntityType<?>> monsterTypeSelector =
         new RandomSelector.Builder<EntityType<?>>()
-            .add(10, EntityType.ZOMBIFIED_PIGLIN)
+//            .add(10, EntityType.ZOMBIFIED_PIGLIN)
             .add(10, EntityType.HUSK)
             .add(30, EntityType.SKELETON)
             .add(10, EntityType.WITHER_SKELETON)
@@ -90,7 +90,6 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
             .add(10, EntityType.CAVE_SPIDER)
             .add(10, EntityType.GIANT)
             .add(10, EntityType.MAGMA_CUBE)
-//            .add(10, EntityType.GUARDIAN)
             .add(10, EntityType.ENDERMAN)
             .add(10, EntityType.SNOW_GOLEM)
             .add(10, EntityType.ARMOR_STAND)

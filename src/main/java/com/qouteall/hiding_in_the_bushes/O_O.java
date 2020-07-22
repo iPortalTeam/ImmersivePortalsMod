@@ -77,10 +77,6 @@ public class O_O {
         return blockState == obsidianState;
     }
     
-    public static void registerDimensionsForge() {
-    
-    }
-    
     public static boolean detectOptiFine() {
         boolean isOptiFabricPresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
         

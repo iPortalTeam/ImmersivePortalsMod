@@ -101,10 +101,10 @@ public class MyNetwork {
         
         CompoundTag idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
         buf.writeCompoundTag(idMapTag);
-    
+        
         CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
         buf.writeCompoundTag(typeMapTag);
-    
+        
         return new CustomPayloadS2CPacket(id_stcDimSync, buf);
     }
     
