@@ -122,7 +122,8 @@ public class O_O {
         return net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     }
     
-    public static void postPortalSpawnEventForge(NetherPortalGeneration.Info info){
+    public static void postPortalSpawnEventForge(NetherPortalGeneration.Info info) {
     
     }
+    
 }

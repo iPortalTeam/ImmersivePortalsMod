@@ -24,7 +24,7 @@ public class MyConfig {
     public boolean compatibilityRenderMode = false;
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
-    public boolean longerReachInCreative = true;
+    public boolean longerReachInCreative = false;
     public boolean renderYourselfInPortal = true;
     public boolean activeLoading = true;
     public boolean teleportationDebug = false;

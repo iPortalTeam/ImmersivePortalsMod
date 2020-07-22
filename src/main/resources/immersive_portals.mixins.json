@@ -40,7 +40,6 @@
     "collision.MixinLivingEntity_C",
     "collision.MixinProjectileEntity",
     "collision.MixinSnowballEntity",
-    "dimension_sync.MixinFabricRegistrySyncManager",
     "entity_sync.MixinEntityTracker",
     "entity_sync.MixinEntityTrackerEntry",
     "entity_sync.MixinServerPlayerEntity",
