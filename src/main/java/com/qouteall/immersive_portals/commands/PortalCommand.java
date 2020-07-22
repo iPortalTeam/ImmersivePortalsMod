@@ -453,10 +453,13 @@ public class PortalCommand {
                         )
                     )
 <<<<<<< HEAD
+<<<<<<< HEAD
                 )
             )
         );
 =======
+=======
+>>>>>>> parent of f2d8494... Reupdated the formatting
                 );
 >>>>>>> parent of 18a10e8... Merge pull request #1 from JoelOsler/pr/341
     }
@@ -706,6 +709,7 @@ public class PortalCommand {
                     portal.remove();
                 });
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 
     private static void invokeSetPortalNBT(CommandContext<ServerCommandSource> context, Portal portal)
@@ -740,6 +744,8 @@ public class PortalCommand {
                 });
 =======
 >>>>>>> parent of 18a10e8... Merge pull request #1 from JoelOsler/pr/341
+=======
+>>>>>>> parent of f2d8494... Reupdated the formatting
     }
 
     private static void setMultidestEntry(CommandContext<ServerCommandSource> context, Portal pointedPortal,
@@ -1117,5 +1123,9 @@ public class PortalCommand {
         
 
         
+<<<<<<< HEAD
     
 >>>>>>> parent of 18a10e8... Merge pull request #1 from JoelOsler/pr/341
+=======
+    
+>>>>>>> parent of f2d8494... Reupdated the formatting
