@@ -46,7 +46,7 @@
     "MixinWorldRendererChunkInfo"
   ],
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   },
   "priority": 1001
 }

@@ -24,6 +24,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -142,7 +144,7 @@ public class MyNetworkClient {
     ) {
         RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         int messageType = buf.readInt();
-        Packet packet = MyNetwork.createEmptyPacketByType(messageType);
+        Packet packet = createEmptyPacketByType(messageType);
         try {
             packet.read(buf);
         }
@@ -277,5 +279,11 @@ public class MyNetworkClient {
         buf.writeDouble(posBefore.z);
         buf.writeUuid(portalEntityId);
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
+    }
+    
+    private static Packet createEmptyPacketByType(
+        int messageType
+    ) {
+        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
     }
 }

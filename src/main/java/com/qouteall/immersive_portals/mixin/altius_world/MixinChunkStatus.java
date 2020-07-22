@@ -1,4 +1,4 @@
-package com.qouteall.hiding_in_the_bushes.mixin.altius_world;
+package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;

@@ -108,12 +108,6 @@ public class MyNetwork {
         return new CustomPayloadS2CPacket(id_stcDimSync, buf);
     }
     
-    public static Packet createEmptyPacketByType(
-        int messageType
-    ) {
-        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
-    }
-    
     public static void sendRedirectedMessage(
         ServerPlayerEntity player,
         RegistryKey<World> dimension,
@@ -217,4 +211,5 @@ public class MyNetwork {
             return true;
         });
     }
+    
 }
