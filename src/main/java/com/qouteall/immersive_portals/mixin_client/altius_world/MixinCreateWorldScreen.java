@@ -63,7 +63,7 @@ public abstract class MixinCreateWorldScreen extends Screen {
     }
     
     @Inject(
-        method = "setMoreOptionsOpen(Z)V",
+        method = "Lnet/minecraft/client/gui/screen/world/CreateWorldScreen;setMoreOptionsOpen(Z)V",
         at = @At("RETURN")
     )
     private void onMoreOptionsOpen(boolean moreOptionsOpen, CallbackInfo ci) {

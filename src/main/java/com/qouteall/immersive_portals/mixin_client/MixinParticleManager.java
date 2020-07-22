@@ -18,7 +18,7 @@ public class MixinParticleManager implements IEParticleManager {
     
     //currently particle manager cannot handle particles in different dimensions
     @Inject(
-        method = "addParticle(Lnet/minecraft/client/particle/Particle;)V",
+        method = "Lnet/minecraft/client/particle/ParticleManager;addParticle(Lnet/minecraft/client/particle/Particle;)V",
         at = @At("HEAD"),
         cancellable = true
     )
