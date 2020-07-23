@@ -746,6 +746,15 @@ public class PortalCommand {
                 )
             )
         );
+        builder.then(CommandManager.literal("cb_set_portal_nbt")
+                     .then(CommandManager.argument("portal", EntityArgumentType.entities())
+                        .then(CommandManager.argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+                            .executes(context -> processPortalArgumentedCommand(
+                                context,
+                                (portal) -> invokeSetPortalNBT(context, portal)
+                            )
+                        )
+                );
     }
     
     private static void registerUtilityCommands(
@@ -1115,6 +1124,27 @@ public class PortalCommand {
                 player.getName().asString() + " now"
         );
         sendMessage(context, portal.toString());
+    }
+
+    private static void invokeSetPortalNBT(CommandContext<ServerCommandSource> context, Portal portal) throws CommandSyntaxException {
+
+        CompoundTag newNbt = NbtCompoundTagArgumentType.getCompoundTag(
+            context, "nbt"
+        );
+
+        CompoundTag portalNbt = portal.toTag(new CompoundTag());
+
+        newNbt.getKeys().forEach(
+            key -> portalNbt.put(key, newNbt.get(key))
+        );
+
+        UUID uuid = portal.getUuid();
+        portal.fromTag(portalNbt);
+        portal.setUuid(uuid);
+
+        reloadPortal(portal);
+
+        sendPortalInfo(context, portal);
     }
     
     private static void removeMultidestEntry(
