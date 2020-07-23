@@ -69,7 +69,7 @@ public class ServerTeleportationManager {
         if (entity.removed) {
             return;
         }
-        if(!entity.canUsePortals()){
+        if (!entity.canUsePortals()) {
             return;
         }
         //a new born entity may have last tick pos 0 0 0
@@ -365,7 +365,10 @@ public class ServerTeleportationManager {
     
     private void teleportRegularEntity(Entity entity, Portal portal) {
         Validate.isTrue(!(entity instanceof ServerPlayerEntity));
-        Validate.isTrue(entity.world == portal.world);
+        if (entity.world != portal.world) {
+            Helper.err(String.format("Cannot teleport %s from %s through %s", entity, entity.world.getRegistryKey(), portal));
+            return;
+        }
         
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
@@ -407,7 +410,7 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link Entity#changeDimension(RegistryKey<World>)}
+     * {@link Entity#changeDimension(ServerWorld)}
      */
     public void changeEntityDimension(
         Entity entity,

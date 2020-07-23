@@ -57,7 +57,8 @@ public class MixinBackgroundRenderer {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"
-        )
+        ),
+        require = 0
     )
     private static float redirectGetRainGradient(ClientWorld world, float delta) {
         if (world.getRegistryKey() == World.NETHER) {
@@ -71,7 +72,8 @@ public class MixinBackgroundRenderer {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/world/ClientWorld;getThunderGradient(F)F"
-        )
+        ),
+        require = 0
     )
     private static float redirectGetThunderGradient(ClientWorld world, float delta) {
         if (world.getRegistryKey() == World.NETHER) {
