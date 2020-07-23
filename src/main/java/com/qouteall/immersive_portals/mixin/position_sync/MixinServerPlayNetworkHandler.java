@@ -114,12 +114,15 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         float destPitch,
         Set<PlayerPositionLookS2CPacket.Flag> updates
     ) {
-        Helper.log(String.format("request teleport %s %s (%d %d %d)->(%d %d %d)",
-            player.getName().asString(),
-            player.world.getRegistryKey(),
-            (int) player.getX(), (int) player.getY(), (int) player.getZ(),
-            (int) destX, (int) destY, (int) destZ
-        ));
+        if (Global.teleportationDebugEnabled) {
+            new Throwable().printStackTrace();
+            Helper.log(String.format("request teleport %s %s (%d %d %d)->(%d %d %d)",
+                player.getName().asString(),
+                player.world.getRegistryKey(),
+                (int) player.getX(), (int) player.getY(), (int) player.getZ(),
+                (int) destX, (int) destY, (int) destZ
+            ));
+        }
         
         double currX = updates.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0D;
         double currY = updates.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.getY() : 0.0D;
@@ -149,10 +152,6 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         //noinspection ConstantConditions
         ((IEPlayerPositionLookS2CPacket) lookPacket).setPlayerDimension(player.world.getRegistryKey());
         this.player.networkHandler.sendPacket(lookPacket);
-        
-        if (Global.teleportationDebugEnabled) {
-            new Throwable().printStackTrace();
-        }
     }
     
     //server will check the collision when receiving position packet from client
