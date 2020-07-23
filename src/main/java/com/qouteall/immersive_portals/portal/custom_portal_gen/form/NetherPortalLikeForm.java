@@ -42,7 +42,11 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         if (fromShape == null) {
             return false;
         }
-    
+        
+        if (NetherPortalGeneration.isOtherGenerationRunning(fromWorld, fromShape.innerAreaBox.getCenterVec())) {
+            return false;
+        }
+        
         // clear the area
         for (BlockPos areaPos : fromShape.area) {
             fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());

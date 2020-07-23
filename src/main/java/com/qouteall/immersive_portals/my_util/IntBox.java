@@ -6,8 +6,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -264,9 +266,9 @@ public class IntBox {
     
     public IntBox getSubBoxInCenter(BlockPos subBoxSize) {
         BlockPos thisSize = getSize();
-        assert thisSize.getX() >= subBoxSize.getX();
-        assert thisSize.getY() >= subBoxSize.getY();
-        assert thisSize.getZ() >= subBoxSize.getZ();
+        Validate.isTrue(thisSize.getX() >= subBoxSize.getX());
+        Validate.isTrue(thisSize.getY() >= subBoxSize.getY());
+        Validate.isTrue(thisSize.getZ() >= subBoxSize.getZ());
         return getBoxByBasePointAndSize(
             subBoxSize,
             Helper.divide(thisSize.subtract(subBoxSize), 2).add(l)
@@ -313,12 +315,35 @@ public class IntBox {
     
     public boolean contains(BlockPos pos) {
         assert isSorted();
-    
+        
         return pos.getX() >= l.getX() &&
             pos.getX() <= h.getX() &&
             pos.getY() >= l.getY() &&
             pos.getY() <= h.getY() &&
             pos.getZ() >= l.getZ() &&
             pos.getZ() <= h.getZ();
+    }
+    
+    @Override
+    public String toString() {
+        return String.format(
+            "(%d %d %d)-(%d %d %d)",
+            l.getX(), l.getY(), l.getZ(),
+            h.getX(), h.getY(), h.getZ()
+        );
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IntBox intBox = (IntBox) o;
+        return l.equals(intBox.l) &&
+            h.equals(intBox.h);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(l, h);
     }
 }

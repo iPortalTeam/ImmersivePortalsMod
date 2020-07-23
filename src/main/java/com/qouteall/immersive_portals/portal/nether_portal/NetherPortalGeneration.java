@@ -338,7 +338,9 @@ public class NetherPortalGeneration {
         
         BlockPos toPos = positionMapping.apply(fromShape.innerAreaBox.getCenter());
         
-        if (isOtherGenerationRunning(fromWorld, fromShape)) return null;
+        if (isOtherGenerationRunning(fromWorld, fromShape.innerAreaBox.getCenterVec())) return null;
+        
+        Helper.log(fromShape.totalAreaBox);
         
         startGeneratingPortal(
             fromWorld, toWorld, fromShape, toPos,
@@ -352,6 +354,8 @@ public class NetherPortalGeneration {
                         fromShape.axis, fromShape.totalAreaBox.getSize(),
                         airCubeSearchingRadius
                     );
+                
+                Helper.log("Found Placement " + airCubePlacement);
                 
                 BlockPortalShape toShape = fromShape.getShapeWithMovedAnchor(
                     airCubePlacement.l.subtract(
@@ -490,8 +494,7 @@ public class NetherPortalGeneration {
         });
     }
     
-    public static boolean isOtherGenerationRunning(ServerWorld fromWorld, BlockPortalShape foundShape) {
-        Vec3d indicatorPos = foundShape.innerAreaBox.getCenterVec();
+    public static boolean isOtherGenerationRunning(ServerWorld fromWorld, Vec3d indicatorPos) {
         
         boolean isOtherGenerationRunning = McHelper.getEntitiesNearby(
             fromWorld, indicatorPos, LoadingIndicatorEntity.class, 1
