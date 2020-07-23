@@ -94,7 +94,7 @@ public class SmoothLoading {
     }
     
     private static int getSplitRatio() {
-        return 40;
+        return 100;
     }
     
     private static WorldInfo getWorldInfo(ClientWorld world) {

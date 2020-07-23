@@ -47,7 +47,8 @@
     "minecraft": "1.16.1"
   },
   "breaks": {
-    "canvas": "*"
+    "canvas": "*",
+    "sodium": "*"
   },
   "suggests": {
     "flamingo": "*"
