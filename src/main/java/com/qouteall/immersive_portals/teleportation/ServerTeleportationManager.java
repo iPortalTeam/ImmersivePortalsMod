@@ -72,6 +72,9 @@ public class ServerTeleportationManager {
         if (!entity.canUsePortals()) {
             return;
         }
+        if (isJustTeleported(entity, 10)) {
+            return;
+        }
         //a new born entity may have last tick pos 0 0 0
         double motion = McHelper.lastTickPosOf(entity).squaredDistanceTo(entity.getPos());
         if (motion > 20) {
