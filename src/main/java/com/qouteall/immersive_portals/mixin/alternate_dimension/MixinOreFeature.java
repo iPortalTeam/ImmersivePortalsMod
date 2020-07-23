@@ -19,7 +19,7 @@ import java.util.Random;
 @Mixin(OreFeature.class)
 public class MixinOreFeature {
     @ModifyVariable(
-        method = "generate",
+        method = "Lnet/minecraft/world/gen/feature/OreFeature;generate(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Ljava/util/Random;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/gen/feature/OreFeatureConfig;)Z",
         at = @At("HEAD"),
         argsOnly = true
     )

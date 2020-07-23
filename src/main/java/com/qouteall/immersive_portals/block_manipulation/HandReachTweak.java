@@ -28,6 +28,9 @@ public class HandReachTweak {
         if (O_O.isReachEntityAttributesPresent) {
             return 1;
         }
+        if (O_O.isForge()) {
+            return 1;
+        }
         double multiplier = playerEntity.getAttributeInstance(handReachMultiplierAttribute).getValue();
         if (Global.longerReachInCreative && playerEntity.isCreative()) {
             return multiplier * 10;

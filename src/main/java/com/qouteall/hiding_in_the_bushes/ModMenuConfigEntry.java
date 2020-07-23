@@ -56,7 +56,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             BooleanListEntry entryLongerReachInCreative = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.long_reach_in_creative"),
                 currConfig.longerReachInCreative
-            ).setDefaultValue(true).build();
+            ).setDefaultValue(false).build();
             BooleanListEntry entryRenderYourselfInPortal = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.render_yourself_in_portal"),
                 currConfig.renderYourselfInPortal
