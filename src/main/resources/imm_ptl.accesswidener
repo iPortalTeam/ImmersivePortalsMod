@@ -8,3 +8,7 @@ Accessible method net/minecraft/world/dimension/DimensionType createNetherGenera
 Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
 Accessible field net/minecraft/world/biome/source/BiomeAccess seed J
 Accessible field net/minecraft/server/MinecraftServer serverResourceManager Lnet/minecraft/resource/ServerResourceManager;
+Accessible field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
+Mutable field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
+
+

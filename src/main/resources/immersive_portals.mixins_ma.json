@@ -13,6 +13,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "priority": 1001
+  }
 }

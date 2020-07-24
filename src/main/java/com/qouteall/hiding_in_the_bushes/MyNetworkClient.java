@@ -2,7 +2,6 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
@@ -76,7 +75,7 @@ public class MyNetworkClient {
     
     private static void processStcSpawnEntity(PacketContext context, PacketByteBuf buf) {
         String entityTypeString = buf.readString();
-    
+        
         int entityId = buf.readInt();
         
         RegistryKey<World> dim = DimId.readWorldId(buf, true);
@@ -89,8 +88,9 @@ public class MyNetworkClient {
             return;
         }
         
-        //without this delay it will flash? or it's random?
-        MinecraftClient.getInstance().execute(() -> {
+        client.execute(() -> {
+            client.getProfiler().push("ip_spawn_entity");
+            
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
 
 //            if (world.getEntityById(entityId) != null) {
@@ -117,7 +117,7 @@ public class MyNetworkClient {
                 );
             }
             
-            return;
+            client.getProfiler().pop();
         });
     }
     
@@ -174,17 +174,20 @@ public class MyNetworkClient {
     
     private static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
         client.execute(() -> {
-            ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
-            
-            if (SmoothLoading.filterPacket(packetWorld, packet)) {
-                return;
+            try {
+                client.getProfiler().push("process_redirected_packet");
+                
+                ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
+                
+                if (SmoothLoading.filterPacket(packetWorld, packet)) {
+                    return;
+                }
+                
+                doProcessRedirectedMessage(packetWorld, packet);
             }
-            
-            assert packetWorld != null;
-            
-            assert packetWorld.getChunkManager() instanceof MyClientChunkManager;
-            
-            doProcessRedirectedMessage(packetWorld, packet);
+            finally {
+                client.getProfiler().pop();
+            }
         });
     }
     
@@ -204,6 +207,7 @@ public class MyNetworkClient {
         client.world = packetWorld;
         ((IEParticleManager) client.particleManager).mySetWorld(packetWorld);
         
+        originalWorld.getProfiler().push("handle_redirected_packet");
         try {
             packet.apply(netHandler);
         }
@@ -218,13 +222,15 @@ public class MyNetworkClient {
         finally {
             client.world = originalWorld;
             ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
+            
+            originalWorld.getProfiler().pop();
         }
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
         RegistryKey<World> dimensionType = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
-        MinecraftClient.getInstance().execute(() -> {
+        client.execute(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getWorld(dimensionType);
             

@@ -119,7 +119,6 @@ public class MyConfig {
         Global.enableAlternateDimensions = enableAlternateDimensions;
     
         Global.smoothLoading = smoothLoading;
-        Global.cacheGlBuffer = smoothLoading;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

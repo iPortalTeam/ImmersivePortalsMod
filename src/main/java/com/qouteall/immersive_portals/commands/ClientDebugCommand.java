@@ -35,6 +35,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -45,6 +46,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import java.lang.ref.Reference;
 import java.net.URLClassLoader;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -462,6 +464,17 @@ public class ClientDebugCommand {
                 
                 return 0;
             })
+        );
+        builder.then(CommandManager
+            .literal("set_profiler_logging_threshold")
+            .then(CommandManager.argument("ms", IntegerArgumentType.integer())
+                .executes(context -> {
+                    int ms = IntegerArgumentType.getInteger(context, "ms");
+                    ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
+    
+                    return 0;
+                })
+            )
         );
         registerSwitchCommand(
             builder,

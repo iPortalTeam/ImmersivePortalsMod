@@ -197,6 +197,8 @@ public class ClientWorldLoader {
         
         isLoadingFakedWorld = true;
         
+        client.getProfiler().push("create_world");
+        
         //TODO get load distance
         int chunkLoadDistance = 3;
         
@@ -263,6 +265,8 @@ public class ClientWorldLoader {
         Helper.log("Faked World Created " + dimension);
         
         isLoadingFakedWorld = false;
+        
+        client.getProfiler().pop();
         
         return newWorld;
     }

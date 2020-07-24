@@ -133,9 +133,9 @@ public class RenderStates {
         double minPortalDistance = CHelper.getClientNearbyPortals(10)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
             .min(Double::compareTo).orElse(1.0);
-        if (minPortalDistance < 1) {
-            if (minPortalDistance > 0.5) {
-                setViewBobFactor((minPortalDistance - 0.5) * 2);
+        if (minPortalDistance < 2) {
+            if (minPortalDistance > 1) {
+                setViewBobFactor(minPortalDistance - 1);
             }
             else {
                 setViewBobFactor(0);

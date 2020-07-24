@@ -94,7 +94,7 @@ public class SmoothLoading {
     }
     
     private static int getSplitRatio() {
-        return 100;
+        return 150;
     }
     
     private static WorldInfo getWorldInfo(ClientWorld world) {
@@ -104,15 +104,14 @@ public class SmoothLoading {
     }
     
     private static boolean isNearPlayer(ClientWorld world, int chunkX, int chunkZ) {
-//        if (world != client.player.world) {
-//            return false;
-//        }
-        return false;
-
-//        return Helper.getChebyshevDistance(
-//            chunkX, chunkZ,
-//            client.player.chunkX, client.player.chunkZ
-//        ) <= (client.options.viewDistance + 5);
+        if (world != client.player.world) {
+            return false;
+        }
+        
+        return Helper.getChebyshevDistance(
+            chunkX, chunkZ,
+            client.player.chunkX, client.player.chunkZ
+        ) <= (client.options.viewDistance + 5);
     }
     
     // return true indicates that the packet is intercepted
@@ -197,7 +196,11 @@ public class SmoothLoading {
     
     private static void flushInterceptedPackets() {
         client.getProfiler().push("flush_intercepted_packets");
-        data.forEach(SmoothLoading::flushPacketsForWorld);
+        data.entrySet().stream().max(
+            Comparator.comparingInt(entry -> entry.getValue().packets.size())
+        ).ifPresent(entry -> {
+            flushPacketsForWorld(entry.getKey(), entry.getValue());
+        });
         client.getProfiler().pop();
     }
     
