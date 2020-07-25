@@ -14,8 +14,18 @@ public class PortalExtension {
     public double motionAffinity = 0;
     
     private static class PlayerPortalVisibility {
-        public long startVisibleTime = 0;
         public long lastVisibleTime = 0;
+        public int currentCap = 0;
+        public int targetCap = 0;
+        
+        public void updateEverySecond() {
+            if (targetCap > currentCap) {
+                currentCap++;
+            }
+            else if (targetCap < currentCap) {
+                currentCap--;
+            }
+        }
     }
     
     private WeakHashMap<ServerPlayerEntity, PlayerPortalVisibility> playerLoadStatus;
@@ -45,6 +55,12 @@ public class PortalExtension {
                 playerLoadStatus = new WeakHashMap<>();
             }
             playerLoadStatus.entrySet().removeIf(e -> e.getKey().removed);
+            
+            if (portal.world.getTime() % 20 == 1) {
+                for (PlayerPortalVisibility value : playerLoadStatus.values()) {
+                    value.updateEverySecond();
+                }
+            }
         }
     }
     
@@ -53,7 +69,7 @@ public class PortalExtension {
     
     }
     
-    public int refreshAndGetMaxLoadDistance(Portal portal, ServerPlayerEntity player) {
+    public int refreshAndGetLoadDistanceCap(Portal portal, ServerPlayerEntity player, int currentCap) {
         if (playerLoadStatus == null) {
             playerLoadStatus = new WeakHashMap<>();
         }
@@ -66,16 +82,21 @@ public class PortalExtension {
         
         long worldTime = portal.world.getTime();
         
-        if (Math.abs(worldTime - rec.lastVisibleTime) > dropTimeout) {
-            rec.startVisibleTime = worldTime;
+        long timePassed = Math.abs(worldTime - rec.lastVisibleTime);
+        if (timePassed > dropTimeout) {
+            // not loaded for sometime and reload, reset all
+            rec.targetCap = currentCap;
+            rec.currentCap = 0;
+        }
+        else if (timePassed == dropTimeout) {
+            // being checked the second time in this turn
+            rec.targetCap = Math.max(rec.targetCap, currentCap);
+        }
+        else {
+            // being checked the first time in this turn
+            rec.targetCap = currentCap;
         }
         
-        rec.lastVisibleTime = worldTime;
-        
-        long watchedTicks = rec.lastVisibleTime - rec.startVisibleTime;
-        
-        int watchedSeconds = ((int) (watchedTicks / 20));
-    
-        return watchedSeconds;
+        return rec.currentCap;
     }
 }

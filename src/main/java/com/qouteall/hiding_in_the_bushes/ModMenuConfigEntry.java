@@ -101,10 +101,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.enable_alternate_dimensions"),
                 currConfig.enableAlternateDimensions
             ).setDefaultValue(true).build();
-            BooleanListEntry entrySmoothLoading = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.smooth_loading"),
-                currConfig.smoothLoading
-            ).setDefaultValue(false).build();
+//            BooleanListEntry entrySmoothLoading = builder.entryBuilder().startBooleanToggle(
+//                new TranslatableText("imm_ptl.smooth_loading"),
+//                currConfig.smoothLoading
+//            ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 new TranslatableText("imm_ptl.render_redirect"),
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
@@ -128,7 +128,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryMirrorInteractableThroughPortal);
             category.addEntry(entryPureMirror);
             category.addEntry(entryEnableAlternateDimensions);
-            category.addEntry(entrySmoothLoading);
+//            category.addEntry(entrySmoothLoading);
             category.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
@@ -152,7 +152,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
-                    newConfig.smoothLoading = entrySmoothLoading.getValue();
+//                    newConfig.smoothLoading = entrySmoothLoading.getValue();
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

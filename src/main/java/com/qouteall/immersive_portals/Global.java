@@ -63,7 +63,7 @@ public class Global {
     
     public static boolean enableAlternateDimensions = true;
     
-    public static boolean serverSmoothLoading = true;
+    public static boolean serverSmoothLoading = false;
     
     public static enum RenderMode {
         normal,
