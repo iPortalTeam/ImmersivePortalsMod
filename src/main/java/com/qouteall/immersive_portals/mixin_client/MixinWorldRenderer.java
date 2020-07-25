@@ -23,7 +23,6 @@ import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
@@ -37,7 +36,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
@@ -46,9 +44,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -240,54 +236,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private void onAfterCutoutRendering(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
         CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
     }
-    
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
-//        )
-//    )
-//    private void redirectRenderLayer(
-//        WorldRenderer worldRenderer,
-//        RenderLayer renderLayer,
-//        MatrixStack matrices,
-//        double cameraX,
-//        double cameraY,
-//        double cameraZ
-//    ) {
-//
-//        if (renderLayer == RenderLayer.getSolid()) {
-//            ObjectList<?> visibleChunks = this.visibleChunks;
-//            MyGameRenderer.doPruneVisibleChunks(visibleChunks);
-//        }
-//
-//        if (PortalRendering.isRendering()) {
-//            PixelCuller.updateCullingPlaneInner(
-//                matrices,
-//                PortalRendering.getRenderingPortal(),
-//                true
-//            );
-//            PixelCuller.startCulling();
-//            if (PortalRendering.isRenderingOddNumberOfMirrors()) {
-//                MyRenderHelper.applyMirrorFaceCulling();
-//            }
-//        }
-//
-//        renderLayer(
-//            renderLayer, matrices,
-//            cameraX, cameraY, cameraZ
-//        );
-//
-//        if (PortalRendering.isRendering()) {
-//            PixelCuller.endCulling();
-//            MyRenderHelper.recoverFaceCulling();
-//        }
-//
-//        if (renderLayer == RenderLayer.getCutout()) {
-//            CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
-//        }
-//    }
     
     @Redirect(
         method = "render",
@@ -493,21 +441,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         isReloadingOtherWorldRenderers = false;
     }
     
-    //avoid translucent sort while rendering portal
-    @Redirect(
-        method = "renderLayer",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;",
-            ordinal = 0
-        )
-    )
-    private RenderLayer redirectGetTranslucent() {
-        if (PortalRendering.isRendering()) {
-            return null;
-        }
-        return RenderLayer.getTranslucent();
-    }
+   
     
     @Inject(method = "renderSky", at = @At("HEAD"))
     private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
@@ -573,32 +507,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         TransformationManager.processTransformation(camera, matrices);
     }
     
-    //update builtChunkStorage every frame
-    //update terrain when rendering portal
-    @Inject(
-        method = "setupTerrain",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
-        )
-    )
-    private void onBeforeChunkBuilderSetCameraPosition(
-        Camera camera_1,
-        Frustum frustum_1,
-        boolean boolean_1,
-        int int_1,
-        boolean boolean_2,
-        CallbackInfo ci
-    ) {
-        if (CGlobal.useHackedChunkRenderDispatcher) {
-            this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
-        }
-        
-        if (PortalRendering.isRendering()) {
-            needsTerrainUpdate = true;
-        }
-    }
-    
     //reduce lag spike
     @Redirect(
         method = "render",
@@ -616,21 +524,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //rebuild less chunk in render thread while rendering portal to reduce lag spike
-    //minecraft has two places rebuilding chunks in render thread
-    //one in updateChunks() one in setupTerrain()
-    @ModifyConstant(
-        method = "setupTerrain",
-        constant = @Constant(doubleValue = 768.0D)
-    )
-    private double modifyRebuildRange(double original) {
-        if (PortalRendering.isRendering()) {
-            return 256.0;
-        }
-        else {
-            return original;
-        }
-    }
+    
     
     //disable cull when rendering mirror
     @Redirect(
@@ -715,23 +609,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //the camera position is used for translucent sort
-    //avoid messing it
-    @Redirect(
-        method = "setupTerrain",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
-        )
-    )
-    private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
-        if (PortalRendering.isRendering()) {
-            if (client.world.getRegistryKey() == RenderStates.originalPlayerDimension) {
-                return;
-            }
-        }
-        chunkBuilder.setCameraPosition(cameraPosition);
-    }
+    
     
     @Override
     public EntityRenderDispatcher getEntityRenderDispatcher() {

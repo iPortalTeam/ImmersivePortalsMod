@@ -43,6 +43,7 @@
     "MixinPlayerListEntry",
     "MixinQuaternion",
     "MixinWorldRenderer",
+    "MixinWorldRenderer_Optional",
     "MixinWorldRendererChunkInfo"
   ],
   "injectors": {

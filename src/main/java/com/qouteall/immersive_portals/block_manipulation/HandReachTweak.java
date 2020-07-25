@@ -4,10 +4,12 @@ import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Global;
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Potion;
+import org.apache.commons.lang3.Validate;
 
 import java.util.function.BiFunction;
 
@@ -31,7 +33,12 @@ public class HandReachTweak {
         if (O_O.isForge()) {
             return 1;
         }
-        double multiplier = playerEntity.getAttributeInstance(handReachMultiplierAttribute).getValue();
+        Validate.notNull(playerEntity);
+        EntityAttributeInstance instance = playerEntity.getAttributeInstance(handReachMultiplierAttribute);
+        if (instance == null) {
+            return 1;
+        }
+        double multiplier = instance.getValue();
         if (Global.longerReachInCreative && playerEntity.isCreative()) {
             return multiplier * 10;
         }

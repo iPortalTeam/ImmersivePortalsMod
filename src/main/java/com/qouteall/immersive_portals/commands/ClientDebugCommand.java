@@ -543,6 +543,11 @@ public class ClientDebugCommand {
             "add_custom_ticket_for_direct_loading_delayed",
             cond -> NewChunkTrackingGraph.addCustomTicketForDirectLoadingDelayed = cond
         );
+        registerSwitchCommand(
+            builder,
+            "server_smooth_loading",
+            cond -> Global.serverSmoothLoading = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

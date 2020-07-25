@@ -183,10 +183,6 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pa.extension.motionAffinity = 0.1;
         pb.extension.motionAffinity = 0.1;
         
-        // special flipping portal
-        pa.extension.isSpecialFlippingPortal = true;
-        pb.extension.isSpecialFlippingPortal = true;
-        
         pa.world.spawnEntity(pa);
         pb.world.spawnEntity(pb);
         

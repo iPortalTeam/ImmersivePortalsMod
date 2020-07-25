@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.function.Supplier;
 
-@Mixin(ClientWorld.class)
+@Mixin(value = ClientWorld.class)
 public abstract class MixinClientWorld implements IEClientWorld {
     @Shadow
     @Final
@@ -69,9 +69,9 @@ public abstract class MixinClientWorld implements IEClientWorld {
 //        )
 //    )
 //    private ClientChunkManager replaceChunkManager(ClientWorld world, int loadDistance) {
-//        return new MyClientChunkManager(world, loadDistance);
+//        return O_O.createMyClientChunkManager(world, loadDistance);
 //    }
-    
+
     //use my client chunk manager
     @Inject(
         method = "<init>",
@@ -91,8 +91,8 @@ public abstract class MixinClientWorld implements IEClientWorld {
         CallbackInfo ci
     ) {
         ClientWorld clientWorld = (ClientWorld) (Object) this;
-        MyClientChunkManager myClientChunkManager =
-            new MyClientChunkManager(clientWorld, chunkLoadDistance);
+        ClientChunkManager myClientChunkManager =
+            O_O.createMyClientChunkManager(clientWorld, chunkLoadDistance);
         chunkManager = myClientChunkManager;
     }
     

@@ -121,6 +121,17 @@ public class ChunkVisibilityManager {
         return renderDistance / 3;
     }
     
+    private static int getSmoothedLoadingDistance(
+        Portal portal, ServerPlayerEntity player, int targetLoadingDistance
+    ) {
+        if (!Global.serverSmoothLoading) {
+            return targetLoadingDistance;
+        }
+        
+        int maxLoadDistance = portal.extension.refreshAndGetMaxLoadDistance(portal, player);
+        return Math.min(maxLoadDistance, targetLoadingDistance);
+    }
+    
     private static ChunkLoader portalDirectLoader(
         Portal portal,
         ServerPlayerEntity player
@@ -132,18 +143,23 @@ public class ChunkVisibilityManager {
                 portal.dimensionTo,
                 new ChunkPos(new BlockPos(portal.destination))
             ),
-            getDirectLoadingDistance(renderDistance, distance)
+            getSmoothedLoadingDistance(
+                portal, player,
+                getDirectLoadingDistance(renderDistance, distance)
+            )
         );
     }
     
-    private static ChunkLoader portalIndirectLoader(Portal portal) {
+    private static ChunkLoader portalIndirectLoader(Portal portal, ServerPlayerEntity player) {
         int renderDistance = McHelper.getRenderDistanceOnServer();
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
                 new ChunkPos(new BlockPos(portal.destination))
             ),
-            (renderDistance / 4)
+            getSmoothedLoadingDistance(
+                portal, player, renderDistance / 4
+            )
         );
     }
     
@@ -232,7 +248,7 @@ public class ChunkVisibilityManager {
                         ).filter(
                             remotePortal -> remotePortal.canBeSpectated(player)
                         ).map(
-                            remotePortal -> portalIndirectLoader(remotePortal)
+                            remotePortal -> portalIndirectLoader(remotePortal, player)
                         )
                 )
             ),

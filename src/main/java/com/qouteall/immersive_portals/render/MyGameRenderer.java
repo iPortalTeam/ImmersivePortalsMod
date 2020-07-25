@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.qouteall.hiding_in_the_bushes.SodiumInterface;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
@@ -153,6 +154,9 @@ public class MyGameRenderer {
         }
         ieGameRenderer.setCamera(newCamera);
         
+        Object newSodiumContext = SodiumInterface.createNewRenderingContext.apply(worldRenderer);
+        Object oldSodiumContext = SodiumInterface.switchRenderingContext.apply(worldRenderer, newSodiumContext);
+        
         ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         
@@ -174,6 +178,8 @@ public class MyGameRenderer {
         });
         
         //recover
+        SodiumInterface.switchRenderingContext.apply(worldRenderer, oldSodiumContext);
+        
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         client.world = oldEntityWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
