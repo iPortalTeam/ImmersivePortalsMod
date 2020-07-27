@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin_client.sync;
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
@@ -107,17 +106,13 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         ),
         cancellable = true
     )
-    private void onProcessingPosistionPacket(
+    private void onProcessingPositionPacket(
         PlayerPositionLookS2CPacket packet,
         CallbackInfo ci
     ) {
         RegistryKey<World> playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         assert playerDimension != null;
         ClientWorld world = client.world;
-        
-        if (client.player != null) {
-            McHelper.checkDimension(client.player);
-        }
         
         if (world != null) {
             if (world.getDimension() != null) {

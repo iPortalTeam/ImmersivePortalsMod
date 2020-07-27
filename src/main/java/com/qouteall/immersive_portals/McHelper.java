@@ -377,10 +377,6 @@ public class McHelper {
         );
     }
     
-    public static void checkDimension(Entity entity) {
-        //no need in 1.16
-    }
-    
     public static WorldChunk getServerChunkIfPresent(
         RegistryKey<World> dimension,
         int x, int z

@@ -76,18 +76,6 @@ public abstract class MixinEntityTrackerEntry {
     ) {
         //nothing
     }
-
-//    /**
-//     * @author qouteall
-//     * overwrite because method reference can not be redirected
-//     */
-//    @Overwrite
-//    public void startTracking(ServerPlayerEntity serverPlayerEntity_1) {
-//        ServerPlayNetworkHandler networkHandler = serverPlayerEntity_1.networkHandler;
-//        this.sendPackets(packet -> sendRedirectedMessage(networkHandler, packet));
-//        this.entity.onStartedTrackingBy(serverPlayerEntity_1);
-//        serverPlayerEntity_1.onStartedTracking(this.entity);
-//    }
     
     @Redirect(
         method = "sendSyncPacket",

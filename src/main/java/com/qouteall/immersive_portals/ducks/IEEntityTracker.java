@@ -6,7 +6,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public interface IEEntityTracker {
     Entity getEntity_();
     
-    void updateCameraPosition_(ServerPlayerEntity player);
+    void updateEntityTrackingStatus(ServerPlayerEntity player);
     
     void onPlayerRespawn(ServerPlayerEntity oldPlayer);
     

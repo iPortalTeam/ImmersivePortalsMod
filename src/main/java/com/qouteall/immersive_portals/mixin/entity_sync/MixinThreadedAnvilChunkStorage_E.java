@@ -50,6 +50,12 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         }
     }
     
+    // Managed by EntitySync
+    @Inject(method = "tickPlayerMovement", at = @At("HEAD"), cancellable = true)
+    private void onTickPlayerMovement(CallbackInfo ci) {
+        ci.cancel();
+    }
+    
     @Override
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
         entityTrackers.values().forEach(obj -> {
@@ -70,7 +76,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         for (Object entityTracker : this.entityTrackers.values()) {
             Entity entity = ((IEEntityTracker) entityTracker).getEntity_();
             if (entity != player && entity.chunkX == chunk.getPos().x && entity.chunkZ == chunk.getPos().z) {
-                ((IEEntityTracker) entityTracker).updateCameraPosition_(player);
+                ((IEEntityTracker) entityTracker).updateEntityTrackingStatus(player);
                 if (entity instanceof MobEntity && ((MobEntity) entity).getHoldingEntity() != null) {
                     attachedEntityList.add(entity);
                 }

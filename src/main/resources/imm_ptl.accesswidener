@@ -11,4 +11,10 @@ Accessible field net/minecraft/server/MinecraftServer serverResourceManager Lnet
 Accessible field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
 Mutable field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
 
+Accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
+Accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker lastCameraPosition Lnet/minecraft/util/math/ChunkSectionPos;
+Accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage entityTrackers Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
+Accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
+
+
 

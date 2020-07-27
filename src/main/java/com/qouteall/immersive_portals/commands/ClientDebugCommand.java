@@ -76,8 +76,8 @@ public class ClientDebugCommand {
                 )
             );
         builder = builder.then(CommandManager
-            .literal("list_nearby_portals")
-            .executes(context -> listNearbyPortals(context))
+            .literal("list_portals")
+            .executes(context -> listPortals(context))
         );
         builder = builder.then(CommandManager
             .literal("is_client_chunk_loaded")
@@ -471,7 +471,7 @@ public class ClientDebugCommand {
                 .executes(context -> {
                     int ms = IntegerArgumentType.getInteger(context, "ms");
                     ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
-    
+                    
                     return 0;
                 })
             )
@@ -672,29 +672,36 @@ public class ClientDebugCommand {
         return 0;
     }
     
-    private static int listNearbyPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int listPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity playerServer = context.getSource().getPlayer();
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
         
-        McHelper.serverLog(playerServer, "Server Portals");
-        McHelper.serverLog(
-            playerServer,
-            Helper.myToString(
-                McHelper.getEntitiesNearby(
-                    playerServer, Portal.class, 64
-                )
-            )
-        );
+        StringBuilder result = new StringBuilder();
         
-        McHelper.serverLog(playerServer, "Client Portals");
-        McHelper.serverLog(
-            playerServer,
-            Helper.myToString(
-                McHelper.getEntitiesNearby(
-                    playerClient, Portal.class, 64
-                )
-            )
-        );
+        result.append("Server Portals\n");
+        
+        playerServer.getServer().getWorlds().forEach(world -> {
+            result.append(world.getRegistryKey().getValue().toString() + "\n");
+            for (Entity e : world.iterateEntities()) {
+                if (e instanceof Portal) {
+                    result.append(e.toString());
+                    result.append("\n");
+                }
+            }
+        });
+        
+        result.append("Client Portals\n");
+        CGlobal.clientWorldLoader.clientWorldMap.forEach((dim, world) -> {
+            result.append(world.getRegistryKey().getValue().toString() + "\n");
+            for (Entity e : world.getEntities()) {
+                if (e instanceof Portal) {
+                    result.append(e.toString());
+                    result.append("\n");
+                }
+            }
+        });
+        
+        McHelper.serverLog(playerServer, result.toString());
         
         return 0;
     }

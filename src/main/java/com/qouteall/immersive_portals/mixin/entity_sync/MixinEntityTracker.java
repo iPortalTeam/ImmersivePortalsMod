@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
@@ -11,9 +10,9 @@ import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -45,7 +44,8 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     public abstract void stopTracking();
     
-    @Shadow protected abstract int getMaxTrackDistance();
+    @Shadow
+    protected abstract int getMaxTrackDistance();
     
     @Redirect(
         method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToOtherNearbyPlayers(Lnet/minecraft/network/Packet;)V",
@@ -87,21 +87,20 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     /**
      * @author qouteall
+     * @reason The entity tracking is managed elsewhere
      */
     @Overwrite
     public void updateCameraPosition(ServerPlayerEntity player) {
-        updateCameraPosition_(player);
+        //nothing
     }
     
     /**
      * @author qouteall
-     * performance may be slowed down
+     * @reason The entity tracking is managed elsewhere
      */
     @Overwrite
     public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
-        //ignore the argument
-        
-        McHelper.getRawPlayerList().forEach(this::updateCameraPosition);
+        //nothing
         
     }
     
@@ -111,45 +110,45 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     }
     
     @Override
-    public void updateCameraPosition_(ServerPlayerEntity player) {
-        IEThreadedAnvilChunkStorage storage = McHelper.getIEStorage(entity.world.getRegistryKey());
+    public void updateEntityTrackingStatus(ServerPlayerEntity player) {
+        IEThreadedAnvilChunkStorage storage = (IEThreadedAnvilChunkStorage)
+            ((ServerWorld) entity.world).getChunkManager().threadedAnvilChunkStorage;
         
-        if (player != this.entity) {
-            McHelper.checkDimension(this.entity);
-            
-            Vec3d relativePos = (player.getPos()).subtract(this.entry.getLastPos());
-            int maxWatchDistance = Math.min(
-                this.getMaxTrackDistance(),
-                (storage.getWatchDistance() - 1) * 16
-            );
-            boolean isWatchedNow =
-                NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
-                    player,
-                    this.entity.world.getRegistryKey(),
-                    this.entity.chunkX,
-                    this.entity.chunkZ,
-                    maxWatchDistance
-                ) &&
-                    this.entity.canBeSpectated(player);
-            if (isWatchedNow) {
-                boolean shouldTrack = this.entity.teleporting;
-                if (!shouldTrack) {
-                    ChunkPos chunkPos_1 = new ChunkPos(this.entity.chunkX, this.entity.chunkZ);
-                    ChunkHolder chunkHolder_1 = storage.getChunkHolder_(chunkPos_1.toLong());
-                    if (chunkHolder_1 != null && chunkHolder_1.getWorldChunk() != null) {
-                        shouldTrack = true;
-                    }
-                }
-                
-                if (shouldTrack && this.playersTracking.add(player)) {
-                    this.entry.startTracking(player);
-                }
-            }
-            else if (this.playersTracking.remove(player)) {
-                this.entry.stopTracking(player);
-            }
-            
+        if (player == this.entity) {
+            return;
         }
+        
+        int maxWatchDistance = Math.min(
+            this.getMaxTrackDistance(),
+            (storage.getWatchDistance() - 1) * 16
+        );
+        boolean isWatchedNow =
+            NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
+                player,
+                this.entity.world.getRegistryKey(),
+                this.entity.chunkX,
+                this.entity.chunkZ,
+                maxWatchDistance
+            ) &&
+                this.entity.canBeSpectated(player);
+        if (isWatchedNow) {
+            boolean shouldTrack = this.entity.teleporting;
+            if (!shouldTrack) {
+                ChunkPos chunkPos_1 = new ChunkPos(this.entity.chunkX, this.entity.chunkZ);
+                ChunkHolder chunkHolder_1 = storage.getChunkHolder_(chunkPos_1.toLong());
+                if (chunkHolder_1 != null && chunkHolder_1.getWorldChunk() != null) {
+                    shouldTrack = true;
+                }
+            }
+            
+            if (shouldTrack && this.playersTracking.add(player)) {
+                this.entry.startTracking(player);
+            }
+        }
+        else if (this.playersTracking.remove(player)) {
+            this.entry.stopTracking(player);
+        }
+        
     }
     
     @Override
