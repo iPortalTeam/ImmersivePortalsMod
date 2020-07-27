@@ -41,11 +41,11 @@ dependencies {
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-	include "me.shedaniel.cloth:config-2:4.5.6"
-	include "io.github.prospector:modmenu:1.12.2+build.17"
+	include "me.shedaniel.cloth:config-2:4.6.0"
+	include "io.github.prospector:modmenu:1.14.5+build.30"
 
-	modImplementation "me.shedaniel.cloth:config-2:4.5.6"
-	modImplementation "io.github.prospector:modmenu:1.12.2+build.17"
+	modImplementation "me.shedaniel.cloth:config-2:4.6.0"
+	modImplementation "io.github.prospector:modmenu:1.14.5+build.30"
 
 	//For javax.annotation.Nullable
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -57,7 +57,7 @@ dependencies {
 		exclude module : "fabric-loader"
 	}
 
-	modImplementation("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
+	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
 }
 
 processResources {
