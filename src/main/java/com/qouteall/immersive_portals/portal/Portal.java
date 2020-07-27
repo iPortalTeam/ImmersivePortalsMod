@@ -5,8 +5,10 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
+import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -23,6 +25,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Portal extends Entity {
@@ -123,7 +126,7 @@ public class Portal extends Entity {
         if (compoundTag.contains("interactable")) {
             interactable = compoundTag.getBoolean("interactable");
         }
-    
+        
         extension = new PortalExtension();
         extension.readFromNbt(compoundTag);
     }
@@ -251,6 +254,8 @@ public class Portal extends Entity {
             serverPortalTickSignal.emit(this);
         }
         extension.tick(this);
+        
+        notifyCollidingPortals();
     }
     
     @Override
@@ -303,6 +308,24 @@ public class Portal extends Entity {
     
     public void onEntityTeleportedOnServer(Entity entity) {
         //nothing
+    }
+    
+    public void notifyCollidingPortals() {
+        if (!isInteractable()) {
+            return;
+        }
+        
+        List<Entity> collidingEntities = world.getEntities(
+            Entity.class,
+            getBoundingBox(),
+            e -> !(e instanceof Portal) && CollisionHelper.shouldCollideWithPortal(
+                e,this,1
+            )
+        );
+        
+        for (Entity entity : collidingEntities) {
+            ((IEEntity) entity).notifyCollidingWithPortal(this);
+        }
     }
     
     @Override

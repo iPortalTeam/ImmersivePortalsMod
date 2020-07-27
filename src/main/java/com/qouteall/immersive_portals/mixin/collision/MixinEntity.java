@@ -5,10 +5,8 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -25,14 +23,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IEEntity {
-    //world.getEntities is not reliable
-    //it has a small chance to ignore collided entities
-    //this would cause player to fall through floor when halfway though portal
-    //so when player stops colliding a portal, it will not stop colliding instantly
-    //it will stop colliding when counter turn to 0
     
-    private Portal collidingPortal;
-    private int stopCollidingPortalCounter;
+    private Entity collidingPortal;
+    private long collidingPortalActiveTickTime;
     
     @Shadow
     public abstract Box getBoundingBox();
@@ -49,15 +42,20 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     public abstract Text getName();
     
-    @Shadow public abstract double getX();
+    @Shadow
+    public abstract double getX();
     
-    @Shadow public abstract double getY();
+    @Shadow
+    public abstract double getY();
     
-    @Shadow public abstract double getZ();
+    @Shadow
+    public abstract double getZ();
     
-    @Shadow protected abstract BlockPos getLandingPos();
+    @Shadow
+    protected abstract BlockPos getLandingPos();
     
-    @Shadow public boolean inanimate;
+    @Shadow
+    public boolean inanimate;
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
@@ -89,7 +87,7 @@ public abstract class MixinEntity implements IEEntity {
         Vec3d result = CollisionHelper.handleCollisionHalfwayInPortal(
             (Entity) (Object) this,
             attemptedMove,
-            collidingPortal,
+            getCollidingPortal(),
             attemptedMove1 -> adjustMovementForCollisions(attemptedMove1)
         );
         return result;
@@ -116,31 +114,31 @@ public abstract class MixinEntity implements IEEntity {
             cir.cancel();
         }
     }
-    
-    @Inject(
-        method = "setOnFireFor",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onSetOnFireFor(int int_1, CallbackInfo ci) {
-        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
-            ci.cancel();
-        }
-    }
-    
-    @Redirect(
-        method = "move",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;isWet()Z"
-        )
-    )
-    private boolean redirectIsWet(Entity entity) {
-        if (collidingPortal != null) {
-            return true;
-        }
-        return entity.isWet();
-    }
+
+//    @Inject(
+//        method = "setOnFireFor",
+//        at = @At("HEAD"),
+//        cancellable = true
+//    )
+//    private void onSetOnFireFor(int int_1, CallbackInfo ci) {
+//        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
+//            ci.cancel();
+//        }
+//    }
+//
+//    @Redirect(
+//        method = "move",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/entity/Entity;isWet()Z"
+//        )
+//    )
+//    private boolean redirectIsWet(Entity entity) {
+//        if (collidingPortal != null) {
+//            return true;
+//        }
+//        return entity.isWet();
+//    }
     
     @Redirect(
         method = "checkBlockCollision",
@@ -151,23 +149,6 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Box redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
         return CollisionHelper.getActiveCollisionBox(entity);
-    }
-    
-    @Inject(
-        method = "fromTag",
-        at = @At("RETURN")
-    )
-    private void onReadFinished(CompoundTag compound, CallbackInfo ci) {
-//        if (dimension == null) {
-//            Helper.err("Invalid Dimension Id Read From NBT " + this);
-//            if (world != null) {
-//                dimension = world.getRegistryKey();
-//            }
-//            else {
-//                Helper.err("World Field is Null");
-//                dimension = DimensionType.OVERWORLD;
-//            }
-//        }
     }
     
     //for teleportation debug
@@ -195,21 +176,9 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
-    //avoid suffocation damage when crossing world wrapping portal with barrier
-    @Inject(
-        method = "isInsideWall",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
-        if (collidingPortal instanceof WorldWrappingPortal) {
-            cir.setReturnValue(false);
-        }
-    }
-    
     @Override
     public Portal getCollidingPortal() {
-        return collidingPortal;
+        return ((Portal) collidingPortal);
     }
     
     @Override
@@ -220,30 +189,20 @@ public abstract class MixinEntity implements IEEntity {
             if (collidingPortal.world != world) {
                 collidingPortal = null;
             }
-        }
-        
-        //TODO change to portals discovering nearby entities instead
-        // of entities discovering nearby portals
-        world.getProfiler().push("getCollidingPortal");
-        Portal nowCollidingPortal =
-            CollisionHelper.getCollidingPortalUnreliable(this_, tickDelta);
-        world.getProfiler().pop();
-        
-        if (nowCollidingPortal == null) {
-            if (stopCollidingPortalCounter > 0) {
-                stopCollidingPortalCounter--;
-            }
-            else {
+    
+            if (Math.abs(world.getTime() - collidingPortalActiveTickTime) >= 3) {
                 collidingPortal = null;
             }
-        }
-        else {
-            collidingPortal = nowCollidingPortal;
-            stopCollidingPortalCounter = 1;
         }
         
         if (world.isClient) {
             McHelper.onClientEntityTick(this_);
         }
+    }
+    
+    @Override
+    public void notifyCollidingWithPortal(Entity portal) {
+        collidingPortal = portal;
+        collidingPortalActiveTickTime = world.getTime();
     }
 }

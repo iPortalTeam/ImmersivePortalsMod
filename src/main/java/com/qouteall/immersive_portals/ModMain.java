@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
+import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -99,6 +100,8 @@ public class ModMain {
         GlobalPortalStorage.init();
     
         EntitySync.init();
+    
+        CollisionHelper.init();
     
     }
     

@@ -449,9 +449,6 @@ public class McHelper {
         CrossPortalEntityRenderer.onEntityTickClient(entity);
     }
     
-   
-    
-    
     public static interface ChunkAccessor {
         WorldChunk getChunk(int x, int z);
     }
@@ -566,7 +563,7 @@ public class McHelper {
     }
     
     public static class MyDecodeException extends RuntimeException {
-    
+        
         public MyDecodeException(String message) {
             super(message);
         }
@@ -631,5 +628,19 @@ public class McHelper {
             
             return true;
         });
+    }
+    
+    public static Iterable<Entity> getWorldEntityList(World world) {
+        if (world.isClient()) {
+            return CHelper.getWorldEntityList(world);
+        }
+        else {
+            if (world instanceof ServerWorld) {
+                return ((ServerWorld) world).iterateEntities();
+            }
+            else {
+                return ((Iterable<Entity>) Collections.emptyList().iterator());
+            }
+        }
     }
 }

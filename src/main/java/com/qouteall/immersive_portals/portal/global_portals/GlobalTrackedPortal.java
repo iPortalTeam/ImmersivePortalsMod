@@ -14,5 +14,4 @@ public class GlobalTrackedPortal extends Portal {
         super(entityType_1, world_1);
     }
     
-    
 }

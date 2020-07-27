@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.lag_spike_fix.GlBufferCache;
 import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
+import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.client.MinecraftClient;
 
 public class ModMainClient {
@@ -86,6 +87,8 @@ public class ModMainClient {
         SmoothLoading.init();
         
         GlBufferCache.init();
+    
+        CollisionHelper.initClient();
         
         OFInterface.isOptifinePresent = O_O.detectOptiFine();
         if (OFInterface.isOptifinePresent) {

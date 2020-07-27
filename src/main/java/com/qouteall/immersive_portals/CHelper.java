@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -230,6 +231,15 @@ public class CHelper {
             entity.world = oldWorld;
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);
         }
+    }
+    
+    public static Iterable<Entity> getWorldEntityList(World world) {
+        if (!(world instanceof ClientWorld)) {
+            return (Iterable<Entity>) Collections.emptyList().iterator();
+        }
+        
+        ClientWorld clientWorld = (ClientWorld) world;
+        return clientWorld.getEntities();
     }
     
 }
