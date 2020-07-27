@@ -1,5 +1,5 @@
 package com.qouteall.immersive_portals.ducks;
 
 public interface IEFrustum {
-    void setIsNormalCulling(boolean cond);
+    boolean canDetermineInvisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
 }

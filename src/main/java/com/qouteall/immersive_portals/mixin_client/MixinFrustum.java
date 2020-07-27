@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ducks.IEFrustum;
 import com.qouteall.immersive_portals.render.FrustumCuller;
 import net.minecraft.client.render.Frustum;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Frustum.class)
-public class MixinFrustum {
+public class MixinFrustum implements IEFrustum {
     @Shadow
     private double x;
     @Shadow
@@ -52,4 +53,11 @@ public class MixinFrustum {
         }
     }
     
+    @Override
+    public boolean canDetermineInvisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return portal_frustumCuller.canDetermineInvisible(
+            minX - x, minY - y, minZ - z,
+            maxX - x, maxY - y, maxZ - z
+        );
+    }
 }

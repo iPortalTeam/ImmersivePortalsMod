@@ -37,11 +37,11 @@ import java.util.stream.Stream;
 @Environment(EnvType.CLIENT)
 public class MyClientChunkManager extends ClientChunkManager {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final WorldChunk emptyChunk;
-    private final LightingProvider lightingProvider;
-    private final ClientWorld world;
+    protected final WorldChunk emptyChunk;
+    protected final LightingProvider lightingProvider;
+    protected final ClientWorld world;
     
-    private final Long2ObjectLinkedOpenHashMap<WorldChunk> chunkMap =
+    protected final Long2ObjectLinkedOpenHashMap<WorldChunk> chunkMap =
         new Long2ObjectLinkedOpenHashMap<>();
     
     public MyClientChunkManager(ClientWorld clientWorld, int loadDistance) {
@@ -216,7 +216,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         );
     }
     
-    private static boolean positionEquals(WorldChunk worldChunk_1, int int_1, int int_2) {
+    protected static boolean positionEquals(WorldChunk worldChunk_1, int int_1, int int_2) {
         if (worldChunk_1 == null) {
             return false;
         }

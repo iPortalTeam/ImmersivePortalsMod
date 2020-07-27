@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(BackgroundRenderer.class)
+@Mixin(value = BackgroundRenderer.class, priority = 1100)
 public class MixinBackgroundRenderer {
     @Shadow
     private static float red;
