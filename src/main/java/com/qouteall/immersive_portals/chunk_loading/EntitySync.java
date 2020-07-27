@@ -16,10 +16,13 @@ import java.util.List;
 public class EntitySync {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
-    public static void init(){
+    public static void init() {
         ModMain.postServerTickSignal.connect(EntitySync::tick);
     }
     
+    /**
+     * Replace {@link ThreadedAnvilChunkStorage#tickPlayerMovement()}
+     */
     private static void tick() {
         MinecraftServer server = McHelper.getServer();
         
@@ -50,6 +53,8 @@ public class EntitySync {
             ThreadedAnvilChunkStorage storage = world.getChunkManager().threadedAnvilChunkStorage;
             
             for (ThreadedAnvilChunkStorage.EntityTracker tracker : storage.entityTrackers.values()) {
+                ((IEEntityTracker) tracker).tickEntry();
+                
                 List<ServerPlayerEntity> updatedPlayerList = isDirty(tracker) ?
                     playerList : dirtyPlayers;
                 

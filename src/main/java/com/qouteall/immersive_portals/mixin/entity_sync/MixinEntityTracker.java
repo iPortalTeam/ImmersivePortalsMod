@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
@@ -87,21 +88,20 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     /**
      * @author qouteall
-     * @reason The entity tracking is managed elsewhere
      */
     @Overwrite
     public void updateCameraPosition(ServerPlayerEntity player) {
-        //nothing
+        updateEntityTrackingStatus(player);
     }
     
     /**
      * @author qouteall
-     * @reason The entity tracking is managed elsewhere
      */
     @Overwrite
-    public void updateCameraPosition(List<ServerPlayerEntity> list_1) {
-        //nothing
-        
+    public void updateCameraPosition(List<ServerPlayerEntity> list) {
+        for (ServerPlayerEntity player : McHelper.getRawPlayerList()) {
+            updateEntityTrackingStatus(player);
+        }
     }
     
     @Override
@@ -169,5 +169,10 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Override
     public void stopTrackingToAllPlayers_() {
         stopTracking();
+    }
+    
+    @Override
+    public void tickEntry() {
+        entry.tick();
     }
 }

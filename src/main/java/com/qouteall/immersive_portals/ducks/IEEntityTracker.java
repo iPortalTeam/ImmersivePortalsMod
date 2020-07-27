@@ -13,4 +13,6 @@ public interface IEEntityTracker {
     void resendSpawnPacketToTrackers();
     
     void stopTrackingToAllPlayers_();
+    
+    void tickEntry();
 }
