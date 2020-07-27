@@ -9,7 +9,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
-import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -1321,11 +1320,12 @@ public class PortalCommand {
                     entity.setHeadYaw(entity.yaw);
                 }
                 else {
-                    O_O.segregateServerEntity((ServerWorld) entity.world, entity);
-                    McHelper.setPosAndLastTickPos(entity, targetPos, targetPos);
-                    McHelper.updateBoundingBox(entity);
-                    entity.world = targetWorld;
-                    targetWorld.onDimensionChanged(entity);
+                    Global.serverTeleportationManager.changeEntityDimension(
+                        entity,
+                        targetDim,
+                        targetPos.add(0, entity.getStandingEyeHeight(), 0),
+                        true
+                    );
                 }
             }
             

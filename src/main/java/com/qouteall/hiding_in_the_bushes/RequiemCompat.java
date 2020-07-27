@@ -91,7 +91,8 @@ public class RequiemCompat {
                 Global.serverTeleportationManager.changeEntityDimension(
                     possessedEntity,
                     player.world.getRegistryKey(),
-                    McHelper.getEyePos(player)
+                    McHelper.getEyePos(player),
+                    false
                 );
             }
         }

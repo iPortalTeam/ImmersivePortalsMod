@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ServerTeleportationManager {
@@ -36,6 +37,10 @@ public class ServerTeleportationManager {
     public boolean isFiringMyChangeDimensionEvent = false;
     public final WeakHashMap<ServerPlayerEntity, Pair<RegistryKey<World>, Vec3d>> lastPosition =
         new WeakHashMap<>();
+    
+    // The old teleport way does not recreate the entity
+    // It's problematic because some AI-related fields contain world reference
+    private static final boolean useOldTeleport = false;
     
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
@@ -255,7 +260,6 @@ public class ServerTeleportationManager {
             ((IEServerPlayerEntity) player).stopRidingWithoutTeleportRequest();
         }
         
-        
         Vec3d oldPos = player.getPos();
         
         O_O.segregateServerPlayer(fromWorld, player);
@@ -279,7 +283,8 @@ public class ServerTeleportationManager {
             changeEntityDimension(
                 vehicle,
                 toWorld.getRegistryKey(),
-                vehiclePos.add(0, vehicle.getStandingEyeHeight(), 0)
+                vehiclePos.add(0, vehicle.getStandingEyeHeight(), 0),
+                false
             );
             ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
             McHelper.adjustVehicle(player);
@@ -391,13 +396,15 @@ public class ServerTeleportationManager {
         Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(entity));
         
         if (portal.dimensionTo != entity.world.getRegistryKey()) {
-            changeEntityDimension(entity, portal.dimensionTo, newEyePos);
-            for (Entity passenger : passengerList) {
-                changeEntityDimension(passenger, portal.dimensionTo, newEyePos);
-            }
-            for (Entity passenger : passengerList) {
-                passenger.startRiding(entity, true);
-            }
+            entity = changeEntityDimension(entity, portal.dimensionTo, newEyePos, true);
+            
+            Entity newEntity = entity;
+            
+            passengerList.stream().map(
+                e -> changeEntityDimension(e, portal.dimensionTo, newEyePos, true)
+            ).collect(Collectors.toList()).forEach(e -> {
+                e.startRiding(newEntity, true);
+            });
         }
         
         entity.updatePosition(
@@ -414,23 +421,58 @@ public class ServerTeleportationManager {
     
     /**
      * {@link Entity#changeDimension(ServerWorld)}
+     * Sometimes resuing the same entity object is problematic
+     * because entity's AI related things may have world reference inside
+     * These fields should also get changed but it's not easy
+     *
+     * Recreating the entity is the vanilla way.
+     * But it requires changing the corresponding entity reference on other places
      */
-    public void changeEntityDimension(
+    public Entity changeEntityDimension(
         Entity entity,
         RegistryKey<World> toDimension,
-        Vec3d newEyePos
+        Vec3d newEyePos,
+        boolean recreateEntity
     ) {
         ServerWorld fromWorld = (ServerWorld) entity.world;
         ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
         entity.detach();
         
-        O_O.segregateServerEntity(fromWorld, entity);
+        if (recreateEntity) {
+            O_O.segregateServerEntity(fromWorld, entity);
+            
+            McHelper.setEyePos(entity, newEyePos, newEyePos);
+            McHelper.updateBoundingBox(entity);
+            
+            entity.world = toWorld;
+            
+            toWorld.onDimensionChanged(entity);
+            
+            return entity;
+        }
+        else {
+            Entity oldEntity = entity;
+            Entity newEntity;
+            newEntity = entity.getType().create(toWorld);
+            if (newEntity == null) {
+                return oldEntity;
+            }
+            
+            newEntity.copyFrom(oldEntity);
+            newEntity.refreshPositionAndAngles(
+                oldEntity.getX(), oldEntity.getY(), oldEntity.getZ(),
+                oldEntity.getYaw(1), oldEntity.getPitch(1)
+            );
+            newEntity.setHeadYaw(oldEntity.getHeadYaw());
+            
+            oldEntity.removed = true;
+            
+            toWorld.onDimensionChanged(newEntity);
+            
+            return newEntity;
+        }
         
-        McHelper.setEyePos(entity, newEyePos, newEyePos);
-        McHelper.updateBoundingBox(entity);
         
-        entity.world = toWorld;
-        toWorld.onDimensionChanged(entity);
     }
     
     private boolean doesEntityClutterContainPlayer(Entity entity) {
