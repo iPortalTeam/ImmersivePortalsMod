@@ -3,6 +3,7 @@ package com.qouteall.hiding_in_the_bushes;
 import com.qouteall.hiding_in_the_bushes.sodium_compatibility.SodiumInterfaceInitializer;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMainClient;
+import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;

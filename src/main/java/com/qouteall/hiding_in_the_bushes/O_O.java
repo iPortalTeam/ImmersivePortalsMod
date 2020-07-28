@@ -1,6 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

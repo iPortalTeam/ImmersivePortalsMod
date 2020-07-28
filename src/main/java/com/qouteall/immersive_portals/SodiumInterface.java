@@ -1,4 +1,4 @@
-package com.qouteall.hiding_in_the_bushes;
+package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import net.fabricmc.api.EnvType;

@@ -1,6 +1,6 @@
 package com.qouteall.hiding_in_the_bushes.sodium_compatibility;
 
-import com.qouteall.hiding_in_the_bushes.SodiumInterface;
+import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.render.PixelCuller;
 import me.jellysquid.mods.sodium.client.IWorldRenderer;
 import me.jellysquid.mods.sodium.client.SodiumHooks;
