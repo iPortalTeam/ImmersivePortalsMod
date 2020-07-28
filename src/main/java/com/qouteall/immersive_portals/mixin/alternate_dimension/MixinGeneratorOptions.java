@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.alternate_dimension.NormalSkylandGenerator;
+import com.qouteall.immersive_portals.alternate_dimension.VoidChunkGenerator;
 import com.qouteall.immersive_portals.ducks.IESimpleRegistry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
@@ -70,6 +71,14 @@ public class MixinGeneratorOptions {
                 ModMain.alternate4Option,
                 () -> ModMain.surfaceTypeObject,
                 ErrorTerrainGenerator::new
+            );
+    
+            portal_addCustomDimension(
+                seed,
+                registry,
+                ModMain.alternate5Option,
+                () -> ModMain.surfaceTypeObject,
+                (s) -> new VoidChunkGenerator()
             );
         }
         

@@ -101,10 +101,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.enable_alternate_dimensions"),
                 currConfig.enableAlternateDimensions
             ).setDefaultValue(true).build();
-//            BooleanListEntry entrySmoothLoading = builder.entryBuilder().startBooleanToggle(
-//                new TranslatableText("imm_ptl.smooth_loading"),
-//                currConfig.smoothLoading
-//            ).setDefaultValue(false).build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 new TranslatableText("imm_ptl.render_redirect"),
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)

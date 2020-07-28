@@ -36,7 +36,7 @@ public class MyConfig {
     public boolean mirrorInteractableThroughPortal = false;
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
-    public boolean enableAlternateDimensions = true;
+    public boolean enableAlternateDimensions = false;
     public boolean smoothLoading = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     

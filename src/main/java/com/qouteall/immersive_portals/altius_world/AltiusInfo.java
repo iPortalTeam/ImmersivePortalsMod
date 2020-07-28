@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPo
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.SaveProperties;
@@ -81,8 +82,12 @@ public class AltiusInfo {
             Helper.err("Invalid Dimension " + dimsFromTopToDown.get(0));
             return;
         }
-        GlobalPortalStorage gps =
-            GlobalPortalStorage.get(McHelper.getServer().getWorld(topDimension));
+        ServerWorld world = McHelper.getServer().getWorld(topDimension);
+        if (world == null) {
+            Helper.err("Missing Dimension " + topDimension.getValue());
+            return;
+        }
+        GlobalPortalStorage gps = GlobalPortalStorage.get(world);
         if (gps.data == null || gps.data.isEmpty()) {
             Helper.wrapAdjacentAndMap(
                 dimsFromTopToDown.stream(),
