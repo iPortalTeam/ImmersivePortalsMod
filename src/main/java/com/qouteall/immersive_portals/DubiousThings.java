@@ -6,14 +6,12 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 
+// temporary work around for bugs
 public class DubiousThings {
     public static void init() {
         ModMain.postClientTickSignal.connect(DubiousThings::tick);
     }
     
-    //fix light issue https://github.com/qouteall/ImmersivePortalsMod/issues/45
-    //it's not an elegant solution
-    //the issue could be caused by other things
     private static void tick() {
         ClientWorld world = MinecraftClient.getInstance().world;
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
