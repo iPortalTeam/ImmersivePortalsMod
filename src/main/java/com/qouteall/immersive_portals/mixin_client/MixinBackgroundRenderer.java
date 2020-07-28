@@ -45,36 +45,4 @@ public class MixinBackgroundRenderer {
         
         FogRendererContext.init();
     }
-    
-//    // avoid nether fog color being interfered by nether's weather
-//    // nether should not be raining. maybe another bug
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"
-//        ),
-//        require = 0
-//    )
-//    private static float redirectGetRainGradient(ClientWorld world, float delta) {
-//        if (world.getRegistryKey() == World.NETHER) {
-//            return 0.0f;
-//        }
-//        return world.getRainGradient(delta);
-//    }
-//
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/world/ClientWorld;getThunderGradient(F)F"
-//        ),
-//        require = 0
-//    )
-//    private static float redirectGetThunderGradient(ClientWorld world, float delta) {
-//        if (world.getRegistryKey() == World.NETHER) {
-//            return 0.0f;
-//        }
-//        return world.getThunderGradient(delta);
-//    }
 }
