@@ -1,5 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.hiding_in_the_bushes.sodium_compatibility.SodiumInterfaceInitializer;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
@@ -15,6 +17,7 @@ import com.qouteall.immersive_portals.render.LoadingIndicatorRenderer;
 import com.qouteall.immersive_portals.render.PortalEntityRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityType;
 import org.apache.commons.lang3.Validate;
 
@@ -55,8 +58,16 @@ public class ModEntryClient implements ClientModInitializer {
         ModMainClient.init();
         
         initPortalRenderers();
-        
-        
+    
+        SodiumInterface.isSodiumPresent =
+            FabricLoader.getInstance().isModLoaded("sodium");
+        if (SodiumInterface.isSodiumPresent) {
+            Helper.log("Sodium is present");
+            SodiumInterfaceInitializer.init();
+        }
+        else {
+            Helper.log("Sodium is not present");
+        }
     }
     
 }

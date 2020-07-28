@@ -134,20 +134,6 @@ public class O_O {
     @Environment(EnvType.CLIENT)
     public static ClientChunkManager createMyClientChunkManager(ClientWorld world, int loadDistance) {
         return SodiumInterface.createClientChunkManager.apply(world, loadDistance);
-//        // avoid loading sodium class when sodium is not present
-//        if (SodiumInterface.isSodiumPresent) {
-//            try {
-//                Class<?> c = Class.forName("com.qouteall.hiding_in_the_bushes.sodium_compatibility.SodiumCompat");
-//                Method m = c.getDeclaredMethod("createChunkManagerWithSodium", ClientWorld.class, int.class);
-//                return (ClientChunkManager) m.invoke(null, world, loadDistance);
-//            }
-//            catch (Throwable e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        else {
-//            return new MyClientChunkManager(world, loadDistance);
-//        }
     }
     
     

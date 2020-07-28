@@ -8,6 +8,8 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
@@ -319,11 +321,15 @@ public class CollisionHelper {
         });
     }
     
+    @Environment(EnvType.CLIENT)
     public static void initClient() {
-        ModMain.postClientTickSignal.connect(() -> {
-            for (ClientWorld world : CGlobal.clientWorldLoader.clientWorldMap.values()) {
-                updateGlobalPortalCollidingPortalForWorld(world);
-            }
-        });
+        ModMain.postClientTickSignal.connect(CollisionHelper::updateClientGlobalPortalCollidingPortal);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void updateClientGlobalPortalCollidingPortal() {
+        for (ClientWorld world : CGlobal.clientWorldLoader.clientWorldMap.values()) {
+            updateGlobalPortalCollidingPortalForWorld(world);
+        }
     }
 }

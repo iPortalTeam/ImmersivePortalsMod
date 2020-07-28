@@ -23,6 +23,8 @@ import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.network.PlayerListEntry;
@@ -49,6 +51,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+@Environment(EnvType.CLIENT)
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
     

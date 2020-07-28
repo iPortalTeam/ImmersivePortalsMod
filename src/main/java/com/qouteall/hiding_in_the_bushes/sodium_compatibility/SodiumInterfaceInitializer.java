@@ -6,7 +6,10 @@ import me.jellysquid.mods.sodium.client.IWorldRenderer;
 import me.jellysquid.mods.sodium.client.SodiumHooks;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
+@Environment(EnvType.CLIENT)
 public class SodiumInterfaceInitializer {
     public static void init() {
         SodiumInterface.createClientChunkManager = ClientChunkManagerWithSodium::new;
