@@ -1,6 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
@@ -36,7 +37,7 @@ public class MyConfig {
     public boolean mirrorInteractableThroughPortal = false;
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
-    public boolean enableAlternateDimensions = false;
+    public boolean enableAlternateDimensions = true;
     public boolean smoothLoading = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     
@@ -117,12 +118,14 @@ public class MyConfig {
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
         Global.enableAlternateDimensions = enableAlternateDimensions;
-    
+        
         Global.smoothLoading = smoothLoading;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
         }
+        
+        Helper.log("IP Config Applied");
         
     }
     
