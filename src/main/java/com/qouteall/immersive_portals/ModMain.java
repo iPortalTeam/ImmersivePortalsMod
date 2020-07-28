@@ -44,6 +44,10 @@ public class ModMain {
         Registry.DIMENSION_OPTIONS,
         new Identifier("immersive_portals:alternate4")
     );
+    public static final RegistryKey<DimensionOptions> alternate5Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate5")
+    );
     public static final RegistryKey<DimensionType> surfaceType = RegistryKey.of(
         Registry.DIMENSION_TYPE_KEY,
         new Identifier("immersive_portals:surface_type")
