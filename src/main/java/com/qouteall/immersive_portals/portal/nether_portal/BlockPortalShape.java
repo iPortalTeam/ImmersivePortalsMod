@@ -203,13 +203,17 @@ public class BlockPortalShape {
         newlyAdded.addLast(startingPos);
         
         while (!newlyAdded.isEmpty()) {
+            if (foundArea.size() > 400) {
+                return false;
+            }
+            
             BlockPos last = newlyAdded.pollFirst();
             for (Direction direction : directions) {
-                BlockPos curr = last.offset(direction);
+                BlockPos curr = last.offset(direction).toImmutable();
                 if (!foundArea.contains(curr)) {
                     if (isAir.test(curr)) {
-                        newlyAdded.addLast(curr.toImmutable());
-                        foundArea.add(curr.toImmutable());
+                        newlyAdded.addLast(curr);
+                        foundArea.add(curr);
                     }
                     else if (isObsidian.test(curr)) {
                         //nothing happens
@@ -218,6 +222,11 @@ public class BlockPortalShape {
                         return false;
                     }
                 }
+            }
+            
+            BlockPos delta = initialPos.subtract(startingPos);
+            if (Math.abs(delta.getX()) > 20 || Math.abs(delta.getY()) > 20 || Math.abs(delta.getZ()) > 20) {
+                return false;
             }
         }
         
