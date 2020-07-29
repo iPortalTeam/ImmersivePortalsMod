@@ -22,13 +22,18 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // avoid crashing with sodium
+// [Needs Confirmation] higher priority means apply earlier, so it won't fail with the overwrite
 @Mixin(value = WorldRenderer.class, priority = 1100)
 public class MixinWorldRenderer_Optional {
-    @Shadow private BuiltChunkStorage chunks;
+    @Shadow
+    private BuiltChunkStorage chunks;
     
-    @Shadow @Final private MinecraftClient client;
+    @Shadow
+    @Final
+    private MinecraftClient client;
     
-    @Shadow private boolean needsTerrainUpdate;
+    @Shadow
+    private boolean needsTerrainUpdate;
     
     //avoid translucent sort while rendering portal
     @Redirect(

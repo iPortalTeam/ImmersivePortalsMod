@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(ServerPlayerInteractionManager.class)
+@Mixin(value = ServerPlayerInteractionManager.class, priority = 900)
 public class MixinServerPlayerInteractionManager {
     @Shadow
     public ServerPlayerEntity player;

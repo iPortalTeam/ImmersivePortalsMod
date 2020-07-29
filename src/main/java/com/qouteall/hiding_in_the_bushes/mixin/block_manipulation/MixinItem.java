@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.lang.ref.WeakReference;
 
-@Mixin(Item.class)
+@Mixin(value = Item.class, priority = 900)
 public class MixinItem {
     private static WeakReference<PlayerEntity> argPlayer;
     

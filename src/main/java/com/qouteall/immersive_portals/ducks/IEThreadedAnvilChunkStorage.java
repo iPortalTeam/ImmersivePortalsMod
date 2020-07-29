@@ -1,10 +1,12 @@
 package com.qouteall.immersive_portals.ducks;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -31,4 +33,6 @@ public interface IEThreadedAnvilChunkStorage {
     File portal_getSaveDir();
     
     boolean portal_isChunkGenerated(ChunkPos chunkPos);
+    
+    Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> getEntityTrackerMap();
 }

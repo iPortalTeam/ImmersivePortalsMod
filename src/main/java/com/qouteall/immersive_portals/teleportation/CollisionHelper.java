@@ -299,7 +299,6 @@ public class CollisionHelper {
         world.getProfiler().push("global_portal_colliding_portal");
         
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
-        
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
         
         for (GlobalTrackedPortal globalPortal : globalPortals) {

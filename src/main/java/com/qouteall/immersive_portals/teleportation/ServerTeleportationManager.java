@@ -449,6 +449,7 @@ public class ServerTeleportationManager {
             
             newEntity.copyFrom(oldEntity);
             McHelper.setEyePos(newEntity, newEyePos, newEyePos);
+            McHelper.updateBoundingBox(newEntity);
             newEntity.setHeadYaw(oldEntity.getHeadYaw());
             
             oldEntity.removed = true;

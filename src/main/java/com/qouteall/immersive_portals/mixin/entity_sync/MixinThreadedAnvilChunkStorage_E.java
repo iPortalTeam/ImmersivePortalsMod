@@ -27,7 +27,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
     
     @Shadow
     @Final
-    private Int2ObjectMap entityTrackers;
+    public Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackers;
     
     @Shadow
     abstract void handlePlayerAddedOrRemoved(ServerPlayerEntity player, boolean added);
@@ -102,5 +102,10 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
     public void resendSpawnPacketToTrackers(Entity entity) {
         Object tracker = entityTrackers.get(entity.getEntityId());
         ((IEEntityTracker) tracker).resendSpawnPacketToTrackers();
+    }
+    
+    @Override
+    public Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> getEntityTrackerMap() {
+        return entityTrackers;
     }
 }

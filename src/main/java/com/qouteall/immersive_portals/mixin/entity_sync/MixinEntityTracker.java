@@ -129,8 +129,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
                 this.entity.chunkX,
                 this.entity.chunkZ,
                 maxWatchDistance
-            ) &&
-                this.entity.canBeSpectated(player);
+            ) && this.entity.canBeSpectated(player);
         if (isWatchedNow) {
             boolean shouldTrack = this.entity.teleporting;
             if (!shouldTrack) {
@@ -174,5 +173,15 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Override
     public void tickEntry() {
         entry.tick();
+    }
+    
+    @Override
+    public ChunkSectionPos getLastCameraPosition() {
+        return lastCameraPosition;
+    }
+    
+    @Override
+    public void setLastCameraPosition(ChunkSectionPos arg) {
+        lastCameraPosition = arg;
     }
 }
