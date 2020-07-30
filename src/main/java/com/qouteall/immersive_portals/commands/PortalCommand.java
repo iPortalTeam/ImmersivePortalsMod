@@ -602,6 +602,18 @@ public class PortalCommand {
                 }
             ))
         );
+        
+        builder.then(CommandManager.literal("set_portal_scale")
+            .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
+                .executes(context -> processPortalTargetedCommand(
+                    context, portal -> {
+                        double scale = DoubleArgumentType.getDouble(context, "scale");
+                        
+                        portal.scaling = scale;
+                    }
+                ))
+            )
+        );
     }
     
     private static void setPortalNbt(Portal portal, CompoundTag newNbt) {
