@@ -343,10 +343,11 @@ public class NetherPortalGeneration {
         Helper.log(fromShape.totalAreaBox);
         
         startGeneratingPortal(
-            fromWorld, toWorld, fromShape, toPos,
+            fromWorld, toWorld, fromShape, fromShape,
+            toPos,
             existingFrameSearchingRadius,
-            otherSideAreaPredicate,
-            otherSideFramePredicate, newFrameGenerateFunc, portalEntityGeneratingFunc,
+            otherSideAreaPredicate, otherSideFramePredicate, newFrameGenerateFunc,
+            portalEntityGeneratingFunc,
             () -> {
                 IntBox airCubePlacement =
                     findAirCubePlacement(
@@ -370,15 +371,15 @@ public class NetherPortalGeneration {
                     blockPos -> thisSideAreaPredicate.test(fromWorld.getBlockState(blockPos)),
                     blockPos -> thisSideFramePredicate.test(fromWorld.getBlockState(blockPos))
                 );
-            },
-            s -> true);
+            }, s -> true);
         
         return fromShape;
     }
     
     public static void startGeneratingPortal(
         ServerWorld fromWorld, ServerWorld toWorld,
-        BlockPortalShape fromShape, BlockPos toPos,
+        BlockPortalShape fromShape, BlockPortalShape templateToShape,
+        BlockPos toPos,
         int existingFrameSearchingRadius,
         Predicate<BlockState> otherSideAreaPredicate, Predicate<BlockState> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<Info> portalEntityGeneratingFunc,
@@ -406,13 +407,13 @@ public class NetherPortalGeneration {
                 "imm_ptl.generating_new_frame"
             ));
             
-            BlockPortalShape toShape = newFramePlacer.get();
+            BlockPortalShape placedShape = newFramePlacer.get();
             
-            if (toShape != null) {
-                newFrameGenerateFunc.accept(toShape);
+            if (placedShape != null) {
+                newFrameGenerateFunc.accept(placedShape);
                 
                 Info info = new Info(
-                    fromDimension, toWorld.getRegistryKey(), fromShape, toShape
+                    fromDimension, toWorld.getRegistryKey(), fromShape, placedShape
                 );
                 portalEntityGeneratingFunc.accept(info);
                 
@@ -473,7 +474,7 @@ public class NetherPortalGeneration {
                 
                 FrameSearching.startSearchingPortalFrameAsync(
                     chunkRegion, loaderRadius,
-                    toPos, fromShape,
+                    toPos, templateToShape,
                     otherSideAreaPredicate, otherSideFramePredicate,
                     foundShapePredicate,
                     (shape) -> {

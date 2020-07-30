@@ -191,10 +191,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
     }
     
     private boolean checkFromShape(BlockPortalShape shape, ServerWorld fromWorld) {
-        BlockPos areaSize = shape.innerAreaBox.getSize();
-        boolean areaSizeTest = areaSize.getX() == length &&
-            areaSize.getZ() == length &&
-            shape.area.size() == (length * length);
+        boolean areaSizeTest = BlockPortalShape.isSquareShape(shape, length);
         if (!areaSizeTest) {
             return false;
         }
@@ -205,4 +202,5 @@ public class FlippingFloorSquareForm extends PortalGenForm {
             blockPos -> (bottomBlock).test(fromWorld.getBlockState(blockPos.down()))
         );
     }
+    
 }

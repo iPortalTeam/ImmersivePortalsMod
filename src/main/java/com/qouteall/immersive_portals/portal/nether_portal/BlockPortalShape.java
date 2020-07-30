@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -71,6 +72,7 @@ public class BlockPortalShape {
         
         return result;
     }
+    
     
     public CompoundTag toTag() {
         CompoundTag data = new CompoundTag();
@@ -456,4 +458,35 @@ public class BlockPortalShape {
         );
     }
     
+    public static boolean isSquareShape(BlockPortalShape shape, int length) {
+        BlockPos areaSize = shape.innerAreaBox.getSize();
+        
+        Pair<Direction.Axis, Direction.Axis> xs = Helper.getAnotherTwoAxis(shape.axis);
+        
+        return Helper.getCoordinate(areaSize, xs.getLeft()) == length &&
+            Helper.getCoordinate(areaSize, xs.getRight()) == length &&
+            shape.area.size() == (length * length);
+    }
+    
+    public static BlockPortalShape getSquareShapeTemplate(
+        Direction.Axis axis,
+        int length
+    ) {
+        Pair<Direction, Direction> perpendicularDirections = Helper.getPerpendicularDirections(
+            Direction.from(axis, Direction.AxisDirection.POSITIVE)
+        );
+        
+        Set<BlockPos> area = new HashSet<>();
+        
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < length; j++) {
+                area.add(
+                    BlockPos.ORIGIN.offset(perpendicularDirections.getLeft(), i)
+                        .offset(perpendicularDirections.getRight(), j)
+                );
+            }
+        }
+        
+        return new BlockPortalShape(area, axis);
+    }
 }

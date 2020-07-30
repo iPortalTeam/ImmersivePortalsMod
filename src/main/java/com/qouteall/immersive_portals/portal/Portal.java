@@ -339,7 +339,7 @@ public class Portal extends Entity {
     @Override
     public String toString() {
         return String.format(
-            "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s}",
+            "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s%s}",
             getClass().getSimpleName(),
             getEntityId(),
             Direction.getFacing(
@@ -347,7 +347,8 @@ public class Portal extends Entity {
             ),
             world.getRegistryKey().getValue(), (int) getX(), (int) getY(), (int) getZ(),
             dimensionTo.getValue(), (int) destination.x, (int) destination.y, (int) destination.z,
-            specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : ""
+            specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
+            scaling != 1.0 ? (",scale:" + scaling) : ""
         );
     }
     
