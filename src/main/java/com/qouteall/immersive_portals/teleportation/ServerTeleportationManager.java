@@ -5,6 +5,7 @@ import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
@@ -125,6 +126,8 @@ public class ServerTeleportationManager {
             teleportPlayer(player, dimensionTo, newEyePos);
             
             portal.onEntityTeleportedOnServer(player);
+            
+            PehkuiInterface.onServerEntityTeleported.accept(player, portal);
         }
         else {
             Helper.err(String.format(
@@ -406,7 +409,7 @@ public class ServerTeleportationManager {
                 e.startRiding(newEntity, true);
             });
         }
-    
+        
         McHelper.setEyePos(entity, newEyePos, newEyePos);
         McHelper.updateBoundingBox(entity);
         
@@ -415,7 +418,9 @@ public class ServerTeleportationManager {
         entity.setVelocity(portal.transformLocalVec(velocity));
         
         portal.onEntityTeleportedOnServer(entity);
-    
+        
+        PehkuiInterface.onServerEntityTeleported.accept(entity, portal);
+        
         // a new entity may be created
         this.lastTeleportGameTime.put(entity, currGameTime);
     }

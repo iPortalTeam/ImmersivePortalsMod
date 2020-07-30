@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEEntity;
@@ -230,6 +231,8 @@ public class ClientTeleportationManager {
         
         //update colliding portal
         ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
+    
+        PehkuiInterface.onClientPlayerTeleported.accept(portal);
         
         isTeleportingTick = true;
     }

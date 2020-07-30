@@ -57,7 +57,10 @@ dependencies {
 		exclude module : "fabric-loader"
 	}
 
+	//modCompileOnly 'com.github.qouteall:sodium-fabric:ipc0.1.0.6'
 	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
+
+	modImplementation 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
 }
 
 processResources {
