@@ -2,6 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.PehkuiInterface;
+import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,19 +25,28 @@ public class PehkuiInterfaceInitializer {
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
         if (portal.scaling != 1.0) {
-            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            MinecraftClient client = MinecraftClient.getInstance();
+            
+            ClientPlayerEntity player = client.player;
             ScaleData scaleData = ScaleData.of(player);
             Vec3d eyePos = McHelper.getEyePos(player);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
-    
+            
             float oldScale = scaleData.getScale();
             
             scaleData.setScaleTickDelay(0);
             scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.setTargetScale((float) (oldScale * portal.scaling));
             scaleData.tick();
-    
+            
             McHelper.setEyePos(player, eyePos, lastTickEyePos);
+            McHelper.updateBoundingBox(player);
+    
+            IECamera camera = (IECamera) client.gameRenderer.getCamera();
+            camera.setCameraY(
+                ((float) (camera.getCameraY() * portal.scaling)),
+                ((float) (camera.getLastCameraY() * portal.scaling))
+            );
         }
     }
     
@@ -52,8 +62,9 @@ public class PehkuiInterfaceInitializer {
             scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.setTargetScale((float) (oldScale * portal.scaling));
             scaleData.tick();
-    
+            
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);
+            McHelper.updateBoundingBox(entity);
         }
     }
 }

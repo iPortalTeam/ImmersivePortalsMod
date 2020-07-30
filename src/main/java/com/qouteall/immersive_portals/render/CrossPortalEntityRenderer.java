@@ -136,6 +136,9 @@ public class CrossPortalEntityRenderer {
                 //currently cannot render entity projection through a rotating portal
                 return;
             }
+            if (collidingPortal.scaling != 1.0) {
+                return;
+            }
             RegistryKey<World> projectionDimension = collidingPortal.dimensionTo;
             if (client.world.getRegistryKey() == projectionDimension) {
                 renderProjectedEntity(entity, collidingPortal, matrixStack);

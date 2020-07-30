@@ -43,9 +43,6 @@ public class CrossPortalThirdPersonView {
         );
         Vec3d playerHeadPos = resuableCamera.getPos();
         
-        Vec3d thirdPersonPos = normalCameraPos.subtract(playerHeadPos).normalize()
-            .multiply(getThirdPersonMaxDistance()).add(playerHeadPos);
-        
         Pair<Portal, Vec3d> portalHit = PortalCommand.raytracePortals(
             client.world, playerHeadPos, normalCameraPos, true
         ).orElse(null);
@@ -56,6 +53,11 @@ public class CrossPortalThirdPersonView {
         
         Portal portal = portalHit.getFirst();
         Vec3d hitPos = portalHit.getSecond();
+        
+        double distance = portal.scaling > 1 ? getThirdPersonMaxDistance() / portal.scaling : getThirdPersonMaxDistance();
+        
+        Vec3d thirdPersonPos = normalCameraPos.subtract(playerHeadPos).normalize()
+            .multiply(distance).add(playerHeadPos);
         
         if (!portal.isInteractable()) {
             return false;
@@ -102,7 +104,9 @@ public class CrossPortalThirdPersonView {
         );
         
         if (blockHitResult == null) {
-            return rtStart.add(rtEnd.subtract(rtStart).normalize().multiply(getThirdPersonMaxDistance()));
+            return rtStart.add(rtEnd.subtract(rtStart).normalize().multiply(
+                getThirdPersonMaxDistance()
+            ));
         }
         
         return blockHitResult.getPos();
