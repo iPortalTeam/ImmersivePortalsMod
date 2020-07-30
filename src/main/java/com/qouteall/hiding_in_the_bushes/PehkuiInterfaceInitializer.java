@@ -28,6 +28,7 @@ public class PehkuiInterfaceInitializer {
             MinecraftClient client = MinecraftClient.getInstance();
             
             ClientPlayerEntity player = client.player;
+            
             ScaleData scaleData = ScaleData.of(player);
             Vec3d eyePos = McHelper.getEyePos(player);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
@@ -35,18 +36,20 @@ public class PehkuiInterfaceInitializer {
             float oldScale = scaleData.getScale();
             
             scaleData.setScaleTickDelay(0);
-            scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.setTargetScale((float) (oldScale * portal.scaling));
+            scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.tick();
             
             McHelper.setEyePos(player, eyePos, lastTickEyePos);
             McHelper.updateBoundingBox(player);
-    
+            
             IECamera camera = (IECamera) client.gameRenderer.getCamera();
             camera.setCameraY(
                 ((float) (camera.getCameraY() * portal.scaling)),
                 ((float) (camera.getLastCameraY() * portal.scaling))
             );
+            
+            
         }
     }
     

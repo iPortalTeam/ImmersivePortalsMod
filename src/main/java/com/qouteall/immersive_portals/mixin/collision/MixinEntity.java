@@ -7,6 +7,8 @@ import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -176,6 +178,22 @@ public abstract class MixinEntity implements IEEntity {
         }
     }
     
+    // Avoid instant crouching when crossing a scaling portal
+    @Inject(method = "setPose", at = @At("HEAD"), cancellable = true)
+    private void onSetPose(EntityPose pose, CallbackInfo ci) {
+        Entity this_ = (Entity) (Object) this;
+        
+        if (this_ instanceof PlayerEntity) {
+            if (this_.getPose() == EntityPose.STANDING) {
+                if (pose == EntityPose.CROUCHING || pose == EntityPose.SWIMMING) {
+                    if (getCollidingPortal() != null) {
+                        ci.cancel();
+                    }
+                }
+            }
+        }
+    }
+    
     @Override
     public Portal getCollidingPortal() {
         return ((Portal) collidingPortal);
@@ -189,7 +207,7 @@ public abstract class MixinEntity implements IEEntity {
             if (collidingPortal.world != world) {
                 collidingPortal = null;
             }
-    
+            
             if (Math.abs(world.getTime() - collidingPortalActiveTickTime) >= 3) {
                 collidingPortal = null;
             }

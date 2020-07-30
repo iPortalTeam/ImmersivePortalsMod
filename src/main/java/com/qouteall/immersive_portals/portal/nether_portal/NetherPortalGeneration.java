@@ -516,7 +516,7 @@ public class NetherPortalGeneration {
         }
         
         Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
-            fromWorld.getRegistryKey(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
+            fromWorld.getRegistryKey().getValue(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
         ));
         return true;
     }
