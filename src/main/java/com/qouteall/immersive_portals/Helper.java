@@ -901,7 +901,7 @@ public class Helper {
         }
         
         for (Portal hitPortal : hitPortals) {
-            playerLook = hitPortal.transformLocalVec(playerLook);
+            playerLook = hitPortal.transformLocalVecNonScale(playerLook);
         }
         
         Direction lookingDirection = getFacingExcludingAxis(

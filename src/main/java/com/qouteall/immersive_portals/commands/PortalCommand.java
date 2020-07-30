@@ -1095,7 +1095,7 @@ public class PortalCommand {
         PortalManipulation.removeOverlappedPortals(
             McHelper.getServer().getWorld(portal.dimensionTo),
             portal.destination,
-            portal.transformLocalVec(portal.getNormal().multiply(-1)),
+            portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
             p -> sendMessage(context, "Removed " + p)
         );

@@ -55,6 +55,8 @@ public class Portal extends Entity {
     
     public Quaternion rotation;
     
+    public double scaling = 1;
+    
     private boolean interactable = true;
     
     public PortalExtension extension = new PortalExtension();
@@ -127,6 +129,10 @@ public class Portal extends Entity {
             interactable = compoundTag.getBoolean("interactable");
         }
         
+        if (compoundTag.contains("scale")) {
+            scaling = compoundTag.getDouble("scale");
+        }
+        
         extension = new PortalExtension();
         extension.readFromNbt(compoundTag);
     }
@@ -165,6 +171,8 @@ public class Portal extends Entity {
         }
         
         compoundTag.putBoolean("interactable", interactable);
+        
+        compoundTag.putDouble("scale", scaling);
         
         extension.writeToNbt(compoundTag);
     }
@@ -319,7 +327,7 @@ public class Portal extends Entity {
             Entity.class,
             getBoundingBox(),
             e -> !(e instanceof Portal) && CollisionHelper.shouldCollideWithPortal(
-                e,this,1
+                e, this, 1
             )
         );
         
@@ -354,7 +362,7 @@ public class Portal extends Entity {
     
     public Vec3d getContentDirection() {
         if (contentDirection == null) {
-            contentDirection = transformLocalVec(getNormal().multiply(-1));
+            contentDirection = transformLocalVecNonScale(getNormal().multiply(-1));
         }
         return contentDirection;
     }
@@ -452,25 +460,30 @@ public class Portal extends Entity {
     }
     
     public Vec3d transformPoint(Vec3d pos) {
-        if (rotation == null) {
-            return transformPointRough(pos);
-        }
-        
         Vec3d localPos = pos.subtract(getPos());
         
-        return transformLocalVec(localPos).add(destination);
+        Vec3d result = transformLocalVec(localPos).add(destination);
+        
+        return result;
+        
     }
     
-    public Vec3d transformLocalVec(Vec3d localVec) {
+    public Vec3d transformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
             return localVec;
         }
         
         Vector3f temp = new Vector3f(localVec);
         temp.rotate(rotation);
+        
         return new Vec3d(temp);
     }
     
+    public Vec3d transformLocalVec(Vec3d localVec) {
+        return transformLocalVecNonScale(localVec).multiply(scaling);
+    }
+    
+    @Deprecated
     public Vec3d untransformLocalVec(Vec3d localVec) {
         if (rotation == null) {
             return localVec;
@@ -483,8 +496,17 @@ public class Portal extends Entity {
         return new Vec3d(temp);
     }
     
+    @Deprecated
     public Vec3d untransformPoint(Vec3d point) {
         return getPos().add(untransformLocalVec(point.subtract(destination)));
+    }
+    
+    public Vec3d scaleLocalVec(Vec3d localVec) {
+        if (scaling == 1.0) {
+            return localVec;
+        }
+        
+        return localVec.multiply(scaling);
     }
     
     public Vec3d getCullingPoint() {

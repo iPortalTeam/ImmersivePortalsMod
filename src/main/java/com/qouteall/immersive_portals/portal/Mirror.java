@@ -17,34 +17,29 @@ public class Mirror extends Portal {
         super.tick();
         teleportable = false;
     }
-
+    
     @Override
-    public boolean isInteractable()
-    {
+    public boolean isInteractable() {
         return Global.mirrorInteractableThroughPortal && super.isInteractable();
     }
-
+    
     @Override
     public Vec3d getContentDirection() {
         return getNormal();
     }
-
-    @Override
-    public Vec3d transformPoint(Vec3d pos) {
-        Vec3d localPos = pos.subtract(getPos());
-        
-        return transformLocalVec(localPos).add(destination);
-    }
     
     @Override
     public Vec3d transformLocalVec(Vec3d localVec) {
-        double len = localVec.dotProduct(getNormal());
-        return localVec.add(getNormal().multiply(len * -2));
+        return getMirrored(super.transformLocalVec(localVec));
     }
     
+    public Vec3d getMirrored(Vec3d vec) {
+        double len = vec.dotProduct(getNormal());
+        return vec.add(getNormal().multiply(len * -2));
+    }
     
     @Override
     public Vec3d untransformLocalVec(Vec3d localVec) {
-        return transformLocalVec(localVec);
+        return getMirrored(super.untransformLocalVec(localVec));
     }
 }

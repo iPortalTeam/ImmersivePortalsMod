@@ -153,14 +153,9 @@ public abstract class PortalRenderer {
         
         Entity cameraEntity = client.cameraEntity;
         
-//        Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(cameraEntity));
-//        Vec3d newLastTickEyePos = portal.transformPoint(McHelper.getLastTickEyePos(cameraEntity));
-        
         ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(portal.dimensionTo);
         
         Camera camera = client.gameRenderer.getCamera();
-        
-        assert cameraEntity.world == client.world;
         
         PortalRendering.onBeginPortalWorldRendering();
         

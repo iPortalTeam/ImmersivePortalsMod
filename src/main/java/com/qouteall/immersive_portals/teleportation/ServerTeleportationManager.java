@@ -452,7 +452,7 @@ public class ServerTeleportationManager {
             McHelper.updateBoundingBox(newEntity);
             newEntity.setHeadYaw(oldEntity.getHeadYaw());
             
-            oldEntity.removed = true;
+            oldEntity.remove();
             
             toWorld.onDimensionChanged(newEntity);
             

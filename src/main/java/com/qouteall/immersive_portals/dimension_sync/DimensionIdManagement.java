@@ -132,7 +132,9 @@ public class DimensionIdManagement {
         List<RegistryKey<World>> keysList = new ArrayList<>(keys);
         keysList.sort(Comparator.comparing(RegistryKey::toString));
         
-        Helper.log("Server Loaded Dimensions:\n" + Helper.myToString(keysList.stream()));
+        Helper.log("Server Loaded Dimensions:\n" + Helper.myToString(
+            keysList.stream().map(RegistryKey::getValue)
+        ));
         
         keysList.forEach(dim -> {
             if (!bimap.containsKey(dim)) {
