@@ -46,10 +46,6 @@
     "fabric": "*",
     "minecraft": "1.16.1"
   },
-  "conflicts": {
-    "canvas": "*",
-    "sodium": "*"
-  },
   "suggests": {
     "flamingo": "*"
   },
