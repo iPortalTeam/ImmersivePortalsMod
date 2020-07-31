@@ -75,6 +75,10 @@ public class PortalRendering {
         ).collect(Collectors.toList());
         RenderStates.portalRenderInfos.add(currRenderInfo);
         
+        if (portalLayers.stream().anyMatch(p -> p.scaling != 1.0)) {
+            RenderStates.renderedScalingPortal = true;
+        }
+        
         CHelper.checkGlError();
     }
     
@@ -90,6 +94,14 @@ public class PortalRendering {
             pos = portal.transformPoint(pos);
         }
         return pos;
+    }
+    
+    public static double getAllScaling() {
+        double scale = 1.0;
+        for (Portal portal : portalLayers) {
+            scale *= portal.scaling;
+        }
+        return scale;
     }
     
 }

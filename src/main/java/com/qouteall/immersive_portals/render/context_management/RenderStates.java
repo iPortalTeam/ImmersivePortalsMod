@@ -61,6 +61,8 @@ public class RenderStates {
     
     public static boolean isRenderingEntities = false;
     
+    public static boolean renderedScalingPortal = false;
+    
     public static void updatePreRenderInfo(
         float tickDelta_
     ) {
@@ -129,6 +131,12 @@ public class RenderStates {
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {
+        if (renderedScalingPortal) {
+            setViewBobFactor(0);
+            renderedScalingPortal = false;
+            return;
+        }
+        
         Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
         double minPortalDistance = CHelper.getClientNearbyPortals(10)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))

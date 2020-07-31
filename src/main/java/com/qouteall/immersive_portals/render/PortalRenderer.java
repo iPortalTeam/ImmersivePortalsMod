@@ -203,6 +203,7 @@ public abstract class PortalRenderer {
 //        return false;
     }
     
+    // Scaling does not interfere camera transformation
     @Nullable
     public static Matrix4f getAdditionalCameraTransformation(Portal portal) {
         if (portal instanceof Mirror) {
