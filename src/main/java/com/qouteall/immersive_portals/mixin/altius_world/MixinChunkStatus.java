@@ -5,8 +5,10 @@ import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.spongepowered.asm.mixin.Mixin;
@@ -98,6 +100,35 @@ public class MixinChunkStatus {
         }
         try {
             chunkGenerator.addStructureReferences(world, structureAccessor, chunk);
+        }
+        catch (Throwable e) {
+            Helper.err(String.format(
+                "Error when generating terrain %s",
+                chunk
+            ));
+            e.printStackTrace();
+        }
+        if (shouldLock) {
+            featureGenLock.unlock();
+        }
+    }
+    
+    @Redirect(
+        method = "*",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;carve(JLnet/minecraft/world/biome/source/BiomeAccess;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/GenerationStep$Carver;)V"
+        )
+    )
+    private static void redirectCarve(
+        ChunkGenerator generator, long seed, BiomeAccess access, Chunk chunk, GenerationStep.Carver carver
+    ) {
+        boolean shouldLock = getShouldLock();
+        if (shouldLock) {
+            featureGenLock.lock();
+        }
+        try {
+            generator.carve(seed, access, chunk, carver);
         }
         catch (Throwable e) {
             Helper.err(String.format(
