@@ -1,6 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
@@ -88,7 +89,7 @@ public class MyNetworkClient {
             return;
         }
         
-        client.execute(() -> {
+        CHelper.executeOnRenderThread(() -> {
             client.getProfiler().push("ip_spawn_entity");
             
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
@@ -130,7 +131,7 @@ public class MyNetworkClient {
             buf.readDouble()
         );
         
-        MinecraftClient.getInstance().execute(() -> {
+        CHelper.executeOnRenderThread(() -> {
             CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos,
                 false
@@ -173,7 +174,7 @@ public class MyNetworkClient {
     private static int reportedError = 0;
     
     private static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
-        client.execute(() -> {
+        CHelper.executeOnRenderThread(() -> {
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
@@ -230,7 +231,7 @@ public class MyNetworkClient {
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
         RegistryKey<World> dimensionType = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
-        client.execute(() -> {
+        CHelper.executeOnRenderThread(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getWorld(dimensionType);
             

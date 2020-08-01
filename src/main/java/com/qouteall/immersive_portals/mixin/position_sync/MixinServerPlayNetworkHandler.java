@@ -54,9 +54,11 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     @Shadow
     private double updatedRiddenZ;
     
-    @Shadow protected abstract boolean isHost();
+    @Shadow
+    protected abstract boolean isHost();
     
-    @Shadow protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView, Box box);
+    @Shadow
+    protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView, Box box);
     
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(

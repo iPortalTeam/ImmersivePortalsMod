@@ -231,10 +231,14 @@ public class Helper {
         return new Vec3d(box.getXLength(), box.getYLength(), box.getZLength());
     }
     
-    public static Box getBoxSurface(Box box, Direction direction) {
+    public static Box getBoxSurfaceInversed(Box box, Direction direction) {
         double size = getCoordinate(getBoxSize(box), direction.getAxis());
         Vec3d shrinkVec = Vec3d.of(direction.getVector()).multiply(size);
         return box.shrink(shrinkVec.x, shrinkVec.y, shrinkVec.z);
+    }
+    
+    public static Box getBoxSurface(Box box, Direction direction) {
+        return getBoxSurfaceInversed(box, direction.getOpposite());
     }
     
     public static IntBox expandRectangle(

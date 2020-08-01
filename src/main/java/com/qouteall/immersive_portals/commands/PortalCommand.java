@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
@@ -20,6 +21,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.command.arguments.BlockPosArgumentType;
 import net.minecraft.command.arguments.ColumnPosArgumentType;
 import net.minecraft.command.arguments.DimensionArgumentType;
 import net.minecraft.command.arguments.EntityArgumentType;
@@ -36,6 +38,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.Direction;
@@ -998,7 +1001,75 @@ public class PortalCommand {
                 )
             )
         );
+        
+        builder.then(CommandManager.literal("create_scaled_box_view")
+            .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
+                .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
+                    .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
+                        .then(CommandManager.argument("boxViewWorld", DimensionArgumentType.dimension())
+                            .then(CommandManager.argument("boxBottomCenter", Vec3ArgumentType.vec3(false))
+                                .then(CommandManager.argument("biWay", BoolArgumentType.bool())
+                                    .executes(context -> {
+                                        BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
+                                        BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
+                                        IntBox intBox = new IntBox(bp1, bp2);
+                                        
+                                        ServerWorld boxWorld =
+                                            DimensionArgumentType.getDimensionArgument(context, "boxViewWorld");
+                                        Vec3d boxBottomCenter = Vec3ArgumentType.getVec3(context, "boxBottomCenter");
+                                        Box area = intBox.toRealNumberBox();
+                                        ServerWorld areaWorld = context.getSource().getWorld();
+                                        
+                                        double scale = DoubleArgumentType.getDouble(context, "scale");
+                                        
+                                        boolean biWay = BoolArgumentType.getBool(context, "biWay");
+                                        
+                                        createScaledBoxView(
+                                            areaWorld, area, boxWorld, boxBottomCenter, scale,
+                                            biWay
+                                        );
+                                        
+                                        return 0;
+                                    })
+                                
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
+    
+    private static void createScaledBoxView(
+        ServerWorld areaWorld, Box area,
+        ServerWorld boxWorld, Vec3d boxBottomCenter,
+        double scale,
+        boolean biWay
+    ) {
+        Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
+        Box viewBox = new Box(
+            boxBottomCenter.subtract(viewBoxSize.x / 2, 0, viewBoxSize.z / 2),
+            boxBottomCenter.add(viewBoxSize.x / 2, viewBoxSize.y, viewBoxSize.z / 2)
+        );
+        for (Direction direction : Direction.values()) {
+            Portal portal = PortalManipulation.createOrthodoxPortal(
+                Portal.entityType,
+                areaWorld, boxWorld,
+                direction, Helper.getBoxSurface(viewBox, direction),
+                Helper.getBoxSurface(area, direction).getCenter()
+            );
+            portal.scaling = scale;
+            portal.changeEntityScale = false;
+            
+            portal.world.spawnEntity(portal);
+            
+            if (biWay) {
+                PortalManipulation.completeBiWayPortal(portal, Portal.entityType);
+            }
+        }
+    }
+    
     
     private static void addSmallWorldWrappingPortals(Box box, ServerWorld world, boolean isInward) {
         for (Direction direction : Direction.values()) {
@@ -1199,6 +1270,10 @@ public class PortalCommand {
         
         newPortal.world.spawnEntity(newPortal);
         
+        configureBiWayBiFaced(newPortal, biWay, biFaced);
+    }
+    
+    private static void configureBiWayBiFaced(Portal newPortal, boolean biWay, boolean biFaced) {
         if (biFaced && biWay) {
             PortalManipulation.completeBiWayBiFacedPortal(
                 newPortal,

@@ -11,19 +11,29 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EntitySync {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
+    /**
+     *  If it's not null, all sent packets will be wrapped into redirected packet
+     *  {@link com.qouteall.immersive_portals.mixin.entity_sync.MixinServerPlayNetworkHandler_E}
+     */
+    @Nullable
+    public static RegistryKey<World> forceRedirect = null;
+    
     public static void init() {
         ModMain.postServerTickSignal.connect(EntitySync::tick);
     }
     
     /**
-     * Replace {@link ThreadedAnvilChunkStorage#tickPlayerMovement()}
+     * Replace ThreadedAnvilChunkStorage#tickPlayerMovement()
      */
     private static void tick() {
         MinecraftServer server = McHelper.getServer();
@@ -58,6 +68,8 @@ public class EntitySync {
             ThreadedAnvilChunkStorage storage = world.getChunkManager().threadedAnvilChunkStorage;
             Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
+    
+            forceRedirect = world.getRegistryKey();
             
             for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
                 ((IEEntityTracker) tracker).tickEntry();
@@ -73,6 +85,8 @@ public class EntitySync {
                     markUnDirty(tracker);
                 }
             }
+    
+            forceRedirect = null;
         });
         
         server.getProfiler().pop();
@@ -86,5 +100,12 @@ public class EntitySync {
     private static void markUnDirty(ThreadedAnvilChunkStorage.EntityTracker tracker) {
         ChunkSectionPos currPos = ChunkSectionPos.from(((IEEntityTracker) tracker).getEntity_());
         ((IEEntityTracker) tracker).setLastCameraPosition(currPos);
+    }
+    
+    public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
+        RegistryKey<World> oldForceRedirect = EntitySync.forceRedirect;
+        forceRedirect = dimension;
+        func.run();
+        forceRedirect = oldForceRedirect;
     }
 }

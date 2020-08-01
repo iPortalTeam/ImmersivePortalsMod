@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
@@ -141,11 +142,21 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             }
             
             if (shouldTrack && this.playersTracking.add(player)) {
-                this.entry.startTracking(player);
+                EntitySync.withForceRedirect(
+                    entity.world.getRegistryKey(),
+                    () -> {
+                        this.entry.startTracking(player);
+                    }
+                );
             }
         }
         else if (this.playersTracking.remove(player)) {
-            this.entry.stopTracking(player);
+            EntitySync.withForceRedirect(
+                entity.world.getRegistryKey(),
+                () -> {
+                    this.entry.stopTracking(player);
+                }
+            );
         }
         
     }

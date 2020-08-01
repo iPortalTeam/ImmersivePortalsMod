@@ -1,6 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -20,7 +21,7 @@ public class PehkuiInterfaceInitializer {
         }
         
         PehkuiInterface.onServerEntityTeleported = PehkuiInterfaceInitializer::onEntityTeleportedServer;
-    
+        
         PehkuiInterface.getScale = e -> ScaleData.of(e).getScale();
     }
     
@@ -67,16 +68,21 @@ public class PehkuiInterfaceInitializer {
             ScaleData scaleData = ScaleData.of(entity);
             Vec3d eyePos = McHelper.getEyePos(entity);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
-    
+            
             float oldScale = scaleData.getScale();
-    
+            
             scaleData.setScaleTickDelay(0);
-            scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.setTargetScale((float) (oldScale * portal.scaling));
+            scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.tick();
-    
-            McHelper.setEyePos(entity, eyePos, lastTickEyePos);
-            McHelper.updateBoundingBox(entity);
+            
+            ModMain.serverTaskList.addTask(() -> {
+                McHelper.setEyePos(entity, eyePos, lastTickEyePos);
+                McHelper.updateBoundingBox(entity);
+                return true;
+            });
+            
+            scaleData.markForSync();
         }
     }
 }

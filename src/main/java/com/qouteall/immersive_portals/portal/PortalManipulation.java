@@ -1,10 +1,13 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -82,11 +85,9 @@ public class PortalManipulation {
             newPortal.rotation.conjugate();
         }
         
-        newPortal.extension.motionAffinity = portal.extension.motionAffinity;
-        
-        newPortal.specificPlayerId = portal.specificPlayerId;
-        
         newPortal.scaling = 1.0 / portal.scaling;
+    
+        copyAdditionalProperties(newPortal, portal);
         
         return newPortal;
     }
@@ -131,11 +132,9 @@ public class PortalManipulation {
         
         newPortal.rotation = portal.rotation;
         
-        newPortal.extension.motionAffinity = portal.extension.motionAffinity;
-        
-        newPortal.specificPlayerId = portal.specificPlayerId;
-        
         newPortal.scaling = portal.scaling;
+    
+        copyAdditionalProperties(newPortal, portal);
         
         return newPortal;
     }
@@ -165,11 +164,9 @@ public class PortalManipulation {
         
         newPortal.rotation = portal.rotation;
         
-        newPortal.extension.motionAffinity = portal.extension.motionAffinity;
-        
-        newPortal.specificPlayerId = portal.specificPlayerId;
-        
         newPortal.scaling = portal.scaling;
+    
+        copyAdditionalProperties(newPortal, portal);
         
         return newPortal;
     }
@@ -251,4 +248,37 @@ public class PortalManipulation {
         );
     }
     
+    public static <T extends Portal> T createOrthodoxPortal(
+        EntityType<T> entityType,
+        ServerWorld fromWorld, ServerWorld toWorld,
+        Direction facing, Box portalArea,
+        Vec3d destination
+    ) {
+        T portal = entityType.create(fromWorld);
+        
+        Pair<Direction, Direction> directions = Helper.getPerpendicularDirections(facing);
+        
+        Vec3d areaSize = Helper.getBoxSize(portalArea);
+        
+        Box boxSurface = Helper.getBoxSurface(portalArea, facing);
+        Vec3d center = boxSurface.getCenter();
+        portal.updatePosition(center.x, center.y, center.z);
+        portal.destination = destination;
+        
+        portal.axisW = Vec3d.of(directions.getLeft().getVector());
+        portal.axisH = Vec3d.of(directions.getRight().getVector());
+        portal.width = Helper.getCoordinate(areaSize, directions.getLeft().getAxis());
+        portal.height = Helper.getCoordinate(areaSize, directions.getRight().getAxis());
+        
+        portal.dimensionTo = toWorld.getRegistryKey();
+        
+        return portal;
+    }
+    
+    public static void copyAdditionalProperties(Portal to, Portal from) {
+        to.extension.motionAffinity = from.extension.motionAffinity;
+        to.teleportable = from.teleportable;
+        to.changeEntityScale = from.changeEntityScale;
+        to.specificPlayerId = from.specificPlayerId;
+    }
 }

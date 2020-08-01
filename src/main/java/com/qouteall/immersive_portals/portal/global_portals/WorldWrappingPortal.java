@@ -65,9 +65,9 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         WorldWrappingPortal portal = entityType.create(serverWorld);
         portal.isInward = isInward;
         portal.zoneId = zoneId;
-    
+        
         initWrappingPortal(serverWorld, area, direction, isInward, portal);
-    
+        
         return portal;
     }
     
@@ -83,15 +83,15 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         Pair<Direction, Direction> axises = Helper.getPerpendicularDirections(
             isInward ? direction : direction.getOpposite()
         );
-        Box boxSurface = Helper.getBoxSurface(area, direction);
+        Box boxSurface = Helper.getBoxSurfaceInversed(area, direction);
         Vec3d center = boxSurface.getCenter();
-        Box oppositeSurface = Helper.getBoxSurface(area, direction.getOpposite());
+        Box oppositeSurface = Helper.getBoxSurfaceInversed(area, direction.getOpposite());
         Vec3d destination = oppositeSurface.getCenter();
         portal.updatePosition(center.x, center.y, center.z);
         portal.destination = destination;
         
-        portal.axisW =  Vec3d.of(axises.getLeft().getVector());
-        portal.axisH =  Vec3d.of(axises.getRight().getVector());
+        portal.axisW = Vec3d.of(axises.getLeft().getVector());
+        portal.axisH = Vec3d.of(axises.getRight().getVector());
         portal.width = Helper.getCoordinate(areaSize, axises.getLeft().getAxis());
         portal.height = Helper.getCoordinate(areaSize, axises.getRight().getAxis());
         
@@ -150,7 +150,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         }
         
         public IntBox getBorderBox() {
-    
+            
             if (!isInwardZone) {
                 return getIntArea();
             }
@@ -268,11 +268,11 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         Consumer<Text> feedbackSender
     ) {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
-    
+        
         WrappingZone zone = wrappingZones.stream()
             .filter(z -> z.getArea().contains(playerPos))
             .findFirst().orElse(null);
-    
+        
         if (zone != null) {
             zone.removeFromWorld();
             feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));
@@ -288,11 +288,11 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         Consumer<Text> feedbackSender
     ) {
         List<WrappingZone> wrappingZones = getWrappingZones(world);
-    
+        
         WrappingZone zone = wrappingZones.stream()
             .filter(wrappingZone -> wrappingZone.id == zoneId)
             .findFirst().orElse(null);
-    
+        
         if (zone != null) {
             zone.removeFromWorld();
             feedbackSender.accept(new TranslatableText("imm_ptl.removed_portal", zone.toString()));

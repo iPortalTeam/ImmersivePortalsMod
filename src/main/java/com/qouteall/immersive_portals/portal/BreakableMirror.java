@@ -125,7 +125,7 @@ public class BreakableMirror extends Mirror {
         
         Box wallBox = getWallBox(world, wallArea);
         
-        Vec3d pos = Helper.getBoxSurface(wallBox, facing.getOpposite()).getCenter();
+        Vec3d pos = Helper.getBoxSurfaceInversed(wallBox, facing.getOpposite()).getCenter();
         pos = Helper.putCoordinate(
             //getWallBox is incorrect with corner glass pane so correct the coordinate on the normal axis
             pos, facing.getAxis(),
