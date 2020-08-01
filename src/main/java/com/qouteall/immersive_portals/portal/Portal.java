@@ -25,41 +25,87 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Portal entity. Global portals are also entities but not added into world.
+ */
 public class Portal extends Entity {
     public static EntityType<Portal> entityType;
     
-    //basic properties
+    
+    /**
+     * The portal area length along axisW
+     */
     public double width = 0;
     public double height = 0;
+    
+    /**
+     * axisW and axisH define the orientation of the portal
+     * They should be normalized and should be perpendicular to each other
+     */
     public Vec3d axisW;
     public Vec3d axisH;
+    
+    /**
+     * The destination dimension
+     */
     public RegistryKey<World> dimensionTo;
+    /**
+     * The destination position
+     */
     public Vec3d destination;
     
-    //additional properties
+    /**
+     * If false, cannot teleport entities
+     */
     public boolean teleportable = true;
+    /**
+     * If not null, this portal can only be accessed by one player
+     */
+    @Nullable
     public UUID specificPlayerId;
+    /**
+     * If not null, defines the special shape of the portal
+     * The shape should not exceed the area defined by width and height
+     */
+    @Nullable
     public GeometryPortalShape specialShape;
     
     private Box boundingBoxCache;
     private Vec3d normal;
     private Vec3d contentDirection;
     
+    /**
+     * For advanced frustum culling
+     */
     public double cullableXStart = 0;
     public double cullableXEnd = 0;
     public double cullableYStart = 0;
     public double cullableYEnd = 0;
     
+    /**
+     * The rotating transformation of the portal
+     */
+    @Nullable
     public Quaternion rotation;
     
+    /**
+     * The scaling transformation of the portal
+     */
     public double scaling = 1.0;
+    /**
+     * Whether the entity scale changes after crossing the portal
+     */
     public boolean changeEntityScale = true;
     
     private boolean interactable = true;
     
+    /**
+     * Additional things
+     */
     public PortalExtension extension = new PortalExtension();
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
@@ -133,6 +179,9 @@ public class Portal extends Entity {
         if (compoundTag.contains("scale")) {
             scaling = compoundTag.getDouble("scale");
         }
+        if (compoundTag.contains("changeEntityScale")) {
+            changeEntityScale = compoundTag.getBoolean("changeEntityScale");
+        }
         
         extension = new PortalExtension();
         extension.readFromNbt(compoundTag);
@@ -174,6 +223,7 @@ public class Portal extends Entity {
         compoundTag.putBoolean("interactable", interactable);
         
         compoundTag.putDouble("scale", scaling);
+        compoundTag.putBoolean("changeEntityScale", changeEntityScale);
         
         extension.writeToNbt(compoundTag);
     }

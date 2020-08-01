@@ -47,7 +47,6 @@ public class ClientTeleportationManager {
     public long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     private Vec3d moveStartPoint = null;
-    private long teleportWhileRidingTime = 0;
     private long teleportTickTimeLimit = 0;
     
     // for debug
@@ -223,7 +222,8 @@ public class ClientTeleportationManager {
         
         McHelper.adjustVehicle(player);
         
-        player.setVelocity(portal.transformLocalVec(player.getVelocity()));
+        // pehkui may chcange velocity when chaning scale
+        player.setVelocity(portal.transformLocalVecNonScale(player.getVelocity()));
         
         TransformationManager.onClientPlayerTeleported(portal);
         
