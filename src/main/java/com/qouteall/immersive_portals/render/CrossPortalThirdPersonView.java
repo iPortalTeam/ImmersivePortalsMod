@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.commands.PortalCommand;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -53,8 +54,8 @@ public class CrossPortalThirdPersonView {
         
         Portal portal = portalHit.getFirst();
         Vec3d hitPos = portalHit.getSecond();
-        
-        double distance = portal.scaling > 1 ? getThirdPersonMaxDistance() / portal.scaling : getThirdPersonMaxDistance();
+    
+        double distance = getThirdPersonMaxDistance();
         
         Vec3d thirdPersonPos = normalCameraPos.subtract(playerHeadPos).normalize()
             .multiply(distance).add(playerHeadPos);
@@ -113,7 +114,7 @@ public class CrossPortalThirdPersonView {
     }
     
     private static double getThirdPersonMaxDistance() {
-        return 4.0d;
+        return 4.0d * PehkuiInterface.getScale.apply(MinecraftClient.getInstance().player);
     }
 
 //    private static Vec3d getThirdPersonCameraPos(Portal portalHit, Camera resuableCamera) {

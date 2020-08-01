@@ -117,7 +117,7 @@ public class ServerTeleportationManager {
         
         if (canPlayerTeleport(player, dimensionBefore, oldEyePos, portal)) {
             if (isTeleporting(player)) {
-                Helper.err(player.toString() + "is teleporting frequently");
+                Helper.log(player.toString() + "is teleporting frequently");
             }
             
             RegistryKey<World> dimensionTo = portal.dimensionTo;

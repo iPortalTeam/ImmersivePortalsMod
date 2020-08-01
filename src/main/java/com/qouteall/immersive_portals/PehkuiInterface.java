@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class PehkuiInterface {
     
@@ -16,4 +17,6 @@ public class PehkuiInterface {
     public static BiConsumer<Entity, Portal> onServerEntityTeleported = (e, p) -> {
     
     };
+    
+    public static Function<Entity, Float> getScale = e -> 1.0f;
 }
