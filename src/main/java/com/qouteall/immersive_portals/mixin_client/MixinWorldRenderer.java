@@ -234,7 +234,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void onAfterCutoutRendering(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-        CrossPortalEntityRenderer.onBeginRenderingEnties(matrices);
+        CrossPortalEntityRenderer.onBeginRenderingEntities(matrices);
     }
     
     @Redirect(

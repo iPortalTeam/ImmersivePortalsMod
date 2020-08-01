@@ -25,6 +25,10 @@ public class PehkuiInterfaceInitializer {
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
         if (portal.hasScaling()) {
+            if (!portal.changeEntityScale) {
+                return;
+            }
+            
             MinecraftClient client = MinecraftClient.getInstance();
             
             ClientPlayerEntity player = client.player;
@@ -55,17 +59,20 @@ public class PehkuiInterfaceInitializer {
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
         if (portal.hasScaling()) {
+            if (!portal.changeEntityScale) {
+                return;
+            }
             ScaleData scaleData = ScaleData.of(entity);
             Vec3d eyePos = McHelper.getEyePos(entity);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
-            
+    
             float oldScale = scaleData.getScale();
-            
+    
             scaleData.setScaleTickDelay(0);
             scaleData.setScale((float) (oldScale * portal.scaling));
             scaleData.setTargetScale((float) (oldScale * portal.scaling));
             scaleData.tick();
-            
+    
             McHelper.setEyePos(entity, eyePos, lastTickEyePos);
             McHelper.updateBoundingBox(entity);
         }

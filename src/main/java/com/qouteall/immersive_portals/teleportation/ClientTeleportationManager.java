@@ -12,7 +12,6 @@ import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -51,14 +50,13 @@ public class ClientTeleportationManager {
     private long teleportWhileRidingTime = 0;
     private long teleportTickTimeLimit = 0;
     
+    // for debug
     public static boolean isTeleportingTick = false;
+    public static boolean isTeleportingFrame = false;
     
     private static final int teleportLimit = 2;
     
     public ClientTeleportationManager() {
-//        ModMain.preRenderSignal.connectWithWeakRef(
-//            this, ClientTeleportationManager::manageTeleportation
-//        );
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, ClientTeleportationManager::tick
         );
@@ -91,6 +89,8 @@ public class ClientTeleportationManager {
         if (Global.disableTeleportation) {
             return;
         }
+    
+        isTeleportingFrame = false;
         
         if (client.world == null || client.player == null) {
             moveStartPoint = null;
@@ -208,10 +208,10 @@ public class ClientTeleportationManager {
         
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
+    
+        PehkuiInterface.onClientPlayerTeleported.accept(portal);
         
-        player.tick();
-        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
-        McHelper.updateBoundingBox(player);
+        tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
         
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
@@ -230,16 +230,17 @@ public class ClientTeleportationManager {
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
         }
+    
+        //because the teleportation may happen before rendering
+        //but after pre render info being updated
+        RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
         
         Helper.log(String.format("Client Teleported %s %s", portal, tickTimeForTeleportation));
         
-        //update colliding portal
-        ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
-    
-        PehkuiInterface.onClientPlayerTeleported.accept(portal);
-        
         isTeleportingTick = true;
+        isTeleportingFrame = true;
     }
+    
     
     public boolean isTeleportingFrequently() {
         if (tickTimeForTeleportation - lastTeleportGameTime <= 20) {
@@ -296,7 +297,6 @@ public class ClientTeleportationManager {
         
         player.world = toWorld;
         
-        
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
         
@@ -338,9 +338,7 @@ public class ClientTeleportationManager {
             tickTimeForTeleportation
         ));
         
-        //because the teleportation may happen before rendering
-        //but after pre render info being updated
-        RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
+       
         
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
         
@@ -425,5 +423,20 @@ public class ClientTeleportationManager {
     
     public void disableTeleportFor(int ticks) {
         teleportTickTimeLimit = tickTimeForTeleportation + ticks;
+    }
+    
+    private static void tickAfterTeleportation(ClientPlayerEntity player, Vec3d newEyePos, Vec3d newLastTickEyePos) {
+        // update collidingPortal
+        McHelper.findEntitiesByBox(
+            Portal.class,
+            player.world,
+            player.getBoundingBox(),
+            10,
+            portal -> true
+        ).forEach(Portal::tick);
+        
+        player.tick();
+        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
+        McHelper.updateBoundingBox(player);
     }
 }
