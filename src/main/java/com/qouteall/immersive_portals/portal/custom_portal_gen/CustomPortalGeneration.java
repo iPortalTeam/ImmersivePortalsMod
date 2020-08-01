@@ -98,6 +98,19 @@ public class CustomPortalGeneration {
     }
     
     public CustomPortalGeneration getReverse() {
+        if (toDimension == theSameDimension) {
+            return new CustomPortalGeneration(
+                fromDimensions,
+                theSameDimension,
+                spaceRatioTo,
+                spaceRatioFrom,
+                false,
+                form.getReverse(),
+                trigger,
+                postInvokeCommands
+            );
+        }
+        
         if (fromDimensions.size() == 1) {
             return new CustomPortalGeneration(
                 Lists.newArrayList(toDimension),
