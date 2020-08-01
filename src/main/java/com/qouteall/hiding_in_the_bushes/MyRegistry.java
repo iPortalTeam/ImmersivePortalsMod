@@ -17,7 +17,7 @@ import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.entity.EntityDimensions;
@@ -34,89 +34,9 @@ import net.minecraft.potion.Potion;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 
 public class MyRegistry {
     public static void registerMyDimensionsFabric() {
-//        ModMain.alternate1 = FabricDimensionType.builder()
-//            .factory((world, type) -> new AlternateDimension(
-//                world, type, AlternateDimension::getChunkGenerator1,
-//                () -> ModMain.alternate1
-//            ))
-//            .skyLight(true)
-//            .defaultPlacer(
-//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-//                    new BlockPattern.TeleportTarget(
-//                        Vec3d.ZERO,
-//                        Vec3d.ZERO,
-//                        0
-//                    )
-//            )
-//            .buildAndRegister(new Identifier("immersive_portals", "alternate1"));
-//
-//        ModMain.alternate2 = FabricDimensionType.builder()
-//            .factory((world, type) -> new AlternateDimension(
-//                world, type, AlternateDimension::getChunkGenerator2,
-//                () -> ModMain.alternate2
-//            ))
-//            .skyLight(true)
-//            .defaultPlacer(
-//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-//                    new BlockPattern.TeleportTarget(
-//                        Vec3d.ZERO,
-//                        Vec3d.ZERO,
-//                        0
-//                    )
-//            )
-//            .buildAndRegister(new Identifier("immersive_portals", "alternate2"));
-//
-//        ModMain.alternate3 = FabricDimensionType.builder()
-//            .factory((world, type) -> new AlternateDimension(
-//                world, type, AlternateDimension::getChunkGenerator3,
-//                () -> ModMain.alternate3
-//            ))
-//            .skyLight(true)
-//            .defaultPlacer(
-//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-//                    new BlockPattern.TeleportTarget(
-//                        Vec3d.ZERO,
-//                        Vec3d.ZERO,
-//                        0
-//                    )
-//            )
-//            .buildAndRegister(new Identifier("immersive_portals", "alternate3"));
-//
-//        ModMain.alternate4 = FabricDimensionType.builder()
-//            .factory((world, type) -> new AlternateDimension(
-//                world, type, AlternateDimension::getChunkGenerator4,
-//                () -> ModMain.alternate4
-//            ))
-//            .skyLight(true)
-//            .defaultPlacer(
-//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-//                    new BlockPattern.TeleportTarget(
-//                        Vec3d.ZERO,
-//                        Vec3d.ZERO,
-//                        0
-//                    )
-//            )
-//            .buildAndRegister(new Identifier("immersive_portals", "alternate4"));
-//
-//        ModMain.alternate5 = FabricDimensionType.builder()
-//            .factory((world, type) -> new AlternateDimension(
-//                world, type, AlternateDimension::getChunkGenerator5,
-//                () -> ModMain.alternate5
-//            ))
-//            .skyLight(true)
-//            .defaultPlacer(
-//                (teleported, destination, portalDir, horizontalOffset, verticalOffset) ->
-//                    new BlockPattern.TeleportTarget(
-//                        Vec3d.ZERO,
-//                        Vec3d.ZERO,
-//                        0
-//                    )
-//            )
-//            .buildAndRegister(new Identifier("immersive_portals", "alternate5"));
     }
     
     public static void registerBlocksFabric() {
@@ -163,11 +83,10 @@ public class MyRegistry {
             new Identifier("immersive_portals", "portal"),
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
-                (EntityType<Portal> type, World world1) ->
-                    new Portal(type, world1)
-            ).size(
+                Portal::new
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         NetherPortalEntity.entityType = Registry.register(
@@ -175,11 +94,10 @@ public class MyRegistry {
             new Identifier("immersive_portals", "nether_portal_new"),
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
-                (EntityType<NetherPortalEntity> type, World world1) ->
-                    new NetherPortalEntity(type, world1)
-            ).size(
+                NetherPortalEntity::new
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         EndPortalEntity.entityType = Registry.register(
@@ -188,9 +106,9 @@ public class MyRegistry {
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 (EntityType.EntityFactory<EndPortalEntity>) EndPortalEntity::new
-            ).size(
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         Mirror.entityType = Registry.register(
@@ -198,11 +116,10 @@ public class MyRegistry {
             new Identifier("immersive_portals", "mirror"),
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
-                (EntityType<Mirror> type, World world1) ->
-                    new Mirror(type, world1)
-            ).size(
+                Mirror::new
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         BreakableMirror.entityType = Registry.register(
@@ -210,11 +127,10 @@ public class MyRegistry {
             new Identifier("immersive_portals", "breakable_mirror"),
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
-                (EntityType<BreakableMirror> type, World world1) ->
-                    new BreakableMirror(type, world1)
-            ).size(
+                BreakableMirror::new
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         GlobalTrackedPortal.entityType = Registry.register(
@@ -223,9 +139,9 @@ public class MyRegistry {
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 GlobalTrackedPortal::new
-            ).size(
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         WorldWrappingPortal.entityType = Registry.register(
@@ -234,9 +150,9 @@ public class MyRegistry {
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 WorldWrappingPortal::new
-            ).size(
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         VerticalConnectingPortal.entityType = Registry.register(
@@ -245,9 +161,9 @@ public class MyRegistry {
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 VerticalConnectingPortal::new
-            ).size(
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     
         GeneralBreakablePortal.entityType = Registry.register(
@@ -256,9 +172,9 @@ public class MyRegistry {
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 GeneralBreakablePortal::new
-            ).size(
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
         
         LoadingIndicatorEntity.entityType = Registry.register(
@@ -267,9 +183,9 @@ public class MyRegistry {
             FabricEntityTypeBuilder.create(
                 SpawnGroup.MISC,
                 (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
-            ).size(
+            ).dimensions(
                 new EntityDimensions(1, 1, true)
-            ).setImmuneToFire().build()
+            ).fireImmune().trackable(96,20).build()
         );
     }
     
