@@ -135,7 +135,7 @@ public class CollisionHelper {
             //handling collision with rotating portal is hard to implement
             return attemptedMove;
         }
-        if (collidingPortal.scaling != 1.0) {
+        if (collidingPortal.hasScaling()) {
             return attemptedMove;
         }
         

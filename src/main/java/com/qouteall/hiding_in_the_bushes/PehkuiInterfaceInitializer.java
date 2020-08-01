@@ -24,7 +24,7 @@ public class PehkuiInterfaceInitializer {
     
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
-        if (portal.scaling != 1.0) {
+        if (portal.hasScaling()) {
             MinecraftClient client = MinecraftClient.getInstance();
             
             ClientPlayerEntity player = client.player;
@@ -54,7 +54,7 @@ public class PehkuiInterfaceInitializer {
     }
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
-        if (portal.scaling != 1.0) {
+        if (portal.hasScaling()) {
             ScaleData scaleData = ScaleData.of(entity);
             Vec3d eyePos = McHelper.getEyePos(entity);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);

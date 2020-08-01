@@ -75,7 +75,7 @@ public class PortalRendering {
         ).collect(Collectors.toList());
         RenderStates.portalRenderInfos.add(currRenderInfo);
         
-        if (portalLayers.stream().anyMatch(p -> p.scaling != 1.0)) {
+        if (portalLayers.stream().anyMatch(Portal::hasScaling)) {
             RenderStates.renderedScalingPortal = true;
         }
         

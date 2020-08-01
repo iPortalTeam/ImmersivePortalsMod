@@ -209,6 +209,10 @@ public class ClientTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
         
+        player.tick();
+        McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
+        McHelper.updateBoundingBox(player);
+        
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldEyePos,

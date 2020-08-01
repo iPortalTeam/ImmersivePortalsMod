@@ -55,7 +55,8 @@ public class Portal extends Entity {
     
     public Quaternion rotation;
     
-    public double scaling = 1;
+    public double scaling = 1.0;
+    public boolean changeEntityScale = true;
     
     private boolean interactable = true;
     
@@ -348,11 +349,13 @@ public class Portal extends Entity {
             world.getRegistryKey().getValue(), (int) getX(), (int) getY(), (int) getZ(),
             dimensionTo.getValue(), (int) destination.x, (int) destination.y, (int) destination.z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
-            scaling != 1.0 ? (",scale:" + scaling) : ""
+            hasScaling() ? (",scale:" + scaling) : ""
         );
     }
     
-    //Geometry----------
+    public boolean hasScaling() {
+        return scaling != 1.0;
+    }
     
     public Vec3d getNormal() {
         if (normal == null) {
