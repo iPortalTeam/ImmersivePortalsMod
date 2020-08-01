@@ -15,6 +15,8 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -60,12 +62,22 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        serverPlayNetworkHandler.sendPacket(
-            MyNetwork.createRedirectedMessage(
-                entity.world.getRegistryKey(),
-                packet_1
-            )
-        );
+        mySendRedirectedPacket(serverPlayNetworkHandler, packet_1);
+    }
+    
+    private void mySendRedirectedPacket(ServerPlayNetworkHandler serverPlayNetworkHandler, Packet<?> packet) {
+        RegistryKey<World> dimension = entity.world.getRegistryKey();
+        if (EntitySync.forceRedirect != dimension) {
+            serverPlayNetworkHandler.sendPacket(packet);
+        }
+        else {
+            serverPlayNetworkHandler.sendPacket(
+                MyNetwork.createRedirectedMessage(
+                    dimension,
+                    packet
+                )
+            );
+        }
     }
     
     @Redirect(
@@ -79,12 +91,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        serverPlayNetworkHandler.sendPacket(
-            MyNetwork.createRedirectedMessage(
-                entity.world.getRegistryKey(),
-                packet_1
-            )
-        );
+        mySendRedirectedPacket(serverPlayNetworkHandler, packet_1);
     }
     
     /**
