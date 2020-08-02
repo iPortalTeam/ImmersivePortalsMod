@@ -1006,34 +1006,34 @@ public class PortalCommand {
             .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
                 .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
                     .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
-                        .then(CommandManager.argument("boxViewWorld", DimensionArgumentType.dimension())
-                            .then(CommandManager.argument("boxBottomCenter", Vec3ArgumentType.vec3(false))
-                                .then(CommandManager.argument("biWay", BoolArgumentType.bool())
-                                    .executes(context -> {
-                                        BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
-                                        BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
-                                        IntBox intBox = new IntBox(bp1, bp2);
-                                        
-                                        ServerWorld boxWorld =
-                                            DimensionArgumentType.getDimensionArgument(context, "boxViewWorld");
-                                        Vec3d boxBottomCenter = Vec3ArgumentType.getVec3(context, "boxBottomCenter");
-                                        Box area = intBox.toRealNumberBox();
-                                        ServerWorld areaWorld = context.getSource().getWorld();
-                                        
-                                        double scale = DoubleArgumentType.getDouble(context, "scale");
-                                        
-                                        boolean biWay = BoolArgumentType.getBool(context, "biWay");
-                                        
-                                        createScaledBoxView(
-                                            areaWorld, area, boxWorld, boxBottomCenter, scale,
-                                            biWay
-                                        );
-                                        
-                                        return 0;
-                                    })
-                                
-                                )
+                        .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
+                            .then(CommandManager.argument("biWay", BoolArgumentType.bool())
+                                .executes(context -> {
+                                    BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
+                                    BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
+                                    IntBox intBox = new IntBox(bp1, bp2);
+                                    
+                                    Entity placeTargetEntity = EntityArgumentType.getEntity(context, "placeTargetEntity");
+                                    
+                                    ServerWorld boxWorld = ((ServerWorld) placeTargetEntity.world);
+                                    Vec3d boxBottomCenter = placeTargetEntity.getPos();
+                                    Box area = intBox.toRealNumberBox();
+                                    ServerWorld areaWorld = context.getSource().getWorld();
+                                    
+                                    double scale = DoubleArgumentType.getDouble(context, "scale");
+                                    
+                                    boolean biWay = BoolArgumentType.getBool(context, "biWay");
+                                    
+                                    createScaledBoxView(
+                                        areaWorld, area, boxWorld, boxBottomCenter, scale,
+                                        biWay
+                                    );
+                                    
+                                    return 0;
+                                })
+                            
                             )
+                        
                         )
                     )
                 )
@@ -1060,7 +1060,7 @@ public class PortalCommand {
                 Helper.getBoxSurface(area, direction).getCenter()
             );
             portal.scaling = scale;
-            portal.changeEntityScale = false;
+            portal.teleportChangesScale = false;
             
             portal.world.spawnEntity(portal);
             

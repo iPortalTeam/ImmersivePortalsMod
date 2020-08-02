@@ -99,7 +99,7 @@ public class Portal extends Entity {
     /**
      * Whether the entity scale changes after crossing the portal
      */
-    public boolean changeEntityScale = true;
+    public boolean teleportChangesScale = true;
     
     private boolean interactable = true;
     
@@ -179,8 +179,8 @@ public class Portal extends Entity {
         if (compoundTag.contains("scale")) {
             scaling = compoundTag.getDouble("scale");
         }
-        if (compoundTag.contains("changeEntityScale")) {
-            changeEntityScale = compoundTag.getBoolean("changeEntityScale");
+        if (compoundTag.contains("teleportChangesScale")) {
+            teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
         }
         
         extension = new PortalExtension();
@@ -223,7 +223,7 @@ public class Portal extends Entity {
         compoundTag.putBoolean("interactable", interactable);
         
         compoundTag.putDouble("scale", scaling);
-        compoundTag.putBoolean("changeEntityScale", changeEntityScale);
+        compoundTag.putBoolean("teleportChangesScale", teleportChangesScale);
         
         extension.writeToNbt(compoundTag);
     }

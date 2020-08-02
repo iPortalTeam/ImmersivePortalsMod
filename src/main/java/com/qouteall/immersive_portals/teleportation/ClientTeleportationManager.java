@@ -88,7 +88,7 @@ public class ClientTeleportationManager {
         if (Global.disableTeleportation) {
             return;
         }
-    
+        
         isTeleportingFrame = false;
         
         if (client.world == null || client.player == null) {
@@ -207,7 +207,7 @@ public class ClientTeleportationManager {
         
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
-    
+        
         PehkuiInterface.onClientPlayerTeleported.accept(portal);
         
         tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
@@ -222,7 +222,7 @@ public class ClientTeleportationManager {
         
         McHelper.adjustVehicle(player);
         
-        // pehkui may chcange velocity when chaning scale
+        // pehkui may change velocity when changing scale
         player.setVelocity(portal.transformLocalVecNonScale(player.getVelocity()));
         
         TransformationManager.onClientPlayerTeleported(portal);
@@ -230,7 +230,7 @@ public class ClientTeleportationManager {
         if (player.getVehicle() != null) {
             disableTeleportFor(40);
         }
-    
+        
         //because the teleportation may happen before rendering
         //but after pre render info being updated
         RenderStates.updatePreRenderInfo(RenderStates.tickDelta);
@@ -338,7 +338,6 @@ public class ClientTeleportationManager {
             tickTimeForTeleportation
         ));
         
-       
         
         OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
         

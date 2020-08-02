@@ -278,7 +278,7 @@ public class PortalManipulation {
     public static void copyAdditionalProperties(Portal to, Portal from) {
         to.extension.motionAffinity = from.extension.motionAffinity;
         to.teleportable = from.teleportable;
-        to.changeEntityScale = from.changeEntityScale;
+        to.teleportChangesScale = from.teleportChangesScale;
         to.specificPlayerId = from.specificPlayerId;
     }
 }

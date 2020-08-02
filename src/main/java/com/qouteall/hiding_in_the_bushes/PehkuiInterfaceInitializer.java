@@ -28,7 +28,7 @@ public class PehkuiInterfaceInitializer {
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
         if (portal.hasScaling()) {
-            if (!portal.changeEntityScale) {
+            if (!portal.teleportChangesScale) {
                 return;
             }
             
@@ -62,7 +62,7 @@ public class PehkuiInterfaceInitializer {
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
         if (portal.hasScaling()) {
-            if (!portal.changeEntityScale) {
+            if (!portal.teleportChangesScale) {
                 return;
             }
             ScaleData scaleData = ScaleData.of(entity);
