@@ -1,8 +1,8 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.chunk_loading.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
@@ -89,7 +89,7 @@ public class MyNetworkClient {
             return;
         }
         
-        CHelper.executeOnRenderThread(() -> {
+        ClientNetworkingTaskList.executeOnRenderThread(() -> {
             client.getProfiler().push("ip_spawn_entity");
             
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
@@ -131,7 +131,7 @@ public class MyNetworkClient {
             buf.readDouble()
         );
         
-        CHelper.executeOnRenderThread(() -> {
+        ClientNetworkingTaskList.executeOnRenderThread(() -> {
             CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos,
                 false
@@ -174,7 +174,7 @@ public class MyNetworkClient {
     private static int reportedError = 0;
     
     private static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
-        CHelper.executeOnRenderThread(() -> {
+        ClientNetworkingTaskList.executeOnRenderThread(() -> {
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
@@ -231,7 +231,7 @@ public class MyNetworkClient {
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
         RegistryKey<World> dimensionType = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
-        CHelper.executeOnRenderThread(() -> {
+        ClientNetworkingTaskList.executeOnRenderThread(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getWorld(dimensionType);
             

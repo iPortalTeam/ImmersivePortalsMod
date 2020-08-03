@@ -16,7 +16,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.thread.ReentrantThreadExecutor;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
@@ -244,19 +243,4 @@ public class CHelper {
     }
     
     
-    /**
-     * {@link ReentrantThreadExecutor#shouldExecuteAsync()}
-     * The execution may get delayed on the render thread
-     */
-    public static void executeOnRenderThread(Runnable runnable) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        
-        if (client.isOnThread()) {
-            runnable.run();
-        }
-        else {
-            ModMain.preRenderTaskListFast.add(runnable);
-//            client.execute(runnable);
-        }
-    }
 }

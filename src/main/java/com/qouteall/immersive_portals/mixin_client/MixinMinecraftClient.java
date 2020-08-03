@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.chunk_loading.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
@@ -12,6 +13,7 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -22,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftClient.class)
-public class MixinMinecraftClient implements IEMinecraftClient {
+public abstract class MixinMinecraftClient implements IEMinecraftClient {
     @Final
     @Shadow
     @Mutable
@@ -36,7 +38,11 @@ public class MixinMinecraftClient implements IEMinecraftClient {
     @Final
     public WorldRenderer worldRenderer;
     
-    @Shadow private static int currentFps;
+    @Shadow
+    private static int currentFps;
+    
+    @Shadow
+    public abstract Profiler getProfiler();
     
     @Inject(
         method = "tick",
@@ -79,6 +85,19 @@ public class MixinMinecraftClient implements IEMinecraftClient {
         if (PortalRendering.isRendering()) {
             cir.setReturnValue(false);
         }
+    }
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/MinecraftClient;runTasks()V"
+        )
+    )
+    private void onRunTasks(boolean tick, CallbackInfo ci) {
+        getProfiler().push("portal_networking");
+        ClientNetworkingTaskList.processClientNetworkingTasks();
+        getProfiler().pop();
     }
     
     @Override

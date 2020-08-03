@@ -22,7 +22,6 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -363,16 +362,23 @@ public class ClientTeleportationManager {
     }
     
     private void getOutOfLoadingScreen(RegistryKey<World> dimension, Vec3d playerPos) {
-        if (((IEMinecraftClient) client).getCurrentScreen() instanceof DownloadingTerrainScreen) {
-            Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
-            if (client.player.world.getRegistryKey() != dimension) {
-                Helper.err("Manually fix dimension state while loading terrain");
-                ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(dimension);
-                changePlayerDimension(client.player, client.world, toWorld, playerPos);
-            }
-            client.player.updatePosition(playerPos.x, playerPos.y, playerPos.z);
-            client.openScreen(null);
-        }
+//        if (((IEMinecraftClient) client).getCurrentScreen() instanceof DownloadingTerrainScreen) {
+//            Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
+//            ClientPlayerEntity player = client.player;
+//            if (player.world.getRegistryKey() != dimension) {
+//                Helper.err("Manually fix dimension state while loading terrain");
+//                ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(dimension);
+//                changePlayerDimension(player, client.world, toWorld, playerPos);
+//            }
+//            player.updatePosition(playerPos.x, playerPos.y, playerPos.z);
+//
+//            if (client.world.getEntityById(player.getEntityId()) == null) {
+//                Helper.err("Client world does not have player added into");
+//                client.world.addPlayer(player.getEntityId(), player);
+//            }
+//
+//            client.openScreen(null);
+//        }
     }
     
     private void changePlayerMotionIfCollidingWithPortal() {

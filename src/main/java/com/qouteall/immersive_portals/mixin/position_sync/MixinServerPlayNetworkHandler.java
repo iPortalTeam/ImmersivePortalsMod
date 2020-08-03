@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin.position_sync;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
@@ -116,6 +117,18 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         float destPitch,
         Set<PlayerPositionLookS2CPacket.Flag> updates
     ) {
+        if (player.removed) {
+            ModMain.serverTaskList.addTask(() -> {
+                doSendTeleportRequest(destX, destY, destZ, destYaw, destPitch, updates);
+                return true;
+            });
+        }
+        else {
+            doSendTeleportRequest(destX, destY, destZ, destYaw, destPitch, updates);
+        }
+    }
+    
+    private void doSendTeleportRequest(double destX, double destY, double destZ, float destYaw, float destPitch, Set<PlayerPositionLookS2CPacket.Flag> updates) {
         if (Global.teleportationDebugEnabled) {
             new Throwable().printStackTrace();
             Helper.log(String.format("request teleport %s %s (%d %d %d)->(%d %d %d)",

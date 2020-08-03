@@ -16,10 +16,10 @@ public class MixinServerPlayNetworkHandler_E {
         argsOnly = true
     )
     private Packet modifyPacket(Packet originalPacket) {
-        if (EntitySync.forceRedirect == null) {
+        if (EntitySync.getForceRedirectDimension() == null) {
             return originalPacket;
         }
         
-        return MyNetwork.createRedirectedMessage(EntitySync.forceRedirect, originalPacket);
+        return MyNetwork.createRedirectedMessage(EntitySync.getForceRedirectDimension(), originalPacket);
     }
 }

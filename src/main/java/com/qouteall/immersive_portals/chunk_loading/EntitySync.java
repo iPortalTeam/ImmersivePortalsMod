@@ -1,12 +1,15 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
@@ -21,12 +24,8 @@ import java.util.List;
 public class EntitySync {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
-    /**
-     *  If it's not null, all sent packets will be wrapped into redirected packet
-     *  {@link com.qouteall.immersive_portals.mixin.entity_sync.MixinServerPlayNetworkHandler_E}
-     */
     @Nullable
-    public static RegistryKey<World> forceRedirect = null;
+    private static RegistryKey<World> forceRedirect = null;
     
     public static void init() {
         ModMain.postServerTickSignal.connect(EntitySync::tick);
@@ -68,25 +67,23 @@ public class EntitySync {
             ThreadedAnvilChunkStorage storage = world.getChunkManager().threadedAnvilChunkStorage;
             Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
-    
-            forceRedirect = world.getRegistryKey();
             
-            for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
-                ((IEEntityTracker) tracker).tickEntry();
-                
-                boolean dirty = isDirty(tracker);
-                List<ServerPlayerEntity> updatedPlayerList = dirty ? playerList : dirtyPlayers;
-                
-                for (ServerPlayerEntity player : updatedPlayerList) {
-                    ((IEEntityTracker) tracker).updateEntityTrackingStatus(player);
+            withForceRedirect(world.getRegistryKey(), () -> {
+                for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
+                    ((IEEntityTracker) tracker).tickEntry();
+                    
+                    boolean dirty = isDirty(tracker);
+                    List<ServerPlayerEntity> updatedPlayerList = dirty ? playerList : dirtyPlayers;
+                    
+                    for (ServerPlayerEntity player : updatedPlayerList) {
+                        ((IEEntityTracker) tracker).updateEntityTrackingStatus(player);
+                    }
+                    
+                    if (dirty) {
+                        markUnDirty(tracker);
+                    }
                 }
-                
-                if (dirty) {
-                    markUnDirty(tracker);
-                }
-            }
-    
-            forceRedirect = null;
+            });
         });
         
         server.getProfiler().pop();
@@ -107,5 +104,33 @@ public class EntitySync {
         forceRedirect = dimension;
         func.run();
         forceRedirect = oldForceRedirect;
+    }
+    
+    /**
+     * If it's not null, all sent packets will be wrapped into redirected packet
+     * {@link com.qouteall.immersive_portals.mixin.entity_sync.MixinServerPlayNetworkHandler_E}
+     */
+    @Nullable
+    public static RegistryKey<World> getForceRedirectDimension() {
+        return forceRedirect;
+    }
+    
+    // avoid duplicate redirect nesting
+    public static void sendRedirectedPacket(
+        ServerPlayNetworkHandler serverPlayNetworkHandler,
+        Packet<?> packet,
+        RegistryKey<World> dimension
+    ) {
+        if (getForceRedirectDimension() == dimension) {
+            serverPlayNetworkHandler.sendPacket(packet);
+        }
+        else {
+            serverPlayNetworkHandler.sendPacket(
+                MyNetwork.createRedirectedMessage(
+                    dimension,
+                    packet
+                )
+            );
+        }
     }
 }

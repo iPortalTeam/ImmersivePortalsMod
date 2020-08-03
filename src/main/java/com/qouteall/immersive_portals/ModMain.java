@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.google.common.collect.Queues;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.alternate_dimension.FormulaGenerator;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
@@ -21,8 +20,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 public class ModMain {
     public static final Signal postClientTickSignal = new Signal();
     public static final Signal postServerTickSignal = new Signal();
@@ -30,9 +27,6 @@ public class ModMain {
     public static final MyTaskList clientTaskList = new MyTaskList();
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
-    
-    public static final ConcurrentLinkedQueue<Runnable> preRenderTaskListFast =
-        Queues.newConcurrentLinkedQueue();
     
     public static final RegistryKey<DimensionOptions> alternate1Option = RegistryKey.of(
         Registry.DIMENSION_OPTIONS,
@@ -97,15 +91,6 @@ public class ModMain {
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
-        preRenderSignal.connect(() -> {
-            for (; ; ) {
-                Runnable runnable = preRenderTaskListFast.poll();
-                if (runnable == null) {
-                    return;
-                }
-                runnable.run();
-            }
-        });
         
         Global.serverTeleportationManager = new ServerTeleportationManager();
         Global.chunkDataSyncManager = new ChunkDataSyncManager();
