@@ -46,14 +46,31 @@ public class ViewAreaRenderer {
             bufferbuilder, p, fogColor
         );
         
-        boolean isClose = shouldRenderAdditionalHood(portal, cameraPos);
+        generateViewAreaTriangles(portal, posInPlayerCoordinate, vertexOutput);
         
+        double distanceToPlane = portal.getDistanceToPlane(cameraPos);
+        boolean shouldRenderHood = shouldRenderAdditionalHood(portal, cameraPos, distanceToPlane);
+        
+        if (shouldRenderHood) {
+            renderAdditionalBox(portal, cameraPos, vertexOutput);
+        }
+        
+        if (distanceToPlane < 0.05) {
+            generateViewAreaTriangles(
+                portal,
+                posInPlayerCoordinate.add(portal.getNormal().multiply(0.05)),
+                vertexOutput
+            );
+        }
+        
+    }
+    
+    private static void generateViewAreaTriangles(Portal portal, Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
         if (portal.specialShape == null) {
             if (portal instanceof GlobalTrackedPortal) {
                 generateTriangleForGlobalPortal(
                     vertexOutput,
                     portal,
-                    layerWidth,
                     posInPlayerCoordinate
                 );
             }
@@ -61,7 +78,6 @@ public class ViewAreaRenderer {
                 generateTriangleForNormalShape(
                     vertexOutput,
                     portal,
-                    layerWidth,
                     posInPlayerCoordinate
                 );
             }
@@ -70,20 +86,14 @@ public class ViewAreaRenderer {
             generateTriangleForSpecialShape(
                 vertexOutput,
                 portal,
-                layerWidth,
                 posInPlayerCoordinate
             );
-        }
-        
-        if (isClose) {
-            renderAdditionalBox(portal, cameraPos, vertexOutput);
         }
     }
     
     private static void generateTriangleForSpecialShape(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
-        float layerWidth,
         Vec3d posInPlayerCoordinate
     ) {
         generateTriangleSpecial(
@@ -139,7 +149,6 @@ public class ViewAreaRenderer {
     private static void generateTriangleForNormalShape(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
-        float layerWidth,
         Vec3d posInPlayerCoordinate
     ) {
         Vec3d v0 = portal.getPointInPlaneLocal(
@@ -172,7 +181,6 @@ public class ViewAreaRenderer {
     private static void generateTriangleForGlobalPortal(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
-        float layerWidth,
         Vec3d posInPlayerCoordinate
     ) {
         Vec3d cameraPosLocal = posInPlayerCoordinate.multiply(-1);
@@ -332,24 +340,26 @@ public class ViewAreaRenderer {
     
     private static boolean shouldRenderAdditionalHood(
         Portal portal,
-        Vec3d cameraPos
+        Vec3d cameraPos,
+        double distanceToPlane
     ) {
-        double localX = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisW);
-        double localY = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisH);
-        if (Math.abs(localX) + 0.4 > portal.width / 2) {
-            return false;
-        }
-        if (Math.abs(localY) + 0.4 > portal.height / 2) {
-            return false;
-        }
+//        double localX = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisW);
+//        double localY = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisH);
+//        if (Math.abs(localX) + 0.2 > portal.width / 2) {
+//            return false;
+//        }
+//        if (Math.abs(localY) + 0.2 > portal.height / 2) {
+//            return false;
+//        }
         
         Vec3d cameraRotation = MinecraftClient.getInstance().cameraEntity.getRotationVector();
         double cos = cameraRotation.dotProduct(portal.getNormal());
         double sin = Math.sqrt(1.0 - cos * cos);
         
-        double threshold = sin * 0.2;
+        double threshold = sin * 0.2 + 0.05;
         
-        return (portal.getDistanceToPlane(cameraPos) < threshold) &&
+        
+        return (distanceToPlane < threshold) &&
             portal.isPointInPortalProjection(cameraPos);
     }
     
@@ -361,16 +371,18 @@ public class ViewAreaRenderer {
         Vec3d projected = portal.getPointInPortalProjection(cameraPos).subtract(cameraPos);
         Vec3d normal = portal.getNormal();
         
-        renderHood(portal, vertexOutput, projected, normal, 0.4);
+        renderHood(portal, vertexOutput, projected, normal);
     }
     
     private static void renderHood(
         Portal portal,
         Consumer<Vec3d> vertexOutput,
         Vec3d projected,
-        Vec3d normal,
-        double boxRadius
+        Vec3d normal
     ) {
+        double boxRadius = 0.1 * Math.sqrt(3) * 1.3;//0.4
+        double boxDepth = 0.1 * 1.3;//0.5
+        
         Vec3d dx = portal.axisW.multiply(boxRadius);
         Vec3d dy = portal.axisH.multiply(boxRadius);
         
@@ -379,7 +391,7 @@ public class ViewAreaRenderer {
         Vec3d c = projected.subtract(dx).subtract(dy);
         Vec3d d = projected.add(dx).subtract(dy);
         
-        Vec3d mid = projected.add(normal.multiply(-0.5));
+        Vec3d mid = projected.add(normal.multiply(-boxDepth));
         
         vertexOutput.accept(b);
         vertexOutput.accept(mid);
