@@ -222,7 +222,7 @@ public class ClientTeleportationManager {
         McHelper.adjustVehicle(player);
         
         // pehkui may change velocity when changing scale
-        player.setVelocity(portal.transformLocalVecNonScale(player.getVelocity()));
+        player.setVelocity(portal.transformLocalVec(player.getVelocity()));
         
         TransformationManager.onClientPlayerTeleported(portal);
         
@@ -405,12 +405,6 @@ public class ClientTeleportationManager {
     private void changeMotion(Entity player, Portal portal) {
         Vec3d velocity = player.getVelocity();
         player.setVelocity(velocity.multiply(1 + portal.extension.motionAffinity));
-//        Vec3d velocityOnNormal =
-//            portal.getNormal().multiply(velocity.dotProduct(portal.getNormal()));
-//        player.setVelocity(
-//            velocity.subtract(velocityOnNormal)
-//                .add(velocityOnNormal.multiply(1 + portal.motionAffinity))
-//        );
     }
     
     //foot pos, not eye pos
