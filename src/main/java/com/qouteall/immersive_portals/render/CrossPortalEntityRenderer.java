@@ -160,25 +160,25 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         if (PortalRendering.isRendering()) {
-//            Portal renderingPortal = PortalRendering.getRenderingPortal();
-//            //correctly rendering it needs two culling planes
-//            //use some rough check to work around
-//
-//            if (!Portal.isFlippedPortal(renderingPortal, collidingPortal)) {
-//                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-//
-//                boolean isHidden = cameraPos.subtract(collidingPortal.destination)
-//                    .dotProduct(collidingPortal.getContentDirection()) < 0;
-//                if (renderingPortal == collidingPortal || !isHidden) {
-//                    renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
-//                }
-//            }
+            Portal renderingPortal = PortalRendering.getRenderingPortal();
+            //correctly rendering it needs two culling planes
+            //use some rough check to work around
+            
+            if (!Portal.isFlippedPortal(renderingPortal, collidingPortal)) {
+                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                
+                boolean isHidden = cameraPos.subtract(collidingPortal.destination)
+                    .dotProduct(collidingPortal.getContentDirection()) < 0;
+                if (renderingPortal == collidingPortal || !isHidden) {
+                    renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+                }
+            }
         }
         else {
-//            PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal, false);
-//            PixelCuller.startCulling();
+            PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal, false);
+            PixelCuller.startCulling();
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
-//            PixelCuller.endCulling();
+            PixelCuller.endCulling();
         }
     }
     
