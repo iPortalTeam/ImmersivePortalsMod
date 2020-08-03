@@ -15,10 +15,7 @@ public class MixinDebugHud {
     private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
         List<String> returnValue = cir.getReturnValue();
         returnValue.add("Rendered Portal Num: " + RenderStates.lastPortalRenderInfos.size());
-//        ClientWorld world = MinecraftClient.getInstance().world;
-//        if (world != null) {
-//            returnValue.add("In: " + world.getRegistryKey());
-//        }
+        
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.add("Debug: " + RenderStates.debugText);
         }

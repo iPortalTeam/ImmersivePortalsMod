@@ -21,6 +21,7 @@
     "sync.MixinPlayerMoveC2SPacketLookOnly",
     "sync.MixinPlayerMoveC2SPacketPositionOnly",
     "MixinBackgroundRenderer",
+    "MixinBiomeEffectSoundPlayer",
     "MixinBlockEntityRenderDispatcher",
     "MixinBossBarHud",
     "MixinBuiltChunk",
