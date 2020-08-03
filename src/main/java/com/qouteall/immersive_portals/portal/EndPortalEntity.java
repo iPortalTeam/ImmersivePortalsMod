@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.McHelper;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -12,7 +11,6 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -83,26 +81,7 @@ public class EndPortalEntity extends Portal {
     
     private void generateObsidianPlatform() {
         ServerWorld endWorld = McHelper.getServer().getWorld(World.END);
-        BlockPos spawnPoint = endWorld.getSpawnPos();
         
-        int int_1 = spawnPoint.getX();
-        int int_2 = spawnPoint.getY() - 1;
-        int int_3 = spawnPoint.getZ();
-        
-        for (int int_6 = -2; int_6 <= 2; ++int_6) {
-            for (int int_7 = -2; int_7 <= 2; ++int_7) {
-                for (int int_8 = -1; int_8 < 3; ++int_8) {
-                    int int_9 = int_1 + int_7 * 1 + int_6 * 0;
-                    int int_10 = int_2 + int_8;
-                    int int_11 = int_3 + int_7 * 0 - int_6 * 1;
-                    boolean boolean_1 = int_8 < 0;
-                    endWorld.setBlockState(
-                        new BlockPos(int_9, int_10, int_11),
-                        boolean_1 ? Blocks.OBSIDIAN.getDefaultState() :
-                            Blocks.AIR.getDefaultState()
-                    );
-                }
-            }
-        }
+        ServerWorld.createEndSpawnPlatform(endWorld);
     }
 }
