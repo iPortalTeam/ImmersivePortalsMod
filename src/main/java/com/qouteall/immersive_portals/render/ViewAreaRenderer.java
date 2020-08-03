@@ -46,7 +46,7 @@ public class ViewAreaRenderer {
             bufferbuilder, p, fogColor
         );
         
-        boolean isClose = isCloseToPortal(portal, cameraPos);
+        boolean isClose = shouldRenderAdditionalHood(portal, cameraPos);
         
         if (portal.specialShape == null) {
             if (portal instanceof GlobalTrackedPortal) {
@@ -330,11 +330,26 @@ public class ViewAreaRenderer {
     }
     
     
-    private static boolean isCloseToPortal(
+    private static boolean shouldRenderAdditionalHood(
         Portal portal,
         Vec3d cameraPos
     ) {
-        return (portal.getDistanceToPlane(cameraPos) < 0.2) &&
+        double localX = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisW);
+        double localY = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisH);
+        if (Math.abs(localX) + 0.4 > portal.width / 2) {
+            return false;
+        }
+        if (Math.abs(localY) + 0.4 > portal.height / 2) {
+            return false;
+        }
+        
+        Vec3d cameraRotation = MinecraftClient.getInstance().cameraEntity.getRotationVector();
+        double cos = cameraRotation.dotProduct(portal.getNormal());
+        double sin = Math.sqrt(1.0 - cos * cos);
+        
+        double threshold = sin * 0.2;
+        
+        return (portal.getDistanceToPlane(cameraPos) < threshold) &&
             portal.isPointInPortalProjection(cameraPos);
     }
     
