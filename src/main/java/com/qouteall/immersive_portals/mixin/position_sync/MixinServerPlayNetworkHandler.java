@@ -81,9 +81,12 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         }
         
         if (player.world.getRegistryKey() != packetDimension) {
-            Global.serverTeleportationManager.acceptDubiousMovePacket(
-                player, packet, packetDimension
-            );
+            ModMain.serverTaskList.addTask(() -> {
+                Global.serverTeleportationManager.acceptDubiousMovePacket(
+                    player, packet, packetDimension
+                );
+                return true;
+            });
             ci.cancel();
         }
     }

@@ -501,6 +501,9 @@ public class ServerTeleportationManager {
         PlayerMoveC2SPacket packet,
         RegistryKey<World> dimension
     ) {
+        if (player.world.getRegistryKey() == dimension) {
+            return;
+        }
         double x = packet.getX(player.getX());
         double y = packet.getY(player.getY());
         double z = packet.getZ(player.getZ());
