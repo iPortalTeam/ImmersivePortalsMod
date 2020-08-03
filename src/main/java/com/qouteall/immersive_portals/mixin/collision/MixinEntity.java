@@ -207,6 +207,11 @@ public abstract class MixinEntity implements IEEntity {
             if (collidingPortal.world != world) {
                 collidingPortal = null;
             }
+            else {
+                if (!getBoundingBox().expand(0.5).intersects(collidingPortal.getBoundingBox())) {
+                    collidingPortal = null;
+                }
+            }
             
             if (Math.abs(world.getTime() - collidingPortalActiveTickTime) >= 3) {
                 collidingPortal = null;
