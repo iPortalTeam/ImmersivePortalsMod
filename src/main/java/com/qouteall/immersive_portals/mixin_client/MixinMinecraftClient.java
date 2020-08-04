@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.network.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
-import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
@@ -76,7 +75,6 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
         CGlobal.clientWorldLoader.cleanUp();
         CrossPortalEntityRenderer.cleanUp();
-        SmoothLoading.cleanUp();
     }
     
     //avoid messing up rendering states in fabulous
@@ -91,7 +89,8 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;runTasks()V"
+            target = "Lnet/minecraft/client/MinecraftClient;runTasks()V",
+            shift = At.Shift.AFTER
         )
     )
     private void onRunTasks(boolean tick, CallbackInfo ci) {

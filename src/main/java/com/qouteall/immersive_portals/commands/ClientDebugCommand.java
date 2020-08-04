@@ -530,11 +530,6 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "smooth_loading",
-            cond -> Global.smoothLoading = cond
-        );
-        registerSwitchCommand(
-            builder,
             "cache_gl_buffer",
             cond -> Global.cacheGlBuffer = cond
         );

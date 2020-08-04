@@ -38,7 +38,6 @@ public class MyConfig {
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
     public boolean enableAlternateDimensions = true;
-    public boolean smoothLoading = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     
     private static File getGameDir() {
@@ -118,8 +117,6 @@ public class MyConfig {
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
         Global.enableAlternateDimensions = enableAlternateDimensions;
-        
-        Global.smoothLoading = smoothLoading;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

@@ -12,7 +12,6 @@ import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.lag_spike_fix.GlBufferCache;
-import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.client.MinecraftClient;
@@ -88,8 +87,6 @@ public class ModMainClient {
         DubiousThings.init();
         
         CrossPortalEntityRenderer.init();
-        
-        SmoothLoading.init();
         
         GlBufferCache.init();
         
