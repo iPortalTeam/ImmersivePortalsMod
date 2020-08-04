@@ -30,7 +30,7 @@ public class NetworkAdapt {
             MinecraftClient.getInstance().inGameHud.addChatMessage(
                 MessageType.SYSTEM,
                 new LiteralText(
-                    "You logged into a server without Immersive Portals mod installed." +
+                    "You logged into a server that doesn't have Immersive Portals mod." +
                         " Issues may arise. It's recommended to uninstall IP before joining a vanilla server"
                 ),
                 Util.NIL_UUID
