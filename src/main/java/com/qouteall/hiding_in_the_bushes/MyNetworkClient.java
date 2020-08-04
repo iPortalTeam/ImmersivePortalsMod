@@ -2,24 +2,21 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.chunk_loading.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
-import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.ducks.IEParticleManager;
+import com.qouteall.immersive_portals.network.ClientNetworkingTaskList;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
-import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -153,7 +150,7 @@ public class MyNetworkClient {
             throw new IllegalArgumentException(e);
         }
         
-        processRedirectedPacket(dimension, packet);
+        CommonNetwork.processRedirectedPacket(dimension, packet);
     }
     
     public static void processDimSync(
@@ -169,63 +166,6 @@ public class MyNetworkClient {
         
         Helper.log("Received Dimension Int Id Sync");
         Helper.log("\n" + DimensionIdRecord.clientRecord);
-    }
-    
-    private static int reportedError = 0;
-    
-    private static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
-        ClientNetworkingTaskList.executeOnRenderThread(() -> {
-            try {
-                client.getProfiler().push("process_redirected_packet");
-                
-                ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
-                
-                if (SmoothLoading.filterPacket(packetWorld, packet)) {
-                    return;
-                }
-                
-                doProcessRedirectedMessage(packetWorld, packet);
-            }
-            finally {
-                client.getProfiler().pop();
-            }
-        });
-    }
-    
-    public static void doProcessRedirectedMessage(
-        ClientWorld packetWorld,
-        Packet packet
-    ) {
-        ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
-        
-        if ((netHandler).getWorld() != packetWorld) {
-            ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
-            Helper.err("The world field of client net handler is wrong");
-        }
-        
-        ClientWorld originalWorld = client.world;
-        //some packet handling may use mc.world so switch it
-        client.world = packetWorld;
-        ((IEParticleManager) client.particleManager).mySetWorld(packetWorld);
-        
-        originalWorld.getProfiler().push("handle_redirected_packet");
-        try {
-            packet.apply(netHandler);
-        }
-        catch (Throwable e) {
-            if (reportedError < 200) {
-                reportedError += 1;
-                throw new IllegalStateException(
-                    "handling packet in " + packetWorld.getRegistryKey(), e
-                );
-            }
-        }
-        finally {
-            client.world = originalWorld;
-            ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
-            
-            originalWorld.getProfiler().pop();
-        }
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {

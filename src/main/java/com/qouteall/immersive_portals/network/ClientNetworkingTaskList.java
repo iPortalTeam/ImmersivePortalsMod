@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.chunk_loading;
+package com.qouteall.immersive_portals.network;
 
 import com.google.common.collect.Queues;
 import net.minecraft.client.MinecraftClient;

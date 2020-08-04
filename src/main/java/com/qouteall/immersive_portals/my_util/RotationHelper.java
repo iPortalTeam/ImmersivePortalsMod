@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.my_util;
 
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -134,41 +133,4 @@ public class RotationHelper {
     }
     
     
-    public static double getXYRotationEigenValue(Quaternion quaternion) {
-        return (quaternion.getX() * quaternion.getY()) - (quaternion.getZ() * quaternion.getW());
-    }
-    
-    public static Quaternion getCameraRotation(float pitch, float yaw) {
-        Quaternion cameraRotation = Vector3f.POSITIVE_X.getDegreesQuaternion(pitch);
-        cameraRotation.hamiltonProduct(
-            Vector3f.POSITIVE_Y.getDegreesQuaternion(yaw + 180.0F)
-        );
-        return cameraRotation;
-    }
-    
-    /**
-     * p = pitch/2
-     * y = yaw/2
-     * qx=-sinp siny, qy=cosp cosy, qz=sinp cosy, qw=-cosp siny
-     * the pitch may be illegal (-180 to 180)
-     * the result is radians
-     * if the input is not a valid camera rotation, it may still work?
-     */
-    public static Pair<Double, Double> getPitchYawFromRotation(Quaternion quaternion) {
-        float x = quaternion.getX();
-        float y = quaternion.getY();
-        float z = quaternion.getZ();
-        float w = quaternion.getW();
-        
-        double cosYaw = 2 * (y * y + z * z) - 1;
-        double sinYaw = -(x * z + y * w);
-        
-        double cosPitch = 1 - 2 * (x * x + z * z);
-        double sinPitch = x * w + y * z;
-        
-        return new Pair<>(
-            Math.atan2(sinPitch, cosPitch),
-            Math.atan2(sinYaw, cosYaw)
-        );
-    }
 }

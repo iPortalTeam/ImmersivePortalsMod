@@ -1,5 +1,6 @@
-package com.qouteall.immersive_portals;
+package com.qouteall.immersive_portals.network;
 
+import com.qouteall.immersive_portals.ModMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

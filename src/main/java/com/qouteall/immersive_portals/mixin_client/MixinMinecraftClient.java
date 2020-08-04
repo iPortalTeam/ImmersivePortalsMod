@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.mixin_client;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.chunk_loading.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
+import com.qouteall.immersive_portals.network.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;

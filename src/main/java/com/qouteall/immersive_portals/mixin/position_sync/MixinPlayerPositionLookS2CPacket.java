@@ -1,8 +1,8 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
-import com.qouteall.immersive_portals.NetworkAdapt;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
+import com.qouteall.immersive_portals.network.NetworkAdapt;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.registry.RegistryKey;
