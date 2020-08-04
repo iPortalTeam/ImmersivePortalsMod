@@ -15,6 +15,7 @@ import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -74,7 +75,16 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     private void onProcessMovePacket(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         RegistryKey<World> packetDimension = ((IEPlayerMoveC2SPacket) packet).getPlayerDimension();
         
-        assert packetDimension != null;
+        if (packetDimension == null) {
+            Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have IP");
+            ModMain.serverTaskList.addTask(() -> {
+                player.networkHandler.disconnect(new LiteralText(
+                    "The client does not have Immersive Portals mod"
+                ));
+                return true;
+            });
+            return;
+        }
         
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
             cancelTeleportRequest();

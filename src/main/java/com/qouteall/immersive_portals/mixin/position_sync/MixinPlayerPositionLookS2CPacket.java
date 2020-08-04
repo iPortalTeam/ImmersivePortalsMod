@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
+import com.qouteall.immersive_portals.NetworkAdapt;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import net.minecraft.network.PacketByteBuf;
@@ -25,17 +26,18 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
         playerDimension = dimension;
     }
     
-    @Inject(method = "read", at = @At("HEAD"))
-    private void onRead(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
-        try {
-            playerDimension = DimId.readWorldId(packetByteBuf_1, true);
+    @Inject(method = "read", at = @At("RETURN"))
+    private void onRead(PacketByteBuf buf, CallbackInfo ci) {
+        if (buf.isReadable()) {
+            playerDimension = DimId.readWorldId(buf, true);
+            NetworkAdapt.setServerHasIP(true);
         }
-        catch (IndexOutOfBoundsException e) {
-            throw new RuntimeException("The server doesn't install Immmersive Portals Mod");
+        else {
+            NetworkAdapt.setServerHasIP(false);
         }
     }
     
-    @Inject(method = "write", at = @At("HEAD"))
+    @Inject(method = "write", at = @At("RETURN"))
     private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
         DimId.writeWorldId(packetByteBuf_1, playerDimension, false);
     }

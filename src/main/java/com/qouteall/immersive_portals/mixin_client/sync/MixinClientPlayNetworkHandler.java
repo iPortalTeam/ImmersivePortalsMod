@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.NetworkAdapt;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
@@ -111,7 +112,11 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         CallbackInfo ci
     ) {
         RegistryKey<World> playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
-        assert playerDimension != null;
+    
+        if (!NetworkAdapt.doesServerHasIP()) {
+            return;
+        }
+        
         ClientWorld world = client.world;
         
         if (world != null) {

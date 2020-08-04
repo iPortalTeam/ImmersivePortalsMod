@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.position_sync;
 
+import com.qouteall.immersive_portals.NetworkAdapt;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import net.minecraft.network.PacketByteBuf;
@@ -20,7 +21,12 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
         at = @At("HEAD")
     )
     private void onRead(PacketByteBuf buf, CallbackInfo ci) {
-        playerDimension = DimId.readWorldId(buf, false);
+        try {
+            playerDimension = DimId.readWorldId(buf, false);
+        }
+        catch (IndexOutOfBoundsException e) {
+            //nothing
+        }
     }
     
     @Inject(
@@ -28,7 +34,9 @@ public class MixinPlayerMoveC2SPacket_S implements IEPlayerMoveC2SPacket {
         at = @At("HEAD")
     )
     private void onWrite(PacketByteBuf buf, CallbackInfo ci) {
-        DimId.writeWorldId(buf, playerDimension, true);
+        if (NetworkAdapt.doesServerHasIP()) {
+            DimId.writeWorldId(buf, playerDimension, true);
+        }
     }
     
     @Override
