@@ -9,15 +9,11 @@ import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import java.nio.FloatBuffer;
-
 import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_RANGE;
 import static org.lwjgl.opengl.GL11.GL_EQUAL;
 import static org.lwjgl.opengl.GL11.GL_INCR;
 import static org.lwjgl.opengl.GL11.GL_KEEP;
@@ -202,8 +198,8 @@ public class RendererUsingStencil extends PortalRenderer {
         
         //save the state
         int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
-        FloatBuffer originalDepthRange = BufferUtils.createFloatBuffer(16);
-        GL11.glGetFloatv(GL_DEPTH_RANGE, originalDepthRange);
+//        FloatBuffer originalDepthRange = BufferUtils.createFloatBuffer(16);
+//        GL11.glGetFloatv(GL_DEPTH_RANGE, originalDepthRange);
         
         //always passes depth test
         GL11.glDepthFunc(GL_ALWAYS);
@@ -216,7 +212,8 @@ public class RendererUsingStencil extends PortalRenderer {
         //retrieve the state
         GL11.glColorMask(true, true, true, true);
         GL11.glDepthFunc(originalDepthFunc);
-        GL11.glDepthRange(originalDepthRange.get(0), originalDepthRange.get(1));
+        GL11.glDepthRange(0, 1);
+//        GL11.glDepthRange(originalDepthRange.get(0), originalDepthRange.get(1));
     }
     
     private void restoreDepthOfPortalViewArea(

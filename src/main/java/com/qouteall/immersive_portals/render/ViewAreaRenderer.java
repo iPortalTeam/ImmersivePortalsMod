@@ -51,8 +51,8 @@ public class ViewAreaRenderer {
         
         generateViewAreaTriangles(portal, posInPlayerCoordinate, vertexOutput);
         
-        double distanceToPlane = portal.getDistanceToPlane(cameraPos);
-        boolean shouldRenderHood = shouldRenderAdditionalHood(portal, cameraPos, distanceToPlane);
+//        double distanceToPlane = portal.getDistanceToPlane(cameraPos);
+//        boolean shouldRenderHood = shouldRenderAdditionalHood(portal, cameraPos, distanceToPlane);
         
 //        if (shouldRenderHood) {
 //            renderAdditionalBox(portal, cameraPos, vertexOutput);
