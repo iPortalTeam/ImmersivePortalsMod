@@ -139,7 +139,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
                 pos -> {
                     BlockState blockState = toWorld.getBlockState(pos);
                     return !blockState.isOpaqueFullCube(toWorld, pos) &&
-                        blockState.getBlock() != PortalPlaceholderBlock.instance;
+                        blockState.getBlock() != PortalPlaceholderBlock.instance &&
+                        blockState.getFluidState().isEmpty();
                 }
             ))
             .filter(intBox -> intBox.getSurfaceLayer(Direction.DOWN)
@@ -147,7 +148,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
                 .stream().allMatch(
                     blockPos -> {
                         BlockState blockState = toWorld.getBlockState(blockPos);
-                        return blockState.isOpaqueFullCube(toWorld, blockPos) &&
+                        return !blockState.isAir() &&
                             blockState.getBlock() != PortalPlaceholderBlock.instance;
                     }
                 )
