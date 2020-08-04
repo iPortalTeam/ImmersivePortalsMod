@@ -116,31 +116,6 @@ public abstract class MixinEntity implements IEEntity {
             cir.cancel();
         }
     }
-
-//    @Inject(
-//        method = "setOnFireFor",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private void onSetOnFireFor(int int_1, CallbackInfo ci) {
-//        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
-//            ci.cancel();
-//        }
-//    }
-//
-//    @Redirect(
-//        method = "move",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/entity/Entity;isWet()Z"
-//        )
-//    )
-//    private boolean redirectIsWet(Entity entity) {
-//        if (collidingPortal != null) {
-//            return true;
-//        }
-//        return entity.isWet();
-//    }
     
     @Redirect(
         method = "checkBlockCollision",
@@ -151,6 +126,14 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Box redirectBoundingBoxInCheckingBlockCollision(Entity entity) {
         return CollisionHelper.getActiveCollisionBox(entity);
+    }
+    
+    // avoid suffocation when colliding with a portal on wall
+    @Inject(method = "isInsideWall", at = @At("HEAD"), cancellable = true)
+    private void onIsInsideWall(CallbackInfoReturnable<Boolean> cir) {
+        if (getCollidingPortal() != null) {
+            cir.setReturnValue(false);
+        }
     }
     
     //for teleportation debug
