@@ -149,7 +149,7 @@ public class ClientTeleportationManager {
             teleportPlayer(portal);
             
             moveStartPoint = portal.transformPoint(collidingPos)
-                .add(portal.getContentDirection().multiply(0.0001));
+                .add(portal.getContentDirection().multiply(0.001));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
             return true;

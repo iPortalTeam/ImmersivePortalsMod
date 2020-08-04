@@ -20,10 +20,13 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL32;
 
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 
 public class ViewAreaRenderer {
     private static void buildPortalViewAreaTrianglesBuffer(
@@ -51,17 +54,17 @@ public class ViewAreaRenderer {
         double distanceToPlane = portal.getDistanceToPlane(cameraPos);
         boolean shouldRenderHood = shouldRenderAdditionalHood(portal, cameraPos, distanceToPlane);
         
-        if (shouldRenderHood) {
-            renderAdditionalBox(portal, cameraPos, vertexOutput);
-        }
-        
-        if (distanceToPlane < 0.05) {
-            generateViewAreaTriangles(
-                portal,
-                posInPlayerCoordinate.add(portal.getNormal().multiply(0.05)),
-                vertexOutput
-            );
-        }
+//        if (shouldRenderHood) {
+//            renderAdditionalBox(portal, cameraPos, vertexOutput);
+//        }
+//
+//        if (distanceToPlane < 0.05) {
+//            generateViewAreaTriangles(
+//                portal,
+//                posInPlayerCoordinate.add(portal.getNormal().multiply(0.05)),
+//                vertexOutput
+//            );
+//        }
         
     }
     
@@ -300,10 +303,13 @@ public class ViewAreaRenderer {
         }
         
         MinecraftClient.getInstance().getProfiler().push("draw");
+        CGlobal.shaderManager.unloadShader();
+        glEnable(GL32.GL_DEPTH_CLAMP);
         McHelper.runWithTransformation(
             matrixStack,
-            () -> tessellator.draw()
+            tessellator::draw
         );
+        glDisable(GL32.GL_DEPTH_CLAMP);
         MinecraftClient.getInstance().getProfiler().pop();
         
         if (shouldReverseCull) {
@@ -345,10 +351,10 @@ public class ViewAreaRenderer {
     ) {
 //        double localX = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisW);
 //        double localY = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisH);
-//        if (Math.abs(localX) + 0.2 > portal.width / 2) {
+//        if (Math.abs(localX) > 0.9 * portal.width / 2) {
 //            return false;
 //        }
-//        if (Math.abs(localY) + 0.2 > portal.height / 2) {
+//        if (Math.abs(localY) > 0.9 * portal.height / 2) {
 //            return false;
 //        }
         

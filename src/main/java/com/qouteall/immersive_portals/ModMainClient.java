@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
+import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.lag_spike_fix.GlBufferCache;
 import com.qouteall.immersive_portals.render.lag_spike_fix.SmoothLoading;
@@ -76,6 +77,10 @@ public class ModMainClient {
             CGlobal.renderer = CGlobal.rendererUsingStencil;
             CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
+            
+            if (CGlobal.shaderManager == null) {
+                CGlobal.shaderManager = new ShaderManager();
+            }
         });
         
         O_O.loadConfigFabric();
@@ -87,7 +92,7 @@ public class ModMainClient {
         SmoothLoading.init();
         
         GlBufferCache.init();
-    
+        
         CollisionHelper.initClient();
         
         OFInterface.isOptifinePresent = O_O.detectOptiFine();
