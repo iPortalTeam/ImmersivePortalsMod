@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
@@ -20,7 +21,7 @@ public class CommonNetwork {
     private static boolean isProcessingRedirectedMessage = false;
     
     public static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
-        ClientNetworkingTaskList.executeOnRenderThread(() -> {
+        Runnable func = () -> {
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
@@ -31,7 +32,17 @@ public class CommonNetwork {
             finally {
                 client.getProfiler().pop();
             }
-        });
+        };
+        
+        // execute mod packets in my task list
+        // because if it's in minecraft task list, invoking client.execute() will get delayed
+        // and the dimension redirect won't work
+        if (packet instanceof CustomPayloadS2CPacket) {
+            ClientNetworkingTaskList.executeOnMyTaskList(func);
+        }
+        else {
+            ClientNetworkingTaskList.executeOnRenderThread(func);
+        }
     }
     
     public static void doProcessRedirectedMessage(
@@ -39,8 +50,13 @@ public class CommonNetwork {
         Packet packet
     ) {
         boolean oldIsProcessing = CommonNetwork.isProcessingRedirectedMessage;
+
+//        if (oldIsProcessing) {
+//            Helper.log("Nested redirect " + packet);
+//        }
+        
         isProcessingRedirectedMessage = true;
-    
+        
         ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
         
         if ((netHandler).getWorld() != packetWorld) {
@@ -70,7 +86,7 @@ public class CommonNetwork {
             ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
             
             originalWorld.getProfiler().pop();
-    
+            
             isProcessingRedirectedMessage = oldIsProcessing;
         }
     }
