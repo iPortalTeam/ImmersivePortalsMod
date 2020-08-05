@@ -205,7 +205,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         }
         boolean portalsNearby = McHelper.getServerPortalsNearby(
             player,
-            5
+            16
         ).findAny().isPresent();
         if (portalsNearby) {
             return false;

@@ -138,15 +138,15 @@ public class RenderStates {
         }
         
         Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
-        double minPortalDistance = CHelper.getClientNearbyPortals(10)
+        double minPortalDistance = CHelper.getClientNearbyPortals(16)
             .map(portal -> portal.getDistanceToNearestPointInPortal(cameraPosVec))
             .min(Double::compareTo).orElse(100.0);
         if (minPortalDistance < 2) {
-            if (minPortalDistance > 1) {
-                setViewBobFactor(minPortalDistance - 1);
+            if (minPortalDistance < 1) {
+                setViewBobFactor(0);
             }
             else {
-                setViewBobFactor(0);
+                setViewBobFactor(minPortalDistance - 1);
             }
         }
         else {
@@ -159,7 +159,7 @@ public class RenderStates {
             viewBobFactor = arg;
         }
         else {
-            viewBobFactor = MathHelper.lerp(0.02, viewBobFactor, arg);
+            viewBobFactor = MathHelper.lerp(0.1, viewBobFactor, arg);
         }
     }
     
