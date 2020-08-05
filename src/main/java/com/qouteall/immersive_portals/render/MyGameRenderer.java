@@ -78,6 +78,7 @@ public class MyGameRenderer {
         Vec3d lastTickCameraPos,
         Consumer<Runnable> invokeWrapper
     ) {
+        resetGlStates();
         
         Entity cameraEntity = client.cameraEntity;
         
@@ -92,9 +93,6 @@ public class MyGameRenderer {
         //switch the camera entity pos
         McHelper.setEyePos(cameraEntity, thisTickCameraPos, lastTickCameraPos);
         cameraEntity.world = newWorld;
-        
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableCull();
         
         WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(newDimension);
         
@@ -167,7 +165,7 @@ public class MyGameRenderer {
         if (!RenderStates.isDimensionRendered(newDimension)) {
             helper.lightmapTexture.update(0);
         }
-        helper.lightmapTexture.enable();
+//        helper.lightmapTexture.enable();
         
         //invoke rendering
         invokeWrapper.accept(() -> {
@@ -219,6 +217,21 @@ public class MyGameRenderer {
         //restore the camera entity pos
         cameraEntity.world = oldEntityWorld;
         McHelper.setEyePos(cameraEntity, oldEyePos, oldLastTickEyePos);
+        
+        resetGlStates();
+    }
+    
+    /**
+     * For example the Cull assumes that the culling is enabled before using it
+     * {@link net.minecraft.client.render.RenderPhase.Cull}
+     */
+    public static void resetGlStates() {
+        GlStateManager.disableAlphaTest();
+        GlStateManager.enableCull();
+        GlStateManager.disableBlend();
+        net.minecraft.client.render.DiffuseLighting.disable();
+        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
+        client.gameRenderer.getOverlayTexture().teardownOverlayColor();
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {
@@ -240,14 +253,6 @@ public class MyGameRenderer {
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
         doRenderEntity.run();
-
-//        if (ClientTeleportationManager.isTeleportingTick&&(CGlobal.renderer.getPortalLayer()==1)) {
-//            Helper.log(String.format(
-//                "r%d %s",
-//                CGlobal.clientTeleportationManager.tickTimeForTeleportation,
-//                MyRenderHelper.tickDelta
-//            ));
-//        }
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos

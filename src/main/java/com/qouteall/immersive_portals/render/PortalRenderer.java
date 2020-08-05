@@ -173,8 +173,7 @@ public abstract class PortalRenderer {
         
         MyRenderHelper.restoreViewPort();
         
-        MyGameRenderer.updateFogColor();
-        MyGameRenderer.resetFogState();
+        
     }
     
     public void invokeWorldRendering(

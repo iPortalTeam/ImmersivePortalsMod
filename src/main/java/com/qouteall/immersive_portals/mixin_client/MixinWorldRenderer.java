@@ -155,6 +155,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+    
+        MyGameRenderer.updateFogColor();
+        MyGameRenderer.resetFogState();
     }
     
     @Inject(
