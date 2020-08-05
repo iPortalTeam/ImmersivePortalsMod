@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.render.RenderLayer;
@@ -18,6 +19,7 @@ public class MixinVertexConsumerProviderImmediate {
     private void onBeginDraw(RenderLayer layer, CallbackInfo ci) {
         if (PortalRendering.isRenderingOddNumberOfMirrors()) {
             RenderStates.shouldForceDisableCull = true;
+            GlStateManager.disableCull();
         }
     }
     
@@ -27,5 +29,6 @@ public class MixinVertexConsumerProviderImmediate {
     )
     private void onEndDraw(RenderLayer layer, CallbackInfo ci) {
         RenderStates.shouldForceDisableCull = false;
+        GlStateManager.enableCull();
     }
 }
