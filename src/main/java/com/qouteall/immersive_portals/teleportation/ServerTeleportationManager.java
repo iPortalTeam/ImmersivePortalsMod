@@ -332,21 +332,9 @@ public class ServerTeleportationManager {
         long tickTimeNow = McHelper.getServerGameTime();
         ArrayList<ServerPlayerEntity> copiedPlayerList =
             McHelper.getCopiedPlayerList();
-        if (tickTimeNow % 10 == 7) {
+        if (tickTimeNow % 30 == 7) {
             for (ServerPlayerEntity player : copiedPlayerList) {
-                if (!player.notInAnyWorld) {
-                    Long lastTeleportGameTime =
-                        this.lastTeleportGameTime.getOrDefault(player, 0L);
-                    if (tickTimeNow - lastTeleportGameTime > 60) {
-                        sendPositionConfirmMessage(player);
-                        
-                        //for vanilla nether portal cooldown to work normally
-                        player.onTeleportationDone();
-                    }
-                    else {
-                        ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
-                    }
-                }
+                updateForPlayer(tickTimeNow, player);
             }
         }
         copiedPlayerList.forEach(player -> {
@@ -368,6 +356,24 @@ public class ServerTeleportationManager {
                     );
             });
         });
+    }
+    
+    private void updateForPlayer(long tickTimeNow, ServerPlayerEntity player) {
+        if (player.notInAnyWorld || player.teleporting) {
+            lastTeleportGameTime.put(player, tickTimeNow);
+            return;
+        }
+        Long lastTeleportGameTime =
+            this.lastTeleportGameTime.getOrDefault(player, 0L);
+        if (tickTimeNow - lastTeleportGameTime > 60) {
+            sendPositionConfirmMessage(player);
+            
+            //for vanilla nether portal cooldown to work normally
+            player.onTeleportationDone();
+        }
+        else {
+            ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();
+        }
     }
     
     public boolean isTeleporting(ServerPlayerEntity entity) {

@@ -76,6 +76,10 @@ public class ClientTeleportationManager {
             if (isTeleportingFrequently()) {
                 return;
             }
+            // newly teleported by vanilla means
+            if (client.player.age < 200) {
+                return;
+            }
         }
         if (client.player.world.getRegistryKey() != dimension) {
             forceTeleportPlayer(dimension, pos);
@@ -120,8 +124,9 @@ public class ClientTeleportationManager {
     private boolean tryTeleport(float tickDelta) {
         Vec3d newHeadPos = getPlayerHeadPos(tickDelta);
         
-        if (moveStartPoint.squaredDistanceTo(newHeadPos) > 100) {
+        if (moveStartPoint.squaredDistanceTo(newHeadPos) > 400) {
             Helper.err("The Player is Moving Too Fast!");
+            return false;
         }
         
         Pair<Portal, Vec3d> pair = CHelper.getClientNearbyPortals(32)
@@ -242,12 +247,8 @@ public class ClientTeleportationManager {
     
     
     public boolean isTeleportingFrequently() {
-        if (tickTimeForTeleportation - lastTeleportGameTime <= 20) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (tickTimeForTeleportation - lastTeleportGameTime <= 20) ||
+            (tickTimeForTeleportation <= teleportTickTimeLimit);
     }
     
     private void forceTeleportPlayer(RegistryKey<World> toDimension, Vec3d destination) {

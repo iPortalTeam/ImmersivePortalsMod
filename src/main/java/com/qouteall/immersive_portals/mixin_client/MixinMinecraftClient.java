@@ -74,6 +74,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
         CGlobal.clientWorldLoader.cleanUp();
+        CGlobal.clientTeleportationManager.disableTeleportFor(40);
         CrossPortalEntityRenderer.cleanUp();
     }
     
