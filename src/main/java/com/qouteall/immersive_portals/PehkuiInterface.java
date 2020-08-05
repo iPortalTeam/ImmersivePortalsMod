@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -31,6 +32,9 @@ public class PehkuiInterface {
     
     @Environment(EnvType.CLIENT)
     private static void showMissingPehkui(Portal portal) {
+        if (O_O.isForge()) {
+            return;
+        }
         if (portal.hasScaling() && portal.teleportChangesScale) {
             if (!messageShown) {
                 messageShown = true;
