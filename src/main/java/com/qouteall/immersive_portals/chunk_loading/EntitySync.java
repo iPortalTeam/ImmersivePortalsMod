@@ -57,9 +57,9 @@ public class EntitySync {
                 }
             }
             else {
-                limitedLogger.err(
-                    "Entity tracker abnormal " + player + player.world.getRegistryKey().getValue()
-                );
+//                limitedLogger.err(
+//                    "Entity tracker abnormal " + player + player.world.getRegistryKey().getValue()
+//                );
             }
         }
         

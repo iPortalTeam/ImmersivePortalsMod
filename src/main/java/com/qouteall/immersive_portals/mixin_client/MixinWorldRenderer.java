@@ -326,9 +326,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                         );
                         CrossPortalEntityRenderer.afterRenderingEntity(entity);
                     }
-                    else {
-//                        Helper.log("dis");
-                    }
                 });
                 return;
             }
@@ -477,10 +474,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-
-//        if (client.world.dimension instanceof AlternateDimension) {
-//            AlternateSkyRenderer.renderAlternateSky(matrixStack_1, float_1);
-//        }
         
         if (PortalRendering.isRendering()) {
             //fix sky abnormal with optifine and fog disabled
@@ -526,32 +519,32 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     
     
-    //disable cull when rendering mirror
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw(Lnet/minecraft/client/render/RenderLayer;)V"
-        )
-    )
-    private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
-        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
-        immediate.draw(layer);
-        RenderStates.shouldForceDisableCull = false;
-    }
-    
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw()V"
-        )
-    )
-    private void redirectVertexDraw1(VertexConsumerProvider.Immediate immediate) {
-        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
-        immediate.draw();
-        RenderStates.shouldForceDisableCull = false;
-    }
+//    //disable cull when rendering mirror
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw(Lnet/minecraft/client/render/RenderLayer;)V"
+//        )
+//    )
+//    private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
+//        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
+//        immediate.draw(layer);
+//        RenderStates.shouldForceDisableCull = false;
+//    }
+//
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw()V"
+//        )
+//    )
+//    private void redirectVertexDraw1(VertexConsumerProvider.Immediate immediate) {
+//        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
+//        immediate.draw();
+//        RenderStates.shouldForceDisableCull = false;
+//    }
     
     //redirect sky rendering dimension
     @Redirect(

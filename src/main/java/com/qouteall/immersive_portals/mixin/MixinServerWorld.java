@@ -45,42 +45,4 @@ public abstract class MixinServerWorld implements IEServerWorld {
             return world.getForcedChunks();
         }
     }
-    
-//    @Override
-//    public <T extends Entity> List<T> getEntitiesWithoutImmediateChunkLoading(
-//        Class<? extends T> entityClass, Box box, Predicate<? super T> predicate
-//    ) {
-//        int i = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
-//        int j = MathHelper.ceil((box.x2 + 2.0D) / 16.0D);
-//        int k = MathHelper.floor((box.z1 - 2.0D) / 16.0D);
-//        int l = MathHelper.ceil((box.z2 + 2.0D) / 16.0D);
-//        List<T> list = Lists.newArrayList();
-//        ChunkManager chunkManager = this.getChunkManager();
-//
-//        for (int m = i; m < j; ++m) {
-//            for (int n = k; n < l; ++n) {
-//                WorldChunk worldChunk = (WorldChunk) portal_getChunkIfLoaded(m, n);
-//                if (worldChunk != null) {
-//                    worldChunk.getEntities((Class) entityClass, box, list, predicate);
-//                }
-//            }
-//        }
-//
-//        return list;
-//    }
-//
-//    private Chunk portal_getChunkIfLoaded(
-//        int x, int z
-//    ) {
-//        ThreadedAnvilChunkStorage storage = getChunkManager().threadedAnvilChunkStorage;
-//        IEThreadedAnvilChunkStorage ieStorage = (IEThreadedAnvilChunkStorage) storage;
-//        ChunkHolder chunkHolder = ieStorage.getChunkHolder_(ChunkPos.toLong(x, z));
-//        if (chunkHolder != null) {
-//            WorldChunk chunk = chunkHolder.getWorldChunk();
-//            if (chunk != null) {
-//                return chunk;
-//            }
-//        }
-//        return null;
-//    }
 }

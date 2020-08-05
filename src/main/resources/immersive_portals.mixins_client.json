@@ -43,6 +43,7 @@
     "MixinParticleManager",
     "MixinPlayerListEntry",
     "MixinQuaternion",
+    "MixinVertexConsumerProviderImmediate",
     "MixinWorldRenderer",
     "MixinWorldRenderer_Optional",
     "MixinWorldRendererChunkInfo"
