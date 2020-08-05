@@ -159,7 +159,7 @@ public class RenderStates {
             viewBobFactor = arg;
         }
         else {
-            viewBobFactor = MathHelper.lerp(0.1, viewBobFactor, arg);
+            viewBobFactor = MathHelper.lerp(0.02, viewBobFactor, arg);
         }
     }
     
