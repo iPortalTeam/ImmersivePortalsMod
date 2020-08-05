@@ -480,6 +480,20 @@ public class PortalCommand {
             ))
         );
         
+        builder.then(CommandManager.literal("eradicate_portal_clutter")
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                portal -> {
+                    PortalManipulation.removeConnectedPortals(
+                        portal,
+                        p -> sendMessage(context, "Removed " + p)
+                    );
+                    portal.remove();
+                    sendMessage(context, "Deleted " + portal);
+                }
+            ))
+        );
+        
         
         builder.then(CommandManager.literal("move_portal")
             .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
