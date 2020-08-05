@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
@@ -100,7 +101,7 @@ public abstract class MixinEntity implements IEEntity {
     //so collision may sometimes be incorrect when client teleported but server did not teleport
     @Inject(method = "setInLava", at = @At("HEAD"), cancellable = true)
     private void onSetInLava(CallbackInfo ci) {
-        if (CollisionHelper.isNearbyPortal((Entity) (Object) this)) {
+        if (getCollidingPortal() instanceof EndPortalEntity) {
             ci.cancel();
         }
     }
@@ -111,7 +112,7 @@ public abstract class MixinEntity implements IEEntity {
         cancellable = true
     )
     private void onIsFireImmune(CallbackInfoReturnable<Boolean> cir) {
-        if (collidingPortal != null) {
+        if (getCollidingPortal() instanceof EndPortalEntity) {
             cir.setReturnValue(true);
             cir.cancel();
         }
