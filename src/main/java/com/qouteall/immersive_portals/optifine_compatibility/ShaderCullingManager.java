@@ -15,8 +15,9 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//glClipPlane is not compatible with shaders
-//so I have to modify shader code
+// glClipPlane is not compatible with shaders
+// This is a very hacky shader code editing
+// -Dshaders.debug.save=true
 public class ShaderCullingManager {
     
     private static final Pattern pattern = Pattern.compile(
@@ -133,10 +134,10 @@ public class ShaderCullingManager {
         if (rawCode.indexOf("gbufferModelViewInverse") == -1) {
             uniformsDeclarationCode.append("uniform mat4 gbufferModelViewInverse;\n");
         }
-        if (rawCode.indexOf("viewWidth") == -1) {
+        if (rawCode.indexOf("uniform float viewWidth") == -1) {
             uniformsDeclarationCode.append("uniform float viewWidth;\n");
         }
-        if (rawCode.indexOf("viewHeight") == -1) {
+        if (rawCode.indexOf("uniform float viewHeight") == -1) {
             uniformsDeclarationCode.append("uniform float viewHeight;\n");
         }
         return uniformsDeclarationCode;
