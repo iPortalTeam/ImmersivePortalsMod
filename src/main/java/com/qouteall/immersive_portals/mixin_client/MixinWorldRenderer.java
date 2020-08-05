@@ -155,7 +155,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         CGlobal.renderer.onBeforeTranslucentRendering(matrices);
-    
+        
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
     }
@@ -441,7 +441,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         isReloadingOtherWorldRenderers = false;
     }
     
-   
     
     @Inject(method = "renderSky", at = @At("HEAD"))
     private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
@@ -519,9 +518,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             updateChunks(limitTime);
         }
     }
-    
-    
-    
+
+
 //    //disable cull when rendering mirror
 //    @Redirect(
 //        method = "render",
@@ -604,7 +602,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             GL11.glEnable(GL11.GL_FOG);
         }
     }
-    
     
     
     @Override

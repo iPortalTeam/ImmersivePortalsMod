@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
@@ -305,6 +306,7 @@ public class ViewAreaRenderer {
         MinecraftClient.getInstance().getProfiler().push("draw");
         CGlobal.shaderManager.unloadShader();
         glEnable(GL32.GL_DEPTH_CLAMP);
+        CHelper.checkGlError();
         McHelper.runWithTransformation(
             matrixStack,
             tessellator::draw
