@@ -1445,27 +1445,36 @@ public class PortalCommand {
         PortalConsumerThrowsCommandSyntaxException processCommand
     ) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        ServerPlayerEntity player = source.getPlayer();
-        if (player == null) {
-            source.sendFeedback(
-                new LiteralText("Only player can use this command"),
-                true
-            );
-            return 0;
+        Entity entity = source.getEntity();
+        
+        if (entity instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = ((ServerPlayerEntity) entity);
+            
+            Portal portal = getPlayerPointingPortal(player);
+            
+            if (portal == null) {
+                source.sendFeedback(
+                    new LiteralText("You are not pointing to any portal"),
+                    true
+                );
+                return 0;
+            }
+            else {
+                processCommand.accept(portal);
+            }
         }
-        
-        Portal portal = getPlayerPointingPortal(player);
-        
-        if (portal == null) {
-            source.sendFeedback(
-                new LiteralText("You are not pointing to any portal"),
-                true
-            );
-            return 0;
+        else if (entity instanceof Portal) {
+            processCommand.accept(((Portal) entity));
         }
         else {
-            processCommand.accept(portal);
+            source.sendFeedback(
+                new LiteralText(
+                    "The command executor should be either a player or a portal entity"
+                ),
+                false
+            );
         }
+        
         return 0;
     }
     
