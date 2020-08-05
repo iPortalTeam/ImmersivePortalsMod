@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.mixin.position_sync;
 
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
-import com.qouteall.immersive_portals.network.NetworkAdapt;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.registry.RegistryKey;
@@ -24,17 +23,6 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
     @Override
     public void setPlayerDimension(RegistryKey<World> dimension) {
         playerDimension = dimension;
-    }
-    
-    @Inject(method = "read", at = @At("RETURN"))
-    private void onRead(PacketByteBuf buf, CallbackInfo ci) {
-        if (buf.isReadable()) {
-            playerDimension = DimId.readWorldId(buf, true);
-            NetworkAdapt.setServerHasIP(true);
-        }
-        else {
-            NetworkAdapt.setServerHasIP(false);
-        }
     }
     
     @Inject(method = "write", at = @At("RETURN"))
