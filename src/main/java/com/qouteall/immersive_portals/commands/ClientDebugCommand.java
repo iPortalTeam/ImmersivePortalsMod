@@ -635,7 +635,7 @@ public class ClientDebugCommand {
                 str.append(String.format(
                     "%s %s\n",
                     world.getRegistryKey(),
-                    world.getForcedChunks().size()
+                    NewChunkTrackingGraph.getLoadedChunkNum(world.getRegistryKey())
                 ));
             }
         );
