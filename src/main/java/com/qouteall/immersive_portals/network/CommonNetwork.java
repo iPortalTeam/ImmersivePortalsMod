@@ -22,6 +22,9 @@ public class CommonNetwork {
     
     public static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
         Runnable func = () -> {
+            if (client.world == null) {
+                return;
+            }
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
