@@ -2,7 +2,7 @@
   "imm_ptl.loading_chunks": "正在加载区块 %1$s/%2$s",
   "imm_ptl.searching_for_frame": "正在搜索传送门框架",
   "imm_ptl.generating_new_frame": "未找到现成传送门框架  即将生成新传送门框架",
-  "block.immersive_portals.portal_helper": "滑稽",
+  "block.immersive_portals.portal_helper": "传送门框架（创造模式专用）",
   "imm_ptl.max_portal_layer": "渲染递归上限",
   "imm_ptl.compatibility_render_mode": "兼容性渲染模式",
   "imm_ptl.check_gl_error": "检测OpenGL异常",
