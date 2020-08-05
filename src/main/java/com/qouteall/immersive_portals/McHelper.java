@@ -502,6 +502,11 @@ public class McHelper {
         int radiusChunks,
         Predicate<T> predicate
     ) {
+        // the minimun is 1
+        if (radiusChunks == 0) {
+            radiusChunks = 1;
+        }
+        
         ChunkPos chunkPos = new ChunkPos(new BlockPos(center));
         return findEntities(
             entityClass,
