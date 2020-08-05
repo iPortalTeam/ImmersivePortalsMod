@@ -55,7 +55,7 @@ public class DimensionTypeSync {
         Helper.log("Received Dimension Type Sync");
         Helper.log("\n" + Helper.myToString(
             clientTypeMap.entrySet().stream().map(
-                e -> e.getKey().toString() + " -> " + e.getValue()
+                e -> e.getKey().getValue().toString() + " -> " + e.getValue().getValue()
             )
         ));
     }
