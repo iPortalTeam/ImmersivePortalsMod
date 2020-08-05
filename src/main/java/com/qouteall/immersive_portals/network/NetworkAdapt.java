@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.network;
 
-import com.qouteall.immersive_portals.ModMain;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -27,7 +26,7 @@ public class NetworkAdapt {
     }
     
     private static void warnServerMissingIP() {
-        ModMain.clientTaskList.addTask(() -> {
+        MinecraftClient.getInstance().execute(() -> {
             MinecraftClient.getInstance().inGameHud.addChatMessage(
                 MessageType.SYSTEM,
                 new LiteralText(
@@ -36,7 +35,6 @@ public class NetworkAdapt {
                 ),
                 Util.NIL_UUID
             );
-            return true;
         });
     }
 }
