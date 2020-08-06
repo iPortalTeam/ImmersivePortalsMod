@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.network;
 
 import com.google.common.collect.Queues;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
 
@@ -43,6 +44,13 @@ public class ClientNetworkingTaskList {
         }
         else {
             clientNetworkingTaskList.add(runnable);
+        }
+    }
+    
+    public static void flush() {
+        if (!clientNetworkingTaskList.isEmpty()) {
+            Helper.err("Tasks remain when changing world " + clientNetworkingTaskList.size());
+            processClientNetworkingTasks();
         }
     }
 }
