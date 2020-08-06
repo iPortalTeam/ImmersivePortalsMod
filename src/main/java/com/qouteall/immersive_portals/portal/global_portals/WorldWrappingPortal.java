@@ -227,7 +227,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         }
         
         int availableId = getAvailableId(wrappingZones);
-        
+    
         Box box = new IntBox(new BlockPos(x1, 0, z1), new BlockPos(x2, 255, z2)).toRealNumberBox();
         
         WorldWrappingPortal p1 = createWrappingPortal(
