@@ -627,6 +627,8 @@ public class PortalCommand {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
                         
                         portal.scaling = scale;
+        
+                        reloadPortal(portal);
                     }
                 ))
             )
