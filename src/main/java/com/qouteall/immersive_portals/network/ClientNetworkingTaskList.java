@@ -7,6 +7,8 @@ import net.minecraft.util.thread.ReentrantThreadExecutor;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+// if MinecraftClient is executing a task, calling execute() will make the task deferred
+// this makes packet redirect not working. to avoid that, run the task on my task list
 public class ClientNetworkingTaskList {
     private static final ConcurrentLinkedQueue<Runnable> clientNetworkingTaskList =
         Queues.newConcurrentLinkedQueue();
@@ -23,7 +25,7 @@ public class ClientNetworkingTaskList {
     
     /**
      * {@link ReentrantThreadExecutor#shouldExecuteAsync()}
-     * The execution may get delayed on the render thread
+     * The execution may get deferred on the render thread
      */
     public static void executeOnRenderThread(Runnable runnable) {
         MinecraftClient client = MinecraftClient.getInstance();
