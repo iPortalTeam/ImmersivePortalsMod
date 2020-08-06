@@ -755,11 +755,26 @@ public class ClientDebugCommand {
         
         McHelper.serverLog(
             playerMP,
-            "On Server " + playerMP.world.getRegistryKey() + " " + playerMP.getPos()
+            String.format(
+                "On Server %s %s removed:%s added:%s age:%s",
+                playerMP.world.getRegistryKey(),
+                playerMP.getPos(),
+                playerMP.removed,
+                playerMP.world.getEntityById(playerMP.getEntityId()) != null,
+                playerMP.age
+            )
         );
+        
         McHelper.serverLog(
             playerMP,
-            "On Client " + playerSP.world.getRegistryKey() + " " + playerSP.getPos()
+            String.format(
+                "On Client %s %s removed:%s added:%s age:%s",
+                playerSP.world.getRegistryKey(),
+                playerSP.getPos(),
+                playerMP.removed,
+                playerMP.world.getEntityById(playerMP.getEntityId()) != null,
+                playerMP.age
+            )
         );
         return 0;
     }
