@@ -109,6 +109,9 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         )
     )
     private boolean redirectIsServerOwnerOnPlayerMove(ServerPlayNetworkHandler serverPlayNetworkHandler) {
+        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+            return true;
+        }
         if (Global.looseMovementCheck) {
             Helper.log("Accepted dubious movement " + player.getName().getString());
             return true;
