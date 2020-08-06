@@ -62,7 +62,8 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     @Shadow
     public abstract void onEntityPassengersSet(EntityPassengersSetS2CPacket entityPassengersSetS2CPacket_1);
     
-    @Shadow private RegistryTracker registryTracker;
+    @Shadow
+    private RegistryTracker registryTracker;
     
     @Override
     public void setWorld(ClientWorld world) {
@@ -111,11 +112,16 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         PlayerPositionLookS2CPacket packet,
         CallbackInfo ci
     ) {
-        RegistryKey<World> playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
-    
         if (!NetworkAdapt.doesServerHasIP()) {
             return;
         }
+        
+        if (!positionLookSetup) {
+            // the first position packet removes the loading gui
+            return;
+        }
+        
+        RegistryKey<World> playerDimension = ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension();
         
         ClientWorld world = client.world;
         

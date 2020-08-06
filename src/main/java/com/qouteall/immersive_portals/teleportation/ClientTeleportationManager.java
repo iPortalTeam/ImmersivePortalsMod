@@ -362,6 +362,7 @@ public class ClientTeleportationManager {
         }
     }
     
+    @Deprecated
     private void getOutOfLoadingScreen(RegistryKey<World> dimension, Vec3d playerPos) {
 //        if (((IEMinecraftClient) client).getCurrentScreen() instanceof DownloadingTerrainScreen) {
 //            Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
