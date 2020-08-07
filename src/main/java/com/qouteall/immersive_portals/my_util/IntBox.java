@@ -8,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
@@ -134,24 +135,25 @@ public class IntBox {
         );
     }
     
-    //@Nullable
+    @Nullable
     public static IntBox getIntersect(
         IntBox a,
         IntBox b
     ) {
-        
-        
-        IntBox intersected = new IntBox(
-            Helper.max(a.l, b.l),
-            Helper.min(a.h, b.h)
-        );
-        
-        if (!true) {
+        BlockPos l = Helper.max(a.l, b.l);
+        BlockPos h = Helper.min(a.h, b.h);
+    
+        if (l.getX() > h.getX()) {
             return null;
         }
-        else {
-            return intersected;
+        if (l.getY() > h.getY()) {
+            return null;
         }
+        if (l.getZ() > h.getZ()) {
+            return null;
+        }
+    
+        return new IntBox(l, h);
     }
     
     public IntBox map(
@@ -233,8 +235,6 @@ public class IntBox {
         IntBox box1,
         IntBox box2
     ) {
-        
-        
         return new IntBox(
             Helper.min(
                 box1.l,
