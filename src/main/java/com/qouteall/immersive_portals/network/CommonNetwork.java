@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.network;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
@@ -9,7 +10,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
@@ -20,9 +20,14 @@ public class CommonNetwork {
     private static int reportedError = 0;
     private static boolean isProcessingRedirectedMessage = false;
     
+    public static boolean getIsProcessingRedirectedMessage() {
+        return isProcessingRedirectedMessage;
+    }
+    
     public static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
         Runnable func = () -> {
             if (client.world == null) {
+                Helper.err("Skipping " + dimension + packet);
                 return;
             }
             try {
@@ -37,15 +42,7 @@ public class CommonNetwork {
             }
         };
         
-        // execute mod packets in my task list
-        // because if it's in minecraft task list, invoking client.execute() will get delayed
-        // and the dimension redirect won't work
-        if (packet instanceof CustomPayloadS2CPacket) {
-            ClientNetworkingTaskList.executeOnMyTaskList(func);
-        }
-        else {
-            ClientNetworkingTaskList.executeOnRenderThread(func);
-        }
+        CHelper.executeOnRenderThread(func);
     }
     
     public static void doProcessRedirectedMessage(
@@ -53,10 +50,6 @@ public class CommonNetwork {
         Packet packet
     ) {
         boolean oldIsProcessing = CommonNetwork.isProcessingRedirectedMessage;
-
-//        if (oldIsProcessing) {
-//            Helper.log("Nested redirect " + packet);
-//        }
         
         isProcessingRedirectedMessage = true;
         
@@ -67,14 +60,10 @@ public class CommonNetwork {
             Helper.err("The world field of client net handler is wrong");
         }
         
-        ClientWorld originalWorld = client.world;
-        //some packet handling may use mc.world so switch it
-        client.world = packetWorld;
-        ((IEParticleManager) client.particleManager).mySetWorld(packetWorld);
+        client.getProfiler().push("handle_redirected_packet");
         
-        originalWorld.getProfiler().push("handle_redirected_packet");
         try {
-            packet.apply(netHandler);
+            withSwitchedWorld(packetWorld, () -> packet.apply(netHandler));
         }
         catch (Throwable e) {
             if (reportedError < 200) {
@@ -85,12 +74,24 @@ public class CommonNetwork {
             }
         }
         finally {
-            client.world = originalWorld;
-            ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
-            
-            originalWorld.getProfiler().pop();
+            client.getProfiler().pop();
             
             isProcessingRedirectedMessage = oldIsProcessing;
+        }
+    }
+    
+    public static void withSwitchedWorld(ClientWorld newWorld, Runnable runnable) {
+        ClientWorld originalWorld = client.world;
+        //some packet handling may use mc.world so switch it
+        client.world = newWorld;
+        ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
+        
+        try {
+            runnable.run();
+        }
+        finally {
+            client.world = originalWorld;
+            ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
         }
     }
 }

@@ -176,22 +176,13 @@ public class ClientWorldLoader {
         if (!isInitialized) {
             Validate.isTrue(client.world != null);
             Validate.isTrue(client.worldRenderer != null);
-            Validate.notNull(client.player);
-            Validate.isTrue(client.player.world == client.world);
             
-//            if (client.player.world != client.world) {
-//                Helper.err(String.format(
-//                    "Client Player World Abnormal %s %s",
-//                    client.player.world.getRegistryKey().getValue(),
-//                    client.world.getRegistryKey().getValue()
-//                ));
-//                CGlobal.clientTeleportationManager.changePlayerDimension(
-//                    client.player,
-//                    ((ClientWorld) client.player.world),
-//                    client.world,
-//                    McHelper.getEyePos(client.player)
-//                );
-//            }
+            if (client.player == null) {
+                Helper.err("Client player status abnormal");
+            }
+            else {
+                Validate.isTrue(client.player.world == client.world);
+            }
             
             RegistryKey<World> playerDimension = client.world.getRegistryKey();
             clientWorldMap.put(playerDimension, client.world);

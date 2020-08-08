@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin_client;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
-import com.qouteall.immersive_portals.network.ClientNetworkingTaskList;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -21,6 +21,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import javax.annotation.Nullable;
 
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient implements IEMinecraftClient {
@@ -42,6 +44,10 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     
     @Shadow
     public abstract Profiler getProfiler();
+    
+    @Shadow
+    @Nullable
+    public ClientWorld world;
     
     @Inject(
         method = "tick",
@@ -73,7 +79,6 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         at = @At("HEAD")
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
-        ClientNetworkingTaskList.flush();
         CGlobal.clientWorldLoader.cleanUp();
         CGlobal.clientTeleportationManager.disableTeleportFor(40);
         CrossPortalEntityRenderer.cleanUp();
@@ -87,19 +92,36 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         }
     }
     
+    // when processing redirected message, a mod packet processing may call execute()
+    // then the task gets delayed. keep the hacky redirect after delaying
     @Inject(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;runTasks()V",
-            shift = At.Shift.AFTER
-        )
+        method = "createTask",
+        at = @At("HEAD"),
+        cancellable = true
     )
-    private void onRunTasks(boolean tick, CallbackInfo ci) {
-        getProfiler().push("portal_networking");
-        ClientNetworkingTaskList.processClientNetworkingTasks();
-        getProfiler().pop();
+    private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
+        if (CommonNetwork.getIsProcessingRedirectedMessage()) {
+            ClientWorld currWorld = this.world;
+            Runnable newRunnable = () -> {
+                CommonNetwork.withSwitchedWorld(currWorld, runnable);
+            };
+            cir.setReturnValue(newRunnable);
+        }
     }
+
+//    @Inject(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/MinecraftClient;runTasks()V",
+//            shift = At.Shift.AFTER
+//        )
+//    )
+//    private void onRunTasks(boolean tick, CallbackInfo ci) {
+//        getProfiler().push("portal_networking");
+//        ClientNetworkingTaskList.processClientNetworkingTasks();
+//        getProfiler().pop();
+//    }
     
     @Override
     public void setFrameBuffer(Framebuffer buffer) {

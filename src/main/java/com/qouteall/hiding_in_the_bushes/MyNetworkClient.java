@@ -1,12 +1,12 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.network.ClientNetworkingTaskList;
 import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -86,7 +86,7 @@ public class MyNetworkClient {
             return;
         }
         
-        ClientNetworkingTaskList.executeOnRenderThread(() -> {
+        CHelper.executeOnRenderThread(() -> {
             client.getProfiler().push("ip_spawn_entity");
             
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
@@ -128,7 +128,7 @@ public class MyNetworkClient {
             buf.readDouble()
         );
         
-        ClientNetworkingTaskList.executeOnRenderThread(() -> {
+        CHelper.executeOnRenderThread(() -> {
             CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos,
                 false
@@ -171,7 +171,7 @@ public class MyNetworkClient {
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
         RegistryKey<World> dimensionType = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
-        ClientNetworkingTaskList.executeOnRenderThread(() -> {
+        CHelper.executeOnRenderThread(() -> {
             ClientWorld world =
                 CGlobal.clientWorldLoader.getWorld(dimensionType);
             
