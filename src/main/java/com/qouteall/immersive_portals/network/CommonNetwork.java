@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
@@ -17,7 +18,7 @@ public class CommonNetwork {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
-    private static int reportedError = 0;
+    private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     private static boolean isProcessingRedirectedMessage = false;
     
     public static boolean getIsProcessingRedirectedMessage() {
@@ -66,12 +67,9 @@ public class CommonNetwork {
             withSwitchedWorld(packetWorld, () -> packet.apply(netHandler));
         }
         catch (Throwable e) {
-            if (reportedError < 200) {
-                reportedError += 1;
-                throw new IllegalStateException(
-                    "handling packet in " + packetWorld.getRegistryKey(), e
-                );
-            }
+            limitedLogger.throwException(() -> new IllegalStateException(
+                "handling packet in " + packetWorld.getRegistryKey(), e
+            ));
         }
         finally {
             client.getProfiler().pop();
