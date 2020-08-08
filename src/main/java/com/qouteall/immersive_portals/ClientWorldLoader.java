@@ -177,12 +177,8 @@ public class ClientWorldLoader {
             Validate.isTrue(client.world != null);
             Validate.isTrue(client.worldRenderer != null);
             
-            if (client.player == null) {
-                Helper.err("Client player status abnormal");
-            }
-            else {
-                Validate.isTrue(client.player.world == client.world);
-            }
+            Validate.notNull(client.player);
+            Validate.isTrue(client.player.world == client.world);
             
             RegistryKey<World> playerDimension = client.world.getRegistryKey();
             clientWorldMap.put(playerDimension, client.world);
