@@ -361,7 +361,7 @@ public class ServerTeleportationManager {
     private void updateForPlayer(long tickTimeNow, ServerPlayerEntity player) {
         // teleporting means dimension change
         // inTeleportationState means syncing position to client
-        if (player.notInAnyWorld || player.teleporting || player.isInTeleportationState()) {
+        if (player.notInAnyWorld || player.teleporting) {
             lastTeleportGameTime.put(player, tickTimeNow);
             return;
         }

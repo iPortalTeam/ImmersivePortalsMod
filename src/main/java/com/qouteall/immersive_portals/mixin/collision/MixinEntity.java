@@ -75,8 +75,8 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
         if (attemptedMove.lengthSquared() > 256) {
-            Helper.err("Entity moving too fast " + entity + attemptedMove);
-            return Vec3d.ZERO;
+            Helper.log("Entity moving too fast " + entity + attemptedMove);
+            return adjustMovementForCollisions(attemptedMove);
         }
         
         if (collidingPortal == null) {

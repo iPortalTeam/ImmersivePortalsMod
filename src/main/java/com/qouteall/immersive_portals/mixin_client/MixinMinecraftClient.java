@@ -100,12 +100,15 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         cancellable = true
     )
     private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
-        if (CommonNetwork.getIsProcessingRedirectedMessage()) {
-            ClientWorld currWorld = this.world;
-            Runnable newRunnable = () -> {
-                CommonNetwork.withSwitchedWorld(currWorld, runnable);
-            };
-            cir.setReturnValue(newRunnable);
+        MinecraftClient this_ = (MinecraftClient) (Object) this;
+        if (this_.isOnThread()) {
+            if (CommonNetwork.getIsProcessingRedirectedMessage()) {
+                ClientWorld currWorld = this_.world;
+                Runnable newRunnable = () -> {
+                    CommonNetwork.withSwitchedWorld(currWorld, runnable);
+                };
+                cir.setReturnValue(newRunnable);
+            }
         }
     }
 

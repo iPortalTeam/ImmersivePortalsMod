@@ -27,10 +27,6 @@ public class CommonNetwork {
     
     public static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
         Runnable func = () -> {
-            if (client.world == null) {
-                Helper.err("Skipping " + dimension + packet);
-                return;
-            }
             try {
                 client.getProfiler().push("process_redirected_packet");
                 
@@ -88,6 +84,11 @@ public class CommonNetwork {
             runnable.run();
         }
         finally {
+            if (client.world != newWorld) {
+                Helper.err("oops, respawn packet should not be redirected");
+                originalWorld = client.world;
+            }
+            
             client.world = originalWorld;
             ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
         }
