@@ -136,8 +136,6 @@ public class ShaderCullingManager {
         }
         if (rawCode.indexOf("uniform float viewWidth") == -1) {
             uniformsDeclarationCode.append("uniform float viewWidth;\n");
-        }
-        if (rawCode.indexOf("uniform float viewHeight") == -1) {
             uniformsDeclarationCode.append("uniform float viewHeight;\n");
         }
         return uniformsDeclarationCode;
