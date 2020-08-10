@@ -70,7 +70,7 @@ public class TransformationManager {
         );
     }
     
-    private static double mapProgress(double progress) {
+    public static double mapProgress(double progress) {
 //        return progress;
         return Math.sin(progress * (Math.PI / 2));
 //        return Math.sqrt(1 - (1 - progress) * (1 - progress));

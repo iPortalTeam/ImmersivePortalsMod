@@ -280,5 +280,6 @@ public class PortalManipulation {
         to.teleportable = from.teleportable;
         to.teleportChangesScale = from.teleportChangesScale;
         to.specificPlayerId = from.specificPlayerId;
+        to.extension.adjustPositionAfterTeleport = from.extension.adjustPositionAfterTeleport;
     }
 }

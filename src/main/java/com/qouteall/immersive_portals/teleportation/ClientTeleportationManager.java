@@ -30,8 +30,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
@@ -219,7 +222,7 @@ public class ClientTeleportationManager {
             oldEyePos,
             portal.getUuid()
         ));
-    
+        
         tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
         
         amendChunkEntityStatus(player);
@@ -247,6 +250,10 @@ public class ClientTeleportationManager {
         
         isTeleportingTick = true;
         isTeleportingFrame = true;
+        
+        if (portal.extension.adjustPositionAfterTeleport) {
+            adjustPlayerPosition(player);
+        }
     }
     
     
@@ -444,4 +451,54 @@ public class ClientTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
     }
+    
+    private static void adjustPlayerPosition(ClientPlayerEntity player) {
+        Box boundingBox = player.getBoundingBox();
+        Box bottomHalfBox = boundingBox.shrink(0, boundingBox.getYLength() / 2, 0);
+        Stream<VoxelShape> collisions = player.world.getBlockCollisions(
+            player, bottomHalfBox
+        );
+        double maxCollisionY = collisions.mapToDouble(s -> s.getBoundingBox().maxY)
+            .max().orElse(player.getY());
+        
+        double delta = maxCollisionY - player.getY();
+        
+        if (delta <= 0) {
+            return;
+        }
+        
+        final int ticks = 5;
+        
+        double originalY = player.getY();
+        
+        int[] counter = {0};
+        ModMain.clientTaskList.addTask(() -> {
+            if (player.removed) {
+                return true;
+            }
+            if (player.getY() < originalY - 1 || player.getY() > maxCollisionY + 1) {
+                return true;
+            }
+            
+            if (counter[0] >= 5) {
+                return true;
+            }
+            
+            counter[0]++;
+            
+            double progress = ((double) counter[0]) / ticks;
+            progress = TransformationManager.mapProgress(progress);
+            double newY = MathHelper.lerp(
+                progress,
+                originalY, maxCollisionY
+            );
+            player.setPos(player.getX(), newY, player.getZ());
+            McHelper.updateBoundingBox(player);
+            
+            return false;
+        });
+        
+    }
+    
+    
 }

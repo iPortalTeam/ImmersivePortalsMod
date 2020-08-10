@@ -13,6 +13,8 @@ import java.util.WeakHashMap;
 public class PortalExtension {
     public double motionAffinity = 0;
     
+    public boolean adjustPositionAfterTeleport = false;
+    
     private static class PlayerPortalVisibility {
         public long lastVisibleTime = 0;
         public int currentCap = 0;
@@ -38,12 +40,16 @@ public class PortalExtension {
         if (compoundTag.contains("motionAffinity")) {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
+        if(compoundTag.contains("adjustPositionAfterTeleport")) {
+            adjustPositionAfterTeleport = compoundTag.getBoolean("adjustPositionAfterTeleport");
+        }
     }
     
     public void writeToNbt(CompoundTag compoundTag) {
         if (motionAffinity != 0) {
             compoundTag.putDouble("motionAffinity", motionAffinity);
         }
+        compoundTag.putBoolean("adjustPositionAfterTeleport", adjustPositionAfterTeleport);
     }
     
     public void tick(Portal portal) {

@@ -1074,6 +1074,7 @@ public class PortalCommand {
             );
             portal.scaling = scale;
             portal.teleportChangesScale = false;
+            portal.extension.adjustPositionAfterTeleport = true;
             
             McHelper.spawnServerEntityToUnloadedArea(portal);
             
