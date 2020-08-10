@@ -371,7 +371,10 @@ public class NetherPortalGeneration {
                     blockPos -> thisSideAreaPredicate.test(fromWorld.getBlockState(blockPos)),
                     blockPos -> thisSideFramePredicate.test(fromWorld.getBlockState(blockPos))
                 );
-            }, s -> true);
+            },
+            //avoid linking to the beginning frame
+            s -> fromWorld != toWorld || fromShape.anchor != s.anchor
+        );
         
         return fromShape;
     }
