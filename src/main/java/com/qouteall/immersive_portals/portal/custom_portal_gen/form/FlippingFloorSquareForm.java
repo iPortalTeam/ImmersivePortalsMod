@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
@@ -183,9 +184,9 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         
         pa.extension.motionAffinity = 0.1;
         pb.extension.motionAffinity = 0.1;
-        
-        pa.world.spawnEntity(pa);
-        pb.world.spawnEntity(pb);
+    
+        McHelper.spawnServerEntityToUnloadedArea(pa);
+        McHelper.spawnServerEntityToUnloadedArea(pb);
         
         cpg.onPortalGenerated(pa);
         cpg.onPortalGenerated(pb);

@@ -129,7 +129,7 @@ public class ClientTeleportationManager {
             return false;
         }
         
-        Pair<Portal, Vec3d> pair = CHelper.getClientNearbyPortals(32)
+        Pair<Portal, Vec3d> pair = CHelper.getClientNearbyPortals(64)
             .flatMap(portal -> {
                 if (portal.isTeleportable()) {
                     Vec3d collidingPoint = portal.rayTrace(

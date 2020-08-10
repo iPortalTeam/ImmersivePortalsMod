@@ -35,6 +35,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
+import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 
 import java.lang.ref.WeakReference;
@@ -647,5 +648,20 @@ public class McHelper {
                 return ((Iterable<Entity>) Collections.emptyList().iterator());
             }
         }
+    }
+    
+    
+    /**
+     * It will spawn even if the chunk is not loaded
+     * ServerWorld#addEntity(Entity)
+     */
+    public static void spawnServerEntityToUnloadedArea(Entity entity) {
+        Validate.isTrue(!entity.world.isClient());
+        
+//        entity.teleporting = true;
+    
+        entity.world.spawnEntity(entity);
+        
+//        entity.teleporting = false;
     }
 }

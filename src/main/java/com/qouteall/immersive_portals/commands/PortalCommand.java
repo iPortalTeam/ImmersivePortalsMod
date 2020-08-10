@@ -539,7 +539,7 @@ public class PortalCommand {
                             Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
                             
                             portal.destination = portal.destination.add(
-                                portal.transformLocalVec(offset)
+                                portal.transformLocalVecNonScale(offset)
                             );
                             reloadPortal(portal);
                         }
@@ -627,7 +627,7 @@ public class PortalCommand {
                         double scale = DoubleArgumentType.getDouble(context, "scale");
                         
                         portal.scaling = scale;
-        
+                        
                         reloadPortal(portal);
                     }
                 ))
@@ -672,10 +672,7 @@ public class PortalCommand {
                 .executes(context -> processPortalArgumentedCommand(
                     context,
                     portal -> {
-                        PortalManipulation.removeConnectedPortals(
-                            portal,
-                            p -> sendMessage(context, "Removed " + p)
-                        );
+                        invokeCompleteBiWayPortal(context, portal);
                     }
                 ))
             )
@@ -771,7 +768,7 @@ public class PortalCommand {
                                 portal.axisW = rightVec;
                                 portal.axisH = axisH;
                                 
-                                portal.world.spawnEntity(portal);
+                                McHelper.spawnServerEntityToUnloadedArea(portal);
                                 
                                 return 0;
                             })
@@ -1071,14 +1068,14 @@ public class PortalCommand {
         for (Direction direction : Direction.values()) {
             Portal portal = PortalManipulation.createOrthodoxPortal(
                 Portal.entityType,
-                areaWorld, boxWorld,
+                boxWorld, areaWorld,
                 direction, Helper.getBoxSurface(viewBox, direction),
                 Helper.getBoxSurface(area, direction).getCenter()
             );
             portal.scaling = scale;
             portal.teleportChangesScale = false;
             
-            portal.world.spawnEntity(portal);
+            McHelper.spawnServerEntityToUnloadedArea(portal);
             
             if (biWay) {
                 PortalManipulation.completeBiWayPortal(portal, Portal.entityType);
@@ -1093,7 +1090,7 @@ public class PortalCommand {
             WorldWrappingPortal.initWrappingPortal(
                 world, box, direction, isInward, portal
             );
-            world.spawnEntity(portal);
+            McHelper.spawnServerEntityToUnloadedArea(portal);
         }
     }
     
@@ -1284,7 +1281,7 @@ public class PortalCommand {
         newPortal.destination = destination;
         newPortal.specificPlayerId = player.getUuid();
         
-        newPortal.world.spawnEntity(newPortal);
+        McHelper.spawnServerEntityToUnloadedArea(newPortal);
         
         configureBiWayBiFaced(newPortal, biWay, biFaced);
     }
@@ -1366,7 +1363,7 @@ public class PortalCommand {
         
         portal.dimensionTo = to;
         portal.destination = dest;
-        portal.world.spawnEntity(portal);
+        McHelper.spawnServerEntityToUnloadedArea(portal);
         
         context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
         
@@ -1389,7 +1386,8 @@ public class PortalCommand {
         // unsafe to use getContentDirection before the destination is fully set
         portal.dimensionTo = to;
         portal.destination = portal.getPos().add(portal.axisW.crossProduct(portal.axisH).multiply(-dist));
-        portal.world.spawnEntity(portal);
+        
+        McHelper.spawnServerEntityToUnloadedArea(portal);
         
         context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
         

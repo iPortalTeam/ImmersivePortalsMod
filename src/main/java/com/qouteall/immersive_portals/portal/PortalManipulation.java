@@ -46,8 +46,8 @@ public class PortalManipulation {
     
     public static Portal completeBiWayPortal(Portal portal, EntityType<? extends Portal> entityType) {
         Portal newPortal = createReversePortal(portal, entityType);
-        
-        newPortal.world.spawnEntity(newPortal);
+    
+        McHelper.spawnServerEntityToUnloadedArea(newPortal);
         
         return newPortal;
     }
@@ -99,8 +99,8 @@ public class PortalManipulation {
     
     public static Portal completeBiFacedPortal(Portal portal, EntityType<Portal> entityType) {
         Portal newPortal = createFlippedPortal(portal, entityType);
-        
-        portal.world.spawnEntity(newPortal);
+    
+        McHelper.spawnServerEntityToUnloadedArea(newPortal);
         
         return newPortal;
     }
