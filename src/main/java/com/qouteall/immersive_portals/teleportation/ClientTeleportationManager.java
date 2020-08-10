@@ -214,13 +214,13 @@ public class ClientTeleportationManager {
         
         PehkuiInterface.onClientPlayerTeleported.accept(portal);
         
-        tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
-        
         player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
             fromDimension,
             oldEyePos,
             portal.getUuid()
         ));
+    
+        tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
         
         amendChunkEntityStatus(player);
         

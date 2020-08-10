@@ -166,7 +166,7 @@ public class MyNetwork {
         );
         UUID portalEntityId = buf.readUuid();
         
-        McHelper.getServer().execute(() -> {
+        McHelper.executeOnServerThread(() -> {
             Global.serverTeleportationManager.onPlayerTeleportedInClient(
                 (ServerPlayerEntity) context.getPlayer(),
                 dim,

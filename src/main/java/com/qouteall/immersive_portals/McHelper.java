@@ -657,11 +657,22 @@ public class McHelper {
      */
     public static void spawnServerEntityToUnloadedArea(Entity entity) {
         Validate.isTrue(!entity.world.isClient());
-        
+
 //        entity.teleporting = true;
-    
-        entity.world.spawnEntity(entity);
         
+        entity.world.spawnEntity(entity);
+
 //        entity.teleporting = false;
+    }
+    
+    public static void executeOnServerThread(Runnable runnable) {
+        MinecraftServer server = McHelper.getServer();
+        
+        if (server.isOnThread()) {
+            runnable.run();
+        }
+        else {
+            server.execute(runnable);
+        }
     }
 }
