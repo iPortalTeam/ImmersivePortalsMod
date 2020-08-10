@@ -43,8 +43,8 @@ public class PehkuiInterfaceInitializer {
             float oldScale = scaleData.getScale();
             
             scaleData.setScaleTickDelay(0);
-            scaleData.setTargetScale((float) (oldScale * portal.scaling));
-            scaleData.setScale((float) (oldScale * portal.scaling));
+            scaleData.setTargetScale(transformScale(portal, oldScale));
+            scaleData.setScale(transformScale(portal, oldScale));
             scaleData.tick();
             
             McHelper.setEyePos(player, eyePos, lastTickEyePos);
@@ -72,8 +72,8 @@ public class PehkuiInterfaceInitializer {
             float oldScale = scaleData.getScale();
             
             scaleData.setScaleTickDelay(0);
-            scaleData.setTargetScale((float) (oldScale * portal.scaling));
-            scaleData.setScale((float) (oldScale * portal.scaling));
+            scaleData.setTargetScale(transformScale(portal, oldScale));
+            scaleData.setScale(transformScale(portal, oldScale));
             scaleData.tick();
             
             ModMain.serverTaskList.addTask(() -> {
@@ -84,5 +84,16 @@ public class PehkuiInterfaceInitializer {
             
             scaleData.markForSync();
         }
+    }
+    
+    private static float transformScale(Portal portal, float oldScale) {
+        float result = (float) (oldScale * portal.scaling);
+        
+        // avoid deviation accumulating
+        if (Math.abs(result - 1.0f) < 0.0001f) {
+            result = 1;
+        }
+        
+        return result;
     }
 }

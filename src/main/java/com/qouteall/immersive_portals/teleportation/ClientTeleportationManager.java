@@ -226,8 +226,12 @@ public class ClientTeleportationManager {
         
         McHelper.adjustVehicle(player);
         
-        // pehkui may change velocity when changing scale
-        player.setVelocity(portal.transformLocalVec(player.getVelocity()));
+        if (portal.teleportChangesScale) {
+            player.setVelocity(portal.transformLocalVecNonScale(player.getVelocity()));
+        }
+        else {
+            player.setVelocity(portal.transformLocalVec(player.getVelocity()));
+        }
         
         TransformationManager.onClientPlayerTeleported(portal);
         
@@ -434,7 +438,7 @@ public class ClientTeleportationManager {
             player.getBoundingBox(),
             10,
             portal -> true
-        ).forEach(Portal::tick);
+        ).forEach(Portal::notifyCollidingPortals);
         
         player.tick();
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);

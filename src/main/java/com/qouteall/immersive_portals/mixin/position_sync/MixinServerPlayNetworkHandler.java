@@ -109,14 +109,24 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         )
     )
     private boolean redirectIsServerOwnerOnPlayerMove(ServerPlayNetworkHandler serverPlayNetworkHandler) {
-        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
-            return true;
-        }
-        if (Global.looseMovementCheck) {
-            Helper.log("Accepted dubious movement " + player.getName().getString());
+        if (shouldAcceptDubiousMovement(player)) {
             return true;
         }
         return isHost();
+    }
+    
+    @Redirect(
+        method = "onPlayerMove",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerPlayerEntity;isInTeleportationState()Z"
+        )
+    )
+    private boolean redirectIsInTeleportationState(ServerPlayerEntity player) {
+        if (shouldAcceptDubiousMovement(player)) {
+            return true;
+        }
+        return player.isInTeleportationState();
     }
     
     /**
@@ -269,6 +279,23 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             
             ci.cancel();
         }
+    }
+    
+    private static boolean shouldAcceptDubiousMovement(ServerPlayerEntity player) {
+        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+            return true;
+        }
+        if (Global.looseMovementCheck) {
+            return true;
+        }
+        if (((IEEntity) player).getCollidingPortal() != null) {
+            return true;
+        }
+        boolean portalsNearby = McHelper.getServerPortalsNearby(player, 16).findFirst().isPresent();
+        if (portalsNearby) {
+            return true;
+        }
+        return false;
     }
     
     @Override

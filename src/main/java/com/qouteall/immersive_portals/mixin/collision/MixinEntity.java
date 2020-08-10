@@ -9,7 +9,6 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -167,10 +166,12 @@ public abstract class MixinEntity implements IEEntity {
     private void onSetPose(EntityPose pose, CallbackInfo ci) {
         Entity this_ = (Entity) (Object) this;
         
-        if (this_ instanceof PlayerEntity) {
+        if (this_ instanceof ServerPlayerEntity) {
             if (this_.getPose() == EntityPose.STANDING) {
                 if (pose == EntityPose.CROUCHING || pose == EntityPose.SWIMMING) {
-                    if (getCollidingPortal() != null) {
+                    if (getCollidingPortal() != null ||
+                        Global.serverTeleportationManager.isJustTeleported(this_, 20)
+                    ) {
                         ci.cancel();
                     }
                 }
