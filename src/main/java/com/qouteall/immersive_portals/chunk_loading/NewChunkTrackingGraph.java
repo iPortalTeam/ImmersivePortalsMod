@@ -105,20 +105,6 @@ public class NewChunkTrackingGraph {
         boolean isIndirectLoading = Helper.indexOf(records, r -> !r.isDirectLoading) != -1;
         
         return isIndirectLoading;
-
-//        if (isIndirectLoading) {
-//            return true;
-//        }
-//
-//        if (addCustomTicketForDirectLoadingDelayed) {
-//            boolean chunkLoaded =
-//                world.isChunkLoaded(ChunkPos.getPackedX(chunkPos), ChunkPos.getPackedZ(chunkPos));
-//
-//            return chunkLoaded;
-//        }
-//        else {
-//            return false;
-//        }
     }
     
     // Every chunk has a list of watching records
