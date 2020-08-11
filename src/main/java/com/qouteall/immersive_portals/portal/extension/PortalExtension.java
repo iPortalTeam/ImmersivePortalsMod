@@ -94,7 +94,7 @@ public class PortalExtension {
             rec.targetCap = currentCap;
             rec.currentCap = 0;
         }
-        else if (timePassed == dropTimeout) {
+        else if (timePassed == 0) {
             // being checked the second time in this turn
             rec.targetCap = Math.max(rec.targetCap, currentCap);
         }
