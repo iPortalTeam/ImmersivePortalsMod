@@ -358,6 +358,20 @@ public class NetherPortalGeneration {
                 
                 Helper.log("Found Placement " + airCubePlacement);
                 
+                boolean checkAirCube =
+                    airCubePlacement.fastStream().allMatch(b -> toWorld.getBlockState(b).isAir());
+                
+                if (!checkAirCube) {
+                    Helper.err("Invalid portal placement");
+                    airCubePlacement = airCubePlacement.getMoved(
+                        BlockPos.ZERO.offset(Direction.UP, airCubePlacement.getSize().getY())
+                    );
+                }
+    
+                if (fromShape.totalAreaBox.getSize().equals(airCubePlacement.getSize())) {
+                    Helper.err("Portal placement size abnormal");
+                }
+                
                 BlockPortalShape toShape = fromShape.getShapeWithMovedAnchor(
                     airCubePlacement.l.subtract(
                         fromShape.totalAreaBox.l
