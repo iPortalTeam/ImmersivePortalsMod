@@ -22,6 +22,7 @@ public class MyConfig {
     public int maxPortalLayer = 5;
     public boolean lagAttackProof = true;
     public int portalRenderLimit = 200;
+    public int indirectLoadingRadiusCap = 8;
     public boolean compatibilityRenderMode = false;
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
@@ -117,6 +118,8 @@ public class MyConfig {
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
         Global.enableAlternateDimensions = enableAlternateDimensions;
+    
+        Global.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

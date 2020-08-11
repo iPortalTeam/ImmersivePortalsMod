@@ -40,6 +40,11 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.portalRenderLimit,
                 0, 1000
             ).setDefaultValue(200).build();
+            IntegerSliderEntry entryIndirectLoadingRadiusCap = builder.entryBuilder().startIntSlider(
+                new TranslatableText("imm_ptl.indirect_loading_radius_cap"),
+                currConfig.indirectLoadingRadiusCap,
+                1, 20
+            ).setDefaultValue(8).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.compatibility_render_mode"),
                 currConfig.compatibilityRenderMode
@@ -109,22 +114,22 @@ public class ModMenuConfigEntry implements ModMenuApi {
             category.addEntry(entryMaxPortalLayer);
             category.addEntry(entryLagAttackProof);
             category.addEntry(entryPortalRenderLimit);
-            category.addEntry(entryCompatibilityRenderMode);
-            category.addEntry(entryCheckGlError);
-            category.addEntry(entryPortalSearchingRange);
+            category.addEntry(entryIndirectLoadingRadiusCap);
             category.addEntry(entryLongerReachInCreative);
+            category.addEntry(entryCompatibilityRenderMode);
+            category.addEntry(entryLoadFewerChunks);
+            category.addEntry(entryCheckGlError);
+            category.addEntry(entryPureMirror);
+            category.addEntry(entryEnableAlternateDimensions);
+            category.addEntry(entryPortalSearchingRange);
             category.addEntry(entryRenderYourselfInPortal);
             category.addEntry(entryActiveLoading);
             category.addEntry(entryTeleportDebug);
             category.addEntry(entryCorrectCrossPortalEntityRendering);
-            category.addEntry(entryLoadFewerChunks);
             category.addEntry(entryMultiThreadedNetherPortalSearching);
             category.addEntry(entryEdgelessSky);
             category.addEntry(entryReversibleNetherPortalLinking);
             category.addEntry(entryMirrorInteractableThroughPortal);
-            category.addEntry(entryPureMirror);
-            category.addEntry(entryEnableAlternateDimensions);
-//            category.addEntry(entrySmoothLoading);
             category.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
@@ -148,7 +153,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
-//                    newConfig.smoothLoading = entrySmoothLoading.getValue();
+                    newConfig.indirectLoadingRadiusCap = entryIndirectLoadingRadiusCap.getValue();
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );

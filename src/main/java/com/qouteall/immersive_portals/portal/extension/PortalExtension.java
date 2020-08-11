@@ -40,7 +40,7 @@ public class PortalExtension {
         if (compoundTag.contains("motionAffinity")) {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
-        if(compoundTag.contains("adjustPositionAfterTeleport")) {
+        if (compoundTag.contains("adjustPositionAfterTeleport")) {
             adjustPositionAfterTeleport = compoundTag.getBoolean("adjustPositionAfterTeleport");
         }
     }
@@ -102,6 +102,8 @@ public class PortalExtension {
             // being checked the first time in this turn
             rec.targetCap = currentCap;
         }
+        
+        rec.lastVisibleTime = portal.world.getTime();
         
         return rec.currentCap;
     }

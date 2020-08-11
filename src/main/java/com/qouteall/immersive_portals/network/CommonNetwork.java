@@ -57,7 +57,9 @@ public class CommonNetwork {
             Helper.err("The world field of client net handler is wrong");
         }
         
-        client.getProfiler().push("handle_redirected_packet");
+        client.getProfiler().push(() -> {
+            return "handle_redirected_packet" + packetWorld.getRegistryKey() + packet;
+        });
         
         try {
             withSwitchedWorld(packetWorld, () -> packet.apply(netHandler));

@@ -124,14 +124,16 @@ public class ChunkVisibilityManager {
     private static int getSmoothedLoadingDistance(
         Portal portal, ServerPlayerEntity player, int targetLoadingDistance
     ) {
+        int cappedLoadingDistance = Math.min(targetLoadingDistance, Global.indirectLoadingRadiusCap);
+        
         if (!Global.serverSmoothLoading) {
-            return targetLoadingDistance;
+            return cappedLoadingDistance;
         }
         
         int maxLoadDistance = portal.extension.refreshAndGetLoadDistanceCap(
-            portal, player, targetLoadingDistance
+            portal, player, cappedLoadingDistance
         );
-        return Math.min(maxLoadDistance, targetLoadingDistance);
+        return Math.min(maxLoadDistance, cappedLoadingDistance);
     }
     
     private static ChunkLoader portalDirectLoader(

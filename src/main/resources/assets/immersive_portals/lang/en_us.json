@@ -52,5 +52,6 @@
   "imm_ptl.cannot_find_zone": "Cannot Find The Wrapping Zone",
   "imm_ptl.start_clearing_border": "Start Clearing Border",
   "imm_ptl.finished": "Finished",
-  "imm_ptl.needs_pehkui": "Your scale is not changed because Pehkui is not installed."
+  "imm_ptl.needs_pehkui": "Your scale is not changed because Pehkui is not installed.",
+  "imm_ptl.indirect_loading_radius_cap": "Indirect Loading Radius Cap"
 }

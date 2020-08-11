@@ -658,11 +658,11 @@ public class McHelper {
     public static void spawnServerEntityToUnloadedArea(Entity entity) {
         Validate.isTrue(!entity.world.isClient());
 
-//        entity.teleporting = true;
+        entity.teleporting = true;
         
         entity.world.spawnEntity(entity);
 
-//        entity.teleporting = false;
+        entity.teleporting = false;
     }
     
     public static void executeOnServerThread(Runnable runnable) {
