@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.entity_sync;
 
 import com.google.common.collect.Lists;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -11,6 +12,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntityAttachS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Final;
@@ -31,6 +33,10 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
     
     @Shadow
     abstract void handlePlayerAddedOrRemoved(ServerPlayerEntity player, boolean added);
+    
+    @Shadow
+    @Final
+    private ServerWorld world;
     
     @Inject(
         method = "unloadEntity",
@@ -87,15 +93,20 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
             }
         }
         
-        for (Entity entity : attachedEntityList) {
-            player.networkHandler.sendPacket(new EntityAttachS2CPacket(
-                entity, ((MobEntity) entity).getHoldingEntity()
-            ));
-        }
-        
-        for (Entity entity : passengerList) {
-            player.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(entity));
-        }
+        EntitySync.withForceRedirect(
+            world.getRegistryKey(),
+            () -> {
+                for (Entity entity : attachedEntityList) {
+                    player.networkHandler.sendPacket(new EntityAttachS2CPacket(
+                        entity, ((MobEntity) entity).getHoldingEntity()
+                    ));
+                }
+                
+                for (Entity entity : passengerList) {
+                    player.networkHandler.sendPacket(new EntityPassengersSetS2CPacket(entity));
+                }
+            }
+        );
     }
     
     @Override

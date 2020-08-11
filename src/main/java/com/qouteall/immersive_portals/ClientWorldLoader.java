@@ -265,7 +265,7 @@ public class ClientWorldLoader {
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);
         
-        Helper.log("Faked World Created " + dimension);
+        Helper.log("Faked World Created " + dimension.getValue());
         
         isLoadingFakedWorld = false;
         
