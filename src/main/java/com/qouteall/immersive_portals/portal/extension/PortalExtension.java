@@ -17,16 +17,26 @@ public class PortalExtension {
     
     private static class PlayerPortalVisibility {
         public long lastVisibleTime = 0;
-        public int currentCap = 0;
+        public double currentCap = 0;
         public int targetCap = 0;
         
         public void updateEverySecond() {
-            if (targetCap > currentCap) {
-                currentCap++;
+            double targetCapSq = targetCap * targetCap;
+            double currentCapSq = currentCap * currentCap;
+            
+            if (currentCapSq < targetCapSq) {
+                currentCapSq = Math.min(
+                    currentCapSq + (targetCapSq / 12),
+                    targetCapSq
+                );
             }
-            else if (targetCap < currentCap) {
-                currentCap--;
+            else {
+                currentCapSq = Math.max(
+                    currentCapSq - (targetCapSq / 12),
+                    targetCapSq
+                );
             }
+            currentCap = Math.sqrt(currentCapSq);
         }
     }
     
@@ -105,6 +115,6 @@ public class PortalExtension {
         
         rec.lastVisibleTime = portal.world.getTime();
         
-        return rec.currentCap;
+        return (int) Math.round(rec.currentCap);
     }
 }
