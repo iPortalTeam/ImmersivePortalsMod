@@ -368,7 +368,7 @@ public class NetherPortalGeneration {
                     );
                 }
     
-                if (fromShape.totalAreaBox.getSize().equals(airCubePlacement.getSize())) {
+                if (!fromShape.totalAreaBox.getSize().equals(airCubePlacement.getSize())) {
                     Helper.err("Portal placement size abnormal");
                 }
                 
