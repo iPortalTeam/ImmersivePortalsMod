@@ -61,7 +61,7 @@ public class ChunkDataSyncManager {
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         chunkPos.dimension,
-                        new ChunkDataS2CPacket(((WorldChunk) chunk), 65535, true)
+                        new ChunkDataS2CPacket(((WorldChunk) chunk), 65535)
                     )
                 );
                 
@@ -97,7 +97,7 @@ public class ChunkDataSyncManager {
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
             () -> MyNetwork.createRedirectedMessage(
                 dimension,
-                new ChunkDataS2CPacket(((WorldChunk) chunk), 65535, true)
+                new ChunkDataS2CPacket(((WorldChunk) chunk), 65535)
             )
         );
         

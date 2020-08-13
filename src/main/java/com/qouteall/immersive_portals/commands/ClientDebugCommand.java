@@ -458,7 +458,7 @@ public class ClientDebugCommand {
                     Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
                     Helper.log(McHelper.serializeToJson(
                         world.getDimension(),
-                        DimensionType.CODEC.codec()
+                        DimensionType.CODEC.stable()
                     ));
                 });
                 
@@ -562,8 +562,10 @@ public class ClientDebugCommand {
             for (int z = 0; z < 16; z++) {
                 for (int y = yStart; y < yEnd; y++) {
                     world.setBlockState(
-                        chunkPos.toBlockPos(
-                            x, y, z
+                        new BlockPos(
+                            chunkPos.getStartX() + x,
+                            y,
+                            chunkPos.getStartZ() + z
                         ),
                         Blocks.AIR.getDefaultState()
                     );
