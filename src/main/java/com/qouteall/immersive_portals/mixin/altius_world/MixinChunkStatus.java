@@ -2,9 +2,11 @@ package com.qouteall.immersive_portals.mixin.altius_world;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -43,7 +45,7 @@ public class MixinChunkStatus {
         catch (Throwable e) {
             Helper.err(String.format(
                 "Error when generating terrain %s %d %d",
-                region.getWorld().getRegistryKey(),
+                ((ServerWorld) region.getChunkManager().getWorld()).getRegistryKey(),
                 region.getCenterChunkX(),
                 region.getCenterChunkZ()
             ));
@@ -58,19 +60,19 @@ public class MixinChunkStatus {
         method = "*",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/structure/StructureManager;J)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;setStructureStarts(Lnet/minecraft/util/registry/DynamicRegistryManager;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/structure/StructureManager;J)V"
         )
     )
     private static void redirectSetStructureStarts(
         ChunkGenerator generator,
-        StructureAccessor structureAccessor, Chunk chunk, StructureManager structureManager, long l
+        DynamicRegistryManager dynamicRegistryManager, StructureAccessor structureAccessor, Chunk chunk, StructureManager structureManager, long worldSeed
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
         try {
-            generator.setStructureStarts(structureAccessor, chunk, structureManager, l);
+            generator.setStructureStarts(dynamicRegistryManager, structureAccessor, chunk, structureManager, worldSeed);
         }
         catch (Throwable e) {
             Helper.err(String.format(
@@ -88,18 +90,19 @@ public class MixinChunkStatus {
         method = "*",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;addStructureReferences(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;)V"
+            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;addStructureReferences(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/chunk/Chunk;)V"
         )
     )
     private static void redirectAddStructureReference(
-        ChunkGenerator chunkGenerator, WorldAccess world, StructureAccessor structureAccessor, Chunk chunk
+        ChunkGenerator chunkGenerator,
+        StructureWorldAccess structureWorldAccess, StructureAccessor accessor, Chunk chunk
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
         try {
-            chunkGenerator.addStructureReferences(world, structureAccessor, chunk);
+            chunkGenerator.addStructureReferences(structureWorldAccess, accessor, chunk);
         }
         catch (Throwable e) {
             Helper.err(String.format(
