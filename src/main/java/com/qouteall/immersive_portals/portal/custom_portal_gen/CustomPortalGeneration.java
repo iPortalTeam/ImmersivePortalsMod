@@ -67,7 +67,7 @@ public class CustomPortalGeneration {
         return registry;
     });
     
-    public static final MapCodec<CustomPortalGeneration> codec = schemaRegistry.dispatchStableMap(
+    public static final MapCodec<CustomPortalGeneration> codec = schemaRegistry.dispatchMap(
         "schema_version", e -> codecV1, Function.identity()
     );
     

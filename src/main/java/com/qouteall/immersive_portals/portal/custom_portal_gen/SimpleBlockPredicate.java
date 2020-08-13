@@ -8,7 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tag.Tag;
-import net.minecraft.tag.TagManagerLoader;
+import net.minecraft.tag.TagManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -60,9 +60,9 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             );
         }
         
-        TagManagerLoader tagManager = server.serverResourceManager.getRegistryTagManager();
+        TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
         Identifier id = new Identifier(string);
-        Tag<Block> blockTag = tagManager.blocks().get(id);
+        Tag<Block> blockTag = tagManager.getBlocks().getTag(id);
         
         if (blockTag != null) {
             return DataResult.success(new SimpleBlockPredicate(blockTag), Lifecycle.stable());
@@ -91,9 +91,9 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         
         Tag<Block> tag = predicate.tag;
         
-        TagManagerLoader tagManager = server.serverResourceManager.getRegistryTagManager();
+        TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
         
-        Identifier id = tagManager.blocks().getId(tag);
+        Identifier id = tagManager.getBlocks().getTagId(tag);
         
         if (id == null) {
             throw new RuntimeException(

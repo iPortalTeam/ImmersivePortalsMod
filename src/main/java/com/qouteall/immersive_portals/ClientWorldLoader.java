@@ -17,8 +17,8 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
@@ -224,11 +224,11 @@ public class ClientWorldLoader {
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
-            RegistryTracker dimensionTracker = mainNetHandler.getRegistryManager();
+            DynamicRegistryManager dimensionTracker = mainNetHandler.getRegistryManager();
             ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setRegistryManager(
                 dimensionTracker);
             DimensionType dimensionType = dimensionTracker
-                .getDimensionTypeRegistry().get(dimensionTypeKey);
+                .getDimensionTypes().get(dimensionTypeKey);
             
             ClientWorld.Properties properties = new ClientWorld.Properties(
                 currentProperty.getDifficulty(),
@@ -239,7 +239,6 @@ public class ClientWorldLoader {
                 newNetworkHandler,
                 properties,
                 dimension,
-                dimensionTypeKey,
                 dimensionType,
                 chunkLoadDistance,
                 () -> client.getProfiler(),

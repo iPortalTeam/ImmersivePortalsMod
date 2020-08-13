@@ -17,7 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.dynamic.RegistryOps;
-import net.minecraft.util.registry.RegistryTracker;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.SimpleRegistry;
 
 public class CustomPortalGenManagement {
@@ -32,10 +32,11 @@ public class CustomPortalGenManagement {
         
         MinecraftServer server = McHelper.getServer();
         
-        RegistryTracker.Modifiable registryTracker = new RegistryTracker.Modifiable();
+        DynamicRegistryManager.Impl registryTracker = new DynamicRegistryManager.Impl();
         
         RegistryOps<JsonElement> registryOps =
-            RegistryOps.of(JsonOps.INSTANCE,
+            RegistryOps.of(
+                JsonOps.INSTANCE,
                 server.serverResourceManager.getResourceManager(),
                 registryTracker
             );
@@ -49,7 +50,7 @@ public class CustomPortalGenManagement {
             registryOps.loadToRegistry(
                 emptyRegistry,
                 CustomPortalGeneration.registryRegistryKey,
-                CustomPortalGeneration.codec
+                CustomPortalGeneration.codec.codec()
             );
         
         SimpleRegistry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
