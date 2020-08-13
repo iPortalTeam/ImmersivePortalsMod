@@ -9,7 +9,7 @@ import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.registry.RegistryTracker;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelInfo;
@@ -18,7 +18,6 @@ import net.minecraft.world.level.storage.SaveVersionInfo;
 import net.minecraft.world.timer.Timer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,52 +29,31 @@ import java.util.UUID;
 
 @Mixin(LevelProperties.class)
 public class MixinLevelProperties implements IELevelProperties {
+    
     @Shadow
     @Final
-    @Mutable
-    private Lifecycle field_25426;
+    private Lifecycle lifecycle;
     AltiusInfo altiusInfo;
     
     @Inject(
-        method = "<init>(Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;ZIIIJJIIIZIZZZLnet/minecraft/world/border/WorldBorder$Properties;IILjava/util/UUID;Ljava/util/LinkedHashSet;Lnet/minecraft/world/timer/Timer;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/gen/GeneratorOptions;Lcom/mojang/serialization/Lifecycle;)V",
+        method = "<init>(Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;ZIIIFJJIIIZIZZZLnet/minecraft/world/border/WorldBorder$Properties;IILjava/util/UUID;Ljava/util/LinkedHashSet;Lnet/minecraft/world/timer/Timer;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/gen/GeneratorOptions;Lcom/mojang/serialization/Lifecycle;)V",
         at = @At("RETURN")
     )
     private void onConstructedFromLevelInfo(
-        DataFixer dataFixer,
-        int dataVersion,
-        CompoundTag playerData,
-        boolean modded,
-        int spawnX,
-        int spawnY,
-        int spawnZ,
-        long time,
-        long timeOfDay,
-        int version,
-        int clearWeatherTime,
-        int rainTime,
-        boolean raining,
-        int thunderTime,
-        boolean thundering,
-        boolean initialized,
-        boolean difficultyLocked,
-        WorldBorder.Properties worldBorder,
-        int wanderingTraderSpawnDelay,
-        int wanderingTraderSpawnChance,
-        UUID wanderingTraderId,
-        LinkedHashSet<String> serverBrands,
-        Timer<MinecraftServer> timer,
-        CompoundTag compoundTag,
-        CompoundTag compoundTag2,
-        LevelInfo levelInfo,
-        GeneratorOptions generatorOptions,
-        Lifecycle lifecycle,
-        CallbackInfo ci
+        DataFixer dataFixer, int dataVersion, CompoundTag playerData,
+        boolean modded, int spawnX, int spawnY, int spawnZ, float spawnAngle,
+        long time, long timeOfDay, int version, int clearWeatherTime, int rainTime,
+        boolean raining, int thunderTime, boolean thundering, boolean initialized,
+        boolean difficultyLocked, WorldBorder.Properties worldBorder, int wanderingTraderSpawnDelay,
+        int wanderingTraderSpawnChance, UUID wanderingTraderId, LinkedHashSet<String> serverBrands,
+        Timer<MinecraftServer> scheduledEvents, CompoundTag customBossEvents, CompoundTag dragonFight,
+        LevelInfo levelInfo, GeneratorOptions generatorOptions, Lifecycle lifecycle, CallbackInfo ci
     ) {
         altiusInfo = ((IELevelProperties) (Object) levelInfo).getAltiusInfo();
         
         // TODO use more appropriate way to get rid of the warning screen
         if (Global.enableAlternateDimensions && generatorOptions.getDimensions().getIds().size() == 8) {
-            field_25426 = Lifecycle.stable();
+            lifecycle = Lifecycle.stable();
         }
     }
     
@@ -116,13 +94,11 @@ public class MixinLevelProperties implements IELevelProperties {
         at = @At("RETURN")
     )
     private void onUpdateProperties(
-        RegistryTracker registryTracker,
-        CompoundTag infoTag,
-        CompoundTag playerTag,
-        CallbackInfo ci
+        DynamicRegistryManager dynamicRegistryManager, CompoundTag compoundTag,
+        CompoundTag compoundTag2, CallbackInfo ci
     ) {
         if (altiusInfo != null) {
-            infoTag.put("altius", altiusInfo.toTag());
+            compoundTag.put("altius", altiusInfo.toTag());
         }
     }
     

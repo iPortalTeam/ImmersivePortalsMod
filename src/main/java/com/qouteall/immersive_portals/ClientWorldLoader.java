@@ -225,7 +225,7 @@ public class ClientWorldLoader {
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
             RegistryTracker dimensionTracker = mainNetHandler.getRegistryManager();
-            ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setDimensionTracker(
+            ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setRegistryManager(
                 dimensionTracker);
             DimensionType dimensionType = dimensionTracker
                 .getDimensionTypeRegistry().get(dimensionTypeKey);

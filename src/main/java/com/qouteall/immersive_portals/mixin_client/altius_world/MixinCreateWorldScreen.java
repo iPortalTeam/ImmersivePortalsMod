@@ -6,11 +6,11 @@ import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.gui.screen.world.MoreOptionsDialog;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.resource.DataPackSettings;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.registry.RegistryTracker;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.nio.file.Path;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class MixinCreateWorldScreen extends Screen {
@@ -34,13 +36,13 @@ public abstract class MixinCreateWorldScreen extends Screen {
     }
     
     @Inject(
-        method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/client/gui/screen/world/MoreOptionsDialog;)V",
+        method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/gen/GeneratorOptions;Ljava/nio/file/Path;Lnet/minecraft/resource/DataPackSettings;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;)V",
         at = @At("RETURN")
     )
     private void onConstructEnded(
-        Screen screen,
-        MoreOptionsDialog moreOptionsDialog,
-        CallbackInfo ci
+        Screen screen, LevelInfo levelInfo,
+        GeneratorOptions generatorOptions, Path path,
+        DataPackSettings dataPackSettings, DynamicRegistryManager.Impl impl, CallbackInfo ci
     ) {
         altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
     }
@@ -79,20 +81,17 @@ public abstract class MixinCreateWorldScreen extends Screen {
         method = "createLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;method_29607(Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/util/registry/RegistryTracker$Modifiable;Lnet/minecraft/world/gen/GeneratorOptions;)V"
+            target = "Lnet/minecraft/client/MinecraftClient;method_29607(Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Lnet/minecraft/world/gen/GeneratorOptions;)V"
         )
     )
     private void redirectOnCreateLevel(
-        MinecraftClient client,
-        String string,
-        LevelInfo levelInfo,
-        RegistryTracker.Modifiable modifiable,
-        GeneratorOptions generatorOptions
+        MinecraftClient client, String worldName, LevelInfo levelInfo,
+        DynamicRegistryManager.Impl registryTracker, GeneratorOptions generatorOptions
     ) {
         AltiusInfo info = altiusScreen.getAltiusInfo();
         ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
-        
-        client.method_29607(string, levelInfo, modifiable, generatorOptions);
+    
+        client.method_29607(worldName, levelInfo, registryTracker, generatorOptions);
     }
     
     private void openAltiusScreen() {

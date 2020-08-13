@@ -8,9 +8,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.RegistryTracker;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -24,10 +24,10 @@ public class DimensionTypeSync {
     public static Map<RegistryKey<World>, RegistryKey<DimensionType>> clientTypeMap;
     
     @Environment(EnvType.CLIENT)
-    private static RegistryTracker currentDimensionTypeTracker;
+    private static DynamicRegistryManager currentDimensionTypeTracker;
     
     @Environment(EnvType.CLIENT)
-    public static void onGameJoinPacketReceived(RegistryTracker tracker) {
+    public static void onGameJoinPacketReceived(DynamicRegistryManager tracker) {
         currentDimensionTypeTracker = tracker;
     }
     
@@ -61,11 +61,20 @@ public class DimensionTypeSync {
     }
     
     public static CompoundTag createTagFromServerWorldInfo() {
+        DynamicRegistryManager registryManager = McHelper.getServer().getRegistryManager();
+        Registry<DimensionType> dimensionTypes = registryManager.getDimensionTypes();
         return typeMapToTag(
             Streams.stream(McHelper.getServer().getWorlds()).collect(
-                Collectors.toMap(World::getRegistryKey, World::getDimensionRegistryKey)
+                Collectors.toMap(
+                    World::getRegistryKey,
+                    w-> idToDimType(dimensionTypes.getId(w.getDimension()))
+                )
             )
         );
+    }
+    
+    public static RegistryKey<DimensionType> idToDimType(Identifier id) {
+        return RegistryKey.of(Registry.DIMENSION_TYPE_KEY, id);
     }
     
     private static CompoundTag typeMapToTag(Map<RegistryKey<World>, RegistryKey<DimensionType>> data) {
@@ -102,7 +111,7 @@ public class DimensionTypeSync {
     
     @Environment(EnvType.CLIENT)
     public static DimensionType getDimensionType(RegistryKey<DimensionType> registryKey) {
-        return currentDimensionTypeTracker.getDimensionTypeRegistry().get(registryKey);
+        return currentDimensionTypeTracker.getDimensionTypes().get(registryKey);
     }
     
 }

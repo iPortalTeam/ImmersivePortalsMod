@@ -10,13 +10,12 @@ import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdManagement;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
 import net.minecraft.resource.ResourcePackManager;
-import net.minecraft.resource.ResourcePackProfile;
 import net.minecraft.resource.ServerResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
-import net.minecraft.util.registry.RegistryTracker;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.SaveProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Final;
@@ -36,7 +35,6 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     @Final
     private MetricsData metricsData;
     
-    @Shadow @Final protected RegistryTracker.Modifiable dimensionTracker;
     private boolean portal_areAllWorldsLoaded;
     
     @Inject(
@@ -44,19 +42,12 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerConstruct(
-        Thread thread,
-        RegistryTracker.Modifiable modifiable,
-        LevelStorage.Session session,
-        SaveProperties saveProperties,
-        ResourcePackManager<ResourcePackProfile> resourcePackManager,
-        Proxy proxy,
-        DataFixer dataFixer,
-        ServerResourceManager serverResourceManager,
-        MinecraftSessionService minecraftSessionService,
-        GameProfileRepository gameProfileRepository,
-        UserCache userCache,
-        WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory,
-        CallbackInfo ci
+        Thread thread, DynamicRegistryManager.Impl impl,
+        LevelStorage.Session session, SaveProperties saveProperties,
+        ResourcePackManager resourcePackManager, Proxy proxy, DataFixer dataFixer,
+        ServerResourceManager serverResourceManager, MinecraftSessionService minecraftSessionService,
+        GameProfileRepository gameProfileRepository, UserCache userCache,
+        WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
     ) {
         McHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
     
@@ -99,10 +90,5 @@ public class MixinMinecraftServer implements IEMinecraftServer {
     @Override
     public boolean portal_getAreAllWorldsLoaded() {
         return portal_areAllWorldsLoaded;
-    }
-    
-    @Override
-    public RegistryTracker.Modifiable portal_getDimensionTracker() {
-        return dimensionTracker;
     }
 }
