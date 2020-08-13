@@ -139,7 +139,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw()V",
-            ordinal = 1,
+            ordinal = 0,
             shift = At.Shift.AFTER
         )
     )

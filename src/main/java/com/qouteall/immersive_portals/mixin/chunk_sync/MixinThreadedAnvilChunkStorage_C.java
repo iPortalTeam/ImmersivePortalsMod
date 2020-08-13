@@ -127,7 +127,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     
     //cancel vanilla packet sending
     @Redirect(
-        method = "createTickingFuture",
+        method = "makeChunkTickable",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/concurrent/CompletableFuture;thenAcceptAsync(Ljava/util/function/Consumer;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"
@@ -143,7 +143,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     
     //do my packet sending
     @Inject(
-        method = "createTickingFuture",
+        method = "makeChunkTickable",
         at = @At("RETURN"),
         cancellable = true
     )

@@ -20,7 +20,7 @@ public class MixinLevelInfo implements IELevelProperties {
     AltiusInfo altiusInfo;
     
     @Inject(
-        method = "method_28383",
+        method = "fromDynamic",
         at = @At("RETURN"),
         cancellable = true
     )
@@ -40,7 +40,7 @@ public class MixinLevelInfo implements IELevelProperties {
     }
     
     @Inject(
-        method = "method_28382",
+        method = "withGameMode",
         at = @At("RETURN"),
         cancellable = true
     )
@@ -49,7 +49,7 @@ public class MixinLevelInfo implements IELevelProperties {
     }
     
     @Inject(
-        method = "method_28381",
+        method = "withDifficulty",
         at = @At("RETURN"),
         cancellable = true
     )
@@ -58,7 +58,7 @@ public class MixinLevelInfo implements IELevelProperties {
     }
     
     @Inject(
-        method = "method_29557",
+        method = "withDataPackSettings",
         at = @At("RETURN"),
         cancellable = true
     )
@@ -70,7 +70,7 @@ public class MixinLevelInfo implements IELevelProperties {
     }
     
     @Inject(
-        method = "method_28385",
+        method = "withCopiedGameRules",
         at = @At("RETURN"),
         cancellable = true
     )

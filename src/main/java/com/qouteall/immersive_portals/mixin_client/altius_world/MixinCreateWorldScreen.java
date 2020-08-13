@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
+import net.minecraft.client.gui.screen.world.MoreOptionsDialog;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.resource.DataPackSettings;
 import net.minecraft.text.Text;
@@ -19,8 +20,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.nio.file.Path;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class MixinCreateWorldScreen extends Screen {
@@ -36,13 +35,12 @@ public abstract class MixinCreateWorldScreen extends Screen {
     }
     
     @Inject(
-        method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/gen/GeneratorOptions;Ljava/nio/file/Path;Lnet/minecraft/resource/DataPackSettings;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;)V",
+        method = "<init>(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/resource/DataPackSettings;Lnet/minecraft/client/gui/screen/world/MoreOptionsDialog;)V",
         at = @At("RETURN")
     )
     private void onConstructEnded(
-        Screen screen, LevelInfo levelInfo,
-        GeneratorOptions generatorOptions, Path path,
-        DataPackSettings dataPackSettings, DynamicRegistryManager.Impl impl, CallbackInfo ci
+        Screen screen, DataPackSettings dataPackSettings, MoreOptionsDialog moreOptionsDialog,
+        CallbackInfo ci
     ) {
         altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
     }
