@@ -96,7 +96,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     
     @Inject(method = "onGameJoin", at = @At("RETURN"))
     private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
-        DimensionTypeSync.onGameJoinPacketReceived(packet.getDimension());
+        DimensionTypeSync.onGameJoinPacketReceived(packet.getRegistryManager());
     }
     
     @Inject(
@@ -227,12 +227,12 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                 profiler.push("delayed_unload");
                 
                 for (int y = 0; y < 16; ++y) {
-                    world1.getLightingProvider().updateSectionStatus(
+                    world1.getLightingProvider().setSectionStatus(
                         ChunkSectionPos.from(pos.x, y, pos.z), true
                     );
                 }
                 
-                world1.getLightingProvider().setLightEnabled(pos.getChunkPos(), false);
+                world1.getLightingProvider().setColumnEnabled(pos.getChunkPos(), false);
                 
                 profiler.pop();
                 

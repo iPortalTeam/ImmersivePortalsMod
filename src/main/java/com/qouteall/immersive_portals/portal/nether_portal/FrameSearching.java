@@ -49,7 +49,7 @@ public class FrameSearching {
                     onNotFound.run();
                 }
             },
-            Util.getServerWorkerExecutor()
+            Util.getMainWorkerExecutor()
         );
         
     }

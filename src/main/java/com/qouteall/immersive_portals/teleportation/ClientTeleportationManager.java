@@ -396,7 +396,7 @@ public class ClientTeleportationManager {
     
     private void changePlayerMotionIfCollidingWithPortal() {
         ClientPlayerEntity player = client.player;
-        List<Portal> portals = player.world.getEntities(
+        List<Portal> portals = player.world.getEntitiesByClass(
             Portal.class,
             player.getBoundingBox().expand(0.5),
             e -> !(e instanceof Mirror)

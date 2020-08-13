@@ -7,8 +7,8 @@ import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tag.RegistryTagManager;
 import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagManagerLoader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -60,7 +60,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             );
         }
         
-        RegistryTagManager tagManager = server.serverResourceManager.getRegistryTagManager();
+        TagManagerLoader tagManager = server.serverResourceManager.getRegistryTagManager();
         Identifier id = new Identifier(string);
         Tag<Block> blockTag = tagManager.blocks().get(id);
         
@@ -91,7 +91,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         
         Tag<Block> tag = predicate.tag;
         
-        RegistryTagManager tagManager = server.serverResourceManager.getRegistryTagManager();
+        TagManagerLoader tagManager = server.serverResourceManager.getRegistryTagManager();
         
         Identifier id = tagManager.blocks().getId(tag);
         

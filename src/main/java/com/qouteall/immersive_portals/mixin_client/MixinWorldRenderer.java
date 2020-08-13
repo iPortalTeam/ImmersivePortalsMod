@@ -408,7 +408,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             return false;
         }
-        return client.method_27022(entity);
+        return client.hasOutline(entity);
     }
     
     private static boolean isReloadingOtherWorldRenderers = false;

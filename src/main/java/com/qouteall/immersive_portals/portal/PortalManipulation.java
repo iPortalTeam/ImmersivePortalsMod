@@ -238,7 +238,7 @@ public class PortalManipulation {
         Vec3d normal,
         Predicate<Portal> predicate
     ) {
-        return world.getEntities(
+        return world.getEntitiesByClass(
             Portal.class,
             new Box(
                 pos.add(0.5, 0.5, 0.5),

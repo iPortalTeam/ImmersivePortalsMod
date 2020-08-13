@@ -18,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.biome.source.BiomeArray;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -116,7 +116,7 @@ public class MyClientChunkManager extends ClientChunkManager {
                         world.getRegistryKey().getValue(), x, z
                     );
                     biomeArray = new BiomeArray(
-                        Stream.generate(() -> Biomes.PLAINS)
+                        Stream.generate(() -> BuiltinBiomes.PLAINS)
                             .limit(BiomeArray.DEFAULT_LENGTH)
                             .toArray(Biome[]::new)
                     );
@@ -130,11 +130,11 @@ public class MyClientChunkManager extends ClientChunkManager {
         
         ChunkSection[] chunkSections = worldChunk.getSectionArray();
         LightingProvider lightingProvider = this.getLightingProvider();
-        lightingProvider.setLightEnabled(new ChunkPos(x, z), true);
+        lightingProvider.setColumnEnabled(new ChunkPos(x, z), true);
         
         for (int m = 0; m < chunkSections.length; ++m) {
             ChunkSection chunkSection = chunkSections[m];
-            lightingProvider.updateSectionStatus(
+            lightingProvider.setSectionStatus(
                 ChunkSectionPos.from(x, m, z),
                 ChunkSection.isEmpty(chunkSection)
             );
@@ -152,7 +152,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         LightingProvider lightingProvider = chunk.getWorld().getLightingProvider();
         for (int int_5 = 0; int_5 < chunkSections_1.length; ++int_5) {
             ChunkSection chunkSection_1 = chunkSections_1[int_5];
-            lightingProvider.updateSectionStatus(
+            lightingProvider.setSectionStatus(
                 ChunkSectionPos.from(chunk.getPos().x, int_5, chunk.getPos().z),
                 ChunkSection.isEmpty(chunkSection_1)
             );

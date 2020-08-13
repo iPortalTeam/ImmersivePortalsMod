@@ -205,7 +205,7 @@ public class MyGameRenderer {
             client.chunkCullingEnabled = true;
         }
         
-        client.getEntityRenderManager()
+        client.getEntityRenderDispatcher()
             .configure(
                 client.world,
                 oldCamera,

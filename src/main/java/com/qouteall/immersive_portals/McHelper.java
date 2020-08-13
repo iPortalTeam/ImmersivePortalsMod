@@ -205,7 +205,7 @@ public class McHelper {
                     };
                 }
             },
-            Util.getServerWorkerExecutor()
+            Util.getMainWorkerExecutor()
         );
         ModMain.serverTaskList.addTask(() -> {
             if (future.isDone()) {
@@ -249,7 +249,7 @@ public class McHelper {
         double range
     ) {
         Box box = new Box(center, center).expand(range);
-        return (Stream) world.getEntities(entityClass, box, e -> true).stream();
+        return (Stream) world.getEntitiesByClass(entityClass, box, e -> true).stream();
     }
     
     public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(

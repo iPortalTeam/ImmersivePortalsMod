@@ -13,7 +13,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.FixedBiomeSource;
 import net.minecraft.world.chunk.Chunk;
@@ -40,13 +40,13 @@ public class VoidChunkGenerator extends ChunkGenerator {
     
     public VoidChunkGenerator() {
         super(
-            new FixedBiomeSource(Biomes.PLAINS),
+            new FixedBiomeSource(BuiltinBiomes.PLAINS),
             new StructuresConfig(Optional.empty(), new HashMap<>())
         );
     }
     
     @Override
-    protected Codec<? extends ChunkGenerator> method_28506() {
+    protected Codec<? extends ChunkGenerator> getCodec() {
         return codec;
     }
     

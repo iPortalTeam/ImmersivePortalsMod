@@ -194,7 +194,7 @@ public class ClientDebugCommand {
             .literal("report_server_entities")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-                List<Entity> entities = player.world.getEntities(
+                List<Entity> entities = player.world.getEntitiesByClass(
                     Entity.class,
                     new Box(player.getPos(), player.getPos()).expand(32),
                     e -> true
@@ -304,7 +304,7 @@ public class ClientDebugCommand {
             .executes(context -> {
                 MinecraftClient client = MinecraftClient.getInstance();
                 client.execute(() -> {
-                    client.world.getChunkManager().getLightingProvider().updateSectionStatus(
+                    client.world.getChunkManager().getLightingProvider().setSectionStatus(
                         ChunkSectionPos.from(new BlockPos(client.player.getPos())),
                         false
                     );
@@ -455,7 +455,7 @@ public class ClientDebugCommand {
                 McHelper.getServer().getWorlds().forEach(world -> {
                     ChunkGenerator generator = world.getChunkManager().getChunkGenerator();
                     Helper.log(world.getRegistryKey().getValue());
-                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.field_24746));
+                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
                     Helper.log(McHelper.serializeToJson(
                         world.getDimension(),
                         DimensionType.CODEC.codec()

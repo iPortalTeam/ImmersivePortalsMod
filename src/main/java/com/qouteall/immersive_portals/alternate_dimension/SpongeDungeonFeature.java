@@ -34,7 +34,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.MobSpawnerEntry;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.gen.StructureAccessor;
@@ -196,7 +196,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
         }
         
         MobSpawnerBlockEntity mobSpawner = (MobSpawnerBlockEntity) blockEntity;
-        Entity spawnedEntity = entitySelector.select(random).apply(world.getWorld(), random);
+        Entity spawnedEntity = entitySelector.select(random).apply(world.toServerWorld(), random);
         Validate.isTrue(!spawnedEntity.hasVehicle());
         CompoundTag tag = new CompoundTag();
         spawnedEntity.saveToTag(tag);
@@ -455,7 +455,7 @@ public class SpongeDungeonFeature extends Feature<DefaultFeatureConfig> {
     
     @Override
     public boolean generate(
-        ServerWorldAccess serverWorldAccess,
+        StructureWorldAccess serverWorldAccess,
         StructureAccessor accessor,
         ChunkGenerator generator,
         Random random,

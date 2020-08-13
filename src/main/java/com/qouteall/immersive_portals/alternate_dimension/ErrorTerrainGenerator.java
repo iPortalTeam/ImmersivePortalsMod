@@ -186,7 +186,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     }
     
     @Override
-    protected Codec<? extends ChunkGenerator> method_28506() {
+    protected Codec<? extends ChunkGenerator> getCodec() {
         return codec;
     }
     

@@ -93,7 +93,7 @@ public class ServerTeleportationManager {
     }
     
     private static Stream<Entity> getEntitiesToTeleport(Portal portal) {
-        return portal.world.getEntities(
+        return portal.world.getEntitiesByClass(
             Entity.class,
             portal.getBoundingBox().expand(2),
             e -> true
@@ -273,7 +273,7 @@ public class ServerTeleportationManager {
         player.world = toWorld;
         toWorld.onPlayerChangeDimension(player);
         
-        toWorld.checkChunk(player);
+        toWorld.checkEntityChunkPos(player);
         
         player.interactionManager.setWorld(toWorld);
         
@@ -421,7 +421,7 @@ public class ServerTeleportationManager {
         McHelper.setEyePos(entity, newEyePos, newEyePos);
         McHelper.updateBoundingBox(entity);
         
-        ((ServerWorld) entity.world).checkChunk(entity);
+        ((ServerWorld) entity.world).checkEntityChunkPos(entity);
         
         entity.setVelocity(portal.transformLocalVec(velocity));
         

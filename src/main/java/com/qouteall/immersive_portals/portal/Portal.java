@@ -374,7 +374,7 @@ public class Portal extends Entity {
             return;
         }
         
-        List<Entity> collidingEntities = world.getEntities(
+        List<Entity> collidingEntities = world.getEntitiesByClass(
             Entity.class,
             getBoundingBox(),
             e -> !(e instanceof Portal) && CollisionHelper.shouldCollideWithPortal(

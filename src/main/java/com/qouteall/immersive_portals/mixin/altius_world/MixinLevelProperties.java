@@ -74,7 +74,7 @@ public class MixinLevelProperties implements IELevelProperties {
         altiusInfo = ((IELevelProperties) (Object) levelInfo).getAltiusInfo();
         
         // TODO use more appropriate way to get rid of the warning screen
-        if (Global.enableAlternateDimensions && generatorOptions.getDimensionMap().getIds().size() == 8) {
+        if (Global.enableAlternateDimensions && generatorOptions.getDimensions().getIds().size() == 8) {
             field_25426 = Lifecycle.stable();
         }
     }

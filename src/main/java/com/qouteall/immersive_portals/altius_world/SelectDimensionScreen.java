@@ -43,7 +43,7 @@ public class SelectDimensionScreen extends Screen {
         GeneratorOptions generatorOptions =
             parent.parent.moreOptionsDialog.getGeneratorOptions(false);
         
-        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensionMap();
+        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
         
         dimensionMap.getIds().forEach(dimId -> {
             RegistryKey<World> worldKey = RegistryKey.of(Registry.DIMENSION, dimId);

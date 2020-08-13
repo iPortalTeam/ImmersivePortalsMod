@@ -93,7 +93,7 @@ public class RenderStates {
         projectionMatrix = null;
         originalCamera = MyRenderHelper.client.gameRenderer.getCamera();
         
-        originalCameraLightPacked = MyRenderHelper.client.getEntityRenderManager()
+        originalCameraLightPacked = MyRenderHelper.client.getEntityRenderDispatcher()
             .getLight(MyRenderHelper.client.cameraEntity, tickDelta);
         
         updateIsLaggy();
