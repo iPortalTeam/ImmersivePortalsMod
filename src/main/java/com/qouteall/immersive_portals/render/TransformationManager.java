@@ -135,8 +135,8 @@ public class TransformationManager {
         camera.update(
             client.world,
             client.player,
-            client.options.perspective > 0,
-            client.options.perspective == 2,
+            !client.options.getPerspective().isFirstPerson(),
+            client.options.getPerspective().isFrontView(),
             RenderStates.tickDelta
         );
     }

@@ -56,7 +56,7 @@ public class MyRenderHelper {
                 GlStateManager.enableTexture();
                 GlStateManager.activeTexture(GL13.GL_TEXTURE0);
     
-                GlStateManager.bindTexture(textureProvider.colorAttachment);
+                textureProvider.beginRead();
                 GlStateManager.texParameter(3553, 10241, 9729);
                 GlStateManager.texParameter(3553, 10240, 9729);
                 GlStateManager.texParameter(3553, 10242, 10496);
@@ -65,6 +65,8 @@ public class MyRenderHelper {
                 ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
     
                 shaderManager.unloadShader();
+                
+                textureProvider.endRead();
     
                 OFInterface.resetViewport.run();
             }
