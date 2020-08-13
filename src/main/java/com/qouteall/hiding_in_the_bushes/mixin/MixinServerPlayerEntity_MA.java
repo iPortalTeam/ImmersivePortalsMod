@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerEntity.class)
 public class MixinServerPlayerEntity_MA {
-    @Inject(method = "changeDimension", at = @At("HEAD"))
+    @Inject(method = "moveToWorld", at = @At("HEAD"))
     private void onChangeDimensionByVanilla(
         ServerWorld serverWorld,
         CallbackInfoReturnable<Entity> cir

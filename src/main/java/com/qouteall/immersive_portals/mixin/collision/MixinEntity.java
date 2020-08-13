@@ -96,15 +96,6 @@ public abstract class MixinEntity implements IEEntity {
     }
     
     //don't burn when jumping into end portal
-    //teleportation is instant and accurate in client but not in server
-    //so collision may sometimes be incorrect when client teleported but server did not teleport
-    @Inject(method = "setInLava", at = @At("HEAD"), cancellable = true)
-    private void onSetInLava(CallbackInfo ci) {
-        if (getCollidingPortal() instanceof EndPortalEntity) {
-            ci.cancel();
-        }
-    }
-    
     @Inject(
         method = "isFireImmune",
         at = @At("HEAD"),

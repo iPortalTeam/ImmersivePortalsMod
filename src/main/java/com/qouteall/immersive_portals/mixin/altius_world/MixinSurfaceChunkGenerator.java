@@ -18,14 +18,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Iterator;
 import java.util.Random;
+import java.util.function.Supplier;
 
 @Mixin(NoiseChunkGenerator.class)
 public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
     
+    @Shadow @Final public Supplier<ChunkGeneratorSettings> settings;
     
-    @Shadow @Final protected ChunkGeneratorSettings field_24774;
-    
-    @Shadow @Final private int field_24779;
+    @Shadow @Final private int worldHeight;
     
     public MixinSurfaceChunkGenerator(BiomeSource biomeSource, StructuresConfig arg) {
         super(biomeSource, arg);
@@ -47,34 +47,36 @@ public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         int i = chunk.getPos().getStartX();
         int j = chunk.getPos().getStartZ();
-        int k = this.field_24774.getBedrockFloorY();
-        int l = this.field_24779 - 1 - this.field_24774.getBedrockCeilingY();
-        boolean bl = l + 4 >= 0 && l < this.field_24779;
-        boolean bl2 = k + 4 >= 0 && k < this.field_24779;
-        if (bl || bl2) {
-            Iterator var11 = BlockPos.iterate(i, 0, j, i + 15, 0, j + 15).iterator();
+        ChunkGeneratorSettings chunkGeneratorSettings = (ChunkGeneratorSettings) this.settings.get();
+        int k = chunkGeneratorSettings.getBedrockFloorY();
+        int l = this.worldHeight - 1 - chunkGeneratorSettings.getBedrockCeilingY();
         
-            while(true) {
+        boolean bl = l + 4 >= 0 && l < this.worldHeight;
+        boolean bl2 = k + 4 >= 0 && k < this.worldHeight;
+        if (bl || bl2) {
+            Iterator var12 = BlockPos.iterate(i, 0, j, i + 15, 0, j + 15).iterator();
+            
+            while (true) {
                 BlockPos blockPos;
                 int o;
                 do {
-                    if (!var11.hasNext()) {
+                    if (!var12.hasNext()) {
                         return;
                     }
-                
-                    blockPos = (BlockPos)var11.next();
+                    
+                    blockPos = (BlockPos) var12.next();
                     if (bl) {
-                        for(o = 0; o < 5; ++o) {
+                        for (o = 0; o < 5; ++o) {
                             if (o <= random.nextInt(5)) {
-                                chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()), Blocks.OBSIDIAN.getDefaultState(), false);
+                                chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
                             }
                         }
                     }
-                } while(!bl2);
-            
-                for(o = 4; o >= 0; --o) {
+                } while (!bl2);
+                
+                for (o = 4; o >= 0; --o) {
                     if (o <= random.nextInt(5)) {
-                        chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()), Blocks.OBSIDIAN.getDefaultState(), false);
+                        chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
                     }
                 }
             }

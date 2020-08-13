@@ -45,6 +45,7 @@
     "entity_sync.MixinServerPlayerEntity",
     "entity_sync.MixinServerPlayNetworkHandler_E",
     "entity_sync.MixinThreadedAnvilChunkStorage_E",
+    "portal_generation.MixinAbstractFireBlock",
     "portal_generation.MixinEnderEyeItem",
     "portal_generation.MixinFlintAndSteelItem",
     "portal_generation.MixinItemEntity_P",
