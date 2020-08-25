@@ -79,8 +79,8 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         super(biomeSource, new StructuresConfig(true));
         worldSeed = seed;
         
-        surfaceDepthNoise = new OctaveSimplexNoiseSampler(new ChunkRandom(
-            seed), IntStream.rangeClosed(-3, 0));
+        surfaceDepthNoise = new OctaveSimplexNoiseSampler(
+            new ChunkRandom(seed), IntStream.rangeClosed(-3, 0));
         
     }
     

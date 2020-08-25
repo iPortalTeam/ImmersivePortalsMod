@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render.context_management;
 
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
@@ -107,12 +108,22 @@ public class StaticFieldsSwappingManager<Context> {
     }
     
     private void transferDataFromObjectToStaticFields(ContextRecord<Context> newContext) {
+        if (newContext == null) {
+            Helper.err("Null context to read");
+            return;
+        }
+        
         Validate.isTrue(newContext.isHoldingLatestContext);
         newContext.isHoldingLatestContext = false;
         copyFromObject.accept(newContext.context);
     }
     
     private void transferDataFromStaticFieldsToObject(ContextRecord<Context> oldContext) {
+        if (oldContext != null) {
+            Helper.err("Null context to write");
+            return;
+        }
+        
         Validate.isTrue(!oldContext.isHoldingLatestContext);
         oldContext.isHoldingLatestContext = true;
         copyToObject.accept(oldContext.context);

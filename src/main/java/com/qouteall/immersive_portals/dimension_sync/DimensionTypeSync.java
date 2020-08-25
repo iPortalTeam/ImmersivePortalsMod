@@ -67,7 +67,15 @@ public class DimensionTypeSync {
             Streams.stream(McHelper.getServer().getWorlds()).collect(
                 Collectors.toMap(
                     World::getRegistryKey,
-                    w-> idToDimType(dimensionTypes.getId(w.getDimension()))
+                    w -> {
+                        DimensionType dimensionType = w.getDimension();
+                        Identifier id = dimensionTypes.getId(dimensionType);
+                        if (id == null) {
+                            Helper.err("Missing id for " + dimensionType);
+                            return DimensionType.OVERWORLD_REGISTRY_KEY;
+                        }
+                        return idToDimType(id);
+                    }
                 )
             )
         );

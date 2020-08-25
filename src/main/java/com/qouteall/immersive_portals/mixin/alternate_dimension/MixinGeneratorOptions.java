@@ -1,14 +1,20 @@
 package com.qouteall.immersive_portals.mixin.alternate_dimension;
 
+import com.mojang.serialization.Lifecycle;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 // Uses hacky ways to add dimension
 // Should be replaced by better ways later
@@ -34,7 +40,7 @@ public class MixinGeneratorOptions {
 //                registry,
 //                ModMain.alternate1Option,
 //                () -> ModMain.surfaceTypeObject,
-//                NormalSkylandGenerator::new
+//                AlternateDimensions::createSkylandGenerator
 //            );
 //
 //            portal_addCustomDimension(
@@ -42,7 +48,7 @@ public class MixinGeneratorOptions {
 //                registry,
 //                ModMain.alternate2Option,
 //                () -> ModMain.surfaceTypeObject,
-//                NormalSkylandGenerator::new
+//                AlternateDimensions::createSkylandGenerator
 //            );
 //
 //            portal_addCustomDimension(
@@ -50,7 +56,7 @@ public class MixinGeneratorOptions {
 //                registry,
 //                ModMain.alternate3Option,
 //                () -> ModMain.surfaceTypeObject,
-//                ErrorTerrainGenerator::new
+//                AlternateDimensions::createErrorTerrainGenerator
 //            );
 //
 //            portal_addCustomDimension(
@@ -58,7 +64,7 @@ public class MixinGeneratorOptions {
 //                registry,
 //                ModMain.alternate4Option,
 //                () -> ModMain.surfaceTypeObject,
-//                ErrorTerrainGenerator::new
+//                AlternateDimensions::createErrorTerrainGenerator
 //            );
 //
 //            portal_addCustomDimension(
@@ -66,7 +72,7 @@ public class MixinGeneratorOptions {
 //                registry,
 //                ModMain.alternate5Option,
 //                () -> ModMain.surfaceTypeObject,
-//                (s) -> new VoidChunkGenerator()
+//                (s) -> AlternateDimensions.createVoidGenerator()
 //            );
 //        }
         
@@ -105,24 +111,22 @@ public class MixinGeneratorOptions {
 //
 //    }
     
-//    void portal_addCustomDimension(
-//        long argSeed,
-//        SimpleRegistry<DimensionOptions> registry,
-//        RegistryKey<DimensionOptions> key,
-//        Supplier<DimensionType> dimensionTypeSupplier,
-//        Function<Long, ChunkGenerator> chunkGeneratorCreator
-//    ) {
-//        if (!registry.containsId(key.getValue())) {
-//            registry.add(
-//                key,
-//                new DimensionOptions(
-//                    dimensionTypeSupplier,
-//                    chunkGeneratorCreator.apply(argSeed)
-//                )
-//            );
-//        }
-//        //stop the dimension from being saved to level.dat
-//        //avoids messing with dfu
-//        ((IESimpleRegistry) registry).markUnloaded(key);
-//    }
+    void portal_addCustomDimension(
+        long argSeed,
+        SimpleRegistry<DimensionOptions> registry,
+        RegistryKey<DimensionOptions> key,
+        Supplier<DimensionType> dimensionTypeSupplier,
+        Function<Long, ChunkGenerator> chunkGeneratorCreator
+    ) {
+        if (!registry.containsId(key.getValue())) {
+            registry.add(
+                key,
+                new DimensionOptions(
+                    dimensionTypeSupplier,
+                    chunkGeneratorCreator.apply(argSeed)
+                ),
+                Lifecycle.experimental()
+            );
+        }
+    }
 }

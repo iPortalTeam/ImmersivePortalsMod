@@ -49,7 +49,6 @@ public class ChaosBiomeSource extends BiomeSource {
     
     @Override
     public BiomeSource withSeed(long seed) {
-        worldSeed = seed;
-        return this;
+        return new ChaosBiomeSource(seed, biomeRegistry);
     }
 }

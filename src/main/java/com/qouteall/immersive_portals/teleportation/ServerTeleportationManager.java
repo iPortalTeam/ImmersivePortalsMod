@@ -525,7 +525,7 @@ public class ServerTeleportationManager {
         }
         else {
             Helper.log(String.format("ignored dubious move packet %s %s %s %s %s %s %s",
-                player.world.getRegistryKey(), x, y, z, player.getX(), player.getY(), player.getZ()
+                player.world.getRegistryKey().getValue(), x, y, z, player.getX(), player.getY(), player.getZ()
             ));
         }
     }

@@ -42,6 +42,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import java.lang.ref.Reference;
@@ -58,9 +59,6 @@ public class ClientDebugCommand {
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
-        //for composite command arguments, put into then() 's bracket
-        //for parallel command arguments, put behind then()
-        
         LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("immersive_portals_debug")
             .requires(commandSource -> true)
@@ -461,6 +459,10 @@ public class ClientDebugCommand {
                         DimensionType.CODEC.stable()
                     ));
                 });
+                
+                GeneratorOptions options = McHelper.getServer().getSaveProperties().getGeneratorOptions();
+                
+                Helper.log(McHelper.serializeToJson(options, GeneratorOptions.CODEC));
                 
                 return 0;
             })
