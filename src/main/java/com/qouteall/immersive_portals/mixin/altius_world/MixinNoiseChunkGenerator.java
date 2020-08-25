@@ -21,13 +21,17 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 @Mixin(NoiseChunkGenerator.class)
-public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
+public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
     
-    @Shadow @Final public Supplier<ChunkGeneratorSettings> settings;
+    @Shadow
+    @Final
+    public Supplier<ChunkGeneratorSettings> settings;
     
-    @Shadow @Final private int worldHeight;
+    @Shadow
+    @Final
+    private int worldHeight;
     
-    public MixinSurfaceChunkGenerator(BiomeSource biomeSource, StructuresConfig arg) {
+    public MixinNoiseChunkGenerator(BiomeSource biomeSource, StructuresConfig arg) {
         super(biomeSource, arg);
     }
     
@@ -68,7 +72,8 @@ public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
                     if (bl) {
                         for (o = 0; o < 5; ++o) {
                             if (o <= random.nextInt(5)) {
-                                chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
+                                chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()),
+                                    Blocks.OBSIDIAN.getDefaultState(), false);
                             }
                         }
                     }
@@ -76,7 +81,8 @@ public abstract class MixinSurfaceChunkGenerator extends ChunkGenerator {
                 
                 for (o = 4; o >= 0; --o) {
                     if (o <= random.nextInt(5)) {
-                        chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()), Blocks.BEDROCK.getDefaultState(), false);
+                        chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()),
+                            Blocks.OBSIDIAN.getDefaultState(), false);
                     }
                 }
             }

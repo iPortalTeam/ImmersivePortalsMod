@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
@@ -526,13 +527,15 @@ public class NetherPortalGeneration {
         return false;
     }
     
+    private static final LimitedLogger limitedLogger = new LimitedLogger(300);
+    
     public static boolean checkPortalGeneration(ServerWorld fromWorld, BlockPos startingPos) {
         if (!fromWorld.isChunkLoaded(startingPos)) {
-            Helper.log("Cancel Nether Portal Generation Because Chunk Not Loaded");
+            Helper.log("Cancel Portal Generation Because Chunk Not Loaded");
             return false;
         }
         
-        Helper.log(String.format("Portal Generation Attempted %s %s %s %s",
+        limitedLogger.log(String.format("Portal Generation Attempted %s %s %s %s",
             fromWorld.getRegistryKey().getValue(), startingPos.getX(), startingPos.getY(), startingPos.getZ()
         ));
         return true;

@@ -13,6 +13,10 @@ public class LimitedLogger {
         remain = maxCount;
     }
     
+    public void log(String s) {
+        invoke(() -> Helper.log(s));
+    }
+    
     public void err(String s) {
         invoke(() -> Helper.err(s));
     }
