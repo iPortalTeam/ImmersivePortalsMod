@@ -20,7 +20,7 @@ public class MixinItem {
     private static WeakReference<PlayerEntity> argPlayer;
     
     @Inject(
-        method = "rayTrace",
+        method = "raycast",
         at = @At("HEAD")
     )
     private static void onRayTrace(
@@ -33,7 +33,7 @@ public class MixinItem {
     }
     
     @ModifyConstant(
-        method = "rayTrace",
+        method = "raycast",
         constant = @Constant(doubleValue = 5.0D),
         require = 0
     )
