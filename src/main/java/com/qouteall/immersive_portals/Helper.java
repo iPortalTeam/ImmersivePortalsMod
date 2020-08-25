@@ -278,17 +278,21 @@ public class Helper {
     
     @Nullable
     public static <T> T getLastSatisfying(Stream<T> stream, Predicate<T> predicate) {
-        SimpleBox<T> box = new SimpleBox<T>(null);
-        stream.filter(curr -> {
-            if (predicate.test(curr)) {
-                box.obj = curr;
-                return false;
+        T last = null;
+        
+        Iterator<T> iterator = stream.iterator();
+        
+        while (iterator.hasNext()) {
+            T obj = iterator.next();
+            if (predicate.test(obj)) {
+                last = obj;
             }
             else {
-                return true;
+                return last;
             }
-        }).findFirst();
-        return box.obj;
+        }
+    
+        return null;
     }
     
     public interface CallableWithoutException<T> {
