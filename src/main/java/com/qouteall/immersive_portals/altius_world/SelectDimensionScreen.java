@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.altius_world;
 
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -12,6 +13,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.gen.GeneratorOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class SelectDimensionScreen extends Screen {
@@ -24,6 +28,28 @@ public class SelectDimensionScreen extends Screen {
         super(new TranslatableText("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
+    }
+    
+    public List<RegistryKey<World>> getDimensionList() {
+        GeneratorOptions generatorOptions =
+            parent.parent.moreOptionsDialog.getGeneratorOptions(false);
+        
+        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
+        
+        // TODO use an appropriate way to detect other mod's dimensions
+        AlternateDimensions.addAlternateDimensions(
+            dimensionMap,
+            parent.parent.moreOptionsDialog.method_29700(),
+            generatorOptions.getSeed()
+        );
+        
+        ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
+        
+        for (Map.Entry<RegistryKey<DimensionOptions>, DimensionOptions> entry : dimensionMap.getEntries()) {
+            dimList.add(RegistryKey.of(Registry.DIMENSION, entry.getKey().getValue()));
+        }
+        
+        return dimList;
     }
     
     @Override
@@ -40,15 +66,9 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimTermWidget> callback = w -> dimListWidget.setSelected(w);
         
-        GeneratorOptions generatorOptions =
-            parent.parent.moreOptionsDialog.getGeneratorOptions(false);
-        
-        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
-        
-        dimensionMap.getIds().forEach(dimId -> {
-            RegistryKey<World> worldKey = RegistryKey.of(Registry.DIMENSION, dimId);
-            dimListWidget.terms.add(new DimTermWidget(worldKey, dimListWidget, callback));
-        });
+        for (RegistryKey<World> dim : getDimensionList()) {
+            dimListWidget.terms.add(new DimTermWidget(dim, dimListWidget, callback));
+        }
         
         dimListWidget.update();
         

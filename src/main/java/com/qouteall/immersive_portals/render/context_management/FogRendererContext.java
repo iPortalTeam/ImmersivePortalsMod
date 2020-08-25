@@ -32,7 +32,7 @@ public class FogRendererContext {
         BackgroundRenderer.class.hashCode();
         
         swappingManager = new StaticFieldsSwappingManager<>(
-            copyContextFromObject, copyContextToObject
+            copyContextFromObject, copyContextToObject, false
         );
         
     }

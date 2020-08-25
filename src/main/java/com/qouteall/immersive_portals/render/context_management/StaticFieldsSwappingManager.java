@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render.context_management;
 
-import com.qouteall.immersive_portals.Helper;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
@@ -17,6 +16,7 @@ import java.util.function.Consumer;
 public class StaticFieldsSwappingManager<Context> {
     private Consumer<Context> copyFromObject;
     private Consumer<Context> copyToObject;
+    private boolean strictCheck;
     
     public static class ContextRecord<Ctx> {
         public RegistryKey<World> dimension;
@@ -41,12 +41,14 @@ public class StaticFieldsSwappingManager<Context> {
     
     public StaticFieldsSwappingManager(
         Consumer<Context> copyFromObject,
-        Consumer<Context> copyToObject
+        Consumer<Context> copyToObject,
+        boolean doStrictCheck
     ) {
         Validate.notNull(copyFromObject);
         
         this.copyFromObject = copyFromObject;
         this.copyToObject = copyToObject;
+        this.strictCheck = doStrictCheck;
     }
     
     public boolean isSwapped() {
@@ -108,23 +110,29 @@ public class StaticFieldsSwappingManager<Context> {
     }
     
     private void transferDataFromObjectToStaticFields(ContextRecord<Context> newContext) {
-        if (newContext == null) {
-            Helper.err("Null context to read");
-            return;
+        if (!strictCheck) {
+            if (newContext == null) {
+                return;
+            }
         }
         
-        Validate.isTrue(newContext.isHoldingLatestContext);
+        if (strictCheck) {
+            Validate.isTrue(newContext.isHoldingLatestContext);
+        }
         newContext.isHoldingLatestContext = false;
         copyFromObject.accept(newContext.context);
     }
     
     private void transferDataFromStaticFieldsToObject(ContextRecord<Context> oldContext) {
-        if (oldContext != null) {
-            Helper.err("Null context to write");
-            return;
+        if (!strictCheck) {
+            if (oldContext == null) {
+                return;
+            }
         }
         
-        Validate.isTrue(!oldContext.isHoldingLatestContext);
+        if (strictCheck) {
+            Validate.isTrue(!oldContext.isHoldingLatestContext);
+        }
         oldContext.isHoldingLatestContext = true;
         copyToObject.accept(oldContext.context);
     }
@@ -133,7 +141,7 @@ public class StaticFieldsSwappingManager<Context> {
     public void updateOuterDimensionAndChangeContext(RegistryKey<World> newDimension) {
         Validate.isTrue(!isSwapped());
         Validate.notNull(outerDimension);
-    
+        
         RegistryKey<World> oldDimension = this.outerDimension;
         
         transferDataFromStaticFieldsToObject(contextMap.get(oldDimension));
