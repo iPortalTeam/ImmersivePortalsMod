@@ -49,8 +49,10 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         }
         
         // clear the area
-        for (BlockPos areaPos : fromShape.area) {
-            fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
+        if (generateFrameIfNotFound) {
+            for (BlockPos areaPos : fromShape.area) {
+                fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
+            }
         }
         
         BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter());

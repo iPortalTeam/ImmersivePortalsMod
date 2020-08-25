@@ -9,6 +9,7 @@ import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
@@ -78,13 +79,15 @@ public class CustomPortalGenManagement {
             return;
         }
         
-        result.stream().forEach(gen -> {
+        result.getEntries().forEach((entry) -> {
+            CustomPortalGeneration gen = entry.getValue();
+            
             if (!gen.initAndCheck()) {
                 Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
                 return;
             }
             
-            Helper.log("Loaded Custom Portal Gen " + gen.toString());
+            Helper.log("Loaded Custom Portal Gen " + entry.getKey().getValue() + " " + gen.toString());
             
             load(gen);
             
@@ -107,6 +110,9 @@ public class CustomPortalGenManagement {
                 ((PortalGenTrigger.ThrowItemTrigger) trigger).item,
                 gen
             );
+        }
+        else if (trigger instanceof PortalGenTrigger.ConventionalDimensionChangeTrigger) {
+            convGen.add(gen);
         }
     }
     
@@ -186,7 +192,12 @@ public class CustomPortalGenManagement {
             BlockPos startPos = new BlockPos(startCoord.pos);
             
             for (CustomPortalGeneration gen : convGen) {
-                gen.perform(startWorld, startPos);
+                IntBox box = new IntBox(startPos.add(-1, -1, -1), startPos.add(1, 1, 1));
+                boolean succeeded = box.stream().anyMatch(pos -> gen.perform(startWorld, pos));
+                
+                if (succeeded) {
+                    return;
+                }
             }
         }
     }
