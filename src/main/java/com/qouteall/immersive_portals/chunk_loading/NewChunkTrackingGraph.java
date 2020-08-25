@@ -372,7 +372,7 @@ public class NewChunkTrackingGraph {
     // loading tickets of this player. Without this, the chunks nearby player
     // may have no ticket for a short period of time (because the chunk tracking refreshes
     // every 2 seconds) and the chunk may be unloaded and reloaded.
-    public static void onBeforePlayerChangeDimension(ServerPlayerEntity player) {
+    public static void addAdditionalDirectTickets(ServerPlayerEntity player) {
         ChunkVisibilityManager.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
             if (isPlayerWatchingChunk(player, dim, x, z)) {
                 MyLoadingTicket.addTicketIfNotLoaded(((ServerWorld) player.world), new ChunkPos(x, z));

@@ -9,24 +9,37 @@ import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.dynamic.RegistryOps;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.SimpleRegistry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> useItemGen = HashMultimap.create();
     private static final Multimap<Item, CustomPortalGeneration> throwItemGen = HashMultimap.create();
     
+    private static final ArrayList<CustomPortalGeneration> convGen = new ArrayList<>();
+    private static final Map<UUID, UCoordinate> posBeforeTravel = new HashMap<>();
+    
     public static void onDatapackReload() {
         useItemGen.clear();
         throwItemGen.clear();
+        convGen.clear();
+        posBeforeTravel.clear();
         
         Helper.log("Loading custom portal gen");
         
@@ -150,6 +163,30 @@ public class CustomPortalGenManagement {
                     }
                     return true;
                 });
+            }
+        }
+    }
+    
+    public static void onBeforeConventionalDimensionChange(
+        ServerPlayerEntity player
+    ) {
+        posBeforeTravel.put(player.getUuid(), new UCoordinate(player));
+    }
+    
+    public static void onAfterConventionalDimensionChange(
+        ServerPlayerEntity player
+    ) {
+        UUID uuid = player.getUuid();
+        if (posBeforeTravel.containsKey(uuid)) {
+            UCoordinate startCoord = posBeforeTravel.get(uuid);
+            posBeforeTravel.remove(uuid);
+            
+            ServerWorld startWorld = McHelper.getServerWorld(startCoord.dimension);
+            
+            BlockPos startPos = new BlockPos(startCoord.pos);
+            
+            for (CustomPortalGeneration gen : convGen) {
+                gen.perform(startWorld, startPos);
             }
         }
     }

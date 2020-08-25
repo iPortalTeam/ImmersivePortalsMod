@@ -16,6 +16,7 @@ public abstract class PortalGenTrigger {
     
     public static final Registry<Codec<? extends PortalGenTrigger>> codecRegistry;
     
+    
     public abstract Codec<? extends PortalGenTrigger> getCodec();
     
     public static class UseItemTrigger extends PortalGenTrigger {
@@ -46,6 +47,16 @@ public abstract class PortalGenTrigger {
         }
     }
     
+    public static class ConventionalDimensionChangeTrigger extends PortalGenTrigger {
+        
+        public ConventionalDimensionChangeTrigger() {}
+        
+        @Override
+        public Codec<? extends PortalGenTrigger> getCodec() {
+            return conventionalDimensionChangeCodec;
+        }
+    }
+    
     public static final Codec<UseItemTrigger> useItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Registry.ITEM.fieldOf("item").forGetter(o -> o.item),
@@ -59,6 +70,9 @@ public abstract class PortalGenTrigger {
         ).apply(instance, instance.stable(ThrowItemTrigger::new));
     });
     
+    public static final Codec<ConventionalDimensionChangeTrigger> conventionalDimensionChangeCodec =
+        Codec.unit(ConventionalDimensionChangeTrigger::new);
+    
     static {
         codecRegistry = new SimpleRegistry<>(
             RegistryKey.ofRegistry(new Identifier("imm_ptl:custom_portal_gen_trigger")),
@@ -71,11 +85,16 @@ public abstract class PortalGenTrigger {
         Registry.register(
             codecRegistry, new Identifier("imm_ptl:throw_item"), throwItemTriggerCodec
         );
+        Registry.register(
+            codecRegistry, new Identifier("imm_ptl:conventional_dimension_change"),
+            ConventionalDimensionChangeTrigger.conventionalDimensionChangeCodec
+        );
         
         triggerCodec = codecRegistry.dispatchStable(
             PortalGenTrigger::getCodec,
             Function.identity()
         );
     }
+    
     
 }

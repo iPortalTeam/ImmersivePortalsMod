@@ -653,7 +653,6 @@ public class McHelper {
         }
     }
     
-    
     /**
      * It will spawn even if the chunk is not loaded
      * ServerWorld#addEntity(Entity)
@@ -699,4 +698,13 @@ public class McHelper {
         
         return newRegistry;
     }
+    
+    public static ServerWorld getServerWorld(RegistryKey<World> dim){
+        ServerWorld world = McHelper.getServer().getWorld(dim);
+        if (world == null) {
+            throw new RuntimeException("Missing dimension " + dim.getValue());
+        }
+        return world;
+    }
+    
 }

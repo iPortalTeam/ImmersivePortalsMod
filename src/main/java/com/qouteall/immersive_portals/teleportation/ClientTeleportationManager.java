@@ -87,7 +87,6 @@ public class ClientTeleportationManager {
         if (client.player.world.getRegistryKey() != dimension) {
             forceTeleportPlayer(dimension, pos);
         }
-        getOutOfLoadingScreen(dimension, pos);
     }
     
     public void manageTeleportation(float tickDelta) {
@@ -373,27 +372,6 @@ public class ClientTeleportationManager {
         }
     }
     
-    @Deprecated
-    private void getOutOfLoadingScreen(RegistryKey<World> dimension, Vec3d playerPos) {
-//        if (((IEMinecraftClient) client).getCurrentScreen() instanceof DownloadingTerrainScreen) {
-//            Helper.err("Manually getting out of loading screen. The game is in abnormal state.");
-//            ClientPlayerEntity player = client.player;
-//            if (player.world.getRegistryKey() != dimension) {
-//                Helper.err("Manually fix dimension state while loading terrain");
-//                ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(dimension);
-//                changePlayerDimension(player, client.world, toWorld, playerPos);
-//            }
-//            player.updatePosition(playerPos.x, playerPos.y, playerPos.z);
-//
-//            if (client.world.getEntityById(player.getEntityId()) == null) {
-//                Helper.err("Client world does not have player added into");
-//                client.world.addPlayer(player.getEntityId(), player);
-//            }
-//
-//            client.openScreen(null);
-//        }
-    }
-    
     private void changePlayerMotionIfCollidingWithPortal() {
         ClientPlayerEntity player = client.player;
         List<Portal> portals = player.world.getEntitiesByClass(
@@ -446,6 +424,8 @@ public class ClientTeleportationManager {
             10,
             portal -> true
         ).forEach(Portal::notifyCollidingPortals);
+        
+        CollisionHelper.updateClientGlobalPortalCollidingPortal();
         
         player.tick();
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);

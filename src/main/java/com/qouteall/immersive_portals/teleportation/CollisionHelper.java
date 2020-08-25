@@ -329,7 +329,7 @@ public class CollisionHelper {
     }
     
     @Environment(EnvType.CLIENT)
-    private static void updateClientGlobalPortalCollidingPortal() {
+    public static void updateClientGlobalPortalCollidingPortal() {
         for (ClientWorld world : CGlobal.clientWorldLoader.clientWorldMap.values()) {
             updateGlobalPortalCollidingPortalForWorld(world);
         }
