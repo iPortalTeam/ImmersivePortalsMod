@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.portal_generation;
 
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
@@ -19,15 +20,27 @@ public class MixinAbstractFireBlock {
         method = "onBlockAdded",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/dimension/AreaHelper;method_30485(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction$Axis;)Ljava/util/Optional;"
+            target = "Lnet/minecraft/world/dimension/AreaHelper;method_30485(Lnet/minecraft/world/WorldAccess;" +
+                "Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction$Axis;)Ljava/util/Optional;"
         )
     )
     Optional<AreaHelper> redirectCreateAreaHelper(WorldAccess worldAccess, BlockPos blockPos, Direction.Axis axis) {
-        NetherPortalGeneration.onFireLitOnObsidian(
-            ((ServerWorld) worldAccess),
-            blockPos
-        );
+        if (isNearObsidian(worldAccess, blockPos)) {
+            NetherPortalGeneration.onFireLitOnObsidian(
+                ((ServerWorld) worldAccess),
+                blockPos
+            );
+        }
         
         return Optional.empty();
+    }
+    
+    private static boolean isNearObsidian(WorldAccess access, BlockPos blockPos) {
+        for (Direction value : Direction.values()) {
+            if (O_O.isObsidian(access.getBlockState(blockPos.offset(value)))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
