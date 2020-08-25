@@ -53,7 +53,7 @@ dependencies {
 	// https://github.com/OnyxStudios/Cardinal-Components-API
 
 	//make the game launch faster in dev
-	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.5") {
+	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
 		exclude module : "fabric-loader"
 	}
 
