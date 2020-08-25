@@ -757,7 +757,7 @@ public class Helper {
     
     /**
      * @author LoganDark
-     * @see Helper#rayTrace(World, RayTraceContext, boolean)
+     * @see Helper#rayTrace(World, RaycastContext, boolean, List)
      */
     private static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
@@ -963,5 +963,17 @@ public class Helper {
             }
         }
         return -1;
+    }
+    
+    public static List<String> splitStringByLen(String str, int len) {
+        List<String> result = new ArrayList<>();
+        
+        for (int i = 0; i * len < str.length(); i++) {
+            result.add(
+                str.substring(i * len, Math.min(str.length(), (i + 1) * len))
+            );
+        }
+        
+        return result;
     }
 }
