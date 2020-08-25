@@ -21,7 +21,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 public class BlockManipulationClient {
@@ -114,11 +114,11 @@ public class BlockManipulationClient {
         //do not touch barrier block through world wrapping portal
 //        from = from.add(to.subtract(from).normalize().multiply(0.00151));
         
-        RayTraceContext context = new RayTraceContext(
+        RaycastContext context = new RaycastContext(
             from,
             to,
-            RayTraceContext.ShapeType.OUTLINE,
-            RayTraceContext.FluidHandling.NONE,
+            RaycastContext.ShapeType.OUTLINE,
+            RaycastContext.FluidHandling.NONE,
             client.player
         );
         
@@ -126,7 +126,7 @@ public class BlockManipulationClient {
             portal.dimensionTo
         );
         
-        remoteHitResult = BlockView.rayTrace(
+        remoteHitResult = BlockView.raycast(
             context,
             (rayTraceContext, blockPos) -> {
                 BlockState blockState = world.getBlockState(blockPos);
@@ -146,11 +146,11 @@ public class BlockManipulationClient {
                 Vec3d correctedStart = start.subtract(end.subtract(start).multiply(0.0015));
 //                Vec3d correctedStart = start;
                 VoxelShape solidShape = rayTraceContext.getBlockShape(blockState, world, blockPos);
-                BlockHitResult blockHitResult = world.rayTraceBlock(
+                BlockHitResult blockHitResult = world.raycastBlock(
                     correctedStart, end, blockPos, solidShape, blockState
                 );
                 VoxelShape fluidShape = rayTraceContext.getFluidShape(fluidState, world, blockPos);
-                BlockHitResult blockHitResult2 = fluidShape.rayTrace(start, end, blockPos);
+                BlockHitResult blockHitResult2 = fluidShape.raycast(start, end, blockPos);
                 double d = blockHitResult == null ? Double.MAX_VALUE :
                     rayTraceContext.getStart().squaredDistanceTo(blockHitResult.getPos());
                 double e = blockHitResult2 == null ? Double.MAX_VALUE :

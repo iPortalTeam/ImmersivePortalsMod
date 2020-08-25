@@ -23,7 +23,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -761,7 +761,7 @@ public class Helper {
      */
     private static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
-        RayTraceContext context,
+        RaycastContext context,
         boolean includeGlobalPortals,
         List<Portal> portals
     ) {
@@ -783,7 +783,7 @@ public class Helper {
         }
         
         // First ray trace normally
-        BlockHitResult hitResult = world.rayTrace(context);
+        BlockHitResult hitResult = world.raycast(context);
         
         List<Pair<Portal, Vec3d>> rayTracedPortals = withSwitchedContext(
             world,
@@ -841,7 +841,7 @@ public class Helper {
     @SuppressWarnings("WeakerAccess")
     public static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
-        RayTraceContext context,
+        RaycastContext context,
         boolean includeGlobalPortals
     ) {
         return rayTrace(world, context, includeGlobalPortals, new ArrayList<>());
@@ -887,11 +887,11 @@ public class Helper {
         Pair<BlockHitResult, List<Portal>> rayTrace =
             rayTrace(
                 entity.world,
-                new RayTraceContext(
+                new RaycastContext(
                     entity.getCameraPosVec(1.0f),
                     entity.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
-                    RayTraceContext.ShapeType.OUTLINE,
-                    RayTraceContext.FluidHandling.NONE,
+                    RaycastContext.ShapeType.OUTLINE,
+                    RaycastContext.FluidHandling.NONE,
                     entity
                 ),
                 true

@@ -4,7 +4,7 @@ import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +26,7 @@ public class MixinItem {
     private static void onRayTrace(
         World world,
         PlayerEntity player,
-        RayTraceContext.FluidHandling fluidHandling,
+        RaycastContext.FluidHandling fluidHandling,
         CallbackInfoReturnable<HitResult> cir
     ) {
         argPlayer = new WeakReference<>(player);

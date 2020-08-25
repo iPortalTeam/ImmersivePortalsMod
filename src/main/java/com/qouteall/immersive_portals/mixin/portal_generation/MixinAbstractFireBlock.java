@@ -1,12 +1,12 @@
 package com.qouteall.immersive_portals.mixin.portal_generation;
 
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
-import net.minecraft.AreaHelper;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.dimension.AreaHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

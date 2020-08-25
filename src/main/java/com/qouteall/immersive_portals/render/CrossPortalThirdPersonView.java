@@ -14,7 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 
 public class CrossPortalThirdPersonView {
     public static final MinecraftClient client = MinecraftClient.getInstance();
@@ -94,12 +94,12 @@ public class CrossPortalThirdPersonView {
     private static Vec3d getThirdPersonCameraPos(Vec3d endPos, Portal portal, Vec3d startPos) {
         Vec3d rtStart = portal.transformPoint(startPos);
         Vec3d rtEnd = portal.transformPoint(endPos);
-        BlockHitResult blockHitResult = portal.getDestinationWorld().rayTrace(
-            new RayTraceContext(
+        BlockHitResult blockHitResult = portal.getDestinationWorld().raycast(
+            new RaycastContext(
                 rtStart,
                 rtEnd,
-                RayTraceContext.ShapeType.VISUAL,
-                RayTraceContext.FluidHandling.NONE,
+                RaycastContext.ShapeType.VISUAL,
+                RaycastContext.FluidHandling.NONE,
                 client.cameraEntity
             )
         );

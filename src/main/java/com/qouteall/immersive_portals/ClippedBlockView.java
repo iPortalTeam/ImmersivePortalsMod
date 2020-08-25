@@ -12,7 +12,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 
 import javax.annotation.Nullable;
 import java.util.stream.Stream;
@@ -78,7 +78,7 @@ public class ClippedBlockView implements BlockView {
     }
     
     @Override
-    public BlockHitResult rayTrace(RayTraceContext context) {
+    public BlockHitResult raycast(RaycastContext context) {
         Vec3d delta = context.getEnd().subtract(context.getStart());
         double t = Helper.getCollidingT(
             clipPos,
@@ -88,18 +88,18 @@ public class ClippedBlockView implements BlockView {
         );
         Vec3d startPos = context.getStart().add(delta.multiply(t));
     
-        return rayTrace(new RayTraceContext(
+        return raycast(new RaycastContext(
             startPos,
             context.getEnd(),
-            RayTraceContext.ShapeType.VISUAL, RayTraceContext.FluidHandling.NONE,
+            RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.NONE,
             raytraceDefaultEntity
         ));
     }
     
     @Nullable
     @Override
-    public BlockHitResult rayTraceBlock(Vec3d start, Vec3d end, BlockPos pos, VoxelShape shape, BlockState state) {
-        return delegate.rayTraceBlock(start, end, pos, shape, state);
+    public BlockHitResult raycastBlock(Vec3d start, Vec3d end, BlockPos pos, VoxelShape shape, BlockState state) {
+        return delegate.raycastBlock(start, end, pos, shape, state);
     }
     
 }
