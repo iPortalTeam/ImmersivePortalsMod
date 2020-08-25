@@ -489,4 +489,13 @@ public class BlockPortalShape {
         
         return new BlockPortalShape(area, axis);
     }
+    
+    public BlockPortalShape getShapeWithMovedTotalAreaBox(IntBox newTotalAreaBox) {
+        Validate.isTrue(totalAreaBox.getSize().equals(newTotalAreaBox.getSize()));
+    
+        return getShapeWithMovedAnchor(
+            newTotalAreaBox.l.subtract(totalAreaBox.l)
+                .add(anchor)
+        );
+    }
 }

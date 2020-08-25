@@ -86,14 +86,16 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                 if (!generateFrameIfNotFound) {
                     return null;
                 }
-    
+                
                 BlockPortalShape toShape = getNewPortalPlacement(toWorld, toPos, templateToShape);
-    
+                
                 return toShape;
             },
             () -> {
-                //TODO check portal integrity while loading chunk
-                return true;
+                // check portal integrity while loading chunk
+                return fromShape.frameAreaWithoutCorner.stream().allMatch(
+                    bp -> !fromWorld.isAir(bp)
+                );
             },
             //avoid linking to the beginning frame
             s -> fromWorld != toWorld || fromShape.anchor != s.anchor
@@ -102,7 +104,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         return true;
     }
     
-    protected BlockPortalShape getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, BlockPortalShape templateToShape) {
+    protected BlockPortalShape getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos,
+                                                     BlockPortalShape templateToShape) {
         IntBox airCubePlacement =
             NetherPortalGeneration.findAirCubePlacement(
                 toWorld, toPos,
