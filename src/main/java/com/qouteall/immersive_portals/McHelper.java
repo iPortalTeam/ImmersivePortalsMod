@@ -33,6 +33,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.Validate;
@@ -43,7 +44,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -657,11 +660,11 @@ public class McHelper {
      */
     public static void spawnServerEntityToUnloadedArea(Entity entity) {
         Validate.isTrue(!entity.world.isClient());
-
+        
         entity.teleporting = true;
         
         entity.world.spawnEntity(entity);
-
+        
         entity.teleporting = false;
     }
     
@@ -674,5 +677,26 @@ public class McHelper {
         else {
             server.execute(runnable);
         }
+    }
+    
+    public static <T> SimpleRegistry<T> filterAndCopyRegistry(
+        SimpleRegistry<T> registry, BiPredicate<RegistryKey<T>, T> predicate
+    ) {
+        SimpleRegistry<T> newRegistry = new SimpleRegistry<>(
+            registry.getKey(),
+            registry.getLifecycle()
+        );
+        
+        for (Map.Entry<RegistryKey<T>, T> entry : registry.getEntries()) {
+            T object = entry.getValue();
+            RegistryKey<T> key = entry.getKey();
+            if (predicate.test(key, object)) {
+                newRegistry.add(
+                    key, object, registry.getEntryLifecycle(object)
+                );
+            }
+        }
+        
+        return newRegistry;
     }
 }

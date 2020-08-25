@@ -1,6 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
@@ -49,7 +50,7 @@ public class MyRegistry {
         );
         Registry.register(
             Registry.BLOCK,
-            //the id is not appropriate because I did not implement end portal when making this block
+            // the id is inappropriate
             new Identifier("immersive_portals", "nether_portal_block"),
             PortalPlaceholderBlock.instance
         );
@@ -221,22 +222,11 @@ public class MyRegistry {
     }
     
     public static void registerChunkGenerators() {
-//        Registry.register(
-//            Registry.CHUNK_GENERATOR,
-//            new Identifier("immersive_portals:normal_skyland"),
-//            NormalSkylandGenerator.codec
-//        );
-//
-//        Registry.register(
-//            Registry.CHUNK_GENERATOR,
-//            new Identifier("immersive_portals:chaos_terrain"),
-//            ErrorTerrainGenerator.codec
-//        );
-//
-//        Registry.register(
-//            Registry.CHUNK_GENERATOR,
-//            new Identifier("immersive_portals:void_generator"),
-//            VoidChunkGenerator.codec
-//        );
+        Registry.register(
+            Registry.CHUNK_GENERATOR,
+            new Identifier("immersive_portals:error_terrain_gen"),
+            ErrorTerrainGenerator.codec
+        );
+
     }
 }

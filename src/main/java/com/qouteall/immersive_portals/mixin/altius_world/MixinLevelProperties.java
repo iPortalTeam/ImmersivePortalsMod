@@ -4,7 +4,9 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.altius_world.AltiusInfo;
+import com.qouteall.immersive_portals.ducks.IEGeneratorOptions;
 import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -33,10 +35,17 @@ public class MixinLevelProperties implements IELevelProperties {
     @Shadow
     @Final
     private Lifecycle lifecycle;
+    @Shadow
+    @Final
+    private GeneratorOptions generatorOptions;
     AltiusInfo altiusInfo;
     
     @Inject(
-        method = "<init>(Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;ZIIIFJJIIIZIZZZLnet/minecraft/world/border/WorldBorder$Properties;IILjava/util/UUID;Ljava/util/LinkedHashSet;Lnet/minecraft/world/timer/Timer;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/world/gen/GeneratorOptions;Lcom/mojang/serialization/Lifecycle;)V",
+        method = "<init>(Lcom/mojang/datafixers/DataFixer;ILnet/minecraft/nbt/CompoundTag;" +
+            "ZIIIFJJIIIZIZZZLnet/minecraft/world/border/WorldBorder$Properties;IILjava/util/UUID;" +
+            "Ljava/util/LinkedHashSet;Lnet/minecraft/world/timer/Timer;Lnet/minecraft/nbt/CompoundTag;" +
+            "Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/world/level/LevelInfo;" +
+            "Lnet/minecraft/world/gen/GeneratorOptions;Lcom/mojang/serialization/Lifecycle;)V",
         at = @At("RETURN")
     )
     private void onConstructedFromLevelInfo(
@@ -97,6 +106,11 @@ public class MixinLevelProperties implements IELevelProperties {
         DynamicRegistryManager dynamicRegistryManager, CompoundTag compoundTag,
         CompoundTag compoundTag2, CallbackInfo ci
     ) {
+        ((IEGeneratorOptions) generatorOptions).setDimOptionRegistry(
+            AlternateDimensions.getAlternateDimensionsRemoved(
+                generatorOptions.getDimensions()
+            )
+        );
         if (altiusInfo != null) {
             compoundTag.put("altius", altiusInfo.toTag());
         }
