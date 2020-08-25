@@ -57,7 +57,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         
         BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter());
         
-        BlockPortalShape templateToShape = checkAndGetTemplateToShape(fromShape);
+        BlockPortalShape templateToShape = checkAndGetTemplateToShape(fromWorld, fromShape);
         
         if (templateToShape == null) {
             return false;
@@ -86,20 +86,9 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                 if (!generateFrameIfNotFound) {
                     return null;
                 }
-                
-                IntBox airCubePlacement =
-                    NetherPortalGeneration.findAirCubePlacement(
-                        toWorld, toPos,
-                        templateToShape.axis, templateToShape.totalAreaBox.getSize(),
-                        128
-                    );
-                
-                BlockPortalShape toShape = templateToShape.getShapeWithMovedAnchor(
-                    airCubePlacement.l.subtract(
-                        templateToShape.totalAreaBox.l
-                    ).add(templateToShape.anchor)
-                );
-                
+    
+                BlockPortalShape toShape = getNewPortalPlacement(toWorld, toPos, templateToShape);
+    
                 return toShape;
             },
             () -> {
@@ -113,6 +102,21 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         return true;
     }
     
+    protected BlockPortalShape getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, BlockPortalShape templateToShape) {
+        IntBox airCubePlacement =
+            NetherPortalGeneration.findAirCubePlacement(
+                toWorld, toPos,
+                templateToShape.axis, templateToShape.totalAreaBox.getSize(),
+                128
+            );
+        
+        return templateToShape.getShapeWithMovedAnchor(
+            airCubePlacement.l.subtract(
+                templateToShape.totalAreaBox.l
+            ).add(templateToShape.anchor)
+        );
+    }
+    
     public BreakablePortalEntity[] generatePortalEntities(NetherPortalGeneration.Info info) {
         return NetherPortalGeneration.generateBreakablePortalEntities(
             info, GeneralBreakablePortal.entityType
@@ -121,7 +125,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     
     // if check fails, return null
     @Nullable
-    public BlockPortalShape checkAndGetTemplateToShape(BlockPortalShape fromShape) {
+    public BlockPortalShape checkAndGetTemplateToShape(ServerWorld world, BlockPortalShape fromShape) {
         return fromShape;
     }
     

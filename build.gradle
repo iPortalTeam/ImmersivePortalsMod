@@ -53,9 +53,9 @@ dependencies {
 	// https://github.com/OnyxStudios/Cardinal-Components-API
 
 	//make the game launch faster in dev
-//	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
-//		exclude module : "fabric-loader"
-//	}
+	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
+		exclude module : "fabric-loader"
+	}
 
 	modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
 //	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")

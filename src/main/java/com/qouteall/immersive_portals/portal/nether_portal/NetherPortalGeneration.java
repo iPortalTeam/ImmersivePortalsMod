@@ -81,6 +81,7 @@ public class NetherPortalGeneration {
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
                 neededAreaSize, toWorld, mappedPosInOtherDimension, 16
             );
+            foundAirCube = NetherPortalMatcher.levitateBox(toWorld, foundAirCube);
         }
         
         if (foundAirCube == null) {

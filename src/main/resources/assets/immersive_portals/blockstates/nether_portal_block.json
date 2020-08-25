@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "minecraft:block/barrier"
+    },
+    "axis=y": {
+      "model": "minecraft:block/barrier"
+    },
+    "axis=z": {
+      "model": "minecraft:block/barrier"
+    }
+  }
+}

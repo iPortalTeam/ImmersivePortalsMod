@@ -63,7 +63,7 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
     
     @Nullable
     @Override
-    public BlockPortalShape checkAndGetTemplateToShape(BlockPortalShape fromShape) {
+    public BlockPortalShape checkAndGetTemplateToShape(ServerWorld world, BlockPortalShape fromShape) {
         boolean isSquareShape = BlockPortalShape.isSquareShape(fromShape, fromLength);
         
         if (!isSquareShape) {
