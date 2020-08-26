@@ -69,20 +69,16 @@ public abstract class MixinEntity implements IEEntity {
         method = "move",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)" +
+                "Lnet/minecraft/util/math/Vec3d;"
         )
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
-        if (attemptedMove.lengthSquared() > 256) {
-            Helper.log("Entity moving too fast " + entity + attemptedMove);
-            return adjustMovementForCollisions(attemptedMove);
-        }
-        
-        if (collidingPortal == null) {
-            return adjustMovementForCollisions(attemptedMove);
-        }
-        
-        if (entity.hasPassengers() || entity.hasVehicle()) {
+        if (attemptedMove.lengthSquared() > 256 ||
+            collidingPortal == null ||
+            entity.hasPassengers() ||
+            entity.hasVehicle()
+        ) {
             return adjustMovementForCollisions(attemptedMove);
         }
         
@@ -204,4 +200,16 @@ public abstract class MixinEntity implements IEEntity {
         collidingPortal = portal;
         collidingPortalActiveTickTime = world.getTime();
     }
+    
+//    @Inject(
+//        method = "setVelocity(Lnet/minecraft/util/math/Vec3d;)V",
+//        at = @At("HEAD")
+//    )
+//    private void debug(Vec3d velocity, CallbackInfo ci) {
+//        if (((Object) this) instanceof ClientPlayerEntity) {
+//            if (velocity.z != 0) {
+//                new Throwable().printStackTrace();
+//            }
+//        }
+//    }
 }

@@ -401,7 +401,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;method_27022(Lnet/minecraft/entity/Entity;)Z"
+            target = "Lnet/minecraft/client/MinecraftClient;hasOutline(Lnet/minecraft/entity/Entity;)Z"
         )
     )
     private boolean redirectGlowing(MinecraftClient client, Entity entity) {

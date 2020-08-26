@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ClientPlayerEntity.class)
 public class MixinClientPlayerEntity {
     @Inject(
-        method = "cannotFitAt",
+        method = "method_30674",
         at = @At("HEAD"),
         cancellable = true
     )

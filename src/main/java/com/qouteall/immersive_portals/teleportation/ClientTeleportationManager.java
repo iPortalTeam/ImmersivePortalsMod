@@ -423,7 +423,7 @@ public class ClientTeleportationManager {
             player.getBoundingBox(),
             10,
             portal -> true
-        ).forEach(Portal::notifyCollidingPortals);
+        ).forEach(CollisionHelper::notifyCollidingPortals);
         
         CollisionHelper.updateClientGlobalPortalCollidingPortal();
         

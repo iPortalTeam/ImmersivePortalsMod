@@ -13,8 +13,6 @@
     "block_manipulation.MixinMinecraftClient_B",
     "collisions.MixinClientPlayerEntity",
     "debug.MixinBuiltChunk",
-    "far_scenery.MixinGameRenderer_F",
-    "far_scenery.MixinWorldRenderer_F",
     "sync.MixinClientPlayNetworkHandler",
     "sync.MixinPlayerMoveC2SPacket_C",
     "sync.MixinPlayerMoveC2SPacketBoth",
@@ -50,6 +48,6 @@
     "MixinWorldRendererChunkInfo"
   ],
   "injectors": {
-    "defaultRequire": 0
+    "defaultRequire": 1
   }
 }

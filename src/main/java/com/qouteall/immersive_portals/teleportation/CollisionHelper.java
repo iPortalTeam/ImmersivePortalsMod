@@ -334,4 +334,44 @@ public class CollisionHelper {
             updateGlobalPortalCollidingPortalForWorld(world);
         }
     }
+    
+    public static void notifyCollidingPortals(Portal portal) {
+        if (!portal.isInteractable()) {
+            return;
+        }
+        
+        Box portalBoundingBox = portal.getBoundingBox();
+        final double compensation = 3;
+        int xMin = (int) Math.floor(portalBoundingBox.minX - compensation);
+        int yMin = (int) Math.floor(portalBoundingBox.minY - compensation);
+        int zMin = (int) Math.floor(portalBoundingBox.minZ - compensation);
+        int xMax = (int) Math.ceil(portalBoundingBox.maxX + compensation);
+        int yMax = (int) Math.ceil(portalBoundingBox.maxY + compensation);
+        int zMax = (int) Math.ceil(portalBoundingBox.maxZ + compensation);
+        
+        List<Entity> collidingEntities = McHelper.findEntities(
+            Entity.class,
+            McHelper.getChunkAccessor(portal.world),
+            xMin >> 4,
+            xMax >> 4,
+            Math.max(0, yMin >> 4),
+            Math.min(15, yMax >> 4),
+            zMin >> 4,
+            zMax >> 4,
+            entity -> {
+                if (entity instanceof Portal) {
+                    return false;
+                }
+                Box entityBoxStretched = entity.getBoundingBox().stretch(entity.getVelocity());
+                if (!entityBoxStretched.intersects(portalBoundingBox)) {
+                    return false;
+                }
+                return shouldCollideWithPortal(entity, portal, 1);
+            }
+        );
+        
+        for (Entity entity : collidingEntities) {
+            ((IEEntity) entity).notifyCollidingWithPortal(portal);
+        }
+    }
 }
