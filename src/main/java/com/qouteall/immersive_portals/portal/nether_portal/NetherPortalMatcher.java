@@ -175,7 +175,7 @@ public class NetherPortalMatcher {
         if (world.getBlockState(airCube.l.add(0, -1, 0)).getBlock() == Blocks.LAVA) {
             Helper.log("Generated Portal On Lava Lake");
             
-            return levitateBox(world, airCube.getSubBoxInCenter(areaSize));
+            return levitateBox(world, airCube.getSubBoxInCenter(areaSize), 40);
         }
         
         Helper.log("Generated Portal On Ground");
@@ -346,10 +346,10 @@ public class NetherPortalMatcher {
     
     //move the box up
     public static IntBox levitateBox(
-        WorldAccess world, IntBox airCube
+        WorldAccess world, IntBox airCube, int maxOffset
     ) {
         Integer maxUpShift = Helper.getLastSatisfying(
-            IntStream.range(1, 40).boxed(),
+            IntStream.range(1, maxOffset * 3 / 2).boxed(),
             upShift -> isAirCubeMediumPlace(
                 world,
                 airCube.getMoved(new Vec3i(0, upShift, 0))

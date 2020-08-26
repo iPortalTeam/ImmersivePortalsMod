@@ -74,6 +74,10 @@ public class NetherPortalGeneration {
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
                 neededAreaSize, toWorld, mappedPosInOtherDimension, 10
             );
+    
+            if (foundAirCube != null) {
+                foundAirCube = NetherPortalMatcher.levitateBox(toWorld, foundAirCube, 50);
+            }
         }
         
         if (foundAirCube == null) {
@@ -81,7 +85,6 @@ public class NetherPortalGeneration {
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
                 neededAreaSize, toWorld, mappedPosInOtherDimension, 16
             );
-            foundAirCube = NetherPortalMatcher.levitateBox(toWorld, foundAirCube);
         }
         
         if (foundAirCube == null) {
@@ -369,7 +372,7 @@ public class NetherPortalGeneration {
                         BlockPos.ZERO.offset(Direction.UP, airCubePlacement.getSize().getY())
                     );
                 }
-    
+                
                 if (!fromShape.totalAreaBox.getSize().equals(airCubePlacement.getSize())) {
                     Helper.err("Portal placement size abnormal");
                 }
@@ -542,7 +545,9 @@ public class NetherPortalGeneration {
         return true;
     }
     
-    public static BlockPortalShape findFrameShape(ServerWorld fromWorld, BlockPos startingPos, Predicate<BlockState> thisSideAreaPredicate, Predicate<BlockState> thisSideFramePredicate) {
+    public static BlockPortalShape findFrameShape(ServerWorld fromWorld, BlockPos startingPos,
+                                                  Predicate<BlockState> thisSideAreaPredicate,
+                                                  Predicate<BlockState> thisSideFramePredicate) {
         return Arrays.stream(Direction.Axis.values())
             .map(
                 axis -> {

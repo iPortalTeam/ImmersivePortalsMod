@@ -686,12 +686,12 @@ public class PortalCommand {
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
-                            
-                            Quaternion rot = new Quaternion(
+    
+                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
                                 axis,
                                 (float) angleDegrees,
                                 true
-                            );
+                            ) : null;
                             
                             func.accept(portal, rot);
                             
@@ -710,12 +710,12 @@ public class PortalCommand {
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
-                            
-                            Quaternion rot = new Quaternion(
+    
+                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
                                 axis,
                                 (float) angleDegrees,
                                 true
-                            );
+                            ) : null;
                             
                             func.accept(portal, rot);
                             
@@ -734,12 +734,12 @@ public class PortalCommand {
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
-                            
-                            Quaternion rot = new Quaternion(
+    
+                            Quaternion rot = angleDegrees != 0 ? new Quaternion(
                                 axis,
                                 (float) angleDegrees,
                                 true
-                            );
+                            ) : null;
                             
                             func.accept(portal, rot);
                             

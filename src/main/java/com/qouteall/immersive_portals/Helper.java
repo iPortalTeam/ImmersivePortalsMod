@@ -292,7 +292,7 @@ public class Helper {
             }
         }
         
-        return null;
+        return last;
     }
     
     public interface CallableWithoutException<T> {
