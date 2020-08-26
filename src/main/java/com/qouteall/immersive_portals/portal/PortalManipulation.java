@@ -92,9 +92,9 @@ public class PortalManipulation {
         return newPortal;
     }
     
-    public static void rotatePortalBody(Portal newPortal, Quaternion rotation) {
-        newPortal.axisW = RotationHelper.getRotated(rotation, newPortal.axisW);
-        newPortal.axisH = RotationHelper.getRotated(rotation, newPortal.axisH);
+    public static void rotatePortalBody(Portal portal, Quaternion rotation) {
+        portal.axisW = RotationHelper.getRotated(rotation, portal.axisW);
+        portal.axisH = RotationHelper.getRotated(rotation, portal.axisH);
     }
     
     public static Portal completeBiFacedPortal(Portal portal, EntityType<Portal> entityType) {

@@ -29,7 +29,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             IntegerSliderEntry entryMaxPortalLayer = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.max_portal_layer"),
                 currConfig.maxPortalLayer,
-                1, 15
+                0, 15
             ).setDefaultValue(5).build();
             BooleanListEntry entryLagAttackProof = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.lag_attack_proof"),

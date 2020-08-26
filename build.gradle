@@ -41,11 +41,11 @@ dependencies {
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-//	include "me.shedaniel.cloth:config-2:4.6.0"
-//	include "io.github.prospector:modmenu:1.14.5+build.30"
+//	include "me.shedaniel.cloth:config-2:4.8.1"
+//	include "io.github.prospector:modmenu:1.14.6+build.31"
 
-	modCompileOnly "me.shedaniel.cloth:config-2:4.6.0"
-	modCompileOnly "io.github.prospector:modmenu:1.14.5+build.30"
+	modCompileOnly "me.shedaniel.cloth:config-2:4.8.1"
+	modCompileOnly "io.github.prospector:modmenu:1.14.6+build.31"
 
 	//For javax.annotation.Nullable
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -53,9 +53,9 @@ dependencies {
 	// https://github.com/OnyxStudios/Cardinal-Components-API
 
 	//make the game launch faster in dev
-	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
-		exclude module : "fabric-loader"
-	}
+//	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
+//		exclude module : "fabric-loader"
+//	}
 
 	modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
 //	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
