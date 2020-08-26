@@ -33,19 +33,19 @@ dependencies {
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	//used for building mod
 	compileOnly files('ofpre10.jar')
 
-//	include "me.shedaniel.cloth:config-2:4.8.1"
-//	include "io.github.prospector:modmenu:1.14.6+build.31"
+	include "me.shedaniel.cloth:config-2:4.8.1"
+	include "io.github.prospector:modmenu:1.14.6+build.31"
 
-	modCompileOnly "me.shedaniel.cloth:config-2:4.8.1"
-	modCompileOnly "io.github.prospector:modmenu:1.14.6+build.31"
+	modImplementation "me.shedaniel.cloth:config-2:4.8.1"
+	modImplementation "io.github.prospector:modmenu:1.14.6+build.31"
 
 	//For javax.annotation.Nullable
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'

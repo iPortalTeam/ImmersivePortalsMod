@@ -77,7 +77,7 @@ public class AlternateDimensions {
         Supplier<DimensionType> dimensionTypeSupplier,
         ChunkGenerator chunkGenerator
     ) {
-        if (!registry.containsId(key.getValue())) {
+        if (!registry.getIds().contains(key.getValue())) {
             registry.add(
                 key,
                 new DimensionOptions(
