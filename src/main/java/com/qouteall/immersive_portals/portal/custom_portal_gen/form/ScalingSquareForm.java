@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
@@ -99,7 +100,7 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public BreakablePortalEntity[] generatePortalEntities(NetherPortalGeneration.Info info) {
+    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
         ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
         

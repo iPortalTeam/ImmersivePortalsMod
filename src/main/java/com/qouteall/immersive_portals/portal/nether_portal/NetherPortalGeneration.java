@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -154,8 +155,8 @@ public class NetherPortalGeneration {
     }
     
     //create portal entity and generate placeholder blocks
-    public static BreakablePortalEntity[] generateBreakablePortalEntities(
-        Info info,
+    public static BreakablePortalEntity[] generateBreakablePortalEntitiesAndPlaceholder(
+        PortalGenInfo info,
         EntityType<? extends BreakablePortalEntity> entityType
     ) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
@@ -215,25 +216,6 @@ public class NetherPortalGeneration {
         return portalArray;
     }
     
-    public static class Info {
-        public RegistryKey<World> from;
-        public RegistryKey<World> to;
-        public BlockPortalShape fromShape;
-        public BlockPortalShape toShape;
-        
-        public Info(
-            RegistryKey<World> from,
-            RegistryKey<World> to,
-            BlockPortalShape fromShape,
-            BlockPortalShape toShape
-        ) {
-            this.from = from;
-            this.to = to;
-            this.fromShape = fromShape;
-            this.toShape = toShape;
-        }
-    }
-    
     //return null for not found
     //executed on main server thread
     public static boolean onFireLitOnObsidian(
@@ -276,7 +258,7 @@ public class NetherPortalGeneration {
             //other side frame
             O_O::isObsidian,
             (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
-            info -> generateBreakablePortalEntities(info, NetherPortalEntity.entityType)
+            info -> generateBreakablePortalEntitiesAndPlaceholder(info, NetherPortalEntity.entityType)
         );
         return thisSideShape != null;
     }
@@ -324,7 +306,7 @@ public class NetherPortalGeneration {
         Predicate<BlockState> otherSideAreaPredicate,
         Predicate<BlockState> otherSideFramePredicate,
         Consumer<BlockPortalShape> newFrameGenerateFunc,
-        Consumer<Info> portalEntityGeneratingFunc
+        Consumer<PortalGenInfo> portalEntityGeneratingFunc
     ) {
         if (!checkPortalGeneration(fromWorld, startingPos)) {
             return null;
@@ -404,7 +386,7 @@ public class NetherPortalGeneration {
         BlockPos toPos,
         int existingFrameSearchingRadius,
         Predicate<BlockState> otherSideAreaPredicate, Predicate<BlockState> otherSideFramePredicate,
-        Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<Info> portalEntityGeneratingFunc,
+        Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<PortalGenInfo> portalEntityGeneratingFunc,
         //return null for not generate new frame
         Supplier<BlockPortalShape> newFramePlacer,
         BooleanSupplier portalIntegrityChecker,
@@ -434,7 +416,7 @@ public class NetherPortalGeneration {
             if (placedShape != null) {
                 newFrameGenerateFunc.accept(placedShape);
                 
-                Info info = new Info(
+                PortalGenInfo info = new PortalGenInfo(
                     fromDimension, toWorld.getRegistryKey(), fromShape, placedShape
                 );
                 portalEntityGeneratingFunc.accept(info);
@@ -500,7 +482,7 @@ public class NetherPortalGeneration {
                     otherSideAreaPredicate, otherSideFramePredicate,
                     foundShapePredicate,
                     (shape) -> {
-                        Info info = new Info(
+                        PortalGenInfo info = new PortalGenInfo(
                             fromDimension, toDimension, fromShape, shape
                         );
                         
@@ -603,7 +585,7 @@ public class NetherPortalGeneration {
         );
     }
     
-    private static void generateHelperPortalEntities(Info info) {
+    private static void generateHelperPortalEntities(PortalGenInfo info) {
         ServerWorld fromWorld1 = McHelper.getServer().getWorld(info.from);
         ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
         

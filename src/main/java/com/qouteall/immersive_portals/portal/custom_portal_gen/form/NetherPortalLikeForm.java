@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
@@ -76,7 +77,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             },
             info -> {
                 //generate portal entity
-                BreakablePortalEntity[] result = generatePortalEntities(info);
+                BreakablePortalEntity[] result = generatePortalEntitiesAndPlaceholder(info);
                 for (BreakablePortalEntity portal : result) {
                     cpg.onPortalGenerated(portal);
                 }
@@ -120,8 +121,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         );
     }
     
-    public BreakablePortalEntity[] generatePortalEntities(NetherPortalGeneration.Info info) {
-        return NetherPortalGeneration.generateBreakablePortalEntities(
+    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
+        return NetherPortalGeneration.generateBreakablePortalEntitiesAndPlaceholder(
             info, GeneralBreakablePortal.entityType
         );
     }

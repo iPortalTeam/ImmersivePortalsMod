@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
@@ -31,10 +32,14 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     }
     
     @Override
-    public BreakablePortalEntity[] generatePortalEntities(NetherPortalGeneration.Info info) {
+    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
+        ServerWorld fromWorld = McHelper.getServerWorld(info.from);
+        ServerWorld toWorld = McHelper.getServerWorld(info.to);
+        NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, info.fromShape);
+        NetherPortalGeneration.fillInPlaceHolderBlocks(toWorld, info.toShape);
         return FlippingFloorSquareForm.createPortals(
-            McHelper.getServerWorld(info.from),
-            McHelper.getServerWorld(info.to),
+            fromWorld,
+            toWorld,
             info.fromShape, info.toShape
         );
     }
@@ -70,7 +75,7 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
             templateToShape.totalAreaBox.getSize(),
             toPos
         );
-    
+        
         return templateToShape.getShapeWithMovedTotalAreaBox(portalPlacement);
     }
     
