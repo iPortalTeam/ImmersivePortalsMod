@@ -1,7 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
@@ -211,11 +210,12 @@ public class MyRegistry {
     }
     
     public static void registerChunkGenerators() {
-        Registry.register(
-            Registry.CHUNK_GENERATOR,
-            new Identifier("immersive_portals:error_terrain_gen"),
-            ErrorTerrainGenerator.codec
-        );
+        //it should not be serialized
+//        Registry.register(
+//            Registry.CHUNK_GENERATOR,
+//            new Identifier("immersive_portals:error_terrain_gen"),
+//            ErrorTerrainGenerator.codec
+//        );
         
     }
 }
