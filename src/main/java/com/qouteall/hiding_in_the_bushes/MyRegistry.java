@@ -5,7 +5,6 @@ import com.qouteall.immersive_portals.alternate_dimension.ErrorTerrainGenerator;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
-import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
@@ -18,6 +17,7 @@ import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -31,7 +31,11 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.potion.Potion;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MyRegistry {
     public static void registerMyDimensionsFabric() {
@@ -75,115 +79,100 @@ public class MyRegistry {
         );
     }
     
+    
+    private static <T extends Entity> void registerEntity(
+        Consumer<EntityType<T>> setEntityType,
+        Supplier<EntityType<T>> getEntityType,
+        String id,
+        EntityType.EntityFactory<T> constructor,
+        Registry<EntityType<?>> registry
+    ) {
+        EntityType<T> entityType = FabricEntityTypeBuilder.create(
+            SpawnGroup.MISC,
+            constructor
+        ).dimensions(
+            new EntityDimensions(1, 1, true)
+        ).fireImmune().trackable(96, 20).build();
+        setEntityType.accept(entityType);
+        Registry.register(
+            Registry.ENTITY_TYPE,
+            new Identifier(id),
+            entityType
+        );
+    }
+    
     public static void registerEntitiesFabric() {
-        Portal.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "portal"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                Portal::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        NetherPortalEntity.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "nether_portal_new"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                NetherPortalEntity::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        EndPortalEntity.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "end_portal"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                (EntityType.EntityFactory<EndPortalEntity>) EndPortalEntity::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        Mirror.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "mirror"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                Mirror::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        BreakableMirror.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "breakable_mirror"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                BreakableMirror::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        GlobalTrackedPortal.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "global_tracked_portal"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                GlobalTrackedPortal::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        WorldWrappingPortal.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "border_portal"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                WorldWrappingPortal::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        VerticalConnectingPortal.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "end_floor_portal"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                VerticalConnectingPortal::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
-    
-        GeneralBreakablePortal.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "general_breakable_portal"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                GeneralBreakablePortal::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
-        );
+        DefaultedRegistry<EntityType<?>> registry = Registry.ENTITY_TYPE;
         
-        LoadingIndicatorEntity.entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            new Identifier("immersive_portals", "loading_indicator"),
-            FabricEntityTypeBuilder.create(
-                SpawnGroup.MISC,
-                (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
-            ).dimensions(
-                new EntityDimensions(1, 1, true)
-            ).fireImmune().trackable(96,20).build()
+        registerEntity(
+            o -> Portal.entityType = o,
+            () -> Portal.entityType,
+            "immersive_portals:portal",
+            Portal::new,
+            registry
+        );
+        registerEntity(
+            o -> NetherPortalEntity.entityType = o,
+            () -> NetherPortalEntity.entityType,
+            "immersive_portals:nether_portal_new",
+            NetherPortalEntity::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> EndPortalEntity.entityType = o,
+            () -> EndPortalEntity.entityType,
+            "immersive_portals:end_portal",
+            EndPortalEntity::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> Mirror.entityType = o,
+            () -> Mirror.entityType,
+            "immersive_portals:mirror",
+            Mirror::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> BreakableMirror.entityType = o,
+            () -> BreakableMirror.entityType,
+            "immersive_portals:breakable_mirror",
+            BreakableMirror::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> GlobalTrackedPortal.entityType = o,
+            () -> GlobalTrackedPortal.entityType,
+            "immersive_portals:global_tracked_portal",
+            GlobalTrackedPortal::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> WorldWrappingPortal.entityType = o,
+            () -> WorldWrappingPortal.entityType,
+            "immersive_portals:border_portal",
+            WorldWrappingPortal::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> VerticalConnectingPortal.entityType = o,
+            () -> VerticalConnectingPortal.entityType,
+            "immersive_portals:end_floor_portal",
+            VerticalConnectingPortal::new,
+            registry
+        );
+    
+        registerEntity(
+            o -> GeneralBreakablePortal.entityType = o,
+            () -> GeneralBreakablePortal.entityType,
+            "immersive_portals:general_breakable_portal",
+            GeneralBreakablePortal::new,
+            registry
         );
     }
     
@@ -227,6 +216,6 @@ public class MyRegistry {
             new Identifier("immersive_portals:error_terrain_gen"),
             ErrorTerrainGenerator.codec
         );
-
+        
     }
 }
