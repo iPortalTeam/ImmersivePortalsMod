@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
 
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(value = ServerPlayNetworkHandler.class, priority = 900)
 public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetworkHandler {
     @Shadow
     public ServerPlayerEntity player;
@@ -68,7 +68,8 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         at = @At(
             value = "INVOKE",
             shift = At.Shift.AFTER,
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;" +
+                "Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"
         ),
         cancellable = true
     )
@@ -120,7 +121,8 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerPlayerEntity;isInTeleportationState()Z"
-        )
+        ),
+        require = 0 // don't crash with carpet
     )
     private boolean redirectIsInTeleportationState(ServerPlayerEntity player) {
         if (shouldAcceptDubiousMovement(player)) {
@@ -154,7 +156,10 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         }
     }
     
-    private void doSendTeleportRequest(double destX, double destY, double destZ, float destYaw, float destPitch, Set<PlayerPositionLookS2CPacket.Flag> updates) {
+    private void doSendTeleportRequest(
+        double destX, double destY, double destZ, float destYaw, float destPitch,
+        Set<PlayerPositionLookS2CPacket.Flag> updates
+    ) {
         if (Global.teleportationDebugEnabled) {
             new Throwable().printStackTrace();
             Helper.log(String.format("request teleport %s %s (%d %d %d)->(%d %d %d)",
@@ -202,7 +207,8 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onPlayerMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/Box;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks" +
+                "(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/Box;)Z"
         )
     )
     private boolean onCheckPlayerCollision(
@@ -243,7 +249,8 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onVehicleMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(Lnet/minecraft/network/packet/c2s/play/VehicleMoveC2SPacket;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove" +
+                "(Lnet/minecraft/network/packet/c2s/play/VehicleMoveC2SPacket;)Z"
         ),
         cancellable = true
     )
