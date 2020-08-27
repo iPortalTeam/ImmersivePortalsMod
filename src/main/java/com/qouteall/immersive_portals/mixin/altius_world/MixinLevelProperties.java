@@ -96,7 +96,7 @@ public class MixinLevelProperties implements IELevelProperties {
     
     @Inject(
         method = "updateProperties",
-        at = @At("RETURN")
+        at = @At("HEAD")
     )
     private void onUpdateProperties(
         DynamicRegistryManager dynamicRegistryManager, CompoundTag compoundTag,
