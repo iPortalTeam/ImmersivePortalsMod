@@ -22,7 +22,6 @@ import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.FlatChunkGeneratorLayer;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
-import net.minecraft.world.gen.feature.StructureFeature;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -57,7 +56,7 @@ public class AlternateDimensions {
         StructuresConfig structuresConfig = new StructuresConfig(
             Optional.of(StructuresConfig.DEFAULT_STRONGHOLD),
             Maps.newHashMap(ImmutableMap.of(
-                StructureFeature.VILLAGE, StructuresConfig.DEFAULT_STRUCTURES.get(StructureFeature.VILLAGE)
+//                StructureFeature.VILLAGE, StructuresConfig.DEFAULT_STRUCTURES.get(StructureFeature.VILLAGE)
             ))
         );
         FlatChunkGeneratorConfig flatChunkGeneratorConfig = new FlatChunkGeneratorConfig(structuresConfig,
