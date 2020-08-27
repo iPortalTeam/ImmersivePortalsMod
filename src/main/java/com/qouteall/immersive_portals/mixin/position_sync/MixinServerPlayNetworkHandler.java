@@ -68,8 +68,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         at = @At(
             value = "INVOKE",
             shift = At.Shift.AFTER,
-            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;" +
-                "Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"
+            target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"
         ),
         cancellable = true
     )

@@ -69,8 +69,7 @@ public abstract class MixinEntity implements IEEntity {
         method = "move",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)" +
-                "Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"
         )
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
