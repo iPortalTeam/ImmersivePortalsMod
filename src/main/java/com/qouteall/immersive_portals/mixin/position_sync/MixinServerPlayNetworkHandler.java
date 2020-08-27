@@ -206,8 +206,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onPlayerMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks" +
-                "(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/Box;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isPlayerNotCollidingWithBlocks(Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/Box;)Z"
         )
     )
     private boolean onCheckPlayerCollision(
@@ -248,8 +247,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onVehicleMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove" +
-                "(Lnet/minecraft/network/packet/c2s/play/VehicleMoveC2SPacket;)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(Lnet/minecraft/network/packet/c2s/play/VehicleMoveC2SPacket;)Z"
         ),
         cancellable = true
     )

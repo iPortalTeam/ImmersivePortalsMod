@@ -186,8 +186,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer" +
-                "(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
         )
     )
     private void onBeforeRenderingLayer(
@@ -213,8 +212,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer" +
-                "(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V",
             shift = At.Shift.AFTER
         )
     )
@@ -370,8 +368,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather" +
-                "(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V"
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V"
         )
     )
     private void beforeRenderingWeather(
@@ -399,8 +396,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather" +
-                "(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderWeather(Lnet/minecraft/client/render/LightmapTextureManager;FDDD)V",
             shift = At.Shift.AFTER
         )
     )
@@ -576,8 +572,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderSky" +
-                "(Lnet/minecraft/client/util/math/MatrixStack;F)V"
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V"
         )
     )
     private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
