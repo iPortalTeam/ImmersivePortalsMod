@@ -3,131 +3,180 @@ plugins {
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-minecraft {
-	accessWidener = file("src/main/resources/imm_ptl.accesswidener")
+subprojects {
+	apply plugin: 'fabric-loom'
+	apply plugin: 'maven-publish'
 }
 
-repositories {
+allprojects {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
 
-	maven { url 'https://jitpack.io' }
-	mavenLocal()
+	version = rootProject.mod_version
 
-}
+	repositories {
+		mavenCentral()
+		mavenLocal()
+		maven {
+			url 'http://maven.fabricmc.net/'
+			name 'Fabric'
+		}
+		maven {
+			name = 'JitPack'
+			url = 'https://jitpack.io'
+		}
 
-dependencies {
-//	modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
+		flatDir {
+			dirs 'deps'
+		}
 
-	//Deps required for optifabric
-	compile 'org.zeroturnaround:zt-zip:1.13'
-	compile('net.fabricmc:stitch:0.2.1.61') {
-		transitive = false
+		jcenter()
 	}
 
-	//to change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	// ensure that the encoding is set to UTF-8, no matter what the system default is
+// this fixes some edge cases with special characters not displaying correctly
+// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+	}
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	minecraft {
+		accessWidener = file("src/main/resources/imm_ptl.accesswidener")
+	}
 
-	//used for building mod
-	compileOnly files('ofpre10.jar')
+	dependencies {
+//	modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
 
-	include "me.shedaniel.cloth:config-2:4.8.1"
-	include "io.github.prospector:modmenu:1.14.6+build.31"
+		//Deps required for optifabric
+		compile 'org.zeroturnaround:zt-zip:1.13'
+		compile('net.fabricmc:stitch:0.2.1.61') {
+			transitive = false
+		}
 
-	modImplementation "me.shedaniel.cloth:config-2:4.8.1"
-	modImplementation "io.github.prospector:modmenu:1.14.6+build.31"
+		//to change the versions see the gradle.properties file
+		minecraft "com.mojang:minecraft:${project.minecraft_version}"
+		mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	//For javax.annotation.Nullable
-	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+		// Fabric API. This is technically optional, but you probably want it anyway.
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	// https://github.com/OnyxStudios/Cardinal-Components-API
+		//used for building mod
+		compileOnly files('ofpre10.jar')
 
-	//make the game launch faster in dev
+		include "me.shedaniel.cloth:config-2:4.8.1"
+		include "io.github.prospector:modmenu:1.14.6+build.31"
+
+		modImplementation "me.shedaniel.cloth:config-2:4.8.1"
+		modImplementation "io.github.prospector:modmenu:1.14.6+build.31"
+
+		//For javax.annotation.Nullable
+		compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+		//make the game launch faster in dev
 //	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
 //		exclude module : "fabric-loader"
 //	}
 
-	modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
+		modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
 //	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
 
-	modCompileOnly 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
-}
-
-processResources {
-	inputs.property "version", project.version
-
-	from(sourceSets.main.resources.srcDirs) {
-		include "fabric.mod.json"
-		expand "version": project.version
+		modCompileOnly 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
 	}
 
-	from(sourceSets.main.resources.srcDirs) {
-		exclude "fabric.mod.json"
+	afterEvaluate {
+		remapJar {
+			input = file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar")
+			archiveName = "${archivesBaseName}-${version}.jar"
+		}
+
+		artifacts {
+			//dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+		}
+
+		processResources {
+			inputs.property "version", project.version
+
+			from(sourceSets.main.resources.srcDirs) {
+				include "fabric.mod.json"
+				expand "version": project.version
+			}
+
+			from(sourceSets.main.resources.srcDirs) {
+				exclude "fabric.mod.json"
+			}
+		}
 	}
-}
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
-}
-
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 // if it is present.
 // If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = "sources"
-	from sourceSets.main.allSource
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		classifier = "sources"
+		from sourceSets.main.allSource
+	}
 }
 
 jar {
 	from "LICENSE"
 }
 
-// configure the maven publication
+subprojects {
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				afterEvaluate {
+					artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
+						builtBy remapJar
+					}
+					artifact(sourcesJar) {
+						builtBy remapSourcesJar
+					}
+				}
+			}
+		}
+	}
+}
+
+subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
+
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
+			artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
 				builtBy remapJar
 			}
 			artifact(sourcesJar) {
 				builtBy remapSourcesJar
 			}
+			pom.withXml {
+				def depsNode = asNode().appendNode("dependencies")
+				subprojects.each {
+					def depNode = depsNode.appendNode("dependency")
+					depNode.appendNode("groupId", it.group)
+					depNode.appendNode("artifactId", it.name)
+					depNode.appendNode("version", it.version)
+					depNode.appendNode("scope", "compile")
+				}
+			}
 		}
-	}
-
-	// select the repositories you want to publish to
-	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
 	}
 }
 
 repositories {
-	flatDir {
-		dirs 'deps'
-	}
 
-	jcenter()
-	maven {
-		name = 'JitPack'
-		url = 'https://jitpack.io'
-	}
-	maven {
-		url = 'https://maven.fabricmc.net'
+}
+
+dependencies {
+	afterEvaluate {
+		subprojects.each {
+			compile project(path: ":${it.name}")
+			include project("${it.name}:")
+		}
 	}
 }
 
