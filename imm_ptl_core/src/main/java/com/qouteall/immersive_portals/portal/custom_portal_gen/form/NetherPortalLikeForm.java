@@ -67,10 +67,9 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         NetherPortalGeneration.startGeneratingPortal(
             fromWorld,
             toWorld,
-            fromShape, templateToShape,
+            fromShape,
             toPos,
             128,
-            areaPredicate,
             otherSideFramePredicate,
             toShape -> {
                 generateNewFrame(fromWorld, fromShape, toWorld, toShape);
@@ -99,7 +98,20 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                 );
             },
             //avoid linking to the beginning frame
-            s -> fromWorld != toWorld || fromShape.anchor != s.anchor
+            (region, blockPos) -> {
+                BlockPortalShape result = templateToShape.matchShapeWithMovedFirstFramePos(
+                    pos -> areaPredicate.test(region.getBlockState(pos)),
+                    pos -> otherSideFramePredicate.test(region.getBlockState(pos)),
+                    blockPos,
+                    temp1
+                );
+                if (result != null) {
+                    if (s -> fromWorld != toWorld || fromShape.anchor != s.anchor.test(result)) {
+                        return result;
+                    }
+                }
+                return null;
+            }
         );
         
         return true;
