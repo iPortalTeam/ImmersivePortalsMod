@@ -5,7 +5,6 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.logandark.languagehack.LanguageHack;
 
 public class ModEntry implements ModInitializer {
     
@@ -43,7 +42,7 @@ public class ModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-        LanguageHack.activate("assets/immersive_portals");
+        
     }
     
 }

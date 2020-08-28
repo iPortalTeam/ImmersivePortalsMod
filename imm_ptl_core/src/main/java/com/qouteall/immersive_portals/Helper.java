@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.common.collect.Streams;
-import com.qouteall.imm_ptl_peripheral.block_manipulation.BlockManipulationClient;
+import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IERayTraceContext;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.my_util.IntBox;

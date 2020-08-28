@@ -17,29 +17,18 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.qouteall.hiding_in_the_bushes.ModEntry"
+      "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModEntry"
     ],
     "client": [
-      "com.qouteall.hiding_in_the_bushes.ModEntryClient"
-    ],
-    "server": [
-      "com.qouteall.hiding_in_the_bushes.ModEntryDedicatedServer"
+      "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModEntryClient"
     ],
     "modmenu": [
-      "com.qouteall.hiding_in_the_bushes.ModMenuConfigEntry"
+      "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModMenuConfigEntry"
     ]
   },
   "mixins": [
-    "immersive_portals.mixins.json",
-    "immersive_portals.mixins_ma.json",
-    {
-      "config": "immersive_portals.mixins_client.json",
-      "environment": "client"
-    },
-    {
-      "config": "immersive_portals.mixins_ma_client.json",
-      "environment": "client"
-    }
+    "imm_ptl_peripheral_mixins.json",
+    "imm_ptl_peripheral_mixins_fabric.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.4",

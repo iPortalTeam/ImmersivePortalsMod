@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.mixin.block_manipulation;
 
-import com.qouteall.imm_ptl_peripheral.block_manipulation.HandReachTweak;
+import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import org.spongepowered.asm.mixin.Mixin;

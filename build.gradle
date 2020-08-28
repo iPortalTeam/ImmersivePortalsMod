@@ -67,8 +67,7 @@ allprojects {
 		// Fabric API. This is technically optional, but you probably want it anyway.
 		modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-		//used for building mod
-		compileOnly files('ofpre10.jar')
+
 
 		include "me.shedaniel.cloth:config-2:4.8.1"
 		include "io.github.prospector:modmenu:1.14.6+build.31"

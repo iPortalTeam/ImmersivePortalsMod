@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.common.block_manipulation;
 
-import com.qouteall.imm_ptl_peripheral.block_manipulation.HandReachTweak;
+import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectType;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,4 +1,4 @@
-package com.qouteall.imm_ptl_peripheral.block_manipulation;
+package com.qouteall.immersive_portals.block_manipulation;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Global;

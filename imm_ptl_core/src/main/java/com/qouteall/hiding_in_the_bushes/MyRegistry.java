@@ -1,7 +1,7 @@
 package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.imm_ptl_peripheral.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
