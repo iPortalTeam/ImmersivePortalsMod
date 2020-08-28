@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
+import com.google.common.math.IntMath;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -203,16 +204,16 @@ public class DiligentMatcher {
                 result.add(new TransformedShape(
                     original, newShape, rotation, 1.0 / divFactor
                 ));
-            }
-            
-            for (int mul = 2; mul <= maxMultiplyFactor; mul++) {
-                BlockPortalShape expanded = regularizeShape(expandShape(rotatedShape, mul));
-                isNew = shapeSet.add(expanded);
-                if (isNew) {
-                    result.add(new TransformedShape(
-                        original, expanded,
-                        rotation, ((double) mul) / divFactor
-                    ));
+                
+                for (int mul = 2; mul <= maxMultiplyFactor; mul++) {
+                    BlockPortalShape expanded = regularizeShape(expandShape(rotatedShape, mul));
+                    isNew = shapeSet.add(expanded);
+                    if (isNew) {
+                        result.add(new TransformedShape(
+                            original, expanded,
+                            rotation, ((double) mul) / divFactor
+                        ));
+                    }
                 }
             }
         }
@@ -249,7 +250,7 @@ public class DiligentMatcher {
             sideLenList.add(b);
         }
         
-        return sideLenList.stream().reduce(DiligentMatcher::getGreatestCommonDivisor).get();
+        return sideLenList.stream().reduce((a, b) -> IntMath.gcd(a, b)).get();
     }
     
     public static BlockPortalShape shrinkShapeBy(BlockPortalShape shape, int div) {
@@ -296,21 +297,6 @@ public class DiligentMatcher {
             ).collect(Collectors.toSet()),
             shape.axis
         );
-    }
-    
-    public static int getGreatestCommonDivisor(int a, int b) {
-        Validate.isTrue(a > 0 && b > 0);
-        if (a == b) {
-            return a;
-        }
-        if (a < b) {
-            return getGreatestCommonDivisor(b, a);
-        }
-        int w = a % b;
-        if (w == 0) {
-            return b;
-        }
-        return getGreatestCommonDivisor(a, w);
     }
     
     private static IntBox splitBoxFromArea(
