@@ -12,6 +12,10 @@ subprojects {
 	apply plugin: 'maven-publish'
 }
 
+minecraft {
+	accessWidener = file("imm_ptl_core/src/main/resources/imm_ptl.accesswidener")
+}
+
 allprojects {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8

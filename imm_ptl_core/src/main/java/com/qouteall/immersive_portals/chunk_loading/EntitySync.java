@@ -108,7 +108,7 @@ public class EntitySync {
     
     /**
      * If it's not null, all sent packets will be wrapped into redirected packet
-     * {@link com.qouteall.immersive_portals.mixin.entity_sync.MixinServerPlayNetworkHandler_E}
+     * {@link com.qouteall.immersive_portals.mixin.common.entity_sync.MixinServerPlayNetworkHandler_E}
      */
     @Nullable
     public static RegistryKey<World> getForceRedirectDimension() {
