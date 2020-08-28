@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.alternate_dimension;
+package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.world.biome.source.SeedMixer;

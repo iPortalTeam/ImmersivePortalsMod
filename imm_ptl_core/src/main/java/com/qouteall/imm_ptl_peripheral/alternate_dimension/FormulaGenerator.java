@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.alternate_dimension;
+package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 
 import java.util.Random;
 import java.util.function.Function;

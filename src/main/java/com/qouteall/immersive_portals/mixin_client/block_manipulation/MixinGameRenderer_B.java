@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin_client.block_manipulation;
 
-import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
+import com.qouteall.imm_ptl_peripheral.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;

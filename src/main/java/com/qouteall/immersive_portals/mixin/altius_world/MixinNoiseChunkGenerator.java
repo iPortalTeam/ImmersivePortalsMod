@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
-import com.qouteall.immersive_portals.altius_world.AltiusInfo;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.source.BiomeSource;

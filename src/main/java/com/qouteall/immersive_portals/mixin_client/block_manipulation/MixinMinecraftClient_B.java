@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin_client.block_manipulation;
 
+import com.qouteall.imm_ptl_peripheral.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Hand;

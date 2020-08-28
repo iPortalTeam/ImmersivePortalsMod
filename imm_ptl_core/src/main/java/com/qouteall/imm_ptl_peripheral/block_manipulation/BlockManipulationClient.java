@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.block_manipulation;
+package com.qouteall.imm_ptl_peripheral.block_manipulation;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.commands.PortalCommand;

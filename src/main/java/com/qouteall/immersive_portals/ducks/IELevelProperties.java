@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.ducks;
 
-import com.qouteall.immersive_portals.altius_world.AltiusInfo;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 
 public interface IELevelProperties {
     public AltiusInfo getAltiusInfo();

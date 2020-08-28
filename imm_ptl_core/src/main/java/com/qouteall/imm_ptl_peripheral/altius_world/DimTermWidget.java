@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.altius_world;
+package com.qouteall.imm_ptl_peripheral.altius_world;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.EntryListWidget;

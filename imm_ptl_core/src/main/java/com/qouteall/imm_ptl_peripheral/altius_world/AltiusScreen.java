@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.altius_world;
+package com.qouteall.imm_ptl_peripheral.altius_world;
 
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ModMain;

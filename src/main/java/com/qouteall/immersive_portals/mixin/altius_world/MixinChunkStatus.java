@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.altius_world;
 
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.altius_world.AltiusInfo;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
 import net.minecraft.util.registry.DynamicRegistryManager;

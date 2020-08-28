@@ -1,9 +1,9 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.imm_ptl_peripheral.block_manipulation.BlockManipulationServer;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.block_manipulation.BlockManipulationServer;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;

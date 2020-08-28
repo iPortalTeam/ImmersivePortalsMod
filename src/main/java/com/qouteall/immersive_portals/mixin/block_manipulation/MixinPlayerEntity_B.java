@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.block_manipulation;
 
-import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
+import com.qouteall.imm_ptl_peripheral.block_manipulation.HandReachTweak;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;

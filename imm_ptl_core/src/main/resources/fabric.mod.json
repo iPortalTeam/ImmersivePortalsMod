@@ -17,30 +17,10 @@
   "icon": "assets/immersive_portals/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.qouteall.hiding_in_the_bushes.ModEntry"
-    ],
-    "client": [
-      "com.qouteall.hiding_in_the_bushes.ModEntryClient"
-    ],
-    "server": [
-      "com.qouteall.hiding_in_the_bushes.ModEntryDedicatedServer"
-    ],
-    "modmenu": [
-      "com.qouteall.hiding_in_the_bushes.ModMenuConfigEntry"
-    ]
+
   },
   "mixins": [
-    "immersive_portals.mixins.json",
-    "immersive_portals.mixins_ma.json",
-    {
-      "config": "immersive_portals.mixins_client.json",
-      "environment": "client"
-    },
-    {
-      "config": "immersive_portals.mixins_ma_client.json",
-      "environment": "client"
-    }
+
   ],
   "depends": {
     "fabricloader": ">=0.7.4",

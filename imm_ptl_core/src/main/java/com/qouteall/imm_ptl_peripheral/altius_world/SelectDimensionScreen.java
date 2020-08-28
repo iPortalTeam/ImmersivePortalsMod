@@ -1,6 +1,6 @@
-package com.qouteall.immersive_portals.altius_world;
+package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensions;
+import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;

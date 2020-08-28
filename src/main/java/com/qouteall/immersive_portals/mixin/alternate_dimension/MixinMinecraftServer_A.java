@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.alternate_dimension;
 
+import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.alternate_dimension.AlternateDimensions;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.util.registry.DynamicRegistryManager;

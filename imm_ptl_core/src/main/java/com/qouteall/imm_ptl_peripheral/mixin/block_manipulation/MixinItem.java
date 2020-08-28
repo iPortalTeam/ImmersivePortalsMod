@@ -1,6 +1,6 @@
-package com.qouteall.hiding_in_the_bushes.mixin.block_manipulation;
+package com.qouteall.imm_ptl_peripheral.mixin.block_manipulation;
 
-import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
+import com.qouteall.imm_ptl_peripheral.block_manipulation.HandReachTweak;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.hit.HitResult;
