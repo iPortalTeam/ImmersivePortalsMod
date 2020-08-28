@@ -1,0 +1,36 @@
+{
+  "required": true,
+  "package": "com.qouteall.imm_ptl_peripheral.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "common.alternate_dimension.MixinAvoidSunlightGoal",
+    "common.alternate_dimension.MixinBedBlock",
+    "common.alternate_dimension.MixinDimensionType",
+    "common.alternate_dimension.MixinGeneratorOptions",
+    "common.alternate_dimension.MixinMinecraftServer_A",
+    "common.alternate_dimension.MixinOreFeature",
+    "common.alternate_dimension.MixinSimpleRegistry",
+    "common.alternate_dimension.MixinStructureFeature",
+    "common.altius_world.MixinChunkGenerator",
+    "common.altius_world.MixinChunkStatus",
+    "common.altius_world.MixinLevelInfo",
+    "common.altius_world.MixinLevelProperties",
+    "common.altius_world.MixinMinecraftServer_A",
+    "common.altius_world.MixinNoiseChunkGenerator",
+    "common.altius_world.MixinSpawnHelper",
+    "common.portal_generation.MixinAbstractFireBlock",
+    "common.portal_generation.MixinEnderEyeItem",
+    "common.portal_generation.MixinFlintAndSteelItem",
+    "common.portal_generation.MixinNetherPortalBlock"
+  ],
+  "client": [
+    "client.alternate_dimension.MixinBackgroundRenderer_A",
+    "client.alternate_dimension.MixinClientWorld_A",
+    "client.alternate_dimension.MixinWorldRenderer_A",
+    "client.altius_world.MixinCreateWorldScreen",
+    "client.altius_world.MixinWorldRenderer_A"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

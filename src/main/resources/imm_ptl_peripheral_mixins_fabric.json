@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.qouteall.imm_ptl_peripheral.fabricae_caminus.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "alternate_dimension.MixinMobSpawnerLogic",
+    "block_manipulation.MixinItem",
+    "block_manipulation.MixinServerPlayerInteractionManager",
+    "block_manipulation.MixinServerPlayNetworkHandler_B"
+  ],
+  "client": [
+    "client.MixinClientWorld_MA"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
