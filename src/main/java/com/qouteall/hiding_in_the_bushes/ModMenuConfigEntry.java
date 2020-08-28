@@ -14,7 +14,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
     
     @Override
     public String getModId() {
-        return "immersive_portals";
+        return "assets/immersive_portals";
     }
     
     @Override

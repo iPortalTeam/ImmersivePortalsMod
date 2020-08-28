@@ -43,7 +43,7 @@ public class ModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-        LanguageHack.activate("immersive_portals");
+        LanguageHack.activate("assets/immersive_portals");
     }
     
 }

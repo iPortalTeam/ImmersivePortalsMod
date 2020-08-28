@@ -54,7 +54,7 @@ public class MyRegistry {
         Registry.register(
             Registry.BLOCK,
             // the id is inappropriate
-            new Identifier("immersive_portals", "nether_portal_block"),
+            new Identifier("assets/immersive_portals", "nether_portal_block"),
             PortalPlaceholderBlock.instance
         );
         
@@ -67,13 +67,13 @@ public class MyRegistry {
         
         Registry.register(
             Registry.BLOCK,
-            new Identifier("immersive_portals", "portal_helper"),
+            new Identifier("assets/immersive_portals", "portal_helper"),
             ModMain.portalHelperBlock
         );
         
         Registry.register(
             Registry.ITEM,
-            new Identifier("immersive_portals", "portal_helper"),
+            new Identifier("assets/immersive_portals", "portal_helper"),
             ModMain.portalHelperBlockItem
         );
     }
@@ -193,7 +193,7 @@ public class MyRegistry {
             );
         Registry.register(
             Registry.STATUS_EFFECT,
-            new Identifier("immersive_portals", "longer_reach"),
+            new Identifier("assets/immersive_portals", "longer_reach"),
             HandReachTweak.longerReachEffect
         );
         
@@ -204,7 +204,7 @@ public class MyRegistry {
         );
         Registry.register(
             Registry.POTION,
-            new Identifier("immersive_portals", "longer_reach_potion"),
+            new Identifier("assets/immersive_portals", "longer_reach_potion"),
             HandReachTweak.longerReachPotion
         );
     }
