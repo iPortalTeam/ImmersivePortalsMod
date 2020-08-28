@@ -7,7 +7,7 @@ import net.logandark.languagehack.LanguageHack;
 public class PeripheralModEntry implements ModInitializer {
     @Override
     public void onInitialize() {
-        LanguageHack.activate("assets/immersive_portals");
+        LanguageHack.activate("immersive_portals");
     
         FormulaGenerator.init();
     }

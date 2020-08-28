@@ -9,7 +9,6 @@
     "block_manipulation.MixinServerPlayNetworkHandler_B"
   ],
   "client": [
-    "client.MixinClientWorld_MA"
   ],
   "injectors": {
     "defaultRequire": 1
