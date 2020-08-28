@@ -2,7 +2,7 @@ package com.qouteall.imm_ptl_peripheral.mixin.client.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusScreen;
-import com.qouteall.immersive_portals.ducks.IELevelProperties;
+import com.qouteall.imm_ptl_peripheral.ducks.IELevelProperties;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;

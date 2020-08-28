@@ -3,7 +3,7 @@ package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
-import com.qouteall.immersive_portals.ducks.IELevelProperties;
+import com.qouteall.imm_ptl_peripheral.ducks.IELevelProperties;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resource.DataPackSettings;
 import net.minecraft.world.Difficulty;

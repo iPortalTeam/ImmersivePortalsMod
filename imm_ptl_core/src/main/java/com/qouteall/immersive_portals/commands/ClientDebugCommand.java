@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
@@ -46,6 +45,7 @@ import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import java.lang.ref.Reference;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.time.Duration;
 import java.util.Arrays;
@@ -429,7 +429,15 @@ public class ClientDebugCommand {
             .literal("is_altius")
             .executes(context -> {
                 
-                boolean altius = AltiusInfo.isAltius();
+                Object obj = Helper.noError(
+                    () -> {
+                        Class<?> cls = Class.forName("com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo");
+                        Method method = cls.getDeclaredMethod("isAltius");
+                        return method.invoke(null);
+                    }
+                );
+                
+                boolean altius = ((Boolean) obj);
                 
                 if (altius) {
                     context.getSource().sendFeedback(

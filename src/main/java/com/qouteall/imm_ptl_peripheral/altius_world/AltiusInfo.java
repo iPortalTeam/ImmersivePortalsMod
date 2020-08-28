@@ -1,9 +1,9 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
+import com.qouteall.imm_ptl_peripheral.ducks.IELevelProperties;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
-import com.qouteall.immersive_portals.ducks.IELevelProperties;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.nbt.CompoundTag;
