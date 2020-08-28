@@ -6,6 +6,7 @@ import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
@@ -21,8 +22,11 @@ import net.minecraft.world.gen.chunk.FlatChunkGenerator;
 import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.FlatChunkGeneratorLayer;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
+import net.minecraft.world.gen.chunk.StructureConfig;
 import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.gen.feature.StructureFeature;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -36,7 +40,19 @@ public class AlternateDimensions {
         
         MutableRegistry<ChunkGeneratorSettings> settingsRegistry = rm.get(Registry.NOISE_SETTINGS_WORLDGEN);
         
-        ChunkGeneratorSettings skylandSetting = settingsRegistry.getOrThrow(ChunkGeneratorSettings.FLOATING_ISLANDS);
+        HashMap<StructureFeature<?>, StructureConfig> structureMap = new HashMap<>();
+        structureMap.putAll(StructuresConfig.DEFAULT_STRUCTURES);
+        structureMap.remove(StructureFeature.MINESHAFT);
+        structureMap.remove(StructureFeature.STRONGHOLD);
+        
+        StructuresConfig structuresConfig = new StructuresConfig(
+            Optional.empty(), structureMap
+        );
+        ChunkGeneratorSettings skylandSetting = ChunkGeneratorSettings.createIslandSettings(
+            structuresConfig, Blocks.STONE.getDefaultState(),
+            Blocks.WATER.getDefaultState(), new Identifier("imm_ptl:skyland_gen_id"),
+            false, false
+        );
         
         return new NoiseChunkGenerator(
             biomeSource, seed, () -> skylandSetting
