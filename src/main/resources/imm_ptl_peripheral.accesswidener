@@ -1,0 +1,8 @@
+accessWidener v1 named
+Accessible method net/minecraft/world/gen/chunk/ChunkGeneratorSettings createIslandSettings (Lnet/minecraft/world/gen/chunk/StructuresConfig;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/Identifier;ZZ)Lnet/minecraft/world/gen/chunk/ChunkGeneratorSettings;
+
+
+
+
+
+

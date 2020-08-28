@@ -13,7 +13,7 @@ subprojects {
 }
 
 minecraft {
-	accessWidener = file("imm_ptl_core/src/main/resources/imm_ptl.accesswidener")
+	accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
 }
 
 allprojects {

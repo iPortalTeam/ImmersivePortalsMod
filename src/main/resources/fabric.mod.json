@@ -21,9 +21,6 @@
     ],
     "client": [
       "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModEntryClient"
-    ],
-    "modmenu": [
-      "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModMenuConfigEntry"
     ]
   },
   "mixins": [
@@ -41,8 +38,7 @@
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
     "mm:early_risers": [
-      "com.qouteall.hiding_in_the_bushes.LaunchMixinWithOptifineRunnable"
     ]
   },
-  "accessWidener" : "imm_ptl.accesswidener"
+  "accessWidener" : "imm_ptl_peripheral.accesswidener"
 }
