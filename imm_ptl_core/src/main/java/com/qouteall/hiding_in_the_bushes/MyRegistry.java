@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
+import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
@@ -117,7 +118,7 @@ public class MyRegistry {
             NetherPortalEntity::new,
             registry
         );
-    
+        
         registerEntity(
             o -> EndPortalEntity.entityType = o,
             () -> EndPortalEntity.entityType,
@@ -125,7 +126,7 @@ public class MyRegistry {
             EndPortalEntity::new,
             registry
         );
-    
+        
         registerEntity(
             o -> Mirror.entityType = o,
             () -> Mirror.entityType,
@@ -133,7 +134,7 @@ public class MyRegistry {
             Mirror::new,
             registry
         );
-    
+        
         registerEntity(
             o -> BreakableMirror.entityType = o,
             () -> BreakableMirror.entityType,
@@ -141,7 +142,7 @@ public class MyRegistry {
             BreakableMirror::new,
             registry
         );
-    
+        
         registerEntity(
             o -> GlobalTrackedPortal.entityType = o,
             () -> GlobalTrackedPortal.entityType,
@@ -149,7 +150,7 @@ public class MyRegistry {
             GlobalTrackedPortal::new,
             registry
         );
-    
+        
         registerEntity(
             o -> WorldWrappingPortal.entityType = o,
             () -> WorldWrappingPortal.entityType,
@@ -157,7 +158,7 @@ public class MyRegistry {
             WorldWrappingPortal::new,
             registry
         );
-    
+        
         registerEntity(
             o -> VerticalConnectingPortal.entityType = o,
             () -> VerticalConnectingPortal.entityType,
@@ -165,13 +166,24 @@ public class MyRegistry {
             VerticalConnectingPortal::new,
             registry
         );
-    
+        
         registerEntity(
             o -> GeneralBreakablePortal.entityType = o,
             () -> GeneralBreakablePortal.entityType,
             "immersive_portals:general_breakable_portal",
             GeneralBreakablePortal::new,
             registry
+        );
+        
+        LoadingIndicatorEntity.entityType = Registry.register(
+            Registry.ENTITY_TYPE,
+            new Identifier("immersive_portals", "loading_indicator"),
+            FabricEntityTypeBuilder.create(
+                SpawnGroup.MISC,
+                (EntityType.EntityFactory<LoadingIndicatorEntity>) LoadingIndicatorEntity::new
+            ).dimensions(
+                new EntityDimensions(1, 1, true)
+            ).fireImmune().trackable(96, 20).build()
         );
     }
     
