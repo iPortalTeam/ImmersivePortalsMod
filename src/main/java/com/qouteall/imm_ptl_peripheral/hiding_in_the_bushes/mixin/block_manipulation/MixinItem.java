@@ -1,4 +1,4 @@
-package com.qouteall.imm_ptl_peripheral.fabricae_caminus.mixin.block_manipulation;
+package com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.mixin.block_manipulation;
 
 import com.qouteall.imm_ptl_peripheral.block_manipulation.HandReachTweak;
 import net.minecraft.entity.player.PlayerEntity;
