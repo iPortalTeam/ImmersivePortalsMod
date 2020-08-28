@@ -17,6 +17,7 @@ import org.apache.commons.lang3.Validate;
 import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -497,5 +498,18 @@ public class BlockPortalShape {
             newTotalAreaBox.l.subtract(totalAreaBox.l)
                 .add(anchor)
         );
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BlockPortalShape that = (BlockPortalShape) o;
+        return area.equals(that.area);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(area);
     }
 }
