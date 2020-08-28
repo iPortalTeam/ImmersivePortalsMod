@@ -20,7 +20,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> {
-            MyConfig currConfig = MyConfig.readConfigFromFile();
+            MyConfig currConfig = MyConfig.readConfig();
             
             ConfigBuilder builder = ConfigBuilder.create();
             ConfigCategory category = builder.getOrCreateCategory(

@@ -72,7 +72,7 @@ public class O_O {
     }
     
     public static void loadConfigFabric() {
-        MyConfig myConfig = MyConfig.readConfigFromFile();
+        MyConfig myConfig = MyConfig.readConfig();
         myConfig.onConfigChanged();
         myConfig.saveConfigFile();
     }

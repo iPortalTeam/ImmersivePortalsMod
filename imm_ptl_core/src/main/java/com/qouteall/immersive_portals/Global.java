@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 
@@ -10,7 +11,7 @@ public class Global {
     
     public static ServerTeleportationManager serverTeleportationManager;
     
-    public static Gson gson = new Gson();
+    public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
     
     public static int maxPortalLayer = 5;
     

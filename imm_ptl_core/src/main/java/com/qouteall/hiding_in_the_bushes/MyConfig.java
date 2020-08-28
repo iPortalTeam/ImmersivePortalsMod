@@ -50,9 +50,28 @@ public class MyConfig {
         }
     }
     
-    public static MyConfig readConfigFromFile() {
-        File configFile = new File(getGameDir(), "imm_ptl_config.json");
+    public static MyConfig readConfig() {
+        File oldConfigFile = new File(getGameDir(), "imm_ptl_config.json");
+        File newConfigFile = getConfigFileLocation();
         
+        if (oldConfigFile.exists()) {
+            Helper.log("Detected the old config file. deleted.");
+            MyConfig result = readConfigFromFile(oldConfigFile);
+            oldConfigFile.delete();
+            return result;
+        }
+        else {
+            return readConfigFromFile(newConfigFile);
+        }
+    }
+    
+    public static File getConfigFileLocation() {
+        return new File(
+            getGameDir(), "config/immersive_portals_fabric.json"
+        );
+    }
+    
+    public static MyConfig readConfigFromFile(File configFile) {
         if (configFile.exists()) {
             try {
                 String data = Files.lines(configFile.toPath()).collect(Collectors.joining());
@@ -75,7 +94,7 @@ public class MyConfig {
     }
     
     public void saveConfigFile() {
-        File configFile1 = new File(getGameDir(), "imm_ptl_config.json");
+        File configFile1 = getConfigFileLocation();
         try {
             configFile1.createNewFile();
             FileWriter fileWriter = new FileWriter(configFile1);
@@ -118,7 +137,7 @@ public class MyConfig {
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
         Global.enableAlternateDimensions = enableAlternateDimensions;
-    
+        
         Global.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
