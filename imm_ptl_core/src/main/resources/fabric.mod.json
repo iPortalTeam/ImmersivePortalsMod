@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "id": "imm_ptl_core",
+  "version": "${version}",
+
+  "name": "Immersive Portals Core",
+  "description": "The core functionality of see-through portals and seamless teleportation. Provide the portal commands and datapack-based custom portal generation. The core does not change vanila nether portal and end portal mechanics.",
+  "authors": [
+    "qouteall"
+  ],
+  "contact": {
+    "homepage": "https://github.com/qouteall/ImmersivePortalsMod/wiki",
+    "sources": "https://github.com/qouteall/ImmersivePortalsMod",
+    "issues": "https://github.com/qouteall/ImmersivePortalsMod/issues"
+  },
+  "license": "GPL",
+  "icon": "assets/immersive_portals/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.qouteall.hiding_in_the_bushes.ModEntry"
+    ],
+    "client": [
+      "com.qouteall.hiding_in_the_bushes.ModEntryClient"
+    ],
+    "server": [
+      "com.qouteall.hiding_in_the_bushes.ModEntryDedicatedServer"
+    ],
+    "modmenu": [
+      "com.qouteall.hiding_in_the_bushes.ModMenuConfigEntry"
+    ]
+  },
+  "mixins": [
+    "immersive_portals.mixins.json",
+    "immersive_portals.mixins_ma.json",
+    {
+      "config": "immersive_portals.mixins_client.json",
+      "environment": "client"
+    },
+    {
+      "config": "immersive_portals.mixins_ma_client.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.2"
+  },
+  "suggests": {
+    "flamingo": "*"
+  },
+  "custom": {
+    "fabric-renderer-indigo:force_compatibility": true,
+    "mm:early_risers": [
+      "com.qouteall.hiding_in_the_bushes.LaunchMixinWithOptifineRunnable"
+    ]
+  },
+  "accessWidener" : "imm_ptl.accesswidener"
+}

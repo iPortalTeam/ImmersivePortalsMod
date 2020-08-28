@@ -1,0 +1,10 @@
+archivesBaseName = "imm_ptl_core"
+group = "com.qouteall"
+
+minecraft {
+    accessWidener = file("src/main/resources/imm_ptl.accesswidener")
+}
+
+dependencies {
+
+}

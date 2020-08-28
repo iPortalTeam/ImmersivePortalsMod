@@ -44,9 +44,7 @@ allprojects {
 		options.encoding = "UTF-8"
 	}
 
-	minecraft {
-		accessWidener = file("src/main/resources/imm_ptl.accesswidener")
-	}
+
 
 	dependencies {
 //	modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
