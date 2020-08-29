@@ -1,4 +1,4 @@
-package com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.mixin.alternate_dimension;
+package com.qouteall.hiding_in_the_bushes.mixin.alternate_dimension;
 
 import net.minecraft.world.MobSpawnerLogic;
 import org.spongepowered.asm.mixin.Mixin;

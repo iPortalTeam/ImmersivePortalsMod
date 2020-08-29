@@ -1,4 +1,4 @@
-package com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes;
+package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.FormulaGenerator;
 import net.fabricmc.api.ModInitializer;
