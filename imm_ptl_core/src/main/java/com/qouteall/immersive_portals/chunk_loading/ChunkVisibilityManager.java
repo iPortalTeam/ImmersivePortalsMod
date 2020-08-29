@@ -228,6 +228,7 @@ public class ChunkVisibilityManager {
     public static Stream<ChunkLoader> getChunkLoaders(
         ServerPlayerEntity player
     ) {
+        ((ServerWorld) player.world).checkEntityChunkPos(player);
         return Streams.concat(
             Stream.of(playerDirectLoader(player)),
             
