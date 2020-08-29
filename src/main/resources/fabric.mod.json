@@ -17,10 +17,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModEntry"
+      "com.qouteall.hiding_in_the_bushes.PeripheralModEntry"
     ],
     "client": [
-      "com.qouteall.imm_ptl_peripheral.hiding_in_the_bushes.PeripheralModEntryClient"
+      "com.qouteall.hiding_in_the_bushes.PeripheralModEntryClient"
+    ],
+    "modmenu": [
+      "com.qouteall.hiding_in_the_bushes.ModMenuConfigEntry"
     ]
   },
   "mixins": [
