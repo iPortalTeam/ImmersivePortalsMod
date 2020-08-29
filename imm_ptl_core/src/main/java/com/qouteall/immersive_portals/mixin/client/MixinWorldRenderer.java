@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.DiffuseLighting;
@@ -133,6 +134,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private ShaderEffect transparencyShader;
+    
+    @Mutable
+    @Shadow
+    @Final
+    private BufferBuilderStorage bufferBuilders;
     
     @Inject(
         method = "render",
@@ -537,35 +543,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             updateChunks(limitTime);
         }
     }
-
-
-//    //disable cull when rendering mirror
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw
-//            (Lnet/minecraft/client/render/RenderLayer;)V"
-//        )
-//    )
-//    private void redirectVertexDraw(VertexConsumerProvider.Immediate immediate, RenderLayer layer) {
-//        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
-//        immediate.draw(layer);
-//        RenderStates.shouldForceDisableCull = false;
-//    }
-//
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;draw()V"
-//        )
-//    )
-//    private void redirectVertexDraw1(VertexConsumerProvider.Immediate immediate) {
-//        RenderStates.shouldForceDisableCull = PortalRendering.isRenderingOddNumberOfMirrors();
-//        immediate.draw();
-//        RenderStates.shouldForceDisableCull = false;
-//    }
     
     //redirect sky rendering dimension
     @Redirect(
@@ -674,6 +651,16 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         transparencyShader = arg;
     }
     
+    @Override
+    public BufferBuilderStorage getBufferBuilderStorage() {
+        return bufferBuilders;
+    }
+    
+    @Override
+    public void setBufferBuilderStorage(BufferBuilderStorage arg) {
+        bufferBuilders = arg;
+    }
+    
     private void portal_updateChunks() {
         
         ChunkBuilder chunkBuilder = this.chunkBuilder;
@@ -681,9 +668,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         this.needsTerrainUpdate |= uploaded;//no short circuit
         
         int limit = 1;
-//        if (CGlobal.renderer.getPortalLayer() > 1) {
-//            limit = 1;
-//        }
         
         int num = 0;
         for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {

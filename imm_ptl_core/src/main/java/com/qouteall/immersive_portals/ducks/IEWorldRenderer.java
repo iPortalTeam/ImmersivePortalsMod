@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.ducks;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.gl.ShaderEffect;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.chunk.ChunkBuilder;
@@ -33,4 +34,8 @@ public interface IEWorldRenderer {
     ShaderEffect portal_getTransparencyShader();
     
     void portal_setTransparencyShader(ShaderEffect arg);
+    
+    BufferBuilderStorage getBufferBuilderStorage();
+    
+    void setBufferBuilderStorage(BufferBuilderStorage arg);
 }

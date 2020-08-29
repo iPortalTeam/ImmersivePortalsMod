@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.ducks;
 
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.WorldRenderer;
 
 public interface IEMinecraftClient {
@@ -10,4 +11,6 @@ public interface IEMinecraftClient {
     Screen getCurrentScreen();
     
     void setWorldRenderer(WorldRenderer r);
+    
+    void setBufferBuilderStorage(BufferBuilderStorage arg);
 }

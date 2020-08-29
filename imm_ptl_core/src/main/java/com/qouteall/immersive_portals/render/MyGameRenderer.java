@@ -29,6 +29,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -55,6 +56,10 @@ import java.util.function.Predicate;
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
     
+    // portal rendering and outer world rendering uses different buffer builder storages
+    // theoretically every layer of portal rendering should have its own buffer builder storage
+    // but it's more complex
+    private static BufferBuilderStorage secondaryBufferBuilderStorage = new BufferBuilderStorage();
     
     public static void renderWorldNew(
         RenderInfo renderInfo,
@@ -132,6 +137,7 @@ public class MyGameRenderer {
         ShaderEffect oldTransparencyShader =
             ((IEWorldRenderer) oldWorldRenderer).portal_getTransparencyShader();
         ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
+        BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
@@ -154,6 +160,7 @@ public class MyGameRenderer {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
+        ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
         
         Object newSodiumContext = SodiumInterface.createNewRenderingContext.apply(worldRenderer);
         Object oldSodiumContext = SodiumInterface.switchRenderingContext.apply(worldRenderer, newSodiumContext);
@@ -200,6 +207,8 @@ public class MyGameRenderer {
         FogRendererContext.swappingManager.popSwapping();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
+        
+        ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(oldBufferBuilder);
         
         if (Global.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = true;

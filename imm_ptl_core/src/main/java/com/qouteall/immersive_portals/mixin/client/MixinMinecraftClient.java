@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.Profiler;
@@ -48,6 +49,11 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     @Shadow
     @Nullable
     public ClientWorld world;
+    
+    @Mutable
+    @Shadow
+    @Final
+    private BufferBuilderStorage bufferBuilders;
     
     @Inject(
         method = "tick",
@@ -139,5 +145,10 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     @Override
     public void setWorldRenderer(WorldRenderer r) {
         worldRenderer = r;
+    }
+    
+    @Override
+    public void setBufferBuilderStorage(BufferBuilderStorage arg) {
+        bufferBuilders = arg;
     }
 }
