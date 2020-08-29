@@ -1,8 +1,20 @@
 accessWidener v1 named
+# the two access wideners should be the same or the remapper will have issues
+# (the remapper cannot parse a reference to a private method/field)
+Accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
+Accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Ljava/nio/file/Path;
+Accessible field net/minecraft/world/dimension/DimensionType THE_NETHER Lnet/minecraft/world/dimension/DimensionType;
+Accessible field net/minecraft/world/dimension/DimensionType THE_END Lnet/minecraft/world/dimension/DimensionType;
+Accessible method net/minecraft/world/dimension/DimensionType createNetherGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
+Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
 Accessible method net/minecraft/world/gen/chunk/ChunkGeneratorSettings createIslandSettings (Lnet/minecraft/world/gen/chunk/StructuresConfig;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/Identifier;ZZ)Lnet/minecraft/world/gen/chunk/ChunkGeneratorSettings;
 
+Accessible field net/minecraft/world/biome/source/BiomeAccess seed J
+Accessible field net/minecraft/server/MinecraftServer serverResourceManager Lnet/minecraft/resource/ServerResourceManager;
+Accessible field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
+Mutable field net/minecraft/util/profiler/ProfilerSystem TIMEOUT_NANOSECONDS J
+Accessible field net/minecraft/world/gen/chunk/NoiseChunkGenerator settings Ljava/util/function/Supplier;
 
-
-
+Accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
 
 
