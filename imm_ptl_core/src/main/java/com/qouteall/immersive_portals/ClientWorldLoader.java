@@ -148,8 +148,6 @@ public class ClientWorldLoader {
                 (int) center.x, (int) center.y, (int) center.z
             );
             
-            client.particleManager.tick();
-            
             ((IECamera) camera).portal_setPos(oldCameraPos);
         });
     }

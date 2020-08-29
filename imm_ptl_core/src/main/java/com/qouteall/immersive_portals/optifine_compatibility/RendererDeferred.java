@@ -144,6 +144,8 @@ public class RendererDeferred extends PortalRenderer {
             GlStateManager.depthMask(false);
             GL20.glUseProgram(0);
             
+            GlStateManager.disableTexture();
+            
             ViewAreaRenderer.drawPortalViewTriangle(
                 portal, matrixStack, true, true
             );

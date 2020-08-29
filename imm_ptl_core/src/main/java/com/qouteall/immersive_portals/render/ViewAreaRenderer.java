@@ -275,7 +275,7 @@ public class ViewAreaRenderer {
         }
         
         //should not affect shader pipeline
-        GlStateManager.disableTexture();
+//        GlStateManager.disableTexture();
         PixelCuller.endCulling();
         
         Tessellator tessellator = Tessellator.getInstance();
@@ -304,7 +304,7 @@ public class ViewAreaRenderer {
         }
         
         MinecraftClient.getInstance().getProfiler().push("draw");
-        CGlobal.shaderManager.unloadShader();
+//        CGlobal.shaderManager.unloadShader();
         glEnable(GL32.GL_DEPTH_CLAMP);
         CHelper.checkGlError();
         McHelper.runWithTransformation(
@@ -323,7 +323,7 @@ public class ViewAreaRenderer {
             }
         }
         
-        GlStateManager.enableTexture();
+//        GlStateManager.enableTexture();
         
         //this is important
         GlStateManager.enableCull();

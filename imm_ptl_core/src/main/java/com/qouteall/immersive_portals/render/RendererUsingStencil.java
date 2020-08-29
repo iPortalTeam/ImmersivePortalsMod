@@ -179,7 +179,11 @@ public class RendererUsingStencil extends PortalRenderer {
         RenderSystem.enableDepthTest();
         GlStateManager.depthMask(true);
         
+        GlStateManager.disableTexture();
+        
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
+        
+        GlStateManager.enableTexture();
         
         GlStateManager.enableBlend();
         
@@ -239,7 +243,11 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GlStateManager.enableDepthTest();
         
+        GlStateManager.disableTexture();
+        
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
+        
+        GlStateManager.enableTexture();
         
         GL11.glColorMask(true, true, true, true);
     }
