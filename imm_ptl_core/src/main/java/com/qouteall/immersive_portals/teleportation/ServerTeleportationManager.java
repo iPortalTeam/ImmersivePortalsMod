@@ -464,8 +464,9 @@ public class ServerTeleportationManager {
             McHelper.setEyePos(newEntity, newEyePos, newEyePos);
             McHelper.updateBoundingBox(newEntity);
             newEntity.setHeadYaw(oldEntity.getHeadYaw());
-            
-            oldEntity.remove();
+    
+            // calling remove() will make chest minecart item duplicate
+            oldEntity.removed = true;
             
             toWorld.onDimensionChanged(newEntity);
             
