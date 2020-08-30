@@ -164,6 +164,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
+    
+        CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
     }
     
     @Inject(
@@ -181,11 +183,26 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
+        
         CGlobal.renderer.onAfterTranslucentRendering(matrices);
         
         //make hand rendering normal
         DiffuseLighting.method_27869(matrices.peek().getModel());
+    }
+    
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/options/GameOptions;getCloudRenderMode()Lnet/minecraft/client/options/CloudRenderMode;"
+        )
+    )
+    private void onBeginRenderClouds(
+        MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline,
+        Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
+        Matrix4f matrix4f, CallbackInfo ci
+    ) {
+    
     }
     
     @Inject(

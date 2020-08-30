@@ -138,7 +138,8 @@ public class MyGameRenderer {
             ((IEWorldRenderer) oldWorldRenderer).portal_getTransparencyShader();
         ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
         BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
-        
+        BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
+    
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
         //switch
@@ -161,6 +162,7 @@ public class MyGameRenderer {
         }
         ieGameRenderer.setCamera(newCamera);
         ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
+        ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
         
         Object newSodiumContext = SodiumInterface.createNewRenderingContext.apply(worldRenderer);
         Object oldSodiumContext = SodiumInterface.switchRenderingContext.apply(worldRenderer, newSodiumContext);
@@ -172,7 +174,6 @@ public class MyGameRenderer {
         if (!RenderStates.isDimensionRendered(newDimension)) {
             helper.lightmapTexture.update(0);
         }
-//        helper.lightmapTexture.enable();
         
         //invoke rendering
         invokeWrapper.accept(() -> {
@@ -209,6 +210,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
         
         ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(oldBufferBuilder);
+        ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
         
         if (Global.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = true;
@@ -344,6 +346,7 @@ public class MyGameRenderer {
         }
     }
     
+    // TODO recover
     public static void renderSkyFor(
         RegistryKey<World> dimension,
         MatrixStack matrixStack,
