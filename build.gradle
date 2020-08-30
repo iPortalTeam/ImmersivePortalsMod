@@ -1,6 +1,6 @@
 plugins {
-	id 'fabric-loom' version '0.4-SNAPSHOT'//'0.2.3-SNAPSHOT'
-	id 'maven-publish'
+    id 'fabric-loom' version '0.4-SNAPSHOT'//'0.2.3-SNAPSHOT'
+    id 'maven-publish'
 }
 
 archivesBaseName = project.archives_base_name
@@ -8,164 +8,162 @@ version = project.mod_version
 group = project.maven_group
 
 subprojects {
-	apply plugin: 'fabric-loom'
-	apply plugin: 'maven-publish'
+    apply plugin: 'fabric-loom'
+    apply plugin: 'maven-publish'
 }
 
 minecraft {
-	accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
+    accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
 }
 
 allprojects {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
-	version = rootProject.mod_version
+    version = rootProject.mod_version
 
-	repositories {
-		mavenCentral()
-		mavenLocal()
-		maven {
-			url 'http://maven.fabricmc.net/'
-			name 'Fabric'
-		}
-		maven {
-			name = 'JitPack'
-			url = 'https://jitpack.io'
-		}
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url 'http://maven.fabricmc.net/'
+            name 'Fabric'
+        }
+        maven {
+            name = 'JitPack'
+            url = 'https://jitpack.io'
+        }
 
-		flatDir {
-			dirs 'deps'
-		}
+        flatDir {
+            dirs 'deps'
+        }
 
-		jcenter()
-	}
+        jcenter()
+    }
 
-	// ensure that the encoding is set to UTF-8, no matter what the system default is
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
 // this fixes some edge cases with special characters not displaying correctly
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-	tasks.withType(JavaCompile) {
-		options.encoding = "UTF-8"
-	}
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
 
 
-
-	dependencies {
+    dependencies {
 //	modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
 
-		//Deps required for optifabric
-		compile 'org.zeroturnaround:zt-zip:1.13'
-		compile('net.fabricmc:stitch:0.2.1.61') {
-			transitive = false
-		}
+        //Deps required for optifabric
+        compile 'org.zeroturnaround:zt-zip:1.13'
+        compile('net.fabricmc:stitch:0.2.1.61') {
+            transitive = false
+        }
 
-		//to change the versions see the gradle.properties file
-		minecraft "com.mojang:minecraft:${project.minecraft_version}"
-		mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        //to change the versions see the gradle.properties file
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-		// Fabric API. This is technically optional, but you probably want it anyway.
-		modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        // Fabric API. This is technically optional, but you probably want it anyway.
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 
+        include "me.shedaniel.cloth:config-2:4.8.1"
+        include "io.github.prospector:modmenu:1.14.6+build.31"
 
-		include "me.shedaniel.cloth:config-2:4.8.1"
-		include "io.github.prospector:modmenu:1.14.6+build.31"
+        modImplementation "me.shedaniel.cloth:config-2:4.8.1"
+        modImplementation "io.github.prospector:modmenu:1.14.6+build.31"
 
-		modImplementation "me.shedaniel.cloth:config-2:4.8.1"
-		modImplementation "io.github.prospector:modmenu:1.14.6+build.31"
+        //For javax.annotation.Nullable
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-		//For javax.annotation.Nullable
-		compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+        //make the game launch faster in dev
+        modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
+            exclude module: "fabric-loader"
+        }
 
-		//make the game launch faster in dev
-//	modRuntime ("com.github.SuperCoder7979:databreaker:0.2.6") {
-//		exclude module : "fabric-loader"
-//	}
-
-		modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
+        modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
 //	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
 
-		modCompileOnly 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
-	}
+        modCompileOnly 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
+    }
 
-	afterEvaluate {
-		remapJar {
-			input = file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar")
-			archiveName = "${archivesBaseName}-${version}.jar"
-		}
+    afterEvaluate {
+        remapJar {
+            input = file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar")
+            archiveName = "${archivesBaseName}-${version}.jar"
+        }
 
-		artifacts {
-			//dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
-		}
+        artifacts {
+            //dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+        }
 
-		processResources {
-			inputs.property "version", project.version
+        processResources {
+            inputs.property "version", project.version
 
-			from(sourceSets.main.resources.srcDirs) {
-				include "fabric.mod.json"
-				expand "version": project.version
-			}
+            from(sourceSets.main.resources.srcDirs) {
+                include "fabric.mod.json"
+                expand "version": project.version
+            }
 
-			from(sourceSets.main.resources.srcDirs) {
-				exclude "fabric.mod.json"
-			}
-		}
-	}
+            from(sourceSets.main.resources.srcDirs) {
+                exclude "fabric.mod.json"
+            }
+        }
+    }
 
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 // if it is present.
 // If you remove this task, sources will not be generated.
-	task sourcesJar(type: Jar, dependsOn: classes) {
-		classifier = "sources"
-		from sourceSets.main.allSource
-	}
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = "sources"
+        from sourceSets.main.allSource
+    }
 }
 
 jar {
-	from "LICENSE"
+    from "LICENSE"
 }
 
 subprojects {
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				afterEvaluate {
-					artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
-						builtBy remapJar
-					}
-					artifact(sourcesJar) {
-						builtBy remapSourcesJar
-					}
-				}
-			}
-		}
-	}
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                afterEvaluate {
+                    artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
+                        builtBy remapJar
+                    }
+                    artifact(sourcesJar) {
+                        builtBy remapSourcesJar
+                    }
+                }
+            }
+        }
+    }
 }
 
 subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
 
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-			pom.withXml {
-				def depsNode = asNode().appendNode("dependencies")
-				subprojects.each {
-					def depNode = depsNode.appendNode("dependency")
-					depNode.appendNode("groupId", it.group)
-					depNode.appendNode("artifactId", it.name)
-					depNode.appendNode("version", it.version)
-					depNode.appendNode("scope", "compile")
-				}
-			}
-		}
-	}
+    publications {
+        mavenJava(MavenPublication) {
+            artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+            pom.withXml {
+                def depsNode = asNode().appendNode("dependencies")
+                subprojects.each {
+                    def depNode = depsNode.appendNode("dependency")
+                    depNode.appendNode("groupId", it.group)
+                    depNode.appendNode("artifactId", it.name)
+                    depNode.appendNode("version", it.version)
+                    depNode.appendNode("scope", "compile")
+                }
+            }
+        }
+    }
 }
 
 repositories {
@@ -173,16 +171,16 @@ repositories {
 }
 
 dependencies {
-	afterEvaluate {
-		subprojects.each {
-			compile project(path: ":${it.name}")
-			include project("${it.name}:")
-		}
-	}
+    afterEvaluate {
+        subprojects.each {
+            compile project(path: ":${it.name}")
+            include project("${it.name}:")
+        }
+    }
 }
 
 task printClasspath {
-	doLast {
-		configurations.compileClasspath.each { println "\""+ (it.toString().replace("\\","/")) + "\"," }
-	}
+    doLast {
+        configurations.compileClasspath.each { println "\"" + (it.toString().replace("\\", "/")) + "\"," }
+    }
 }
