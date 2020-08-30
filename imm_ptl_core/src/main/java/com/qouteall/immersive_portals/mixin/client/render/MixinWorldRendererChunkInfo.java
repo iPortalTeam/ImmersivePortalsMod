@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.client;
+package com.qouteall.immersive_portals.mixin.client.render;
 
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import net.minecraft.client.render.chunk.ChunkBuilder;

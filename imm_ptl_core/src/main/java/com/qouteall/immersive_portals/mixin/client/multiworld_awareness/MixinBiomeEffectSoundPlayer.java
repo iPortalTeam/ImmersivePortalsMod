@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.client;
+package com.qouteall.immersive_portals.mixin.client.multiworld_awareness;
 
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.BiomeEffectSoundPlayer;

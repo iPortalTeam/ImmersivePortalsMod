@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.mixin.client;
+package com.qouteall.immersive_portals.mixin.client.multiworld_awareness;
 
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import net.minecraft.client.render.BackgroundRenderer;
