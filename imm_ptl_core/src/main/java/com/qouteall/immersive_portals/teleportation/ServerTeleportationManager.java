@@ -315,7 +315,7 @@ public class ServerTeleportationManager {
         ((IEServerPlayerEntity) player).updateDimensionTravelAdvancements(fromWorld);
         
         
-        GlobalPortalStorage.onPlayerLoggedIn(player);
+        
     }
     
     private void sendPositionConfirmMessage(ServerPlayerEntity player) {

@@ -176,7 +176,10 @@ public class CrossPortalEntityRenderer {
             }
         }
         else {
-//            client.getFramebuffer().beginWrite(true);
+            PixelCuller.endCulling();
+            // don't draw the existing triangles with culling enabled
+            client.getBufferBuilders().getEntityVertexConsumers().draw();
+            
             PixelCuller.updateCullingPlaneInner(matrixStack, collidingPortal, false);
             PixelCuller.startCulling();
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);

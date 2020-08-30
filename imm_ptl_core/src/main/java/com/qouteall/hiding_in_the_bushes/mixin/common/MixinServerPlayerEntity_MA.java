@@ -41,12 +41,12 @@ public class MixinServerPlayerEntity_MA {
         }
     }
     
-    private static void onBeforeTravel(ServerPlayerEntity this_) {
-        CustomPortalGenManagement.onBeforeConventionalDimensionChange(this_);
-        Global.chunkDataSyncManager.onPlayerRespawn(this_);
+    private static void onBeforeTravel(ServerPlayerEntity player) {
+        CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
+        Global.chunkDataSyncManager.onPlayerRespawn(player);
         
         ModMain.serverTaskList.addTask(() -> {
-            CustomPortalGenManagement.onAfterConventionalDimensionChange(this_);
+            CustomPortalGenManagement.onAfterConventionalDimensionChange(player);
             return true;
         });
     }

@@ -181,6 +181,7 @@ dependencies {
 
 task printClasspath {
     doLast {
+        // NOTE don't forget to exclude the submod dev jar
         configurations.compileClasspath.each { println "\"" + (it.toString().replace("\\", "/")) + "\"," }
     }
 }
