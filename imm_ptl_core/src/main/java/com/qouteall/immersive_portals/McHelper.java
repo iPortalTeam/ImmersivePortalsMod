@@ -699,7 +699,7 @@ public class McHelper {
         return newRegistry;
     }
     
-    public static ServerWorld getServerWorld(RegistryKey<World> dim){
+    public static ServerWorld getServerWorld(RegistryKey<World> dim) {
         ServerWorld world = McHelper.getServer().getWorld(dim);
         if (world == null) {
             throw new RuntimeException("Missing dimension " + dim.getValue());

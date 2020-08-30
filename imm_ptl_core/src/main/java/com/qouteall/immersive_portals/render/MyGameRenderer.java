@@ -15,6 +15,7 @@ import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.ducks.IEPlayerListEntry;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -55,6 +56,8 @@ import java.util.function.Predicate;
 @Environment(EnvType.CLIENT)
 public class MyGameRenderer {
     public static MinecraftClient client = MinecraftClient.getInstance();
+    
+    private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
     // portal rendering and outer world rendering uses different buffer builder storages
     // theoretically every layer of portal rendering should have its own buffer builder storage
@@ -139,7 +142,7 @@ public class MyGameRenderer {
         ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
         BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
-    
+        
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
         //switch
@@ -176,15 +179,20 @@ public class MyGameRenderer {
         }
         
         //invoke rendering
-        invokeWrapper.accept(() -> {
-            client.getProfiler().push("render_portal_content");
-            client.gameRenderer.renderWorld(
-                tickDelta,
-                Util.getMeasuringTimeNano(),
-                new MatrixStack()
-            );
-            client.getProfiler().pop();
-        });
+        try {
+            invokeWrapper.accept(() -> {
+                client.getProfiler().push("render_portal_content");
+                client.gameRenderer.renderWorld(
+                    tickDelta,
+                    Util.getMeasuringTimeNano(),
+                    new MatrixStack()
+                );
+                client.getProfiler().pop();
+            });
+        }
+        catch (Throwable e) {
+            limitedLogger.invoke(e::printStackTrace);
+        }
         
         //recover
         SodiumInterface.switchRenderingContext.apply(worldRenderer, oldSodiumContext);

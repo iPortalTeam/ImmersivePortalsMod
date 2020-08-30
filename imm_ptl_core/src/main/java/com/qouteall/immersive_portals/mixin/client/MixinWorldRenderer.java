@@ -164,7 +164,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
-    
+        
         CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
     }
     
