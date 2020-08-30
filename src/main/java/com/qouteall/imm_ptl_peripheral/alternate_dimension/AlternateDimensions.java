@@ -3,6 +3,7 @@ package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Lifecycle;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.block.Blocks;
@@ -162,6 +163,38 @@ public class AlternateDimensions {
                 key == ModMain.alternate4Option ||
                 key == ModMain.alternate5Option)
         );
+    }
+    
+    public static void addMissingVanillaDimensions(
+        SimpleRegistry<DimensionOptions> registry, DynamicRegistryManager rm,
+        long seed
+    ) {
+        if (!registry.getIds().contains(DimensionOptions.NETHER.getValue())) {
+            Helper.err("Missing the nether. This may be caused by DFU. Trying to fix");
+            
+            addDimension(
+                seed,
+                registry,
+                DimensionOptions.NETHER,
+                () -> DimensionType.THE_NETHER,
+                DimensionType.createNetherGenerator(
+                    rm.get(Registry.BIOME_KEY),
+                    rm.get(Registry.NOISE_SETTINGS_WORLDGEN),
+                    seed
+                )
+            );
+            addDimension(
+                seed,
+                registry,
+                DimensionOptions.END,
+                () -> DimensionType.THE_END,
+                DimensionType.createEndGenerator(
+                    rm.get(Registry.BIOME_KEY),
+                    rm.get(Registry.NOISE_SETTINGS_WORLDGEN),
+                    seed
+                )
+            );
+        }
     }
     
 }
