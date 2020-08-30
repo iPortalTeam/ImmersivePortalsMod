@@ -37,6 +37,8 @@ public abstract class MixinMinecraftServer_A {
         if (Global.enableAlternateDimensions) {
             AlternateDimensions.addAlternateDimensions(registry, rm, seed);
         }
+    
+        AlternateDimensions.addMissingVanillaDimensions(registry, rm, seed);
     }
     
 }

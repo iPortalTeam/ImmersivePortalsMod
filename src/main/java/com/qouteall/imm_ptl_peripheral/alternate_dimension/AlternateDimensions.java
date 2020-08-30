@@ -165,6 +165,9 @@ public class AlternateDimensions {
         );
     }
     
+    // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
+    // then the nether and the end will be swallowed
+    // it's not IP's issue. but I add the fix code because many people encounter the issue
     public static void addMissingVanillaDimensions(
         SimpleRegistry<DimensionOptions> registry, DynamicRegistryManager rm,
         long seed
