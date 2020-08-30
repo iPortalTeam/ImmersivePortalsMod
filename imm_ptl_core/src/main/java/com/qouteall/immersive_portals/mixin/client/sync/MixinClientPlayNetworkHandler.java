@@ -125,16 +125,14 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         ClientWorld world = client.world;
         
         if (world != null) {
-            if (world.getDimension() != null) {
-                if (world.getRegistryKey() != playerDimension) {
-                    if (!MinecraftClient.getInstance().player.removed) {
-                        Helper.log(String.format(
-                            "denied position packet %s %s %s %s",
-                            ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension(),
-                            packet.getX(), packet.getY(), packet.getZ()
-                        ));
-                        ci.cancel();
-                    }
+            if (world.getRegistryKey() != playerDimension) {
+                if (!MinecraftClient.getInstance().player.removed) {
+                    Helper.log(String.format(
+                        "denied position packet %s %s %s %s",
+                        ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension(),
+                        packet.getX(), packet.getY(), packet.getZ()
+                    ));
+                    ci.cancel();
                 }
             }
         }
