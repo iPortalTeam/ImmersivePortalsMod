@@ -685,16 +685,16 @@ public class Portal extends Entity {
     }
     
     public static boolean isParallelPortal(Portal currPortal, Portal outerPortal) {
-        if (currPortal.world.getRegistryKey() != outerPortal.dimensionTo) {
-            return false;
-        }
-        if (currPortal.dimensionTo != outerPortal.world.getRegistryKey()) {
-            return false;
-        }
-        if (currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) {
-            return false;
-        }
-        return !outerPortal.isInside(currPortal.getPos(), 0.1);
+        return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
+            currPortal.dimensionTo == outerPortal.world.getRegistryKey() &&
+            !(currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) &&
+            !outerPortal.isInside(currPortal.getPos(), 0.1);
+    }
+    
+    public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
+        return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
+            currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) <= -0.9 &&
+            !outerPortal.isInside(currPortal.getPos(), 0.1);
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {

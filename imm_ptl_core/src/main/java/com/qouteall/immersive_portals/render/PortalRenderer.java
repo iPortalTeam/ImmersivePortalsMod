@@ -99,7 +99,7 @@ public abstract class PortalRenderer {
         
         if (PortalRendering.isRendering()) {
             Portal outerPortal = PortalRendering.getRenderingPortal();
-            if (Portal.isParallelPortal(portal, outerPortal)) {
+            if (Portal.isParallelOrientedPortal(portal, outerPortal)) {
                 return;
             }
         }
