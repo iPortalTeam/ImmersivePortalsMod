@@ -28,7 +28,8 @@
     "client.alternate_dimension.MixinClientWorld_A",
     "client.alternate_dimension.MixinWorldRenderer_A",
     "client.altius_world.MixinCreateWorldScreen",
-    "client.altius_world.MixinWorldRenderer_A"
+    "client.altius_world.MixinWorldRenderer_A",
+    "client.MixinBossBarHud"
   ],
   "injectors": {
     "defaultRequire": 1
