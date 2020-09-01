@@ -40,6 +40,14 @@
     "common.position_sync.MixinServerPlayNetworkHandler"
   ],
   "client": [
+    "client.MixinClientConnection",
+    "client.MixinClientWorld",
+    "client.MixinDebugHud",
+    "client.MixinEntity_C",
+    "client.MixinLivingEntity_C",
+    "client.MixinMatrix4f",
+    "client.MixinMinecraftClient",
+    "client.MixinPlayerListEntry",
     "client.block_manipulation.MixinClientPlayerInteractionManager",
     "client.block_manipulation.MixinGameRenderer_B",
     "client.block_manipulation.MixinMinecraftClient_B",
@@ -67,15 +75,7 @@
     "client.sync.MixinPlayerMoveC2SPacketBoth",
     "client.sync.MixinPlayerMoveC2SPacketLookOnly",
     "client.sync.MixinPlayerMoveC2SPacketPositionOnly",
-    "client.sync.MixinPlayerPositionLookS2CPacket_C",
-    "client.MixinClientConnection",
-    "client.MixinClientWorld",
-    "client.MixinDebugHud",
-    "client.MixinEntity_C",
-    "client.MixinLivingEntity_C",
-    "client.MixinMatrix4f",
-    "client.MixinMinecraftClient",
-    "client.MixinPlayerListEntry"
+    "client.sync.MixinPlayerPositionLookS2CPacket_C"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -50,22 +50,11 @@ allprojects {
 
 
     dependencies {
-//	modCompile 'com.github.modmuss50:OptiFabric:1.1.0-beta2'
-
-        //Deps required for optifabric
-        compile 'org.zeroturnaround:zt-zip:1.13'
-        compile('net.fabricmc:stitch:0.2.1.61') {
-            transitive = false
-        }
-
-        //to change the versions see the gradle.properties file
         minecraft "com.mojang:minecraft:${project.minecraft_version}"
         mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-        // Fabric API. This is technically optional, but you probably want it anyway.
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
 
         include "me.shedaniel.cloth:config-2:4.8.1"
         include "io.github.prospector:modmenu:1.14.6+build.31"
@@ -85,6 +74,16 @@ allprojects {
 //	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
 
         modCompileOnly 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
+
+//        modCompile 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
+
+//        modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
+
+        //Deps required for optifabric
+        compile 'org.zeroturnaround:zt-zip:1.13'
+        compile('net.fabricmc:stitch:0.2.1.61') {
+            transitive = false
+        }
     }
 
     afterEvaluate {

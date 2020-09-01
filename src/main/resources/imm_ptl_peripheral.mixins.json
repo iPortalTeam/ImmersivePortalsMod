@@ -24,12 +24,12 @@
     "common.portal_generation.MixinNetherPortalBlock"
   ],
   "client": [
+    "client.MixinBossBarHud",
     "client.alternate_dimension.MixinBackgroundRenderer_A",
     "client.alternate_dimension.MixinClientWorld_A",
     "client.alternate_dimension.MixinWorldRenderer_A",
     "client.altius_world.MixinCreateWorldScreen",
-    "client.altius_world.MixinWorldRenderer_A",
-    "client.MixinBossBarHud"
+    "client.altius_world.MixinWorldRenderer_A"
   ],
   "injectors": {
     "defaultRequire": 1
