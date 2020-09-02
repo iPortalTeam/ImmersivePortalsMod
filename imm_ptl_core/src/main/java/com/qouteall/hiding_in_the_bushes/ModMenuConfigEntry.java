@@ -23,8 +23,11 @@ public class ModMenuConfigEntry implements ModMenuApi {
             MyConfig currConfig = MyConfig.readConfig();
             
             ConfigBuilder builder = ConfigBuilder.create();
-            ConfigCategory category = builder.getOrCreateCategory(
-                new TranslatableText("imm_ptl.main_category")
+            ConfigCategory serverSide = builder.getOrCreateCategory(
+                new TranslatableText("imm_ptl.server_side_config")
+            );
+            ConfigCategory clientSide = builder.getOrCreateCategory(
+                new TranslatableText("imm_ptl.client_side_config")
             );
             IntegerSliderEntry entryMaxPortalLayer = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.max_portal_layer"),
@@ -111,26 +114,27 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
             ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true)
                 .setExpanded(true).build();
-            category.addEntry(entryMaxPortalLayer);
-            category.addEntry(entryLagAttackProof);
-            category.addEntry(entryPortalRenderLimit);
-            category.addEntry(entryIndirectLoadingRadiusCap);
-            category.addEntry(entryLongerReachInCreative);
-            category.addEntry(entryCompatibilityRenderMode);
-            category.addEntry(entryLoadFewerChunks);
-            category.addEntry(entryCheckGlError);
-            category.addEntry(entryPureMirror);
-            category.addEntry(entryEnableAlternateDimensions);
-            category.addEntry(entryPortalSearchingRange);
-            category.addEntry(entryRenderYourselfInPortal);
-            category.addEntry(entryActiveLoading);
-            category.addEntry(entryTeleportDebug);
-            category.addEntry(entryCorrectCrossPortalEntityRendering);
-            category.addEntry(entryMultiThreadedNetherPortalSearching);
-            category.addEntry(entryEdgelessSky);
-            category.addEntry(entryReversibleNetherPortalLinking);
-            category.addEntry(entryMirrorInteractableThroughPortal);
-            category.addEntry(entryDimensionRenderRedirect);
+            clientSide.addEntry(entryMaxPortalLayer);
+            clientSide.addEntry(entryLagAttackProof);
+            clientSide.addEntry(entryPortalRenderLimit);
+            clientSide.addEntry(entryCompatibilityRenderMode);
+            clientSide.addEntry(entryCheckGlError);
+            clientSide.addEntry(entryPureMirror);
+            clientSide.addEntry(entryRenderYourselfInPortal);
+            clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
+            clientSide.addEntry(entryEdgelessSky);
+            
+            serverSide.addEntry(entryIndirectLoadingRadiusCap);
+            serverSide.addEntry(entryLongerReachInCreative);
+            serverSide.addEntry(entryLoadFewerChunks);
+            serverSide.addEntry(entryEnableAlternateDimensions);
+            serverSide.addEntry(entryPortalSearchingRange);
+            serverSide.addEntry(entryActiveLoading);
+            serverSide.addEntry(entryTeleportDebug);
+            serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
+            serverSide.addEntry(entryReversibleNetherPortalLinking);
+            serverSide.addEntry(entryMirrorInteractableThroughPortal);
+            clientSide.addEntry(entryDimensionRenderRedirect);
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
