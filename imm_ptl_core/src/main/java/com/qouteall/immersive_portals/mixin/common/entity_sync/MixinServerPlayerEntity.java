@@ -39,8 +39,6 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
         super(world, pos, yaw, profile);
     }
     
-    
-    
     @Inject(
         method = "Lnet/minecraft/server/network/ServerPlayerEntity;tick()V",
         at = @At("TAIL")
