@@ -96,6 +96,7 @@ public class MyConfig {
     public void saveConfigFile() {
         File configFile1 = getConfigFileLocation();
         try {
+            configFile1.getParentFile().mkdirs();
             configFile1.createNewFile();
             FileWriter fileWriter = new FileWriter(configFile1);
             
