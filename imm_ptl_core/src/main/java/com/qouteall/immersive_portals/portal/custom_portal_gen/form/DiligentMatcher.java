@@ -1,8 +1,9 @@
-package com.qouteall.immersive_portals.portal.nether_portal;
+package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.util.Pair;
 import net.minecraft.util.Util;

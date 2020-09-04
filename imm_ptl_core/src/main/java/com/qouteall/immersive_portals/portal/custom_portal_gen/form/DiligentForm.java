@@ -1,40 +1,67 @@
 package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
-import com.qouteall.immersive_portals.my_util.IntBox;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
-import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 
-import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public abstract class NetherPortalLikeForm extends PortalGenForm {
+public class DiligentForm extends PortalGenForm {
+    public static final Codec<DiligentForm> codec = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+            Registry.BLOCK.fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            Registry.BLOCK.fieldOf("area_block").forGetter(o -> o.areaBlock),
+            Registry.BLOCK.fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
+        ).apply(instance, instance.stable(DiligentForm::new));
+    });
+    
+    public final Block fromFrameBlock;
+    public final Block areaBlock;
+    public final Block toFrameBlock;
     public final boolean generateFrameIfNotFound;
     
-    public NetherPortalLikeForm(boolean generateFrameIfNotFound) {
+    public DiligentForm(
+        Block fromFrameBlock, Block areaBlock, Block toFrameBlock,
+        boolean generateFrameIfNotFound
+    ) {
+        this.fromFrameBlock = fromFrameBlock;
+        this.areaBlock = areaBlock;
+        this.toFrameBlock = toFrameBlock;
         this.generateFrameIfNotFound = generateFrameIfNotFound;
     }
     
     @Override
-    public boolean perform(
-        CustomPortalGeneration cpg,
-        ServerWorld fromWorld, BlockPos startingPos,
-        ServerWorld toWorld
-    ) {
+    public Codec<? extends PortalGenForm> getCodec() {
+        return codec;
+    }
+    
+    @Override
+    public PortalGenForm getReverse() {
+        return new DiligentForm(
+            toFrameBlock, areaBlock, fromFrameBlock, generateFrameIfNotFound
+        );
+    }
+    
+    @Override
+    public boolean perform(CustomPortalGeneration cpg, ServerWorld fromWorld, BlockPos startingPos, ServerWorld toWorld) {
         if (!NetherPortalGeneration.checkPortalGeneration(fromWorld, startingPos)) {
             return false;
         }
         
-        Predicate<BlockState> areaPredicate = getAreaPredicate();
-        Predicate<BlockState> thisSideFramePredicate = getThisSideFramePredicate();
-        Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();
+        Predicate<BlockState> areaPredicate = s -> s.getBlock() == areaBlock;
+        Predicate<BlockState> thisSideFramePredicate = s -> s.getBlock() == fromFrameBlock;
+        Predicate<BlockState> otherSideFramePredicate = s -> s.getBlock() == toFrameBlock;
         
         BlockPortalShape fromShape = NetherPortalGeneration.findFrameShape(
             fromWorld, startingPos,
@@ -45,7 +72,9 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             return false;
         }
         
-        if (NetherPortalGeneration.isOtherGenerationRunning(fromWorld, fromShape.innerAreaBox.getCenterVec())) {
+        if (NetherPortalGeneration.isOtherGenerationRunning(
+            fromWorld, fromShape.innerAreaBox.getCenterVec())
+        ) {
             return false;
         }
         
@@ -58,12 +87,6 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         
         BlockPos toPos = cpg.mapPosition(fromShape.innerAreaBox.getCenter());
         
-        BlockPortalShape templateToShape = checkAndGetTemplateToShape(fromWorld, fromShape);
-        
-        if (templateToShape == null) {
-            return false;
-        }
-        
         BlockPos.Mutable temp1 = new BlockPos.Mutable();
         
         NetherPortalGeneration.startGeneratingPortal(
@@ -74,11 +97,14 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             128,
             otherSideFramePredicate,
             toShape -> {
-                generateNewFrame(fromWorld, fromShape, toWorld, toShape);
+                for (BlockPos blockPos : toShape.frameAreaWithCorner) {
+                    toWorld.setBlockState(blockPos, toFrameBlock.getDefaultState());
+                }
             },
             info -> {
                 //generate portal entity
-                BreakablePortalEntity[] result = generatePortalEntitiesAndPlaceholder(info);
+                BreakablePortalEntity[] result =
+                    info.createBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
                 for (BreakablePortalEntity portal : result) {
                     cpg.onPortalGenerated(portal);
                 }
@@ -89,7 +115,9 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                     return null;
                 }
                 
-                BlockPortalShape toShape = getNewPortalPlacement(toWorld, toPos, templateToShape);
+                BlockPortalShape toShape = NetherPortalLikeForm.getNewPortalPlacement(
+                    toWorld, toPos, fromShape
+                );
                 
                 return toShape;
             },
@@ -118,45 +146,4 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         
         return true;
     }
-    
-    public static BlockPortalShape getNewPortalPlacement(
-        ServerWorld toWorld, BlockPos toPos,
-        BlockPortalShape templateToShape
-    ) {
-        IntBox airCubePlacement =
-            NetherPortalGeneration.findAirCubePlacement(
-                toWorld, toPos,
-                templateToShape.axis, templateToShape.totalAreaBox.getSize(),
-                128
-            );
-        
-        return templateToShape.getShapeWithMovedTotalAreaBox(
-            airCubePlacement
-        );
-    }
-    
-    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
-        return NetherPortalGeneration.generateBreakablePortalEntitiesAndPlaceholder(
-            info, GeneralBreakablePortal.entityType
-        );
-    }
-    
-    // if check fails, return null
-    @Nullable
-    public BlockPortalShape checkAndGetTemplateToShape(ServerWorld world, BlockPortalShape fromShape) {
-        return fromShape;
-    }
-    
-    public abstract void generateNewFrame(
-        ServerWorld fromWorld,
-        BlockPortalShape fromShape,
-        ServerWorld toWorld,
-        BlockPortalShape toShape
-    );
-    
-    public abstract Predicate<BlockState> getOtherSideFramePredicate();
-    
-    public abstract Predicate<BlockState> getThisSideFramePredicate();
-    
-    public abstract Predicate<BlockState> getAreaPredicate();
 }
