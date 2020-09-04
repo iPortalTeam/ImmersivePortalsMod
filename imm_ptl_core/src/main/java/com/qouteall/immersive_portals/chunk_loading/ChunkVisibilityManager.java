@@ -109,9 +109,6 @@ public class ChunkVisibilityManager {
     }
     
     private static int getDirectLoadingDistance(int renderDistance, double distanceToPortal) {
-        if (Global.loadFewerChunks) {
-            return 1;
-        }
         if (distanceToPortal < 5) {
             return renderDistance;
         }
@@ -171,10 +168,13 @@ public class ChunkVisibilityManager {
         ServerPlayerEntity player,
         GlobalTrackedPortal portal
     ) {
-        int renderDistance = Math.max(
-            2,
-            McHelper.getRenderDistanceOnServer() -
-                Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.getPos()), 16)
+        int renderDistance = Math.min(
+            Global.indirectLoadingRadiusCap,
+            Math.max(
+                2,
+                McHelper.getRenderDistanceOnServer() -
+                    Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.getPos()), 16)
+            )
         );
         
         return new ChunkLoader(
@@ -193,7 +193,10 @@ public class ChunkVisibilityManager {
         GlobalTrackedPortal outerPortal,
         GlobalTrackedPortal remotePortal
     ) {
-        int renderDistance = McHelper.getRenderDistanceOnServer() / 2;
+        int renderDistance = Math.min(
+            Global.indirectLoadingRadiusCap,
+            McHelper.getRenderDistanceOnServer() / 2
+        );
         return new ChunkLoader(
             new DimensionalChunkPos(
                 remotePortal.dimensionTo,
@@ -236,14 +239,14 @@ public class ChunkVisibilityManager {
                 player.world,
                 player.getPos(),
                 Portal.class,
-                Global.loadFewerChunks ? portalLoadingRange / 2 : portalLoadingRange
+                shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange
             ).filter(
                 portal -> portal.canBeSpectated(player)
             ).flatMap(
                 portal -> Stream.concat(
                     Stream.of(portalDirectLoader(portal, player)),
                     
-                    Global.loadFewerChunks ?
+                    shrinkLoading() ?
                         Stream.empty() :
                         McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
                             McHelper.getServer().getWorld(portal.dimensionTo),
@@ -265,14 +268,14 @@ public class ChunkVisibilityManager {
                             player, portal
                         )),
                         
-                        Global.loadFewerChunks ?
+                        shrinkLoading() ?
                             Stream.empty() :
                             getGlobalPortals(
                                 portal.dimensionTo
                             ).filter(
                                 remotePortal -> remotePortal.getDistanceToNearestPointInPortal(
                                     portal.transformPointRough(player.getPos())
-                                ) < (Global.loadFewerChunks ? portalLoadingRange / 2 : portalLoadingRange)
+                                ) < (shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange)
                             ).map(
                                 remotePortal -> globalPortalIndirectLoader(
                                     player, portal, remotePortal
@@ -281,6 +284,10 @@ public class ChunkVisibilityManager {
                     )
                 )
         ).distinct();
+    }
+    
+    public static boolean shrinkLoading() {
+        return Global.indirectLoadingRadiusCap < 4;
     }
     
 }

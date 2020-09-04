@@ -65,7 +65,7 @@ public class CollisionHelper {
     }
     
     public static boolean shouldCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
-        return portal.isTeleportable() &&
+        return portal.canTeleportEntity(entity) &&
             portal.isInFrontOfPortal(entity.getCameraPosVec(tickDelta));
     }
     

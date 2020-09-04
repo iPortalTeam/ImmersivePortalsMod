@@ -17,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -34,6 +35,7 @@ import java.util.UUID;
 public class Portal extends Entity {
     public static EntityType<Portal> entityType;
     
+    public static final UUID nullUUID = Util.NIL_UUID;
     
     /**
      * The portal area length along axisW
@@ -63,6 +65,7 @@ public class Portal extends Entity {
     public boolean teleportable = true;
     /**
      * If not null, this portal can only be accessed by one player
+     * If it's {@link Portal#nullUUID} the portal can only be accessed by entities
      */
     @Nullable
     public UUID specificPlayerId;
@@ -234,6 +237,8 @@ public class Portal extends Entity {
         return cullableXStart != cullableXEnd;
     }
     
+    // use canTeleportEntity
+    @Deprecated
     public boolean isTeleportable() {
         return teleportable;
     }
@@ -391,6 +396,27 @@ public class Portal extends Entity {
         else {
             entity.setVelocity(transformLocalVec(entity.getVelocity()));
         }
+    }
+    
+    public boolean canTeleportEntity(Entity entity) {
+        if (!teleportable) {
+            return false;
+        }
+        if (entity instanceof ServerPlayerEntity) {
+            if (!entity.getUuid().equals(specificPlayerId)) {
+                return false;
+            }
+        }
+        else {
+            if (specificPlayerId != null) {
+                if (!specificPlayerId.equals(nullUUID)) {
+                    // it can only be used by the player
+                    return false;
+                }
+            }
+        }
+        
+        return entity.canUsePortals();
     }
     
     public boolean hasScaling() {

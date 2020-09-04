@@ -55,7 +55,7 @@ public class ServerTeleportationManager {
     
     public static boolean shouldEntityTeleport(Portal portal, Entity entity) {
         return entity.world == portal.world &&
-            portal.isTeleportable() &&
+            portal.canTeleportEntity(entity) &&
             portal.isMovedThroughPortal(
                 entity.getCameraPosVec(0),
                 entity.getCameraPosVec(1).add(entity.getVelocity())

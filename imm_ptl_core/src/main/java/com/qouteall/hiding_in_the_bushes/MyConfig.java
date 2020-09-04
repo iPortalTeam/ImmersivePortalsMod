@@ -31,7 +31,6 @@ public class MyConfig {
     public boolean activeLoading = true;
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
-    public boolean loadFewerChunks = false;
     public boolean multiThreadedNetherPortalSearching = true;
     public boolean edgelessSky = false;
     public boolean reversibleNetherPortalLinking = false;
@@ -130,7 +129,6 @@ public class MyConfig {
         Global.activeLoading = activeLoading;
         Global.teleportationDebugEnabled = teleportationDebug;
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
-        Global.loadFewerChunks = loadFewerChunks;
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
         Global.edgelessSky = edgelessSky;
         Global.reversibleNetherPortalLinking = reversibleNetherPortalLinking;

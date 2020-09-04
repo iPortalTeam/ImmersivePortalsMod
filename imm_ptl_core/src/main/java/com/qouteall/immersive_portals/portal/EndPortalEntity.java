@@ -8,6 +8,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -59,6 +60,16 @@ public class EndPortalEntity extends Portal {
         if (entity instanceof ServerPlayerEntity) {
             generateObsidianPlatform();
         }
+    }
+    
+    // arrows cannot go through end portal
+    // avoid easily snipping end crystals
+    @Override
+    public boolean canTeleportEntity(Entity entity) {
+        if (entity instanceof ArrowEntity) {
+            return false;
+        }
+        return super.canTeleportEntity(entity);
     }
     
     private boolean shouldAddSlowFalling(Entity entity) {

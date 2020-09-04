@@ -124,6 +124,8 @@ public class ClientTeleportationManager {
     }
     
     private boolean tryTeleport(float tickDelta) {
+        ClientPlayerEntity player = client.player;
+    
         Vec3d newHeadPos = getPlayerHeadPos(tickDelta);
         
         if (moveStartPoint.squaredDistanceTo(newHeadPos) > 400) {
@@ -133,7 +135,7 @@ public class ClientTeleportationManager {
         
         Pair<Portal, Vec3d> pair = CHelper.getClientNearbyPortals(32)
             .flatMap(portal -> {
-                if (portal.isTeleportable()) {
+                if (portal.canTeleportEntity(player)) {
                     Vec3d collidingPoint = portal.rayTrace(
                         moveStartPoint,
                         newHeadPos

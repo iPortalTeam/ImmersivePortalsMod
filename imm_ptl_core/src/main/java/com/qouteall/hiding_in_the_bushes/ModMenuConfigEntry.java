@@ -81,10 +81,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.correct_cross_portal_entity_rendering"),
                 currConfig.correctCrossPortalEntityRendering
             ).setDefaultValue(true).build();
-            BooleanListEntry entryLoadFewerChunks = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.load_fewer_chunks"),
-                currConfig.loadFewerChunks
-            ).setDefaultValue(false).build();
             BooleanListEntry entryMultiThreadedNetherPortalSearching = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.multi_threaded_nether_portal_searching"),
                 currConfig.multiThreadedNetherPortalSearching
@@ -126,7 +122,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
             
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
             serverSide.addEntry(entryLongerReachInCreative);
-            serverSide.addEntry(entryLoadFewerChunks);
             serverSide.addEntry(entryEnableAlternateDimensions);
             serverSide.addEntry(entryPortalSearchingRange);
             serverSide.addEntry(entryActiveLoading);
@@ -150,7 +145,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.activeLoading = entryActiveLoading.getValue();
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
-                    newConfig.loadFewerChunks = entryLoadFewerChunks.getValue();
                     newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
                     newConfig.edgelessSky = entryEdgelessSky.getValue();
                     newConfig.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
