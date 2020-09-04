@@ -39,6 +39,8 @@ public class MyConfig {
     public boolean pureMirror = false;
     public boolean enableAlternateDimensions = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
+    public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
+    public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
     
     private static File getGameDir() {
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
@@ -138,6 +140,9 @@ public class MyConfig {
         Global.enableAlternateDimensions = enableAlternateDimensions;
         
         Global.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
+        
+        Global.netherPortalMode = netherPortalMode;
+        Global.endPortalMode = endPortalMode;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

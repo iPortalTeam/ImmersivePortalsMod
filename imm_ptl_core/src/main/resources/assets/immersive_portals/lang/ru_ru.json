@@ -14,7 +14,6 @@
   "imm_ptl.active_loading": "Активно Загружайте Отдаленные Чанки",
   "imm_ptl.teleportation_debug": "Отладка Телепортации",
   "imm_ptl.correct_cross_portal_entity_rendering": "Межпортальный Рендеринг Сущностей",
-  "imm_ptl.load_fewer_chunks": "Загружайте Меньше Чанков Из Порталов",
   "imm_ptl.multi_threaded_nether_portal_searching": "Многопоточный Поиск Незер Портала",
   "imm_ptl.smooth_loading": "Экспериментальная Лаг Спайк Оптимизация",
   "imm_ptl.edgeless_sky": "Бескрайнее Небо",
@@ -53,5 +52,9 @@
   "imm_ptl.start_clearing_border": "Начать Расчистку Границы",
   "imm_ptl.finished": "Готово",
   "imm_ptl.needs_pehkui": "Ваш размер не изменен так-как Pehkui не установлен.",
-  "imm_ptl.indirect_loading_radius_cap": "Дерективная Загрузка Радиуса"
+  "imm_ptl.indirect_loading_radius_cap": "Дерективная Загрузка Радиуса",
+  "imm_ptl.server_side_config": "Server Side Config",
+  "imm_ptl.client_side_config": "Client Side Config",
+  "imm_ptl.nether_portal_mode": "Nether Portal Mode",
+  "imm_ptl.end_portal_mode": "End Portal Mode"
 }

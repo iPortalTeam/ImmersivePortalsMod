@@ -71,4 +71,21 @@ public class Global {
         none
     }
     
+    // this should not be in core but the config is in core
+    public static enum NetherPortalMode {
+        normal,
+        vanilla,
+        //tryHardToMatch
+    }
+    
+    public static enum EndPortalMode {
+        normal,
+//        to_obsidian_platform,
+//        scaled_view,
+        vanilla
+    }
+    
+    public static NetherPortalMode netherPortalMode = NetherPortalMode.normal;
+    
+    public static EndPortalMode endPortalMode = EndPortalMode.normal;
 }

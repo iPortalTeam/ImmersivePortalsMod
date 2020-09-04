@@ -1,10 +1,12 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.immersive_portals.Global;
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
+import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
 import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
 import me.shedaniel.clothconfig2.gui.entries.StringListListEntry;
 import net.minecraft.text.TranslatableText;
@@ -105,6 +107,22 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.enable_alternate_dimensions"),
                 currConfig.enableAlternateDimensions
             ).setDefaultValue(true).build();
+            EnumListEntry<Global.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
+                .startEnumSelector(
+                    new TranslatableText("imm_ptl.nether_portal_mode"),
+                    Global.NetherPortalMode.class,
+                    currConfig.netherPortalMode
+                )
+                .setDefaultValue(Global.NetherPortalMode.normal)
+                .build();
+            EnumListEntry<Global.EndPortalMode> entryEndPortalMode = builder.entryBuilder()
+                .startEnumSelector(
+                    new TranslatableText("imm_ptl.end_portal_mode"),
+                    Global.EndPortalMode.class,
+                    currConfig.endPortalMode
+                )
+                .setDefaultValue(Global.EndPortalMode.normal)
+                .build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 new TranslatableText("imm_ptl.render_redirect"),
                 MyConfig.mapToList(currConfig.dimensionRenderRedirect)
@@ -121,6 +139,8 @@ public class ModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryEdgelessSky);
             
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
+            serverSide.addEntry(entryNetherPortalMode);
+            serverSide.addEntry(entryEndPortalMode);
             serverSide.addEntry(entryLongerReachInCreative);
             serverSide.addEntry(entryEnableAlternateDimensions);
             serverSide.addEntry(entryPortalSearchingRange);
@@ -155,6 +175,8 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );
+                    newConfig.netherPortalMode = entryNetherPortalMode.getValue();
+                    newConfig.endPortalMode = entryEndPortalMode.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();
