@@ -10,6 +10,8 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.DirectionTransformation;
+import net.minecraft.util.math.Matrix3f;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
@@ -91,6 +93,48 @@ public class DiligentMatcher {
                 new BlockPos(1, 0, 0),
                 new BlockPos(0, 1, 0),
                 new BlockPos(0, 0, 1)
+            );
+        }
+        
+        public Matrix3f toMatrix() {
+            Matrix3f matrix = new Matrix3f();
+            matrix.set(0, 0, x.getX());
+            matrix.set(0, 1, x.getY());
+            matrix.set(0, 2, x.getZ());
+            
+            matrix.set(1, 0, y.getX());
+            matrix.set(1, 1, y.getY());
+            matrix.set(1, 2, y.getZ());
+            
+            matrix.set(2, 0, z.getX());
+            matrix.set(2, 1, z.getY());
+            matrix.set(2, 2, z.getZ());
+    
+            return matrix;
+        }
+        
+        public Quaternion toQuaternion() {
+            double m00 = x.getX();
+            double m11 = y.getY();
+            double m22 = z.getZ();
+            
+            double m21 = z.getY();
+            double m12 = y.getZ();
+            
+            double m02 = x.getZ();
+            double m20 = z.getX();
+            
+            double m10 = y.getX();
+            double m01 = x.getY();
+            
+            double w = Math.sqrt(1.0 + m00 + m11 + m22) / 2.0;
+            double w4 = (4.0 * w);
+            double x = (m21 - m12) / w4;
+            double y = (m02 - m20) / w4;
+            double z = (m10 - m01) / w4;
+            
+            return new Quaternion(
+                (float) x, (float) y, (float) z, (float) w
             );
         }
     }

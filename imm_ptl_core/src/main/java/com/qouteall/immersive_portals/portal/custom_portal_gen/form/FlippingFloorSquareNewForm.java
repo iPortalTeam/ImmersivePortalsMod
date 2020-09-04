@@ -13,8 +13,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import javax.annotation.Nullable;
-
 public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     public static final Codec<FlippingFloorSquareNewForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
@@ -44,29 +42,22 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
         );
     }
     
-    @Nullable
     @Override
-    public BlockPortalShape checkAndGetTemplateToShape(ServerWorld world, BlockPortalShape fromShape) {
+    public boolean testThisSideShape(ServerWorld fromWorld, BlockPortalShape fromShape) {
         // only horizontal shape
         if (fromShape.axis != Direction.Axis.Y) {
-            return null;
+            return false;
         }
-        
+    
         IntBox box = fromShape.innerAreaBox;
         BlockPos boxSize = box.getSize();
         // must be square
-        if (boxSize.getX() != boxSize.getZ()) {
-            return null;
-        }
-        if (boxSize.getX() * boxSize.getZ() != fromShape.area.size()) {
-            return null;
-        }
-        
-        return fromShape;
+        return boxSize.getX() == boxSize.getZ() &&
+            boxSize.getX() * boxSize.getZ() == fromShape.area.size();
     }
     
     @Override
-    protected BlockPortalShape getNewPortalPlacement(
+    public BlockPortalShape getNewPortalPlacement(
         ServerWorld toWorld, BlockPos toPos,
         BlockPortalShape templateToShape
     ) {

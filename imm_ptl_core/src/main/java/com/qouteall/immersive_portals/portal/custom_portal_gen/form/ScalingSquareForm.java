@@ -2,21 +2,16 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
-import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
-import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
-import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.ChunkRegion;
 
-import javax.annotation.Nullable;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ScalingSquareForm extends NetherPortalLikeForm {
@@ -62,15 +57,44 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
         );
     }
     
-    @Nullable
     @Override
-    public BlockPortalShape checkAndGetTemplateToShape(ServerWorld world, BlockPortalShape fromShape) {
+    public boolean testThisSideShape(ServerWorld fromWorld, BlockPortalShape fromShape) {
         boolean isSquareShape = BlockPortalShape.isSquareShape(fromShape, fromLength);
+        return isSquareShape;
+    }
+    
+    @Override
+    public Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> getFrameMatchingFunc(
+        ServerWorld fromWorld, ServerWorld toWorld, BlockPortalShape fromShape
+    ) {
+        BlockPortalShape template = getTemplateToShape(fromShape);
         
-        if (!isSquareShape) {
+        Predicate<BlockState> areaPredicate = getAreaPredicate();
+        Predicate<BlockState> otherSideFramePredicate = getOtherSideFramePredicate();
+        BlockPos.Mutable temp2 = new BlockPos.Mutable();
+        return (region) -> (blockPos) -> {
+            BlockPortalShape result = template.matchShapeWithMovedFirstFramePos(
+                pos -> areaPredicate.test(region.getBlockState(pos)),
+                pos -> otherSideFramePredicate.test(region.getBlockState(pos)),
+                blockPos,
+                temp2
+            );
+            if (result != null) {
+                if (fromWorld != toWorld || template.anchor != result.anchor) {
+                    return new PortalGenInfo(
+                        fromWorld.getRegistryKey(),
+                        toWorld.getRegistryKey(),
+                        template, result,
+                        null,
+                        ((double) toLength) / fromLength
+                    );
+                }
+            }
             return null;
-        }
-        
+        };
+    }
+    
+    private BlockPortalShape getTemplateToShape(BlockPortalShape fromShape) {
         return BlockPortalShape.getSquareShapeTemplate(
             fromShape.axis,
             toLength
@@ -82,6 +106,11 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
         for (BlockPos blockPos : toShape.frameAreaWithCorner) {
             toWorld.setBlockState(blockPos, toFrameBlock.getDefaultState());
         }
+    }
+    
+    @Override
+    public BlockPortalShape getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, BlockPortalShape fromShape) {
+        return super.getNewPortalPlacement(toWorld, toPos, getTemplateToShape(fromShape));
     }
     
     @Override
@@ -97,44 +126,5 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
     @Override
     public Predicate<BlockState> getAreaPredicate() {
         return s -> s.getBlock() == areaBlock;
-    }
-    
-    @Override
-    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
-        ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
-        ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
-        
-        NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, info.fromShape);
-        NetherPortalGeneration.fillInPlaceHolderBlocks(toWorld, info.toShape);
-        
-        EntityType<GeneralBreakablePortal> entityType = GeneralBreakablePortal.entityType;
-        
-        GeneralBreakablePortal f1 = entityType.create(fromWorld);
-        info.fromShape.initPortalPosAxisShape(f1, false);
-        f1.dimensionTo = info.to;
-        f1.destination = info.toShape.innerAreaBox.getCenterVec();
-        f1.scaling = ((double) toLength) / fromLength;
-        
-        GeneralBreakablePortal f2 = PortalManipulation.createFlippedPortal(f1, entityType);
-        
-        GeneralBreakablePortal t1 = PortalManipulation.createReversePortal(f1, entityType);
-        GeneralBreakablePortal t2 = PortalManipulation.createFlippedPortal(t1, entityType);
-        
-        f1.blockPortalShape = info.fromShape;
-        f2.blockPortalShape = info.fromShape;
-        t1.blockPortalShape = info.toShape;
-        t2.blockPortalShape = info.toShape;
-        
-        f1.reversePortalId = t1.getUuid();
-        t1.reversePortalId = f1.getUuid();
-        f2.reversePortalId = t2.getUuid();
-        t2.reversePortalId = f2.getUuid();
-    
-        fromWorld.spawnEntity(f1);
-        fromWorld.spawnEntity(f2);
-        toWorld.spawnEntity(t1);
-        toWorld.spawnEntity(t2);
-        
-        return new BreakablePortalEntity[]{f1, f2, t1, t2};
     }
 }

@@ -5,7 +5,9 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.entity.EntityType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.registry.RegistryKey;
@@ -50,16 +52,17 @@ public class PortalGenInfo {
     public <T extends Portal> T createTemplatePortal(EntityType<T> entityType) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(from);
         
-        T entity = entityType.create(fromWorld);
-        fromShape.initPortalPosAxisShape(entity, false);
-        entity.dimensionTo = to;
-        entity.destination = toShape.innerAreaBox.getCenterVec();
-        entity.scaling = scale;
+        T portal = entityType.create(fromWorld);
+        fromShape.initPortalPosAxisShape(portal, false);
+        portal.dimensionTo = to;
+        portal.destination = toShape.innerAreaBox.getCenterVec();
+        portal.scaling = scale;
+        portal.rotation = rotation;
         
-        return entity;
+        return portal;
     }
     
-    public <T extends BreakablePortalEntity> T[] createBiWayBiFacedPortal(
+    public <T extends BreakablePortalEntity> T[] generateBiWayBiFacedPortal(
         EntityType<T> entityType
     ) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(from);
@@ -88,5 +91,16 @@ public class PortalGenInfo {
         toWorld.spawnEntity(t2);
         
         return ((T[]) new BreakablePortalEntity[]{f1, f2, t1, t2});
+    }
+    
+    public void generatePlaceholderBlocks(){
+        MinecraftServer server = McHelper.getServer();
+        
+        NetherPortalGeneration.fillInPlaceHolderBlocks(
+            server.getWorld(from), fromShape
+        );
+        NetherPortalGeneration.fillInPlaceHolderBlocks(
+            server.getWorld(to), toShape
+        );
     }
 }

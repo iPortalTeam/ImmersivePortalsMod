@@ -32,7 +32,6 @@ import net.minecraft.world.chunk.WorldChunk;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -377,7 +376,7 @@ public class NetherPortalGeneration {
                 );
             },
             //avoid linking to the beginning frame
-            (region, blockPos) -> {
+            (region)->( blockPos) -> {
                 BlockPortalShape result = fromShape.matchShapeWithMovedFirstFramePos(
                     pos -> otherSideAreaPredicate.test(region.getBlockState(pos)),
                     pos -> otherSideFramePredicate.test(region.getBlockState(pos)),
@@ -386,7 +385,11 @@ public class NetherPortalGeneration {
                 );
                 if (result != null) {
                     if (fromWorld != toWorld || fromShape.anchor != result.anchor) {
-                        return result;
+                        return new PortalGenInfo(
+                            fromWorld.getRegistryKey(),
+                            toWorld.getRegistryKey(),
+                            fromShape, result
+                        );
                     }
                 }
                 return null;
@@ -405,7 +408,10 @@ public class NetherPortalGeneration {
         Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<PortalGenInfo> portalEntityGeneratingFunc,
         //return null for not generate new frame
         Supplier<BlockPortalShape> newFramePlacer,
-        BooleanSupplier portalIntegrityChecker, BiFunction<ChunkRegion, BlockPos.Mutable, BlockPortalShape> matchShapeByFramePos
+        BooleanSupplier portalIntegrityChecker,
+        
+        //currying
+        Function<ChunkRegion, Function<BlockPos.Mutable, PortalGenInfo>> matchShapeByFramePos
     ) {
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         RegistryKey<World> toDimension = toWorld.getRegistryKey();
@@ -496,12 +502,8 @@ public class NetherPortalGeneration {
                 FrameSearching.startSearchingPortalFrameAsync(
                     chunkRegion, loaderRadius,
                     toPos, otherSideFramePredicate,
-                    (p) -> matchShapeByFramePos.apply(chunkRegion, p),
-                    (shape) -> {
-                        PortalGenInfo info = new PortalGenInfo(
-                            fromDimension, toDimension, fromShape, shape
-                        );
-                        
+                    matchShapeByFramePos.apply(chunkRegion),
+                    (info) -> {
                         portalEntityGeneratingFunc.accept(info);
                         finalizer.run();
                     },
