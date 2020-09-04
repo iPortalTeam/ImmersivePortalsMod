@@ -47,6 +47,10 @@ public class PortalGenInfo {
         this.toShape = toShape;
         this.rotation = rotation;
         this.scale = scale;
+    
+        if (Math.abs(1.0 - rotation.getW()) < 0.001) {
+            this.rotation = null;
+        }
     }
     
     public <T extends Portal> T createTemplatePortal(EntityType<T> entityType) {

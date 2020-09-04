@@ -505,11 +505,12 @@ public class BlockPortalShape {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BlockPortalShape that = (BlockPortalShape) o;
-        return area.equals(that.area);
+        return area.equals(that.area) &&
+            axis == that.axis;
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(area);
+        return Objects.hash(area, axis);
     }
 }

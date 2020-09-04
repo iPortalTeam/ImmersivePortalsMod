@@ -71,11 +71,11 @@ public class DiligentForm extends NetherPortalLikeForm {
                     temp2
                 );
                 if (matched != null) {
-                    if (fromWorld != toWorld || template.anchor != matched.anchor) {
+                    if (fromWorld != toWorld || fromShape.anchor != matched.anchor) {
                         return new PortalGenInfo(
                             fromWorld.getRegistryKey(),
                             toWorld.getRegistryKey(),
-                            template, matched,
+                            fromShape, matched,
                             matchableShapeVariant.rotation.toQuaternion(),
                             matchableShapeVariant.scale
                         );

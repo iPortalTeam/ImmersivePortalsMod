@@ -109,33 +109,70 @@ public class DiligentMatcher {
             matrix.set(2, 0, z.getX());
             matrix.set(2, 1, z.getY());
             matrix.set(2, 2, z.getZ());
-    
+            
             return matrix;
         }
         
         public Quaternion toQuaternion() {
+            
+            
             double m00 = x.getX();
             double m11 = y.getY();
             double m22 = z.getZ();
             
-            double m21 = z.getY();
-            double m12 = y.getZ();
+            double m12 = z.getY();
+            double m21 = y.getZ();
             
-            double m02 = x.getZ();
-            double m20 = z.getX();
+            double m20 = x.getZ();
+            double m02 = z.getX();
             
-            double m10 = y.getX();
-            double m01 = x.getY();
+            double m01 = y.getX();
+            double m10 = x.getY();
             
-            double w = Math.sqrt(1.0 + m00 + m11 + m22) / 2.0;
-            double w4 = (4.0 * w);
-            double x = (m21 - m12) / w4;
-            double y = (m02 - m20) / w4;
-            double z = (m10 - m01) / w4;
+            double tr = m00 + m11 + m22;
             
-            return new Quaternion(
-                (float) x, (float) y, (float) z, (float) w
-            );
+            double qx, qy, qz, qw;
+            
+            if (tr > 0) {
+                double S = Math.sqrt(tr + 1.0) * 2; // S=4*qw
+                qw = 0.25 * S;
+                qx = (m21 - m12) / S;
+                qy = (m02 - m20) / S;
+                qz = (m10 - m01) / S;
+            }
+            else if ((m00 > m11) && (m00 > m22)) {
+                double S = Math.sqrt(1.0 + m00 - m11 - m22) * 2; // S=4*qx
+                qw = (m21 - m12) / S;
+                qx = 0.25 * S;
+                qy = (m01 + m10) / S;
+                qz = (m02 + m20) / S;
+            }
+            else if (m11 > m22) {
+                double S = Math.sqrt(1.0 + m11 - m00 - m22) * 2; // S=4*qy
+                qw = (m02 - m20) / S;
+                qx = (m01 + m10) / S;
+                qy = 0.25 * S;
+                qz = (m12 + m21) / S;
+            }
+            else {
+                double S = Math.sqrt(1.0 + m22 - m00 - m11) * 2; // S=4*qz
+                qw = (m10 - m01) / S;
+                qx = (m02 + m20) / S;
+                qy = (m12 + m21) / S;
+                qz = 0.25 * S;
+            }
+            
+            return new Quaternion((float) qx, (float) qy, (float) qz, (float) qw);
+
+//            double w = Math.sqrt(1.0 + m00 + m11 + m22) / 2.0;
+//            double w4 = (4.0 * w);
+//            double x = (m21 - m12) / w4;
+//            double y = (m02 - m20) / w4;
+//            double z = (m10 - m01) / w4;
+//
+//            return new Quaternion(
+//                (float) x, (float) y, (float) z, (float) w
+//            );
         }
     }
     
@@ -193,7 +230,7 @@ public class DiligentMatcher {
         rotationSet.add(identity);
         
         for (int i = 0; i < 3; i++) {
-            ArrayList<IntMatrix3> newlyAdded = new ArrayList<>(rotationList);
+            ArrayList<IntMatrix3> newlyAdded = new ArrayList<>();
             for (IntMatrix3 rot : rotationList) {
                 for (IntMatrix3 basicRotation : basicRotations) {
                     IntMatrix3 newRot = rot.multiply(basicRotation);
@@ -239,7 +276,7 @@ public class DiligentMatcher {
         
         BlockPos shrinkedShapeSize = shrinked.innerAreaBox.getSize();
         int shrinkedShapeLen = Math.max(shrinkedShapeSize.getX(), Math.max(shrinkedShapeSize.getY(), shrinkedShapeSize.getZ()));
-        int maxMultiplyFactor = (int) Math.ceil(((double) maxShapeLen) / shrinkedShapeLen);
+        int maxMultiplyFactor = (int) Math.floor(((double) maxShapeLen) / shrinkedShapeLen);
         
         for (IntMatrix3 rotation : rotationTransformations) {
             BlockPortalShape rotatedShape = rotateShape(shrinked, rotation);
@@ -301,15 +338,17 @@ public class DiligentMatcher {
     public static BlockPortalShape shrinkShapeBy(BlockPortalShape shape, int div) {
         Validate.isTrue(div != 0);
         
+        BlockPortalShape regularized = regularizeShape(shape);
+        
         if (div == 1) {
-            return shape;
+            return regularized;
         }
         
-        Set<BlockPos> newArea = shape.area.stream().map(
+        Set<BlockPos> newArea = regularized.area.stream().map(
             b -> Helper.divide(b, div)
         ).collect(Collectors.toSet());
         
-        return new BlockPortalShape(newArea, shape.axis);
+        return new BlockPortalShape(newArea, regularized.axis);
     }
     
     public static ArrayList<IntBox> decomposeShape(BlockPortalShape shape, HashSet<BlockPos> area) {
@@ -336,7 +375,8 @@ public class DiligentMatcher {
             shape.area.stream().flatMap(
                 basePos -> IntStream.range(0, multiplyFactor).boxed().flatMap(dx ->
                     IntStream.range(0, multiplyFactor).mapToObj(dy ->
-                        basePos.add(Helper.scale(v1, dx).add(Helper.scale(v2, dy)))
+                        Helper.scale(basePos, multiplyFactor)
+                            .add(Helper.scale(v1, dx).add(Helper.scale(v2, dy)))
                     )
                 )
             ).collect(Collectors.toSet()),

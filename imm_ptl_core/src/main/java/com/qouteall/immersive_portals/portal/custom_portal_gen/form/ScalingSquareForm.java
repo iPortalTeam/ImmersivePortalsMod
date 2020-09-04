@@ -80,11 +80,11 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
                 temp2
             );
             if (result != null) {
-                if (fromWorld != toWorld || template.anchor != result.anchor) {
+                if (fromWorld != toWorld || fromShape.anchor != result.anchor) {
                     return new PortalGenInfo(
                         fromWorld.getRegistryKey(),
                         toWorld.getRegistryKey(),
-                        template, result,
+                        fromShape, result,
                         null,
                         ((double) toLength) / fromLength
                     );
