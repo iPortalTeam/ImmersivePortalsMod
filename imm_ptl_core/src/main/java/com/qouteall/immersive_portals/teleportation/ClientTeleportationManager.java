@@ -227,14 +227,9 @@ public class ClientTeleportationManager {
         amendChunkEntityStatus(player);
         
         McHelper.adjustVehicle(player);
-        
-        if (portal.teleportChangesScale) {
-            player.setVelocity(portal.transformLocalVecNonScale(player.getVelocity()));
-        }
-        else {
-            player.setVelocity(portal.transformLocalVec(player.getVelocity()));
-        }
-        
+    
+        portal.transformVelocity(player);
+    
         TransformationManager.onClientPlayerTeleported(portal);
         
         if (player.getVehicle() != null) {

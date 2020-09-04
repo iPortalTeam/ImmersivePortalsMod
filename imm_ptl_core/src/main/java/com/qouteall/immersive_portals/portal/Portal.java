@@ -4,6 +4,7 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
@@ -381,6 +382,15 @@ public class Portal extends Entity {
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
             hasScaling() ? (",scale:" + scaling) : ""
         );
+    }
+    
+    public void transformVelocity(Entity entity) {
+        if (PehkuiInterface.isPehkuiPresent) {
+            entity.setVelocity(transformLocalVecNonScale(entity.getVelocity()));
+        }
+        else {
+            entity.setVelocity(transformLocalVec(entity.getVelocity()));
+        }
     }
     
     public boolean hasScaling() {

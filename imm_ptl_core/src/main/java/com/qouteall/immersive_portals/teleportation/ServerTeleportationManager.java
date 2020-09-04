@@ -423,7 +423,7 @@ public class ServerTeleportationManager {
         
         ((ServerWorld) entity.world).checkEntityChunkPos(entity);
         
-        entity.setVelocity(portal.transformLocalVec(velocity));
+        portal.transformVelocity(entity);
         
         portal.onEntityTeleportedOnServer(entity);
         
