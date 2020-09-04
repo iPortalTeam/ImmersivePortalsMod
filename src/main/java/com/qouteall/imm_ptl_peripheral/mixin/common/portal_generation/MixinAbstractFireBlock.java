@@ -1,6 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.portal_generation;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
@@ -24,6 +25,10 @@ public class MixinAbstractFireBlock {
         )
     )
     Optional<AreaHelper> redirectCreateAreaHelper(WorldAccess worldAccess, BlockPos blockPos, Direction.Axis axis) {
+        if (Global.netherPortalMode == Global.NetherPortalMode.vanilla) {
+            return AreaHelper.method_30485(worldAccess, blockPos, axis);
+        }
+        
         if (isNearObsidian(worldAccess, blockPos)) {
             NetherPortalGeneration.onFireLitOnObsidian(
                 ((ServerWorld) worldAccess),

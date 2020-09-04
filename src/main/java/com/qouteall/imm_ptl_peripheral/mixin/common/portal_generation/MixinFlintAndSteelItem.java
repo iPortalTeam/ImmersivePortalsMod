@@ -1,5 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.portal_generation;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
@@ -46,6 +47,10 @@ public class MixinFlintAndSteelItem {
         ItemUsageContext context,
         CallbackInfoReturnable<ActionResult> cir
     ) {
+        if (Global.netherPortalMode == Global.NetherPortalMode.vanilla) {
+            return;
+        }
+        
         WorldAccess world = context.getWorld();
         if (!world.isClient()) {
             BlockPos targetPos = context.getBlockPos();
