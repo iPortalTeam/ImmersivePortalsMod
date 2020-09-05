@@ -121,7 +121,14 @@ public class ChunkVisibilityManager {
     private static int getSmoothedLoadingDistance(
         Portal portal, ServerPlayerEntity player, int targetLoadingDistance
     ) {
-        int cappedLoadingDistance = Math.min(targetLoadingDistance, Global.indirectLoadingRadiusCap);
+        int cap = Global.indirectLoadingRadiusCap;
+    
+        // load more for scaling portal
+        if (portal.scaling > 2) {
+            cap *= 2;
+        }
+        
+        int cappedLoadingDistance = Math.min(targetLoadingDistance, cap);
         
         if (!Global.serverSmoothLoading) {
             return cappedLoadingDistance;
@@ -139,6 +146,12 @@ public class ChunkVisibilityManager {
     ) {
         int renderDistance = McHelper.getRenderDistanceOnServer();
         double distance = portal.getDistanceToNearestPointInPortal(player.getPos());
+        
+        // load more for up scaling portal
+        if (portal.scaling > 2 && distance < 5) {
+            renderDistance = (renderDistance * 2);
+        }
+        
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
@@ -181,7 +194,7 @@ public class ChunkVisibilityManager {
             new DimensionalChunkPos(
                 portal.dimensionTo,
                 new ChunkPos(new BlockPos(
-                    portal.transformPointRough(player.getPos())
+                    portal.transformPoint(player.getPos())
                 ))
             ),
             renderDistance
@@ -201,8 +214,8 @@ public class ChunkVisibilityManager {
             new DimensionalChunkPos(
                 remotePortal.dimensionTo,
                 new ChunkPos(new BlockPos(
-                    remotePortal.transformPointRough(
-                        outerPortal.transformPointRough(player.getPos())
+                    remotePortal.transformPoint(
+                        outerPortal.transformPoint(player.getPos())
                     )
                 ))
             ),
@@ -274,7 +287,7 @@ public class ChunkVisibilityManager {
                                 portal.dimensionTo
                             ).filter(
                                 remotePortal -> remotePortal.getDistanceToNearestPointInPortal(
-                                    portal.transformPointRough(player.getPos())
+                                    portal.transformPoint(player.getPos())
                                 ) < (shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange)
                             ).map(
                                 remotePortal -> globalPortalIndirectLoader(

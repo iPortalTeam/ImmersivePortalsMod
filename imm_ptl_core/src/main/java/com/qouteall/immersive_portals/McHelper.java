@@ -35,6 +35,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
@@ -480,7 +481,7 @@ public class McHelper {
         for (int x = chunkXStart; x <= chunkXEnd; x++) {
             for (int z = chunkZStart; z <= chunkZEnd; z++) {
                 WorldChunk chunk = chunkAccessor.getChunk(x, z);
-                if (chunk != null) {
+                if (chunk != null && !(chunk instanceof EmptyChunk)) {
                     TypeFilterableList<Entity>[] entitySections =
                         ((IEWorldChunk) chunk).getEntitySections();
                     for (int i = chunkYStart; i <= chunkYEnd; i++) {

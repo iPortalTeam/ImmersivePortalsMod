@@ -192,7 +192,7 @@ public class ServerTeleportationManager {
         }
         return McHelper.getServerPortalsNearby(player, 20)
             .filter(portal -> portal.dimensionTo == dimension)
-            .map(portal -> portal.transformPointRough(playerPos))
+            .map(portal -> portal.transformPoint(playerPos))
             .anyMatch(mappedPos -> mappedPos.squaredDistanceTo(pos) < 256);
     }
     

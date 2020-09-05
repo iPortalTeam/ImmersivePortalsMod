@@ -119,12 +119,15 @@ public abstract class PortalRenderer {
     
     protected final double getRenderRange() {
         double range = client.options.viewDistance * 16;
+        if (RenderStates.isLaggy || Global.reducedPortalRendering) {
+            range = 16;
+        }
         if (PortalRendering.getPortalLayer() > 1) {
             //do not render deep layers of mirror when far away
             range /= (PortalRendering.getPortalLayer());
         }
-        if (RenderStates.isLaggy || Global.reducedPortalRendering) {
-            range = 16;
+        if (PortalRendering.getPortalLayer() >= 1) {
+            range *= PortalRendering.getRenderingPortal().scaling;
         }
         return range;
     }
@@ -177,19 +180,12 @@ public abstract class PortalRenderer {
     
     private boolean isOutOfDistance(Portal portal) {
         
+        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
+            return true;
+        }
+        
         return false;
-//        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-//        if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
-//            return true;
-//        }
-//
-//        if (getPortalLayer() >= 1 &&
-//            portal.getDistanceToNearestPointInPortal(cameraPos) >
-//                (16 * maxPortalLayer.get())
-//        ) {
-//            return true;
-//        }
-//        return false;
     }
     
     // Scaling does not interfere camera transformation
