@@ -308,4 +308,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 ).count()
         );
     }
+    
+    public int getRadius() {
+        return (sizeX - 1) / 2;
+    }
 }

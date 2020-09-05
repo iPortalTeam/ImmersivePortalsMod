@@ -166,10 +166,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
-    
+        
         //is it necessary?
         MyGameRenderer.resetDiffuseLighting(matrices);
-    
+        
         PixelCuller.endCulling();
         
         CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
@@ -476,7 +476,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private void onReloadFinished(CallbackInfo ci) {
         ClientWorldLoader clientWorldLoader = CGlobal.clientWorldLoader;
         WorldRenderer this_ = (WorldRenderer) (Object) this;
-    
+        
         Helper.log("WorldRenderer reloaded " + world.getRegistryKey().getValue());
         
         if (isReloadingOtherWorldRenderers) {
@@ -702,7 +702,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean uploaded = chunkBuilder.upload();
         this.needsTerrainUpdate |= uploaded;//no short circuit
         
-        int limit = 1;
+        int limit = Math.max(1, (chunksToRebuild.size() / 2000));
         
         int num = 0;
         for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
@@ -734,5 +734,19 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void portal_setRenderDistance(int arg) {
         renderDistance = arg;
+    
+        if (chunks instanceof MyBuiltChunkStorage) {
+            int radius = ((MyBuiltChunkStorage) chunks).getRadius();
+    
+            if (radius < arg) {
+                Helper.log("Resizing built chunk storage to " + arg);
+                
+                chunks.clear();
+    
+                chunks = new MyBuiltChunkStorage(
+                    chunkBuilder, world, arg, ((WorldRenderer) (Object) this)
+                );
+            }
+        }
     }
 }

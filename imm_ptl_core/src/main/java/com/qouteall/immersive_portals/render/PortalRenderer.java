@@ -155,6 +155,8 @@ public abstract class PortalRenderer {
         int renderDistance = client.options.viewDistance;
         if (portal.scaling > 2) {
             renderDistance *= (int) (Math.min(portal.scaling, 4));
+            renderDistance = Math.min(renderDistance, 32);
+            
         }
         
         invokeWorldRendering(new RenderInfo(
