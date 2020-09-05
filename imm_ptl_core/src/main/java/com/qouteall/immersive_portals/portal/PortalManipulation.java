@@ -52,8 +52,9 @@ public class PortalManipulation {
         return newPortal;
     }
     
+    // can also be used in client
     public static <T extends Portal> T createReversePortal(Portal portal, EntityType<T> entityType) {
-        ServerWorld world = McHelper.getServer().getWorld(portal.dimensionTo);
+        World world = portal.getDestinationWorld();
         
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.world.getRegistryKey();
@@ -106,7 +107,7 @@ public class PortalManipulation {
     }
     
     public static <T extends Portal> T createFlippedPortal(Portal portal, EntityType<T> entityType) {
-        ServerWorld world = (ServerWorld) portal.world;
+        World world = portal.world;
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
@@ -141,7 +142,7 @@ public class PortalManipulation {
     
     //the new portal will not be added into world
     public static Portal copyPortal(Portal portal, EntityType<Portal> entityType) {
-        ServerWorld world = (ServerWorld) portal.world;
+        World world = portal.world;
         Portal newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
@@ -281,5 +282,6 @@ public class PortalManipulation {
         to.teleportChangesScale = from.teleportChangesScale;
         to.specificPlayerId = from.specificPlayerId;
         to.extension.adjustPositionAfterTeleport = from.extension.adjustPositionAfterTeleport;
+        to.portalTag = from.portalTag;
     }
 }

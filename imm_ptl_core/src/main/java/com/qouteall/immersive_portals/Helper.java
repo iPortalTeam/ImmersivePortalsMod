@@ -268,6 +268,13 @@ public class Helper {
         );
     }
     
+    public static Box getBoxByBottomPosAndSize(Vec3d boxBottomCenter, Vec3d viewBoxSize) {
+        return new Box(
+                boxBottomCenter.subtract(viewBoxSize.x / 2, 0, viewBoxSize.z / 2),
+                boxBottomCenter.add(viewBoxSize.x / 2, viewBoxSize.y, viewBoxSize.z / 2)
+            );
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         

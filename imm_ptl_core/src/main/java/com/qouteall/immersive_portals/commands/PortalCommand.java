@@ -1191,10 +1191,7 @@ public class PortalCommand {
         boolean biWay
     ) {
         Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
-        Box viewBox = new Box(
-            boxBottomCenter.subtract(viewBoxSize.x / 2, 0, viewBoxSize.z / 2),
-            boxBottomCenter.add(viewBoxSize.x / 2, viewBoxSize.y, viewBoxSize.z / 2)
-        );
+        Box viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
         for (Direction direction : Direction.values()) {
             Portal portal = PortalManipulation.createOrthodoxPortal(
                 Portal.entityType,

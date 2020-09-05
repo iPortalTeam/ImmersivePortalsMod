@@ -82,8 +82,8 @@ public class Global {
     
     public static enum EndPortalMode {
         normal,
-//        to_obsidian_platform,
-//        scaled_view,
+        toObsidianPlatform,
+        scaledView,
         vanilla
     }
     

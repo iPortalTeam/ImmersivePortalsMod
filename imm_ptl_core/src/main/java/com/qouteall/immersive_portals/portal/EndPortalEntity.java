@@ -1,7 +1,13 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import net.minecraft.block.pattern.BlockPattern;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -12,12 +18,20 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
+import java.util.Objects;
+
 public class EndPortalEntity extends Portal {
     public static EntityType<EndPortalEntity> entityType;
+    
+    // only used by scaled view type end portal
+    private EndPortalEntity clientFakedReversePortal;
     
     public EndPortalEntity(
         EntityType<?> entityType_1,
@@ -26,13 +40,30 @@ public class EndPortalEntity extends Portal {
         super(entityType_1, world_1);
     }
     
-    public static void onEndPortalComplete(ServerWorld world, BlockPattern.Result pattern) {
+    public static void onEndPortalComplete(ServerWorld world, Vec3d portalCenter) {
+        if (Global.endPortalMode == Global.EndPortalMode.normal) {
+            generateClassicalEndPortal(world, new Vec3d(0, 120, 0), portalCenter);
+        }
+        else if (Global.endPortalMode == Global.EndPortalMode.toObsidianPlatform) {
+            BlockPos endSpawnPos = ServerWorld.END_SPAWN_POS;
+            generateClassicalEndPortal(world,
+                Vec3d.ofCenter(endSpawnPos).add(0, 1, 0), portalCenter
+            );
+        }
+        else if (Global.endPortalMode == Global.EndPortalMode.scaledView) {
+            generateScaledViewEndPortal(world, portalCenter);
+        }
+        else {
+            Helper.err("End portal mode abnormal");
+        }
+    }
+    
+    private static void generateClassicalEndPortal(ServerWorld world, Vec3d destination, Vec3d portalCenter) {
         Portal portal = new EndPortalEntity(entityType, world);
         
-        Vec3d center = Vec3d.of(pattern.getFrontTopLeft()).add(-1.5, 0.5, -1.5);
-        portal.updatePosition(center.x, center.y, center.z);
+        portal.updatePosition(portalCenter.x, portalCenter.y, portalCenter.z);
         
-        portal.destination = new Vec3d(0, 120, 0);
+        portal.destination = destination;
         
         portal.dimensionTo = World.END;
         
@@ -43,6 +74,89 @@ public class EndPortalEntity extends Portal {
         portal.height = 3;
         
         world.spawnEntity(portal);
+    }
+    
+    private static void generateScaledViewEndPortal(ServerWorld world, Vec3d portalCenter) {
+        ServerWorld endWorld = McHelper.getServerWorld(World.END);
+        
+        final Vec3d viewBoxSize = new Vec3d(3, 1.5, 3);
+        final double scale = 80;
+        
+        Box thisSideBox = Helper.getBoxByBottomPosAndSize(
+            portalCenter, viewBoxSize
+        );
+        Box otherSideBox = Helper.getBoxByBottomPosAndSize(
+            new Vec3d(0, 0, 0),
+            viewBoxSize.multiply(scale)
+        );
+        
+        for (Direction direction : Direction.values()) {
+            Portal portal = PortalManipulation.createOrthodoxPortal(
+                Portal.entityType,
+                world, endWorld,
+                direction, Helper.getBoxSurface(thisSideBox, direction),
+                Helper.getBoxSurface(otherSideBox, direction).getCenter()
+            );
+            portal.scaling = scale;
+            portal.teleportChangesScale = false;
+            portal.extension.adjustPositionAfterTeleport = true;
+            portal.portalTag = "view_box";
+            //creating a new entity type needs registering
+            //it's easier to discriminate it by portalTag
+            
+            McHelper.spawnServerEntityToUnloadedArea(portal);
+        }
+    }
+    
+    @Override
+    public void tick() {
+        super.tick();
+        
+        if (world.isClient()) {
+            tickClient();
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private void tickClient() {
+        if (Objects.equals(portalTag, "view_box")) {
+            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            if (player == null) {
+                return;
+            }
+            if (player.world != this.world) {
+                return;
+            }
+            if (player.getPos().squaredDistanceTo(getPos()) < 10 * 10) {
+                if (clientFakedReversePortal == null) {
+                    // client only faked portal
+                    clientFakedReversePortal =
+                        PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
+                    
+                    clientFakedReversePortal.teleportable = false;
+                    
+                    clientFakedReversePortal.portalTag = "view_box_faked_reverse";
+                    
+                    clientFakedReversePortal.clientFakedReversePortal = this;
+                    
+                    ((ClientWorld) getDestinationWorld()).addEntity(
+                        clientFakedReversePortal.getEntityId(),
+                        clientFakedReversePortal
+                    );
+                }
+            }
+            else {
+                if (clientFakedReversePortal != null) {
+                    clientFakedReversePortal.remove();
+                    clientFakedReversePortal = null;
+                }
+            }
+        }
+        else if (Objects.equals(portalTag, "view_box_faked_reverse")) {
+            if (clientFakedReversePortal.removed) {
+                remove();
+            }
+        }
     }
     
     @Override

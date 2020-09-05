@@ -14,6 +14,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -71,7 +72,7 @@ public class MixinEnderEyeItem {
                     
                     world.syncGlobalEvent(1038, blockPos_2.add(1, 0, 1), 0);
                     
-                    EndPortalEntity.onEndPortalComplete(((ServerWorld) world), pattern);
+                    EndPortalEntity.onEndPortalComplete(((ServerWorld) world), Vec3d.of(pattern.getFrontTopLeft()).add(-1.5, 0.5, -1.5));
                 }
                 
                 return ActionResult.SUCCESS;
