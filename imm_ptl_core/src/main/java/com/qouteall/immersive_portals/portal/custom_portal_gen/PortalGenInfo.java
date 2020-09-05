@@ -62,6 +62,10 @@ public class PortalGenInfo {
         portal.destination = toShape.innerAreaBox.getCenterVec();
         portal.scaling = scale;
         portal.rotation = rotation;
+    
+        if (scale != 1.0) {
+            portal.extension.adjustPositionAfterTeleport = true;
+        }
         
         return portal;
     }

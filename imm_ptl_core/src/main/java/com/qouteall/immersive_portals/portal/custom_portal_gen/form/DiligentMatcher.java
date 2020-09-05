@@ -345,7 +345,11 @@ public class DiligentMatcher {
         }
         
         Set<BlockPos> newArea = regularized.area.stream().map(
-            b -> Helper.divide(b, div)
+            b -> new BlockPos(
+                Math.floorDiv(b.getX(), div),
+                Math.floorDiv(b.getY(), div),
+                Math.floorDiv(b.getZ(), div)
+            )
         ).collect(Collectors.toSet());
         
         return new BlockPortalShape(newArea, regularized.axis);
