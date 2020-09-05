@@ -33,9 +33,6 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
         doPortalRendering(matrixStack);
-//        if (!isRendering()) {
-//
-//        }
     }
     
     private void doPortalRendering(MatrixStack matrixStack) {
@@ -123,9 +120,6 @@ public class RendererUsingStencil extends PortalRenderer {
         
         clampStencilValue(outerPortalStencilValue);
         
-        //is it necessary?
-        MyGameRenderer.resetDiffuseLighting(matrixStack);
-        
         PortalRendering.popPortalLayer();
     }
     
@@ -146,15 +140,6 @@ public class RendererUsingStencil extends PortalRenderer {
             }
         );
     }
-
-//    @Override
-//    protected void renderPortalContentWithContextSwitched(
-//        Portal portal, Vec3d oldCameraPos, ClientWorld oldWorld
-//    ) {
-//        setStencilStateForWorldRendering();
-//
-//        super.renderPortalContentWithContextSwitched(portal, oldCameraPos, oldWorld);
-//    }
     
     private void renderPortalViewAreaToStencil(
         Portal portal, MatrixStack matrixStack
@@ -202,8 +187,6 @@ public class RendererUsingStencil extends PortalRenderer {
         
         //save the state
         int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
-//        FloatBuffer originalDepthRange = BufferUtils.createFloatBuffer(16);
-//        GL11.glGetFloatv(GL_DEPTH_RANGE, originalDepthRange);
         
         //always passes depth test
         GL11.glDepthFunc(GL_ALWAYS);
@@ -217,20 +200,11 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glColorMask(true, true, true, true);
         GL11.glDepthFunc(originalDepthFunc);
         GL11.glDepthRange(0, 1);
-//        GL11.glDepthRange(originalDepthRange.get(0), originalDepthRange.get(1));
     }
     
     private void restoreDepthOfPortalViewArea(
         Portal portal, MatrixStack matrixStack
     ) {
-//        int thisPortalStencilValue = getPortalLayer();
-//
-//        //do not manipulate stencil packetBuffer
-//        GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-//
-//        //only draw in portalView area
-//        GL11.glStencilFunc(GL_LEQUAL, thisPortalStencilValue, 0xFF);
-        
         setStencilStateForWorldRendering();
         
         //do not manipulate color buffer
@@ -257,8 +231,6 @@ public class RendererUsingStencil extends PortalRenderer {
     ) {
         //NOTE GL_GREATER means ref > stencil
         //GL_LESS means ref < stencil
-        //"greater" does not mean "greater than ref"
-        //It's very unintuitive
         
         //pass if the stencil value is greater than the maximum value
         GL11.glStencilFunc(GL_LESS, maximumValue, 0xFF);

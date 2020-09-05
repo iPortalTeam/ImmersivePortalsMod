@@ -944,6 +944,7 @@ public class Helper {
         return portal;
     }
     
+    // calculate upon first retrieval and cache it
     public static <T> Supplier<T> cached(Supplier<T> supplier) {
         return new Supplier<T>() {
             T cache = null;
