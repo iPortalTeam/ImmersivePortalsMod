@@ -321,13 +321,7 @@ public class MyGameRenderer {
         DiffuseLighting.enableForLevel(matrixStack.peek().getModel());
     }
     
-    //render fewer chunks when rendering portal
-    //only active when graphic option is not fancy
-    //NOTE we should not prune these chunks in setupTerrain()
-    //because if it's pruned there these chunks will be rebuilt
-    //then it will generate lag when player cross the portal by building chunks
-    //we want the far chunks to be built but not rendered
-    public static void pruneVisibleChunksInFastGraphics(ObjectList<?> visibleChunks) {
+    public static void pruneVisibleChunks(ObjectList<?> visibleChunks) {
         int renderDistance = client.options.viewDistance;
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
         double range = ((renderDistance * 16) / 3) * ((renderDistance * 16) / 3);
@@ -345,8 +339,8 @@ public class MyGameRenderer {
     
     public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
         if (PortalRendering.isRendering()) {
-            if (Global.renderFewerChunksInPortal) {
-                MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
+            if (Global.reducedPortalRendering) {
+                MyGameRenderer.pruneVisibleChunks(visibleChunks);
             }
         }
     }

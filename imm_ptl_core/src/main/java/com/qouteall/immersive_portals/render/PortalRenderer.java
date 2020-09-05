@@ -123,7 +123,7 @@ public abstract class PortalRenderer {
             //do not render deep layers of mirror when far away
             range /= (PortalRendering.getPortalLayer());
         }
-        if (RenderStates.isLaggy) {
+        if (RenderStates.isLaggy || Global.reducedPortalRendering) {
             range = 16;
         }
         return range;

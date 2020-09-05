@@ -64,7 +64,7 @@ public class Global {
     
     public static boolean serverSmoothLoading = true;
     
-    public static boolean renderFewerChunksInPortal = true;
+    public static boolean reducedPortalRendering = false;
     
     public static enum RenderMode {
         normal,

@@ -107,6 +107,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.enable_alternate_dimensions"),
                 currConfig.enableAlternateDimensions
             ).setDefaultValue(true).build();
+            BooleanListEntry entryReducedPortalRendering = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.reduced_portal_rendering"),
+                currConfig.reducedPortalRendering
+            ).setDefaultValue(false).build();
             EnumListEntry<Global.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.nether_portal_mode"),
@@ -130,6 +134,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 .setExpanded(true).build();
             clientSide.addEntry(entryMaxPortalLayer);
             clientSide.addEntry(entryLagAttackProof);
+            clientSide.addEntry(entryReducedPortalRendering);
             clientSide.addEntry(entryPortalRenderLimit);
             clientSide.addEntry(entryCompatibilityRenderMode);
             clientSide.addEntry(entryCheckGlError);
@@ -171,6 +176,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
+                    newConfig.reducedPortalRendering = entryReducedPortalRendering.getValue();
                     newConfig.indirectLoadingRadiusCap = entryIndirectLoadingRadiusCap.getValue();
                     newConfig.dimensionRenderRedirect = MyConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
