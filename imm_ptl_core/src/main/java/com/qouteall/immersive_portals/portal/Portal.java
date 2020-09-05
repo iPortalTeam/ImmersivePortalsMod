@@ -111,6 +111,9 @@ public class Portal extends Entity {
      */
     public PortalExtension extension = new PortalExtension();
     
+    @Nullable
+    public String portalTag;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -185,6 +188,10 @@ public class Portal extends Entity {
         if (compoundTag.contains("teleportChangesScale")) {
             teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
         }
+    
+        if (compoundTag.contains("portalTag")) {
+            portalTag = compoundTag.getString("portalTag");
+        }
         
         extension = new PortalExtension();
         extension.readFromNbt(compoundTag);
@@ -227,6 +234,10 @@ public class Portal extends Entity {
         
         compoundTag.putDouble("scale", scaling);
         compoundTag.putBoolean("teleportChangesScale", teleportChangesScale);
+    
+        if (portalTag != null) {
+            compoundTag.putString("portalTag", portalTag);
+        }
         
         extension.writeToNbt(compoundTag);
     }
