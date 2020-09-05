@@ -74,7 +74,8 @@ public class MyGameRenderer {
             renderInfo.world,
             renderInfo.cameraPos,
             renderInfo.cameraPos,
-            invokeWrapper
+            invokeWrapper,
+            renderInfo.renderDistance
         );
         
         RenderInfo.popRenderInfo();
@@ -84,7 +85,8 @@ public class MyGameRenderer {
         ClientWorld newWorld,
         Vec3d thisTickCameraPos,
         Vec3d lastTickCameraPos,
-        Consumer<Runnable> invokeWrapper
+        Consumer<Runnable> invokeWrapper,
+        int renderDistance
     ) {
         resetGlStates();
         
@@ -144,7 +146,9 @@ public class MyGameRenderer {
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
-        
+    
+        int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
+    
         //switch
         ((IEMinecraftClient) client).setWorldRenderer(worldRenderer);
         client.world = newWorld;
@@ -172,6 +176,7 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
+        ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
         
         //update lightmap
         if (!RenderStates.isDimensionRendered(newDimension)) {
@@ -219,6 +224,8 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(oldBufferBuilder);
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
+    
+        ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
         
         if (Global.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = true;

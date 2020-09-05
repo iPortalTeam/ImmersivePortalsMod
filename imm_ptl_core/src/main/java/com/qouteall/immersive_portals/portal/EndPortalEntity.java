@@ -7,7 +7,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -79,11 +78,11 @@ public class EndPortalEntity extends Portal {
     private static void generateScaledViewEndPortal(ServerWorld world, Vec3d portalCenter) {
         ServerWorld endWorld = McHelper.getServerWorld(World.END);
         
-        final Vec3d viewBoxSize = new Vec3d(3, 1.5, 3);
-        final double scale = 80;
+        final Vec3d viewBoxSize = new Vec3d(7, 3, 7);
+        final double scale = 30;
         
         Box thisSideBox = Helper.getBoxByBottomPosAndSize(
-            portalCenter, viewBoxSize
+            portalCenter.add(0, 0.6, 0), viewBoxSize
         );
         Box otherSideBox = Helper.getBoxByBottomPosAndSize(
             new Vec3d(0, 0, 0),
@@ -92,7 +91,7 @@ public class EndPortalEntity extends Portal {
         
         for (Direction direction : Direction.values()) {
             Portal portal = PortalManipulation.createOrthodoxPortal(
-                Portal.entityType,
+                EndPortalEntity.entityType,
                 world, endWorld,
                 direction, Helper.getBoxSurface(thisSideBox, direction),
                 Helper.getBoxSurface(otherSideBox, direction).getCenter()
@@ -128,22 +127,22 @@ public class EndPortalEntity extends Portal {
                 return;
             }
             if (player.getPos().squaredDistanceTo(getPos()) < 10 * 10) {
-                if (clientFakedReversePortal == null) {
-                    // client only faked portal
-                    clientFakedReversePortal =
-                        PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
-                    
-                    clientFakedReversePortal.teleportable = false;
-                    
-                    clientFakedReversePortal.portalTag = "view_box_faked_reverse";
-                    
-                    clientFakedReversePortal.clientFakedReversePortal = this;
-                    
-                    ((ClientWorld) getDestinationWorld()).addEntity(
-                        clientFakedReversePortal.getEntityId(),
-                        clientFakedReversePortal
-                    );
-                }
+//                if (clientFakedReversePortal == null) {
+//                    // client only faked portal
+//                    clientFakedReversePortal =
+//                        PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
+//
+//                    clientFakedReversePortal.teleportable = false;
+//
+//                    clientFakedReversePortal.portalTag = "view_box_faked_reverse";
+//
+//                    clientFakedReversePortal.clientFakedReversePortal = this;
+//
+//                    ((ClientWorld) getDestinationWorld()).addEntity(
+//                        clientFakedReversePortal.getEntityId(),
+//                        clientFakedReversePortal
+//                    );
+//                }
             }
             else {
                 if (clientFakedReversePortal != null) {

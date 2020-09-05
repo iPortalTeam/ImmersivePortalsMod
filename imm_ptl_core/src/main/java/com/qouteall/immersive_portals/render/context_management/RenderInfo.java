@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render.context_management;
 
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -19,6 +20,7 @@ public class RenderInfo {
     public Matrix4f additionalTransformation;
     @Nullable
     public Portal portal;
+    public int renderDistance;
     
     private static final Stack<RenderInfo> renderInfoStack = new Stack<>();
     
@@ -26,10 +28,22 @@ public class RenderInfo {
         ClientWorld world, Vec3d cameraPos,
         Matrix4f additionalTransformation, @Nullable Portal portal
     ) {
+        this(
+            world, cameraPos, additionalTransformation, portal,
+            MinecraftClient.getInstance().options.viewDistance
+        );
+    }
+    
+    public RenderInfo(
+        ClientWorld world, Vec3d cameraPos,
+        @Nullable Matrix4f additionalTransformation,
+        @Nullable Portal portal, int renderDistance
+    ) {
         this.world = world;
         this.cameraPos = cameraPos;
         this.additionalTransformation = additionalTransformation;
         this.portal = portal;
+        this.renderDistance = renderDistance;
     }
     
     public static void pushRenderInfo(RenderInfo renderInfo) {

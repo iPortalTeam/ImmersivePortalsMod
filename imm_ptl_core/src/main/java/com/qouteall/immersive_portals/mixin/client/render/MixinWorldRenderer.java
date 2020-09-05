@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -15,6 +16,7 @@ import com.qouteall.immersive_portals.render.PixelCuller;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
@@ -461,11 +463,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     private static boolean isReloadingOtherWorldRenderers = false;
     
+    // sometimes we change renderDistance but we don't want to reload it
+    @Inject(method = "reload", at = @At("HEAD"), cancellable = true)
+    private void onReloadStarted(CallbackInfo ci) {
+        if (RenderInfo.isRendering()) {
+            ci.cancel();
+        }
+    }
+    
     //reload other world renderers when the main world renderer is reloaded
     @Inject(method = "reload", at = @At("TAIL"))
-    private void onReload(CallbackInfo ci) {
+    private void onReloadFinished(CallbackInfo ci) {
         ClientWorldLoader clientWorldLoader = CGlobal.clientWorldLoader;
         WorldRenderer this_ = (WorldRenderer) (Object) this;
+    
+        Helper.log("WorldRenderer reloaded " + world.getRegistryKey().getValue());
+        
         if (isReloadingOtherWorldRenderers) {
             return;
         }
@@ -713,4 +726,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
     }
     
+    @Override
+    public int portal_getRenderDistance() {
+        return renderDistance;
+    }
+    
+    @Override
+    public void portal_setRenderDistance(int arg) {
+        renderDistance = arg;
+    }
 }

@@ -152,11 +152,17 @@ public abstract class PortalRenderer {
         
         PortalRendering.onBeginPortalWorldRendering();
         
+        int renderDistance = client.options.viewDistance;
+        if (portal.scaling > 2) {
+            renderDistance *= (int) (Math.min(portal.scaling, 4));
+        }
+        
         invokeWorldRendering(new RenderInfo(
             newWorld,
             PortalRendering.getRenderingCameraPos(),
             getAdditionalCameraTransformation(portal),
-            portal
+            portal,
+            renderDistance
         ));
         
         PortalRendering.onEndPortalWorldRendering();
