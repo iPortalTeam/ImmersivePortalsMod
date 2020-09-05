@@ -167,6 +167,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
         //is it necessary?
         MyGameRenderer.resetDiffuseLighting(matrices);
+    
+        PixelCuller.endCulling();
         
         CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
     }

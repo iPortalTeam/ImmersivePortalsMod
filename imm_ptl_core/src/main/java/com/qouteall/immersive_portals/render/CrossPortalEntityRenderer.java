@@ -72,7 +72,9 @@ public class CrossPortalEntityRenderer {
     
     // do not use runWithTransformation here (because matrixStack is changed?)
     public static void onEndRenderingEntities(MatrixStack matrixStack) {
-        PixelCuller.endCulling();
+        if (!Global.correctCrossPortalEntityRendering) {
+            return;
+        }
         
         renderEntityProjections(matrixStack);
     }
