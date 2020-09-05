@@ -33,7 +33,6 @@ public class CGlobal {
     public static boolean isClientRemoteTickingEnabled = true;
     public static boolean useFrontCulling = true;
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
-    public static boolean renderFewerInFastGraphic = true;
     public static boolean smoothChunkUnload = true;
     public static boolean earlyClientLightUpdate = false;
     public static boolean useSuperAdvancedFrustumCulling = true;

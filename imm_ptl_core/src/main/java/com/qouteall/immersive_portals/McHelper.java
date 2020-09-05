@@ -385,7 +385,6 @@ public class McHelper {
         RegistryKey<World> dimension,
         int x, int z
     ) {
-        //TODO cleanup
         ChunkHolder chunkHolder_ = getIEStorage(dimension).getChunkHolder_(ChunkPos.toLong(x, z));
         if (chunkHolder_ == null) {
             return null;

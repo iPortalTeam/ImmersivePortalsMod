@@ -488,11 +488,6 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "render_fewer_on_fast_graphic",
-            cond -> CGlobal.renderFewerInFastGraphic = cond
-        );
-        registerSwitchCommand(
-            builder,
             "gl_check_error",
             cond -> Global.doCheckGlError = cond
         );

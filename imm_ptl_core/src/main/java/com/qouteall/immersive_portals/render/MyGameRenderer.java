@@ -345,11 +345,8 @@ public class MyGameRenderer {
     
     public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
         if (PortalRendering.isRendering()) {
-            if (CGlobal.renderFewerInFastGraphic) {
-                //TODO recover
-//                if (!MinecraftClient.getInstance().options.fancyGraphics) {
-//                    MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
-//                }
+            if (Global.renderFewerChunksInPortal) {
+                MyGameRenderer.pruneVisibleChunksInFastGraphics(visibleChunks);
             }
         }
     }

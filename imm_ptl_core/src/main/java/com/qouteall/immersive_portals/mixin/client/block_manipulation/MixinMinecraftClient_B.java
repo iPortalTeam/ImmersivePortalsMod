@@ -66,7 +66,7 @@ public abstract class MixinMinecraftClient_B {
     )
     private void onDoItemUse(CallbackInfo ci) {
         if (BlockManipulationClient.isPointingToPortal()) {
-            //TODO support offhand
+            // supporting offhand is unnecessary
             BlockManipulationClient.myItemUse(Hand.MAIN_HAND);
             ci.cancel();
         }

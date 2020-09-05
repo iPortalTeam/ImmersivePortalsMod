@@ -237,8 +237,7 @@ public class ClientWorldLoader {
         
         client.getProfiler().push("create_world");
         
-        //TODO get load distance
-        int chunkLoadDistance = 3;
+        int chunkLoadDistance = 3;// my own chunk manager doesn't need it
         
         WorldRenderer worldRenderer = new WorldRenderer(client, client.getBufferBuilders());
         

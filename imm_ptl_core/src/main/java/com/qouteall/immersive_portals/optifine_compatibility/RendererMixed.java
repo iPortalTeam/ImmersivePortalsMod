@@ -253,7 +253,6 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
-        //TODO render shadow
 //        if (Shaders.isShadowPass) {
 //            ViewAreaRenderer.drawPortalViewTriangle(portal);
 //        }
