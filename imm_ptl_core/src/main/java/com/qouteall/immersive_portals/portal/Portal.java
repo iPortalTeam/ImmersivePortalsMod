@@ -25,6 +25,7 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -371,6 +372,12 @@ public class Portal extends Entity {
     
     public void onEntityTeleportedOnServer(Entity entity) {
         //nothing
+    }
+    
+    public void reloadAndSyncToClient() {
+        Validate.isTrue(!world.isClient());
+        updateCache();
+        McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
     }
     
     @Override

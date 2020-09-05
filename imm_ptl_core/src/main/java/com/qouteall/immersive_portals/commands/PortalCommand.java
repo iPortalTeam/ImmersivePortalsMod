@@ -548,7 +548,7 @@ public class PortalCommand {
                             portal.destination = portal.destination.add(
                                 portal.transformLocalVecNonScale(offset)
                             );
-                            reloadPortal(portal);
+                            portal.reloadAndSyncToClient();
                         }
                         catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
@@ -622,7 +622,7 @@ public class PortalCommand {
                 context,
                 portal -> {
                     makePortalRound(portal);
-                    reloadPortal(portal);
+                    portal.reloadAndSyncToClient();
                 }
             ))
         );
@@ -635,7 +635,7 @@ public class PortalCommand {
                         
                         portal.scaling = scale;
                         
-                        reloadPortal(portal);
+                        portal.reloadAndSyncToClient();
                     }
                 ))
             )
@@ -669,7 +669,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            reloadPortal(portal);
+                            portal.reloadAndSyncToClient();
                         }
                     ))
                 )
@@ -695,7 +695,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            reloadPortal(portal);
+                            portal.reloadAndSyncToClient();
                         }
                     ))
                 )
@@ -719,7 +719,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            reloadPortal(portal);
+                            portal.reloadAndSyncToClient();
                         }
                     ))
                 )
@@ -743,7 +743,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            reloadPortal(portal);
+                            portal.reloadAndSyncToClient();
                         }
                     ))
                 )
@@ -761,7 +761,7 @@ public class PortalCommand {
             portal.rotation = null;
         }
         
-        reloadPortal(portal);
+        portal.reloadAndSyncToClient();
     }
     
     private static void setPortalNbt(Portal portal, CompoundTag newNbt) {
@@ -775,7 +775,7 @@ public class PortalCommand {
         portal.fromTag(portalNbt);
         portal.setUuid(uuid);
         
-        reloadPortal(portal);
+        portal.reloadAndSyncToClient();
     }
     
     private static void registerCBPortalCommands(
@@ -1280,7 +1280,7 @@ public class PortalCommand {
             context, "dest"
         );
         
-        reloadPortal(portal);
+        portal.reloadAndSyncToClient();
         
         sendMessage(context, portal.toString());
     }
@@ -1446,11 +1446,6 @@ public class PortalCommand {
             context,
             "\n\n" + portal.toString()
         );
-    }
-    
-    public static void reloadPortal(Portal portal) {
-        portal.updateCache();
-        McHelper.getIEStorage(portal.world.getRegistryKey()).resendSpawnPacketToTrackers(portal);
     }
     
     public static void sendMessage(CommandContext<ServerCommandSource> context, String message) {

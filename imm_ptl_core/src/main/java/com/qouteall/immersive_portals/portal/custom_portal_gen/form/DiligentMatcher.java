@@ -114,7 +114,7 @@ public class DiligentMatcher {
         }
         
         public Quaternion toQuaternion() {
-            
+            //http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
             
             double m00 = x.getX();
             double m11 = y.getY();
