@@ -128,6 +128,7 @@ public abstract class PortalRenderer {
         }
         if (PortalRendering.getPortalLayer() >= 1) {
             range *= PortalRendering.getRenderingPortal().scaling;
+            range = Math.min(range, 22 * 16);
         }
         return range;
     }

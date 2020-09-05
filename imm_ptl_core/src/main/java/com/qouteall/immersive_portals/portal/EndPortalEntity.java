@@ -80,7 +80,7 @@ public class EndPortalEntity extends Portal {
         ServerWorld endWorld = McHelper.getServerWorld(World.END);
         
         double d = 3;
-        final Vec3d viewBoxSize = new Vec3d(d, 2, d);
+        final Vec3d viewBoxSize = new Vec3d(d, 1.4, d);
         final double scale = 270 / d;
         
         Box thisSideBox = Helper.getBoxByBottomPosAndSize(
@@ -102,6 +102,7 @@ public class EndPortalEntity extends Portal {
             portal.teleportChangesScale = false;
             portal.extension.adjustPositionAfterTeleport = true;
             portal.portalTag = "view_box";
+            portal.extension.motionAffinity = -0.9;
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag
             
@@ -130,13 +131,13 @@ public class EndPortalEntity extends Portal {
                     // client only faked portal
                     clientFakedReversePortal =
                         PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
-
+                    
                     clientFakedReversePortal.teleportable = false;
-
+                    
                     clientFakedReversePortal.portalTag = "view_box_faked_reverse";
-
+                    
                     clientFakedReversePortal.clientFakedReversePortal = this;
-
+                    
                     ((ClientWorld) getDestinationWorld()).addEntity(
                         clientFakedReversePortal.getEntityId(),
                         clientFakedReversePortal
@@ -172,6 +173,12 @@ public class EndPortalEntity extends Portal {
         if (entity instanceof ServerPlayerEntity) {
             generateObsidianPlatform();
         }
+    }
+    
+    @Override
+    public void transformVelocity(Entity entity) {
+//        Vec3d velocity = entity.getVelocity();
+//        entity.setVelocity(velocity.x, 0, velocity.z);
     }
     
     // arrows cannot go through end portal
