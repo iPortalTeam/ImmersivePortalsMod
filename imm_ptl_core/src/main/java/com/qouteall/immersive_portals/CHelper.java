@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
@@ -23,6 +22,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -58,8 +58,11 @@ public class CHelper {
         }
     }
     
-    // TODO optimize out the stream
     public static Stream<Portal> getClientNearbyPortals(double range) {
+        return getClientNearbyPortalList(range, e -> true).stream();
+    }
+    
+    public static List<Portal> getClientNearbyPortalList(double range, Predicate<Portal> predicate) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
         List<Portal> nearbyPortals = McHelper.findEntitiesRough(
@@ -67,19 +70,20 @@ public class CHelper {
             player.world,
             player.getPos(),
             (int) (range / 16),
-            p -> true
+            predicate
         );
-        if (globalPortals == null) {
-            return nearbyPortals.stream();
+        
+        if (globalPortals != null) {
+            for (GlobalTrackedPortal globalPortal : globalPortals) {
+                if (globalPortal.getDistanceToNearestPointInPortal(player.getPos()) < range * 2) {
+                    if (predicate.test(globalPortal)) {
+                        nearbyPortals.add(globalPortal);
+                    }
+                }
+            }
         }
-        else {
-            return Streams.concat(
-                globalPortals.stream().filter(
-                    p -> p.getDistanceToNearestPointInPortal(player.getPos()) < range * 2
-                ),
-                nearbyPortals.stream()
-            );
-        }
+        
+        return nearbyPortals;
     }
     
     public static void checkGlError() {
@@ -102,7 +106,6 @@ public class CHelper {
             new LiteralText(str)
         );
     }
-    
     
     
     public static class Rect {

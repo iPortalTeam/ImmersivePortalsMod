@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -24,13 +25,12 @@ import org.apache.commons.lang3.Validate;
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 public abstract class PortalRenderer {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
-   
     
     //this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
@@ -55,66 +55,66 @@ public abstract class PortalRenderer {
     protected void renderPortals(MatrixStack matrixStack) {
         Validate.isTrue(client.cameraEntity.world == client.world);
         
-        List<Portal> portalsNearbySorted = getPortalsNearbySorted();
-        
-        if (portalsNearbySorted.isEmpty()) {
-            return;
-        }
-        
-        Frustum frustum = null;
-        if (CGlobal.earlyFrustumCullingPortal) {
-            frustum = new Frustum(
+        Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
+            Frustum frustum = new Frustum(
                 matrixStack.peek().getModel(),
                 RenderStates.projectionMatrix
             );
             
             Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
             frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
-        }
+            
+            return frustum;
+        });
         
-        for (Portal portal : portalsNearbySorted) {
-            renderPortalIfRoughCheckPassed(portal, matrixStack, frustum);
+        List<Portal> portalsToRender = CHelper.getClientNearbyPortalList(
+            getRenderRange(),
+            portal -> !shouldSkipRenderingPortal(portal, frustumSupplier)
+        );
+        
+        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        portalsToRender.sort(Comparator.comparingDouble(portalEntity ->
+            portalEntity.getDistanceToNearestPointInPortal(cameraPos)
+        ));
+        
+        for (Portal portal : portalsToRender) {
+            doRenderPortal(portal, matrixStack);
         }
     }
     
-    private void renderPortalIfRoughCheckPassed(
-        Portal portal,
-        MatrixStack matrixStack,
-        Frustum frustum
-    ) {
+    private boolean shouldSkipRenderingPortal(Portal portal, Supplier<Frustum> frustumSupplier) {
         if (!portal.isPortalValid()) {
-            Helper.err("rendering invalid portal " + portal);
-            return;
+            return true;
         }
         
         if (RenderStates.getRenderedPortalNum() >= Global.portalRenderLimit) {
-            return;
+            return true;
         }
         
-        Vec3d thisTickEyePos = client.gameRenderer.getCamera().getPos();
+        Vec3d cameraPos = McHelper.getCurrentCameraPos();
         
-        if (!portal.isInFrontOfPortal(thisTickEyePos)) {
-            return;
+        if (!portal.isInFrontOfPortal(cameraPos)) {
+            return true;
         }
         
         if (PortalRendering.isRendering()) {
             Portal outerPortal = PortalRendering.getRenderingPortal();
             if (Portal.isParallelOrientedPortal(portal, outerPortal)) {
-                return;
+                return true;
             }
         }
         
         if (isOutOfDistance(portal)) {
-            return;
+            return true;
         }
         
         if (CGlobal.earlyFrustumCullingPortal) {
+            Frustum frustum = frustumSupplier.get();
             if (!frustum.isVisible(portal.getBoundingBox())) {
-                return;
+                return true;
             }
         }
-        
-        doRenderPortal(portal, matrixStack);
+        return false;
     }
     
     protected final double getRenderRange() {
@@ -127,16 +127,6 @@ public abstract class PortalRenderer {
             range = 16;
         }
         return range;
-    }
-    
-    private List<Portal> getPortalsNearbySorted() {
-        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        return CHelper.getClientNearbyPortals(getRenderRange())
-            .sorted(
-                Comparator.comparing(portalEntity ->
-                    portalEntity.getDistanceToNearestPointInPortal(cameraPos)
-                )
-            ).collect(Collectors.toList());
     }
     
     protected abstract void doRenderPortal(
