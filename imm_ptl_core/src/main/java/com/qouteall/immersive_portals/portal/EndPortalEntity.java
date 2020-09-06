@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -80,8 +81,8 @@ public class EndPortalEntity extends Portal {
         ServerWorld endWorld = McHelper.getServerWorld(World.END);
         
         double d = 3;
-        final Vec3d viewBoxSize = new Vec3d(d, 1.4, d);
-        final double scale = 270 / d;
+        final Vec3d viewBoxSize = new Vec3d(d, 1.2, d);
+        final double scale = 280 / d;
         
         Box thisSideBox = Helper.getBoxByBottomPosAndSize(
             portalCenter.add(0, 0, 0), viewBoxSize
@@ -102,7 +103,6 @@ public class EndPortalEntity extends Portal {
             portal.teleportChangesScale = false;
             portal.extension.adjustPositionAfterTeleport = true;
             portal.portalTag = "view_box";
-            portal.extension.motionAffinity = -0.9;
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag
             
@@ -125,6 +125,20 @@ public class EndPortalEntity extends Portal {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
             if (player == null) {
                 return;
+            }
+            if (getNormal().y > 0.5) {
+                if (((IEEntity) player).getCollidingPortal() == this) {
+                    Vec3d cameraPosVec = player.getCameraPosVec(1);
+                    double dist = this.getDistanceToNearestPointInPortal(cameraPosVec);
+                    if (dist < 1) {
+                        double mul = dist /2+0.1;
+                        player.setVelocity(
+                            player.getVelocity().x * mul,
+                            player.getVelocity().y * mul,
+                            player.getVelocity().z * mul
+                        );
+                    }
+                }
             }
             if (player.world == this.world && player.getPos().squaredDistanceTo(getPos()) < 10 * 10) {
                 if (clientFakedReversePortal == null) {
@@ -161,11 +175,17 @@ public class EndPortalEntity extends Portal {
     @Override
     public void onEntityTeleportedOnServer(Entity entity) {
         if (shouldAddSlowFalling(entity)) {
+            int duration = 120;
+            
+            if (Objects.equals(this.portalTag, "view_box")) {
+                duration = 200;
+            }
+            
             LivingEntity livingEntity = (LivingEntity) entity;
             livingEntity.addStatusEffect(
                 new StatusEffectInstance(
                     StatusEffects.SLOW_FALLING,
-                    120,//duration
+                    duration,//duration
                     1//amplifier
                 )
             );
@@ -177,8 +197,7 @@ public class EndPortalEntity extends Portal {
     
     @Override
     public void transformVelocity(Entity entity) {
-//        Vec3d velocity = entity.getVelocity();
-//        entity.setVelocity(velocity.x, 0, velocity.z);
+    
     }
     
     // arrows cannot go through end portal
