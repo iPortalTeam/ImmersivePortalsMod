@@ -56,11 +56,8 @@ allprojects {
 
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-        include "me.shedaniel.cloth:config-2:4.8.1"
-        include "io.github.prospector:modmenu:1.14.6+build.31"
-
-        modImplementation "me.shedaniel.cloth:config-2:4.8.1"
-        modImplementation "io.github.prospector:modmenu:1.14.6+build.31"
+        modImplementation "me.shedaniel.cloth:config-${cloth_config_version}"
+        modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
         //For javax.annotation.Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
@@ -71,7 +68,7 @@ allprojects {
 //        }
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:compatstable-SNAPSHOT'
-//	modCompileOnly("me.jellysquid.mods:sodium:0.1.0.6-SNAPSHOT")
+//        modImplementation("me.jellysquid.mods:sodium:0.1.0-SNAPSHOT")
 
         modCompileOnly 'com.github.Virtuoel:Pehkui:1.16-SNAPSHOT'
 
@@ -170,6 +167,9 @@ repositories {
 }
 
 dependencies {
+    include "me.shedaniel.cloth:config-${cloth_config_version}"
+    include "io.github.prospector:modmenu:${modmenu_version}"
+
     afterEvaluate {
         subprojects.each {
             compile project(path: ":${it.name}")

@@ -702,7 +702,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         boolean uploaded = chunkBuilder.upload();
         this.needsTerrainUpdate |= uploaded;//no short circuit
         
-        int limit = Math.max(1, (chunksToRebuild.size() / 2000));
+        int limit = Math.max(1, (chunksToRebuild.size() / 1000));
         
         int num = 0;
         for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
