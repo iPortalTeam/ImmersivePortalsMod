@@ -42,7 +42,8 @@ public class MixinWorldRenderer_Optional {
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/RenderLayer;getTranslucent()Lnet/minecraft/client/render/RenderLayer;",
             ordinal = 0
-        )
+        ),
+        require = 0
     )
     private RenderLayer redirectGetTranslucent() {
         if (PortalRendering.isRendering()) {
@@ -58,7 +59,8 @@ public class MixinWorldRenderer_Optional {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
-        )
+        ),
+        require = 0
     )
     private void onBeforeChunkBuilderSetCameraPosition(
         Camera camera_1,
@@ -82,7 +84,8 @@ public class MixinWorldRenderer_Optional {
     //one in updateChunks() one in setupTerrain()
     @ModifyConstant(
         method = "setupTerrain",
-        constant = @Constant(doubleValue = 768.0D)
+        constant = @Constant(doubleValue = 768.0D),
+        require = 0
     )
     private double modifyRebuildRange(double original) {
         if (PortalRendering.isRendering()) {
@@ -100,7 +103,8 @@ public class MixinWorldRenderer_Optional {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/chunk/ChunkBuilder;setCameraPosition(Lnet/minecraft/util/math/Vec3d;)V"
-        )
+        ),
+        require = 0
     )
     private void onSetChunkBuilderCameraPosition(ChunkBuilder chunkBuilder, Vec3d cameraPosition) {
         if (PortalRendering.isRendering()) {
