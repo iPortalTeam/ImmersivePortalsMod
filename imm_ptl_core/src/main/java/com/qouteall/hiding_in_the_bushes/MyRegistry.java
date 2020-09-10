@@ -13,12 +13,10 @@ import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPo
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -62,11 +60,7 @@ public class MyRegistry {
         
         ModMain.portalHelperBlock = new Block(FabricBlockSettings.of(Material.METAL).nonOpaque()
             .solidBlock((a, b, c) -> false));
-        BlockRenderLayerMap.INSTANCE.putBlock(
-            ModMain.portalHelperBlock,
-            RenderLayer.getCutout()
-        );
-        
+    
         ModMain.portalHelperBlockItem = new BlockItem(
             ModMain.portalHelperBlock,
             new Item.Settings().group(ItemGroup.MISC)
@@ -84,7 +78,6 @@ public class MyRegistry {
             ModMain.portalHelperBlockItem
         );
     }
-    
     
     private static <T extends Entity> void registerEntity(
         Consumer<EntityType<T>> setEntityType,
