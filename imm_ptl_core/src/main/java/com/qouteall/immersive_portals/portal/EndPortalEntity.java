@@ -131,7 +131,7 @@ public class EndPortalEntity extends Portal {
                     Vec3d cameraPosVec = player.getCameraPosVec(1);
                     double dist = this.getDistanceToNearestPointInPortal(cameraPosVec);
                     if (dist < 1) {
-                        double mul = dist /2+0.1;
+                        double mul = dist / 2 + 0.1;
                         player.setVelocity(
                             player.getVelocity().x * mul,
                             player.getVelocity().y * mul,
@@ -145,6 +145,9 @@ public class EndPortalEntity extends Portal {
                     // client only faked portal
                     clientFakedReversePortal =
                         PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
+                    
+                    int newEntityId = -getEntityId();
+                    clientFakedReversePortal.setEntityId(newEntityId);
                     
                     clientFakedReversePortal.teleportable = false;
                     

@@ -149,7 +149,7 @@ public class ChunkVisibilityManager {
         
         // load more for up scaling portal
         if (portal.scaling > 2 && distance < 5) {
-            renderDistance = (renderDistance * 2);
+            renderDistance = (renderDistance * 2) + 5;
         }
         
         return new ChunkLoader(
