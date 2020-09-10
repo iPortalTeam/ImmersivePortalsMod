@@ -87,7 +87,7 @@ public class CustomPortalGenManagement {
                 return;
             }
             
-            Helper.log("Loaded Custom Portal Gen " + entry.getKey().getValue() + " " + gen.toString());
+            Helper.log("Loaded Custom Portal Gen " + entry.getKey().getValue());
             
             load(gen);
             
