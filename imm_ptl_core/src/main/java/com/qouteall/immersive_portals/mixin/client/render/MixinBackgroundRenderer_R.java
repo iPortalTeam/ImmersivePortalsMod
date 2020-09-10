@@ -14,7 +14,8 @@ public class MixinBackgroundRenderer_R {
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogStart(F)V"
-        )
+        ),
+        require = 0// avoid crashing with optifine
     )
     private static float modifyFogStart(float fogStart) {
         return multiplyByPortalScale(fogStart);
@@ -25,7 +26,8 @@ public class MixinBackgroundRenderer_R {
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogEnd(F)V"
-        )
+        ),
+        require = 0
     )
     private static float modifyFogEnd(float fogStart) {
         return multiplyByPortalScale(fogStart);
