@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -67,10 +67,22 @@ public abstract class PortalRenderer {
             return frustum;
         });
         
-        List<Portal> portalsToRender = CHelper.getClientNearbyPortalList(
-            getRenderRange(),
-            portal -> !shouldSkipRenderingPortal(portal, frustumSupplier)
-        );
+        double renderRange = getRenderRange();
+        
+        List<Portal> portalsToRender = new ArrayList<>();
+        client.world.getEntities().forEach(e -> {
+            if (e instanceof Portal) {
+                Portal portal = (Portal) e;
+                if (!shouldSkipRenderingPortal(portal, frustumSupplier)) {
+                    portalsToRender.add(portal);
+                }
+            }
+        });
+
+//        List<Portal> portalsToRender = CHelper.getClientNearbyPortalList(
+//            renderRange,
+//            portal -> !shouldSkipRenderingPortal(portal, frustumSupplier)
+//        );
         
         Vec3d cameraPos = McHelper.getCurrentCameraPos();
         portalsToRender.sort(Comparator.comparingDouble(portalEntity ->
