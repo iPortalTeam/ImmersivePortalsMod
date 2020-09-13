@@ -328,21 +328,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //to let the player be rendered when rendering portal
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/Camera;isThirdPerson()Z"
-        )
-    )
-    private boolean redirectIsThirdPerson(Camera camera) {
-        if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
-            return true;
-        }
-        return camera.isThirdPerson();
-    }
-    
     //render player itself when rendering portal
     @Redirect(
         method = "render",
