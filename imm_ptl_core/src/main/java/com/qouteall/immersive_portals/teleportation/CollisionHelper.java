@@ -65,8 +65,14 @@ public class CollisionHelper {
     }
     
     public static boolean shouldCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
-        return portal.canTeleportEntity(entity) &&
-            portal.isPointInPortalProjection(entity.getCameraPosVec(tickDelta));
+        if (portal.canTeleportEntity(entity)) {
+            Vec3d cameraPosVec = entity.getCameraPosVec(tickDelta);
+            if (portal.isInFrontOfPortal(cameraPosVec) &&
+                portal.isPointInPortalProjection(cameraPosVec)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     public static Vec3d handleCollisionHalfwayInPortal(
