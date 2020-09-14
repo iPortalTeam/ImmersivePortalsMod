@@ -81,6 +81,7 @@ public class CustomPortalGenManagement {
         
         result.getEntries().forEach((entry) -> {
             CustomPortalGeneration gen = entry.getValue();
+            gen.identifier = entry.getKey().getValue();
             
             if (!gen.initAndCheck()) {
                 Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
@@ -93,6 +94,7 @@ public class CustomPortalGenManagement {
             
             if (gen.reversible) {
                 CustomPortalGeneration reverse = gen.getReverse();
+                reverse.identifier = entry.getKey().getValue();
                 if (gen.initAndCheck()) {
                     load(reverse);
                 }

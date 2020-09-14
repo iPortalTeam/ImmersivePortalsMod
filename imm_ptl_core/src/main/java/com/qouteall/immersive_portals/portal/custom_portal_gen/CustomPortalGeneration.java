@@ -81,6 +81,8 @@ public class CustomPortalGeneration {
     public final PortalGenTrigger trigger;
     public final List<String> postInvokeCommands;
     
+    public Identifier identifier = null;
+    
     public CustomPortalGeneration(
         List<RegistryKey<World>> fromDimensions, RegistryKey<World> toDimension,
         int spaceRatioFrom, int spaceRatioTo, boolean reversible,
@@ -111,7 +113,7 @@ public class CustomPortalGeneration {
             );
         }
         
-        if (fromDimensions.size() == 1) {
+        if (!fromDimensions.isEmpty()) {
             return new CustomPortalGeneration(
                 Lists.newArrayList(toDimension),
                 fromDimensions.get(0),
