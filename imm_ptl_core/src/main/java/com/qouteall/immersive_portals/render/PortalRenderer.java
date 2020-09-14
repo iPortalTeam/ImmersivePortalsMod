@@ -78,11 +78,6 @@ public abstract class PortalRenderer {
                 }
             }
         });
-
-//        List<Portal> portalsToRender = CHelper.getClientNearbyPortalList(
-//            renderRange,
-//            portal -> !shouldSkipRenderingPortal(portal, frustumSupplier)
-//        );
         
         Vec3d cameraPos = McHelper.getCurrentCameraPos();
         portalsToRender.sort(Comparator.comparingDouble(portalEntity ->

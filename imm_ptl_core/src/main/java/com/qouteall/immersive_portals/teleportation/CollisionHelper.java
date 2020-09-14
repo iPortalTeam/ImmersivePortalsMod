@@ -18,7 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -228,23 +227,6 @@ public class CollisionHelper {
         else {
             return McHelper.getServer().getWorld(dimension);
         }
-    }
-    
-    //world.getEntities is not reliable
-    //it has a small chance to ignore collided entities
-    //this would cause player to fall through floor when halfway though portal
-    //use entity.getCollidingPortal() and do not use this
-    @Deprecated
-    public static Portal getCollidingPortalUnreliable(Entity entity, float tickDelta) {
-        Box box = entity.getBoundingBox().stretch(entity.getVelocity());
-        
-        return getCollidingPortalRough(entity, box).filter(
-            portal -> shouldCollideWithPortal(
-                entity, portal, tickDelta
-            )
-        ).min(
-            Comparator.comparingDouble(p -> p.getY())
-        ).orElse(null);
     }
     
     public static Stream<Portal> getCollidingPortalRough(Entity entity, Box box) {
