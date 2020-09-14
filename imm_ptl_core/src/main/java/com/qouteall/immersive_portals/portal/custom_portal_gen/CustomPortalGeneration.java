@@ -189,6 +189,10 @@ public class CustomPortalGeneration {
     }
     
     public void onPortalGenerated(Portal portal) {
+        if (identifier != null) {
+            portal.portalTag = identifier.toString();
+        }
+        
         if (postInvokeCommands.isEmpty()) {
             return;
         }
