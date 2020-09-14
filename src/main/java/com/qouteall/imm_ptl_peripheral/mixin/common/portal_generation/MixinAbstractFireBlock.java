@@ -1,7 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.portal_generation;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.imm_ptl_peripheral.portal_generation.IntrinsicNetherPortalForm;
+import com.qouteall.imm_ptl_peripheral.portal_generation.IntrinsicPortalGeneration;
 import com.qouteall.immersive_portals.Global;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
@@ -30,7 +30,7 @@ public class MixinAbstractFireBlock {
         }
         
         if (isNearObsidian(worldAccess, blockPos)) {
-            IntrinsicNetherPortalForm.onFireLitOnObsidian(
+            IntrinsicPortalGeneration.onFireLitOnObsidian(
                 ((ServerWorld) worldAccess),
                 blockPos
             );

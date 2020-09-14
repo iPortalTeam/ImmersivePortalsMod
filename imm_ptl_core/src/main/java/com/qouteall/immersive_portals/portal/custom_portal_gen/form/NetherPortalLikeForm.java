@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
@@ -70,7 +71,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             toWorld,
             fromShape,
             toPos,
-            128,
+            Global.netherPortalFindingRadius,
             otherSideFramePredicate,
             toShape -> {
                 generateNewFrame(fromWorld, fromShape, toWorld, toShape);

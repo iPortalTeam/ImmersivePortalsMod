@@ -47,7 +47,7 @@ public class PortalGenInfo {
         this.toShape = toShape;
         this.rotation = rotation;
         this.scale = scale;
-    
+        
         if (Math.abs(1.0 - rotation.getW()) < 0.001) {
             this.rotation = null;
         }
@@ -62,7 +62,7 @@ public class PortalGenInfo {
         portal.destination = toShape.innerAreaBox.getCenterVec();
         portal.scaling = scale;
         portal.rotation = rotation;
-    
+        
         if (scale != 1.0) {
             portal.extension.adjustPositionAfterTeleport = true;
         }
@@ -93,15 +93,15 @@ public class PortalGenInfo {
         f2.reversePortalId = t2.getUuid();
         t2.reversePortalId = f2.getUuid();
         
-        fromWorld.spawnEntity(f1);
-        fromWorld.spawnEntity(f2);
-        toWorld.spawnEntity(t1);
-        toWorld.spawnEntity(t2);
+        McHelper.spawnServerEntityToUnloadedArea(f1);
+        McHelper.spawnServerEntityToUnloadedArea(f2);
+        McHelper.spawnServerEntityToUnloadedArea(t1);
+        McHelper.spawnServerEntityToUnloadedArea(t2);
         
         return ((T[]) new BreakablePortalEntity[]{f1, f2, t1, t2});
     }
     
-    public void generatePlaceholderBlocks(){
+    public void generatePlaceholderBlocks() {
         MinecraftServer server = McHelper.getServer();
         
         NetherPortalGeneration.fillInPlaceHolderBlocks(
