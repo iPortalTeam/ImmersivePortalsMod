@@ -91,10 +91,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.edgeless_sky"),
                 currConfig.edgelessSky
             ).setDefaultValue(false).build();
-            BooleanListEntry entryReversibleNetherPortalLinking = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.reversible_nether_portal_linking"),
-                currConfig.reversibleNetherPortalLinking
-            ).setDefaultValue(false).build();
             BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.mirror_interactable_through_portal"),
                 currConfig.mirrorInteractableThroughPortal
@@ -152,7 +148,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryActiveLoading);
             serverSide.addEntry(entryTeleportDebug);
             serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
-            serverSide.addEntry(entryReversibleNetherPortalLinking);
             serverSide.addEntry(entryMirrorInteractableThroughPortal);
             clientSide.addEntry(entryDimensionRenderRedirect);
             return builder
@@ -172,7 +167,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
                     newConfig.edgelessSky = entryEdgelessSky.getValue();
-                    newConfig.reversibleNetherPortalLinking = entryReversibleNetherPortalLinking.getValue();
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();

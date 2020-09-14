@@ -19,7 +19,6 @@
   "imm_ptl.multi_threaded_nether_portal_searching": "Multi Threaded Nether Portal Searching",
   "imm_ptl.smooth_loading": "Experimental Lag Spike Optimization",
   "imm_ptl.edgeless_sky": "Edgeless Sky",
-  "imm_ptl.reversible_nether_portal_linking": "Reversible Nether Portal Searching",
   "imm_ptl.render_redirect": "Dimension Render Redirect",
   "imm_ptl.enable_alternate_dimensions": "Enable Alternate Dimensions",
   "effect.immersive_portals.longer_reach": "Longer Hand Reach",
