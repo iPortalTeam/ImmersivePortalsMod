@@ -31,6 +31,11 @@ public class CustomPortalGeneration {
         new Identifier("imm_ptl:the_same_dimension")
     );
     
+    public static final RegistryKey<World> anyDimension = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("imm_ptl:any_dimension")
+    );
+    
     public static final Codec<List<RegistryKey<World>>> dimensionListCodec =
         new ListCodec<>(World.CODEC);
     public static final Codec<List<String>> stringListCodec =
@@ -148,6 +153,10 @@ public class CustomPortalGeneration {
             return false;
         }
         
+        if (fromDimensions.isEmpty()) {
+            return false;
+        }
+        
         return true;
     }
     
@@ -161,7 +170,9 @@ public class CustomPortalGeneration {
     
     public boolean perform(ServerWorld world, BlockPos startPos) {
         if (!fromDimensions.contains(world.getRegistryKey())) {
-            return false;
+            if (fromDimensions.get(0) != anyDimension) {
+                return false;
+            }
         }
         
         if (!world.isChunkLoaded(startPos)) {

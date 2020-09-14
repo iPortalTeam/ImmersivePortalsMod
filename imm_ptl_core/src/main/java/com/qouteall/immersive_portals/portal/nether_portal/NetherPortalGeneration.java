@@ -16,7 +16,6 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
@@ -31,7 +30,6 @@ import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -41,16 +39,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class NetherPortalGeneration {
-    public final static int randomShiftFactor = 20;
-    
-    public static BlockPos getRandomShift() {
-        Random rand = new Random();
-        return new BlockPos(
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor
-        );
-    }
     
     public static IntBox findAirCubePlacement(
         ServerWorld toWorld,
@@ -211,36 +199,6 @@ public class NetherPortalGeneration {
         toWorld.spawnEntity(portalArray[3]);
         
         return portalArray;
-    }
-    
-    public static boolean activatePortalHelper(
-        ServerWorld fromWorld,
-        BlockPos firePos
-    ) {
-        Helper.SimpleBox<BlockPortalShape> thisSideShape = new Helper.SimpleBox<>(null);
-        thisSideShape.obj = triggerGeneratingPortal(
-            fromWorld,
-            firePos,
-            fromWorld,
-            Global.netherPortalFindingRadius,
-            (fromPos1) -> getRandomShift().add(fromPos1),
-            NetherPortalMatcher::isAirOrFire,
-            blockState -> blockState.getBlock() == ModMain.portalHelperBlock,
-            BlockState::isAir,
-            (blockState) -> blockState.getBlock() == ModMain.portalHelperBlock,
-            (toShape) -> {
-                embodyNewFrame(fromWorld, toShape, ModMain.portalHelperBlock.getDefaultState());
-            },
-            info -> {
-                generateHelperPortalEntities(info);
-                info.fromShape.frameAreaWithCorner.forEach(blockPos -> {
-                    if (fromWorld.getBlockState(blockPos).getBlock() == ModMain.portalHelperBlock) {
-                        fromWorld.setBlockState(blockPos, Blocks.AIR.getDefaultState());
-                    }
-                });
-            }
-        );
-        return thisSideShape.obj != null;
     }
     
     public static BlockPortalShape triggerGeneratingPortal(
@@ -552,6 +510,7 @@ public class NetherPortalGeneration {
         );
     }
     
+    @Deprecated
     private static void generateHelperPortalEntities(PortalGenInfo info) {
         ServerWorld fromWorld1 = McHelper.getServer().getWorld(info.from);
         ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
