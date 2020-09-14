@@ -56,18 +56,15 @@ public class NetherPortalGeneration {
         ServerWorld toWorld,
         BlockPos mappedPosInOtherDimension,
         Direction.Axis axis,
-        BlockPos neededAreaSize,
-        int findingRadius
+        BlockPos neededAreaSize
     ) {
         IntBox foundAirCube =
             axis == Direction.Axis.Y ?
                 NetherPortalMatcher.findHorizontalPortalPlacement(
-                    neededAreaSize, toWorld, mappedPosInOtherDimension,
-                    findingRadius
+                    neededAreaSize, toWorld, mappedPosInOtherDimension
                 ) :
                 NetherPortalMatcher.findVerticalPortalPlacement(
-                    neededAreaSize, toWorld, mappedPosInOtherDimension,
-                    findingRadius
+                    neededAreaSize, toWorld, mappedPosInOtherDimension
                 );
         
         if (foundAirCube == null) {
@@ -216,53 +213,6 @@ public class NetherPortalGeneration {
         return portalArray;
     }
     
-    //return null for not found
-    //executed on main server thread
-    public static boolean onFireLitOnObsidian(
-        ServerWorld fromWorld,
-        BlockPos firePos
-    ) {
-        RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
-        
-        RegistryKey<World> toDimension = getDestinationDimension(fromDimension);
-        
-        if (toDimension == null) return false;
-        
-        ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
-        
-        int searchingRadius = Global.netherPortalFindingRadius;
-        
-        if (Global.reversibleNetherPortalLinking) {
-            if (fromDimension == World.OVERWORLD) {
-                searchingRadius /= 8;
-            }
-        }
-        
-        BlockPortalShape thisSideShape = triggerGeneratingPortal(
-            fromWorld,
-            firePos,
-            toWorld,
-            searchingRadius,
-            searchingRadius - 10,
-            (fromPos1) -> mapPosition(
-                fromPos1,
-                fromWorld.getRegistryKey(),
-                toWorld.getRegistryKey()
-            ),
-            //this side area
-            NetherPortalMatcher::isAirOrFire,
-            //this side frame
-            O_O::isObsidian,
-            //other side area
-            BlockState::isAir,
-            //other side frame
-            O_O::isObsidian,
-            (shape) -> embodyNewFrame(toWorld, shape, Blocks.OBSIDIAN.getDefaultState()),
-            info -> generateBreakablePortalEntitiesAndPlaceholder(info, NetherPortalEntity.entityType)
-        );
-        return thisSideShape != null;
-    }
-    
     public static boolean activatePortalHelper(
         ServerWorld fromWorld,
         BlockPos firePos
@@ -272,7 +222,6 @@ public class NetherPortalGeneration {
             fromWorld,
             firePos,
             fromWorld,
-            Global.netherPortalFindingRadius,
             Global.netherPortalFindingRadius,
             (fromPos1) -> getRandomShift().add(fromPos1),
             NetherPortalMatcher::isAirOrFire,
@@ -299,7 +248,6 @@ public class NetherPortalGeneration {
         BlockPos startingPos,
         ServerWorld toWorld,
         int existingFrameSearchingRadius,
-        int airCubeSearchingRadius,
         Function<BlockPos, BlockPos> positionMapping,
         Predicate<BlockState> thisSideAreaPredicate,
         Predicate<BlockState> thisSideFramePredicate,
@@ -341,8 +289,7 @@ public class NetherPortalGeneration {
                 IntBox airCubePlacement =
                     findAirCubePlacement(
                         toWorld, toPos,
-                        fromShape.axis, fromShape.totalAreaBox.getSize(),
-                        airCubeSearchingRadius
+                        fromShape.axis, fromShape.totalAreaBox.getSize()
                     );
                 
                 Helper.log("Found Placement " + airCubePlacement);

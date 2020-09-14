@@ -138,8 +138,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         IntBox airCubePlacement =
             NetherPortalGeneration.findAirCubePlacement(
                 toWorld, toPos,
-                fromShape.axis, fromShape.totalAreaBox.getSize(),
-                128
+                fromShape.axis, fromShape.totalAreaBox.getSize()
             );
         
         return fromShape.getShapeWithMovedTotalAreaBox(

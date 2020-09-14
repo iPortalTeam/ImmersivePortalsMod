@@ -151,8 +151,7 @@ public class NetherPortalMatcher {
     static IntBox findVerticalPortalPlacement(
         BlockPos areaSize,
         WorldAccess world,
-        BlockPos searchingCenter,
-        int findingRadius
+        BlockPos searchingCenter
     ) {
         IntBox airCube = getAirCubeOnSolidGround(
             areaSize.add(7, 0, 7), world, searchingCenter,
@@ -245,8 +244,7 @@ public class NetherPortalMatcher {
     static IntBox findHorizontalPortalPlacement(
         BlockPos areaSize,
         WorldAccess world,
-        BlockPos searchingCenter,
-        int findingRadius
+        BlockPos searchingCenter
     ) {
         IntBox result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
             areaSize, world, searchingCenter,

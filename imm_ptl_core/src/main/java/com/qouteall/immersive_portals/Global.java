@@ -41,8 +41,6 @@ public class Global {
     
     public static boolean disableTeleportation = false;
     
-    public static boolean reversibleNetherPortalLinking = false;
-    
     public static boolean looseVisibleChunkIteration = true;
     
     //OpenJdk's stream has issues with MutableBlockPos
