@@ -93,8 +93,8 @@ public class McHelper {
     
     public static Box getChunkBoundingBox(ChunkPos chunkPos) {
         return new Box(
-            chunkPos.getCenterBlockPos(),
-            chunkPos.getCenterBlockPos().add(16, 256, 16)
+            chunkPos.getStartPos(),
+            chunkPos.getStartPos().add(16, 256, 16)
         );
     }
     

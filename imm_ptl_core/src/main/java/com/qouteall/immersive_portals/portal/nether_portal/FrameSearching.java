@@ -123,7 +123,7 @@ public class FrameSearching {
         }
         
         chunks.sort(Comparator.comparingDouble(
-            chunk -> chunk.getPos().getCenterBlockPos().getSquaredDistance(centerPoint)
+            chunk -> chunk.getPos().getStartPos().getSquaredDistance(centerPoint)
         ));
         return chunks;
     }
