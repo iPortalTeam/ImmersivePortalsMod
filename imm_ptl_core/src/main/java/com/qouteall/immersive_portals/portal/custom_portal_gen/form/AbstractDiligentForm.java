@@ -36,7 +36,7 @@ public abstract class AbstractDiligentForm extends NetherPortalLikeForm {
                     temp2
                 );
                 if (matched != null) {
-                    if (fromWorld != toWorld || fromShape.anchor != matched.anchor) {
+                    if (fromWorld != toWorld || !fromShape.anchor.equals(matched.anchor)) {
                         return new PortalGenInfo(
                             fromWorld.getRegistryKey(),
                             toWorld.getRegistryKey(),

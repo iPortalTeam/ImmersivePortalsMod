@@ -2,10 +2,10 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
-import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.BlockState;
@@ -78,8 +78,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             },
             info -> {
                 //generate portal entity
-                BreakablePortalEntity[] result = generatePortalEntitiesAndPlaceholder(info);
-                for (BreakablePortalEntity portal : result) {
+                Portal[] result = generatePortalEntitiesAndPlaceholder(info);
+                for (Portal portal : result) {
                     cpg.onPortalGenerated(portal);
                 }
             },
@@ -147,7 +147,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         );
     }
     
-    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
+    public Portal[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
         info.generatePlaceholderBlocks();
         return info.generateBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
     }

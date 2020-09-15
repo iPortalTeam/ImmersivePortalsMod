@@ -21,6 +21,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -104,6 +105,7 @@ public class CustomPortalGeneration {
         this.postInvokeCommands = postInvokeCommands;
     }
     
+    @Nullable
     public CustomPortalGeneration getReverse() {
         if (toDimension == theSameDimension) {
             return new CustomPortalGeneration(

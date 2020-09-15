@@ -33,7 +33,7 @@ public class BlockPortalShape {
     public Set<BlockPos> frameAreaWithoutCorner;
     public Set<BlockPos> frameAreaWithCorner;
     
-    private BlockPos firstFramePos;
+    public BlockPos firstFramePos;
     
     public BlockPortalShape(
         Set<BlockPos> area, Direction.Axis axis

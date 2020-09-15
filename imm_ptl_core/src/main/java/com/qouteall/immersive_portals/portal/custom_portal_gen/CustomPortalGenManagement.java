@@ -94,9 +94,17 @@ public class CustomPortalGenManagement {
             
             if (gen.reversible) {
                 CustomPortalGeneration reverse = gen.getReverse();
-                reverse.identifier = entry.getKey().getValue();
-                if (gen.initAndCheck()) {
-                    load(reverse);
+                
+                if (reverse != null) {
+                    reverse.identifier = entry.getKey().getValue();
+                    if (gen.initAndCheck()) {
+                        load(reverse);
+                    }
+                }
+                else {
+                    McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
+                        "Cannot create reverse generation of " + gen
+                    ));
                 }
             }
         });
