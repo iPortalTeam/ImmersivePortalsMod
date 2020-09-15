@@ -75,7 +75,7 @@ public class Global {
     public static enum NetherPortalMode {
         normal,
         vanilla,
-        tryHardToMatch
+        adaptive
     }
     
     public static enum EndPortalMode {
