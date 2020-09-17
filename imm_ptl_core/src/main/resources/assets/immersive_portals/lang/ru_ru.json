@@ -15,9 +15,7 @@
   "imm_ptl.teleportation_debug": "Отладка Телепортации",
   "imm_ptl.correct_cross_portal_entity_rendering": "Межпортальный Рендеринг Сущностей",
   "imm_ptl.multi_threaded_nether_portal_searching": "Многопоточный Поиск Незер Портала",
-  "imm_ptl.smooth_loading": "Экспериментальная Лаг Спайк Оптимизация",
   "imm_ptl.edgeless_sky": "Бескрайнее Небо",
-  "imm_ptl.reversible_nether_portal_linking": "Реверсивный Поиск Незер Портала",
   "imm_ptl.render_redirect": "Перенаправление Рендеринга Измерений",
   "imm_ptl.enable_alternate_dimensions": "Включить Альтернативные Измерения",
   "effect.immersive_portals.longer_reach": "Более Длинная Досягаемость Руки",
@@ -56,5 +54,6 @@
   "imm_ptl.server_side_config": "Server Side Config",
   "imm_ptl.client_side_config": "Client Side Config",
   "imm_ptl.nether_portal_mode": "Nether Portal Mode",
-  "imm_ptl.end_portal_mode": "End Portal Mode"
+  "imm_ptl.end_portal_mode": "End Portal Mode",
+  "imm_ptl.reduced_portal_rendering": "Reduced Portal Rendering"
 }
