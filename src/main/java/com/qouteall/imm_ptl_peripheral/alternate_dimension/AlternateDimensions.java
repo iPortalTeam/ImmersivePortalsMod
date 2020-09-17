@@ -186,6 +186,10 @@ public class AlternateDimensions {
                     seed
                 )
             );
+        }
+        
+        if (!registry.getIds().contains(DimensionOptions.END.getValue())) {
+            Helper.err("Missing the end. This may be caused by DFU. Trying to fix");
             addDimension(
                 seed,
                 registry,
