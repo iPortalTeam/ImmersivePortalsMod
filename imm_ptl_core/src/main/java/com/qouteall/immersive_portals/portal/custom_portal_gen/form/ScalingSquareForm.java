@@ -88,12 +88,16 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
                         toWorld.getRegistryKey(),
                         fromShape, result,
                         null,
-                        ((double) toLength) / fromLength
+                        getScale()
                     );
                 }
             }
             return null;
         };
+    }
+    
+    private double getScale() {
+        return ((double) toLength) / fromLength;
     }
     
     private BlockPortalShape getTemplateToShape(BlockPortalShape fromShape) {
@@ -118,18 +122,18 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
                 toWorld, toPos,
                 templateShape.axis, templateShape.totalAreaBox.getSize()
             );
-    
+        
         BlockPortalShape placedShape = templateShape.getShapeWithMovedTotalAreaBox(
             airCubePlacement
         );
-    
+        
         return new PortalGenInfo(
             fromWorld.getRegistryKey(),
             toWorld.getRegistryKey(),
             templateShape,
             placedShape,
             null,
-            
+            getScale()
         );
     }
     

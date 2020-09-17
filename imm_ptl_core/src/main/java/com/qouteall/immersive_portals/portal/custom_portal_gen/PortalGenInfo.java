@@ -48,8 +48,10 @@ public class PortalGenInfo {
         this.rotation = rotation;
         this.scale = scale;
         
-        if (Math.abs(1.0 - rotation.getW()) < 0.001) {
-            this.rotation = null;
+        if (rotation != null) {
+            if (Math.abs(1.0 - rotation.getW()) < 0.001) {
+                this.rotation = null;
+            }
         }
     }
     
