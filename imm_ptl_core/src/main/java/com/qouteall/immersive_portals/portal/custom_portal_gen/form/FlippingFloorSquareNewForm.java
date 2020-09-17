@@ -9,9 +9,11 @@ import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredic
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Quaternion;
 
 public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     public static final Codec<FlippingFloorSquareNewForm> codec = RecordCodecBuilder.create(instance -> {
@@ -57,17 +59,28 @@ public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     }
     
     @Override
-    public BlockPortalShape getNewPortalPlacement(
+    public PortalGenInfo getNewPortalPlacement(
         ServerWorld toWorld, BlockPos toPos,
-        BlockPortalShape templateToShape
+        ServerWorld fromWorld, BlockPortalShape fromShape
     ) {
         IntBox portalPlacement = FlippingFloorSquareForm.findPortalPlacement(
             toWorld,
-            templateToShape.totalAreaBox.getSize(),
+            fromShape.totalAreaBox.getSize(),
             toPos
         );
+    
+        BlockPortalShape placedShape = fromShape.getShapeWithMovedTotalAreaBox(portalPlacement);
+    
+        return new PortalGenInfo(
+            fromWorld.getRegistryKey(), toWorld.getRegistryKey(),
+            fromShape, placedShape,
+            new Quaternion(
+                new Vector3f(1, 0, 0),
+                180,
+                true
+            ), 1.0
+        );
         
-        return templateToShape.getShapeWithMovedTotalAreaBox(portalPlacement);
     }
     
     @Override

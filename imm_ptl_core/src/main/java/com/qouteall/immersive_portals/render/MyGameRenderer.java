@@ -331,6 +331,7 @@ public class MyGameRenderer {
     public static void pruneVisibleChunks(ObjectList<?> visibleChunks) {
         int renderDistance = client.options.viewDistance;
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+        
         double range = ((renderDistance * 16) / 3) * ((renderDistance * 16) / 3);
         
         Predicate<ChunkBuilder.BuiltChunk> builtChunkPredicate = (builtChunk) -> {
@@ -344,10 +345,10 @@ public class MyGameRenderer {
         );
     }
     
-    public static void doPruneVisibleChunks(ObjectList<?> visibleChunks) {
+    public static void pruneRenderList(ObjectList<?> visibleChunks) {
         if (PortalRendering.isRendering()) {
             if (Global.reducedPortalRendering) {
-                MyGameRenderer.pruneVisibleChunks(visibleChunks);
+//                MyGameRenderer.pruneVisibleChunks(visibleChunks);
             }
         }
     }

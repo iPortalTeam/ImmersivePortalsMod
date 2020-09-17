@@ -271,7 +271,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        MyGameRenderer.doPruneVisibleChunks(this.visibleChunks);
+        MyGameRenderer.pruneRenderList(this.visibleChunks);
     }
     
     @Inject(

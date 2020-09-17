@@ -2,8 +2,10 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
@@ -109,8 +111,26 @@ public class ScalingSquareForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public BlockPortalShape getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, BlockPortalShape fromShape) {
-        return super.getNewPortalPlacement(toWorld, toPos, getTemplateToShape(fromShape));
+    public PortalGenInfo getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, ServerWorld fromWorld, BlockPortalShape fromShape) {
+        BlockPortalShape templateShape = getTemplateToShape(fromShape);
+        IntBox airCubePlacement =
+            NetherPortalGeneration.findAirCubePlacement(
+                toWorld, toPos,
+                templateShape.axis, templateShape.totalAreaBox.getSize()
+            );
+    
+        BlockPortalShape placedShape = templateShape.getShapeWithMovedTotalAreaBox(
+            airCubePlacement
+        );
+    
+        return new PortalGenInfo(
+            fromWorld.getRegistryKey(),
+            toWorld.getRegistryKey(),
+            templateShape,
+            placedShape,
+            null,
+            
+        );
     }
     
     @Override

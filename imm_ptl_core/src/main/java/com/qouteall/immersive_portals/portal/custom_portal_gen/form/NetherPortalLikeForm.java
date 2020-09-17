@@ -89,9 +89,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
                     return null;
                 }
                 
-                BlockPortalShape toShape = getNewPortalPlacement(toWorld, toPos, fromShape);
-                
-                return toShape;
+                return getNewPortalPlacement(toWorld, toPos, fromWorld, fromShape);
             },
             () -> {
                 // check portal integrity while loading chunk
@@ -132,18 +130,25 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         };
     }
     
-    public BlockPortalShape getNewPortalPlacement(
+    public PortalGenInfo getNewPortalPlacement(
         ServerWorld toWorld, BlockPos toPos,
-        BlockPortalShape fromShape
+        ServerWorld fromWorld, BlockPortalShape fromShape
     ) {
         IntBox airCubePlacement =
             NetherPortalGeneration.findAirCubePlacement(
                 toWorld, toPos,
                 fromShape.axis, fromShape.totalAreaBox.getSize()
             );
-        
-        return fromShape.getShapeWithMovedTotalAreaBox(
+    
+        BlockPortalShape placedShape = fromShape.getShapeWithMovedTotalAreaBox(
             airCubePlacement
+        );
+    
+        return new PortalGenInfo(
+            fromWorld.getRegistryKey(),
+            toWorld.getRegistryKey(),
+            fromShape,
+            placedShape
         );
     }
     
