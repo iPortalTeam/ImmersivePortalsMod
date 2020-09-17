@@ -142,6 +142,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Final
     private BufferBuilderStorage bufferBuilders;
     
+    // important rendering hooks
     @Inject(
         method = "render",
         at = @At(
@@ -162,6 +163,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Matrix4f matrix4f,
         CallbackInfo ci
     ) {
+        // draw the entity vertices before rendering portal
+        // because there is only one additional buffer builder for portal rendering
+        /**{@link MyGameRenderer#secondaryBufferBuilderStorage}*/
+        if (RenderInfo.isRendering()) {
+            client.getBufferBuilders().getEntityVertexConsumers().draw();
+        }
+        
         CGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
         MyGameRenderer.updateFogColor();
@@ -719,15 +727,15 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void portal_setRenderDistance(int arg) {
         renderDistance = arg;
-    
+        
         if (chunks instanceof MyBuiltChunkStorage) {
             int radius = ((MyBuiltChunkStorage) chunks).getRadius();
-    
+            
             if (radius < arg) {
                 Helper.log("Resizing built chunk storage to " + arg);
                 
                 chunks.clear();
-    
+                
                 chunks = new MyBuiltChunkStorage(
                     chunkBuilder, world, arg, ((WorldRenderer) (Object) this)
                 );
