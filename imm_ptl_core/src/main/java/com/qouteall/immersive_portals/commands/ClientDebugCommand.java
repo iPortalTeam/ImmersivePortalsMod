@@ -548,6 +548,11 @@ public class ClientDebugCommand {
             "server_smooth_loading",
             cond -> Global.serverSmoothLoading = cond
         );
+        registerSwitchCommand(
+            builder,
+            "secondary_vertex_consumer",
+            cond -> Global.useSecondaryEntityVertexConsumer = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

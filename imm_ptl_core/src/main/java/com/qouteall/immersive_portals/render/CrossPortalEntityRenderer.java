@@ -62,6 +62,10 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void onBeginRenderingEntities(MatrixStack matrixStack) {
+        if (!Global.correctCrossPortalEntityRendering) {
+            return;
+        }
+        
         if (PortalRendering.isRendering()) {
             PixelCuller.updateCullingPlaneInner(
                 matrixStack, PortalRendering.getRenderingPortal(), false

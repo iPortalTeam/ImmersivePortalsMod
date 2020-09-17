@@ -146,9 +146,9 @@ public class MyGameRenderer {
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
-    
+        
         int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
-    
+        
         //switch
         ((IEMinecraftClient) client).setWorldRenderer(worldRenderer);
         client.world = newWorld;
@@ -168,8 +168,11 @@ public class MyGameRenderer {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
         ieGameRenderer.setCamera(newCamera);
-        ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
-        ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
+        
+        if (Global.useSecondaryEntityVertexConsumer) {
+            ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
+            ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
+        }
         
         Object newSodiumContext = SodiumInterface.createNewRenderingContext.apply(worldRenderer);
         Object oldSodiumContext = SodiumInterface.switchRenderingContext.apply(worldRenderer, newSodiumContext);
@@ -224,7 +227,7 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(oldBufferBuilder);
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
-    
+        
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
         
         if (Global.looseVisibleChunkIteration) {

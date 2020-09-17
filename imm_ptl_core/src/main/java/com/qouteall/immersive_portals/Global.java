@@ -64,6 +64,8 @@ public class Global {
     
     public static boolean reducedPortalRendering = false;
     
+    public static boolean useSecondaryEntityVertexConsumer = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,
