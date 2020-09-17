@@ -106,7 +106,7 @@ public class EndPortalEntity extends Portal {
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag
             
-            McHelper.spawnServerEntityToUnloadedArea(portal);
+            McHelper.spawnServerEntity(portal);
         }
     }
     

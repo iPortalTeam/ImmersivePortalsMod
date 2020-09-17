@@ -657,7 +657,7 @@ public class McHelper {
      * It will spawn even if the chunk is not loaded
      * ServerWorld#addEntity(Entity)
      */
-    public static void spawnServerEntityToUnloadedArea(Entity entity) {
+    public static void spawnServerEntity(Entity entity) {
         Validate.isTrue(!entity.world.isClient());
         
         entity.teleporting = true;

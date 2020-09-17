@@ -47,7 +47,7 @@ public class PortalHelperForm extends AbstractDiligentForm {
         Portal[] portals = {portal, flipped, reverse, parallel};
         
         for (Portal p : portals) {
-            McHelper.spawnServerEntityToUnloadedArea(p);
+            McHelper.spawnServerEntity(p);
         }
         
         return portals;

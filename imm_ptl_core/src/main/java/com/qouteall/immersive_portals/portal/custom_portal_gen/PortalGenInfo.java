@@ -93,10 +93,10 @@ public class PortalGenInfo {
         f2.reversePortalId = t2.getUuid();
         t2.reversePortalId = f2.getUuid();
         
-        McHelper.spawnServerEntityToUnloadedArea(f1);
-        McHelper.spawnServerEntityToUnloadedArea(f2);
-        McHelper.spawnServerEntityToUnloadedArea(t1);
-        McHelper.spawnServerEntityToUnloadedArea(t2);
+        McHelper.spawnServerEntity(f1);
+        McHelper.spawnServerEntity(f2);
+        McHelper.spawnServerEntity(t1);
+        McHelper.spawnServerEntity(t2);
         
         return ((T[]) new BreakablePortalEntity[]{f1, f2, t1, t2});
     }

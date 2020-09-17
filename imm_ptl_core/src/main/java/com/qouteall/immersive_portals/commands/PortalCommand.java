@@ -897,7 +897,7 @@ public class PortalCommand {
                                 portal.axisW = rightVec;
                                 portal.axisH = axisH;
                                 
-                                McHelper.spawnServerEntityToUnloadedArea(portal);
+                                McHelper.spawnServerEntity(portal);
                                 
                                 return 0;
                             })
@@ -1203,7 +1203,7 @@ public class PortalCommand {
             portal.teleportChangesScale = false;
             portal.extension.adjustPositionAfterTeleport = true;
             
-            McHelper.spawnServerEntityToUnloadedArea(portal);
+            McHelper.spawnServerEntity(portal);
             
             if (biWay) {
                 PortalManipulation.completeBiWayPortal(portal, Portal.entityType);
@@ -1218,7 +1218,7 @@ public class PortalCommand {
             WorldWrappingPortal.initWrappingPortal(
                 world, box, direction, isInward, portal
             );
-            McHelper.spawnServerEntityToUnloadedArea(portal);
+            McHelper.spawnServerEntity(portal);
         }
     }
     
@@ -1409,7 +1409,7 @@ public class PortalCommand {
         newPortal.destination = destination;
         newPortal.specificPlayerId = player.getUuid();
         
-        McHelper.spawnServerEntityToUnloadedArea(newPortal);
+        McHelper.spawnServerEntity(newPortal);
         
         configureBiWayBiFaced(newPortal, biWay, biFaced);
     }
@@ -1486,7 +1486,7 @@ public class PortalCommand {
         
         portal.dimensionTo = to;
         portal.destination = dest;
-        McHelper.spawnServerEntityToUnloadedArea(portal);
+        McHelper.spawnServerEntity(portal);
         
         context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
         
@@ -1510,7 +1510,7 @@ public class PortalCommand {
         portal.dimensionTo = to;
         portal.destination = portal.getPos().add(portal.axisW.crossProduct(portal.axisH).multiply(-dist));
         
-        McHelper.spawnServerEntityToUnloadedArea(portal);
+        McHelper.spawnServerEntity(portal);
         
         context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
         

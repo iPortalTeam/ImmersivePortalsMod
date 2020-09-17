@@ -201,8 +201,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pa.extension.motionAffinity = 0.1;
         pb.extension.motionAffinity = 0.1;
         
-        McHelper.spawnServerEntityToUnloadedArea(pa);
-        McHelper.spawnServerEntityToUnloadedArea(pb);
+        McHelper.spawnServerEntity(pa);
+        McHelper.spawnServerEntity(pb);
         
         return new GeneralBreakablePortal[]{pa, pb};
     }
