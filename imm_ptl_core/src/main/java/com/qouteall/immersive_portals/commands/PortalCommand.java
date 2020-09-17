@@ -686,7 +686,7 @@ public class PortalCommand {
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
-    
+                            
                             Quaternion rot = angleDegrees != 0 ? new Quaternion(
                                 axis,
                                 (float) angleDegrees,
@@ -710,7 +710,7 @@ public class PortalCommand {
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
-    
+                            
                             Quaternion rot = angleDegrees != 0 ? new Quaternion(
                                 axis,
                                 (float) angleDegrees,
@@ -734,7 +734,7 @@ public class PortalCommand {
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
-    
+                            
                             Quaternion rot = angleDegrees != 0 ? new Quaternion(
                                 axis,
                                 (float) angleDegrees,
@@ -1151,32 +1151,17 @@ public class PortalCommand {
                         .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
                             .then(CommandManager.argument("biWay", BoolArgumentType.bool())
                                 .executes(context -> {
-                                    BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
-                                    BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
-                                    IntBox intBox = new IntBox(bp1, bp2);
-                                    
-                                    Entity placeTargetEntity = EntityArgumentType.getEntity(context,
-                                        "placeTargetEntity");
-                                    
-                                    ServerWorld boxWorld = ((ServerWorld) placeTargetEntity.world);
-                                    Vec3d boxBottomCenter = placeTargetEntity.getPos();
-                                    Box area = intBox.toRealNumberBox();
-                                    ServerWorld areaWorld = context.getSource().getWorld();
-                                    
-                                    double scale = DoubleArgumentType.getDouble(context, "scale");
-                                    
-                                    boolean biWay = BoolArgumentType.getBool(context, "biWay");
-                                    
-                                    createScaledBoxView(
-                                        areaWorld, area, boxWorld, boxBottomCenter, scale,
-                                        biWay
-                                    );
-                                    
+                                    invokeCreateScaledViewCommand(context, false);
                                     return 0;
                                 })
-                            
+                                .then(CommandManager.argument("teleportChangesScale", BoolArgumentType.bool())
+                                    .executes(context -> {
+                                        boolean teleportChangesScale = BoolArgumentType.getBool(context, "teleportChangesScale");
+                                        invokeCreateScaledViewCommand(context, teleportChangesScale);
+                                        return 0;
+                                    })
+                                )
                             )
-                        
                         )
                     )
                 )
@@ -1184,11 +1169,38 @@ public class PortalCommand {
         );
     }
     
+    private static void invokeCreateScaledViewCommand(
+        CommandContext<ServerCommandSource> context, boolean teleportChangesScale
+    ) throws CommandSyntaxException {
+        BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
+        BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
+        IntBox intBox = new IntBox(bp1, bp2);
+        
+        Entity placeTargetEntity =
+            EntityArgumentType.getEntity(context, "placeTargetEntity");
+        
+        ServerWorld boxWorld = ((ServerWorld) placeTargetEntity.world);
+        Vec3d boxBottomCenter = placeTargetEntity.getPos();
+        Box area = intBox.toRealNumberBox();
+        ServerWorld areaWorld = context.getSource().getWorld();
+        
+        double scale = DoubleArgumentType.getDouble(context, "scale");
+        
+        boolean biWay = BoolArgumentType.getBool(context, "biWay");
+        
+        
+        createScaledBoxView(
+            areaWorld, area, boxWorld, boxBottomCenter, scale,
+            biWay, teleportChangesScale
+        );
+    }
+    
     private static void createScaledBoxView(
         ServerWorld areaWorld, Box area,
         ServerWorld boxWorld, Vec3d boxBottomCenter,
         double scale,
-        boolean biWay
+        boolean biWay,
+        boolean teleportChangesScale
     ) {
         Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
         Box viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
@@ -1200,7 +1212,7 @@ public class PortalCommand {
                 Helper.getBoxSurface(area, direction).getCenter()
             );
             portal.scaling = scale;
-            portal.teleportChangesScale = false;
+            portal.teleportChangesScale = teleportChangesScale;
             portal.extension.adjustPositionAfterTeleport = true;
             
             McHelper.spawnServerEntity(portal);
