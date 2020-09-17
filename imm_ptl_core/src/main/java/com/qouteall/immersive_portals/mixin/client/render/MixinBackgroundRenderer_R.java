@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(BackgroundRenderer.class)
 public class MixinBackgroundRenderer_R {
-    // avoid thick fog when rendering an upscaling portal
+    // avoid thick fog when rendering the box view end portal
     @ModifyArg(
         method = "applyFog",
         at = @At(
@@ -36,7 +36,7 @@ public class MixinBackgroundRenderer_R {
     private static float multiplyByPortalScale(float value) {
         if (PortalRendering.isRendering()) {
             double scaling = PortalRendering.getRenderingPortal().scaling;
-            if (scaling > 1) {
+            if (scaling > 10) {
                 return ((float) (value * scaling));
             }
         }
