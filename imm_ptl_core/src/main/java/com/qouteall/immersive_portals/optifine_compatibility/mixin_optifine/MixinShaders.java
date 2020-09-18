@@ -69,7 +69,7 @@ public abstract class MixinShaders {
     //avoid uninit when creating faked world
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
     private static void onCheckWorldChanged(ClientWorld world, CallbackInfo ci) {
-        if (CGlobal.clientWorldLoader.getIsLoadingFakedWorld()) {
+        if (CGlobal.clientWorldLoader.getIsCreatingClientWorld()) {
             ci.cancel();
         }
     }

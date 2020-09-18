@@ -45,7 +45,7 @@ public class ClientWorldLoader {
     
     private boolean isInitialized = false;
     
-    private boolean isLoadingFakedWorld = false;
+    private boolean isCreatingClientWorld = false;
     
     private boolean isHardCore = false;
     
@@ -57,8 +57,8 @@ public class ClientWorldLoader {
         ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
     
-    public boolean getIsLoadingFakedWorld() {
-        return isLoadingFakedWorld;
+    public boolean getIsCreatingClientWorld() {
+        return isCreatingClientWorld;
     }
     
     private void tick() {
@@ -233,7 +233,7 @@ public class ClientWorldLoader {
     private ClientWorld createFakedClientWorld(RegistryKey<World> dimension) {
         Validate.isTrue(client.player.world.getRegistryKey() != dimension);
         
-        isLoadingFakedWorld = true;
+        isCreatingClientWorld = true;
         
         client.getProfiler().push("create_world");
         
@@ -283,7 +283,7 @@ public class ClientWorldLoader {
         }
         catch (Exception e) {
             throw new IllegalStateException(
-                "Creating Faked World " + dimension + " " + clientWorldMap.keySet(),
+                "Creating Client World " + dimension + " " + clientWorldMap.keySet(),
                 e
             );
         }
@@ -298,9 +298,9 @@ public class ClientWorldLoader {
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);
         
-        Helper.log("Faked World Created " + dimension.getValue());
+        Helper.log("Client World Created " + dimension.getValue());
         
-        isLoadingFakedWorld = false;
+        isCreatingClientWorld = false;
         
         client.getProfiler().pop();
         

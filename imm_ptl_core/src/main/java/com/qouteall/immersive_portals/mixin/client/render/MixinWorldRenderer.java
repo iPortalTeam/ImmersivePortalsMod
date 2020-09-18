@@ -478,7 +478,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             return;
         }
-        if (clientWorldLoader.getIsLoadingFakedWorld()) {
+        if (clientWorldLoader.getIsCreatingClientWorld()) {
             return;
         }
         if (this_ != MinecraftClient.getInstance().worldRenderer) {
