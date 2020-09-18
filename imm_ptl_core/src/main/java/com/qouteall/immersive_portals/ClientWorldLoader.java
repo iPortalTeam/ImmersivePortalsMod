@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals;
 
 import com.mojang.authlib.GameProfile;
-import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
@@ -28,10 +27,8 @@ import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
@@ -39,15 +36,12 @@ public class ClientWorldLoader {
     public final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
     public final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
     public final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
-    private Set<DimensionalChunkPos> unloadedChunks = new HashSet<>();
     
     private static final MinecraftClient client = MinecraftClient.getInstance();
     
     private boolean isInitialized = false;
     
     private boolean isCreatingClientWorld = false;
-    
-    private boolean isHardCore = false;
     
     public boolean isClientRemoteTicking = false;
     
@@ -222,8 +216,6 @@ public class ClientWorldLoader {
                 client.world.getRegistryKey(),
                 new DimensionRenderHelper(client.world)
             );
-            
-            isHardCore = client.world.getLevelProperties().isHardcore();
             
             isInitialized = true;
         }
