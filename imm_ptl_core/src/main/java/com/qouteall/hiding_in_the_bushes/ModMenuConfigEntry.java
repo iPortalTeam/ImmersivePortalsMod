@@ -107,6 +107,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.reduced_portal_rendering"),
                 currConfig.reducedPortalRendering
             ).setDefaultValue(false).build();
+            BooleanListEntry entryLooseMovementCheck = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.loose_movement_check"),
+                currConfig.looseMovementCheck
+            ).setDefaultValue(false).build();
             EnumListEntry<Global.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.nether_portal_mode"),
@@ -138,6 +142,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryRenderYourselfInPortal);
             clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
             clientSide.addEntry(entryEdgelessSky);
+            clientSide.addEntry(entryDimensionRenderRedirect);
             
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
             serverSide.addEntry(entryNetherPortalMode);
@@ -147,9 +152,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryPortalSearchingRange);
             serverSide.addEntry(entryActiveLoading);
             serverSide.addEntry(entryTeleportDebug);
+            serverSide.addEntry(entryLooseMovementCheck);
             serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
             serverSide.addEntry(entryMirrorInteractableThroughPortal);
-            clientSide.addEntry(entryDimensionRenderRedirect);
+            
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -177,6 +183,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     );
                     newConfig.netherPortalMode = entryNetherPortalMode.getValue();
                     newConfig.endPortalMode = entryEndPortalMode.getValue();
+                    newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();
