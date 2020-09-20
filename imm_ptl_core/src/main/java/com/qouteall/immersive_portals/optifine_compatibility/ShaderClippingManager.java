@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.render.PixelCuller;
+import com.qouteall.immersive_portals.render.FrontClipping;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.optifine.shaders.Program;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 // glClipPlane is not compatible with shaders
 // This is a very hacky shader code editing
 // -Dshaders.debug.save=true
-public class ShaderCullingManager {
+public class ShaderClippingManager {
     
     private static final Pattern pattern = Pattern.compile(
         "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{");
@@ -82,8 +82,8 @@ public class ShaderCullingManager {
             init();
         }
         
-        if (PixelCuller.isCullingEnabled) {
-            double[] equation = PixelCuller.getActiveCullingPlaneEquation();
+        if (FrontClipping.isClippingEnabled) {
+            double[] equation = FrontClipping.getActiveClipPlaneEquation();
             if (equation != null) {
                 uniform_equationXYZ.setValue(
                     (float) equation[0],

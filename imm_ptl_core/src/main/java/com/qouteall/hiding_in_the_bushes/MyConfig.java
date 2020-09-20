@@ -136,6 +136,7 @@ public class MyConfig {
         Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
+        
         Global.enableAlternateDimensions = enableAlternateDimensions;
         
         Global.indirectLoadingRadiusCap = indirectLoadingRadiusCap;

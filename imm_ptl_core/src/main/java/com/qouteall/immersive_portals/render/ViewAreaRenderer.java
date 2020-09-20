@@ -261,7 +261,7 @@ public class ViewAreaRenderer {
         
         //should not affect shader pipeline
 //        GlStateManager.disableTexture();
-        PixelCuller.endCulling();
+        FrontClipping.disableClipping();
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -280,11 +280,11 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (PortalRendering.isRendering()) {
-                PixelCuller.updateCullingPlaneInner(
+                FrontClipping.updateClippingPlaneInner(
                     matrixStack, PortalRendering.getRenderingPortal(), false
                 );
-                PixelCuller.loadCullingPlaneClassical(matrixStack);
-                PixelCuller.startClassicalCulling();
+                FrontClipping.loadClippingPlaneClassical(matrixStack);
+                FrontClipping.startClassicalCulling();
             }
         }
         
@@ -304,7 +304,7 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (PortalRendering.isRendering()) {
-                PixelCuller.endCulling();
+                FrontClipping.disableClipping();
             }
         }
         

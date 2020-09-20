@@ -9,10 +9,10 @@ import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
+import com.qouteall.immersive_portals.render.FrontClipping;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import com.qouteall.immersive_portals.render.PixelCuller;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
@@ -178,7 +178,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         //is it necessary?
         MyGameRenderer.resetDiffuseLighting(matrices);
         
-        PixelCuller.endCulling();
+        FrontClipping.disableClipping();
         
         CrossPortalEntityRenderer.onEndRenderingEntities(matrices);
     }
@@ -234,12 +234,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(
+            FrontClipping.updateClippingPlaneInner(
                 matrices,
                 PortalRendering.getRenderingPortal(),
                 true
             );
-            PixelCuller.startCulling();
+            FrontClipping.enableClipping();
             if (PortalRendering.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
@@ -261,7 +261,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
-            PixelCuller.endCulling();
+            FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
         }
     }
@@ -406,12 +406,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
-            PixelCuller.updateCullingPlaneInner(
+            FrontClipping.updateClippingPlaneInner(
                 matrices,
                 PortalRendering.getRenderingPortal(),
                 true
             );
-            PixelCuller.startCulling();
+            FrontClipping.enableClipping();
         }
     }
     
@@ -435,7 +435,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
-            PixelCuller.endCulling();
+            FrontClipping.disableClipping();
         }
     }
     

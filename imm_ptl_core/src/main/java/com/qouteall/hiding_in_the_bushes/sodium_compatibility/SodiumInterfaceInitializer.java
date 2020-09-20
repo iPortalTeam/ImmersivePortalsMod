@@ -1,7 +1,7 @@
 package com.qouteall.hiding_in_the_bushes.sodium_compatibility;
 
 import com.qouteall.immersive_portals.SodiumInterface;
-import com.qouteall.immersive_portals.render.PixelCuller;
+import com.qouteall.immersive_portals.render.FrontClipping;
 import me.jellysquid.mods.sodium.client.IWorldRenderer;
 import me.jellysquid.mods.sodium.client.SodiumHooks;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
@@ -29,9 +29,9 @@ public class SodiumInterfaceInitializer {
             return sodiumWorldRenderer.switchRenderContext(((ChunkRenderManager.RenderContext) newContext));
         };
         
-        SodiumHooks.shouldEnableCulling = () -> PixelCuller.isCullingEnabled;
+        SodiumHooks.shouldEnableCulling = () -> FrontClipping.isClippingEnabled;
         SodiumHooks.getCullingEquation = () -> {
-            double[] doubles = PixelCuller.getActiveCullingPlaneEquation();
+            double[] doubles = FrontClipping.getActiveClipPlaneEquation();
             float[] floats = new float[]{
                 (float) doubles[0], (float) doubles[1], (float) doubles[2], (float) doubles[3]
             };

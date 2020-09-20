@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
-import com.qouteall.immersive_portals.optifine_compatibility.ShaderCullingManager;
+import com.qouteall.immersive_portals.optifine_compatibility.ShaderClippingManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -165,7 +165,7 @@ public abstract class MixinShaders {
         String filename,
         CallbackInfoReturnable<Integer> cir
     ) {
-        shouldModifyShaderCode = ShaderCullingManager.shouldModifyShaderCode(program);
+        shouldModifyShaderCode = ShaderClippingManager.shouldModifyShaderCode(program);
     }
     
     @ModifyVariable(
@@ -179,7 +179,7 @@ public abstract class MixinShaders {
         if (!shouldModifyShaderCode) {
             return shaderCode;
         }
-        return ShaderCullingManager.modifyFragShaderCode(shaderCode);
+        return ShaderClippingManager.modifyFragShaderCode(shaderCode);
     }
     
     @Inject(
@@ -187,8 +187,8 @@ public abstract class MixinShaders {
         at = @At("TAIL")
     )
     private static void onLoadingUniforms(Program program, CallbackInfo ci) {
-        if (ShaderCullingManager.shouldModifyShaderCode(program)) {
-            ShaderCullingManager.loadUniforms();
+        if (ShaderClippingManager.shouldModifyShaderCode(program)) {
+            ShaderClippingManager.loadUniforms();
         }
         OFGlobal.debugFunc.accept(program);
     }

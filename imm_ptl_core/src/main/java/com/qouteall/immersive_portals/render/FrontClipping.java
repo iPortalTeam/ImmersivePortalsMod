@@ -10,48 +10,48 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
-public class PixelCuller {
+public class FrontClipping {
     private static final MinecraftClient client = MinecraftClient.getInstance();
     private static double[] activeClipPlaneEquation;
-    public static boolean isCullingEnabled = false;
+    public static boolean isClippingEnabled = false;
     
-    public static void endCulling() {
+    public static void disableClipping() {
         GL11.glDisable(GL11.GL_CLIP_PLANE0);
-        isCullingEnabled = false;
+        isClippingEnabled = false;
     }
     
-    public static void startCulling() {
-        //shaders do not compatible with glCullPlane
+    public static void enableClipping() {
+        //shaders do not compatible with glClipPlane
         //I have to modify shader code
-        if (CGlobal.useFrontCulling && !isShaderCulling()) {
+        if (CGlobal.useFrontCulling && !isShaderClipping()) {
             GL11.glEnable(GL11.GL_CLIP_PLANE0);
         }
-        isCullingEnabled = true;
+        isClippingEnabled = true;
     }
     
     public static void startClassicalCulling() {
         GL11.glEnable(GL11.GL_CLIP_PLANE0);
-        isCullingEnabled = true;
+        isClippingEnabled = true;
     }
     
     //NOTE the actual culling plane is related to current model view matrix
-    public static void updateCullingPlaneInner(
+    public static void updateClippingPlaneInner(
         MatrixStack matrixStack, Portal portal, boolean doCompensate
     ) {
         activeClipPlaneEquation = getClipEquationInner(portal, doCompensate);
-        if (!isShaderCulling()) {
-            loadCullingPlaneClassical(matrixStack);
+        if (!isShaderClipping()) {
+            loadClippingPlaneClassical(matrixStack);
         }
     }
     
-    public static boolean isShaderCulling() {
+    public static boolean isShaderClipping() {
         return OFInterface.isShaders.getAsBoolean() &&
             !RenderDimensionRedirect.isNoShader(
                 MinecraftClient.getInstance().world.getRegistryKey()
             );
     }
     
-    public static void loadCullingPlaneClassical(MatrixStack matrixStack) {
+    public static void loadClippingPlaneClassical(MatrixStack matrixStack) {
         McHelper.runWithTransformation(
             matrixStack,
             () -> {
@@ -60,10 +60,10 @@ public class PixelCuller {
         );
     }
     
-    public static void updateCullingPlaneOuter(MatrixStack matrixStack, Portal portal) {
+    public static void updateClippingPlaneOuter(MatrixStack matrixStack, Portal portal) {
         activeClipPlaneEquation = getClipEquationOuter(portal);
-        if (!isShaderCulling()) {
-            loadCullingPlaneClassical(matrixStack);
+        if (!isShaderClipping()) {
+            loadClippingPlaneClassical(matrixStack);
         }
     }
     
@@ -111,7 +111,7 @@ public class PixelCuller {
         };
     }
     
-    public static double[] getActiveCullingPlaneEquation() {
+    public static double[] getActiveClipPlaneEquation() {
         return activeClipPlaneEquation;
     }
 }
