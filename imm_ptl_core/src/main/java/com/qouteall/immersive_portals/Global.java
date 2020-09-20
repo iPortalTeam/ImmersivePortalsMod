@@ -66,6 +66,8 @@ public class Global {
     
     public static boolean useSecondaryEntityVertexConsumer = true;
     
+    public static boolean cullSectionsBehind = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

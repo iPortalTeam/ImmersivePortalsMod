@@ -553,6 +553,11 @@ public class ClientDebugCommand {
             "secondary_vertex_consumer",
             cond -> Global.useSecondaryEntityVertexConsumer = cond
         );
+        registerSwitchCommand(
+            builder,
+            "cull_sections_behind",
+            cond -> Global.cullSectionsBehind = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

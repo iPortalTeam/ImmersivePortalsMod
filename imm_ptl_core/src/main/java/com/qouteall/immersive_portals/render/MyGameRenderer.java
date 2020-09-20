@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.ducks.IEPlayerListEntry;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -43,6 +44,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -51,7 +53,6 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
 public class MyGameRenderer {
@@ -331,27 +332,30 @@ public class MyGameRenderer {
         DiffuseLighting.enableForLevel(matrixStack.peek().getModel());
     }
     
-    public static void pruneVisibleChunks(ObjectList<?> visibleChunks) {
-        int renderDistance = client.options.viewDistance;
-        Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        
-        double range = ((renderDistance * 16) / 3) * ((renderDistance * 16) / 3);
-        
-        Predicate<ChunkBuilder.BuiltChunk> builtChunkPredicate = (builtChunk) -> {
-            Vec3d center = builtChunk.boundingBox.getCenter();
-            return center.squaredDistanceTo(cameraPos) > range;
-        };
-        
-        Helper.removeIf(
-            (ObjectList<Object>) visibleChunks,
-            obj -> builtChunkPredicate.test(((IEWorldRendererChunkInfo) obj).getBuiltChunk())
-        );
-    }
-    
     public static void pruneRenderList(ObjectList<?> visibleChunks) {
         if (PortalRendering.isRendering()) {
-            if (Global.reducedPortalRendering) {
-//                MyGameRenderer.pruneVisibleChunks(visibleChunks);
+            if (Global.cullSectionsBehind) {
+                // this thing has no optimization effect -_-
+                
+                Portal renderingPortal = PortalRendering.getRenderingPortal();
+                
+                int firstInsideOne = Helper.indexOf(
+                    visibleChunks,
+                    obj -> {
+                        ChunkBuilder.BuiltChunk builtChunk =
+                            ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+                        Box boundingBox = builtChunk.boundingBox;
+                        
+                        return FrustumCuller.isFullyInsideContentArea(renderingPortal, boundingBox);
+                    }
+                );
+                
+                if (firstInsideOne != -1) {
+                    visibleChunks.removeElements(0, firstInsideOne);
+                }
+                else {
+                    visibleChunks.clear();
+                }
             }
         }
     }
