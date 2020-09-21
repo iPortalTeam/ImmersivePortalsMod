@@ -15,6 +15,7 @@ public class AltiusManagement {
         if (dimensionStackPortalsToGenerate != null) {
             dimensionStackPortalsToGenerate.createPortals();
             dimensionStackPortalsToGenerate = null;
+            AltiusGameRule.setIsDimensionStack(true);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.client.altius_world;
 
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusManagement;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusScreen;
@@ -13,6 +14,7 @@ import net.minecraft.resource.DataPackSettings;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Mixin;
@@ -91,6 +93,9 @@ public abstract class MixinCreateWorldScreen extends Screen {
 //        ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
         
         AltiusManagement.dimensionStackPortalsToGenerate = info;
+        
+        GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
+        rule.set(true, null);
         
         if (info != null) {
             Helper.log("Generating dimension stack world");

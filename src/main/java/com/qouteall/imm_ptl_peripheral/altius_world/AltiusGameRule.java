@@ -8,7 +8,7 @@ import net.minecraft.world.GameRules;
 public class AltiusGameRule {
     public static GameRules.Key<GameRules.BooleanRule> dimensionStackKey;
     
-    private static boolean isDimensionStackCache = false;
+//    private static boolean isDimensionStackCache = false;
     
     private static boolean doUpgradeOldDimensionStack = false;
     
@@ -23,7 +23,7 @@ public class AltiusGameRule {
     }
     
     private static void serverTick() {
-        isDimensionStackCache = getIsDimensionStack();
+//        isDimensionStackCache = getIsDimensionStack();
         
         if (doUpgradeOldDimensionStack) {
             setIsDimensionStack(true);
@@ -34,21 +34,20 @@ public class AltiusGameRule {
     }
     
     public static boolean getIsDimensionStack() {
-        return McHelper.getServer().getGameRules().getBoolean(dimensionStackKey);
+        return McHelper.getServer().getGameRules().get(dimensionStackKey).get();
     }
     
     public static void setIsDimensionStack(boolean cond) {
         McHelper.getServer().getGameRules()
             .get(dimensionStackKey).set(cond, McHelper.getServer());
-        isDimensionStackCache = cond;
+//        isDimensionStackCache = cond;
     }
     
-    // used by world gen threads
     public static boolean getIsDimensionStackCache() {
-        return isDimensionStackCache;
+        return getIsDimensionStack();
     }
     
-    public static void upgradeOldDimensionStack(){
+    public static void upgradeOldDimensionStack() {
         doUpgradeOldDimensionStack = true;
     }
 }

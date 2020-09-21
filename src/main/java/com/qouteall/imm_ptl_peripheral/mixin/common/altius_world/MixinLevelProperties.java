@@ -4,6 +4,7 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import com.qouteall.imm_ptl_peripheral.ducks.IELevelProperties;
 import com.qouteall.immersive_portals.Global;
@@ -85,12 +86,14 @@ public class MixinLevelProperties implements IELevelProperties {
         AltiusInfo levelInfoAltiusInfo = ((IELevelProperties) (Object) levelInfo).getAltiusInfo();
         if (levelInfoAltiusInfo != null) {
             this_.altiusInfo = levelInfoAltiusInfo;
+            AltiusGameRule.upgradeOldDimensionStack();
             return;
         }
         
         Tag altiusTag = dynamic.getElement("altius", null);
         if (altiusTag != null) {
             this_.altiusInfo = AltiusInfo.fromTag(((CompoundTag) altiusTag));
+            AltiusGameRule.upgradeOldDimensionStack();
         }
     }
     
