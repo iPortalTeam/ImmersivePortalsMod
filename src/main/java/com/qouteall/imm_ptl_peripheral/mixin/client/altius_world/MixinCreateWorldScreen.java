@@ -1,8 +1,9 @@
 package com.qouteall.imm_ptl_peripheral.mixin.client.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusManagement;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusScreen;
-import com.qouteall.imm_ptl_peripheral.ducks.IELevelProperties;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
@@ -87,8 +88,14 @@ public abstract class MixinCreateWorldScreen extends Screen {
         DynamicRegistryManager.Impl registryTracker, GeneratorOptions generatorOptions
     ) {
         AltiusInfo info = altiusScreen.getAltiusInfo();
-        ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
-    
+//        ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
+        
+        AltiusManagement.dimensionStackPortalsToGenerate = info;
+        
+        if (info != null) {
+            Helper.log("Generating dimension stack world");
+        }
+        
         client.method_29607(worldName, levelInfo, registryTracker, generatorOptions);
     }
     

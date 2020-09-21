@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// Mostly deprecated
 public class AltiusInfo {
-    //store identifier because forge
+    
     private List<Identifier> dimsFromTopToDown;
     
     public AltiusInfo(List<RegistryKey<World>> dimsFromTopToDown) {
@@ -68,8 +69,14 @@ public class AltiusInfo {
         return ((IELevelProperties) saveProperties).getAltiusInfo();
     }
     
+    public static void removeAltius() {
+        SaveProperties saveProperties = McHelper.getServer().getSaveProperties();
+        
+        ((IELevelProperties) saveProperties).setAltiusInfo(null);
+    }
     
-    
+    // use AltiusGameRule
+    @Deprecated
     public static boolean isAltius() {
         return getInfoFromServer() != null;
     }

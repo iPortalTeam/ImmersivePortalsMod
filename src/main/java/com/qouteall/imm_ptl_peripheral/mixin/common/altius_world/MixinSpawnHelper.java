@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 
-import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
@@ -29,7 +29,7 @@ public class MixinSpawnHelper {
     ) {
         int height = chunk.sampleHeightmap(type, x, z);
         int dimHeight = chunk.getWorld().getDimensionHeight();
-        if (AltiusInfo.isAltius()) {
+        if (AltiusGameRule.getIsDimensionStackCache()) {
             if (chunk.getWorld().getRegistryKey() == World.NETHER) {
                 return Math.min(height, dimHeight - 3);
             }

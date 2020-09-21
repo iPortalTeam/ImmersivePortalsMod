@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 
-import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.source.BiomeSource;
@@ -41,7 +41,7 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
         cancellable = true
     )
     private void onBuildBedrock(Chunk chunk, Random random, CallbackInfo ci) {
-        if (AltiusInfo.isAltius()) {
+        if (AltiusGameRule.getIsDimensionStackCache()) {
             buildAltiusBedrock(chunk, random);
             ci.cancel();
         }

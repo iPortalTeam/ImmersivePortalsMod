@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 
-import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
@@ -146,7 +146,7 @@ public class MixinChunkStatus {
     }
     
     private static boolean getShouldLock() {
-        return AltiusInfo.isAltius();
+        return AltiusGameRule.getIsDimensionStackCache();
     }
     
     static {
