@@ -16,6 +16,13 @@ Accessible field net/minecraft/world/gen/chunk/NoiseChunkGenerator settings Ljav
 Accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
 
 
+Accessible method net/minecraft/world/dimension/DimensionType createNetherGenerator (Lnet/minecraft/util/registry/Registry;Lnet/minecraft/util/registry/Registry;J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
+Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (Lnet/minecraft/util/registry/Registry;Lnet/minecraft/util/registry/Registry;J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
+
+Accessible method net/minecraft/world/GameRules register (Ljava/lang/String;Lnet/minecraft/world/GameRules$Category;Lnet/minecraft/world/GameRules$Type;)Lnet/minecraft/world/GameRules$Key;
+Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minecraft/world/GameRules$Type;
+
+
 
 
 

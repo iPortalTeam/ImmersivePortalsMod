@@ -1,5 +1,6 @@
 package com.qouteall.imm_ptl_peripheral;
 
+import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.imm_ptl_peripheral.portal_generation.IntrinsicPortalGeneration;
 
 public class PeripheralModMain {
@@ -7,6 +8,8 @@ public class PeripheralModMain {
     
     public static void init() {
         IntrinsicPortalGeneration.init();
+    
+        AltiusGameRule.init();
     }
     
 }
