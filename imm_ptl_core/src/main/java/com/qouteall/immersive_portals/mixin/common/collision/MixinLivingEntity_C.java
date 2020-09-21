@@ -2,11 +2,11 @@ package com.qouteall.immersive_portals.mixin.common.collision;
 
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,14 +25,15 @@ public class MixinLivingEntity_C {
                     collidingPortal.transformPoint(this_.getPos())
                 );
                 
-                BlockState result = CollisionHelper.getWorld(
-                    this_.world.isClient,
-                    collidingPortal.dimensionTo
-                ).getBlockState(remoteLandingPos);
+                World destinationWorld = collidingPortal.getDestinationWorld();
                 
-                if (!result.isAir()) {
-                    cir.setReturnValue(result);
-                    cir.cancel();
+                if (destinationWorld.isChunkLoaded(remoteLandingPos)) {
+                    BlockState result = destinationWorld.getBlockState(remoteLandingPos);
+                    
+                    if (!result.isAir()) {
+                        cir.setReturnValue(result);
+                        cir.cancel();
+                    }
                 }
             }
         }
