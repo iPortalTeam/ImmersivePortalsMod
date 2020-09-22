@@ -539,7 +539,7 @@ public class PortalCommand {
                 ))
             )
         );
-    
+        
         builder.then(CommandManager.literal("set_portal_destination_to")
             .then(CommandManager.argument("entity", EntityArgumentType.entity())
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
@@ -1148,22 +1148,35 @@ public class PortalCommand {
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
         
-        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
+        LiteralArgumentBuilder<ServerCommandSource> builderOPPerm = CommandManager
             .literal("portal")
             .requires(commandSource -> commandSource.hasPermissionLevel(2));
         
-        registerPortalTargetedCommands(builder);
+        LiteralArgumentBuilder<ServerCommandSource> builderCreativePerm = CommandManager
+            .literal("portal")
+            .requires(commandSource -> {
+                Entity entity = commandSource.getEntity();
+                if (entity instanceof ServerPlayerEntity) {
+                    if (((ServerPlayerEntity) entity).isCreative()) {
+                        return true;
+                    }
+                }
+                
+                return commandSource.hasPermissionLevel(2);
+            });
         
-        registerCBPortalCommands(builder);
+        registerPortalTargetedCommands(builderCreativePerm);
         
-        registerUtilityCommands(builder);
+        registerCBPortalCommands(builderOPPerm);
+        
+        registerUtilityCommands(builderCreativePerm);
         
         LiteralArgumentBuilder<ServerCommandSource> global =
             CommandManager.literal("global");
         registerGlobalPortalCommands(global);
-        builder.then(global);
+        builderOPPerm.then(global);
         
-        dispatcher.register(builder);
+        dispatcher.register(builderOPPerm);
     }
     
     public static int processPortalArgumentedCommand(
