@@ -1148,11 +1148,11 @@ public class PortalCommand {
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
         
-        LiteralArgumentBuilder<ServerCommandSource> builderOPPerm = CommandManager
-            .literal("portal")
-            .requires(commandSource -> commandSource.hasPermissionLevel(2));
+//        LiteralArgumentBuilder<ServerCommandSource> builderOPPerm = CommandManager
+//            .literal("portal")
+//            .requires(commandSource -> commandSource.hasPermissionLevel(2));
         
-        LiteralArgumentBuilder<ServerCommandSource> builderCreativePerm = CommandManager
+        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("portal")
             .requires(commandSource -> {
                 Entity entity = commandSource.getEntity();
@@ -1165,18 +1165,19 @@ public class PortalCommand {
                 return commandSource.hasPermissionLevel(2);
             });
         
-        registerPortalTargetedCommands(builderCreativePerm);
+        registerPortalTargetedCommands(builder);
         
-        registerCBPortalCommands(builderOPPerm);
+        registerCBPortalCommands(builder);
         
-        registerUtilityCommands(builderCreativePerm);
+        registerUtilityCommands(builder);
         
         LiteralArgumentBuilder<ServerCommandSource> global =
-            CommandManager.literal("global");
+            CommandManager.literal("global")
+            .requires(commandSource -> commandSource.hasPermissionLevel(2));
         registerGlobalPortalCommands(global);
-        builderOPPerm.then(global);
+        builder.then(global);
         
-        dispatcher.register(builderOPPerm);
+        dispatcher.register(builder);
     }
     
     public static int processPortalArgumentedCommand(
