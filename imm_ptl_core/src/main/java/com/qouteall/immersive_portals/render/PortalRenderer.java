@@ -72,7 +72,12 @@ public abstract class PortalRenderer {
         
         List<Portal> portalsToRender = new ArrayList<>();
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(client.world);
-        portalsToRender.addAll(globalPortals);
+        for (GlobalTrackedPortal globalPortal : globalPortals) {
+            if (!shouldSkipRenderingPortal(globalPortal, frustumSupplier)) {
+                portalsToRender.add(globalPortal);
+            }
+        }
+        
         client.world.getEntities().forEach(e -> {
             if (e instanceof Portal) {
                 Portal portal = (Portal) e;
