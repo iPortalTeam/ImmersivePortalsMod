@@ -8,7 +8,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -22,7 +21,6 @@ import org.lwjgl.opengl.GL11;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -59,31 +57,7 @@ public class CHelper {
     }
     
     public static Stream<Portal> getClientNearbyPortals(double range) {
-        return getClientNearbyPortalList(range, e -> true).stream();
-    }
-    
-    public static List<Portal> getClientNearbyPortalList(double range, Predicate<Portal> predicate) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        List<GlobalTrackedPortal> globalPortals = ((IEClientWorld) player.world).getGlobalPortals();
-        List<Portal> nearbyPortals = McHelper.findEntitiesRough(
-            Portal.class,
-            player.world,
-            player.getPos(),
-            (int) (range / 16),
-            predicate
-        );
-        
-        if (globalPortals != null) {
-            for (GlobalTrackedPortal globalPortal : globalPortals) {
-                if (globalPortal.getDistanceToNearestPointInPortal(player.getPos()) < range * 2) {
-                    if (predicate.test(globalPortal)) {
-                        nearbyPortals.add(globalPortal);
-                    }
-                }
-            }
-        }
-        
-        return nearbyPortals;
+        return McHelper.getNearbyPortals(MinecraftClient.getInstance().player, range);
     }
     
     public static void checkGlError() {
@@ -106,7 +80,6 @@ public class CHelper {
             new LiteralText(str)
         );
     }
-    
     
     public static class Rect {
         public float xMin;
