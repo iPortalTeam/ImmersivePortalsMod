@@ -168,15 +168,7 @@ public abstract class PortalRenderer {
         
         PortalRendering.onBeginPortalWorldRendering();
         
-        int renderDistance = client.options.viewDistance;
-        if (portal.scaling > 2) {
-            renderDistance *= (int) (Math.min(portal.scaling, 4));
-            renderDistance = Math.min(renderDistance, 32);
-            
-        }
-        if (Global.reducedPortalRendering) {
-            renderDistance = client.options.viewDistance / 3;
-        }
+        int renderDistance = getPortalRenderDistance(portal);
         
         invokeWorldRendering(new RenderInfo(
             newWorld,
@@ -194,6 +186,18 @@ public abstract class PortalRenderer {
         MyRenderHelper.restoreViewPort();
         
         
+    }
+    
+    private static int getPortalRenderDistance(Portal portal) {
+        if (portal.scaling > 2) {
+            double radiusBlocks = portal.getDestAreaRadius() * 1.4;
+            
+            return (int) (radiusBlocks / 16);
+        }
+        if (Global.reducedPortalRendering) {
+            return client.options.viewDistance / 3;
+        }
+        return client.options.viewDistance;
     }
     
     public void invokeWorldRendering(

@@ -188,7 +188,7 @@ public class Portal extends Entity {
         if (compoundTag.contains("teleportChangesScale")) {
             teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
         }
-    
+        
         if (compoundTag.contains("portalTag")) {
             portalTag = compoundTag.getString("portalTag");
         }
@@ -234,7 +234,7 @@ public class Portal extends Entity {
         
         compoundTag.putDouble("scale", scaling);
         compoundTag.putBoolean("teleportChangesScale", teleportChangesScale);
-    
+        
         if (portalTag != null) {
             compoundTag.putString("portalTag", portalTag);
         }
@@ -768,6 +768,10 @@ public class Portal extends Entity {
             a.getPos().distanceTo(b.getPos()) < 1 &&
             a.destination.distanceTo(b.destination) < 1 &&
             a.getNormal().dotProduct(b.getNormal()) < -0.5;
+    }
+    
+    public double getDestAreaRadius() {
+        return Math.max(this.width, this.height) * this.scaling;
     }
     
 }
