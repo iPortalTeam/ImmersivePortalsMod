@@ -15,6 +15,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
+import com.sun.istack.internal.NotNull;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -102,6 +103,7 @@ public class McHelper {
         return getOverWorldOnServer().getTime();
     }
     
+    @Deprecated
     public static <T> void performFindingTaskOnServer(
         boolean isMultithreaded,
         Stream<T> stream,
@@ -172,6 +174,7 @@ public class McHelper {
         });
     }
     
+    @Deprecated
     public static <T> void performMultiThreadedFindingTaskOnServer(
         Stream<T> stream,
         Predicate<T> predicate,
@@ -290,6 +293,7 @@ public class McHelper {
         RenderSystem.multMatrix(matrixStack.peek().getModel());
     }
     
+    @NotNull
     public static List<GlobalTrackedPortal> getGlobalPortals(World world) {
         List<GlobalTrackedPortal> result;
         if (world.isClient()) {
@@ -304,25 +308,20 @@ public class McHelper {
         return result != null ? result : Collections.emptyList();
     }
     
-    public static Stream<Portal> getServerPortalsNearby(Entity center, double range) {
-        List<GlobalTrackedPortal> globalPortals = GlobalPortalStorage.get(((ServerWorld) center.world)).data;
+    public static Stream<Portal> getNearbyPortals(Entity center, double range) {
+        List<GlobalTrackedPortal> globalPortals = getGlobalPortals(center.world);
         Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
             center.world,
             center.getPos(),
             Portal.class,
             range
         );
-        if (globalPortals == null) {
-            return nearbyPortals;
-        }
-        else {
-            return Streams.concat(
-                globalPortals.stream().filter(
-                    p -> p.getDistanceToNearestPointInPortal(center.getPos()) < range * 2
-                ),
-                nearbyPortals
-            );
-        }
+        return Streams.concat(
+            globalPortals.stream().filter(
+                p -> p.getDistanceToNearestPointInPortal(center.getPos()) < range * 2
+            ),
+            nearbyPortals
+        );
     }
     
     public static int getRenderDistanceOnServer() {
@@ -334,9 +333,6 @@ public class McHelper {
         Vec3d pos,
         Vec3d lastTickPos
     ) {
-        
-        
-        //NOTE do not call entity.setPosition() because it may tick the entity
         entity.setPos(pos.x, pos.y, pos.z);
         entity.lastRenderX = lastTickPos.x;
         entity.lastRenderY = lastTickPos.y;
@@ -418,13 +414,6 @@ public class McHelper {
             (int) (range / 16),
             e -> true
         ).stream();
-
-//        Box box = new Box(center, center).expand(range);
-//        return (Stream) ((IEServerWorld) world).getEntitiesWithoutImmediateChunkLoading(
-//            entityClass,
-//            box,
-//            e -> true
-//        ).stream();
     }
     
     public static void updateBoundingBox(Entity player) {

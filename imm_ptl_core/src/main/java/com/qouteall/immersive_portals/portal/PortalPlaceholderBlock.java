@@ -94,16 +94,15 @@ public class PortalPlaceholderBlock extends Block {
         if(!world.isClient()){
             Direction.Axis axis = thisState.get(AXIS);
             if (direction.getAxis() != axis) {
-                McHelper.getEntitiesNearby(
+                McHelper.findEntitiesRough(
+                    BreakablePortalEntity.class,
                     ((World) world),
                     Vec3d.of(blockPos),
-                    Portal.class,
-                    20
+                    2,
+                    e->true
                 ).forEach(
                     portal -> {
-                        if (portal instanceof BreakablePortalEntity) {
-                            ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
-                        }
+                        ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
                     }
                 );
             }

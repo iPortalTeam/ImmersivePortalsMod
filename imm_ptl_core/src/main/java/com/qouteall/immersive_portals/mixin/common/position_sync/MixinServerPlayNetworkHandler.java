@@ -220,7 +220,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (((IEEntity) player).getCollidingPortal() != null) {
             return false;
         }
-        boolean portalsNearby = McHelper.getServerPortalsNearby(
+        boolean portalsNearby = McHelper.getNearbyPortals(
             player,
             16
         ).findAny().isPresent();
@@ -295,7 +295,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (((IEEntity) player).getCollidingPortal() != null) {
             return true;
         }
-        boolean portalsNearby = McHelper.getServerPortalsNearby(player, 16).findFirst().isPresent();
+        boolean portalsNearby = McHelper.getNearbyPortals(player, 16).findFirst().isPresent();
         if (portalsNearby) {
             return true;
         }

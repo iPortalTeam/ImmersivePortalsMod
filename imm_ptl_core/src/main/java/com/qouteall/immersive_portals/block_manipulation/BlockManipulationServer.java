@@ -73,7 +73,7 @@ public class BlockManipulationServer {
                 return true;
             }
         }
-        return McHelper.getServerPortalsNearby(
+        return McHelper.getNearbyPortals(
             player,
             20
         ).anyMatch(portal ->
