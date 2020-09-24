@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.mixin.common;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
@@ -12,6 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.List;
 
 @Mixin(ServerWorld.class)
 public abstract class MixinServerWorld implements IEServerWorld {
@@ -30,19 +31,35 @@ public abstract class MixinServerWorld implements IEServerWorld {
     }
     
     //in vanilla if a dimension has no player and no forced chunks then it will not tick
+//    @Redirect(
+//        method = "tick",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/server/world/ServerWorld;getForcedChunks()Lit/unimi/dsi/fastutil/longs/LongSet;"
+//        )
+//    )
+//    private LongSet redirectGetForcedChunks(ServerWorld world) {
+//        if (NewChunkTrackingGraph.shouldLoadDimension(world.getRegistryKey())) {
+//            return dummy;
+//        }
+//        else {
+//            return world.getForcedChunks();
+//        }
+//    }
+    
+    //in vanilla if a dimension has no player and no forced chunks then it will not tick
     @Redirect(
         method = "tick",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/world/ServerWorld;getForcedChunks()Lit/unimi/dsi/fastutil/longs/LongSet;"
+            target = "Ljava/util/List;isEmpty()Z"
         )
     )
-    private LongSet redirectGetForcedChunks(ServerWorld world) {
-        if (NewChunkTrackingGraph.shouldLoadDimension(world.getRegistryKey())) {
-            return dummy;
+    private boolean redirectIsEmpty(List list) {
+        final ServerWorld this_ = (ServerWorld) (Object) this;
+        if (NewChunkTrackingGraph.shouldLoadDimension(this_.getRegistryKey())) {
+            return true;
         }
-        else {
-            return world.getForcedChunks();
-        }
+        return list.isEmpty();
     }
 }
