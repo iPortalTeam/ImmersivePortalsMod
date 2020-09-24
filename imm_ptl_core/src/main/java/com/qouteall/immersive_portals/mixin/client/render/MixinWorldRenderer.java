@@ -470,7 +470,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         ClientWorldLoader clientWorldLoader = CGlobal.clientWorldLoader;
         WorldRenderer this_ = (WorldRenderer) (Object) this;
         
-        Helper.log("WorldRenderer reloaded " + world.getRegistryKey().getValue());
+        if (world != null) {
+            Helper.log("WorldRenderer reloaded " + world.getRegistryKey().getValue());
+        }
         
         if (isReloadingOtherWorldRenderers) {
             return;

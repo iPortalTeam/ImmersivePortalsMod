@@ -15,7 +15,6 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
-import com.sun.istack.internal.NotNull;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -41,6 +40,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -293,7 +293,7 @@ public class McHelper {
         RenderSystem.multMatrix(matrixStack.peek().getModel());
     }
     
-    @NotNull
+    @Nonnull
     public static List<GlobalTrackedPortal> getGlobalPortals(World world) {
         List<GlobalTrackedPortal> result;
         if (world.isClient()) {
