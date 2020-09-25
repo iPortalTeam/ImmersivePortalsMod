@@ -135,7 +135,7 @@ public class RendererDeferred extends PortalRenderer {
         client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
         
         deferredBuffer.fb.beginWrite(true);
-        return QueryManager.renderAndGetDoesAnySamplePassed(() -> {
+        return QueryManager.renderAndGetDoesAnySamplePass(() -> {
             GlStateManager.enableDepthTest();
             
             GlStateManager.disableTexture();

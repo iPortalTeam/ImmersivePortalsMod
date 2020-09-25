@@ -211,7 +211,7 @@ public class RendererMixed extends PortalRenderer {
         
         GlStateManager.enableDepthTest();
         
-        boolean result = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
+        boolean result = QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.drawPortalViewTriangle(
                 portal, matrixStack, true, true
             );

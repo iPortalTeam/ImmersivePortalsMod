@@ -96,7 +96,7 @@ public class RendererUsingStencil extends PortalRenderer {
         int outerPortalStencilValue = PortalRendering.getPortalLayer();
         
         client.getProfiler().push("render_view_area");
-        boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePassed(() -> {
+        boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePass(() -> {
             renderPortalViewAreaToStencil(portal, matrixStack);
         });
         client.getProfiler().pop();
