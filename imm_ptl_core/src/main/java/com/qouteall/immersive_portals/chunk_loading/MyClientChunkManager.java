@@ -59,27 +59,28 @@ public class MyClientChunkManager extends ClientChunkManager {
     }
     
     @Override
-    public void unload(int int_1, int int_2) {
+    public void unload(int x, int z) {
         synchronized (chunkMap) {
             
-            ChunkPos chunkPos = new ChunkPos(int_1, int_2);
-            WorldChunk worldChunk_1 = chunkMap.get(chunkPos.toLong());
-            if (positionEquals(worldChunk_1, int_1, int_2)) {
+            ChunkPos chunkPos = new ChunkPos(x, z);
+            WorldChunk chunk = chunkMap.get(chunkPos.toLong());
+            if (positionEquals(chunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
-                O_O.postChunkUnloadEventForge(worldChunk_1);
+                O_O.postChunkUnloadEventForge(chunk);
+                world.unloadBlockEntities(chunk);
             }
         }
     }
     
     @Override
-    public WorldChunk getChunk(int int_1, int int_2, ChunkStatus chunkStatus_1, boolean boolean_1) {
+    public WorldChunk getChunk(int x, int z, ChunkStatus chunkStatus, boolean create) {
         synchronized (chunkMap) {
-            WorldChunk worldChunk_1 = chunkMap.get(ChunkPos.toLong(int_1, int_2));
-            if (positionEquals(worldChunk_1, int_1, int_2)) {
+            WorldChunk worldChunk_1 = chunkMap.get(ChunkPos.toLong(x, z));
+            if (positionEquals(worldChunk_1, x, z)) {
                 return worldChunk_1;
             }
             
-            return boolean_1 ? this.emptyChunk : null;
+            return create ? this.emptyChunk : null;
         }
     }
     
@@ -95,7 +96,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         BiomeArray biomeArray,
         PacketByteBuf packetByteBuf,
         CompoundTag compoundTag,
-        int k,
+        int mask,
         boolean bl
     ) {
         long chunkPosLong = ChunkPos.toLong(x, z);
@@ -104,7 +105,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         synchronized (chunkMap) {
             worldChunk = (WorldChunk) this.chunkMap.get(chunkPosLong);
             if (!bl && positionEquals(worldChunk, x, z)) {
-                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, k);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, mask);
             }
             else {
                 if (biomeArray == null) {
@@ -116,7 +117,7 @@ public class MyClientChunkManager extends ClientChunkManager {
                 }
                 
                 worldChunk = new WorldChunk(this.world, new ChunkPos(x, z), biomeArray);
-                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, k);
+                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, mask);
                 chunkMap.put(chunkPosLong, worldChunk);
             }
         }
