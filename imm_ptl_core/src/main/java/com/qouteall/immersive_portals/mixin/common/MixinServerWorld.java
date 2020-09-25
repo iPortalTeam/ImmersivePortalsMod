@@ -58,7 +58,7 @@ public abstract class MixinServerWorld implements IEServerWorld {
     private boolean redirectIsEmpty(List list) {
         final ServerWorld this_ = (ServerWorld) (Object) this;
         if (NewChunkTrackingGraph.shouldLoadDimension(this_.getRegistryKey())) {
-            return true;
+            return false;
         }
         return list.isEmpty();
     }
