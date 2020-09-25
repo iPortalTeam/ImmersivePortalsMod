@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin.client;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
@@ -29,6 +30,8 @@ public class MixinDebugHud {
                 returnValue.addAll(Helper.splitStringByLen(text, 50));
             }
         }
+        
+        returnValue.add("Occlusion Query: " + QueryManager.queryCounter);
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.add("Debug: " + RenderStates.debugText);

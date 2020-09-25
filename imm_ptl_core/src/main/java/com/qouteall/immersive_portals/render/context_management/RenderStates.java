@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
+import com.qouteall.immersive_portals.render.QueryManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.Camera;
@@ -99,6 +100,8 @@ public class RenderStates {
         updateIsLaggy();
         
         debugText = "";
+    
+        QueryManager.queryCounter = 0;
 //        MyRenderHelper.debugText = String.valueOf(((IEEntity) client.player).getCollidingPortal());
 
 //        if (ClientTeleportationManager.isTeleportingTick) {
