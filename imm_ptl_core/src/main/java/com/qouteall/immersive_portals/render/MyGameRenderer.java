@@ -346,7 +346,7 @@ public class MyGameRenderer {
                             ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
                         Box boundingBox = builtChunk.boundingBox;
                         
-                        return FrustumCuller.isFullyInsideContentArea(renderingPortal, boundingBox);
+                        return FrustumCuller.isTouchingInsideContentArea(renderingPortal, boundingBox);
                     }
                 );
                 

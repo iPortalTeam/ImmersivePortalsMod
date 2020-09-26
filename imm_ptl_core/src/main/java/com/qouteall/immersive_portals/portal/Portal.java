@@ -394,7 +394,7 @@ public class Portal extends Entity {
     @Override
     public String toString() {
         return String.format(
-            "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s%s}",
+            "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s%s%s}",
             getClass().getSimpleName(),
             getEntityId(),
             Direction.getFacing(
@@ -403,13 +403,19 @@ public class Portal extends Entity {
             world.getRegistryKey().getValue(), (int) getX(), (int) getY(), (int) getZ(),
             dimensionTo.getValue(), (int) destination.x, (int) destination.y, (int) destination.z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
-            hasScaling() ? (",scale:" + scaling) : ""
+            hasScaling() ? (",scale:" + scaling) : "",
+            portalTag != null ? "," + portalTag : ""
         );
     }
     
     public void transformVelocity(Entity entity) {
         if (PehkuiInterface.isPehkuiPresent) {
-            entity.setVelocity(transformLocalVecNonScale(entity.getVelocity()));
+            if (teleportChangesScale) {
+                entity.setVelocity(transformLocalVecNonScale(entity.getVelocity()));
+            }
+            else {
+                entity.setVelocity(transformLocalVec(entity.getVelocity()));
+            }
         }
         else {
             entity.setVelocity(transformLocalVec(entity.getVelocity()));
