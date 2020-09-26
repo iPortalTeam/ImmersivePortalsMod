@@ -24,14 +24,14 @@ public class Mirror extends Portal {
         return Global.mirrorInteractableThroughPortal && super.isInteractable();
     }
     
-    @Override
-    public Vec3d getContentDirection() {
-        return getNormal();
-    }
+//    @Override
+//    public Vec3d getContentDirection() {
+//        return getNormal();
+//    }
     
     @Override
-    public Vec3d transformLocalVec(Vec3d localVec) {
-        return getMirrored(super.transformLocalVec(localVec));
+    public Vec3d transformLocalVecNonScale(Vec3d localVec) {
+        return getMirrored(super.transformLocalVecNonScale(localVec));
     }
     
     @Override

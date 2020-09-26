@@ -191,8 +191,8 @@ public abstract class PortalRenderer {
     private static int getPortalRenderDistance(Portal portal) {
         if (portal.scaling > 2) {
             double radiusBlocks = portal.getDestAreaRadius() * 1.4;
-            
-            return (int) (radiusBlocks / 16);
+    
+            return Math.max((int) (radiusBlocks / 16), client.options.viewDistance);
         }
         if (Global.reducedPortalRendering) {
             return client.options.viewDistance / 3;
@@ -222,19 +222,36 @@ public abstract class PortalRenderer {
     // Scaling does not interfere camera transformation
     @Nullable
     public static Matrix4f getAdditionalCameraTransformation(Portal portal) {
-        if (portal instanceof Mirror) {
-            return TransformationManager.getMirrorTransformation(portal.getNormal());
+        
+        Matrix4f rot = getPortalRotationMatrix(portal);
+        
+        Matrix4f mirror = portal instanceof Mirror ?
+            TransformationManager.getMirrorTransformation(portal.getNormal()) : null;
+        
+        return combineNullable(rot, mirror);
+    }
+    
+    @Nullable
+    private static Matrix4f getPortalRotationMatrix(Portal portal) {
+        if (portal.rotation == null) {
+            return null;
         }
-        else {
-            if (portal.rotation != null) {
-                Quaternion rot = portal.rotation.copy();
-                rot.conjugate();
-                return new Matrix4f(rot);
-            }
-            else {
-                return null;
-            }
+        
+        Quaternion rot = portal.rotation.copy();
+        rot.conjugate();
+        return new Matrix4f(rot);
+    }
+    
+    @Nullable
+    private static Matrix4f combineNullable(@Nullable Matrix4f a, @Nullable Matrix4f b) {
+        if (a == null) {
+            return b;
         }
+        if (b == null) {
+            return a;
+        }
+        a.multiply(b);
+        return a;
     }
     
 }
