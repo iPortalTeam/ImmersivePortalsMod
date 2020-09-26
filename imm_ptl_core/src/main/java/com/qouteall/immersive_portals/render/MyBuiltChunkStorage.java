@@ -46,13 +46,13 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private ObjectBuffer<ChunkBuilder.BuiltChunk> builtChunkBuffer;
     
     public MyBuiltChunkStorage(
-        ChunkBuilder chunkBuilder_1,
-        World world_1,
-        int int_1,
-        WorldRenderer worldRenderer_1
+        ChunkBuilder chunkBuilder,
+        World world,
+        int r,
+        WorldRenderer worldRenderer
     ) {
-        super(chunkBuilder_1, world_1, int_1, worldRenderer_1);
-        factory = chunkBuilder_1;
+        super(chunkBuilder, world, r, worldRenderer);
+        factory = chunkBuilder;
         
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
@@ -178,8 +178,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     //copy because private
-    private int getChunkIndex(int int_1, int int_2, int int_3) {
-        return (int_3 * this.sizeY + int_2) * this.sizeX + int_1;
+    private int getChunkIndex(int x, int y, int z) {
+        return (z * this.sizeY + y) * this.sizeX + x;
     }
     
     private static BlockPos getBasePos(BlockPos blockPos) {

@@ -29,8 +29,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 import java.util.List;
 
-//this class is modified based on ClientChunkManager
-//re-write this class upon updating mod
+// allow storing chunks that are far away from the player
 @Environment(EnvType.CLIENT)
 public class MyClientChunkManager extends ClientChunkManager {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -74,10 +73,11 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public WorldChunk getChunk(int x, int z, ChunkStatus chunkStatus, boolean create) {
+        // the profiler shows that this is not a hot spot
         synchronized (chunkMap) {
-            WorldChunk worldChunk_1 = chunkMap.get(ChunkPos.toLong(x, z));
-            if (positionEquals(worldChunk_1, x, z)) {
-                return worldChunk_1;
+            WorldChunk chunk = chunkMap.get(ChunkPos.toLong(x, z));
+            if (positionEquals(chunk, x, z)) {
+                return chunk;
             }
             
             return create ? this.emptyChunk : null;
@@ -97,14 +97,14 @@ public class MyClientChunkManager extends ClientChunkManager {
         PacketByteBuf packetByteBuf,
         CompoundTag compoundTag,
         int mask,
-        boolean bl
+        boolean forceCreate
     ) {
         long chunkPosLong = ChunkPos.toLong(x, z);
         
         WorldChunk worldChunk;
         synchronized (chunkMap) {
             worldChunk = (WorldChunk) this.chunkMap.get(chunkPosLong);
-            if (!bl && positionEquals(worldChunk, x, z)) {
+            if (!forceCreate && positionEquals(worldChunk, x, z)) {
                 worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, mask);
             }
             else {
@@ -126,10 +126,10 @@ public class MyClientChunkManager extends ClientChunkManager {
         LightingProvider lightingProvider = this.getLightingProvider();
         lightingProvider.setColumnEnabled(new ChunkPos(x, z), true);
         
-        for (int m = 0; m < chunkSections.length; ++m) {
-            ChunkSection chunkSection = chunkSections[m];
+        for (int cy = 0; cy < chunkSections.length; ++cy) {
+            ChunkSection chunkSection = chunkSections[cy];
             lightingProvider.setSectionStatus(
-                ChunkSectionPos.from(x, m, z),
+                ChunkSectionPos.from(x, cy, z),
                 ChunkSection.isEmpty(chunkSection)
             );
         }
@@ -142,13 +142,13 @@ public class MyClientChunkManager extends ClientChunkManager {
     }
     
     public static void updateLightStatus(WorldChunk chunk) {
-        ChunkSection[] chunkSections_1 = chunk.getSectionArray();
         LightingProvider lightingProvider = chunk.getWorld().getLightingProvider();
-        for (int int_5 = 0; int_5 < chunkSections_1.length; ++int_5) {
-            ChunkSection chunkSection_1 = chunkSections_1[int_5];
+        ChunkSection[] chunkSections = chunk.getSectionArray();
+        for (int cy = 0; cy < chunkSections.length; ++cy) {
+            ChunkSection chunkSection = chunkSections[cy];
             lightingProvider.setSectionStatus(
-                ChunkSectionPos.from(chunk.getPos().x, int_5, chunk.getPos().z),
-                ChunkSection.isEmpty(chunkSection_1)
+                ChunkSectionPos.from(chunk.getPos().x, cy, chunk.getPos().z),
+                ChunkSection.isEmpty(chunkSection)
             );
         }
     }
@@ -160,12 +160,12 @@ public class MyClientChunkManager extends ClientChunkManager {
     }
     
     @Override
-    public void setChunkMapCenter(int int_1, int int_2) {
+    public void setChunkMapCenter(int x, int z) {
         //do nothing
     }
     
     @Override
-    public void updateLoadDistance(int int_1) {
+    public void updateLoadDistance(int r) {
         //do nothing
     }
     
@@ -182,41 +182,41 @@ public class MyClientChunkManager extends ClientChunkManager {
     }
     
     @Override
-    public void onLightUpdate(LightType lightType_1, ChunkSectionPos chunkSectionPos_1) {
+    public void onLightUpdate(LightType lightType, ChunkSectionPos chunkSectionPos) {
         CGlobal.clientWorldLoader.getWorldRenderer(
             world.getRegistryKey()
         ).scheduleBlockRender(
-            chunkSectionPos_1.getSectionX(),
-            chunkSectionPos_1.getSectionY(),
-            chunkSectionPos_1.getSectionZ()
+            chunkSectionPos.getSectionX(),
+            chunkSectionPos.getSectionY(),
+            chunkSectionPos.getSectionZ()
         );
     }
     
     @Override
-    public boolean shouldTickBlock(BlockPos blockPos_1) {
-        return this.isChunkLoaded(blockPos_1.getX() >> 4, blockPos_1.getZ() >> 4);
+    public boolean shouldTickBlock(BlockPos blockPos) {
+        return this.isChunkLoaded(blockPos.getX() >> 4, blockPos.getZ() >> 4);
     }
     
     @Override
-    public boolean shouldTickChunk(ChunkPos chunkPos_1) {
-        return this.isChunkLoaded(chunkPos_1.x, chunkPos_1.z);
+    public boolean shouldTickChunk(ChunkPos chunkPos) {
+        return this.isChunkLoaded(chunkPos.x, chunkPos.z);
     }
     
     @Override
-    public boolean shouldTickEntity(Entity entity_1) {
+    public boolean shouldTickEntity(Entity entity) {
         return this.isChunkLoaded(
-            MathHelper.floor(entity_1.getX()) >> 4,
-            MathHelper.floor(entity_1.getZ()) >> 4
+            MathHelper.floor(entity.getX()) >> 4,
+            MathHelper.floor(entity.getZ()) >> 4
         );
     }
     
-    protected static boolean positionEquals(WorldChunk worldChunk_1, int int_1, int int_2) {
-        if (worldChunk_1 == null) {
+    protected static boolean positionEquals(WorldChunk worldChunk, int x, int z) {
+        if (worldChunk == null) {
             return false;
         }
         else {
-            ChunkPos chunkPos_1 = worldChunk_1.getPos();
-            return chunkPos_1.x == int_1 && chunkPos_1.z == int_2;
+            ChunkPos chunkPos = worldChunk.getPos();
+            return chunkPos.x == x && chunkPos.z == z;
         }
     }
     

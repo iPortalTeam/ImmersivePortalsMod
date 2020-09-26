@@ -24,8 +24,8 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     }
     
     @Override
-    public WorldChunk loadChunkFromPacket(int x, int z, BiomeArray biomeArray, PacketByteBuf packetByteBuf, CompoundTag compoundTag, int k, boolean bl) {
-        WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomeArray, packetByteBuf, compoundTag, k, bl);
+    public WorldChunk loadChunkFromPacket(int x, int z, BiomeArray biomeArray, PacketByteBuf packetByteBuf, CompoundTag compoundTag, int k, boolean forceCreate) {
+        WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomeArray, packetByteBuf, compoundTag, k, forceCreate);
         
         if (listener != null) {
             listener.onChunkAdded(worldChunk.getPos().x, worldChunk.getPos().z);
