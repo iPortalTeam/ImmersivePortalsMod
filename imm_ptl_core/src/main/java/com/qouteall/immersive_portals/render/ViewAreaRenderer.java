@@ -86,16 +86,14 @@ public class ViewAreaRenderer {
         Vec3d posInPlayerCoordinate
     ) {
         generateTriangleSpecial(
-            vertexOutput, portal, posInPlayerCoordinate,
-            portal.getNormal().multiply(-0.5)
+            vertexOutput, portal, posInPlayerCoordinate
         );
     }
     
     private static void generateTriangleSpecial(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
-        Vec3d posInPlayerCoordinate,
-        Vec3d innerOffset
+        Vec3d posInPlayerCoordinate
     ) {
         GeometryPortalShape specialShape = portal.specialShape;
         
@@ -260,7 +258,6 @@ public class ViewAreaRenderer {
         }
         
         //should not affect shader pipeline
-//        GlStateManager.disableTexture();
         FrontClipping.disableClipping();
         
         Tessellator tessellator = Tessellator.getInstance();
@@ -289,7 +286,6 @@ public class ViewAreaRenderer {
         }
         
         MinecraftClient.getInstance().getProfiler().push("draw");
-//        CGlobal.shaderManager.unloadShader();
         glEnable(GL32.GL_DEPTH_CLAMP);
         CHelper.checkGlError();
         McHelper.runWithTransformation(
@@ -307,8 +303,6 @@ public class ViewAreaRenderer {
                 FrontClipping.disableClipping();
             }
         }
-        
-//        GlStateManager.enableTexture();
         
         //this is important
         GlStateManager.enableCull();
@@ -329,115 +323,4 @@ public class ViewAreaRenderer {
             portal.transformPoint(McHelper.getCurrentCameraPos())
         );
     }
-    
-    
-    private static boolean shouldRenderAdditionalHood(
-        Portal portal,
-        Vec3d cameraPos,
-        double distanceToPlane
-    ) {
-//        double localX = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisW);
-//        double localY = cameraPos.subtract(portal.getPos()).dotProduct(portal.axisH);
-//        if (Math.abs(localX) > 0.9 * portal.width / 2) {
-//            return false;
-//        }
-//        if (Math.abs(localY) > 0.9 * portal.height / 2) {
-//            return false;
-//        }
-        
-        Vec3d cameraRotation = MinecraftClient.getInstance().cameraEntity.getRotationVector();
-        double cos = cameraRotation.dotProduct(portal.getNormal());
-        double sin = Math.sqrt(1.0 - cos * cos);
-        
-        double threshold = sin * 0.2 + 0.05;
-        
-        
-        return (distanceToPlane < threshold) &&
-            portal.isPointInPortalProjection(cameraPos);
-    }
-    
-    private static void renderAdditionalBox(
-        Portal portal,
-        Vec3d cameraPos,
-        Consumer<Vec3d> vertexOutput
-    ) {
-        Vec3d projected = portal.getPointInPortalProjection(cameraPos).subtract(cameraPos);
-        Vec3d normal = portal.getNormal();
-        
-        renderHood(portal, vertexOutput, projected, normal);
-    }
-    
-    private static void renderHood(
-        Portal portal,
-        Consumer<Vec3d> vertexOutput,
-        Vec3d projected,
-        Vec3d normal
-    ) {
-        double boxRadius = 0.1 * Math.sqrt(3) * 1.3;//0.4
-        double boxDepth = 0.1 * 1.3;//0.5
-        
-        Vec3d dx = portal.axisW.multiply(boxRadius);
-        Vec3d dy = portal.axisH.multiply(boxRadius);
-        
-        Vec3d a = projected.add(dx).add(dy);
-        Vec3d b = projected.subtract(dx).add(dy);
-        Vec3d c = projected.subtract(dx).subtract(dy);
-        Vec3d d = projected.add(dx).subtract(dy);
-        
-        Vec3d mid = projected.add(normal.multiply(-boxDepth));
-        
-        vertexOutput.accept(b);
-        vertexOutput.accept(mid);
-        vertexOutput.accept(a);
-        
-        vertexOutput.accept(c);
-        vertexOutput.accept(mid);
-        vertexOutput.accept(b);
-        
-        vertexOutput.accept(d);
-        vertexOutput.accept(mid);
-        vertexOutput.accept(c);
-        
-        vertexOutput.accept(a);
-        vertexOutput.accept(mid);
-        vertexOutput.accept(d);
-    }
-    
-    
-    @Deprecated
-    private static void renderAdditionalBoxExperimental(
-        Portal portal,
-        Consumer<Vec3d> vertexOutput,
-        Vec3d projected,
-        Vec3d normal
-    ) {
-        final double boxRadius = 1.5;
-        final double boxDepth = 0.5;
-        
-        //b  a
-        //c  d
-        
-        Vec3d dx = portal.axisW.multiply(boxRadius);
-        Vec3d dy = portal.axisH.multiply(boxRadius);
-        
-        Vec3d a = projected.add(dx).add(dy);
-        Vec3d b = projected.subtract(dx).add(dy);
-        Vec3d c = projected.subtract(dx).subtract(dy);
-        Vec3d d = projected.add(dx).subtract(dy);
-        
-        Vec3d dz = normal.multiply(-boxDepth);
-        
-        Vec3d as = a.add(dz);
-        Vec3d bs = b.add(dz);
-        Vec3d cs = c.add(dz);
-        Vec3d ds = d.add(dz);
-        
-        putIntoQuad(vertexOutput, a, b, bs, as);
-        putIntoQuad(vertexOutput, b, c, cs, bs);
-        putIntoQuad(vertexOutput, c, d, ds, cs);
-        putIntoQuad(vertexOutput, d, a, as, ds);
-        
-        putIntoQuad(vertexOutput, a, b, c, d);
-    }
-    
 }
