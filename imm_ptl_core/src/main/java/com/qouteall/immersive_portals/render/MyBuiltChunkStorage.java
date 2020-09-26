@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
 import com.qouteall.immersive_portals.my_util.ObjectBuffer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -20,10 +21,9 @@ import org.apache.commons.lang3.Validate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
@@ -237,24 +237,20 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             return currentTime - preset.lastActiveTime > Helper.secondToNano(20);
         });
         
-        Set<ChunkBuilder.BuiltChunk> activeBuiltChunks = getAllActiveBuiltChunks();
+        foreachActiveBuiltChunks(builtChunk -> {
+            ((IEBuiltChunk) builtChunk).setMark(currentTime);
+        });
         
-        List<ChunkBuilder.BuiltChunk> chunksToDelete = builtChunkMap
-            .values().stream().filter(
-                builtChunk -> !activeBuiltChunks.contains(builtChunk)
-            ).collect(Collectors.toList());
-        
-        chunksToDelete.forEach(
-            builtChunk -> {
-                builtChunkBuffer.returnObject(builtChunk);
-                //builtChunk.delete();
-                ChunkBuilder.BuiltChunk removed =
-                    builtChunkMap.remove(builtChunk.getOrigin());
-                if (removed == null) {
-                    Helper.err("Chunk Renderer Abnormal " + builtChunk.getOrigin());
-                }
+        builtChunkMap.entrySet().removeIf(entry -> {
+            ChunkBuilder.BuiltChunk chunk = entry.getValue();
+            if (((IEBuiltChunk) chunk).getMark() != currentTime) {
+                builtChunkBuffer.returnObject(chunk);
+                return true;
             }
-        );
+            else {
+                return false;
+            }
+        });
         
         MinecraftClient.getInstance().getProfiler().pop();
     }
@@ -262,31 +258,29 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private Set<ChunkBuilder.BuiltChunk> getAllActiveBuiltChunks() {
         HashSet<ChunkBuilder.BuiltChunk> result = new HashSet<>();
         
-        presets.forEach((key,preset)->{
+        presets.forEach((key, preset) -> {
             result.addAll(Arrays.asList(preset.data));
         });
-    
+        
         if (chunks != null) {
             result.addAll(Arrays.asList(chunks));
         }
-    
-        return result;
         
-//        Stream<ChunkBuilder.BuiltChunk> result;
-//        Stream<ChunkBuilder.BuiltChunk> chunksFromPresets = presets.values().stream()
-//            .flatMap(
-//                preset -> Arrays.stream(preset.data)
-//            );
-//        if (chunks == null) {
-//            result = chunksFromPresets;
-//        }
-//        else {
-//            result = Streams.concat(
-//                Arrays.stream(chunks),
-//                chunksFromPresets
-//            );
-//        }
-//        return result.collect(Collectors.toSet());
+        return result;
+    }
+    
+    private void foreachActiveBuiltChunks(Consumer<ChunkBuilder.BuiltChunk> func) {
+        if (chunks != null) {
+            for (ChunkBuilder.BuiltChunk chunk : chunks) {
+                func.accept(chunk);
+            }
+        }
+        
+        for (Preset value : presets.values()) {
+            for (ChunkBuilder.BuiltChunk chunk : value.data) {
+                func.accept(chunk);
+            }
+        }
     }
     
     public int getManagedChunkNum() {

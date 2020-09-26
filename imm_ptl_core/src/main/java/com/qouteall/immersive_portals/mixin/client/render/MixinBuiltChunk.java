@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ChunkBuilder.BuiltChunk.class)
 public abstract class MixinBuiltChunk implements IEBuiltChunk {
     
+    private long portal_mark;
+    
     @Inject(
         method = "needsImportantRebuild",
         at = @At("HEAD"),
@@ -29,5 +31,15 @@ public abstract class MixinBuiltChunk implements IEBuiltChunk {
     @Override
     public void fullyReset() {
         clear();
+    }
+    
+    @Override
+    public long getMark() {
+        return portal_mark;
+    }
+    
+    @Override
+    public void setMark(long arg) {
+        portal_mark = arg;
     }
 }
