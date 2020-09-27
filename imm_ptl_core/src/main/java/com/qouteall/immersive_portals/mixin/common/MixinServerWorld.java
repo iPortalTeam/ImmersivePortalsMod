@@ -7,10 +7,14 @@ import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentStateManager;
+import net.minecraft.world.level.ServerWorldProperties;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
@@ -23,6 +27,7 @@ public abstract class MixinServerWorld implements IEServerWorld {
     @Shadow
     public abstract ServerChunkManager getChunkManager();
     
+    @Shadow @Final private ServerWorldProperties worldProperties;
     private static LongSortedSet dummy;
     
     static {
@@ -61,5 +66,13 @@ public abstract class MixinServerWorld implements IEServerWorld {
             return false;
         }
         return list.isEmpty();
+    }
+    
+    // for debug
+    @Inject(method = "toString", at = @At("HEAD"), cancellable = true)
+    private void onToString(CallbackInfoReturnable<String> cir) {
+        final ServerWorld this_ = (ServerWorld) (Object) this;
+        cir.setReturnValue("ServerWorld " + this_.getRegistryKey().getValue() +
+            " " + worldProperties.getLevelName());
     }
 }

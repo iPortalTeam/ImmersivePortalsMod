@@ -120,4 +120,10 @@ public abstract class MixinClientWorld implements IEClientWorld {
         }
     }
     
+    // for debug
+    @Inject(method = "toString", at = @At("HEAD"), cancellable = true)
+    private void onToString(CallbackInfoReturnable<String> cir) {
+        ClientWorld this_ = (ClientWorld) (Object) this;
+        cir.setReturnValue("ClientWorld " + this_.getRegistryKey().getValue());
+    }
 }
