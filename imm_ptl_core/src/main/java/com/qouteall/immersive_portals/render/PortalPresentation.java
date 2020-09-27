@@ -31,15 +31,7 @@ public class PortalPresentation {
     @Nullable
     public Map<List<UUID>, GlQueryObject> thisFrameQuery;
     
-    @Nullable
-    public Map<List<UUID>, Boolean> lastFramePredictResult;
-    
-    @Nullable
-    public Map<List<UUID>, Boolean> thisFramePredictResult;
-    
     public int thisFrameQueryFrameIndex = -1;
-    
-    private long lastMispredictTime = 0;
     
     public static void init() {
         ModMain.preRenderSignal.connect(() -> {
@@ -126,9 +118,6 @@ public class PortalPresentation {
             
             lastFrameQuery = thisFrameQuery;
             thisFrameQuery = null;
-            
-            lastFramePredictResult = thisFramePredictResult;
-            thisFramePredictResult = null;
         }
     }
     
@@ -149,15 +138,5 @@ public class PortalPresentation {
         return thisFrameQuery.computeIfAbsent(desc, k -> GlQueryObject.acquireQueryObject());
     }
     
-    public void markMispredicted() {
-        lastMispredictTime = System.nanoTime();
-    }
     
-    public void markNonMispredicted() {
-        lastMispredictTime = 0;
-    }
-    
-    public boolean isMispredicted() {
-        return System.nanoTime() - lastMispredictTime < Helper.secondToNano(40);
-    }
 }

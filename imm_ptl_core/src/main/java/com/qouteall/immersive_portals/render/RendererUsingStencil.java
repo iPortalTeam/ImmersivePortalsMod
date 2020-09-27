@@ -8,12 +8,12 @@ import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -115,31 +115,13 @@ public class RendererUsingStencil extends PortalRenderer {
                 renderPortalViewAreaToStencil(portal, matrixStack);
             });
             
-            if (lastFrameQuery == null) {
-                presentation.markNonMispredicted();
-            }
-            
-            if (lastFrameQuery != null && !presentation.isMispredicted()) {
+            boolean noPredict = RenderStates.getRenderedPortalNum() < 5;
+            if (lastFrameQuery != null && !noPredict) {
                 anySamplePassed = lastFrameQuery.fetchQueryResult();
             }
             else {
                 anySamplePassed = thisFrameQuery.fetchQueryResult();
                 QueryManager.queryCounter++;
-            }
-            
-            if (presentation.thisFramePredictResult == null) {
-                presentation.thisFramePredictResult = new HashMap<>();
-            }
-            
-            presentation.thisFramePredictResult.put(renderingDescription, anySamplePassed);
-            
-            if (presentation.lastFramePredictResult != null) {
-                Boolean obj = presentation.lastFramePredictResult.get(renderingDescription);
-                if (obj != null) {
-                    if (obj.booleanValue() != anySamplePassed) {
-                        presentation.markMispredicted();
-                    }
-                }
             }
         }
         else {
