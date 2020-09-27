@@ -1453,7 +1453,7 @@ public class PortalCommand {
         return 1;
     }
     
-    private static int teleport(
+    public static int teleport(
         Collection<? extends Entity> entities,
         RegistryKey<World> targetDim,
         Vec3d targetPos
