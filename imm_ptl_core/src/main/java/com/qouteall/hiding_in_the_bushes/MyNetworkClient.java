@@ -6,11 +6,9 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
-import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,7 +31,6 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -169,16 +166,10 @@ public class MyNetworkClient {
     }
     
     private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
-        RegistryKey<World> dimensionType = DimId.readWorldId(buf, true);
+        RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
         CHelper.executeOnRenderThread(() -> {
-            ClientWorld world =
-                CGlobal.clientWorldLoader.getWorld(dimensionType);
-            
-            List<GlobalTrackedPortal> portals =
-                GlobalPortalStorage.getPortalsFromTag(compoundTag, world);
-            
-            ((IEClientWorld) world).setGlobalPortals(portals);
+            GlobalPortalStorage.receiveGlobalPortalSync(dimension, compoundTag);
         });
     }
     

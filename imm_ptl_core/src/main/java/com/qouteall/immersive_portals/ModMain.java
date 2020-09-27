@@ -98,8 +98,6 @@ public class ModMain {
         
         WorldInfoSender.init();
         
-        
-        
         GlobalPortalStorage.init();
         
         EntitySync.init();

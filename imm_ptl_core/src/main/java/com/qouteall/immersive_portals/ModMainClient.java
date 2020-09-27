@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighbo
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
+import com.qouteall.immersive_portals.render.PortalPresentation;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
@@ -91,6 +92,8 @@ public class ModMainClient {
         GlBufferCache.init();
         
         CollisionHelper.initClient();
+        
+        PortalPresentation.init();
         
         OFInterface.isOptifinePresent = O_O.detectOptiFine();
         if (OFInterface.isOptifinePresent) {

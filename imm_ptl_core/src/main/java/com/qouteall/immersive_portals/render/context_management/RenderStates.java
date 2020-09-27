@@ -30,6 +30,8 @@ import java.util.Set;
 
 public class RenderStates {
     
+    public static int frameIndex = 0;
+    
     public static RegistryKey<World> originalPlayerDimension;
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;

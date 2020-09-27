@@ -66,6 +66,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (CGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
         }
+        
+        RenderStates.frameIndex++;
     }
     
     //before rendering world (not triggered when rendering portal)

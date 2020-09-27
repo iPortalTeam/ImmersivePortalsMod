@@ -1,10 +1,15 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
+import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
@@ -27,11 +32,13 @@ public class GlobalPortalStorage extends PersistentState {
     public List<GlobalTrackedPortal> data;
     public WeakReference<ServerWorld> world;
     private int version = 1;
+    private boolean shouldReSync = false;
     
     public static void init() {
         ModMain.postServerTickSignal.connect(() -> {
             McHelper.getServer().getWorlds().forEach(world1 -> {
-                GlobalPortalStorage.get(world1).upgradeDataIfNecessary();
+                GlobalPortalStorage gps = GlobalPortalStorage.get(world1);
+                gps.tick();
             });
         });
     }
@@ -61,6 +68,12 @@ public class GlobalPortalStorage extends PersistentState {
     public void onDataChanged() {
         setDirty(true);
         
+        shouldReSync = true;
+        
+        
+    }
+    
+    private void syncToAllPlayers() {
         Packet packet = MyNetwork.createGlobalPortalUpdate(this);
         McHelper.getCopiedPlayerList().forEach(
             player -> player.networkHandler.sendPacket(packet)
@@ -83,7 +96,7 @@ public class GlobalPortalStorage extends PersistentState {
         clearAbnormalPortals();
     }
     
-    public static List<GlobalTrackedPortal> getPortalsFromTag(
+    private static List<GlobalTrackedPortal> getPortalsFromTag(
         CompoundTag tag,
         World currWorld
     ) {
@@ -105,7 +118,7 @@ public class GlobalPortalStorage extends PersistentState {
         return newData;
     }
     
-    public static GlobalTrackedPortal readPortalFromTag(World currWorld, CompoundTag compoundTag) {
+    private static GlobalTrackedPortal readPortalFromTag(World currWorld, CompoundTag compoundTag) {
         Identifier entityId = new Identifier(compoundTag.getString("entity_type"));
         EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
         
@@ -157,7 +170,12 @@ public class GlobalPortalStorage extends PersistentState {
         );
     }
     
-    public void upgradeDataIfNecessary() {
+    public void tick() {
+        if (shouldReSync) {
+            syncToAllPlayers();
+            shouldReSync = false;
+        }
+        
         if (version <= 1) {
             upgradeData(world.get());
             version = 2;
@@ -178,5 +196,24 @@ public class GlobalPortalStorage extends PersistentState {
     
     private static void upgradeData(ServerWorld world) {
         //removed
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static void receiveGlobalPortalSync(RegistryKey<World> dimension, CompoundTag compoundTag) {
+        ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimension);
+        
+        List<GlobalTrackedPortal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
+        for (GlobalTrackedPortal p : oldGlobalPortals) {
+            p.removed = true;
+        }
+        
+        List<GlobalTrackedPortal> newPortals = getPortalsFromTag(compoundTag, world);
+        for (GlobalTrackedPortal p : newPortals) {
+            p.removed = false;
+        }
+        
+        ((IEClientWorld) world).setGlobalPortals(newPortals);
+        
+        Helper.log("Global Portals Updated " + dimension.getValue());
     }
 }

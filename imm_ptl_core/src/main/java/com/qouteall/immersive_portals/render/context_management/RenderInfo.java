@@ -12,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
 import java.util.Stack;
+import java.util.UUID;
 
 public class RenderInfo {
     public ClientWorld world;
@@ -44,6 +45,10 @@ public class RenderInfo {
         this.additionalTransformation = additionalTransformation;
         this.portal = portal;
         this.renderDistance = renderDistance;
+    }
+    
+    public UUID getDescription(){
+        return portal != null ? portal.getUuid() : null;
     }
     
     public static void pushRenderInfo(RenderInfo renderInfo) {
@@ -82,5 +87,14 @@ public class RenderInfo {
     
     public static int getRenderingLayer() {
         return renderInfoStack.size();
+    }
+    
+    // for example rendering portal B inside portal A will always have the same rendering description
+    public static UUID[] getRenderingDescription() {
+        UUID[] result = new UUID[renderInfoStack.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = renderInfoStack.get(i).getDescription();
+        }
+        return result;
     }
 }
