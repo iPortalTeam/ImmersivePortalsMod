@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -11,6 +12,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
@@ -96,9 +101,53 @@ public class RendererUsingStencil extends PortalRenderer {
         int outerPortalStencilValue = PortalRendering.getPortalLayer();
         
         client.getProfiler().push("render_view_area");
-        boolean anySamplePassed = QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            renderPortalViewAreaToStencil(portal, matrixStack);
-        });
+        
+        boolean anySamplePassed;
+        
+        if (Global.offsetOcclusionQuery) {
+            PortalPresentation presentation = PortalPresentation.get(portal);
+            
+            List<UUID> renderingDescription = RenderInfo.getRenderingDescription();
+            GlQueryObject lastFrameQuery = presentation.getLastFrameQuery(renderingDescription);
+            GlQueryObject thisFrameQuery = presentation.acquireThisFrameQuery(renderingDescription);
+            
+            thisFrameQuery.performQueryAnySamplePassed(() -> {
+                renderPortalViewAreaToStencil(portal, matrixStack);
+            });
+            
+            if (lastFrameQuery == null) {
+                presentation.markNonMispredicted();
+            }
+            
+            if (lastFrameQuery != null && !presentation.isMispredicted()) {
+                anySamplePassed = lastFrameQuery.fetchQueryResult();
+            }
+            else {
+                anySamplePassed = thisFrameQuery.fetchQueryResult();
+                QueryManager.queryCounter++;
+            }
+            
+            if (presentation.thisFramePredictResult == null) {
+                presentation.thisFramePredictResult = new HashMap<>();
+            }
+            
+            presentation.thisFramePredictResult.put(renderingDescription, anySamplePassed);
+            
+            if (presentation.lastFramePredictResult != null) {
+                Boolean obj = presentation.lastFramePredictResult.get(renderingDescription);
+                if (obj != null) {
+                    if (obj.booleanValue() != anySamplePassed) {
+                        presentation.markMispredicted();
+                    }
+                }
+            }
+        }
+        else {
+            anySamplePassed = QueryManager.renderAndGetDoesAnySamplePass(() -> {
+                renderPortalViewAreaToStencil(portal, matrixStack);
+            });
+        }
+        
         client.getProfiler().pop();
         
         if (!anySamplePassed) {

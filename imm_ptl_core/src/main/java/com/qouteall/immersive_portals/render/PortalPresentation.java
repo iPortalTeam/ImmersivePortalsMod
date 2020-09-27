@@ -9,6 +9,7 @@ import net.fabricmc.api.Environment;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,12 +26,20 @@ public class PortalPresentation {
     private long lastActiveNanoTime;
     
     @Nullable
-    public Map<UUID[], GlQueryObject> lastFrameQuery;
+    public Map<List<UUID>, GlQueryObject> lastFrameQuery;
     
     @Nullable
-    public Map<UUID[], GlQueryObject> thisFrameQuery;
+    public Map<List<UUID>, GlQueryObject> thisFrameQuery;
+    
+    @Nullable
+    public Map<List<UUID>, Boolean> lastFramePredictResult;
+    
+    @Nullable
+    public Map<List<UUID>, Boolean> thisFramePredictResult;
     
     public int thisFrameQueryFrameIndex = -1;
+    
+    private long lastMispredictTime = 0;
     
     public static void init() {
         ModMain.preRenderSignal.connect(() -> {
@@ -89,15 +98,19 @@ public class PortalPresentation {
     }
     
     public void dispose() {
-        for (GlQueryObject queryObject : lastFrameQuery.values()) {
-            GlQueryObject.returnQueryObject(queryObject);
+        if (lastFrameQuery != null) {
+            for (GlQueryObject queryObject : lastFrameQuery.values()) {
+                GlQueryObject.returnQueryObject(queryObject);
+            }
+            lastFrameQuery.clear();
         }
-        lastFrameQuery.clear();
         
-        for (GlQueryObject queryObject : thisFrameQuery.values()) {
-            GlQueryObject.returnQueryObject(queryObject);
+        if (thisFrameQuery != null) {
+            for (GlQueryObject queryObject : thisFrameQuery.values()) {
+                GlQueryObject.returnQueryObject(queryObject);
+            }
+            thisFrameQuery.clear();
         }
-        thisFrameQuery.clear();
     }
     
     private void updateQuerySet() {
@@ -113,11 +126,14 @@ public class PortalPresentation {
             
             lastFrameQuery = thisFrameQuery;
             thisFrameQuery = null;
+            
+            lastFramePredictResult = thisFramePredictResult;
+            thisFramePredictResult = null;
         }
     }
     
     @Nullable
-    public GlQueryObject getLastFrameQuery(UUID[] desc) {
+    public GlQueryObject getLastFrameQuery(List<UUID> desc) {
         updateQuerySet();
         if (lastFrameQuery == null) {
             return null;
@@ -125,7 +141,7 @@ public class PortalPresentation {
         return lastFrameQuery.get(desc);
     }
     
-    public GlQueryObject acquireThisFrameQuery(UUID[] desc) {
+    public GlQueryObject acquireThisFrameQuery(List<UUID> desc) {
         updateQuerySet();
         if (thisFrameQuery == null) {
             thisFrameQuery = new HashMap<>();
@@ -133,5 +149,15 @@ public class PortalPresentation {
         return thisFrameQuery.computeIfAbsent(desc, k -> GlQueryObject.acquireQueryObject());
     }
     
+    public void markMispredicted() {
+        lastMispredictTime = System.nanoTime();
+    }
     
+    public void markNonMispredicted() {
+        lastMispredictTime = 0;
+    }
+    
+    public boolean isMispredicted() {
+        return System.nanoTime() - lastMispredictTime < Helper.secondToNano(40);
+    }
 }

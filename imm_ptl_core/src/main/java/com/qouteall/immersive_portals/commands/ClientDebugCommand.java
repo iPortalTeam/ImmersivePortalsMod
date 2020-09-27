@@ -558,6 +558,11 @@ public class ClientDebugCommand {
             "cull_sections_behind",
             cond -> Global.cullSectionsBehind = cond
         );
+        registerSwitchCommand(
+            builder,
+            "offset_occlusion_query",
+            cond -> Global.offsetOcclusionQuery = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

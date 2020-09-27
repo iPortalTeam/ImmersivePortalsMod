@@ -68,6 +68,8 @@ public class Global {
     
     public static boolean cullSectionsBehind = true;
     
+    public static boolean offsetOcclusionQuery = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,
