@@ -169,7 +169,7 @@ public abstract class BreakablePortalEntity extends Portal {
             return false;
         }
         else {
-            limitedLogger.err("Missing Reverse Portal " + this);
+//            limitedLogger.err("Missing Reverse Portal " + this);
             return true;
         }
     }
