@@ -1,3 +1,4 @@
+# Immersive Portals Mod
 
 It's a minecraft mod that provides see-through portals and seamless teleportation.
 
@@ -20,7 +21,7 @@ This mod has some lag spike optimizations to reduce the client lag spike caused 
  and unloading many chunks (defer remote sections rebuild, merge glGenBuffers, delay chunk unload ...).
  It also provides performance configurations to adjust the performance.
 
-The portal rendering has been well optimized (inner and outer frustum culling) but several additional
+Many optimizations have been made to portal rendering (inner and outer frustum culling) but several additional
  optimizations are being planned (merged portal rendering, occlusion query prediction)
 
 ## How to run this code
