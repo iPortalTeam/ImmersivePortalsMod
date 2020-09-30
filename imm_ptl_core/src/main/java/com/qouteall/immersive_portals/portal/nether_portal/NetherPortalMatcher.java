@@ -153,33 +153,44 @@ public class NetherPortalMatcher {
         WorldAccess world,
         BlockPos searchingCenter
     ) {
+        int radius = 16;
         IntBox airCube = getAirCubeOnSolidGround(
-            areaSize.add(7, 0, 7), world, searchingCenter,
-            8, true
+            areaSize, new BlockPos(6, 0, 6), world, searchingCenter,
+            radius, true
         );
         
         if (airCube == null) {
-            Helper.log("Cannot Find Portal Placement on Solid Ground");
+            Helper.log("Cannot Find Portal Placement on Ground with 3 Spacing");
             airCube = getAirCubeOnSolidGround(
-                areaSize.add(5, 0, 5), world, searchingCenter,
-                8, false
+                areaSize, new BlockPos(2, 0, 2), world, searchingCenter,
+                radius, true
             );
         }
         
         if (airCube == null) {
-            Helper.log("Cannot Find Portal Placement on Ground");
+            Helper.log("Cannot Find Portal Placement on Ground with 1 Spacing");
+            airCube = getAirCubeOnSolidGround(
+                areaSize, new BlockPos(6, 0, 6), world, searchingCenter,
+                radius, false
+            );
+        }
+        
+        if (airCube == null) {
+            Helper.log("Cannot Find Portal Placement on Non Solid Surface");
             return null;
         }
         
-        if (world.getBlockState(airCube.l.add(0, -1, 0)).getBlock() == Blocks.LAVA) {
-            Helper.log("Generated Portal On Lava Lake");
+        if (world.getBlockState(airCube.l.down()).getMaterial().isSolid()) {
+            Helper.log("Generated Portal On Ground");
+            
+            return pushDownBox(world, airCube.getSubBoxInCenter(areaSize));
+        }
+        else {
+            Helper.log("Generated Portal On Non Solid Surface");
             
             return levitateBox(world, airCube.getSubBoxInCenter(areaSize), 40);
         }
         
-        Helper.log("Generated Portal On Ground");
-        
-        return pushDownBox(world, airCube.getSubBoxInCenter(areaSize));
     }
     
     private static boolean isLavaLake(
@@ -190,6 +201,7 @@ public class NetherPortalMatcher {
             world.getBlockState(blockPos.add(-5, 0, -5)).getBlock() == Blocks.LAVA;
     }
     
+    @Deprecated
     private static IntBox getAirCubeOnGround(
         BlockPos areaSize,
         WorldAccess world,
@@ -202,7 +214,7 @@ public class NetherPortalMatcher {
             searchingCenter.getX(), searchingCenter.getZ(),
             findingRadius
         ).filter(
-            blockPos -> isAirOnGround(world, blockPos)
+            blockPos -> isAirOnSolidGround(world, blockPos)
         ).filter(
             blockPos -> groundBlockLimit.test(blockPos.add(0, -1, 0))
         ).map(
@@ -215,28 +227,43 @@ public class NetherPortalMatcher {
         ).findFirst().orElse(null);
     }
     
+    private static IntBox expandFromBottomCenter(IntBox box, BlockPos spacing) {
+        BlockPos boxSize = box.getSize();
+        
+        return box.getAdjusted(
+            -spacing.getX() / 2, 0, -spacing.getZ() / 2,
+            spacing.getX() / 2, spacing.getY(), spacing.getZ() / 2
+        );
+    }
+    
     private static IntBox getAirCubeOnSolidGround(
         BlockPos areaSize,
+        BlockPos ambientSpaceReserved,
         WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius,
         boolean solidGround
     ) {
+        Predicate<BlockPos> isAirOnGroundPredicate =
+            blockPos -> solidGround ? isAirOnSolidGround(world, blockPos) :
+                isAirOnGround(world, blockPos);
         return NetherPortalGeneration.fromNearToFarColumned(
             ((ServerWorld) world),
             searchingCenter.getX(), searchingCenter.getZ(),
             findingRadius
         ).filter(
-            blockPos -> isAirOnGround(world, blockPos)
-        ).filter(
-            blockPos -> solidGround ? isAirOnGround(
-                world,
-                blockPos.add(areaSize.getX() - 1, 0, areaSize.getZ() - 1)
-            ) : true
+            isAirOnGroundPredicate
         ).map(
             basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
         ).filter(
             box -> isAirCubeMediumPlace(world, box)
+        ).filter(
+            box -> solidGround ?
+                box.getSurfaceLayer(Direction.DOWN).stream().allMatch(isAirOnGroundPredicate)
+                : true
+        ).filter(
+            box -> expandFromBottomCenter(box, ambientSpaceReserved).stream()
+                .allMatch(blockPos -> world.getBlockState(blockPos).isOpaque())
         ).findFirst().orElse(null);
     }
     
@@ -248,18 +275,18 @@ public class NetherPortalMatcher {
     ) {
         IntBox result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
             areaSize, world, searchingCenter,
-            30, 8
+            30, 12
         );
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
                 areaSize, world, searchingCenter,
-                10, 8
+                10, 12
             );
         }
         if (result == null) {
             result = findHorizontalPortalPlacementWithVerticalSpaceReserved(
                 areaSize, world, searchingCenter,
-                1, 8
+                1, 12
             );
         }
         return result;
@@ -286,16 +313,24 @@ public class NetherPortalMatcher {
         return foundCubeArea.getSubBoxInCenter(areaSize);
     }
     
-    private static boolean isAirOnGround(
-        WorldAccess world,
-        BlockPos blockPos
-    ) {
-        if (world.isAir(blockPos)) {
-            BlockPos belowPos = blockPos.add(0, -1, 0);
-            return !world.isAir(belowPos);
-        }
-        
-        return false;
+    // does not contain lava water
+    public static boolean isSolidGroundBlock(BlockState blockState) {
+        return blockState.getMaterial().isSolid();
+    }
+    
+    // includes lava water
+    public static boolean isGroundBlock(BlockState blockState) {
+        return !blockState.isAir();
+    }
+    
+    private static boolean isAirOnSolidGround(WorldAccess world, BlockPos blockPos) {
+        return world.isAir(blockPos) &&
+            isSolidGroundBlock(world.getBlockState(blockPos.add(0, -1, 0)));
+    }
+    
+    private static boolean isAirOnGround(WorldAccess world, BlockPos blockPos) {
+        return world.isAir(blockPos) &&
+            isGroundBlock(world.getBlockState(blockPos.add(0, -1, 0)));
     }
     
     static IntBox findCubeAirAreaAtAnywhere(

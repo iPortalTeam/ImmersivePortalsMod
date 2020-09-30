@@ -58,21 +58,23 @@ public class NetherPortalGeneration {
         if (foundAirCube == null) {
             Helper.log("Cannot find normal portal placement");
             foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
-                neededAreaSize, toWorld, mappedPosInOtherDimension, 10
+                neededAreaSize, toWorld, mappedPosInOtherDimension, 16
             );
             
             if (foundAirCube != null) {
-                foundAirCube = NetherPortalMatcher.levitateBox(toWorld, foundAirCube, 50);
+                if (isFloating(toWorld, foundAirCube)) {
+                    foundAirCube = NetherPortalMatcher.levitateBox(toWorld, foundAirCube, 50);
+                }
             }
         }
-        
-        if (foundAirCube == null) {
-            Helper.log("Cannot find air cube within 10 blocks");
-            foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
-                neededAreaSize, toWorld, mappedPosInOtherDimension, 16
-            );
-        }
-        
+
+//        if (foundAirCube == null) {
+//            Helper.log("Cannot find air cube within 12 blocks");
+//            foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
+//                neededAreaSize, toWorld, mappedPosInOtherDimension, 16
+//            );
+//        }
+//
         if (foundAirCube == null) {
             Helper.err("Cannot find air cube within 16 blocks? " +
                 "Force placed portal. It will occupy normal blocks.");
@@ -83,6 +85,12 @@ public class NetherPortalGeneration {
             );
         }
         return foundAirCube;
+    }
+    
+    private static boolean isFloating(ServerWorld toWorld, IntBox foundAirCube) {
+        return foundAirCube.getSurfaceLayer(Direction.DOWN).stream().noneMatch(
+            blockPos -> toWorld.getBlockState(blockPos.down()).getMaterial().isSolid()
+        );
     }
     
     public static RegistryKey<World> getDestinationDimension(
@@ -458,13 +466,14 @@ public class NetherPortalGeneration {
             range = 5;
         }
         
+        int height = world.getDimensionHeight();
+        
         if (Global.blameOpenJdk) {
             return blockPosStreamNaive(
                 world, x, z, range
             );
         }
         
-        int height = world.getDimensionHeight();
         
         BlockPos.Mutable temp0 = new BlockPos.Mutable();
         BlockPos.Mutable temp2 = new BlockPos.Mutable();

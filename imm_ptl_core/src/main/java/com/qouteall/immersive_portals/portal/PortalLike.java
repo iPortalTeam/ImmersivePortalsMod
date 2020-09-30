@@ -9,18 +9,20 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public interface PortalLike {
+    boolean isConventionalPortal();
+    
     // bounding box
     Box getAreaBox();
     
-    Vec3d getFromPos();
+    Vec3d getOriginPos();
     
-    Vec3d getToPos();
+    Vec3d getDestPos();
     
-    World getFromWorld();
+    World getOriginWorld();
     
-    World getToWorld();
+    World getDestWorld();
     
-    Vec3d getNormal();
+    boolean isRoughlyVisibleTo(Vec3d cameraPos);
     
     Vec3d getContentDirection();
     
