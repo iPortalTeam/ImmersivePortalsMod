@@ -110,18 +110,41 @@ public class RendererUsingStencil extends PortalRenderer {
             List<UUID> renderingDescription = RenderInfo.getRenderingDescription();
             GlQueryObject lastFrameQuery = presentation.getLastFrameQuery(renderingDescription);
             GlQueryObject thisFrameQuery = presentation.acquireThisFrameQuery(renderingDescription);
+    
+            if (lastFrameQuery == null) {
+                presentation.clearMispredictionRecord();
+            }
             
             thisFrameQuery.performQueryAnySamplePassed(() -> {
                 renderPortalViewAreaToStencil(portal, matrixStack);
             });
-            
-            boolean noPredict = RenderStates.getRenderedPortalNum() < 5;
+    
+            boolean noPredict =
+                presentation.isFrequentlyMispredicted()||
+                RenderStates.getRenderedPortalNum() < 2;
             if (lastFrameQuery != null && !noPredict) {
                 anySamplePassed = lastFrameQuery.fetchQueryResult();
             }
             else {
                 anySamplePassed = thisFrameQuery.fetchQueryResult();
                 QueryManager.queryCounter++;
+            }
+            
+            if (anySamplePassed) {
+                presentation.thisFrameRendered = true;
+            }
+            else {
+                if (presentation.thisFrameRendered == null) {
+                    presentation.thisFrameRendered = false;
+                }
+            }
+    
+            if (anySamplePassed) {
+                if (presentation.lastFrameRendered != null) {
+                    if (!presentation.lastFrameRendered) {
+                        presentation.onMispredict();
+                    }
+                }
             }
         }
         else {

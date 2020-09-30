@@ -33,6 +33,15 @@ public class PortalPresentation {
     
     public int thisFrameQueryFrameIndex = -1;
     
+    @Nullable
+    public Boolean lastFrameRendered;
+    
+    @Nullable
+    public Boolean thisFrameRendered;
+    
+    private long mispredictTime1 = 0;
+    private long mispredictTime2 = 0;
+    
     public static void init() {
         ModMain.preRenderSignal.connect(() -> {
             long currTime = System.nanoTime();
@@ -108,16 +117,35 @@ public class PortalPresentation {
     private void updateQuerySet() {
         onUsed();
         if (RenderStates.frameIndex != thisFrameQueryFrameIndex) {
-            thisFrameQueryFrameIndex = RenderStates.frameIndex;
-            if (lastFrameQuery != null) {
-                for (GlQueryObject queryObject : lastFrameQuery.values()) {
-                    GlQueryObject.returnQueryObject(queryObject);
+            
+            if (RenderStates.frameIndex == thisFrameQueryFrameIndex + 1) {
+                
+                if (lastFrameQuery != null) {
+                    for (GlQueryObject queryObject : lastFrameQuery.values()) {
+                        GlQueryObject.returnQueryObject(queryObject);
+                    }
+                    lastFrameQuery.clear();
                 }
-                lastFrameQuery.clear();
+                
+                lastFrameQuery = thisFrameQuery;
+                thisFrameQuery = null;
+                
+                lastFrameRendered = thisFrameRendered;
+                thisFrameRendered = null;
+            }
+            else {
+                if (lastFrameQuery != null) {
+                    for (GlQueryObject queryObject : lastFrameQuery.values()) {
+                        GlQueryObject.returnQueryObject(queryObject);
+                    }
+                    lastFrameQuery.clear();
+                }
+                
+                lastFrameRendered = null;
+                thisFrameRendered = null;
             }
             
-            lastFrameQuery = thisFrameQuery;
-            thisFrameQuery = null;
+            thisFrameQueryFrameIndex = RenderStates.frameIndex;
         }
     }
     
@@ -138,5 +166,20 @@ public class PortalPresentation {
         return thisFrameQuery.computeIfAbsent(desc, k -> GlQueryObject.acquireQueryObject());
     }
     
+    public void clearMispredictionRecord() {
+//        mispredictTime1 = 0;
+//        mispredictTime2 = 0;
     
+    }
+    
+    public void onMispredict() {
+        mispredictTime1 = mispredictTime2;
+        mispredictTime2 = System.nanoTime();
+    }
+    
+    public boolean isFrequentlyMispredicted() {
+        long currTime = System.nanoTime();
+        
+        return (currTime - mispredictTime1) < Helper.secondToNano(30);
+    }
 }
