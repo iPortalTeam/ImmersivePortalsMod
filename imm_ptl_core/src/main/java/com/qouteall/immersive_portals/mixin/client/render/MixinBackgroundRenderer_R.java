@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Mixin(BackgroundRenderer.class)
+@Mixin(value = BackgroundRenderer.class, priority = 900)
 public class MixinBackgroundRenderer_R {
     // avoid thick fog when rendering the box view end portal
     @ModifyArg(
