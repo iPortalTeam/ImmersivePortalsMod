@@ -1,8 +1,10 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -90,6 +92,7 @@ public class PortalPresentation {
         lastActiveNanoTime = System.nanoTime();
     }
     
+    
     public void onUsed() {
         lastActiveNanoTime = System.nanoTime();
     }
@@ -166,12 +169,6 @@ public class PortalPresentation {
         return thisFrameQuery.computeIfAbsent(desc, k -> GlQueryObject.acquireQueryObject());
     }
     
-    public void clearMispredictionRecord() {
-//        mispredictTime1 = 0;
-//        mispredictTime2 = 0;
-    
-    }
-    
     public void onMispredict() {
         mispredictTime1 = mispredictTime2;
         mispredictTime2 = System.nanoTime();
@@ -181,5 +178,54 @@ public class PortalPresentation {
         long currTime = System.nanoTime();
         
         return (currTime - mispredictTime1) < Helper.secondToNano(30);
+    }
+    
+    public void updatePredictionStatus(boolean anySamplePassed) {
+        if (anySamplePassed) {
+            thisFrameRendered = true;
+        }
+        else {
+            if (thisFrameRendered == null) {
+                thisFrameRendered = false;
+            }
+        }
+        
+        if (anySamplePassed) {
+            if (lastFrameRendered != null) {
+                if (!lastFrameRendered) {
+                    onMispredict();
+                }
+            }
+        }
+    }
+    
+    public static boolean renderAndQuery(Portal portal, Runnable queryRendering) {
+        boolean anySamplePassed;
+        if (Global.offsetOcclusionQuery) {
+            PortalPresentation presentation = get(portal);
+            
+            List<UUID> renderingDescription = RenderInfo.getRenderingDescription();
+            GlQueryObject lastFrameQuery = presentation.getLastFrameQuery(renderingDescription);
+            GlQueryObject thisFrameQuery = presentation.acquireThisFrameQuery(renderingDescription);
+            
+            thisFrameQuery.performQueryAnySamplePassed(queryRendering);
+            
+            boolean noPredict =
+                presentation.isFrequentlyMispredicted() ||
+                    RenderStates.getRenderedPortalNum() < 2;
+            if (lastFrameQuery != null && !noPredict) {
+                anySamplePassed = lastFrameQuery.fetchQueryResult();
+            }
+            else {
+                anySamplePassed = thisFrameQuery.fetchQueryResult();
+                QueryManager.queryCounter++;
+            }
+            
+            presentation.updatePredictionStatus(anySamplePassed);
+        }
+        else {
+            anySamplePassed = QueryManager.renderAndGetDoesAnySamplePass(queryRendering);
+        }
+        return anySamplePassed;
     }
 }

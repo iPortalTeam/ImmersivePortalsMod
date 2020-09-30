@@ -20,7 +20,7 @@ public class MixinDebugHud {
     @Inject(method = "getRightText", at = @At("RETURN"), cancellable = true)
     private void onGetRightText(CallbackInfoReturnable<List<String>> cir) {
         List<String> returnValue = cir.getReturnValue();
-        returnValue.add("Rendered Portal Num: " + RenderStates.lastPortalRenderInfos.size());
+        returnValue.add("Rendered Portals: " + RenderStates.lastPortalRenderInfos.size());
         
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
@@ -31,7 +31,7 @@ public class MixinDebugHud {
             }
         }
         
-        returnValue.add("Occlusion Query: " + QueryManager.queryCounter);
+        returnValue.add("Occlusion Query Stall: " + QueryManager.queryCounter);
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.add("Debug: " + RenderStates.debugText);

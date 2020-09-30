@@ -3,19 +3,14 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
-import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-
-import java.util.List;
-import java.util.UUID;
 
 import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
@@ -102,56 +97,9 @@ public class RendererUsingStencil extends PortalRenderer {
         
         client.getProfiler().push("render_view_area");
         
-        boolean anySamplePassed;
-        
-        if (Global.offsetOcclusionQuery) {
-            PortalPresentation presentation = PortalPresentation.get(portal);
-            
-            List<UUID> renderingDescription = RenderInfo.getRenderingDescription();
-            GlQueryObject lastFrameQuery = presentation.getLastFrameQuery(renderingDescription);
-            GlQueryObject thisFrameQuery = presentation.acquireThisFrameQuery(renderingDescription);
-    
-            if (lastFrameQuery == null) {
-                presentation.clearMispredictionRecord();
-            }
-            
-            thisFrameQuery.performQueryAnySamplePassed(() -> {
-                renderPortalViewAreaToStencil(portal, matrixStack);
-            });
-    
-            boolean noPredict =
-                presentation.isFrequentlyMispredicted()||
-                RenderStates.getRenderedPortalNum() < 2;
-            if (lastFrameQuery != null && !noPredict) {
-                anySamplePassed = lastFrameQuery.fetchQueryResult();
-            }
-            else {
-                anySamplePassed = thisFrameQuery.fetchQueryResult();
-                QueryManager.queryCounter++;
-            }
-            
-            if (anySamplePassed) {
-                presentation.thisFrameRendered = true;
-            }
-            else {
-                if (presentation.thisFrameRendered == null) {
-                    presentation.thisFrameRendered = false;
-                }
-            }
-    
-            if (anySamplePassed) {
-                if (presentation.lastFrameRendered != null) {
-                    if (!presentation.lastFrameRendered) {
-                        presentation.onMispredict();
-                    }
-                }
-            }
-        }
-        else {
-            anySamplePassed = QueryManager.renderAndGetDoesAnySamplePass(() -> {
-                renderPortalViewAreaToStencil(portal, matrixStack);
-            });
-        }
+        boolean anySamplePassed = PortalPresentation.renderAndQuery(portal, () -> {
+            renderPortalViewAreaToStencil(portal, matrixStack);
+        });
         
         client.getProfiler().pop();
         
