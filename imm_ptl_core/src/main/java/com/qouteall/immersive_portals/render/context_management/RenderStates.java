@@ -103,7 +103,7 @@ public class RenderStates {
         
         debugText = "";
     
-        QueryManager.queryCounter = 0;
+        QueryManager.queryStallCounter = 0;
 //        MyRenderHelper.debugText = String.valueOf(((IEEntity) client.player).getCollidingPortal());
 
 //        if (ClientTeleportationManager.isTeleportingTick) {

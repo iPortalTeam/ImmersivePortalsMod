@@ -77,8 +77,12 @@ public class PortalPresentation {
     private static void purge() {
         final long currTime = System.nanoTime();
         dataMap.entrySet().removeIf(entry -> {
-            final PortalPresentation presentation = entry.getValue();
-            return presentation.shouldDispose(currTime);
+            PortalPresentation presentation = entry.getValue();
+            boolean shouldDispose = presentation.shouldDispose(currTime);
+            if (shouldDispose) {
+                presentation.dispose();
+            }
+            return shouldDispose;
         });
     }
     
@@ -92,7 +96,6 @@ public class PortalPresentation {
         lastActiveNanoTime = System.nanoTime();
     }
     
-    
     public void onUsed() {
         lastActiveNanoTime = System.nanoTime();
     }
@@ -102,12 +105,7 @@ public class PortalPresentation {
     }
     
     public void dispose() {
-        if (lastFrameQuery != null) {
-            for (GlQueryObject queryObject : lastFrameQuery.values()) {
-                GlQueryObject.returnQueryObject(queryObject);
-            }
-            lastFrameQuery.clear();
-        }
+        disposeLastFrameQuery();
         
         if (thisFrameQuery != null) {
             for (GlQueryObject queryObject : thisFrameQuery.values()) {
@@ -123,12 +121,7 @@ public class PortalPresentation {
             
             if (RenderStates.frameIndex == thisFrameQueryFrameIndex + 1) {
                 
-                if (lastFrameQuery != null) {
-                    for (GlQueryObject queryObject : lastFrameQuery.values()) {
-                        GlQueryObject.returnQueryObject(queryObject);
-                    }
-                    lastFrameQuery.clear();
-                }
+                disposeLastFrameQuery();
                 
                 lastFrameQuery = thisFrameQuery;
                 thisFrameQuery = null;
@@ -137,18 +130,22 @@ public class PortalPresentation {
                 thisFrameRendered = null;
             }
             else {
-                if (lastFrameQuery != null) {
-                    for (GlQueryObject queryObject : lastFrameQuery.values()) {
-                        GlQueryObject.returnQueryObject(queryObject);
-                    }
-                    lastFrameQuery.clear();
-                }
+                disposeLastFrameQuery();
                 
                 lastFrameRendered = null;
                 thisFrameRendered = null;
             }
             
             thisFrameQueryFrameIndex = RenderStates.frameIndex;
+        }
+    }
+    
+    private void disposeLastFrameQuery() {
+        if (lastFrameQuery != null) {
+            for (GlQueryObject queryObject : lastFrameQuery.values()) {
+                GlQueryObject.returnQueryObject(queryObject);
+            }
+            lastFrameQuery.clear();
         }
     }
     
@@ -218,7 +215,7 @@ public class PortalPresentation {
             }
             else {
                 anySamplePassed = thisFrameQuery.fetchQueryResult();
-                QueryManager.queryCounter++;
+                QueryManager.queryStallCounter++;
             }
             
             presentation.updatePredictionStatus(anySamplePassed);

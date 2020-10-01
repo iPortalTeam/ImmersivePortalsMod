@@ -31,7 +31,7 @@ public class MixinDebugHud {
             }
         }
         
-        returnValue.add("Occlusion Query Stall: " + QueryManager.queryCounter);
+        returnValue.add("Occlusion Query Stall: " + QueryManager.queryStallCounter);
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.add("Debug: " + RenderStates.debugText);
