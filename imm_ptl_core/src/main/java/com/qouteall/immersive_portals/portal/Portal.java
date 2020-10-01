@@ -77,6 +77,7 @@ public class Portal extends Entity {
     @Nullable
     public GeometryPortalShape specialShape;
     
+    private Box exactBoundingBoxCache;
     private Box boundingBoxCache;
     private Vec3d normal;
     private Vec3d contentDirection;
@@ -276,6 +277,7 @@ public class Portal extends Entity {
     
     public void updateCache() {
         boundingBoxCache = null;
+        exactBoundingBoxCache = null;
         normal = null;
         contentDirection = null;
         getBoundingBox();
@@ -342,9 +344,37 @@ public class Portal extends Entity {
             return new Box(0, 0, 0, 0, 0, 0);
         }
         if (boundingBoxCache == null) {
-            boundingBoxCache = getPortalCollisionBox();
+            boundingBoxCache = new Box(
+                getPointInPlane(width / 2, height / 2)
+                    .add(getNormal().multiply(0.2)),
+                getPointInPlane(-width / 2, -height / 2)
+                    .add(getNormal().multiply(-0.2))
+            ).union(new Box(
+                getPointInPlane(-width / 2, height / 2)
+                    .add(getNormal().multiply(0.2)),
+                getPointInPlane(width / 2, -height / 2)
+                    .add(getNormal().multiply(-0.2))
+            ));
         }
         return boundingBoxCache;
+    }
+    
+    public Box getExactBoundingBox() {
+        if (exactBoundingBoxCache == null) {
+            exactBoundingBoxCache =  new Box(
+                getPointInPlane(width / 2, height / 2)
+                    .add(getNormal().multiply(0.02)),
+                getPointInPlane(-width / 2, -height / 2)
+                    .add(getNormal().multiply(-0.02))
+            ).union(new Box(
+                getPointInPlane(-width / 2, height / 2)
+                    .add(getNormal().multiply(0.02)),
+                getPointInPlane(width / 2, -height / 2)
+                    .add(getNormal().multiply(-0.02))
+            ));
+        }
+        
+        return exactBoundingBoxCache;
     }
     
     @Override
@@ -605,20 +635,6 @@ public class Portal extends Entity {
     
     public Vec3d getCullingPoint() {
         return destination;
-    }
-    
-    private Box getPortalCollisionBox() {
-        return new Box(
-            getPointInPlane(width / 2, height / 2)
-                .add(getNormal().multiply(0.2)),
-            getPointInPlane(-width / 2, -height / 2)
-                .add(getNormal().multiply(-0.2))
-        ).union(new Box(
-            getPointInPlane(-width / 2, height / 2)
-                .add(getNormal().multiply(0.2)),
-            getPointInPlane(width / 2, -height / 2)
-                .add(getNormal().multiply(-0.2))
-        ));
     }
     
     public Box getThinAreaBox() {

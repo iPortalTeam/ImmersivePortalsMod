@@ -192,7 +192,9 @@ public class PortalPresentation {
         if (anySamplePassed) {
             if (lastFrameRendered != null) {
                 if (!lastFrameRendered) {
-                    onMispredict();
+                    if (!isFrequentlyMispredicted()) {
+                        onMispredict();
+                    }
                 }
             }
         }
@@ -213,7 +215,7 @@ public class PortalPresentation {
             
             boolean noPredict =
                 presentation.isFrequentlyMispredicted() ||
-                    RenderStates.getRenderedPortalNum() < 2;
+                    QueryManager.queryStallCounter < 3;
             if (lastFrameQuery != null && !noPredict) {
                 profiler.push("fetch_last_frame");
                 anySamplePassed = lastFrameQuery.fetchQueryResult();

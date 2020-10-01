@@ -127,7 +127,7 @@ public abstract class PortalRenderer {
         
         if (CGlobal.earlyFrustumCullingPortal) {
             Frustum frustum = frustumSupplier.get();
-            if (!frustum.isVisible(portal.getBoundingBox())) {
+            if (!frustum.isVisible(portal.getExactBoundingBox())) {
                 return true;
             }
         }
