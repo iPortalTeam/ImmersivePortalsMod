@@ -15,7 +15,6 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
@@ -72,14 +71,7 @@ public class NetherPortalGeneration {
                 }
             }
         }
-
-//        if (foundAirCube == null) {
-//            Helper.log("Cannot find air cube within 12 blocks");
-//            foundAirCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
-//                neededAreaSize, toWorld, mappedPosInOtherDimension, 16
-//            );
-//        }
-//
+        
         if (foundAirCube == null) {
             Helper.err("Cannot find air cube within 16 blocks? " +
                 "Force placed portal. It will occupy normal blocks.");
@@ -110,68 +102,6 @@ public class NetherPortalGeneration {
             ),
             3
         );
-    }
-    
-    //create portal entity and generate placeholder blocks
-    public static BreakablePortalEntity[] generateBreakablePortalEntitiesAndPlaceholder(
-        PortalGenInfo info,
-        EntityType<? extends BreakablePortalEntity> entityType
-    ) {
-        ServerWorld fromWorld = McHelper.getServer().getWorld(info.from);
-        ServerWorld toWorld = McHelper.getServer().getWorld(info.to);
-        
-        fillInPlaceHolderBlocks(fromWorld, info.fromShape);
-        fillInPlaceHolderBlocks(toWorld, info.toShape);
-        
-        BreakablePortalEntity[] portalArray = new BreakablePortalEntity[]{
-            entityType.create(fromWorld),
-            entityType.create(fromWorld),
-            entityType.create(toWorld),
-            entityType.create(toWorld)
-        };
-        
-        info.fromShape.initPortalPosAxisShape(
-            portalArray[0], false
-        );
-        info.fromShape.initPortalPosAxisShape(
-            portalArray[1], true
-        );
-        info.toShape.initPortalPosAxisShape(
-            portalArray[2], false
-        );
-        info.toShape.initPortalPosAxisShape(
-            portalArray[3], true
-        );
-        
-        portalArray[0].dimensionTo = info.to;
-        portalArray[1].dimensionTo = info.to;
-        portalArray[2].dimensionTo = info.from;
-        portalArray[3].dimensionTo = info.from;
-        
-        Vec3d offset = Vec3d.of(info.toShape.innerAreaBox.l.subtract(
-            info.fromShape.innerAreaBox.l
-        ));
-        portalArray[0].destination = portalArray[0].getPos().add(offset);
-        portalArray[1].destination = portalArray[1].getPos().add(offset);
-        portalArray[2].destination = portalArray[2].getPos().subtract(offset);
-        portalArray[3].destination = portalArray[3].getPos().subtract(offset);
-        
-        portalArray[0].blockPortalShape = info.fromShape;
-        portalArray[1].blockPortalShape = info.fromShape;
-        portalArray[2].blockPortalShape = info.toShape;
-        portalArray[3].blockPortalShape = info.toShape;
-        
-        portalArray[0].reversePortalId = portalArray[2].getUuid();
-        portalArray[1].reversePortalId = portalArray[3].getUuid();
-        portalArray[2].reversePortalId = portalArray[0].getUuid();
-        portalArray[3].reversePortalId = portalArray[1].getUuid();
-        
-        fromWorld.spawnEntity(portalArray[0]);
-        fromWorld.spawnEntity(portalArray[1]);
-        toWorld.spawnEntity(portalArray[2]);
-        toWorld.spawnEntity(portalArray[3]);
-        
-        return portalArray;
     }
     
     public static void startGeneratingPortal(
