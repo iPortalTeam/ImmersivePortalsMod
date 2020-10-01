@@ -247,24 +247,50 @@ public class NetherPortalMatcher {
         Predicate<BlockPos> isAirOnGroundPredicate =
             blockPos -> solidGround ? isAirOnSolidGround(world, blockPos) :
                 isAirOnGround(world, blockPos);
-        return NetherPortalGeneration.fromNearToFarColumned(
-            ((ServerWorld) world),
-            searchingCenter.getX(), searchingCenter.getZ(),
-            findingRadius
-        ).filter(
-            isAirOnGroundPredicate
-        ).map(
-            basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
-        ).filter(
-            box -> isAirCubeMediumPlace(world, box)
-        ).filter(
-            box -> solidGround ?
-                box.getSurfaceLayer(Direction.DOWN).stream().allMatch(isAirOnGroundPredicate)
-                : true
-        ).filter(
-            box -> expandFromBottomCenter(box, ambientSpaceReserved).stream()
-                .allMatch(blockPos -> world.getBlockState(blockPos).isOpaque())
-        ).findFirst().orElse(null);
+        
+        return BlockTraverse.searchColumned(
+            searchingCenter.getX(), searchingCenter.getZ(), findingRadius,
+            5, world.getDimensionHeight() - 5,
+            mutable -> {
+                if (isAirOnGroundPredicate.test(mutable)) {
+                    IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
+                    
+                    IntBox expanded = expandFromBottomCenter(box, ambientSpaceReserved);
+                    if (isAirCubeMediumPlace(world, expanded)) {
+                        if (solidGround) {
+                            if (BlockTraverse.boxAllMatch(box.getSurfaceLayer(Direction.DOWN), isAirOnGroundPredicate)) {
+                                if (isAirOnGroundPredicate.test(expanded.l)) {
+                                    return box;
+                                }
+                            }
+                        }
+                        else {
+                            return box;
+                        }
+                    }
+                }
+                return null;
+            }
+        );
+
+//        return NetherPortalGeneration.fromNearToFarColumned(
+//            ((ServerWorld) world),
+//            searchingCenter.getX(), searchingCenter.getZ(),
+//            findingRadius
+//        ).filter(
+//            isAirOnGroundPredicate
+//        ).map(
+//            basePoint -> IntBox.getBoxByBasePointAndSize(areaSize, basePoint)
+//        ).filter(
+//            box -> isAirCubeMediumPlace(world, box)
+//        ).filter(
+//            box -> solidGround ?
+//                box.getSurfaceLayer(Direction.DOWN).stream().allMatch(isAirOnGroundPredicate)
+//                : true
+//        ).filter(
+//            box -> expandFromBottomCenter(box, ambientSpaceReserved).stream()
+//                .allMatch(blockPos -> world.getBlockState(blockPos).isOpaque())
+//        ).findFirst().orElse(null);
     }
     
     //make it possibly generate above ground
@@ -339,17 +365,32 @@ public class NetherPortalMatcher {
         BlockPos searchingCenter,
         int findingRadius
     ) {
-        return NetherPortalGeneration.fromNearToFarColumned(
-            ((ServerWorld) world),
+        return BlockTraverse.searchColumned(
             searchingCenter.getX(), searchingCenter.getZ(),
-            findingRadius
-        ).map(
-            basePoint -> IntBox.getBoxByBasePointAndSize(
-                areaSize, basePoint
-            )
-        ).filter(
-            box -> isAirCubeMediumPlace(world, box)
-        ).findFirst().orElse(null);
+            findingRadius,
+            5, world.getDimensionHeight() - 5,
+            mutable -> {
+                IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
+                if (isAirCubeMediumPlace(world, box)) {
+                    return box;
+                }
+                else {
+                    return null;
+                }
+            }
+        );
+
+//        return NetherPortalGeneration.fromNearToFarColumned(
+//            ((ServerWorld) world),
+//            searchingCenter.getX(), searchingCenter.getZ(),
+//            findingRadius
+//        ).map(
+//            basePoint -> IntBox.getBoxByBasePointAndSize(
+//                areaSize, basePoint
+//            )
+//        ).filter(
+//            box -> isAirCubeMediumPlace(world, box)
+//        ).findFirst().orElse(null);
     }
     
     public static boolean isAirCubeMediumPlace(WorldAccess world, IntBox box) {
