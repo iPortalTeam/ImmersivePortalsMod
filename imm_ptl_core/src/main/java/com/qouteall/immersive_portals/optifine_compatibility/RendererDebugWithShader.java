@@ -19,7 +19,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
     
     @Override
-    public boolean shouldSkipClearing() {
+    public boolean replaceFrameBufferClearing() {
         return false;
     }
     

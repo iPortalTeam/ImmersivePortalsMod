@@ -5,7 +5,7 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public class RendererDummy extends PortalRenderer {
     @Override
-    public boolean shouldSkipClearing() {
+    public boolean replaceFrameBufferClearing() {
         return false;
     }
     

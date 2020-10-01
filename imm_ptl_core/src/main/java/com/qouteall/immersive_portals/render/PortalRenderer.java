@@ -33,25 +33,27 @@ public abstract class PortalRenderer {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
     
-    //this WILL be called when rendering portal
+    // this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
     
-    //this WILL be called when rendering portal
+    // this WILL be called when rendering portal
     public abstract void onAfterTranslucentRendering(MatrixStack matrixStack);
     
-    //this WILL be called when rendering portal
+    // this WILL be called when rendering portal
     public abstract void onRenderCenterEnded(MatrixStack matrixStack);
     
-    //this will NOT be called when rendering portal
+    // this will NOT be called when rendering portal
     public abstract void prepareRendering();
     
-    //this will NOT be called when rendering portal
+    // this will NOT be called when rendering portal
     public abstract void finishRendering();
     
-    //this will be called when rendering portal entities
+    // this will be called when rendering portal entities
     public abstract void renderPortalInEntityRenderer(Portal portal);
     
-    public abstract boolean shouldSkipClearing();
+    // return true to skip framebuffer clear
+    // this will also be called in outer world rendering
+    public abstract boolean replaceFrameBufferClearing();
     
     protected void renderPortals(MatrixStack matrixStack) {
         Validate.isTrue(client.cameraEntity.world == client.world);

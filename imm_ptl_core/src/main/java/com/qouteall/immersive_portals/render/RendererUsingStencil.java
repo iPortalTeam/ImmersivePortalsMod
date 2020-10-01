@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import net.minecraft.client.MinecraftClient;
@@ -26,8 +27,14 @@ import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 public class RendererUsingStencil extends PortalRenderer {
     
     @Override
-    public boolean shouldSkipClearing() {
-        return PortalRendering.isRendering();
+    public boolean replaceFrameBufferClearing() {
+        boolean skipClearing = PortalRendering.isRendering();
+        if (skipClearing) {
+            RenderSystem.depthMask(false);
+            MyRenderHelper.renderScreenTriangle(FogRendererContext.getCurrentFogColor.get());
+            RenderSystem.depthMask(true);
+        }
+        return skipClearing;
     }
     
     @Override

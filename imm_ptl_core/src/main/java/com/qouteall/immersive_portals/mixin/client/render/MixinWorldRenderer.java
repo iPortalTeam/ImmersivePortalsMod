@@ -306,7 +306,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {
-        if (!CGlobal.renderer.shouldSkipClearing()) {
+        if (!CGlobal.renderer.replaceFrameBufferClearing()) {
             RenderSystem.clear(int_1, boolean_1);
         }
     }

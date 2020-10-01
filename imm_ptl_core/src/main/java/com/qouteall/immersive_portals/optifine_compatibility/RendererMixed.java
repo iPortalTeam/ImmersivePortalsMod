@@ -42,7 +42,7 @@ public class RendererMixed extends PortalRenderer {
     private MatrixStack modelView = new MatrixStack();
     
     @Override
-    public boolean shouldSkipClearing() {
+    public boolean replaceFrameBufferClearing() {
         return false;
     }
     

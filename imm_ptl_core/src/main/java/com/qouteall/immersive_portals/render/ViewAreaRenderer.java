@@ -11,7 +11,6 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
-import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -19,7 +18,6 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL32;
 
@@ -211,7 +209,7 @@ public class ViewAreaRenderer {
     static private void putIntoVertex(BufferBuilder bufferBuilder, Vec3d pos, Vec3d fogColor) {
         bufferBuilder
             .vertex(pos.x, pos.y, pos.z)
-            .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
+            .color(0, 0, 0, 255)
             .next();
     }
     
@@ -311,16 +309,6 @@ public class ViewAreaRenderer {
     }
     
     private static Vec3d getCurrentFogColor(Portal portal) {
-        
-        if (OFInterface.isShaders.getAsBoolean()) {
-            return Vec3d.ZERO;
-        }
-        
-        //TODO handle edgelessSky option
-        
-        return FogRendererContext.getFogColorOf(
-            ((ClientWorld) portal.getDestinationWorld()),
-            portal.transformPoint(McHelper.getCurrentCameraPos())
-        );
+        return Vec3d.ZERO;
     }
 }
