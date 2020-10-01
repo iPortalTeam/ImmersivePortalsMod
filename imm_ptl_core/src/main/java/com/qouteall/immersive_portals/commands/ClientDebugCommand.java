@@ -563,6 +563,11 @@ public class ClientDebugCommand {
             "offset_occlusion_query",
             cond -> Global.offsetOcclusionQuery = cond
         );
+        registerSwitchCommand(
+            builder,
+            "cloud_optimization",
+            cond -> Global.cloudOptimization = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

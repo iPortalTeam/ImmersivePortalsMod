@@ -8,6 +8,8 @@ import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.profiler.Profiler;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -197,6 +199,8 @@ public class PortalPresentation {
     }
     
     public static boolean renderAndQuery(Portal portal, Runnable queryRendering) {
+        Profiler profiler = MinecraftClient.getInstance().getProfiler();
+        
         boolean anySamplePassed;
         if (Global.offsetOcclusionQuery) {
             PortalPresentation presentation = get(portal);
@@ -211,10 +215,14 @@ public class PortalPresentation {
                 presentation.isFrequentlyMispredicted() ||
                     RenderStates.getRenderedPortalNum() < 2;
             if (lastFrameQuery != null && !noPredict) {
+                profiler.push("fetch_last_frame");
                 anySamplePassed = lastFrameQuery.fetchQueryResult();
+                profiler.pop();
             }
             else {
+                profiler.push("fetch_this_frame");
                 anySamplePassed = thisFrameQuery.fetchQueryResult();
+                profiler.pop();
                 QueryManager.queryStallCounter++;
             }
             

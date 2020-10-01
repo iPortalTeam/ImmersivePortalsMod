@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.PortalPresentation;
+import com.qouteall.immersive_portals.render.context_management.CloudContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -90,6 +91,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         CGlobal.clientTeleportationManager.disableTeleportFor(40);
         CrossPortalEntityRenderer.cleanUp();
         PortalPresentation.cleanup();
+        CloudContext.cleanup();
     }
     
     //avoid messing up rendering states in fabulous

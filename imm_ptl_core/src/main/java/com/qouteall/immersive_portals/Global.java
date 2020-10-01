@@ -70,6 +70,8 @@ public class Global {
     
     public static boolean offsetOcclusionQuery = true;
     
+    public static boolean cloudOptimization = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

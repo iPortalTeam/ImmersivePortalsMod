@@ -308,6 +308,7 @@ public class ViewAreaRenderer {
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
+    @Deprecated
     private static Vec3d getCurrentFogColor(Portal portal) {
         return Vec3d.ZERO;
     }

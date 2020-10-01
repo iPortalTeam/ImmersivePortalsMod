@@ -21,7 +21,6 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
-import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
@@ -30,11 +29,9 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -69,15 +66,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private MinecraftClient client;
     
     @Shadow
-    private double lastTranslucentSortX;
-    
-    @Shadow
-    private double lastTranslucentSortY;
-    
-    @Shadow
-    private double lastTranslucentSortZ;
-    
-    @Shadow
     private BuiltChunkStorage chunks;
     
     @Shadow
@@ -110,20 +98,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private boolean needsTerrainUpdate;
-    
-    @Shadow
-    private VertexBuffer lightSkyBuffer;
-    
-    @Shadow
-    @Final
-    private VertexFormat skyVertexFormat;
-    
-    @Shadow
-    @Final
-    private TextureManager textureManager;
-    
-    @Shadow
-    private VertexBuffer darkSkyBuffer;
     
     @Shadow
     private ChunkBuilder chunkBuilder;
@@ -217,7 +191,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
         Matrix4f matrix4f, CallbackInfo ci
     ) {
-    
+        
     }
     
     @Inject(
@@ -630,7 +604,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    
     @Override
     public EntityRenderDispatcher getEntityRenderDispatcher() {
         return entityRenderDispatcher;
@@ -744,4 +717,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
     }
+    
+    
 }

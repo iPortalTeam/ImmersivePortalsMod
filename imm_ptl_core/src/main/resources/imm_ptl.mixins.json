@@ -69,6 +69,7 @@
     "client.render.MixinInGameOverlayRenderer",
     "client.render.MixinVertexConsumerProviderImmediate",
     "client.render.MixinWorldRenderer",
+    "client.render.MixinWorldRenderer_Clouds",
     "client.render.MixinWorldRenderer_Optional",
     "client.render.MixinWorldRendererChunkInfo",
     "client.sync.MixinClientPlayNetworkHandler",
