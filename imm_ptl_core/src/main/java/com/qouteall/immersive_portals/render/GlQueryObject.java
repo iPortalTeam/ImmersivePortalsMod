@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import net.minecraft.client.MinecraftClient;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
@@ -15,6 +16,12 @@ public class GlQueryObject {
     }
     
     public void performQueryAnySamplePassed(Runnable renderingFunc) {
+        // mac does not support any samples passed query
+        if (MinecraftClient.IS_SYSTEM_MAC) {
+            performQuerySampleNumPassed(renderingFunc);
+            return;
+        }
+        
         performQuery(renderingFunc, GL33.GL_ANY_SAMPLES_PASSED);
     }
     
