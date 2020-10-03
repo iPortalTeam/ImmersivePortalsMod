@@ -28,24 +28,4 @@ public class MixinWorldUtils {
         }
     }
 
-//    @ModifyVariable(
-//        method = "Lnet/optifine/util/WorldUtils;getDimensionId(Lnet/minecraft/util/registry/RegistryKey;)I",
-//        at = @At("HEAD"),
-//        argsOnly = true,
-//        require = 0
-//    )
-//    private static RegistryKey<World> modifyDimension(RegistryKey<World> dim) {
-//        return RenderDimensionRedirect.getRedirectedDimension(dim);
-//    }
-//
-//    //another one for real environment
-//    @ModifyVariable(
-//        method = "Lnet/optifine/util/WorldUtils;getDimensionId(Lnet/minecraft/class_5321;)I",
-//        at = @At("HEAD"),
-//        argsOnly = true,
-//        require = 0
-//    )
-//    private static RegistryKey<World> modifyDimension1(RegistryKey<World> dim) {
-//        return RenderDimensionRedirect.getRedirectedDimension(dim);
-//    }
 }
