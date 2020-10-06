@@ -55,5 +55,8 @@
   "imm_ptl.indirect_loading_radius_cap": "Indirect Loading Radius Cap",
   "imm_ptl.nether_portal_mode": "Nether Portal Mode",
   "imm_ptl.end_portal_mode": "End Portal Mode",
-  "imm_ptl.reduced_portal_rendering": "Reduced Portal Rendering"
+  "imm_ptl.reduced_portal_rendering": "Reduced Portal Rendering",
+  "imm_ptl.loose_movement_check": "Loose Player Movement Check",
+  "gamerule.ipDimensionStack": "Dimension Stack (Immersive Portals)",
+  "gamerule.ipDimensionStack.description": "You don't need to change this here"
 }

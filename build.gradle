@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.4-SNAPSHOT'//'0.2.3-SNAPSHOT'
+    id 'fabric-loom' version '0.5-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -16,7 +16,17 @@ minecraft {
     accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
 }
 
+repositories {
+    flatDir {
+        dirs 'deps'
+    }
+}
+
 allprojects {
+    loom {
+        shareCaches = true
+    }
+
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -33,11 +43,7 @@ allprojects {
             name = 'JitPack'
             url = 'https://jitpack.io'
         }
-
-        flatDir {
-            dirs 'deps'
-        }
-
+        
         jcenter()
     }
 
@@ -63,9 +69,9 @@ allprojects {
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
         //make the game launch faster in dev
-//        modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
-//            exclude module: "fabric-loader"
-//        }
+        modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
+            exclude module: "fabric-loader"
+        }
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1161_1'
 //        modImplementation("me.jellysquid.mods:sodium:0.1.0-SNAPSHOT")
@@ -75,9 +81,6 @@ allprojects {
 //        modImplementation 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
 
 //        modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
-
-//        modImplementation 'com.github.cottonmc:LibCD:3.0.3+1.16.3'
-//        modImplementation 'com.github.Juuxel:Adorn:1.11.1'
 
         //Deps required for optifabric
 //        compile 'org.zeroturnaround:zt-zip:1.13'
@@ -179,6 +182,24 @@ dependencies {
             include project("${it.name}:")
         }
     }
+
+//    fileTree(dir: 'deps', include: '*.jar').each {
+//        String baseName = it.name.replace(".jar", "")
+//        String version = "0.1.0"
+//        int split = baseName.lastIndexOf('-')
+//
+//        if (split != -1) {
+//            version = baseName.substring(split + 1)
+//            baseName = baseName.substring(0, split)
+//        }
+//
+//        String name = "testmod:${baseName}:${version}"
+//
+//        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
+//
+//        modCompileOnly name
+//        modRuntime name
+//    }
 }
 
 task printClasspath {
@@ -187,3 +208,4 @@ task printClasspath {
         configurations.compileClasspath.each { println "\"" + (it.toString().replace("\\", "/")) + "\"," }
     }
 }
+
