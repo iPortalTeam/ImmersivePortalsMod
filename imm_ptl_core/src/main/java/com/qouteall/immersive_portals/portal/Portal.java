@@ -100,11 +100,16 @@ public class Portal extends Entity {
      * The scaling transformation of the portal
      */
     public double scaling = 1.0;
+    
     /**
      * Whether the entity scale changes after crossing the portal
      */
     public boolean teleportChangesScale = true;
     
+    
+    /**
+     * Whether the player can place and break blocks across the portal
+     */
     private boolean interactable = true;
     
     /**
