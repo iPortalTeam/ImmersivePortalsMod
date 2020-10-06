@@ -9,4 +9,6 @@ public interface IEEntity {
     Portal getCollidingPortal();
     
     void tickCollidingPortal(float tickDelta);
+    
+    boolean isRecentlyCollidingWithPortal();
 }

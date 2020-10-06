@@ -366,7 +366,7 @@ public class Portal extends Entity {
     
     public Box getExactBoundingBox() {
         if (exactBoundingBoxCache == null) {
-            exactBoundingBoxCache =  new Box(
+            exactBoundingBoxCache = new Box(
                 getPointInPlane(width / 2, height / 2)
                     .add(getNormal().multiply(0.02)),
                 getPointInPlane(-width / 2, -height / 2)
@@ -462,8 +462,10 @@ public class Portal extends Entity {
             return false;
         }
         if (entity instanceof ServerPlayerEntity) {
-            if (!entity.getUuid().equals(specificPlayerId)) {
-                return false;
+            if (specificPlayerId != null) {
+                if (!entity.getUuid().equals(specificPlayerId)) {
+                    return false;
+                }
             }
         }
         else {
