@@ -41,10 +41,12 @@ public class PehkuiInterfaceInitializer {
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
             
             float oldScale = scaleData.getScale();
+            final float newScale = transformScale(portal, oldScale);
             
-            scaleData.setScaleTickDelay(0);
-            scaleData.setTargetScale(transformScale(portal, oldScale));
-            scaleData.setScale(transformScale(portal, oldScale));
+//            scaleData.setScaleTickDelay(0);
+            scaleData.setTargetScale(newScale);
+            scaleData.setScale(newScale);
+            scaleData.setScale(newScale);
             scaleData.tick();
             
             McHelper.setEyePos(player, eyePos, lastTickEyePos);
@@ -70,10 +72,12 @@ public class PehkuiInterfaceInitializer {
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
             
             float oldScale = scaleData.getScale();
+            final float newScale = transformScale(portal, oldScale);
             
-            scaleData.setScaleTickDelay(0);
-            scaleData.setTargetScale(transformScale(portal, oldScale));
-            scaleData.setScale(transformScale(portal, oldScale));
+//            scaleData.setScaleTickDelay(0);
+            scaleData.setTargetScale(newScale);
+            scaleData.setScale(newScale);
+            scaleData.setScale(newScale);
             scaleData.tick();
             
             ModMain.serverTaskList.addTask(() -> {
