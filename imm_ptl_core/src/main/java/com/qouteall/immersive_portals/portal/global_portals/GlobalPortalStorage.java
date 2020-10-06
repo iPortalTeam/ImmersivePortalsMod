@@ -203,8 +203,10 @@ public class GlobalPortalStorage extends PersistentState {
         ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimension);
         
         List<GlobalTrackedPortal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
-        for (GlobalTrackedPortal p : oldGlobalPortals) {
-            p.removed = true;
+        if (oldGlobalPortals != null) {
+            for (GlobalTrackedPortal p : oldGlobalPortals) {
+                p.removed = true;
+            }
         }
         
         List<GlobalTrackedPortal> newPortals = getPortalsFromTag(compoundTag, world);

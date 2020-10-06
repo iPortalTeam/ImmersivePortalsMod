@@ -117,6 +117,8 @@ public abstract class MixinClientWorld implements IEClientWorld {
         WorldChunk chunk = chunkManager.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
         if (chunk == null || chunk instanceof EmptyChunk) {
             cir.setReturnValue(false);
+//            Helper.log("chunk not loaded");
+//            new Throwable().printStackTrace();
         }
     }
     
