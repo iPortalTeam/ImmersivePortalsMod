@@ -111,6 +111,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.loose_movement_check"),
                 currConfig.looseMovementCheck
             ).setDefaultValue(false).build();
+            BooleanListEntry entryVisibilityPrediction = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.visibility_prediction"),
+                currConfig.visibilityPrediction
+            ).setDefaultValue(true).build();
             EnumListEntry<Global.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.nether_portal_mode"),
@@ -137,6 +141,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryReducedPortalRendering);
             clientSide.addEntry(entryPortalRenderLimit);
             clientSide.addEntry(entryCompatibilityRenderMode);
+            clientSide.addEntry(entryVisibilityPrediction);
             clientSide.addEntry(entryCheckGlError);
             clientSide.addEntry(entryPureMirror);
             clientSide.addEntry(entryRenderYourselfInPortal);
@@ -184,6 +189,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.netherPortalMode = entryNetherPortalMode.getValue();
                     newConfig.endPortalMode = entryEndPortalMode.getValue();
                     newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
+                    newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();

@@ -38,6 +38,7 @@ public class MyConfig {
     public boolean pureMirror = false;
     public boolean enableAlternateDimensions = true;
     public boolean reducedPortalRendering = false;
+    public boolean visibilityPrediction = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
     public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
@@ -145,6 +146,8 @@ public class MyConfig {
         Global.endPortalMode = endPortalMode;
     
         Global.reducedPortalRendering = reducedPortalRendering;
+    
+        Global.offsetOcclusionQuery = visibilityPrediction;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
