@@ -10,8 +10,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,24 +33,49 @@ public class PortalPresentation {
         public GlQueryObject lastFrameQuery;
         public GlQueryObject thisFrameQuery;
         public Boolean lastFrameRendered;
+        public Boolean thisFrameRendered;
+        
+        public Visibility() {
+            lastFrameQuery = null;
+            thisFrameQuery = null;
+            lastFrameRendered = null;
+        }
+        
+        void update() {
+            if (lastFrameQuery != null) {
+                GlQueryObject.returnQueryObject(lastFrameQuery);
+            }
+            lastFrameQuery = thisFrameQuery;
+            thisFrameQuery = null;
+            lastFrameRendered = thisFrameRendered;
+            thisFrameRendered = null;
+        }
+        
+        void dispose() {
+            if (lastFrameQuery != null) {
+                GlQueryObject.returnQueryObject(lastFrameQuery);
+            }
+            if (thisFrameQuery != null) {
+                GlQueryObject.returnQueryObject(thisFrameQuery);
+            }
+        }
+        
+        GlQueryObject acquireThisFrameQuery() {
+            if (thisFrameQuery == null) {
+                thisFrameQuery = GlQueryObject.acquireQueryObject();
+            }
+            return thisFrameQuery;
+        }
     }
     
-    @Nullable
-    public Map<List<UUID>, GlQueryObject> lastFrameQuery;
-    
-    @Nullable
-    public Map<List<UUID>, GlQueryObject> thisFrameQuery;
+    private final Map<List<UUID>, Visibility> infoMap = new HashMap<>();
     
     public int thisFrameQueryFrameIndex = -1;
     
-    @Nullable
-    public Boolean lastFrameRendered;
-    
-    @Nullable
-    public Boolean thisFrameRendered;
-    
     private long mispredictTime1 = 0;
     private long mispredictTime2 = 0;
+    
+    private int totalMispredictCount = 0;
     
     public static void init() {
         ModMain.preRenderSignal.connect(() -> {
@@ -113,14 +138,8 @@ public class PortalPresentation {
     }
     
     public void dispose() {
-        disposeLastFrameQuery();
-        
-        if (thisFrameQuery != null) {
-            for (GlQueryObject queryObject : thisFrameQuery.values()) {
-                GlQueryObject.returnQueryObject(queryObject);
-            }
-            thisFrameQuery.clear();
-        }
+        infoMap.values().forEach(Visibility::dispose);
+        infoMap.clear();
     }
     
     private void updateQuerySet() {
@@ -128,76 +147,53 @@ public class PortalPresentation {
         if (RenderStates.frameIndex != thisFrameQueryFrameIndex) {
             
             if (RenderStates.frameIndex == thisFrameQueryFrameIndex + 1) {
+                infoMap.entrySet().removeIf(entry -> {
+                    Visibility visibility = entry.getValue();
+                    
+                    return visibility.lastFrameQuery == null &&
+                        visibility.thisFrameQuery == null;
+                });
                 
-                disposeLastFrameQuery();
-                
-                lastFrameQuery = thisFrameQuery;
-                thisFrameQuery = null;
-                
-                lastFrameRendered = thisFrameRendered;
-                thisFrameRendered = null;
+                infoMap.values().forEach(Visibility::update);
             }
             else {
-                disposeLastFrameQuery();
-                
-                lastFrameRendered = null;
-                thisFrameRendered = null;
+                infoMap.values().forEach(Visibility::dispose);
+                infoMap.clear();
             }
             
             thisFrameQueryFrameIndex = RenderStates.frameIndex;
         }
     }
     
-    private void disposeLastFrameQuery() {
-        if (lastFrameQuery != null) {
-            for (GlQueryObject queryObject : lastFrameQuery.values()) {
-                GlQueryObject.returnQueryObject(queryObject);
-            }
-            lastFrameQuery.clear();
-        }
-    }
-    
-    @Nullable
-    public GlQueryObject getLastFrameQuery(List<UUID> desc) {
+    @NotNull
+    private Visibility getVisibility(List<UUID> desc) {
         updateQuerySet();
-        if (lastFrameQuery == null) {
-            return null;
-        }
-        return lastFrameQuery.get(desc);
-    }
-    
-    public GlQueryObject acquireThisFrameQuery(List<UUID> desc) {
-        updateQuerySet();
-        if (thisFrameQuery == null) {
-            thisFrameQuery = new HashMap<>();
-        }
-        return thisFrameQuery.computeIfAbsent(desc, k -> GlQueryObject.acquireQueryObject());
+        
+        return infoMap.computeIfAbsent(desc, k -> new Visibility());
     }
     
     public void onMispredict() {
         mispredictTime1 = mispredictTime2;
         mispredictTime2 = System.nanoTime();
+        totalMispredictCount++;
     }
     
     public boolean isFrequentlyMispredicted() {
+        if (totalMispredictCount > 5) {
+            return true;
+        }
+        
         long currTime = System.nanoTime();
         
         return (currTime - mispredictTime1) < Helper.secondToNano(30);
     }
     
-    public void updatePredictionStatus(boolean anySamplePassed) {
-        if (anySamplePassed) {
-            thisFrameRendered = true;
-        }
-        else {
-            if (thisFrameRendered == null) {
-                thisFrameRendered = false;
-            }
-        }
+    public void updatePredictionStatus(Visibility visibility, boolean thisFrameDecision) {
+        visibility.thisFrameRendered = thisFrameDecision;
         
-        if (anySamplePassed) {
-            if (lastFrameRendered != null) {
-                if (!lastFrameRendered) {
+        if (thisFrameDecision) {
+            if (visibility.lastFrameRendered != null) {
+                if (!visibility.lastFrameRendered) {
                     if (!isFrequentlyMispredicted()) {
                         onMispredict();
                     }
@@ -206,46 +202,50 @@ public class PortalPresentation {
         }
     }
     
-    public static boolean renderAndQuery(Portal portal, Runnable queryRendering) {
+    public static boolean renderAndDecideVisibility(Portal portal, Runnable queryRendering) {
         Profiler profiler = MinecraftClient.getInstance().getProfiler();
         
-        boolean anySamplePassed;
+        boolean decision;
         if (Global.offsetOcclusionQuery) {
             PortalPresentation presentation = get(portal);
             
             List<UUID> renderingDescription = RenderInfo.getRenderingDescription();
-            GlQueryObject lastFrameQuery = presentation.getLastFrameQuery(renderingDescription);
-            GlQueryObject thisFrameQuery = presentation.acquireThisFrameQuery(renderingDescription);
+            
+            Visibility visibility = presentation.getVisibility(renderingDescription);
+            
+            GlQueryObject lastFrameQuery = visibility.lastFrameQuery;
+            GlQueryObject thisFrameQuery = visibility.acquireThisFrameQuery();
             
             thisFrameQuery.performQueryAnySamplePassed(queryRendering);
             
             boolean noPredict =
                 presentation.isFrequentlyMispredicted() ||
-                    QueryManager.queryStallCounter < 3;
+                    QueryManager.queryStallCounter <= 3;
             
             if (lastFrameQuery != null) {
                 boolean lastFrameVisible = lastFrameQuery.fetchQueryResult();
-                anySamplePassed = lastFrameVisible;
                 
                 if (!lastFrameVisible && noPredict) {
                     profiler.push("fetch_this_frame");
-                    anySamplePassed = thisFrameQuery.fetchQueryResult();
+                    decision = thisFrameQuery.fetchQueryResult();
                     profiler.pop();
                     QueryManager.queryStallCounter++;
+                }
+                else {
+                    decision = lastFrameVisible;
+                    presentation.updatePredictionStatus(visibility, decision);
                 }
             }
             else {
                 profiler.push("fetch_this_frame");
-                anySamplePassed = thisFrameQuery.fetchQueryResult();
+                decision = thisFrameQuery.fetchQueryResult();
                 profiler.pop();
                 QueryManager.queryStallCounter++;
             }
-            
-            presentation.updatePredictionStatus(anySamplePassed);
         }
         else {
-            anySamplePassed = QueryManager.renderAndGetDoesAnySamplePass(queryRendering);
+            decision = QueryManager.renderAndGetDoesAnySamplePass(queryRendering);
         }
-        return anySamplePassed;
+        return decision;
     }
 }

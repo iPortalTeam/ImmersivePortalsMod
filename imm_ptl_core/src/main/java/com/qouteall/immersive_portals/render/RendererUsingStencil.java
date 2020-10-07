@@ -104,7 +104,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         client.getProfiler().push("render_view_area");
         
-        boolean anySamplePassed = PortalPresentation.renderAndQuery(portal, () -> {
+        boolean anySamplePassed = PortalPresentation.renderAndDecideVisibility(portal, () -> {
             renderPortalViewAreaToStencil(portal, matrixStack);
         });
         
