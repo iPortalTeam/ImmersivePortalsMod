@@ -29,6 +29,12 @@ public class PortalPresentation {
     // using finalize() depends on GC and is not reliable
     private long lastActiveNanoTime;
     
+    public static class Visibility {
+        public GlQueryObject lastFrameQuery;
+        public GlQueryObject thisFrameQuery;
+        public Boolean lastFrameRendered;
+    }
+    
     @Nullable
     public Map<List<UUID>, GlQueryObject> lastFrameQuery;
     
@@ -216,10 +222,17 @@ public class PortalPresentation {
             boolean noPredict =
                 presentation.isFrequentlyMispredicted() ||
                     QueryManager.queryStallCounter < 3;
-            if (lastFrameQuery != null && !noPredict) {
-                profiler.push("fetch_last_frame");
-                anySamplePassed = lastFrameQuery.fetchQueryResult();
-                profiler.pop();
+            
+            if (lastFrameQuery != null) {
+                boolean lastFrameVisible = lastFrameQuery.fetchQueryResult();
+                anySamplePassed = lastFrameVisible;
+                
+                if (!lastFrameVisible && noPredict) {
+                    profiler.push("fetch_this_frame");
+                    anySamplePassed = thisFrameQuery.fetchQueryResult();
+                    profiler.pop();
+                    QueryManager.queryStallCounter++;
+                }
             }
             else {
                 profiler.push("fetch_this_frame");

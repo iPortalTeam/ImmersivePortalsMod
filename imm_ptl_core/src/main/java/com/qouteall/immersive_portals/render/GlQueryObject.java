@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class GlQueryObject {
     private int idQueryObject = -1;
     private boolean isQuerying = false;
+    private boolean hasResult = false;
     
     public GlQueryObject(int handle) {
         this.idQueryObject = handle;
@@ -43,10 +44,13 @@ public class GlQueryObject {
         GL15.glEndQuery(glQueryType);
         
         isQuerying = false;
+        
+        hasResult = true;
     }
     
     public boolean fetchQueryResult() {
         Validate.isTrue(isValid());
+        Validate.isTrue(hasResult);
         
         int result = GL15.glGetQueryObjecti(idQueryObject, GL15.GL_QUERY_RESULT);
         
@@ -62,6 +66,10 @@ public class GlQueryObject {
     
     public boolean isValid() {
         return idQueryObject != -1;
+    }
+    
+    private void reset() {
+        hasResult = false;
     }
     
     private static final ArrayList<GlQueryObject> queryObjects = new ArrayList<>();
@@ -82,10 +90,12 @@ public class GlQueryObject {
         return queryObjects.remove(queryObjects.size() - 1);
     }
     
-    public static void returnQueryObject(GlQueryObject obj){
+    public static void returnQueryObject(GlQueryObject obj) {
+        obj.reset();
         if (queryObjects.size() > 1500) {
             obj.dispose();
-        }else {
+        }
+        else {
             queryObjects.add(obj);
         }
     }
