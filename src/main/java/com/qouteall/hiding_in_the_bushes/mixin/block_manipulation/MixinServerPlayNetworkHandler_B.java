@@ -10,7 +10,8 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(value = ServerPlayNetworkHandler.class, priority = 900)
 public class MixinServerPlayNetworkHandler_B {
-    @Shadow public ServerPlayerEntity player;
+    @Shadow
+    public ServerPlayerEntity player;
     
     @ModifyConstant(
         method = "onPlayerInteractBlock",

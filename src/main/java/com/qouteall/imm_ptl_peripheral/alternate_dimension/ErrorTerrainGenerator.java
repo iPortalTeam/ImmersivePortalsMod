@@ -42,7 +42,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     public static final Codec<ErrorTerrainGenerator> codec = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.LONG.fieldOf("seed").stable().forGetter(g -> g.worldSeed),
-            ChaosBiomeSource.codec.fieldOf("biomeSource").stable().forGetter(o-> ((ChaosBiomeSource) o.getBiomeSource()))
+            ChaosBiomeSource.codec.fieldOf("biomeSource").stable().forGetter(o -> ((ChaosBiomeSource) o.getBiomeSource()))
         ).apply(instance, instance.stable(ErrorTerrainGenerator::new))
     );
     

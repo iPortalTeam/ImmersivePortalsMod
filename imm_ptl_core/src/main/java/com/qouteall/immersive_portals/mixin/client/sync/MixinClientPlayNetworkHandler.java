@@ -242,14 +242,6 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     }
     
     @Override
-    public void initScreenIfNecessary() {
-        if (!this.positionLookSetup) {
-            this.positionLookSetup = true;
-            this.client.openScreen((Screen) null);
-        }
-    }
-    
-    @Override
     public void portal_setRegistryManager(DynamicRegistryManager arg) {
         registryManager = arg;
     }

@@ -12,7 +12,7 @@ public class PeripheralModMain {
         FormulaGenerator.init();
         
         IntrinsicPortalGeneration.init();
-    
+        
         AltiusGameRule.init();
         AltiusManagement.init();
     }

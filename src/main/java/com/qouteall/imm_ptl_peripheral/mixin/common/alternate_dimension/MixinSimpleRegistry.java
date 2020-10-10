@@ -6,5 +6,5 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(SimpleRegistry.class)
 public class MixinSimpleRegistry implements IESimpleRegistry {
-
+    
 }

@@ -33,14 +33,14 @@ public class MixinChunkStatus {
         )
     )
     private static void redirectGenerateFeatures(
-       ChunkGenerator chunkGenerator, ChunkRegion region, StructureAccessor accessor
+        ChunkGenerator chunkGenerator, ChunkRegion region, StructureAccessor accessor
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
             featureGenLock.lock();
         }
         try {
-            chunkGenerator.generateFeatures(region,accessor);
+            chunkGenerator.generateFeatures(region, accessor);
         }
         catch (Throwable e) {
             Helper.err(String.format(

@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(FlintAndSteelItem.class)
 public class MixinFlintAndSteelItem {
     //TODO make it possible to ignite on horizontal obsidian face
-    
+
 //    @Inject(
 //        method = "canIgnite",
 //        at = @At("HEAD"),

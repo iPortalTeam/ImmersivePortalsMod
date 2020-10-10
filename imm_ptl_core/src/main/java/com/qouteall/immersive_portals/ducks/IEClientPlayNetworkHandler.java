@@ -12,7 +12,5 @@ public interface IEClientPlayNetworkHandler {
     
     void setPlayerListEntries(Map value);
     
-    void initScreenIfNecessary();
-    
     void portal_setRegistryManager(DynamicRegistryManager arg);
 }

@@ -20,7 +20,7 @@ import java.util.OptionalLong;
 
 @Mixin(DimensionType.class)
 public class MixinDimensionType {
-
+    
     @Invoker("<init>")
     static DimensionType constructor(
         OptionalLong fixedTime, boolean hasSkylight, boolean hasCeiling, boolean ultrawarm,
@@ -48,7 +48,7 @@ public class MixinDimensionType {
             Lifecycle.stable()
         );
     }
-
+    
     static {
         ModMain.surfaceTypeObject = constructor(
             OptionalLong.empty(), true, false,

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinMinecraftServer_A {
     @Shadow
     public abstract ServerWorld getWorld(RegistryKey<World> dimensionType);
-    
+
 //    @Inject(
 //        method = "prepareStartRegion",
 //        at = @At("RETURN")
