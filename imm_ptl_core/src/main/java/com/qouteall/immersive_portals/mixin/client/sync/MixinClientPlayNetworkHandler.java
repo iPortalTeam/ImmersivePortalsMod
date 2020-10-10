@@ -62,7 +62,8 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     @Shadow
     public abstract void onEntityPassengersSet(EntityPassengersSetS2CPacket entityPassengersSetS2CPacket_1);
     
-    @Shadow private DynamicRegistryManager registryManager;
+    @Shadow
+    private DynamicRegistryManager registryManager;
     
     @Override
     public void setWorld(ClientWorld world) {
@@ -184,9 +185,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     private void onOnUnload(UnloadChunkS2CPacket packet, CallbackInfo ci) {
         if (CGlobal.smoothChunkUnload) {
             DimensionalChunkPos pos = new DimensionalChunkPos(
-                world.getRegistryKey(),
-                packet.getX(),
-                packet.getZ()
+                world.getRegistryKey(), packet.getX(), packet.getZ()
             );
             
             WorldRenderer worldRenderer =
@@ -220,10 +219,13 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                     return false;
                 }
                 
+                WorldRenderer wr = CGlobal.clientWorldLoader.getWorldRenderer(pos.dimension);
+                
                 Profiler profiler = MinecraftClient.getInstance().getProfiler();
                 profiler.push("delayed_unload");
                 
                 for (int y = 0; y < 16; ++y) {
+                    wr.scheduleBlockRenders(pos.x, y, pos.z);
                     world1.getLightingProvider().setSectionStatus(
                         ChunkSectionPos.from(pos.x, y, pos.z), true
                     );
