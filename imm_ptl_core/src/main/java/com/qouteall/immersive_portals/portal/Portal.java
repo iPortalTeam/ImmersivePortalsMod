@@ -755,10 +755,7 @@ public class Portal extends Entity {
         return getDestinationWorld(world.isClient());
     }
     
-    /**
-     * @return The {@link World} of this portal's {@link #dimensionTo}.
-     */
-    public World getDestinationWorld(boolean isClient) {
+    private World getDestinationWorld(boolean isClient) {
         if (isClient) {
             return CHelper.getClientWorld(dimensionTo);
         }

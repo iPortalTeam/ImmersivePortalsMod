@@ -20,7 +20,6 @@ import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class CollisionHelper {
     
@@ -158,7 +157,7 @@ public class CollisionHelper {
         Vec3d oldPos = entity.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(entity);
         
-        entity.world = getWorld(entity.world.isClient, collidingPortal.dimensionTo);
+        entity.world = collidingPortal.getDestinationWorld();
         entity.setBoundingBox(boxOtherSide);
         
         Vec3d move2 = handleCollisionFunc.apply(attemptedMove);
@@ -229,41 +228,8 @@ public class CollisionHelper {
         }
     }
     
-    public static Stream<Portal> getCollidingPortalRough(Entity entity, Box box) {
-        World world = entity.world;
-        
-        List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
-        
-        List<Portal> collidingNormalPortals = McHelper.getEntitiesRegardingLargeEntities(
-            world,
-            box,
-            10,
-            Portal.class,
-            p -> true
-        );
-        
-        if (globalPortals.isEmpty()) {
-            return collidingNormalPortals.stream();
-        }
-        
-        return Stream.concat(
-            collidingNormalPortals.stream(),
-            globalPortals.stream()
-                .filter(
-                    p -> p.getBoundingBox().expand(0.5).intersects(box)
-                )
-        );
-    }
-    
     public static boolean isCollidingWithAnyPortal(Entity entity) {
         return ((IEEntity) entity).getCollidingPortal() != null;
-    }
-    
-    public static boolean isNearbyPortal(Entity entity) {
-        return getCollidingPortalRough(
-            entity,
-            entity.getBoundingBox().expand(1)
-        ).findAny().isPresent();
     }
     
     public static Box getActiveCollisionBox(Entity entity) {

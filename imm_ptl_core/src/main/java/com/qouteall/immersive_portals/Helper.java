@@ -43,8 +43,10 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Helper {
@@ -271,9 +273,9 @@ public class Helper {
     
     public static Box getBoxByBottomPosAndSize(Vec3d boxBottomCenter, Vec3d viewBoxSize) {
         return new Box(
-                boxBottomCenter.subtract(viewBoxSize.x / 2, 0, viewBoxSize.z / 2),
-                boxBottomCenter.add(viewBoxSize.x / 2, viewBoxSize.y, viewBoxSize.z / 2)
-            );
+            boxBottomCenter.subtract(viewBoxSize.x / 2, 0, viewBoxSize.z / 2),
+            boxBottomCenter.add(viewBoxSize.x / 2, viewBoxSize.y, viewBoxSize.z / 2)
+        );
     }
     
     public static class SimpleBox<T> {
@@ -824,7 +826,7 @@ public class Helper {
             .setEnd(portal.transformPoint(end));
         
         portals.add(portal);
-        World destWorld = portal.getDestinationWorld(world.isClient);
+        World destWorld = portal.getDestinationWorld();
         Pair<BlockHitResult, List<Portal>> recursion = withSwitchedContext(
             destWorld,
             () -> rayTrace(destWorld, context, includeGlobalPortals, portals)
@@ -937,7 +939,7 @@ public class Helper {
         
         World world = hitPortals.isEmpty()
             ? entity.world
-            : hitPortals.get(hitPortals.size() - 1).getDestinationWorld(false);
+            : hitPortals.get(hitPortals.size() - 1).getDestinationWorld();
         
         Portal portal = new Portal(Portal.entityType, world);
         
@@ -989,5 +991,21 @@ public class Helper {
         }
         
         return result;
+    }
+    
+    public static Box transformBox(
+        Box box, Function<Vec3d, Vec3d> function
+    ) {
+        List<Vec3d> result =
+            Arrays.stream(eightVerticesOf(box)).map(function).collect(Collectors.toList());
+        
+        return new Box(
+            result.stream().mapToDouble(b -> b.x).min().getAsDouble(),
+            result.stream().mapToDouble(b -> b.y).min().getAsDouble(),
+            result.stream().mapToDouble(b -> b.z).min().getAsDouble(),
+            result.stream().mapToDouble(b -> b.x).max().getAsDouble(),
+            result.stream().mapToDouble(b -> b.y).max().getAsDouble(),
+            result.stream().mapToDouble(b -> b.z).max().getAsDouble()
+        );
     }
 }
