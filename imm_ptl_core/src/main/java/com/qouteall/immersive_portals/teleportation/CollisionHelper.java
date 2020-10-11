@@ -162,16 +162,19 @@ public class CollisionHelper {
         entity.world = collidingPortal.getDestinationWorld();
         entity.setBoundingBox(boxOtherSide);
         
-        Vec3d result = handleCollisionFunc.apply(transformedAttemptedMove);
-        Vec3d move2 = collidingPortal.inverseTransformLocalVec(
-            result
-        );
+        Vec3d collided = handleCollisionFunc.apply(transformedAttemptedMove);
+        Vec3d result = collidingPortal.inverseTransformLocalVec(collided);
         
         entity.world = oldWorld;
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
         entity.setBoundingBox(originalBoundingBox);
         
-        return move2;
+        // floating point inaccuracy cause "faked collision"
+        double finalX = Math.abs(attemptedMove.x - result.x) < 0.01 ? attemptedMove.x : result.x;
+        double finalY = Math.abs(attemptedMove.y - result.y) < 0.01 ? attemptedMove.y : result.y;
+        double finalZ = Math.abs(attemptedMove.z - result.z) < 0.01 ? attemptedMove.z : result.z;
+        
+        return new Vec3d(finalX, finalY, finalZ);
     }
     
     private static Vec3d getThisSideMove(
