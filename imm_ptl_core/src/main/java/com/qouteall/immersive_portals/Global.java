@@ -72,6 +72,8 @@ public class Global {
     
     public static boolean cloudOptimization = true;
     
+    public static boolean crossPortalCollision = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

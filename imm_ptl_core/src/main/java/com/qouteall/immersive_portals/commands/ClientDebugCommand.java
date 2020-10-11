@@ -568,6 +568,11 @@ public class ClientDebugCommand {
             "cloud_optimization",
             cond -> Global.cloudOptimization = cond
         );
+        registerSwitchCommand(
+            builder,
+            "cross_portal_collision",
+            cond -> Global.crossPortalCollision = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

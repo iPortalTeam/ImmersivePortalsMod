@@ -135,18 +135,20 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
-        if (collidingPortal.rotation != null) {
-            //handling collision with rotating portal is hard to implement
-            return attemptedMove;
-        }
-        if (collidingPortal.hasScaling()) {
-            return attemptedMove;
-        }
+//        if (collidingPortal.rotation != null) {
+//            //handling collision with rotating portal is hard to implement
+//            return attemptedMove;
+//        }
+//        if (collidingPortal.hasScaling()) {
+//            return attemptedMove;
+//        }
+        
+        Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
         
         Box boxOtherSide = getCollisionBoxOtherSide(
             collidingPortal,
             originalBoundingBox,
-            attemptedMove
+            transformedAttemptedMove
         );
         if (boxOtherSide == null) {
             return attemptedMove;
@@ -160,7 +162,10 @@ public class CollisionHelper {
         entity.world = collidingPortal.getDestinationWorld();
         entity.setBoundingBox(boxOtherSide);
         
-        Vec3d move2 = handleCollisionFunc.apply(attemptedMove);
+        Vec3d result = handleCollisionFunc.apply(transformedAttemptedMove);
+        Vec3d move2 = collidingPortal.inverseTransformLocalVec(
+            result
+        );
         
         entity.world = oldWorld;
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
@@ -211,12 +216,21 @@ public class CollisionHelper {
         Box originalBox,
         Vec3d attemptedMove
     ) {
-        Vec3d teleportation = portal.destination.subtract(portal.getPos());
+        Box otherSideBox = transformBox(portal, originalBox);
         return clipBox(
-            originalBox.offset(teleportation),
+            otherSideBox,
             portal.destination.subtract(attemptedMove),
-            portal.getNormal().multiply(-1)
+            portal.getContentDirection()
         );
+    }
+    
+    private static Box transformBox(Portal portal, Box originalBox) {
+        if (portal.rotation == null && portal.scaling == 1) {
+            return originalBox.offset(portal.destination.subtract(portal.getPos()));
+        }
+        else {
+            return Helper.transformBox(originalBox, portal::transformPoint);
+        }
     }
     
     public static World getWorld(boolean isClient, RegistryKey<World> dimension) {

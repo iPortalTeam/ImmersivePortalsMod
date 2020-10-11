@@ -614,8 +614,7 @@ public class Portal extends Entity {
         return transformLocalVecNonScale(localVec).multiply(scaling);
     }
     
-    @Deprecated
-    public Vec3d untransformLocalVec(Vec3d localVec) {
+    public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
             return localVec;
         }
@@ -627,9 +626,12 @@ public class Portal extends Entity {
         return new Vec3d(temp);
     }
     
-    @Deprecated
-    public Vec3d untransformPoint(Vec3d point) {
-        return getPos().add(untransformLocalVec(point.subtract(destination)));
+    public Vec3d inverseTransformLocalVec(Vec3d localVec) {
+        return inverseTransformLocalVecNonScale(localVec).multiply(1.0 / scaling);
+    }
+    
+    public Vec3d inverseTransformPoint(Vec3d point) {
+        return getPos().add(inverseTransformLocalVec(point.subtract(destination)));
     }
     
     public Vec3d scaleLocalVec(Vec3d localVec) {

@@ -76,7 +76,8 @@ public abstract class MixinEntity implements IEEntity {
         if (attemptedMove.lengthSquared() > 256 ||
             collidingPortal == null ||
             entity.hasPassengers() ||
-            entity.hasVehicle()
+            entity.hasVehicle() ||
+            !Global.crossPortalCollision
         ) {
             return adjustMovementForCollisions(attemptedMove);
         }
