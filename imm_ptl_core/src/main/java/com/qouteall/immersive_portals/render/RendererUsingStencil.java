@@ -223,6 +223,10 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glDepthMask(true);
         
         GL20.glUseProgram(0);
+    
+        int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
+    
+        GL11.glDepthFunc(GL_ALWAYS);
         
         GlStateManager.enableDepthTest();
         
@@ -233,6 +237,8 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager.enableTexture();
         
         GL11.glColorMask(true, true, true, true);
+    
+        GL11.glDepthFunc(originalDepthFunc);
     }
     
     public static void clampStencilValue(
