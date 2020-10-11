@@ -135,14 +135,6 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
-//        if (collidingPortal.rotation != null) {
-//            //handling collision with rotating portal is hard to implement
-//            return attemptedMove;
-//        }
-//        if (collidingPortal.hasScaling()) {
-//            return attemptedMove;
-//        }
-        
         Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
         
         Box boxOtherSide = getCollisionBoxOtherSide(

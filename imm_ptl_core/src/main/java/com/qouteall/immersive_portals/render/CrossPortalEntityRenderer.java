@@ -139,13 +139,13 @@ public class CrossPortalEntityRenderer {
                 //no need to render entity projection for mirrors
                 return;
             }
-            if (collidingPortal.rotation != null) {
-                //currently cannot render entity projection through a rotating portal
-                return;
-            }
-            if (collidingPortal.hasScaling()) {
-                return;
-            }
+//            if (collidingPortal.rotation != null) {
+//                //currently cannot render entity projection through a rotating portal
+//                return;
+//            }
+//            if (collidingPortal.hasScaling()) {
+//                return;
+//            }
             RegistryKey<World> projectionDimension = collidingPortal.dimensionTo;
             if (client.world.getRegistryKey() == projectionDimension) {
                 renderProjectedEntity(entity, collidingPortal, matrixStack);
@@ -254,6 +254,11 @@ public class CrossPortalEntityRenderer {
         entity.world = newWorld;
         
         isRendering = true;
+        matrixStack.push();
+        setupEntityProjectionRenderingTransformation(
+            transformingPortal, entity, matrixStack
+        );
+        
         OFInterface.updateEntityTypeForShader.accept(entity);
         VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
         ((IEWorldRenderer) client.worldRenderer).myRenderEntity(
@@ -264,12 +269,37 @@ public class CrossPortalEntityRenderer {
         );
         //immediately invoke draw call
         consumers.draw();
+        
+        matrixStack.pop();
         isRendering = false;
         
         McHelper.setEyePos(
             entity, oldEyePos, oldLastTickEyePos
         );
         entity.world = oldWorld;
+    }
+    
+    private static void setupEntityProjectionRenderingTransformation(
+        Portal portal, Entity entity, MatrixStack matrixStack
+    ) {
+        if (portal.scaling == 1.0 && portal.rotation == null) {
+            return;
+        }
+        
+        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        
+        Vec3d anchor = entity.getCameraPosVec(RenderStates.tickDelta).subtract(cameraPos);
+        
+        matrixStack.translate(anchor.x, anchor.y, anchor.z);
+        
+        float scaling = (float) portal.scaling;
+        matrixStack.scale(scaling, scaling, scaling);
+        
+        if (portal.rotation != null) {
+            matrixStack.multiply(portal.rotation);
+        }
+        
+        matrixStack.translate(-anchor.x, -anchor.y, -anchor.z);
     }
     
     public static boolean shouldRenderPlayerItself() {
