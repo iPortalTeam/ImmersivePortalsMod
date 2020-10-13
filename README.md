@@ -10,7 +10,7 @@ This is one of the most complex minecraft mods.
 * It eliminates the limitation that client can only load and render chunks nearby the player
 * The portal rendering is recursive which needs proper management of minecraft rendering context of multiple dimensions
 * The portal can have rotation, scale and mirror transformations
-* The teleportation is seamless, creating the hallucination that the space is connected
+* The teleportation is seamless, creating the illusion that the space is connected
 * Cross portal collision
 * Cross portal entity rendering
 * Place and break blocks through portal
