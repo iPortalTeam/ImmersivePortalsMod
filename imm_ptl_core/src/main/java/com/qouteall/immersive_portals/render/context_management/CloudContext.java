@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render.context_management;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
@@ -19,6 +20,7 @@ public class CloudContext {
     public int lastCloudsBlockY = 0;
     public int lastCloudsBlockZ = 0;
     public RegistryKey<World> dimension = null;
+    public Vec3d cloudColor;
     
     public VertexBuffer cloudsBuffer = null;
     
@@ -45,13 +47,14 @@ public class CloudContext {
     @Nullable
     public static CloudContext findAndTakeContext(
         int lastCloudsBlockX, int lastCloudsBlockY, int lastCloudsBlockZ,
-        RegistryKey<World> dimension
+        RegistryKey<World> dimension, Vec3d cloudColor
     ) {
         int i = Helper.indexOf(contexts, c ->
             c.lastCloudsBlockX == lastCloudsBlockX &&
                 c.lastCloudsBlockY == lastCloudsBlockY &&
                 c.lastCloudsBlockZ == lastCloudsBlockZ &&
-                c.dimension == dimension
+                c.dimension == dimension &&
+                c.cloudColor.squaredDistanceTo(cloudColor) < 2.0E-4D
         );
         
         if (i == -1) {

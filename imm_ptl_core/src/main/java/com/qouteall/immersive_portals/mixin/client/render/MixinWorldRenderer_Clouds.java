@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.client.render;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.render.context_management.CloudContext;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -49,6 +50,10 @@ public abstract class MixinWorldRenderer_Clouds {
         at = @At("HEAD")
     )
     private void onBeginRenderClouds(MatrixStack matrices, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+        if (RenderStates.getRenderedPortalNum() == 0) {
+            return;
+        }
+        
         if (Global.cloudOptimization) {
             portal_onBeginCloudRendering(tickDelta, cameraX, cameraY, cameraZ);
         }
@@ -59,17 +64,24 @@ public abstract class MixinWorldRenderer_Clouds {
         at = @At("RETURN")
     )
     private void onEndRenderClouds(MatrixStack matrices, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+        if (RenderStates.getRenderedPortalNum() == 0) {
+            return;
+        }
+        
         if (Global.cloudOptimization) {
             portal_onEndCloudRendering();
         }
     }
     
     private void portal_yieldCloudContext(CloudContext context) {
+        Vec3d cloudsColor = this.world.getCloudsColor(RenderStates.tickDelta);
+        
         context.lastCloudsBlockX = lastCloudsBlockX;
         context.lastCloudsBlockY = lastCloudsBlockY;
         context.lastCloudsBlockZ = lastCloudsBlockZ;
         context.cloudsBuffer = cloudsBuffer;
         context.dimension = world.getRegistryKey();
+        context.cloudColor = cloudsColor;
         
         cloudsBuffer = null;
         cloudsDirty = true;
@@ -102,13 +114,13 @@ public abstract class MixinWorldRenderer_Clouds {
         float l = (float) (i - (double) MathHelper.floor(i));
         float m = (float) (j / 4.0D - (double) MathHelper.floor(j / 4.0D)) * 4.0F;
         float n = (float) (k - (double) MathHelper.floor(k));
-        Vec3d vec3d = this.world.getCloudsColor(tickDelta);
+        Vec3d cloudsColor = this.world.getCloudsColor(tickDelta);
         int kx = (int) Math.floor(i);
         int ky = (int) Math.floor(j / 4.0D);
         int kz = (int) Math.floor(k);
         
         @Nullable CloudContext context = CloudContext.findAndTakeContext(
-            kx, ky, kz, world.getRegistryKey()
+            kx, ky, kz, world.getRegistryKey(), cloudsColor
         );
         
         if (context != null) {
