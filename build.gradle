@@ -43,13 +43,13 @@ allprojects {
             name = 'JitPack'
             url = 'https://jitpack.io'
         }
-        
+
         jcenter()
     }
 
     // ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
     }
@@ -62,31 +62,16 @@ allprojects {
 
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-        modImplementation "me.shedaniel.cloth:config-${cloth_config_version}"
-        modImplementation "io.github.prospector:modmenu:${modmenu_version}"
-
         //For Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-        //make the game launch faster in dev
-//        modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
-//            exclude module: "fabric-loader"
-//        }
+        modCompileOnly "me.shedaniel.cloth:config-${cloth_config_version}"
+        modCompileOnly "io.github.prospector:modmenu:${modmenu_version}"
+
+        modCompileOnly 'com.github.Virtuoel:Pehkui:c88cfe6'
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1161_1'
 //        modImplementation("me.jellysquid.mods:sodium:0.1.0-SNAPSHOT")
-
-        modImplementation 'com.github.Virtuoel:Pehkui:c88cfe6'
-
-//        modImplementation 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
-
-//        modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
-
-        //Deps required for optifabric
-//        compile 'org.zeroturnaround:zt-zip:1.13'
-//        compile('net.fabricmc:stitch:0.2.1.61') {
-//            transitive = false
-//        }
     }
 
     afterEvaluate {
@@ -114,8 +99,8 @@ allprojects {
     }
 
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
+    // if it is present.
+    // If you remove this task, sources will not be generated.
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = "sources"
         from sourceSets.main.allSource
@@ -173,8 +158,30 @@ repositories {
 }
 
 dependencies {
+    modImplementation "me.shedaniel.cloth:config-${cloth_config_version}"
+    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
+
     include "me.shedaniel.cloth:config-${cloth_config_version}"
     include "io.github.prospector:modmenu:${modmenu_version}"
+
+    //make the game launch faster in dev
+//        modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
+//            exclude module: "fabric-loader"
+//        }
+
+
+
+    modImplementation 'com.github.Virtuoel:Pehkui:c88cfe6'
+
+//        modImplementation 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
+
+//        modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
+
+    //Deps required for optifabric
+//        compile 'org.zeroturnaround:zt-zip:1.13'
+//        compile('net.fabricmc:stitch:0.2.1.61') {
+//            transitive = false
+//        }
 
     afterEvaluate {
         subprojects.each {
