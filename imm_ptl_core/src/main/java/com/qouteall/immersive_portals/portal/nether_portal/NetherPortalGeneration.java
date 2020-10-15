@@ -137,14 +137,14 @@ public class NetherPortalGeneration {
                 "imm_ptl.generating_new_frame"
             ));
             
-            PortalGenInfo placedShape = newFramePlacer.get();
+            PortalGenInfo info = newFramePlacer.get();
             
-            if (placedShape != null) {
-                newFrameGenerateFunc.accept(placedShape.toShape);
+            if (info != null) {
+                newFrameGenerateFunc.accept(info.toShape);
                 
-                portalEntityGeneratingFunc.accept(placedShape);
+                portalEntityGeneratingFunc.accept(info);
                 
-                O_O.postPortalSpawnEventForge(placedShape);
+                O_O.postPortalSpawnEventForge(info);
             }
         };
         
