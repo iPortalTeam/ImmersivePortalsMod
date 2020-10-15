@@ -27,15 +27,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.ProfilerSystem;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -123,10 +120,6 @@ public class ClientDebugCommand {
                     )
                 )
             )
-        );
-        builder = builder.then(CommandManager
-            .literal("add_portal")
-            .executes(context -> addPortal(context))
         );
         builder = builder.then(CommandManager
             .literal("report_player_status")
@@ -730,52 +723,6 @@ public class ClientDebugCommand {
         
         McHelper.serverLog(playerServer, result.toString());
         
-        return 0;
-    }
-    
-    private static Consumer<ServerPlayerEntity> originalAddPortalFunctionality;
-    private static Consumer<ServerPlayerEntity> addPortalFunctionality;
-    
-    static {
-        originalAddPortalFunctionality = (player) -> {
-            Vec3d fromPos = player.getPos();
-            Vec3d fromNormal = player.getRotationVector().multiply(-1);
-            ServerWorld fromWorld = ((ServerWorld) player.world);
-            
-            addPortalFunctionality = (playerEntity) -> {
-                Vec3d toPos = playerEntity.getPos();
-                RegistryKey<World> toDimension = player.world.getRegistryKey();
-                
-                Portal portal = new Portal(Portal.entityType, fromWorld);
-                portal.setPos(fromPos.x, fromPos.y, fromPos.z);
-                
-                portal.axisH = new Vec3d(0, 1, 0);
-                portal.axisW = portal.axisH.crossProduct(fromNormal).normalize();
-                
-                portal.dimensionTo = toDimension;
-                portal.destination = toPos;
-                
-                portal.width = 4;
-                portal.height = 4;
-                
-                assert portal.isPortalValid();
-                
-                fromWorld.spawnEntity(portal);
-                
-                addPortalFunctionality = originalAddPortalFunctionality;
-            };
-        };
-        
-        addPortalFunctionality = originalAddPortalFunctionality;
-    }
-    
-    private static int addPortal(CommandContext<ServerCommandSource> context) {
-        try {
-            addPortalFunctionality.accept(context.getSource().getPlayer());
-        }
-        catch (CommandSyntaxException e) {
-            e.printStackTrace();
-        }
         return 0;
     }
     
