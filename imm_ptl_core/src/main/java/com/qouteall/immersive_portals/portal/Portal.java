@@ -163,6 +163,11 @@ public class Portal extends Entity {
             cullableXEnd = compoundTag.getDouble("cullableXEnd");
             cullableYStart = compoundTag.getDouble("cullableYStart");
             cullableYEnd = compoundTag.getDouble("cullableYEnd");
+    
+            cullableXEnd = Math.min(cullableXEnd, width / 2);
+            cullableXStart = Math.max(cullableXStart, -width / 2);
+            cullableYEnd = Math.min(cullableYEnd, height / 2);
+            cullableYStart = Math.max(cullableYStart, -height / 2);
         }
         else {
             if (specialShape != null) {
@@ -201,6 +206,8 @@ public class Portal extends Entity {
         
         extension = new PortalExtension();
         extension.readFromNbt(compoundTag);
+        
+        updateCache();
     }
     
     @Override
