@@ -38,8 +38,6 @@
   "imm_ptl.portal_render_limit": "传送门渲染数量限制",
   "imm_ptl.pure_mirror": "镜面无玻璃材质",
   "imm_ptl.portal_gen": "自定义传送门建造",
-  "imm_ptl.missing_mixin": "Immersive Portals mod requires MixinBootstrap. MixinBootstrap is not installed.",
-  "imm_ptl.download_mixinbootstrap": "Download MixinBootstrap",
   "imm_ptl.not_pointing_portal": "你没有将准心指向一个传送门",
   "imm_ptl.clear_border_warning": "警告! 这个指令将会清除空间折叠区域外部边界上所有方块\n该操作无法撤销。建议先备份存档。\n再次使用该指令以执行操作。",
   "imm_ptl.not_in_wrapping_zone": "你没有处于任何空间折叠区域内",
@@ -55,5 +53,10 @@
   "imm_ptl.client_side_config": "客户端设置",
   "imm_ptl.nether_portal_mode": "地狱传送门类型",
   "imm_ptl.end_portal_mode": "末地传送门类型",
-  "imm_ptl.reduced_portal_rendering": "限制性传送门渲染（提高帧率）"
+  "imm_ptl.reduced_portal_rendering": "限制性传送门渲染（提高帧率）",
+  "imm_ptl.loose_movement_check": "取消玩家位置反作弊检测（可以减少网络卡顿时的传送）",
+  "imm_ptl.visibility_prediction": "渲染时预测传送门是否可见",
+  "gamerule.ipDimensionStack": "位面纵向堆叠",
+  "gamerule.ipDimensionStack.description": "不用修改",
+  "imm_ptl.chunk_unload_delay_ticks": "区块卸载延迟（ticks）"
 }

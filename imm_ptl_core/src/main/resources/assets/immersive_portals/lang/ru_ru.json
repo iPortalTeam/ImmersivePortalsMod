@@ -39,8 +39,6 @@
   "imm_ptl.laggy": "Рендеринг Меньшего Количества Порталов из-за Лагов. (Это Можно Отключить в Конфиге)",
   "imm_ptl.pure_mirror": "Чистое Зеркало",
   "imm_ptl.portal_gen": "Пользовательская Генерация Портала",
-  "imm_ptl.missing_mixin": "Мод Immersive Portals требует MixinBootstrap. MixinBootstrap не установлен.",
-  "imm_ptl.download_mixinbootstrap": "Загрузить MixinBootstrap",
   "imm_ptl.not_pointing_portal": "Вы не указываете на какой-либо портал",
   "imm_ptl.clear_border_warning": "Осторожно! Это очистит все блоки во внешнем слое мировой оберточной границы.\nЭту операцию нельзя отменить. Вы должны сделать резервную копию мира, прежде чем делать это.\nВызовите эту команду еще раз, чтобы опередить.",
   "imm_ptl.not_in_wrapping_zone": "Вы не находитесь не в оберточной зоне",
@@ -55,5 +53,10 @@
   "imm_ptl.client_side_config": "Client Side Config",
   "imm_ptl.nether_portal_mode": "Nether Portal Mode",
   "imm_ptl.end_portal_mode": "End Portal Mode",
-  "imm_ptl.reduced_portal_rendering": "Reduced Portal Rendering"
+  "imm_ptl.reduced_portal_rendering": "Reduced Portal Rendering",
+  "imm_ptl.loose_movement_check": "Loose Player Movement Check",
+  "imm_ptl.visibility_prediction": "Portal Visibility Prediction",
+  "gamerule.ipDimensionStack": "Dimension Stack (Immersive Portals)",
+  "gamerule.ipDimensionStack.description": "You don't need to change this here",
+  "imm_ptl.chunk_unload_delay_ticks": "Chunk Unload Delay (Ticks)"
 }

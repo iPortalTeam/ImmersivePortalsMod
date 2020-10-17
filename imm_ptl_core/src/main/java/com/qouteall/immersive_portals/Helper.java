@@ -305,21 +305,6 @@ public class Helper {
         return last;
     }
     
-    public interface CallableWithoutException<T> {
-        public T run();
-    }
-    
-    public static Runnable noException(Callable func) {
-        return () -> {
-            try {
-                func.call();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-    }
-    
     public static void doNotEatExceptionMessage(
         Runnable func
     ) {
@@ -482,19 +467,6 @@ public class Helper {
             return func.call();
         }
         catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-    
-    public static interface ExceptionalRunnable {
-        void run() throws Throwable;
-    }
-    
-    public static void noError(ExceptionalRunnable runnable) {
-        try {
-            runnable.run();
-        }
-        catch (Throwable e) {
             throw new IllegalStateException(e);
         }
     }
@@ -993,6 +965,7 @@ public class Helper {
         return result;
     }
     
+    // this will expand the box because the box can only be axis aligned
     public static Box transformBox(
         Box box, Function<Vec3d, Vec3d> function
     ) {

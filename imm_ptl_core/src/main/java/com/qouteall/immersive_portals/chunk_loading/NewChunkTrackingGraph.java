@@ -150,7 +150,6 @@ public class NewChunkTrackingGraph {
     }
     
     private static void updateAndPurge() {
-        long unloadTimeValve = Global.chunkUnloadDelayTicks;
         long currTime = McHelper.getOverWorldOnServer().getTime();
         data.forEach((dimension, chunkRecords) -> {
             chunkRecords.long2ObjectEntrySet().removeIf(entry -> {
@@ -160,8 +159,8 @@ public class NewChunkTrackingGraph {
                 
                 removeInactiveWatchers(
                     records,
-                    (r) -> {
-                        return currTime - r.lastWatchTime > unloadTimeValve || r.player.removed;
+                    (record) -> {
+                        return shouldUnload(currTime, record);
                     },
                     player -> {
                         if (player.removed) return;
@@ -221,6 +220,18 @@ public class NewChunkTrackingGraph {
                 MyLoadingTicket.removeTicket(world, new ChunkPos(longChunkPos));
             });
         });
+    }
+    
+    private static boolean shouldUnload(long currTime, PlayerWatchRecord record) {
+        if (record.player.removed) {
+            return true;
+        }
+        if (record.isDirectLoading) {
+            return currTime - record.lastWatchTime > updateInterval + 1;
+        }
+        else {
+            return currTime - record.lastWatchTime > (long) Global.chunkUnloadDelayTicks;
+        }
     }
     
     private static void tick() {
