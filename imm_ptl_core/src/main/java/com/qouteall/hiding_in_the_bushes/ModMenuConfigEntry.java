@@ -115,6 +115,11 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.visibility_prediction"),
                 currConfig.visibilityPrediction
             ).setDefaultValue(true).build();
+            IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
+                new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
+                currConfig.chunkUnloadDelayTicks,
+                0, 30 * 20
+            ).setDefaultValue(15 * 20).build();
             EnumListEntry<Global.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.nether_portal_mode"),
@@ -156,6 +161,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryEnableAlternateDimensions);
             serverSide.addEntry(entryPortalSearchingRange);
             serverSide.addEntry(entryActiveLoading);
+            serverSide.addEntry(entryChunkUnloadDelayTicks);
             serverSide.addEntry(entryTeleportDebug);
             serverSide.addEntry(entryLooseMovementCheck);
             serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
@@ -190,6 +196,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.endPortalMode = entryEndPortalMode.getValue();
                     newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                     newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
+                    newConfig.chunkUnloadDelayTicks = entryChunkUnloadDelayTicks.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();

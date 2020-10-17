@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -149,7 +150,7 @@ public class NewChunkTrackingGraph {
     }
     
     private static void updateAndPurge() {
-        long unloadTimeValve = getUnloadTimeValve();
+        long unloadTimeValve = Global.chunkUnloadDelayTicks;
         long currTime = McHelper.getOverWorldOnServer().getTime();
         data.forEach((dimension, chunkRecords) -> {
             chunkRecords.long2ObjectEntrySet().removeIf(entry -> {
@@ -220,10 +221,6 @@ public class NewChunkTrackingGraph {
                 MyLoadingTicket.removeTicket(world, new ChunkPos(longChunkPos));
             });
         });
-    }
-    
-    private static long getUnloadTimeValve() {
-        return 15 * 20;
     }
     
     private static void tick() {

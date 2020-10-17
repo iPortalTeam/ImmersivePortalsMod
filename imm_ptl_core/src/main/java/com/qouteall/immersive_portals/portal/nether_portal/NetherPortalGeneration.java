@@ -1,8 +1,6 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
-import com.google.common.collect.Streams;
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -33,8 +31,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class NetherPortalGeneration {
     
@@ -267,25 +263,6 @@ public class NetherPortalGeneration {
             ).findFirst().orElse(null);
     }
     
-    public static Stream<BlockPos> blockPosStreamNaive(
-        ServerWorld toWorld,
-        int x, int z, int raidus
-    ) {
-        Stream<BlockPos> blockPosStream = BlockPos.stream(
-            new BlockPos(
-                x - raidus,
-                3,
-                z - raidus
-            ),
-            new BlockPos(
-                x + raidus,
-                toWorld.getDimensionHeight() - 3,
-                z + raidus
-            )
-        );
-        return blockPosStream;
-    }
-    
     public static void embodyNewFrame(
         ServerWorld toWorld,
         BlockPortalShape toShape,
@@ -307,49 +284,5 @@ public class NetherPortalGeneration {
         );
     }
     
-    @Deprecated
-    public static Stream<BlockPos> fromNearToFarColumned(
-        ServerWorld world,
-        int x,
-        int z,
-        int range
-    ) {
-        if (range < 0) {
-            range = 5;
-        }
-        
-        int height = world.getDimensionHeight();
-        
-        if (Global.blameOpenJdk) {
-            return blockPosStreamNaive(
-                world, x, z, range
-            );
-        }
-        
-        
-        BlockPos.Mutable temp0 = new BlockPos.Mutable();
-        BlockPos.Mutable temp2 = new BlockPos.Mutable();
-        BlockPos.Mutable temp1 = new BlockPos.Mutable();
-        
-        return IntStream.range(0, range).boxed()
-            .flatMap(layer ->
-                Streams.concat(
-                    IntStream.range(0, layer * 2 + 1)
-                        .mapToObj(i -> new BlockPos(layer, 0, i - layer)),
-                    IntStream.range(0, layer * 2 + 1)
-                        .mapToObj(i -> new BlockPos(-layer, 0, i - layer)),
-                    IntStream.range(0, layer * 2 - 1)
-                        .mapToObj(i -> new BlockPos(i - layer + 1, 0, layer)),
-                    IntStream.range(0, layer * 2 - 1)
-                        .mapToObj(i -> new BlockPos(i - layer + 1, 0, -layer))
-                ).map(
-                    columnPos_ -> new BlockPos(columnPos_.getX() + x, 0, columnPos_.getZ() + z)
-                ).flatMap(
-                    columnPos_ ->
-                        IntStream.range(3, height - 3)
-                            .mapToObj(y -> new BlockPos(columnPos_.getX(), y, columnPos_.getZ()))
-                )
-            );
-    }
     
 }

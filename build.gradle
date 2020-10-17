@@ -170,12 +170,11 @@ dependencies {
 //        }
 
 
-
     modImplementation 'com.github.Virtuoel:Pehkui:c88cfe6'
 
 //        modImplementation 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
 
-//        modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
+    modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
 
     //Deps required for optifabric
 //        compile 'org.zeroturnaround:zt-zip:1.13'
