@@ -145,6 +145,10 @@ public class CollisionHelper {
         if (boxOtherSide == null) {
             return attemptedMove;
         }
+
+//        if (collidingPortal.hasScaling() || collidingPortal.rotation != null) {
+//            boxOtherSide = boxOtherSide.expand(0.05);
+//        }
         
         //switch world and check collision
         World oldWorld = entity.world;
@@ -161,12 +165,27 @@ public class CollisionHelper {
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
         entity.setBoundingBox(originalBoundingBox);
         
-        // floating point inaccuracy cause "faked collision"
-        double finalX = Math.abs(attemptedMove.x - result.x) < 0.01 ? attemptedMove.x : result.x;
-        double finalY = Math.abs(attemptedMove.y - result.y) < 0.01 ? attemptedMove.y : result.y;
-        double finalZ = Math.abs(attemptedMove.z - result.z) < 0.01 ? attemptedMove.z : result.z;
+        double finalX = correctCoordinate(attemptedMove.x, result.x);
+        double finalY = correctCoordinate(attemptedMove.y, result.y);
+        double finalZ = correctCoordinate(attemptedMove.z, result.z);
         
         return new Vec3d(finalX, finalY, finalZ);
+    }
+    
+    // floating point deviation may cause collision issues
+    private static double correctCoordinate(double attemptedMove, double result) {
+        //rotation may cause a free move to reduce a little bit and the game think that it's collided
+        if (Math.abs(attemptedMove - result) < 0.001) {
+            return attemptedMove;
+        }
+        
+        //0 may become 0.0000001 after rotation. avoid falling through floor
+        if (Math.abs(result) < 0.0001) {
+            return 0;
+        }
+        
+        //1 may become 0.999999 after rotation. avoid going into wall
+        return result * 0.999;
     }
     
     private static Vec3d getThisSideMove(
@@ -212,11 +231,21 @@ public class CollisionHelper {
         Vec3d attemptedMove
     ) {
         Box otherSideBox = transformBox(portal, originalBox);
-        return clipBox(
+        final Box box = clipBox(
             otherSideBox,
-            portal.destination.subtract(attemptedMove),
+            portal.destination,
             portal.getContentDirection()
         );
+        
+        if (box == null) {
+            return clipBox(
+                otherSideBox,
+                portal.destination.subtract(attemptedMove),
+                portal.getContentDirection()
+            );
+        }
+        
+        return box;
     }
     
     private static Box transformBox(Portal portal, Box originalBox) {
