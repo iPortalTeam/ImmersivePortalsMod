@@ -240,6 +240,9 @@ public class CrossPortalEntityRenderer {
             //avoid rendering player too near and block view
             double dis = newEyePos.distanceTo(cameraPos);
             double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.getPos());
+            if (transformingPortal.scaling > 1) {
+                valve *= transformingPortal.scaling;
+            }
             if (dis < valve) {
                 return;
             }
