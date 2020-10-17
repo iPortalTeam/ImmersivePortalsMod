@@ -124,6 +124,7 @@ public class ClientWorldLoader {
     }
     
     // show nether particles through portal
+    // TODO optimize it
     private static void tickRemoteWorldRandomTicksClient(
         ClientWorld newWorld, List<Portal> nearbyPortals
     ) {

@@ -296,10 +296,11 @@ public class CollisionHelper {
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
         
-        for (GlobalTrackedPortal globalPortal : globalPortals) {
-            Box globalPortalBoundingBox = globalPortal.getBoundingBox();
-            for (Entity entity : worldEntityList) {
-                if (entity.getBoundingBox().intersects(globalPortalBoundingBox)) {
+        for (Entity entity : worldEntityList) {
+            Box entityBoundingBoxStretched = getStretchedBoundingBox(entity);
+            for (GlobalTrackedPortal globalPortal : globalPortals) {
+                Box globalPortalBoundingBox = globalPortal.getBoundingBox();
+                if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
                     if (canCollideWithPortal(entity, globalPortal, 1)) {
                         ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
                     }
@@ -357,7 +358,7 @@ public class CollisionHelper {
                 if (entity instanceof Portal) {
                     return false;
                 }
-                Box entityBoxStretched = entity.getBoundingBox().stretch(entity.getVelocity());
+                Box entityBoxStretched = getStretchedBoundingBox(entity);
                 if (!entityBoxStretched.intersects(portalBoundingBox)) {
                     return false;
                 }
@@ -368,5 +369,9 @@ public class CollisionHelper {
         for (Entity entity : collidingEntities) {
             ((IEEntity) entity).notifyCollidingWithPortal(portal);
         }
+    }
+    
+    private static Box getStretchedBoundingBox(Entity entity) {
+        return entity.getBoundingBox().stretch(entity.getVelocity());
     }
 }
