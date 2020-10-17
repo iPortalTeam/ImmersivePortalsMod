@@ -226,12 +226,7 @@ public class NewChunkTrackingGraph {
         if (record.player.removed) {
             return true;
         }
-        if (record.isDirectLoading) {
-            return currTime - record.lastWatchTime > updateInterval + 1;
-        }
-        else {
-            return currTime - record.lastWatchTime > (long) Global.chunkUnloadDelayTicks;
-        }
+        return currTime - record.lastWatchTime > (long) Global.chunkUnloadDelayTicks;
     }
     
     private static void tick() {
@@ -384,6 +379,7 @@ public class NewChunkTrackingGraph {
     public static void addAdditionalDirectTickets(ServerPlayerEntity player) {
         ChunkVisibilityManager.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
             if (isPlayerWatchingChunk(player, dim, x, z)) {
+                
                 MyLoadingTicket.addTicketIfNotLoaded(((ServerWorld) player.world), new ChunkPos(x, z));
             }
         });
