@@ -7,8 +7,8 @@ import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import com.qouteall.immersive_portals.render.PortalPresentation;
 import com.qouteall.immersive_portals.render.PortalRenderer;
+import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
 import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
@@ -76,9 +76,6 @@ public class RendererMixed extends PortalRenderer {
         
         MatrixStack effectiveTransformation = this.modelView;
         modelView = new MatrixStack();
-    
-        portalRenderingNeeded = nextFramePortalRenderingNeeded;
-        nextFramePortalRenderingNeeded = false;
         
         renderPortals(effectiveTransformation);
     }
@@ -108,10 +105,12 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-        OFHelper.copyFromShaderFbTo(
-            deferredFbs[PortalRendering.getPortalLayer()].fb,
-            GL_DEPTH_BUFFER_BIT
-        );
+        if (portalRenderingNeeded) {
+            OFHelper.copyFromShaderFbTo(
+                deferredFbs[PortalRendering.getPortalLayer()].fb,
+                GL_DEPTH_BUFFER_BIT
+            );
+        }
         
         modelView.push();
         modelView.peek().getModel().multiply(matrixStack.peek().getModel());
@@ -148,6 +147,9 @@ public class RendererMixed extends PortalRenderer {
         }
         
         OFGlobal.bindToShaderFrameBuffer.run();
+    
+        portalRenderingNeeded = nextFramePortalRenderingNeeded;
+        nextFramePortalRenderingNeeded = false;
     }
     
     @Override
@@ -156,6 +158,10 @@ public class RendererMixed extends PortalRenderer {
         Shaders.useProgram(Shaders.ProgramNone);
         
         if (RenderStates.getRenderedPortalNum() == 0) {
+            return;
+        }
+        
+        if (!portalRenderingNeeded) {
             return;
         }
         
@@ -224,7 +230,7 @@ public class RendererMixed extends PortalRenderer {
         
         GlStateManager.enableDepthTest();
         
-        boolean result = PortalPresentation.renderAndDecideVisibility(portal, () -> {
+        boolean result = QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.drawPortalViewTriangle(
                 portal, matrixStack, true, true
             );

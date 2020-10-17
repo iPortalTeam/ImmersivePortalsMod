@@ -169,18 +169,16 @@ dependencies {
 //            exclude module: "fabric-loader"
 //        }
 
-
     modImplementation 'com.github.Virtuoel:Pehkui:c88cfe6'
 
-//        modImplementation 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
-
-    modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
+//    modImplementation 'com.github.Chocohead:OptiFabric:llama-SNAPSHOT'
+//    modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
 
     //Deps required for optifabric
-//        compile 'org.zeroturnaround:zt-zip:1.13'
-//        compile('net.fabricmc:stitch:0.2.1.61') {
-//            transitive = false
-//        }
+    compile 'org.zeroturnaround:zt-zip:1.13'
+    compile('net.fabricmc:stitch:0.5.1+build.77') {
+        transitive = false
+    }
 
     afterEvaluate {
         subprojects.each {
