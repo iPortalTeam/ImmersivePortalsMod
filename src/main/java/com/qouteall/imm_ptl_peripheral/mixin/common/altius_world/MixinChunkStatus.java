@@ -1,6 +1,5 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 
-import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
@@ -17,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Mixin(ChunkStatus.class)
@@ -24,6 +24,21 @@ public class MixinChunkStatus {
     //vanilla feature generation is not thread safe
     
     private static ReentrantLock featureGenLock;
+    
+    private static void lockFeatureGen() {
+        try {
+            featureGenLock.tryLock(10, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void unlockFeatureGen() {
+        if (featureGenLock.isHeldByCurrentThread()) {
+            featureGenLock.unlock();
+        }
+    }
     
     @Redirect(
         method = "*",
@@ -37,7 +52,7 @@ public class MixinChunkStatus {
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
-            featureGenLock.lock();
+            lockFeatureGen();
         }
         try {
             chunkGenerator.generateFeatures(region, accessor);
@@ -52,7 +67,7 @@ public class MixinChunkStatus {
             e.printStackTrace();
         }
         if (shouldLock) {
-            featureGenLock.unlock();
+            unlockFeatureGen();
         }
     }
     
@@ -69,7 +84,7 @@ public class MixinChunkStatus {
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
-            featureGenLock.lock();
+            lockFeatureGen();
         }
         try {
             generator.setStructureStarts(dynamicRegistryManager, structureAccessor, chunk, structureManager, worldSeed);
@@ -82,7 +97,7 @@ public class MixinChunkStatus {
             e.printStackTrace();
         }
         if (shouldLock) {
-            featureGenLock.unlock();
+            unlockFeatureGen();
         }
     }
     
@@ -99,7 +114,7 @@ public class MixinChunkStatus {
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
-            featureGenLock.lock();
+            lockFeatureGen();
         }
         try {
             chunkGenerator.addStructureReferences(structureWorldAccess, accessor, chunk);
@@ -112,7 +127,7 @@ public class MixinChunkStatus {
             e.printStackTrace();
         }
         if (shouldLock) {
-            featureGenLock.unlock();
+            unlockFeatureGen();
         }
     }
     
@@ -128,7 +143,7 @@ public class MixinChunkStatus {
     ) {
         boolean shouldLock = getShouldLock();
         if (shouldLock) {
-            featureGenLock.lock();
+            lockFeatureGen();
         }
         try {
             generator.carve(seed, access, chunk, carver);
@@ -141,12 +156,15 @@ public class MixinChunkStatus {
             e.printStackTrace();
         }
         if (shouldLock) {
-            featureGenLock.unlock();
+            unlockFeatureGen();
         }
     }
     
+    // seems that the feature generation is thread safe now
+    // no need to lock
     private static boolean getShouldLock() {
-        return AltiusGameRule.getIsDimensionStackCache();
+        return false;
+//        return AltiusGameRule.getIsDimensionStackCache();
     }
     
     static {
