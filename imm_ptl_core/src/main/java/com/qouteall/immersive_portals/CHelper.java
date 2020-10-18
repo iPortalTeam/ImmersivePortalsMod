@@ -164,7 +164,7 @@ public class CHelper {
         int from, int to,
         LayoutElement... elements
     ) {
-        int totalEscalateWeight = Arrays.stream(elements)
+        int totalElasticWeight = Arrays.stream(elements)
             .filter(e -> !e.fixedLength)
             .mapToInt(e -> e.length)
             .sum();
@@ -183,7 +183,7 @@ public class CHelper {
                 currLen = element.length;
             }
             else {
-                currLen = element.length * totalEscalateLen / totalEscalateWeight;
+                currLen = element.length * totalEscalateLen / totalElasticWeight;
             }
             element.apply.apply(currCoordinate, currCoordinate + currLen);
             currCoordinate += currLen;

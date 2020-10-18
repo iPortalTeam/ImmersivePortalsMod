@@ -1,6 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
+import com.qouteall.immersive_portals.Global;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -37,11 +38,13 @@ public class SelectDimensionScreen extends Screen {
         SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
         
         // TODO use an appropriate way to detect other mod's dimensions
-        AlternateDimensions.addAlternateDimensions(
-            dimensionMap,
-            parent.parent.moreOptionsDialog.method_29700(),
-            generatorOptions.getSeed()
-        );
+        if (Global.enableAlternateDimensions) {
+            AlternateDimensions.addAlternateDimensions(
+                dimensionMap,
+                parent.parent.moreOptionsDialog.method_29700(),
+                generatorOptions.getSeed()
+            );
+        }
         
         ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
         

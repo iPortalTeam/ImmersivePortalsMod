@@ -87,15 +87,6 @@ public class MyNetworkClient {
             client.getProfiler().push("ip_spawn_entity");
             
             ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
-
-//            if (world.getEntityById(entityId) != null) {
-//                Helper.err(String.format(
-//                    "duplicate entity %s %s %s",
-//                    ((Integer) entityId).toString(),
-//                    entityType.get().getTranslationKey(),
-//                    compoundTag
-//                ));
-//            }
             
             Entity entity = entityType.get().create(
                 world

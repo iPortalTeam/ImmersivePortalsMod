@@ -3,6 +3,7 @@ package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Lifecycle;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -105,6 +106,10 @@ public class AlternateDimensions {
         SimpleRegistry<DimensionOptions> registry, DynamicRegistryManager rm,
         long seed
     ) {
+        if (!Global.enableAlternateDimensions) {
+            return;
+        }
+        
         addDimension(
             seed,
             registry,
