@@ -10,8 +10,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,7 +165,7 @@ public class PortalPresentation {
         }
     }
     
-    @NotNull
+    @Nonnull
     private Visibility getVisibility(List<UUID> desc) {
         updateQuerySet();
         
