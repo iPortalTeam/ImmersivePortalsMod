@@ -112,7 +112,11 @@ public abstract class MixinClientWorld implements IEClientWorld {
      * freeze the player so the player won't drop
      * {@link ClientPlayerEntity#tick()}
      */
-    @Inject(method = "isChunkLoaded", at = @At("HEAD"), cancellable = true)
+    @Inject(
+        method = "Lnet/minecraft/client/world/ClientWorld;isChunkLoaded(II)Z",
+        at = @At("HEAD"),
+        cancellable = true
+    )
     private void onIsChunkLoaded(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
         WorldChunk chunk = chunkManager.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
         if (chunk == null || chunk instanceof EmptyChunk) {
