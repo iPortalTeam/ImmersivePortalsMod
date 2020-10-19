@@ -48,7 +48,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             IntegerSliderEntry entryIndirectLoadingRadiusCap = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.indirect_loading_radius_cap"),
                 currConfig.indirectLoadingRadiusCap,
-                1, 20
+                1, 32
             ).setDefaultValue(8).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.compatibility_render_mode"),
