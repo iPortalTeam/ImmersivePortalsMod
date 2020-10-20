@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
-import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL11;
@@ -123,6 +122,8 @@ public class RendererUsingStencil extends PortalRenderer {
         clearDepthOfThePortalViewArea(portal);
         client.getProfiler().pop();
         
+        setStencilStateForWorldRendering();
+        
         renderPortalContent(portal);
         
         restoreDepthOfPortalViewArea(portal, matrixStack);
@@ -135,19 +136,6 @@ public class RendererUsingStencil extends PortalRenderer {
     @Override
     public void renderPortalInEntityRenderer(Portal portal) {
         //nothing
-    }
-    
-    @Override
-    public void invokeWorldRendering(
-        RenderInfo renderInfo
-    ) {
-        MyGameRenderer.renderWorldNew(
-            renderInfo,
-            runnable -> {
-                setStencilStateForWorldRendering();
-                runnable.run();
-            }
-        );
     }
     
     private void renderPortalViewAreaToStencil(
@@ -223,9 +211,9 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glDepthMask(true);
         
         GL20.glUseProgram(0);
-    
+        
         int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
-    
+        
         GL11.glDepthFunc(GL_ALWAYS);
         
         GlStateManager.enableDepthTest();
@@ -237,7 +225,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GlStateManager.enableTexture();
         
         GL11.glColorMask(true, true, true, true);
-    
+        
         GL11.glDepthFunc(originalDepthFunc);
     }
     
