@@ -72,7 +72,7 @@ public class CrossPortalThirdPersonView {
             CGlobal.clientWorldLoader.getWorld(portal.dimensionTo),
             renderingCameraPos,
             PortalRenderer.getAdditionalCameraTransformation(portal),
-            portal
+            null
         );
         
         CGlobal.renderer.invokeWorldRendering(renderInfo);

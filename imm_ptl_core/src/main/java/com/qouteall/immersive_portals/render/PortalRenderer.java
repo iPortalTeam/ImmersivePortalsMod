@@ -176,7 +176,7 @@ public abstract class PortalRenderer {
             newWorld,
             PortalRendering.getRenderingCameraPos(),
             getAdditionalCameraTransformation(portal),
-            portal,
+            portal.getUuid(),
             renderDistance
         ));
         

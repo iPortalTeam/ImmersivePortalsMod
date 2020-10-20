@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.render.context_management;
 
 import com.qouteall.immersive_portals.ducks.IECamera;
-import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
@@ -17,22 +16,22 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class RenderInfo {
-    public ClientWorld world;
-    public Vec3d cameraPos;
+    public final ClientWorld world;
+    public final Vec3d cameraPos;
     @Nullable
-    public Matrix4f additionalTransformation;
+    public final Matrix4f additionalTransformation;
     @Nullable
-    public Portal portal;
-    public int renderDistance;
+    public final UUID description;
+    public final int renderDistance;
     
     private static final Stack<RenderInfo> renderInfoStack = new Stack<>();
     
     public RenderInfo(
         ClientWorld world, Vec3d cameraPos,
-        Matrix4f additionalTransformation, @Nullable Portal portal
+        Matrix4f additionalTransformation, @Nullable UUID description
     ) {
         this(
-            world, cameraPos, additionalTransformation, portal,
+            world, cameraPos, additionalTransformation, description,
             MinecraftClient.getInstance().options.viewDistance
         );
     }
@@ -40,17 +39,13 @@ public class RenderInfo {
     public RenderInfo(
         ClientWorld world, Vec3d cameraPos,
         @Nullable Matrix4f additionalTransformation,
-        @Nullable Portal portal, int renderDistance
+        @Nullable UUID description, int renderDistance
     ) {
         this.world = world;
         this.cameraPos = cameraPos;
         this.additionalTransformation = additionalTransformation;
-        this.portal = portal;
+        this.description = description;
         this.renderDistance = renderDistance;
-    }
-    
-    public UUID getDescription() {
-        return portal != null ? portal.getUuid() : null;
     }
     
     public static void pushRenderInfo(RenderInfo renderInfo) {
@@ -94,12 +89,6 @@ public class RenderInfo {
     // for example rendering portal B inside portal A will always have the same rendering description
     public static List<UUID> getRenderingDescription() {
         return renderInfoStack.stream()
-            .map(RenderInfo::getDescription).collect(Collectors.toList());
-
-//        UUID[] result = new UUID[renderInfoStack.size()];
-//        for (int i = 0; i < result.length; i++) {
-//            result[i] = renderInfoStack.get(i).getDescription();
-//        }
-//        return result;
+            .map(renderInfo -> renderInfo.description).collect(Collectors.toList());
     }
 }
