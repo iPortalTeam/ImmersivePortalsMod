@@ -630,7 +630,7 @@ public class Portal extends Entity {
         }
         
         Vector3f temp = new Vector3f(localVec);
-        Quaternion r = rotation.copy();
+        Quaternion r = new Quaternion(rotation);//copy() is client only
         r.conjugate();
         temp.rotate(r);
         return new Vec3d(temp);
