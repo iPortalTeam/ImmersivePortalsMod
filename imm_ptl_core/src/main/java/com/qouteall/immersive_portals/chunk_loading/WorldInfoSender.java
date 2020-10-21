@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 public class WorldInfoSender {
     public static void init() {
         ModMain.postServerTickSignal.connect(() -> {
+            McHelper.getServer().getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
                     Set<RegistryKey<World>> visibleDimensions = getVisibleDimensions(player);
@@ -43,6 +44,7 @@ public class WorldInfoSender {
                     
                 }
             }
+            McHelper.getServer().getProfiler().pop();
         });
     }
     
@@ -78,7 +80,7 @@ public class WorldInfoSender {
             //if the weather is already not raining when the player logs in then no need to sync
             //if the weather turned to not raining then elsewhere syncs it
         }
-    
+        
         player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
             world.getRegistryKey(),
             new GameStateChangeS2CPacket(
