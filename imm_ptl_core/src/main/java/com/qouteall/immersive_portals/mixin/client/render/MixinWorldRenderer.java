@@ -3,11 +3,9 @@ package com.qouteall.immersive_portals.mixin.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
-import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FrontClipping;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
@@ -15,7 +13,6 @@ import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
-import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -36,7 +33,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
@@ -546,39 +542,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         else {
             updateChunks(limitTime);
         }
-    }
-    
-    //redirect sky rendering dimension
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V"
-        )
-    )
-    private void redirectRenderSky(WorldRenderer worldRenderer, MatrixStack matrixStack, float f) {
-        if (Global.edgelessSky) {
-            if (PortalRendering.isRendering()) {
-                if (PortalRendering.getRenderingPortal() instanceof GlobalTrackedPortal) {
-                    MyGameRenderer.renderSkyFor(
-                        RenderDimensionRedirect.getRedirectedDimension(RenderStates.originalPlayerDimension),
-                        matrixStack, f
-                    );
-                    return;
-                }
-            }
-        }
-        
-        if (OFInterface.isShaders.getAsBoolean()) {
-            RegistryKey<World> dim = MinecraftClient.getInstance().world.getRegistryKey();
-            RegistryKey<World> redirectedDimension = RenderDimensionRedirect.getRedirectedDimension(
-                dim);
-            
-            MyGameRenderer.renderSkyFor(redirectedDimension, matrixStack, f);
-            return;
-        }
-        
-        worldRenderer.renderSky(matrixStack, f);
     }
     
     //fix cloud fog abnormal with OptiFine and fog disabled

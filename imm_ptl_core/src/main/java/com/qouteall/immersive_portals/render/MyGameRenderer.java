@@ -362,44 +362,6 @@ public class MyGameRenderer {
         }
     }
     
-    // TODO recover
-    public static void renderSkyFor(
-        RegistryKey<World> dimension,
-        MatrixStack matrixStack,
-        float tickDelta
-    ) {
-        
-        client.worldRenderer.renderSky(matrixStack, tickDelta);
-
-//        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(dimension);
-//
-//        if (client.world.getDimension() instanceof AlternateDimension &&
-//            newWorld.getDimension() instanceof OverworldDimension
-//        ) {
-//            //avoid redirecting alternate to overworld
-//            //or sky will be dark when camera pos is low
-//            client.worldRenderer.renderSky(matrixStack, tickDelta);
-//            return;
-//        }
-//
-//        WorldRenderer newWorldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(dimension);
-//
-//        ClientWorld oldWorld = client.world;
-//        WorldRenderer oldWorldRenderer = client.worldRenderer;
-//        FogRendererContext.swappingManager.pushSwapping(dimension);
-//        MyGameRenderer.forceResetFogState();
-//
-//        client.world = newWorld;
-//        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
-//
-//        newWorldRenderer.renderSky(matrixStack, tickDelta);
-//
-//        client.world = oldWorld;
-//        ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-//        FogRendererContext.swappingManager.popSwapping();
-//        MyGameRenderer.forceResetFogState();
-    }
-    
     public static void renderWorldInfoFramebuffer(
         RenderInfo renderInfo,
         Framebuffer framebuffer
