@@ -28,6 +28,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -50,6 +51,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 
 import java.util.function.Consumer;
@@ -398,5 +400,27 @@ public class MyGameRenderer {
 //        MyGameRenderer.forceResetFogState();
     }
     
+    public static void renderWorldInfoFramebuffer(
+        RenderInfo renderInfo,
+        Framebuffer framebuffer
+    ) {
+        CHelper.checkGlError();
+        
+        Framebuffer mcFb = client.getFramebuffer();
+        
+        Validate.isTrue(mcFb != framebuffer);
+        
+        ((IEMinecraftClient) client).setFrameBuffer(framebuffer);
+        
+        framebuffer.beginWrite(true);
+        
+        CGlobal.renderer.invokeWorldRendering(renderInfo);
+        
+        ((IEMinecraftClient) client).setFrameBuffer(mcFb);
+        
+        mcFb.beginWrite(true);
+        
+        CHelper.checkGlError();
+    }
     
 }
