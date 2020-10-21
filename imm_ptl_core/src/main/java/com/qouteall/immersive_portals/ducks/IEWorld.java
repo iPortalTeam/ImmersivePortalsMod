@@ -5,4 +5,6 @@ import net.minecraft.world.MutableWorldProperties;
 public interface IEWorld {
     
     MutableWorldProperties myGetProperties();
+    
+    void portal_setWeather(float rainGradPrev, float rainGrad, float thunderGradPrev, float thunderGrad);
 }

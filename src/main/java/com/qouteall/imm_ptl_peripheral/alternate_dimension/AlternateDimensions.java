@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.ducks.IEWorld;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -107,8 +108,10 @@ public class AlternateDimensions {
     }
     
     private static void syncWithOverworldTimeWeather(ServerWorld world, ServerWorld overworld) {
-        world.setRainGradient(overworld.getRainGradient(1));
-        world.setThunderGradient(overworld.getThunderGradient(1));
+        ((IEWorld) world).portal_setWeather(
+            overworld.getRainGradient(1), overworld.getRainGradient(1),
+            overworld.getThunderGradient(1), overworld.getThunderGradient(1)
+        );
     }
     
     public static ChunkGenerator createSkylandGenerator(long seed, DynamicRegistryManager rm) {

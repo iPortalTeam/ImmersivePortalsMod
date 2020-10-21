@@ -48,4 +48,12 @@ public abstract class MixinWorld implements IEWorld {
     public MutableWorldProperties myGetProperties() {
         return properties;
     }
+    
+    @Override
+    public void portal_setWeather(float rainGradPrev, float rainGrad, float thunderGradPrev, float thunderGrad) {
+        rainGradientPrev = rainGradPrev;
+        rainGradient = rainGrad;
+        thunderGradientPrev = thunderGradPrev;
+        thunderGradient = thunderGrad;
+    }
 }
