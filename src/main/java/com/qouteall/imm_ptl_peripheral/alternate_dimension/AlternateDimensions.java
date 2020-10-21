@@ -8,12 +8,14 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.block.Blocks;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
 import net.minecraft.world.dimension.DimensionOptions;
@@ -33,6 +35,74 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AlternateDimensions {
+    public static final RegistryKey<DimensionOptions> alternate1Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate1")
+    );
+    public static final RegistryKey<DimensionOptions> alternate2Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate2")
+    );
+    public static final RegistryKey<DimensionOptions> alternate3Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate3")
+    );
+    public static final RegistryKey<DimensionOptions> alternate4Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate4")
+    );
+    public static final RegistryKey<DimensionOptions> alternate5Option = RegistryKey.of(
+        Registry.DIMENSION_OPTIONS,
+        new Identifier("immersive_portals:alternate5")
+    );
+    public static final RegistryKey<DimensionType> surfaceType = RegistryKey.of(
+        Registry.DIMENSION_TYPE_KEY,
+        new Identifier("immersive_portals:surface_type")
+    );
+    public static final RegistryKey<World> alternate1 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate1")
+    );
+    public static final RegistryKey<World> alternate2 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate2")
+    );
+    public static final RegistryKey<World> alternate3 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate3")
+    );
+    public static final RegistryKey<World> alternate4 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate4")
+    );
+    public static final RegistryKey<World> alternate5 = RegistryKey.of(
+        Registry.DIMENSION,
+        new Identifier("immersive_portals:alternate5")
+    );
+    public static DimensionType surfaceTypeObject;
+    
+    public static void init() {
+        ModMain.postServerTickSignal.connect(() -> {
+            if (!Global.enableAlternateDimensions) {
+                return;
+            }
+            
+            ServerWorld overworld = McHelper.getServerWorld(World.OVERWORLD);
+            
+            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
+            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
+            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate3), overworld);
+            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate4), overworld);
+            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
+        });
+    }
+    
+    private static void syncWithOverworldTimeWeather(ServerWorld world, ServerWorld overworld) {
+        world.setTimeOfDay(overworld.getTimeOfDay());
+        world.setRainGradient(overworld.getRainGradient(1));
+        world.setThunderGradient(overworld.getThunderGradient(1));
+    }
+    
     public static ChunkGenerator createSkylandGenerator(long seed, DynamicRegistryManager rm) {
         
         MutableRegistry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
@@ -113,40 +183,40 @@ public class AlternateDimensions {
         addDimension(
             seed,
             registry,
-            ModMain.alternate1Option,
-            () -> ModMain.surfaceTypeObject,
+            alternate1Option,
+            () -> surfaceTypeObject,
             createSkylandGenerator(seed, rm)
         );
         
         addDimension(
             seed,
             registry,
-            ModMain.alternate2Option,
-            () -> ModMain.surfaceTypeObject,
+            alternate2Option,
+            () -> surfaceTypeObject,
             createSkylandGenerator(seed, rm)
         );
         
         addDimension(
             seed,
             registry,
-            ModMain.alternate3Option,
-            () -> ModMain.surfaceTypeObject,
+            alternate3Option,
+            () -> surfaceTypeObject,
             createErrorTerrainGenerator(seed, rm)
         );
         
         addDimension(
             seed,
             registry,
-            ModMain.alternate4Option,
-            () -> ModMain.surfaceTypeObject,
+            alternate4Option,
+            () -> surfaceTypeObject,
             createErrorTerrainGenerator(seed, rm)
         );
         
         addDimension(
             seed,
             registry,
-            ModMain.alternate5Option,
-            () -> ModMain.surfaceTypeObject,
+            alternate5Option,
+            () -> surfaceTypeObject,
             createVoidGenerator(rm)
         );
     }
@@ -158,11 +228,11 @@ public class AlternateDimensions {
     ) {
         return McHelper.filterAndCopyRegistry(
             registry,
-            (key, obj) -> !(key == ModMain.alternate1Option ||
-                key == ModMain.alternate2Option ||
-                key == ModMain.alternate3Option ||
-                key == ModMain.alternate4Option ||
-                key == ModMain.alternate5Option)
+            (key, obj) -> !(key == alternate1Option ||
+                key == alternate2Option ||
+                key == alternate3Option ||
+                key == alternate4Option ||
+                key == alternate5Option)
         );
     }
     

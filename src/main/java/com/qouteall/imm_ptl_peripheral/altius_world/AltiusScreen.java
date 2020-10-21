@@ -1,8 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
+import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -74,10 +74,10 @@ public class AltiusScreen extends Screen {
         Consumer<DimTermWidget> callback = getElementSelectCallback();
         if (Global.enableAlternateDimensions) {
             dimListWidget.terms.add(
-                new DimTermWidget(ModMain.alternate5, dimListWidget, callback)
+                new DimTermWidget(AlternateDimensions.alternate5, dimListWidget, callback)
             );
             dimListWidget.terms.add(
-                new DimTermWidget(ModMain.alternate2, dimListWidget, callback)
+                new DimTermWidget(AlternateDimensions.alternate2, dimListWidget, callback)
             );
         }
         dimListWidget.terms.add(

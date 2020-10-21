@@ -1,5 +1,6 @@
 package com.qouteall.imm_ptl_peripheral;
 
+import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.FormulaGenerator;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusManagement;
@@ -15,6 +16,8 @@ public class PeripheralModMain {
         
         AltiusGameRule.init();
         AltiusManagement.init();
+    
+        AlternateDimensions.init();
     }
     
 }

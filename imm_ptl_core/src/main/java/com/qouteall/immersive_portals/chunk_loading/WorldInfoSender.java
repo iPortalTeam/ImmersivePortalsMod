@@ -73,26 +73,26 @@ public class WorldInfoSender {
                     0.0F
                 )
             ));
-            
-            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
-                world.getRegistryKey(),
-                new GameStateChangeS2CPacket(
-                    GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
-                    world.getRainGradient(1.0F)
-                )
-            ));
-            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
-                world.getRegistryKey(),
-                new GameStateChangeS2CPacket(
-                    GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
-                    world.getThunderGradient(1.0F)
-                )
-            ));
         }
         else {
             //if the weather is already not raining when the player logs in then no need to sync
             //if the weather turned to not raining then elsewhere syncs it
         }
+    
+        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+            world.getRegistryKey(),
+            new GameStateChangeS2CPacket(
+                GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
+                world.getRainGradient(1.0F)
+            )
+        ));
+        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+            world.getRegistryKey(),
+            new GameStateChangeS2CPacket(
+                GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
+                world.getThunderGradient(1.0F)
+            )
+        ));
     }
     
     public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {
