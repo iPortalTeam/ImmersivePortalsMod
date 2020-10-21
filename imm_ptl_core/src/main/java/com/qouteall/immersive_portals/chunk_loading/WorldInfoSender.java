@@ -90,13 +90,8 @@ public class WorldInfoSender {
             ));
         }
         else {
-//            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
-//                world.getRegistryKey(),
-//                new GameStateChangeS2CPacket(
-//                    GameStateChangeS2CPacket.RAIN_STOPPED,
-//                    0.0F
-//                )
-//            ));
+            //if the weather is already not raining when the player logs in then no need to sync
+            //if the weather turned to not raining then elsewhere syncs it
         }
     }
     

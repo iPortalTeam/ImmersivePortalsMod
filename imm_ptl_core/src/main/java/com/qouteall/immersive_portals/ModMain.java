@@ -79,7 +79,7 @@ public class ModMain {
     public static BlockItem portalHelperBlockItem;
     
     public static boolean isAlternateDimension(World world) {
-        return world.getDimension() == surfaceTypeObject;
+        return world.getDimension().hasSkyLight() && world.getRegistryKey() != World.OVERWORLD;
     }
     
     public static void init() {

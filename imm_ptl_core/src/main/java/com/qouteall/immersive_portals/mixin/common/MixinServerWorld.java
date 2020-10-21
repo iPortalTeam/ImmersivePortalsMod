@@ -1,9 +1,10 @@
 package com.qouteall.immersive_portals.mixin.common;
 
+import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerWorld;
-import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import net.minecraft.network.Packet;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentStateManager;
@@ -27,30 +28,9 @@ public abstract class MixinServerWorld implements IEServerWorld {
     @Shadow
     public abstract ServerChunkManager getChunkManager();
     
-    @Shadow @Final private ServerWorldProperties worldProperties;
-    private static LongSortedSet dummy;
-    
-    static {
-        dummy = new LongLinkedOpenHashSet();
-        dummy.add(23333);
-    }
-    
-    //in vanilla if a dimension has no player and no forced chunks then it will not tick
-//    @Redirect(
-//        method = "tick",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/server/world/ServerWorld;getForcedChunks()Lit/unimi/dsi/fastutil/longs/LongSet;"
-//        )
-//    )
-//    private LongSet redirectGetForcedChunks(ServerWorld world) {
-//        if (NewChunkTrackingGraph.shouldLoadDimension(world.getRegistryKey())) {
-//            return dummy;
-//        }
-//        else {
-//            return world.getForcedChunks();
-//        }
-//    }
+    @Shadow
+    @Final
+    private ServerWorldProperties worldProperties;
     
     //in vanilla if a dimension has no player and no forced chunks then it will not tick
     @Redirect(
@@ -66,6 +46,23 @@ public abstract class MixinServerWorld implements IEServerWorld {
             return false;
         }
         return list.isEmpty();
+    }
+    
+    @Redirect(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/PlayerManager;sendToAll(Lnet/minecraft/network/Packet;)V"
+        )
+    )
+    private void redirectSendToAll(PlayerManager playerManager, Packet<?> packet) {
+        final ServerWorld this_ = (ServerWorld) (Object) this;
+        EntitySync.withForceRedirect(
+            this_.getRegistryKey(),
+            () -> {
+                playerManager.sendToAll(packet);
+            }
+        );
     }
     
     // for debug

@@ -52,22 +52,24 @@ public class MixinPlayerManager {
         }
     }
     
-    //sometimes the server side player dimension is not same as client
-    //so redirect it
+    //with redirection
     @Inject(
         method = "sendToDimension",
         at = @At("HEAD"),
         cancellable = true
     )
     public void sendToDimension(Packet<?> packet, RegistryKey<World> dimension, CallbackInfo ci) {
-        players.stream()
-            .filter(player -> player.world.getRegistryKey() == dimension)
-            .forEach(player -> player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    dimension,
-                    packet
-                )
-            ));
+        for (ServerPlayerEntity player : players) {
+            if (player.world.getRegistryKey() == dimension) {
+                player.networkHandler.sendPacket(
+                    MyNetwork.createRedirectedMessage(
+                        dimension,
+                        packet
+                    )
+                );
+            }
+        }
+        
         ci.cancel();
     }
 }
