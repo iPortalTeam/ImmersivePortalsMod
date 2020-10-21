@@ -32,7 +32,7 @@ public class WorldInfoSender {
                     }
                     
                     McHelper.getServer().getWorlds().forEach(thisWorld -> {
-                        if (ModMain.isAlternateDimension(thisWorld)) {
+                        if (isNonOverworldSurfaceDimension(thisWorld)) {
                             if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
                                 sendWorldInfo(
                                     player,
@@ -108,5 +108,9 @@ public class WorldInfoSender {
                     )
                 ).orElse(Stream.empty())
         ).collect(Collectors.toSet());
+    }
+    
+    public static boolean isNonOverworldSurfaceDimension(World world) {
+        return world.getDimension().hasSkyLight() && world.getRegistryKey() != World.OVERWORLD;
     }
 }

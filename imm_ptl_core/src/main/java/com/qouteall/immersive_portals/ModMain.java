@@ -12,7 +12,6 @@ import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
-import net.minecraft.world.World;
 
 public class ModMain {
     public static final Signal postClientTickSignal = new Signal();
@@ -24,10 +23,6 @@ public class ModMain {
     
     public static Block portalHelperBlock;
     public static BlockItem portalHelperBlockItem;
-    
-    public static boolean isAlternateDimension(World world) {
-        return world.getDimension().hasSkyLight() && world.getRegistryKey() != World.OVERWORLD;
-    }
     
     public static void init() {
         Helper.log("Immersive Portals Mod Initializing");

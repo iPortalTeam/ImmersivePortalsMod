@@ -81,6 +81,15 @@ public class AlternateDimensions {
     );
     public static DimensionType surfaceTypeObject;
     
+    public static boolean isAlternateDimension(World world) {
+        final RegistryKey<World> key = world.getRegistryKey();
+        return key == alternate1 ||
+            key == alternate2 ||
+            key == alternate3 ||
+            key == alternate4 ||
+            key == alternate5;
+    }
+    
     public static void init() {
         ModMain.postServerTickSignal.connect(() -> {
             if (!Global.enableAlternateDimensions) {
@@ -98,7 +107,6 @@ public class AlternateDimensions {
     }
     
     private static void syncWithOverworldTimeWeather(ServerWorld world, ServerWorld overworld) {
-        world.setTimeOfDay(overworld.getTimeOfDay());
         world.setRainGradient(overworld.getRainGradient(1));
         world.setThunderGradient(overworld.getThunderGradient(1));
     }

@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.client.alternate_dimension;
 
-import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
@@ -19,7 +19,7 @@ public class MixinWorldRenderer_A {
         )
     )
     private double redirectGetSkyDarknessHeight(ClientWorld.Properties properties) {
-        if (ModMain.isAlternateDimension(MinecraftClient.getInstance().world)) {
+        if (AlternateDimensions.isAlternateDimension(MinecraftClient.getInstance().world)) {
             return -10000;
         }
         return properties.getSkyDarknessHeight();

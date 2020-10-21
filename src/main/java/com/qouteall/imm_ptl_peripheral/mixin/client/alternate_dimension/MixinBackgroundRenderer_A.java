@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.mixin.client.alternate_dimension;
 
-import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -22,7 +22,7 @@ public class MixinBackgroundRenderer_A {
     )
     private static Vec3d redirectCameraGetPos(Camera camera) {
         ClientWorld world = MinecraftClient.getInstance().world;
-        if (world != null && ModMain.isAlternateDimension(world)) {
+        if (world != null && AlternateDimensions.isAlternateDimension(world)) {
             return new Vec3d(
                 camera.getPos().x,
                 Math.max(32.0, camera.getPos().y),
