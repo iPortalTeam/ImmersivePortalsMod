@@ -86,8 +86,8 @@ public class CollisionHelper {
             handleCollisionFunc, originalBoundingBox
         );
         
-        if (thisSideMove.y > 0) {
-            //stepping on this side
+        if (thisSideMove.y > 0 && attemptedMove.y < 0) {
+            //stepping onto slab on this side
             //re-calc collision with intact collision box
             //the stepping is shorter using the clipped collision box
             thisSideMove = handleCollisionFunc.apply(attemptedMove);
@@ -195,6 +195,11 @@ public class CollisionHelper {
         if (Math.abs(result) < 0.0001) {
             return 0;
         }
+    
+        //pushing away
+        if (Math.abs(result) > Math.abs(attemptedMove) + 0.01) {
+            return result;
+        }
         
         //1 may become 0.999999 after rotation. avoid going into wall
         return result * 0.999;
@@ -208,6 +213,11 @@ public class CollisionHelper {
         //0 may become 0.0000001 after rotation. avoid falling through floor
         if (Math.abs(result) < 0.0001) {
             return 0;
+        }
+    
+        //pushing away
+        if (Math.abs(result) > Math.abs(attemptedMove) + 0.01) {
+            return result;
         }
         
         if (result < 0) {
@@ -260,21 +270,23 @@ public class CollisionHelper {
         Vec3d attemptedMove
     ) {
         Box otherSideBox = transformBox(portal, originalBox);
-        final Box box = clipBox(
+        return clipBox(
             otherSideBox,
-            portal.destination,
+            portal.destination.subtract(attemptedMove),
             portal.getContentDirection()
         );
         
-        if (box == null) {
-            return clipBox(
-                otherSideBox,
-                portal.destination.subtract(attemptedMove),
-                portal.getContentDirection()
-            );
-        }
-        
-        return box;
+//        final Box box = clipBox(
+//            otherSideBox,
+//            portal.destination,
+//            portal.getContentDirection()
+//        );
+//
+//        if (box == null) {
+//
+//        }
+//
+//        return box;
     }
     
     private static Box transformBox(Portal portal, Box originalBox) {
