@@ -86,42 +86,56 @@ public class CollisionHelper {
             handleCollisionFunc, originalBoundingBox
         );
         
-        Vec3d otherSideMove = getOtherSideMove(
-            entity, attemptedMove, collidingPortal,
-            handleCollisionFunc, originalBoundingBox
-        );
-        
-        //handle stepping onto slab or stair through portal
-        if (attemptedMove.y < 0) {
-            if (otherSideMove.y > 0) {
-                //stepping on the other side
-                return new Vec3d(
-                    absMin(thisSideMove.x, otherSideMove.x),
-                    otherSideMove.y,
-                    absMin(thisSideMove.z, otherSideMove.z)
-                );
-            }
-            else if (thisSideMove.y > 0) {
-                //stepping on this side
-                //re-calc collision with intact collision box
-                //the stepping is shorter using the clipped collision box
-                Vec3d newThisSideMove = handleCollisionFunc.apply(attemptedMove);
-                
-                //apply the stepping move for the other side
-                Vec3d newOtherSideMove = getOtherSideMove(
-                    entity, newThisSideMove, collidingPortal,
-                    handleCollisionFunc, originalBoundingBox
-                );
-                
-                return newOtherSideMove;
-            }
+        if (thisSideMove.y > 0) {
+            //stepping on this side
+            //re-calc collision with intact collision box
+            //the stepping is shorter using the clipped collision box
+            thisSideMove = handleCollisionFunc.apply(attemptedMove);
         }
         
-        return new Vec3d(
-            absMin(thisSideMove.x, otherSideMove.x),
-            absMin(thisSideMove.y, otherSideMove.y),
-            absMin(thisSideMove.z, otherSideMove.z)
+        Vec3d otherSideMove = getOtherSideMove(
+            entity, thisSideMove, collidingPortal,
+            handleCollisionFunc, originalBoundingBox
         );
+
+//        return otherSideMove;
+        return new Vec3d(
+            correctXZCoordinate(attemptedMove.x, otherSideMove.x),
+            correctYCoordinate(attemptedMove.y, otherSideMove.y),
+            correctXZCoordinate(attemptedMove.z, otherSideMove.z)
+        );
+
+//        //handle stepping onto slab or stair through portal
+//        if (attemptedMove.y < 0) {
+//            if (otherSideMove.y > 0) {
+//                //stepping on the other side
+//                return new Vec3d(
+//                    absMin(thisSideMove.x, otherSideMove.x),
+//                    otherSideMove.y,
+//                    absMin(thisSideMove.z, otherSideMove.z)
+//                );
+//            }
+//            else if (thisSideMove.y > 0) {
+//                //stepping on this side
+//                //re-calc collision with intact collision box
+//                //the stepping is shorter using the clipped collision box
+//                Vec3d newThisSideMove = handleCollisionFunc.apply(attemptedMove);
+//
+//                //apply the stepping move for the other side
+//                Vec3d newOtherSideMove = getOtherSideMove(
+//                    entity, newThisSideMove, collidingPortal,
+//                    handleCollisionFunc, originalBoundingBox
+//                );
+//
+//                return newOtherSideMove;
+//            }
+//        }
+//
+//        return new Vec3d(
+//            absMin(thisSideMove.x, otherSideMove.x),
+//            absMin(thisSideMove.y, otherSideMove.y),
+//            absMin(thisSideMove.z, otherSideMove.z)
+//        );
     }
     
     private static double absMin(double a, double b) {
@@ -145,10 +159,6 @@ public class CollisionHelper {
         if (boxOtherSide == null) {
             return attemptedMove;
         }
-
-//        if (collidingPortal.hasScaling() || collidingPortal.rotation != null) {
-//            boxOtherSide = boxOtherSide.expand(0.05);
-//        }
         
         //switch world and check collision
         World oldWorld = entity.world;
@@ -165,15 +175,17 @@ public class CollisionHelper {
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
         entity.setBoundingBox(originalBoundingBox);
         
-        double finalX = correctCoordinate(attemptedMove.x, result.x);
-        double finalY = correctCoordinate(attemptedMove.y, result.y);
-        double finalZ = correctCoordinate(attemptedMove.z, result.z);
-        
-        return new Vec3d(finalX, finalY, finalZ);
+        return result;
+
+//        double finalX = correctCoordinate(attemptedMove.x, result.x);
+//        double finalY = correctCoordinate(attemptedMove.y, result.y);
+//        double finalZ = correctCoordinate(attemptedMove.z, result.z);
+//
+//        return new Vec3d(finalX, finalY, finalZ);
     }
     
     // floating point deviation may cause collision issues
-    private static double correctCoordinate(double attemptedMove, double result) {
+    private static double correctXZCoordinate(double attemptedMove, double result) {
         //rotation may cause a free move to reduce a little bit and the game think that it's collided
         if (Math.abs(attemptedMove - result) < 0.001) {
             return attemptedMove;
@@ -186,6 +198,23 @@ public class CollisionHelper {
         
         //1 may become 0.999999 after rotation. avoid going into wall
         return result * 0.999;
+    }
+    
+    private static double correctYCoordinate(double attemptedMove, double result) {
+        if (Math.abs(attemptedMove - result) < 0.001) {
+            return attemptedMove;
+        }
+        
+        //0 may become 0.0000001 after rotation. avoid falling through floor
+        if (Math.abs(result) < 0.0001) {
+            return 0;
+        }
+        
+        if (result < 0) {
+            return result * 0.999;
+        }
+        
+        return result;
     }
     
     private static Vec3d getThisSideMove(
