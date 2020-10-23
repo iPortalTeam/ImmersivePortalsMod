@@ -12,6 +12,7 @@ import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
@@ -125,7 +126,7 @@ public class ClientTeleportationManager {
     
     private boolean tryTeleport(float tickDelta) {
         ClientPlayerEntity player = client.player;
-    
+        
         Vec3d newHeadPos = getPlayerHeadPos(tickDelta);
         
         if (moveStartPoint.squaredDistanceTo(newHeadPos) > 400) {
@@ -229,9 +230,9 @@ public class ClientTeleportationManager {
         amendChunkEntityStatus(player);
         
         McHelper.adjustVehicle(player);
-    
+        
         portal.transformVelocity(player);
-    
+        
         TransformationManager.onClientPlayerTeleported(portal);
         
         if (player.getVehicle() != null) {
@@ -469,7 +470,19 @@ public class ClientTeleportationManager {
                 progress,
                 originalY, maxCollisionY
             );
-            player.setPos(player.getX(), newY, player.getZ());
+            
+            Vec3d newPos = new Vec3d(player.getX(), newY, player.getZ());
+            
+            Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
+            if (collidingPortal != null) {
+                Vec3d eyePos = McHelper.getEyePos(player);
+                Vec3d newEyePos = newPos.add(0, player.getStandingEyeHeight(), 0);
+                if (collidingPortal.rayTrace(eyePos, newEyePos) != null) {
+                    return true;//avoid going back into the portal
+                }
+            }
+            
+            player.setPos(newPos.x, newPos.y, newPos.z);
             McHelper.updateBoundingBox(player);
             
             return false;
