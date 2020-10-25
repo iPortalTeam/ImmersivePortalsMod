@@ -90,14 +90,13 @@ public abstract class MixinCreateWorldScreen extends Screen {
         DynamicRegistryManager.Impl registryTracker, GeneratorOptions generatorOptions
     ) {
         AltiusInfo info = altiusScreen.getAltiusInfo();
-//        ((IELevelProperties) (Object) levelInfo).setAltiusInfo(info);
-        
-        AltiusManagement.dimensionStackPortalsToGenerate = info;
-        
-        GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
-        rule.set(true, null);
         
         if (info != null) {
+            AltiusManagement.dimensionStackPortalsToGenerate = info;
+            
+            GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
+            rule.set(true, null);
+            
             Helper.log("Generating dimension stack world");
         }
         
