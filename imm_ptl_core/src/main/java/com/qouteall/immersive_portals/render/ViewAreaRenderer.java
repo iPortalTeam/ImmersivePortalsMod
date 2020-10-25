@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -209,7 +210,7 @@ public class ViewAreaRenderer {
     static private void putIntoVertex(BufferBuilder bufferBuilder, Vec3d pos, Vec3d fogColor) {
         bufferBuilder
             .vertex(pos.x, pos.y, pos.z)
-            .color(0, 0, 0, 255)
+            .color((float) fogColor.x, (float) fogColor.y, (float) fogColor.z, 1.0f)
             .next();
     }
     
@@ -245,8 +246,8 @@ public class ViewAreaRenderer {
         
         DimensionRenderHelper helper =
             CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
-        
-        Vec3d fogColor = getCurrentFogColor(portal);
+    
+        Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
         
         if (doFaceCulling) {
             GlStateManager.enableCull();
@@ -308,8 +309,4 @@ public class ViewAreaRenderer {
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
-    @Deprecated
-    private static Vec3d getCurrentFogColor(Portal portal) {
-        return Vec3d.ZERO;
-    }
 }
