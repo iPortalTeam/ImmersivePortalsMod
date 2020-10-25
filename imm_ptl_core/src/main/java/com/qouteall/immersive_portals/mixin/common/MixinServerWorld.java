@@ -53,7 +53,8 @@ public abstract class MixinServerWorld implements IEServerWorld {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/PlayerManager;sendToAll(Lnet/minecraft/network/Packet;)V"
-        )
+        ),
+        require = 0 //Forge changes that. avoid crashing in forge version
     )
     private void redirectSendToAll(PlayerManager playerManager, Packet<?> packet) {
         final ServerWorld this_ = (ServerWorld) (Object) this;
