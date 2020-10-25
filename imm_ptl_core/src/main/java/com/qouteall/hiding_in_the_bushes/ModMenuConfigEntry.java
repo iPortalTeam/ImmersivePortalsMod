@@ -87,10 +87,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.multi_threaded_nether_portal_searching"),
                 currConfig.multiThreadedNetherPortalSearching
             ).setDefaultValue(true).build();
-            BooleanListEntry entryEdgelessSky = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.edgeless_sky"),
-                currConfig.edgelessSky
-            ).setDefaultValue(false).build();
             BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.mirror_interactable_through_portal"),
                 currConfig.mirrorInteractableThroughPortal
@@ -151,7 +147,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryPureMirror);
             clientSide.addEntry(entryRenderYourselfInPortal);
             clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
-            clientSide.addEntry(entryEdgelessSky);
             clientSide.addEntry(entryDimensionRenderRedirect);
             
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
@@ -183,7 +178,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
-                    newConfig.edgelessSky = entryEdgelessSky.getValue();
+//                    newConfig.edgelessSky = entryEdgelessSky.getValue();
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();

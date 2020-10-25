@@ -228,7 +228,7 @@ public class CollisionHelper {
         }
         
         if (result < 0) {
-            return result * 0.999;
+            return result * 0.999;//stepping onto floor won't get reduced
         }
         
         return result;
