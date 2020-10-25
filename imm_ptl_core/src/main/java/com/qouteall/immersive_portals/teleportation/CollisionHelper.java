@@ -169,6 +169,13 @@ public class CollisionHelper {
         entity.setBoundingBox(boxOtherSide);
         
         Vec3d collided = handleCollisionFunc.apply(transformedAttemptedMove);
+        
+        collided = new Vec3d(
+            correctXZCoordinate(transformedAttemptedMove.x, collided.x),
+            correctYCoordinate(transformedAttemptedMove.y, collided.y),
+            correctXZCoordinate(transformedAttemptedMove.z, collided.z)
+        );
+        
         Vec3d result = collidingPortal.inverseTransformLocalVec(collided);
         
         entity.world = oldWorld;
@@ -195,7 +202,7 @@ public class CollisionHelper {
         if (Math.abs(result) < 0.0001) {
             return 0;
         }
-    
+        
         //pushing away
         if (Math.abs(result) > Math.abs(attemptedMove) + 0.01) {
             return result;
@@ -214,7 +221,7 @@ public class CollisionHelper {
         if (Math.abs(result) < 0.0001) {
             return 0;
         }
-    
+        
         //pushing away
         if (Math.abs(result) > Math.abs(attemptedMove) + 0.01) {
             return result;
@@ -275,7 +282,7 @@ public class CollisionHelper {
             portal.destination.subtract(attemptedMove),
             portal.getContentDirection()
         );
-        
+
 //        final Box box = clipBox(
 //            otherSideBox,
 //            portal.destination,

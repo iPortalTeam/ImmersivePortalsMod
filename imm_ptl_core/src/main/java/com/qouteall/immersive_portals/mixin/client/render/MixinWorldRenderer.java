@@ -14,7 +14,6 @@ import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
-import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
@@ -328,11 +327,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (entity == camera.getFocusedEntity()) {
             if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
                 MyGameRenderer.renderPlayerItself(() -> {
-                    double distanceToCamera =
-                        entity.getCameraPosVec(RenderStates.tickDelta)
-                            .distanceTo(client.gameRenderer.getCamera().getPos());
-                    //avoid rendering player too near and block view except mirror
-                    if (distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors()) {
+                    if (CrossPortalEntityRenderer.shouldRenderPlayerNormally(entity)) {
                         CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
                         renderEntity(
                             entity,

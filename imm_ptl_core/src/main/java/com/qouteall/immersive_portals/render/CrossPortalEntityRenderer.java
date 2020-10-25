@@ -139,13 +139,6 @@ public class CrossPortalEntityRenderer {
                 //no need to render entity projection for mirrors
                 return;
             }
-//            if (collidingPortal.rotation != null) {
-//                //currently cannot render entity projection through a rotating portal
-//                return;
-//            }
-//            if (collidingPortal.hasScaling()) {
-//                return;
-//            }
             RegistryKey<World> projectionDimension = collidingPortal.dimensionTo;
             if (client.world.getRegistryKey() == projectionDimension) {
                 renderProjectedEntity(entity, collidingPortal, matrixStack);
@@ -224,27 +217,29 @@ public class CrossPortalEntityRenderer {
         World oldWorld = entity.world;
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
-        
-        if (PortalRendering.isRendering()) {
-            Portal renderingPortal = PortalRendering.getRenderingPortal();
-            if (!renderingPortal.isInside(newEyePos, -3)) {
-                return;
-            }
-        }
+
+//        if (PortalRendering.isRendering()) {
+//            Portal renderingPortal = PortalRendering.getRenderingPortal();
+//            if (!renderingPortal.isInside(newEyePos, -3)) {
+//                return;
+//            }
+//        }
         
         if (entity instanceof ClientPlayerEntity) {
             if (!Global.renderYourselfInPortal) {
                 return;
             }
             
-            //avoid rendering player too near and block view
-            double dis = newEyePos.distanceTo(cameraPos);
-            double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.getPos());
-            if (transformingPortal.scaling > 1) {
-                valve *= transformingPortal.scaling;
-            }
-            if (dis < valve) {
-                return;
+            if (client.options.getPerspective().isFirstPerson()) {
+                //avoid rendering player too near and block view
+                double dis = newEyePos.distanceTo(cameraPos);
+                double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.getPos());
+                if (transformingPortal.scaling > 1) {
+                    valve *= transformingPortal.scaling;
+                }
+                if (dis < valve) {
+                    return;
+                }
             }
         }
         
@@ -345,5 +340,17 @@ public class CrossPortalEntityRenderer {
             );
         }
         return true;
+    }
+    
+    public static boolean shouldRenderPlayerNormally(Entity entity) {
+        if (!client.options.getPerspective().isFirstPerson()) {
+            return true;
+        }
+        
+        double distanceToCamera =
+            entity.getCameraPosVec(RenderStates.tickDelta)
+                .distanceTo(client.gameRenderer.getCamera().getPos());
+        //avoid rendering player too near and block view except mirror
+        return distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors();
     }
 }
