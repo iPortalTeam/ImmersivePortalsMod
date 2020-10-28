@@ -5,7 +5,8 @@ import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientChunkManager;
@@ -84,7 +85,7 @@ public class O_O {
     }
     
     public static boolean detectOptiFine() {
-        boolean isOptiFabricPresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+        boolean isOptiFabricPresent = FabricLoader.getInstance().isModLoaded("optifabric");
         
         if (!isOptiFabricPresent) {
             return false;
@@ -101,13 +102,15 @@ public class O_O {
             return false;
         }
     }
-    
-    public static void postChunkLoadEventForge(WorldChunk chunk) {
-    
+
+    @Environment(EnvType.CLIENT)
+    public static void postClientChunkLoadEvent(ClientWorld world, WorldChunk chunk) {
+        ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad(world, chunk);
     }
-    
-    public static void postChunkUnloadEventForge(WorldChunk chunk) {
-    
+
+    @Environment(EnvType.CLIENT)
+    public static void postClientChunkUnloadEvent(ClientWorld world, WorldChunk chunk) {
+        ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload(world, chunk);
     }
     
     public static InputStream getLanguageFileStream(String modid) {

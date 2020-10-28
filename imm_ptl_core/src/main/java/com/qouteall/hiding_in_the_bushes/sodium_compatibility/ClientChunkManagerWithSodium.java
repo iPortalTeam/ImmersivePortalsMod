@@ -25,6 +25,7 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     
     @Override
     public WorldChunk loadChunkFromPacket(int x, int z, BiomeArray biomeArray, PacketByteBuf packetByteBuf, CompoundTag compoundTag, int k, boolean forceCreate) {
+        // No need to dispatch chunk load event here as it is called in `super`
         WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomeArray, packetByteBuf, compoundTag, k, forceCreate);
         
         if (listener != null) {
@@ -42,7 +43,7 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
             if (positionEquals(worldChunk_1, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 
-                O_O.postChunkUnloadEventForge(worldChunk_1);
+                O_O.postClientChunkUnloadEvent(this.world, worldChunk_1);
                 
                 if (listener != null) {
                     listener.onChunkRemoved(x, z);

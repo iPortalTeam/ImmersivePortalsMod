@@ -6,7 +6,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
@@ -29,7 +29,7 @@ public class RequiemCompat {
     }
     
     public static void init() {
-        isRequiemPresent = FabricLoader.INSTANCE.isModLoaded("requiem");
+        isRequiemPresent = FabricLoader.getInstance().isModLoaded("requiem");
         
         if (!isRequiemPresent) {
             return;

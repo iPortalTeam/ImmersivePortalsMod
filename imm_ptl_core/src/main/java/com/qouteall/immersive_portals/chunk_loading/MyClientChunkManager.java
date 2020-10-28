@@ -65,7 +65,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             WorldChunk chunk = chunkMap.get(chunkPos.toLong());
             if (positionEquals(chunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
-                O_O.postChunkUnloadEventForge(chunk);
+                O_O.postClientChunkUnloadEvent(this.world, chunk);
                 world.unloadBlockEntities(chunk);
             }
         }
@@ -136,7 +136,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         
         this.world.resetChunkColor(x, z);
         
-        O_O.postChunkLoadEventForge(worldChunk);
+        O_O.postClientChunkLoadEvent(this.world, worldChunk);
         
         return worldChunk;
     }
