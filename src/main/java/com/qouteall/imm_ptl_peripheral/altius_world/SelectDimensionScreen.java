@@ -89,7 +89,13 @@ public class SelectDimensionScreen extends Screen {
         ));
         
     }
-    
+
+    @Override
+    public void onClose() {
+        // When `esc` is pressed return to the parent screen rather than setting screen to `null` which returns to the main menu.
+        this.client.openScreen(this.parent);
+    }
+
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrixStack);
