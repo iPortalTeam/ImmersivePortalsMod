@@ -46,7 +46,8 @@ public class CustomPortalGenManagement {
         
         MinecraftServer server = McHelper.getServer();
         
-        DynamicRegistryManager.Impl registryTracker = new DynamicRegistryManager.Impl();
+        DynamicRegistryManager.Impl registryTracker =
+            ((DynamicRegistryManager.Impl) server.getRegistryManager());
         
         RegistryOps<JsonElement> registryOps =
             RegistryOps.of(
