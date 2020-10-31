@@ -77,7 +77,7 @@ allprojects {
     afterEvaluate {
         remapJar {
             input = file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar")
-            archiveName = "${archivesBaseName}-${version}.jar"
+            archiveName = "${archivesBaseName}-${version}-mc${project.minecraft_version}-fabric.jar"
         }
 
         artifacts {
@@ -116,7 +116,7 @@ subprojects {
         publications {
             mavenJava(MavenPublication) {
                 afterEvaluate {
-                    artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
+                    artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")) {
                         builtBy remapJar
                     }
                     artifact(sourcesJar) {
@@ -133,7 +133,7 @@ subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")) {
+            artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")) {
                 builtBy remapJar
             }
             artifact(sourcesJar) {
