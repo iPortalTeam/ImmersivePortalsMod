@@ -23,11 +23,11 @@ jobs:
 
     - name: Build with Gradle
       run: gradle build
-
-    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
-    - name: Publish to GitHub Packages
-      run: gradle publish
       env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_RELEASE: ${{ github.event.prerelease == false }}
+
+    - name: Upload assets to GitHub
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: 'build/libs/*;LICENSE'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
