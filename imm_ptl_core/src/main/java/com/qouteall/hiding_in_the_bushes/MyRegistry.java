@@ -21,14 +21,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.potion.Potion;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DefaultedRegistry;
@@ -191,32 +186,6 @@ public class MyRegistry {
             Registry.ATTRIBUTE,
             "immersive_portals:hand_reach_multiplier",
             HandReachTweak.handReachMultiplierAttribute
-        );
-        
-        StatusEffect.class.hashCode();
-        HandReachTweak.longerReachEffect = HandReachTweak.statusEffectConstructor.apply(
-            StatusEffectType.BENEFICIAL, 0)
-            .addAttributeModifier(
-                HandReachTweak.handReachMultiplierAttribute,
-                "91AEAA56-2333-2333-2333-2F7F68070635",
-                0.5,
-                EntityAttributeModifier.Operation.MULTIPLY_TOTAL
-            );
-        Registry.register(
-            Registry.STATUS_EFFECT,
-            new Identifier("immersive_portals", "longer_reach"),
-            HandReachTweak.longerReachEffect
-        );
-        
-        HandReachTweak.longerReachPotion = new Potion(
-            new StatusEffectInstance(
-                HandReachTweak.longerReachEffect, 7200, 1
-            )
-        );
-        Registry.register(
-            Registry.POTION,
-            new Identifier("immersive_portals", "longer_reach_potion"),
-            HandReachTweak.longerReachPotion
         );
     }
     
