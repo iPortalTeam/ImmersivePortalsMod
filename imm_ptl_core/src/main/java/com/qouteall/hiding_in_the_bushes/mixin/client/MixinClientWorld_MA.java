@@ -13,7 +13,7 @@ public abstract class MixinClientWorld_MA implements IEClientWorld_MA {
     public abstract void removeEntity(int i);
     
     @Override
-    public void removeEntityWhilstMaintainingCapability(Entity entity) {
+    public void segregateEntity(Entity entity) {
         removeEntity(entity.getEntityId());
     }
 }

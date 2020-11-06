@@ -18,15 +18,9 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.function.Supplier;
-
 public class O_O {
     
     public static boolean isReachEntityAttributesPresent;
-    
-    public static Supplier<ClientChunkManager> clientChunkManagerSupplier;
     
     public static boolean isForge() {
         return false;
@@ -44,7 +38,7 @@ public class O_O {
         ClientWorld fromWorld,
         Entity entity
     ) {
-        ((IEClientWorld_MA) fromWorld).removeEntityWhilstMaintainingCapability(entity);
+        ((IEClientWorld_MA) fromWorld).segregateEntity(entity);
         entity.removed = false;
     }
     
@@ -78,7 +72,7 @@ public class O_O {
         myConfig.saveConfigFile();
     }
     
-    private static BlockState obsidianState = Blocks.OBSIDIAN.getDefaultState();
+    private static final BlockState obsidianState = Blocks.OBSIDIAN.getDefaultState();
     
     public static boolean isObsidian(BlockState blockState) {
         return blockState == obsidianState;
@@ -113,20 +107,6 @@ public class O_O {
         ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload(
             ((ClientWorld) chunk.getWorld()), chunk
         );
-    }
-    
-    public static InputStream getLanguageFileStream(String modid) {
-        try {
-            //noinspection OptionalGetWithoutIsPresent
-            return Files.newInputStream(
-                net.fabricmc.loader.api.FabricLoader.getInstance()
-                    .getModContainer(modid).get()
-                    .getPath("assets/" + modid + "/lang/en_us.json")
-            );
-        }
-        catch (Throwable ugh) {
-            throw new RuntimeException(ugh);
-        }
     }
     
     public static boolean isDedicatedServer() {
