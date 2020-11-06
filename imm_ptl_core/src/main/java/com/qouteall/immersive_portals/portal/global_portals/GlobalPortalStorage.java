@@ -128,7 +128,8 @@ public class GlobalPortalStorage extends PersistentState {
         if (!(e instanceof GlobalTrackedPortal)) {
             return null;
         }
-        
+    
+        ((GlobalTrackedPortal) e).isGlobalPortal = true;
         
         return (GlobalTrackedPortal) e;
     }
@@ -212,6 +213,7 @@ public class GlobalPortalStorage extends PersistentState {
         List<GlobalTrackedPortal> newPortals = getPortalsFromTag(compoundTag, world);
         for (GlobalTrackedPortal p : newPortals) {
             p.removed = false;
+            p.isGlobalPortal = true;
         }
         
         ((IEClientWorld) world).setGlobalPortals(newPortals);

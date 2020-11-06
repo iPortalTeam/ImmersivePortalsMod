@@ -61,7 +61,7 @@ public class PortalGenInfo {
         T portal = entityType.create(fromWorld);
         fromShape.initPortalPosAxisShape(portal, false);
         portal.dimensionTo = to;
-        portal.destination = toShape.innerAreaBox.getCenterVec();
+        portal.setDestination(toShape.innerAreaBox.getCenterVec());
         portal.scaling = scale;
         portal.rotation = rotation;
         

@@ -88,7 +88,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         Box oppositeSurface = Helper.getBoxSurfaceInversed(area, direction.getOpposite());
         Vec3d destination = oppositeSurface.getCenter();
         portal.updatePosition(center.x, center.y, center.z);
-        portal.destination = destination;
+        portal.setDestination(destination);
         
         portal.axisW = Vec3d.of(axises.getLeft().getVector());
         portal.axisH = Vec3d.of(axises.getRight().getVector());

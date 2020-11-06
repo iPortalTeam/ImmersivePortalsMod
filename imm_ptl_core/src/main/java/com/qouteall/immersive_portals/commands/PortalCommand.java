@@ -444,9 +444,9 @@ public class PortalCommand {
                             );
                             Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
                             
-                            portal.destination = portal.destination.add(
+                            portal.setDestination(portal.temp_getDestPos().add(
                                 portal.transformLocalVecNonScale(offset)
-                            );
+                            ));
                             portal.reloadAndSyncToClient();
                         }
                         catch (CommandSyntaxException e) {
@@ -545,7 +545,7 @@ public class PortalCommand {
                 .executes(context -> processPortalTargetedCommand(context, portal -> {
                     Entity entity = EntityArgumentType.getEntity(context, "entity");
                     portal.dimensionTo = entity.world.getRegistryKey();
-                    portal.destination = entity.getPos();
+                    portal.setDestination(entity.getPos());
                     portal.reloadAndSyncToClient();
                 }))
             )
@@ -795,7 +795,7 @@ public class PortalCommand {
                                 portal.updatePosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
                                 
                                 portal.dimensionTo = toEntity.world.getRegistryKey();
-                                portal.destination = toEntity.getPos();
+                                portal.setDestination(toEntity.getPos());
                                 portal.width = width;
                                 portal.height = height;
                                 
@@ -1209,9 +1209,9 @@ public class PortalCommand {
         portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
             context, "dim"
         ).getRegistryKey();
-        portal.destination = Vec3ArgumentType.getVec3(
+        portal.setDestination(Vec3ArgumentType.getVec3(
             context, "dest"
-        );
+        ));
         
         portal.reloadAndSyncToClient();
         
@@ -1235,7 +1235,7 @@ public class PortalCommand {
     ) {
         PortalManipulation.removeOverlappedPortals(
             ((ServerWorld) portal.world),
-            portal.getPos(),
+            portal.temp_getOriginPos(),
             portal.getNormal().multiply(-1),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
             p -> sendMessage(context, "Removed " + p)
@@ -1254,7 +1254,7 @@ public class PortalCommand {
     ) {
         PortalManipulation.removeOverlappedPortals(
             McHelper.getServer().getWorld(portal.dimensionTo),
-            portal.destination,
+            portal.temp_getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
             p -> sendMessage(context, "Removed " + p)
@@ -1309,7 +1309,7 @@ public class PortalCommand {
     ) {
         PortalManipulation.getPortalClutter(
             pointedPortal.world,
-            pointedPortal.getPos(),
+            pointedPortal.temp_getOriginPos(),
             pointedPortal.getNormal(),
             p -> true
         ).stream().filter(
@@ -1342,7 +1342,7 @@ public class PortalCommand {
         removeMultidestEntry(context, pointedPortal, player);
         
         newPortal.dimensionTo = dimension;
-        newPortal.destination = destination;
+        newPortal.setDestination(destination);
         newPortal.specificPlayerId = player.getUuid();
         
         McHelper.spawnServerEntity(newPortal);
@@ -1401,9 +1401,9 @@ public class PortalCommand {
             Double.toString(portal.width),
             Double.toString(portal.height),
             McHelper.dimensionTypeId(portal.world.getRegistryKey()).toString(),
-            portal.getPos().toString(),
+            portal.temp_getOriginPos().toString(),
             McHelper.dimensionTypeId(portal.dimensionTo).toString(),
-            portal.destination.toString()
+            portal.temp_getDestPos().toString()
         );
     }
     
@@ -1421,7 +1421,7 @@ public class PortalCommand {
         }
         
         portal.dimensionTo = to;
-        portal.destination = dest;
+        portal.setDestination(dest);
         McHelper.spawnServerEntity(portal);
         
         context.getSource().sendFeedback(getMakePortalSuccess(portal), true);
@@ -1444,7 +1444,7 @@ public class PortalCommand {
         
         // unsafe to use getContentDirection before the destination is fully set
         portal.dimensionTo = to;
-        portal.destination = portal.getPos().add(portal.axisW.crossProduct(portal.axisH).multiply(-dist));
+        portal.setDestination(portal.temp_getOriginPos().add(portal.axisW.crossProduct(portal.axisH).multiply(-dist)));
         
         McHelper.spawnServerEntity(portal);
         

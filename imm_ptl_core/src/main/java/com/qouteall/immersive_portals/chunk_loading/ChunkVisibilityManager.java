@@ -141,7 +141,7 @@ public class ChunkVisibilityManager {
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
-                new ChunkPos(new BlockPos(portal.destination))
+                new ChunkPos(new BlockPos(portal.temp_getDestPos()))
             ),
             getSmoothedLoadingDistance(
                 portal, player,
@@ -155,7 +155,7 @@ public class ChunkVisibilityManager {
         return new ChunkLoader(
             new DimensionalChunkPos(
                 portal.dimensionTo,
-                new ChunkPos(new BlockPos(portal.destination))
+                new ChunkPos(new BlockPos(portal.temp_getDestPos()))
             ),
             getSmoothedLoadingDistance(
                 portal, player, renderDistance / 4
@@ -249,7 +249,7 @@ public class ChunkVisibilityManager {
                         Stream.empty() :
                         McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
                             McHelper.getServer().getWorld(portal.dimensionTo),
-                            portal.destination,
+                            portal.temp_getDestPos(),
                             Portal.class,
                             secondaryPortalLoadingRange
                         ).filter(

@@ -93,13 +93,13 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             case floor:
                 
                 verticalConnectingPortal.updatePosition(0, downY, 0);
-                verticalConnectingPortal.destination = new Vec3d(0, upY, 0);
+                verticalConnectingPortal.setDestination(new Vec3d(0, upY, 0));
                 verticalConnectingPortal.axisW = new Vec3d(0, 0, 1);
                 verticalConnectingPortal.axisH = new Vec3d(1, 0, 0);
                 break;
             case ceil:
                 verticalConnectingPortal.updatePosition(0, upY, 0);
-                verticalConnectingPortal.destination = new Vec3d(0, downY, 0);
+                verticalConnectingPortal.setDestination(new Vec3d(0, downY, 0));
                 verticalConnectingPortal.axisW = new Vec3d(1, 0, 0);
                 verticalConnectingPortal.axisH = new Vec3d(0, 0, 1);
                 break;

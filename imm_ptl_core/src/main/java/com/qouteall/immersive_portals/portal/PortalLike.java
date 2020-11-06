@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals.portal;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -9,39 +11,40 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public interface PortalLike {
-    boolean isConventionalPortal();
+    boolean l_isConventionalPortal();
     
     // bounding box
-    Box getAreaBox();
+    Box l_getAreaBox();
     
-    Vec3d getOriginPos();
+    Vec3d temp_getOriginPos();
     
-    Vec3d getDestPos();
+    Vec3d temp_getDestPos();
     
-    World getOriginWorld();
+    World l_getOriginWorld();
     
-    World getDestWorld();
+    World l_getDestWorld();
     
-    boolean isRoughlyVisibleTo(Vec3d cameraPos);
+    boolean l_isRoughlyVisibleTo(Vec3d cameraPos);
     
-    Vec3d getContentDirection();
+    Vec3d l_getContentDirection();
     
     @Nullable
-    Quaternion getRotation();
+    Quaternion l_getRotation();
     
-    double getScale();
+    double l_getScale();
     
-    boolean getIsMirror();
+    boolean l_getIsMirror();
     
-    boolean getIsGlobal();
+    boolean l_getIsGlobal();
     
     // used for advanced frustum culling
     @Nullable
-    Vec3d[] getAggressiveAreaVertices();
+    Vec3d[] getInnerFrustumCullingVertices();
     
     // used for super advanced frustum culling
     @Nullable
-    Vec3d[] getConservativeAreaVertices();
+    Vec3d[] getOuterFrustumCullingVertices();
     
+    @Environment(EnvType.CLIENT)
     void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput);
 }

@@ -30,11 +30,12 @@ import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Portal entity. Global portals are also entities but not added into world.
  */
-public class Portal extends Entity {
+public class Portal extends Entity implements PortalLike {
     public static EntityType<Portal> entityType;
     
     public static final UUID nullUUID = Util.NIL_UUID;
@@ -56,9 +57,6 @@ public class Portal extends Entity {
      * The destination dimension
      */
     public RegistryKey<World> dimensionTo;
-    /**
-     * The destination position
-     */
     public Vec3d destination;
     
     /**
@@ -121,6 +119,8 @@ public class Portal extends Entity {
     @Nullable
     public String portalTag;
     
+    public boolean isGlobalPortal = false;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     
@@ -144,7 +144,7 @@ public class Portal extends Entity {
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", world.isClient);
-        destination = Helper.getVec3d(compoundTag, "destination");
+        setDestination(Helper.getVec3d(compoundTag, "destination"));
         if (compoundTag.contains("specificPlayer")) {
             specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         }
@@ -218,7 +218,7 @@ public class Portal extends Entity {
         Helper.putVec3d(compoundTag, "axisW", axisW);
         Helper.putVec3d(compoundTag, "axisH", axisH);
         DimId.putWorldId(compoundTag, "dimensionTo", dimensionTo);
-        Helper.putVec3d(compoundTag, "destination", destination);
+        Helper.putVec3d(compoundTag, "destination", temp_getDestPos());
         
         if (specificPlayerId != null) {
             Helper.putUuid(compoundTag, "specificPlayer", specificPlayerId);
@@ -293,9 +293,6 @@ public class Portal extends Entity {
         exactBoundingBoxCache = null;
         normal = null;
         contentDirection = null;
-        getBoundingBox();
-        getNormal();
-        getContentDirection();
     }
     
     public void initDefaultCullableRange() {
@@ -406,7 +403,7 @@ public class Portal extends Entity {
             height != 0 &&
             axisW != null &&
             axisH != null &&
-            destination != null &&
+            temp_getDestPos() != null &&
             axisW.lengthSquared() > 0.9 &&
             axisH.lengthSquared() > 0.9;
         if (valid) {
@@ -422,7 +419,7 @@ public class Portal extends Entity {
     }
     
     public boolean isInside(Vec3d entityPos, double valve) {
-        double v = entityPos.subtract(destination).dotProduct(getContentDirection());
+        double v = entityPos.subtract(temp_getDestPos()).dotProduct(getContentDirection());
         return v > valve;
     }
     
@@ -446,7 +443,7 @@ public class Portal extends Entity {
                 getNormal().x, getNormal().y, getNormal().z
             ),
             world.getRegistryKey().getValue(), (int) getX(), (int) getY(), (int) getZ(),
-            dimensionTo.getValue(), (int) destination.x, (int) destination.y, (int) destination.z,
+            dimensionTo.getValue(), (int) temp_getDestPos().x, (int) temp_getDestPos().y, (int) temp_getDestPos().z,
             specificPlayerId != null ? (",specificAccessor:" + specificPlayerId.toString()) : "",
             hasScaling() ? (",scale:" + scaling) : "",
             portalTag != null ? "," + portalTag : ""
@@ -511,7 +508,7 @@ public class Portal extends Entity {
     public double getDistanceToPlane(
         Vec3d pos
     ) {
-        return pos.subtract(getPos()).dotProduct(getNormal());
+        return pos.subtract(temp_getOriginPos()).dotProduct(getNormal());
     }
     
     public boolean isInFrontOfPortal(
@@ -521,7 +518,7 @@ public class Portal extends Entity {
     }
     
     public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
-        return getPos().add(getPointInPlaneLocal(xInPlane, yInPlane));
+        return temp_getOriginPos().add(getPointInPlaneLocal(xInPlane, yInPlane));
     }
     
     public Vec3d getPointInPlaneLocal(double xInPlane, double yInPlane) {
@@ -596,14 +593,14 @@ public class Portal extends Entity {
     
     //Server side does not have Matrix3f
     public final Vec3d transformPointRough(Vec3d pos) {
-        Vec3d offset = destination.subtract(getPos());
+        Vec3d offset = temp_getDestPos().subtract(temp_getOriginPos());
         return pos.add(offset);
     }
     
     public Vec3d transformPoint(Vec3d pos) {
-        Vec3d localPos = pos.subtract(getPos());
+        Vec3d localPos = pos.subtract(temp_getOriginPos());
         
-        Vec3d result = transformLocalVec(localPos).add(destination);
+        Vec3d result = transformLocalVec(localPos).add(temp_getDestPos());
         
         return result;
         
@@ -641,7 +638,7 @@ public class Portal extends Entity {
     }
     
     public Vec3d inverseTransformPoint(Vec3d point) {
-        return getPos().add(inverseTransformLocalVec(point.subtract(destination)));
+        return temp_getOriginPos().add(inverseTransformLocalVec(point.subtract(temp_getDestPos())));
     }
     
     public Vec3d scaleLocalVec(Vec3d localVec) {
@@ -653,7 +650,7 @@ public class Portal extends Entity {
     }
     
     public Vec3d getCullingPoint() {
-        return destination;
+        return temp_getDestPos();
     }
     
     public Box getThinAreaBox() {
@@ -664,7 +661,7 @@ public class Portal extends Entity {
     }
     
     public boolean isPointInPortalProjection(Vec3d pos) {
-        Vec3d offset = pos.subtract(getPos());
+        Vec3d offset = pos.subtract(temp_getOriginPos());
         
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
@@ -703,7 +700,7 @@ public class Portal extends Entity {
         Vec3d lineOrigin = from;
         Vec3d lineDirection = to.subtract(from).normalize();
         
-        double collidingT = Helper.getCollidingT(getPos(), normal, lineOrigin, lineDirection);
+        double collidingT = Helper.getCollidingT(temp_getOriginPos(), normal, lineOrigin, lineDirection);
         Vec3d collidingPoint = lineOrigin.add(lineDirection.multiply(collidingT));
         
         if (isPointInPortalProjection(collidingPoint)) {
@@ -719,7 +716,7 @@ public class Portal extends Entity {
     ) {
         double distanceToPlane = getDistanceToPlane(point);
         Vec3d posInPlane = point.add(getNormal().multiply(-distanceToPlane));
-        Vec3d localPos = posInPlane.subtract(getPos());
+        Vec3d localPos = posInPlane.subtract(temp_getOriginPos());
         double localX = localPos.dotProduct(axisW);
         double localY = localPos.dotProduct(axisH);
         double distanceToRect = getDistanceToRectangle(
@@ -750,7 +747,7 @@ public class Portal extends Entity {
     }
     
     public Vec3d getPointInPortalProjection(Vec3d pos) {
-        Vec3d myPos = getPos();
+        Vec3d myPos = temp_getOriginPos();
         Vec3d offset = pos.subtract(myPos);
         
         double yInPlane = offset.dotProduct(axisH);
@@ -780,20 +777,20 @@ public class Portal extends Entity {
         return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
             currPortal.dimensionTo == outerPortal.world.getRegistryKey() &&
             !(currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) > -0.9) &&
-            !outerPortal.isInside(currPortal.getPos(), 0.1);
+            !outerPortal.isInside(currPortal.temp_getOriginPos(), 0.1);
     }
     
     public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
         return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
             currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) <= -0.9 &&
-            !outerPortal.isInside(currPortal.getPos(), 0.1);
+            !outerPortal.isInside(currPortal.temp_getOriginPos(), 0.1);
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {
         return a.dimensionTo == b.world.getRegistryKey() &&
             a.world.getRegistryKey() == b.dimensionTo &&
-            a.getPos().distanceTo(b.destination) < 1 &&
-            a.destination.distanceTo(b.getPos()) < 1 &&
+            a.temp_getOriginPos().distanceTo(b.temp_getDestPos()) < 1 &&
+            a.temp_getDestPos().distanceTo(b.temp_getOriginPos()) < 1 &&
             a.getNormal().dotProduct(b.getContentDirection()) > 0.5;
     }
     
@@ -803,8 +800,8 @@ public class Portal extends Entity {
         }
         return a.world == b.world &&
             a.dimensionTo == b.dimensionTo &&
-            a.getPos().distanceTo(b.getPos()) < 1 &&
-            a.destination.distanceTo(b.destination) < 1 &&
+            a.temp_getOriginPos().distanceTo(b.temp_getOriginPos()) < 1 &&
+            a.temp_getDestPos().distanceTo(b.temp_getDestPos()) < 1 &&
             a.getNormal().dotProduct(b.getNormal()) < -0.5;
     }
     
@@ -838,5 +835,90 @@ public class Portal extends Entity {
         }
         matrix3f.multiply((float) scaling);
         return matrix3f;
+    }
+    
+    @Override
+    public Vec3d temp_getOriginPos() {
+        return getPos();
+    }
+    
+    /**
+     * The destination position
+     */
+    @Override
+    public Vec3d temp_getDestPos() {
+        return destination;
+    }
+    
+    public void setDestination(Vec3d destination) {
+        this.destination = destination;
+    }
+    
+    @Override
+    public boolean l_isConventionalPortal() {
+        return true;
+    }
+    
+    @Override
+    public Box l_getAreaBox() {
+        return getExactBoundingBox();
+    }
+    
+    @Override
+    public World l_getOriginWorld() {
+        return world;
+    }
+    
+    @Override
+    public World l_getDestWorld() {
+        return getDestinationWorld();
+    }
+    
+    @Override
+    public boolean l_isRoughlyVisibleTo(Vec3d cameraPos) {
+        return isInFrontOfPortal(cameraPos);
+    }
+    
+    @Override
+    public Vec3d l_getContentDirection() {
+        return getContentDirection();
+    }
+    
+    @Nullable
+    @Override
+    public Quaternion l_getRotation() {
+        return rotation;
+    }
+    
+    @Override
+    public double l_getScale() {
+        return scaling;
+    }
+    
+    @Override
+    public boolean l_getIsMirror() {
+        return this instanceof Mirror;
+    }
+    
+    @Override
+    public boolean l_getIsGlobal() {
+        return isGlobalPortal;
+    }
+    
+    @Nullable
+    @Override
+    public Vec3d[] getInnerFrustumCullingVertices() {
+        return getFourVerticesLocalRotated(0);
+    }
+    
+    @Nullable
+    @Override
+    public Vec3d[] getOuterFrustumCullingVertices() {
+        return getFourVerticesLocalCullable(0);
+    }
+    
+    @Override
+    public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
+        throw new RuntimeException();
     }
 }

@@ -263,7 +263,7 @@ public class CollisionHelper {
     ) {
         //cut the collision box a little bit more for horizontal portals
         //because the box will be stretched by attemptedMove when calculating collision
-        Vec3d cullingPos = portal.getPos().subtract(attemptedMove);
+        Vec3d cullingPos = portal.temp_getOriginPos().subtract(attemptedMove);
         return clipBox(
             originalBox,
             cullingPos,
@@ -279,7 +279,7 @@ public class CollisionHelper {
         Box otherSideBox = transformBox(portal, originalBox);
         return clipBox(
             otherSideBox,
-            portal.destination.subtract(attemptedMove),
+            portal.temp_getDestPos().subtract(attemptedMove),
             portal.getContentDirection()
         );
 
@@ -298,7 +298,7 @@ public class CollisionHelper {
     
     private static Box transformBox(Portal portal, Box originalBox) {
         if (portal.rotation == null && portal.scaling == 1) {
-            return originalBox.offset(portal.destination.subtract(portal.getPos()));
+            return originalBox.offset(portal.temp_getDestPos().subtract(portal.temp_getOriginPos()));
         }
         else {
             return Helper.transformBox(originalBox, portal::transformPoint);
