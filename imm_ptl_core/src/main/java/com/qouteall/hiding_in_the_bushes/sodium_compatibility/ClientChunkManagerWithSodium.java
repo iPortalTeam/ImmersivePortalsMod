@@ -42,7 +42,7 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
             if (positionEquals(worldChunk_1, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 
-                O_O.postChunkUnloadEventForge(worldChunk_1);
+                O_O.postClientChunkUnloadEvent(worldChunk_1);
                 
                 if (listener != null) {
                     listener.onChunkRemoved(x, z);

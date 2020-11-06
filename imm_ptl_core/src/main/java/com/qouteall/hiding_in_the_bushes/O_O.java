@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -102,12 +103,16 @@ public class O_O {
         }
     }
     
-    public static void postChunkLoadEventForge(WorldChunk chunk) {
-    
+    public static void postClientChunkLoadEvent(WorldChunk chunk) {
+        ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad(
+            ((ClientWorld) chunk.getWorld()), chunk
+        );
     }
     
-    public static void postChunkUnloadEventForge(WorldChunk chunk) {
-    
+    public static void postClientChunkUnloadEvent(WorldChunk chunk) {
+        ClientChunkEvents.CHUNK_UNLOAD.invoker().onChunkUnload(
+            ((ClientWorld) chunk.getWorld()), chunk
+        );
     }
     
     public static InputStream getLanguageFileStream(String modid) {
@@ -137,5 +142,5 @@ public class O_O {
         return SodiumInterface.createClientChunkManager.apply(world, loadDistance);
     }
     
-
+    
 }
