@@ -164,7 +164,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     }
     
     @Override
-    public int getMaxY() {
+    public int getWorldHeight() {
         return 128;
     }
     

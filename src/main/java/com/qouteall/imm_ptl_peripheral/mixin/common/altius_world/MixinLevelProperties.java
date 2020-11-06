@@ -64,7 +64,7 @@ public class MixinLevelProperties implements IELevelProperties {
     }
     
     @Inject(
-        method = "method_29029",
+        method = "readProperties",
         at = @At("RETURN"),
         cancellable = true
     )
