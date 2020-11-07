@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.my_util.Plane;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Box;
@@ -11,31 +12,32 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public interface PortalLike {
-    boolean l_isConventionalPortal();
+    boolean isConventionalPortal();
     
     // bounding box
-    Box l_getAreaBox();
+    Box getExactAreaBox();
     
-    Vec3d temp_getOriginPos();
+    Vec3d getOriginPos();
     
-    Vec3d temp_getDestPos();
+    Vec3d getDestPos();
     
-    World l_getOriginWorld();
+    World getOriginWorld();
     
-    World l_getDestWorld();
+    World getDestWorld();
     
-    boolean l_isRoughlyVisibleTo(Vec3d cameraPos);
-    
-    Vec3d l_getContentDirection();
+    boolean isRoughlyVisibleTo(Vec3d cameraPos);
     
     @Nullable
-    Quaternion l_getRotation();
+    Plane getInnerClipping();
     
-    double l_getScale();
+    @Nullable
+    Quaternion getRotation();
     
-    boolean l_getIsMirror();
+    double getScale();
     
-    boolean l_getIsGlobal();
+    boolean getIsMirror();
+    
+    boolean getIsGlobal();
     
     // used for advanced frustum culling
     @Nullable

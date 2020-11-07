@@ -35,7 +35,7 @@ public class ViewAreaRenderer {
     ) {
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
     
-        Vec3d posInPlayerCoordinate = portal.temp_getOriginPos().subtract(cameraPos);
+        Vec3d posInPlayerCoordinate = portal.getOriginPos().subtract(cameraPos);
         
         if (portal instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken

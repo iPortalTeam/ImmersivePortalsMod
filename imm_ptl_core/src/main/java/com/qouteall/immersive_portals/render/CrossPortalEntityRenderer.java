@@ -167,7 +167,7 @@ public class CrossPortalEntityRenderer {
             if (!Portal.isFlippedPortal(renderingPortal, collidingPortal)) {
                 Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
                 
-                boolean isHidden = cameraPos.subtract(collidingPortal.temp_getDestPos())
+                boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
                     .dotProduct(collidingPortal.getContentDirection()) < 0;
                 if (renderingPortal == collidingPortal || !isHidden) {
                     renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
@@ -327,7 +327,7 @@ public class CrossPortalEntityRenderer {
                 if (!Portal.isReversePortal(collidingPortal, renderingPortal)) {
                     Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
     
-                    boolean isHidden = cameraPos.subtract(collidingPortal.temp_getOriginPos())
+                    boolean isHidden = cameraPos.subtract(collidingPortal.getOriginPos())
                         .dotProduct(collidingPortal.getNormal()) < 0;
                     if (isHidden) {
                         return false;

@@ -75,14 +75,14 @@ public class FrontClipping {
         
         double correction;
         if (doCompensate) {
-            correction = portal.temp_getDestPos().subtract(cameraPos)
+            correction = portal.getDestPos().subtract(cameraPos)
                 .dotProduct(portal.getContentDirection()) / 150.0;
         }
         else {
             correction = 0;
         }
         
-        Vec3d portalPos = portal.temp_getDestPos()
+        Vec3d portalPos = portal.getDestPos()
             .subtract(planeNormal.multiply(correction))//avoid z fighting
             .subtract(cameraPos);
         
@@ -98,7 +98,7 @@ public class FrontClipping {
     private static double[] getClipEquationOuter(Portal portal) {
         Vec3d planeNormal = portal.getNormal();
     
-        Vec3d portalPos = portal.temp_getOriginPos()
+        Vec3d portalPos = portal.getOriginPos()
             //.subtract(planeNormal.multiply(0.01))//avoid z fighting
             .subtract(client.gameRenderer.getCamera().getPos());
         

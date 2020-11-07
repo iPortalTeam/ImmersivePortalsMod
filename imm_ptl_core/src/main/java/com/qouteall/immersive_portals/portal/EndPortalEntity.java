@@ -140,7 +140,7 @@ public class EndPortalEntity extends Portal {
                     }
                 }
             }
-            if (player.world == this.world && player.getPos().squaredDistanceTo(temp_getOriginPos()) < 10 * 10) {
+            if (player.world == this.world && player.getPos().squaredDistanceTo(getOriginPos()) < 10 * 10) {
                 if (clientFakedReversePortal == null) {
                     // client only faked portal
                     clientFakedReversePortal =

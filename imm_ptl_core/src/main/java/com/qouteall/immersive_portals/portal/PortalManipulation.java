@@ -22,7 +22,7 @@ public class PortalManipulation {
     public static void removeConnectedPortals(Portal portal, Consumer<Portal> removalInformer) {
         removeOverlappedPortals(
             portal.world,
-            portal.temp_getOriginPos(),
+            portal.getOriginPos(),
             portal.getNormal().multiply(-1),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
@@ -30,14 +30,14 @@ public class PortalManipulation {
         ServerWorld toWorld = McHelper.getServer().getWorld(portal.dimensionTo);
         removeOverlappedPortals(
             toWorld,
-            portal.temp_getDestPos(),
+            portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
         removeOverlappedPortals(
             toWorld,
-            portal.temp_getDestPos(),
+            portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal()),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
@@ -58,8 +58,8 @@ public class PortalManipulation {
         
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.world.getRegistryKey();
-        newPortal.updatePosition(portal.temp_getDestPos().x, portal.temp_getDestPos().y, portal.temp_getDestPos().z);
-        newPortal.setDestination(portal.temp_getOriginPos());
+        newPortal.updatePosition(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
+        newPortal.setDestination(portal.getOriginPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width * portal.scaling;
@@ -111,7 +111,7 @@ public class PortalManipulation {
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
-        newPortal.setDestination(portal.temp_getDestPos());
+        newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width;
@@ -146,7 +146,7 @@ public class PortalManipulation {
         Portal newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
         newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
-        newPortal.setDestination(portal.temp_getDestPos());
+        newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
         newPortal.width = portal.width;
@@ -190,7 +190,7 @@ public class PortalManipulation {
     ) {
         removeOverlappedPortals(
             ((ServerWorld) portal.world),
-            portal.temp_getOriginPos(),
+            portal.getOriginPos(),
             portal.getNormal().multiply(-1),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
@@ -199,7 +199,7 @@ public class PortalManipulation {
         Portal oppositeFacedPortal = completeBiFacedPortal(portal, entityType);
         removeOverlappedPortals(
             McHelper.getServer().getWorld(portal.dimensionTo),
-            portal.temp_getDestPos(),
+            portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
@@ -208,7 +208,7 @@ public class PortalManipulation {
         Portal r1 = completeBiWayPortal(portal, entityType);
         removeOverlappedPortals(
             McHelper.getServer().getWorld(oppositeFacedPortal.dimensionTo),
-            oppositeFacedPortal.temp_getDestPos(),
+            oppositeFacedPortal.getDestPos(),
             oppositeFacedPortal.transformLocalVecNonScale(oppositeFacedPortal.getNormal().multiply(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer

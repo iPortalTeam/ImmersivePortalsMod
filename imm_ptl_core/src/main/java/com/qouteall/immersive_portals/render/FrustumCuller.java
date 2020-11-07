@@ -52,7 +52,7 @@ public class FrustumCuller {
         if (PortalRendering.isRendering()) {
             Portal portal = PortalRendering.getRenderingPortal();
             
-            Vec3d portalOriginInLocalCoordinate = portal.temp_getDestPos().add(
+            Vec3d portalOriginInLocalCoordinate = portal.getDestPos().add(
                 -cameraX, -cameraY, -cameraZ
             );
             Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
@@ -80,7 +80,7 @@ public class FrustumCuller {
             Portal portal = getCurrentNearestVisibleCullablePortal();
             if (portal != null) {
     
-                Vec3d portalOrigin = portal.temp_getOriginPos();
+                Vec3d portalOrigin = portal.getOriginPos();
                 Vec3d portalOriginInLocalCoordinate = portalOrigin.add(
                     -cameraX,
                     -cameraY,
@@ -303,7 +303,7 @@ public class FrustumCuller {
     
     public static boolean isTouchingInsideContentArea(Portal renderingPortal, Box boundingBox) {
         Vec3d planeNormal = renderingPortal.getContentDirection();
-        Vec3d planePos = renderingPortal.temp_getDestPos();
+        Vec3d planePos = renderingPortal.getDestPos();
         BatchTestResult batchTestResult = testBoxTwoVertices(
             boundingBox.minX, boundingBox.minY, boundingBox.minZ,
             boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ,
