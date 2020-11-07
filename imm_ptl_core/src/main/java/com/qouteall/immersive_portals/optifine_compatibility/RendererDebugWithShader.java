@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.SecondaryFrameBuffer;
@@ -59,7 +60,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     }
     
     @Override
-    protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
+    protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
         if (RenderStates.getRenderedPortalNum() >= 1) {
             return;
         }

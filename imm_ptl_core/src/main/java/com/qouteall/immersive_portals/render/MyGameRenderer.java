@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -339,24 +340,28 @@ public class MyGameRenderer {
             if (Global.cullSectionsBehind) {
                 // this thing has no optimization effect -_-
                 
-                Portal renderingPortal = PortalRendering.getRenderingPortal();
-                
-                int firstInsideOne = Helper.indexOf(
-                    visibleChunks,
-                    obj -> {
-                        ChunkBuilder.BuiltChunk builtChunk =
-                            ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-                        Box boundingBox = builtChunk.boundingBox;
-                        
-                        return FrustumCuller.isTouchingInsideContentArea(renderingPortal, boundingBox);
+                PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+    
+                if (renderingPortal instanceof Portal) {
+                    int firstInsideOne = Helper.indexOf(
+                        visibleChunks,
+                        obj -> {
+                            ChunkBuilder.BuiltChunk builtChunk =
+                                ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+                            Box boundingBox = builtChunk.boundingBox;
+            
+                            return FrustumCuller.isTouchingInsideContentArea(
+                                ((Portal) renderingPortal), boundingBox
+                            );
+                        }
+                    );
+    
+                    if (firstInsideOne != -1) {
+                        visibleChunks.removeElements(0, firstInsideOne);
                     }
-                );
-                
-                if (firstInsideOne != -1) {
-                    visibleChunks.removeElements(0, firstInsideOne);
-                }
-                else {
-                    visibleChunks.clear();
+                    else {
+                        visibleChunks.clear();
+                    }
                 }
             }
         }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -49,7 +50,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(
-        Portal portal,
+        PortalLike portal,
         MatrixStack matrixStack
     ) {
         if (PortalRendering.isRendering()) {
@@ -97,7 +98,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     }
     
     private boolean testShouldRenderPortal(
-        Portal portal,
+        PortalLike portal,
         MatrixStack matrixStack
     ) {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
@@ -109,7 +110,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         });
     }
     
-    private void renderSecondBufferIntoMainBuffer(Portal portal, MatrixStack matrixStack) {
+    private void renderSecondBufferIntoMainBuffer(PortalLike portal, MatrixStack matrixStack) {
         MyRenderHelper.drawFrameBufferUp(
             portal,
             secondaryFrameBuffer.fb,

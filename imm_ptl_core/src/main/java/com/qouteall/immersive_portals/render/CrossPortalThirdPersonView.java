@@ -71,7 +71,7 @@ public class CrossPortalThirdPersonView {
         RenderInfo renderInfo = new RenderInfo(
             CGlobal.clientWorldLoader.getWorld(portal.dimensionTo),
             renderingCameraPos,
-            PortalRenderer.getAdditionalCameraTransformation(portal),
+            portal.getAdditionalCameraTransformation(),
             null
         );
         

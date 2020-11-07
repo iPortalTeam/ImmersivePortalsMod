@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
@@ -30,7 +31,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 
 public class ViewAreaRenderer {
     private static void buildPortalViewAreaTrianglesBuffer(
-        Vec3d fogColor, Portal portal, BufferBuilder bufferbuilder,
+        Vec3d fogColor, PortalLike portal, BufferBuilder bufferbuilder,
         Vec3d cameraPos, float tickDelta, float layerWidth
     ) {
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
@@ -42,7 +43,7 @@ public class ViewAreaRenderer {
             double mirrorOffset =
                 (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
             posInPlayerCoordinate = posInPlayerCoordinate.add(
-                portal.getNormal().multiply(mirrorOffset));
+                ((Mirror) portal).getNormal().multiply(mirrorOffset));
         }
         
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
@@ -236,7 +237,7 @@ public class ViewAreaRenderer {
     }
     
     public static void drawPortalViewTriangle(
-        Portal portal,
+        PortalLike portal,
         MatrixStack matrixStack,
         boolean doFrontCulling,
         boolean doFaceCulling
@@ -245,7 +246,7 @@ public class ViewAreaRenderer {
         MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
         
         DimensionRenderHelper helper =
-            CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.dimensionTo);
+            CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.getDestDim());
     
         Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
         

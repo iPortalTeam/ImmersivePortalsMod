@@ -4,12 +4,14 @@ import com.qouteall.immersive_portals.my_util.Plane;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface PortalLike {
@@ -25,6 +27,12 @@ public interface PortalLike {
     Vec3d inverseTransformLocalVecNonScale(Vec3d localVec);
     
     Vec3d inverseTransformPoint(Vec3d point);
+    
+    double getDistanceToNearestPointInPortal(
+        Vec3d point
+    );
+    
+    double getDestAreaRadiusEstimation();
     
     Vec3d getOriginPos();
     
@@ -46,8 +54,6 @@ public interface PortalLike {
     
     double getScale();
     
-    boolean getIsMirror();
-    
     boolean getIsGlobal();
     
     // used for advanced frustum culling
@@ -60,6 +66,13 @@ public interface PortalLike {
     
     @Environment(EnvType.CLIENT)
     void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput);
+    
+    // Scaling does not interfere camera transformation
+    @Nullable
+    Matrix4f getAdditionalCameraTransformation();
+    
+    @Nullable
+    UUID getDiscriminator();
     
     default boolean hasScaling() {
         return getScale() != 1.0;

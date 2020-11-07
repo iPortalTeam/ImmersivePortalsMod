@@ -6,7 +6,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.BufferBuilder;
@@ -33,7 +33,7 @@ public class MyRenderHelper {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
     public static void drawFrameBufferUp(
-        Portal portal,
+        PortalLike portal,
         Framebuffer textureProvider,
         MatrixStack matrixStack
     ) {

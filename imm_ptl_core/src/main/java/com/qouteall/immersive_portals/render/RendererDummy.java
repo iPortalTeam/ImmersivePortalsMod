@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class RendererDummy extends PortalRenderer {
@@ -36,7 +37,7 @@ public class RendererDummy extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(
-        Portal portal,
+        PortalLike portal,
         MatrixStack matrixStack
     ) {
     

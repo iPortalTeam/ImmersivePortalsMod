@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PortalRenderer;
@@ -174,7 +175,7 @@ public class RendererMixed extends PortalRenderer {
     }
     
     @Override
-    protected void doRenderPortal(Portal portal, MatrixStack matrixStack) {
+    protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
         nextFramePortalRenderingNeeded = true;
         
         if (!portalRenderingNeeded) {
@@ -214,7 +215,7 @@ public class RendererMixed extends PortalRenderer {
     }
     
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
-        Portal portal, MatrixStack matrixStack
+        PortalLike portal, MatrixStack matrixStack
     ) {
         int portalLayer = PortalRendering.getPortalLayer();
         

@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.client.render;
 
 import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -31,7 +31,7 @@ public class MixinBlockEntityRenderDispatcher {
             return;
         }
         if (PortalRendering.isRendering()) {
-            Portal renderingPortal = PortalRendering.getRenderingPortal();
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             boolean canRender = renderingPortal.isInside(
                 Vec3d.ofCenter(blockEntity.getPos()),
                 -0.1

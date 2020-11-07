@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
+import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.client.util.math.Vector3f;
@@ -24,6 +25,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix3f;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -131,6 +133,14 @@ public class Portal extends Entity implements PortalLike {
         World world_1
     ) {
         super(entityType_1, world_1);
+    }
+    
+    // Scaling does not interfere camera transformation
+    @Override
+    @Nullable
+    public Matrix4f getAdditionalCameraTransformation() {
+    
+        return PortalRenderer.getPortalTransformation(this);
     }
     
     
@@ -420,7 +430,11 @@ public class Portal extends Entity implements PortalLike {
         return valid;
     }
     
-  
+    @Nullable
+    @Override
+    public UUID getDiscriminator() {
+        return getUuid();
+    }
     
     public void onEntityTeleportedOnServer(Entity entity) {
         //nothing
@@ -706,6 +720,7 @@ public class Portal extends Entity implements PortalLike {
         }
     }
     
+    @Override
     public double getDistanceToNearestPointInPortal(
         Vec3d point
     ) {
@@ -800,7 +815,8 @@ public class Portal extends Entity implements PortalLike {
             a.getNormal().dotProduct(b.getNormal()) < -0.5;
     }
     
-    public double getDestAreaRadius() {
+    @Override
+    public double getDestAreaRadiusEstimation() {
         return Math.max(this.width, this.height) * this.scaling;
     }
     
@@ -888,11 +904,6 @@ public class Portal extends Entity implements PortalLike {
     @Override
     public double getScale() {
         return scaling;
-    }
-    
-    @Override
-    public boolean getIsMirror() {
-        return this instanceof Mirror;
     }
     
     @Override

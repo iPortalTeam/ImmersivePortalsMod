@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
@@ -202,12 +203,12 @@ public class PortalPresentation {
         }
     }
     
-    public static boolean renderAndDecideVisibility(Portal portal, Runnable queryRendering) {
+    public static boolean renderAndDecideVisibility(PortalLike portal, Runnable queryRendering) {
         Profiler profiler = MinecraftClient.getInstance().getProfiler();
         
         boolean decision;
-        if (Global.offsetOcclusionQuery) {
-            PortalPresentation presentation = get(portal);
+        if (Global.offsetOcclusionQuery && portal instanceof Portal) {
+            PortalPresentation presentation = get(((Portal) portal));
             
             List<UUID> renderingDescription = RenderInfo.getRenderingDescription();
             
