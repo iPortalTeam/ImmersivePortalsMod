@@ -489,10 +489,6 @@ public class Portal extends Entity implements PortalLike {
         return entity.canUsePortals();
     }
     
-    public boolean hasScaling() {
-        return scaling != 1.0;
-    }
-    
     public Vec3d getNormal() {
         if (normal == null) {
             normal = axisW.crossProduct(axisH).normalize();
@@ -599,6 +595,7 @@ public class Portal extends Entity implements PortalLike {
         return pos.add(offset);
     }
     
+    @Override
     public Vec3d transformPoint(Vec3d pos) {
         Vec3d localPos = pos.subtract(getOriginPos());
         
@@ -619,10 +616,12 @@ public class Portal extends Entity implements PortalLike {
         return new Vec3d(temp);
     }
     
+    @Override
     public Vec3d transformLocalVec(Vec3d localVec) {
         return transformLocalVecNonScale(localVec).multiply(scaling);
     }
     
+    @Override
     public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
             return localVec;
@@ -639,6 +638,7 @@ public class Portal extends Entity implements PortalLike {
         return inverseTransformLocalVecNonScale(localVec).multiply(1.0 / scaling);
     }
     
+    @Override
     public Vec3d inverseTransformPoint(Vec3d point) {
         return getOriginPos().add(inverseTransformLocalVec(point.subtract(getDestPos())));
     }
@@ -874,6 +874,11 @@ public class Portal extends Entity implements PortalLike {
     @Override
     public World getDestWorld() {
         return getDestinationWorld();
+    }
+    
+    @Override
+    public RegistryKey<World> getDestDim() {
+        return dimensionTo;
     }
     
     @Override

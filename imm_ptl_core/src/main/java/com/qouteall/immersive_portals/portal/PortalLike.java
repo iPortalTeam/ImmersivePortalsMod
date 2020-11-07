@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -17,6 +18,14 @@ public interface PortalLike {
     // bounding box
     Box getExactAreaBox();
     
+    Vec3d transformPoint(Vec3d pos);
+    
+    Vec3d transformLocalVec(Vec3d localVec);
+    
+    Vec3d inverseTransformLocalVecNonScale(Vec3d localVec);
+    
+    Vec3d inverseTransformPoint(Vec3d point);
+    
     Vec3d getOriginPos();
     
     Vec3d getDestPos();
@@ -24,6 +33,8 @@ public interface PortalLike {
     World getOriginWorld();
     
     World getDestWorld();
+    
+    RegistryKey<World> getDestDim();
     
     boolean isRoughlyVisibleTo(Vec3d cameraPos);
     
@@ -49,4 +60,12 @@ public interface PortalLike {
     
     @Environment(EnvType.CLIENT)
     void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput);
+    
+    default boolean hasScaling() {
+        return getScale() != 1.0;
+    }
+    
+    default RegistryKey<World> getOriginDim(){
+        return getOriginWorld().getRegistryKey();
+    }
 }
