@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
+import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
@@ -131,6 +132,8 @@ public class Portal extends Entity implements PortalLike {
     ) {
         super(entityType_1, world_1);
     }
+    
+   
     
     
     @Override
@@ -921,6 +924,6 @@ public class Portal extends Entity implements PortalLike {
     
     @Override
     public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
-        throw new RuntimeException();
+        ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
     }
 }

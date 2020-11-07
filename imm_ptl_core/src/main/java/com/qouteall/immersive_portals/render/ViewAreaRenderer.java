@@ -48,12 +48,12 @@ public class ViewAreaRenderer {
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
             bufferbuilder, p, fogColor
         );
-        
-        generateViewAreaTriangles(portal, posInPlayerCoordinate, vertexOutput);
-        
+    
+        portal.renderViewAreaMesh(posInPlayerCoordinate, vertexOutput);
+    
     }
     
-    private static void generateViewAreaTriangles(Portal portal, Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
+    public static void generateViewAreaTriangles(Portal portal, Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
         if (portal.specialShape == null) {
             if (portal instanceof GlobalTrackedPortal) {
                 generateTriangleForGlobalPortal(
@@ -79,7 +79,7 @@ public class ViewAreaRenderer {
         }
     }
     
-    private static void generateTriangleForSpecialShape(
+    public static void generateTriangleForSpecialShape(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
         Vec3d posInPlayerCoordinate
@@ -89,7 +89,7 @@ public class ViewAreaRenderer {
         );
     }
     
-    private static void generateTriangleSpecial(
+    public static void generateTriangleSpecial(
         Consumer<Vec3d> vertexOutput,
         Portal portal,
         Vec3d posInPlayerCoordinate
