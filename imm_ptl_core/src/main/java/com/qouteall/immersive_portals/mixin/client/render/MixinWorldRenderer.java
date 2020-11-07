@@ -203,12 +203,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
-            FrontClipping.updateClippingPlaneInner(
+            FrontClipping.setupInnerClipping(
                 matrices,
                 PortalRendering.getRenderingPortal(),
                 true
             );
-            FrontClipping.enableClipping();
+            
             if (PortalRendering.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
@@ -371,12 +371,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {
-            FrontClipping.updateClippingPlaneInner(
-                matrices,
-                PortalRendering.getRenderingPortal(),
-                true
+            FrontClipping.setupInnerClipping(
+                matrices, PortalRendering.getRenderingPortal(), true
             );
-            FrontClipping.enableClipping();
         }
     }
     

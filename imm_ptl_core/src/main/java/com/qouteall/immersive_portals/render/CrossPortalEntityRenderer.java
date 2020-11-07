@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderClippingManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
@@ -67,10 +68,9 @@ public class CrossPortalEntityRenderer {
         }
         
         if (PortalRendering.isRendering()) {
-            FrontClipping.updateClippingPlaneInner(
+            FrontClipping.setupInnerClipping(
                 matrixStack, PortalRendering.getRenderingPortal(), false
             );
-            FrontClipping.enableClipping();
         }
     }
     
@@ -97,12 +97,8 @@ public class CrossPortalEntityRenderer {
                 
                 //draw already built triangles
                 client.getBufferBuilders().getEntityVertexConsumers().draw();
-                
-                FrontClipping.updateClippingPlaneOuter(
-                    matrixStack,
-                    collidingPortal
-                );
-                FrontClipping.enableClipping();
+    
+                FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
                 if (OFInterface.isShaders.getAsBoolean()) {
                     ShaderClippingManager.update();
                 }
@@ -160,17 +156,19 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         if (PortalRendering.isRendering()) {
-            Portal renderingPortal = PortalRendering.getRenderingPortal();
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             //correctly rendering it needs two culling planes
             //use some rough check to work around
             
-            if (!Portal.isFlippedPortal(renderingPortal, collidingPortal)) {
-                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-                
-                boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
-                    .dotProduct(collidingPortal.getContentDirection()) < 0;
-                if (renderingPortal == collidingPortal || !isHidden) {
-                    renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+            if(renderingPortal instanceof Portal) {
+                if (!Portal.isFlippedPortal(((Portal) renderingPortal), collidingPortal)) {
+                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                    
+                    boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
+                        .dotProduct(collidingPortal.getContentDirection()) < 0;
+                    if (renderingPortal == collidingPortal || !isHidden) {
+                        renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
+                    }
                 }
             }
         }
@@ -178,9 +176,8 @@ public class CrossPortalEntityRenderer {
             FrontClipping.disableClipping();
             // don't draw the existing triangles with culling enabled
             client.getBufferBuilders().getEntityVertexConsumers().draw();
-            
-            FrontClipping.updateClippingPlaneInner(matrixStack, collidingPortal, false);
-            FrontClipping.enableClipping();
+    
+            FrontClipping.setupInnerClipping(matrixStack, collidingPortal, false);
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             FrontClipping.disableClipping();
         }
@@ -321,16 +318,18 @@ public class CrossPortalEntityRenderer {
             if (entity instanceof ClientPlayerEntity) {
                 return shouldRenderPlayerItself();
             }
-            Portal renderingPortal = PortalRendering.getRenderingPortal();
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
             if (collidingPortal != null) {
-                if (!Portal.isReversePortal(collidingPortal, renderingPortal)) {
-                    Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
-    
-                    boolean isHidden = cameraPos.subtract(collidingPortal.getOriginPos())
-                        .dotProduct(collidingPortal.getNormal()) < 0;
-                    if (isHidden) {
-                        return false;
+                if(renderingPortal instanceof Portal) {
+                    if (!Portal.isReversePortal(collidingPortal, ((Portal) renderingPortal))) {
+                        Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
+        
+                        boolean isHidden = cameraPos.subtract(collidingPortal.getOriginPos())
+                            .dotProduct(collidingPortal.getNormal()) < 0;
+                        if (isHidden) {
+                            return false;
+                        }
                     }
                 }
             }

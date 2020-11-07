@@ -420,10 +420,7 @@ public class Portal extends Entity implements PortalLike {
         return valid;
     }
     
-    public boolean isInside(Vec3d entityPos, double valve) {
-        double v = entityPos.subtract(getDestPos()).dotProduct(getContentDirection());
-        return v > valve;
-    }
+  
     
     public void onEntityTeleportedOnServer(Entity entity) {
         //nothing
@@ -649,10 +646,6 @@ public class Portal extends Entity implements PortalLike {
         }
         
         return localVec.multiply(scaling);
-    }
-    
-    public Vec3d getCullingPoint() {
-        return getDestPos();
     }
     
     public Box getThinAreaBox() {

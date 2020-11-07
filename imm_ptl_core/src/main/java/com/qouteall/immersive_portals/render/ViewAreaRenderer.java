@@ -276,11 +276,9 @@ public class ViewAreaRenderer {
         }
         if (doFrontCulling) {
             if (PortalRendering.isRendering()) {
-                FrontClipping.updateClippingPlaneInner(
+                FrontClipping.setupInnerClipping(
                     matrixStack, PortalRendering.getRenderingPortal(), false
                 );
-                FrontClipping.loadClippingPlaneClassical(matrixStack);
-                FrontClipping.startClassicalCulling();
             }
         }
         

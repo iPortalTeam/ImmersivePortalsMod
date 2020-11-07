@@ -65,7 +65,18 @@ public interface PortalLike {
         return getScale() != 1.0;
     }
     
-    default RegistryKey<World> getOriginDim(){
+    default RegistryKey<World> getOriginDim() {
         return getOriginWorld().getRegistryKey();
+    }
+    
+    default boolean isInside(Vec3d entityPos, double valve) {
+        Plane innerClipping = getInnerClipping();
+        
+        if (innerClipping == null) {
+            return true;
+        }
+        
+        double v = entityPos.subtract(innerClipping.pos).dotProduct(innerClipping.normal);
+        return v > valve;
     }
 }
