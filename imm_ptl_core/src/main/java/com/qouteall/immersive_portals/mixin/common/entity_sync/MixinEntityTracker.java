@@ -15,6 +15,7 @@ import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -109,6 +110,9 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             return;
         }
         
+        Profiler profiler = player.world.getProfiler();
+        profiler.push("portal_entity_track");
+        
         int maxWatchDistance = Math.min(
             this.getMaxTrackDistance(),
             (storage.getWatchDistance() - 1) * 16
@@ -148,6 +152,8 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
                 }
             );
         }
+        
+        profiler.pop();
         
     }
     
