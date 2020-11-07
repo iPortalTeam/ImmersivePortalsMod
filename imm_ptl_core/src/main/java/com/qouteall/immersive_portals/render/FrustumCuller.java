@@ -14,7 +14,7 @@ import java.util.Comparator;
 
 @Environment(EnvType.CLIENT)
 public class FrustumCuller {
-   
+    
     
     public static interface BoxPredicate {
         boolean test(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
@@ -57,7 +57,7 @@ public class FrustumCuller {
             );
             Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                 portalOriginInLocalCoordinate,
-                portal.getFourVerticesLocalRotated(0)
+                portal.getInnerFrustumCullingVertices()
             );
             
             Vec3d downPlane = downLeftUpRightPlaneNormals[0];
@@ -79,7 +79,7 @@ public class FrustumCuller {
             
             Portal portal = getCurrentNearestVisibleCullablePortal();
             if (portal != null) {
-    
+                
                 Vec3d portalOrigin = portal.getOriginPos();
                 Vec3d portalOriginInLocalCoordinate = portalOrigin.add(
                     -cameraX,
@@ -88,9 +88,9 @@ public class FrustumCuller {
                 );
                 Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                     portalOriginInLocalCoordinate,
-                    portal.getFourVerticesLocalCullable(0)
+                    portal.getOuterFrustumCullingVertices()
                 );
-    
+                
                 Vec3d downPlane = downLeftUpRightPlaneNormals[0];
                 Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
                 Vec3d upPlane = downLeftUpRightPlaneNormals[2];

@@ -133,8 +133,6 @@ public class Portal extends Entity implements PortalLike {
         super(entityType_1, world_1);
     }
     
-   
-    
     
     @Override
     protected void initDataTracker() {
@@ -562,7 +560,7 @@ public class Portal extends Entity implements PortalLike {
     
     //3  2
     //1  0
-    public Vec3d[] getFourVerticesLocalRotated(double shrinkFactor) {
+    private Vec3d[] getFourVerticesLocalRotated(double shrinkFactor) {
         Vec3d[] fourVerticesLocal = getFourVerticesLocal(shrinkFactor);
         fourVerticesLocal[0] = transformLocalVec(fourVerticesLocal[0]);
         fourVerticesLocal[1] = transformLocalVec(fourVerticesLocal[1]);
@@ -573,7 +571,7 @@ public class Portal extends Entity implements PortalLike {
     
     //3  2
     //1  0
-    public Vec3d[] getFourVerticesLocalCullable(double shrinkFactor) {
+    private Vec3d[] getFourVerticesLocalCullable(double shrinkFactor) {
         Vec3d[] vertices = new Vec3d[4];
         vertices[0] = getPointInPlaneLocal(
             cullableXEnd - shrinkFactor,
@@ -910,12 +908,16 @@ public class Portal extends Entity implements PortalLike {
         return new Plane(getDestPos(), getContentDirection());
     }
     
+    //3  2
+    //1  0
     @Nullable
     @Override
     public Vec3d[] getInnerFrustumCullingVertices() {
         return getFourVerticesLocalRotated(0);
     }
     
+    //3  2
+    //1  0
     @Nullable
     @Override
     public Vec3d[] getOuterFrustumCullingVertices() {

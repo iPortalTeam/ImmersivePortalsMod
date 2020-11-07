@@ -11,12 +11,12 @@ import org.lwjgl.opengl.GL11;
 public class RendererDebug extends PortalRenderer {
     @Override
     public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
-    
+        renderPortals(matrixStack);
     }
     
     @Override
     public void onAfterTranslucentRendering(MatrixStack matrixStack) {
-        renderPortals(matrixStack);
+    
     }
     
     @Override
