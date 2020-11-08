@@ -126,8 +126,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         
         public void removeFromWorld() {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
-            portals.forEach(worldWrappingPortal -> gps.data.remove(worldWrappingPortal));
-            gps.onDataChanged();
+            portals.forEach(worldWrappingPortal -> gps.removePortal(worldWrappingPortal));
         }
         
         public Box getArea() {
@@ -244,11 +243,10 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         );
         
         GlobalPortalStorage gps = GlobalPortalStorage.get(world);
-        gps.data.add(p1);
-        gps.data.add(p2);
-        gps.data.add(p3);
-        gps.data.add(p4);
-        gps.onDataChanged();
+        gps.addPortal(p1);
+        gps.addPortal(p2);
+        gps.addPortal(p3);
+        gps.addPortal(p4);
     }
     
     public static void invokeViewWrappingZones(

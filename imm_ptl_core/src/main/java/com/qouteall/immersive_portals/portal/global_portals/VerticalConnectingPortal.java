@@ -64,9 +64,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         
         GlobalPortalStorage storage = GlobalPortalStorage.get(fromWorld);
         
-        storage.data.add(connectingPortal);
-        
-        storage.onDataChanged();
+        storage.addPortal(connectingPortal);
     }
     
     public static void connectMutually(
@@ -125,11 +123,9 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         ServerWorld endWorld = McHelper.getServer().getWorld(dimension);
         GlobalPortalStorage storage = GlobalPortalStorage.get(endWorld);
         
-        storage.data.removeIf(
+        storage.removePortals(
             portal -> portal instanceof VerticalConnectingPortal && predicate.test(portal)
         );
-        
-        storage.onDataChanged();
     }
     
     public static VerticalConnectingPortal getConnectingPortal(

@@ -28,6 +28,7 @@ import org.apache.commons.lang3.Validate;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class GlobalPortalStorage extends PersistentState {
     public List<Portal> data;
@@ -72,6 +73,24 @@ public class GlobalPortalStorage extends PersistentState {
         shouldReSync = true;
         
         
+    }
+    
+    public void removePortal(Portal portal) {
+        data.remove(portal);
+        onDataChanged();
+    }
+    
+    public void addPortal(Portal portal) {
+        Validate.isTrue(!data.contains(portal));
+        
+        portal.isGlobalPortal = true;
+        data.add(portal);
+        onDataChanged();
+    }
+    
+    public void removePortals(Predicate<Portal> predicate) {
+        data.removeIf(predicate);
+        onDataChanged();
     }
     
     private void syncToAllPlayers() {
@@ -125,7 +144,7 @@ public class GlobalPortalStorage extends PersistentState {
         
         Entity e = entityType.create(currWorld);
         e.fromTag(compoundTag);
-    
+        
         ((GlobalTrackedPortal) e).isGlobalPortal = true;
         
         return (GlobalTrackedPortal) e;
