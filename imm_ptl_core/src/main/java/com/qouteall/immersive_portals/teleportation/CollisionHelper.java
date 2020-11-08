@@ -148,6 +148,11 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
+        //avoid cannot enter scaled view type end portal
+        if (!collidingPortal.teleportChangesScale) {
+            return attemptedMove;
+        }
+        
         Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
         
         Box boxOtherSide = getCollisionBoxOtherSide(
