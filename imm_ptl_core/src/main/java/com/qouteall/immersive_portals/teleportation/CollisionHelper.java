@@ -149,7 +149,7 @@ public class CollisionHelper {
         Box originalBoundingBox
     ) {
         //avoid cannot enter scaled view type end portal
-        if (!collidingPortal.teleportChangesScale) {
+        if (!collidingPortal.teleportChangesScale && collidingPortal.hasScaling()) {
             return attemptedMove;
         }
         
