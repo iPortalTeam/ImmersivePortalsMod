@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.commands;
 
+import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -17,12 +18,15 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
+import com.qouteall.immersive_portals.render.PortalPresentation;
+import com.qouteall.immersive_portals.render.PortalRenderingGroup;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -47,8 +51,11 @@ import java.net.URLClassLoader;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 public class ClientDebugCommand {
@@ -464,6 +471,31 @@ public class ClientDebugCommand {
                     return 0;
                 })
             )
+        );
+        builder.then(CommandManager
+            .literal("report_portal_groups")
+            .executes(context -> {
+                for (ClientWorld clientWorld : CGlobal.clientWorldLoader.clientWorldMap.values()) {
+                    Map<Optional<PortalRenderingGroup>, List<Portal>> result =
+                        Streams.stream(clientWorld.getEntities())
+                            .flatMap(
+                                entity -> entity instanceof Portal ?
+                                    Stream.of(((Portal) entity)) : Stream.empty()
+                            )
+                            .collect(Collectors.groupingBy(
+                                p -> Optional.ofNullable(PortalPresentation.getGroupOf(p))
+                            ));
+                    final ServerPlayerEntity player = context.getSource().getPlayer();
+                    McHelper.serverLog(player, "\n" + clientWorld.getRegistryKey().getValue().toString());
+                    result.forEach((g, l) -> {
+                        McHelper.serverLog(player, "\n" + g.toString());
+                        McHelper.serverLog(player, l.stream()
+                            .map(Portal::toString).collect(Collectors.joining("\n"))
+                        );
+                    });
+                }
+                return 0;
+            })
         );
         registerSwitchCommand(
             builder,

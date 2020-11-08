@@ -40,6 +40,7 @@ public class MyConfig {
     public boolean reducedPortalRendering = false;
     public boolean visibilityPrediction = true;
     public int chunkUnloadDelayTicks = 15 * 20;
+    public boolean mergePortalRendering = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
     public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
@@ -151,6 +152,8 @@ public class MyConfig {
         Global.offsetOcclusionQuery = visibilityPrediction;
         
         Global.chunkUnloadDelayTicks = chunkUnloadDelayTicks;
+        
+        Global.mergePortalRendering = mergePortalRendering;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

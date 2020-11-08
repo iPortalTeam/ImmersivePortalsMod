@@ -111,6 +111,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.visibility_prediction"),
                 currConfig.visibilityPrediction
             ).setDefaultValue(true).build();
+            BooleanListEntry entryMergePortalRendering = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.merge_portal_rendering"),
+                currConfig.mergePortalRendering
+            ).setDefaultValue(true).build();
             IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
                 currConfig.chunkUnloadDelayTicks,
@@ -143,6 +147,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryPortalRenderLimit);
             clientSide.addEntry(entryCompatibilityRenderMode);
             clientSide.addEntry(entryVisibilityPrediction);
+            clientSide.addEntry(entryMergePortalRendering);
             clientSide.addEntry(entryCheckGlError);
             clientSide.addEntry(entryPureMirror);
             clientSide.addEntry(entryRenderYourselfInPortal);
@@ -192,6 +197,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                     newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                     newConfig.chunkUnloadDelayTicks = entryChunkUnloadDelayTicks.getValue();
+                    newConfig.mergePortalRendering = entryMergePortalRendering.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();

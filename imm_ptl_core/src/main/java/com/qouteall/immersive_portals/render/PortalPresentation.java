@@ -17,6 +17,7 @@ import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +188,7 @@ public class PortalPresentation {
     private void dispose() {
         infoMap.values().forEach(Visibility::dispose);
         infoMap.clear();
+        
     }
     
     // Visibility Predicting -----
@@ -319,6 +321,10 @@ public class PortalPresentation {
     private void updateGrouping(Portal portal) {
         Validate.isTrue(!portal.isGlobalPortal);
         
+        if (!Global.mergePortalRendering) {
+            return;
+        }
+        
         List<Portal> nearbyPortals = McHelper.findEntitiesByBox(
             Portal.class,
             portal.getOriginWorld(),
@@ -329,26 +335,41 @@ public class PortalPresentation {
         
         Portal.TransformationDesc thisDesc = portal.getTransformationDesc();
         
-        for (Portal nearbyPortal : nearbyPortals) {
-            if (nearbyPortal instanceof Mirror) {
+        for (Portal that : nearbyPortals) {
+            if (that instanceof Mirror) {
                 continue;
             }
             
-            PortalPresentation nearbyPortalPresentation = get(nearbyPortal);
+            PortalPresentation nearbyPortalPresentation = get(that);
             
             PortalRenderingGroup itsGroup = nearbyPortalPresentation.renderingGroup;
             if (itsGroup != null) {
                 if (itsGroup.transformationDesc.equals(thisDesc)) {
-                    setGroup(portal, itsGroup);
+                    if (renderingGroup == null) {
+                        // this is not in group, put into its group
+                        setGroup(portal, itsGroup);
+                    }
+                    else {
+                        // this and that are both in group, merge
+                        mergeGroup(renderingGroup, itsGroup);
+                    }
                     return;
                 }
             }
             else {
-                Portal.TransformationDesc itsDesc = nearbyPortal.getTransformationDesc();
+                Portal.TransformationDesc itsDesc = that.getTransformationDesc();
                 if (thisDesc.equals(itsDesc)) {
-                    PortalRenderingGroup newGroup = new PortalRenderingGroup(thisDesc);
-                    setGroup(portal, newGroup);
-                    get(nearbyPortal).setGroup(nearbyPortal, newGroup);
+                    if (renderingGroup == null) {
+                        // this and that are not in any group
+                        PortalRenderingGroup newGroup = new PortalRenderingGroup(thisDesc);
+                        setGroup(portal, newGroup);
+                        get(that).setGroup(that, newGroup);
+                    }
+                    else {
+                        // this is in group and that is not in group
+                        get(that).setGroup(that, renderingGroup);
+                    }
+                    
                     return;
                 }
             }
@@ -363,6 +384,12 @@ public class PortalPresentation {
         Validate.isTrue(!portal.getIsGlobal());
         
         return get(portal).renderingGroup;
+    }
+    
+    private static void mergeGroup(PortalRenderingGroup g1, PortalRenderingGroup g2) {
+        for (Portal portal : new ArrayList<>(g2.portals)) {
+            get(portal).setGroup(portal, g1);
+        }
     }
     
 }

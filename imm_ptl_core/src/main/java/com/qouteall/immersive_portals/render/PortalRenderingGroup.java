@@ -202,7 +202,7 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Override
     public boolean isParallelWith(Portal portal) {
-        return portals.stream().anyMatch(p -> p.isParallelWith(portal));
+        return portals.stream().anyMatch(p -> portal.isParallelWith(p));
     }
     
     @Override

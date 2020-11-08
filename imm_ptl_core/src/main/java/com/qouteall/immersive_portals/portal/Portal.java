@@ -985,9 +985,12 @@ public class Portal extends Entity implements PortalLike {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             TransformationDesc that = (TransformationDesc) o;
+    
+            if (isMirror || that.isMirror) {
+                return false;
+            }
             
             return Double.compare(that.scaling, scaling) == 0 &&
-                isMirror == that.isMirror &&
                 dimensionTo == that.dimensionTo &&
                 rotationRoughlyEquals(rotation, that.rotation) &&//approximately
                 offset.squaredDistanceTo(that.offset) < 0.01;//approximately
