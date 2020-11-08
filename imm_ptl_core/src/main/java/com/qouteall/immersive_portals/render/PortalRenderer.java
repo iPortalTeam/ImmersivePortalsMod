@@ -25,7 +25,9 @@ import org.apache.commons.lang3.Validate;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public abstract class PortalRenderer {
@@ -73,6 +75,7 @@ public abstract class PortalRenderer {
         double renderRange = getRenderRange();
         
         List<Portal> portalsToRender = new ArrayList<>();
+        Set<PortalRenderingGroup> portalGroupsToRender = new HashSet<>();
         List<Portal> globalPortals = McHelper.getGlobalPortals(client.world);
         for (Portal globalPortal : globalPortals) {
             if (!shouldSkipRenderingPortal(globalPortal, frustumSupplier)) {
@@ -84,7 +87,14 @@ public abstract class PortalRenderer {
             if (e instanceof Portal) {
                 Portal portal = (Portal) e;
                 if (!shouldSkipRenderingPortal(portal, frustumSupplier)) {
-                    portalsToRender.add(portal);
+                    
+                    PortalRenderingGroup group = PortalPresentation.getGroupOf(portal);
+                    if (group == null) {
+                        portalsToRender.add(portal);
+                    }
+                    else {
+                        portalGroupsToRender.add(group);
+                    }
                 }
             }
         });
@@ -94,6 +104,9 @@ public abstract class PortalRenderer {
             portalEntity.getDistanceToNearestPointInPortal(cameraPos)
         ));
         
+        for (PortalRenderingGroup renderingGroup : portalGroupsToRender) {
+            doRenderPortal(renderingGroup, matrixStack);
+        }
         for (Portal portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }

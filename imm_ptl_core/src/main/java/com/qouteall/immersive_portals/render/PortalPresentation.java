@@ -314,9 +314,9 @@ public class PortalPresentation {
         List<Portal> nearbyPortals = McHelper.findEntitiesByBox(
             Portal.class,
             portal.getOriginWorld(),
-            portal.getBoundingBox().expand(0.5),
+            portal.getBoundingBox().expand(1.5),
             10,
-            p -> p != portal
+            p -> p != portal && !Portal.isFlippedPortal(p, portal)
         );
         
         Portal.TransformationDesc thisDesc = portal.getTransformationDesc();
@@ -344,6 +344,13 @@ public class PortalPresentation {
         }
         
         setGroup(portal, null);
+    }
+    
+    @Nullable
+    public static PortalRenderingGroup getGroupOf(Portal portal) {
+        Validate.isTrue(!portal.getIsGlobal());
+        
+        return get(portal).renderingGroup;
     }
     
 }
