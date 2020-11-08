@@ -24,14 +24,12 @@ public interface PortalLike {
     
     Vec3d transformLocalVec(Vec3d localVec);
     
-    Vec3d inverseTransformLocalVecNonScale(Vec3d localVec);
-    
-    Vec3d inverseTransformPoint(Vec3d point);
-    
+    // TODO remove this and use the area box
     double getDistanceToNearestPointInPortal(
         Vec3d point
     );
     
+    // TODO remove this and use the area box
     double getDestAreaRadiusEstimation();
     
     Vec3d getOriginPos();

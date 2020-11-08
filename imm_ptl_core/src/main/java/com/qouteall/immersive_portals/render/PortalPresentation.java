@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
@@ -11,13 +12,16 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.Profiler;
+import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+// A portal's rendering related things
 @Environment(EnvType.CLIENT)
 public class PortalPresentation {
     
@@ -78,6 +82,10 @@ public class PortalPresentation {
     
     private int totalMispredictCount = 0;
     
+    private boolean needsGroupingUpdate = true;
+    @Nullable
+    private PortalRenderingGroup renderingGroup;
+    
     public static void init() {
         ModMain.preRenderSignal.connect(() -> {
             long currTime = System.nanoTime();
@@ -95,6 +103,22 @@ public class PortalPresentation {
                     
                     return shouldRemove;
                 });
+            }
+        });
+        
+        Portal.clientPortalTickSignal.connect(portal -> {
+            PortalPresentation presentation = getOptional(portal);
+            if (presentation != null) {
+                presentation.tick(portal);
+            }
+        });
+        
+        Portal.portalCacheUpdateSignal.connect(portal -> {
+            if (portal.world.isClient()) {
+                PortalPresentation presentation = getOptional(portal);
+                if (presentation != null) {
+                    presentation.onPortalCacheUpdate();
+                }
             }
         });
     }
@@ -126,11 +150,25 @@ public class PortalPresentation {
         );
     }
     
+    @Nullable
+    public static PortalPresentation getOptional(Portal portal) {
+        return dataMap.get(portal);
+    }
+    
     public PortalPresentation() {
         lastActiveNanoTime = System.nanoTime();
     }
     
-    public void onUsed() {
+    private void tick(Portal portal) {
+        Validate.isTrue(portal.world.isClient());
+        
+        if (needsGroupingUpdate) {
+            needsGroupingUpdate = false;
+            updateGrouping(portal);
+        }
+    }
+    
+    private void onUsed() {
         lastActiveNanoTime = System.nanoTime();
     }
     
@@ -138,10 +176,12 @@ public class PortalPresentation {
         return currTime - lastActiveNanoTime > Helper.secondToNano(60);
     }
     
-    public void dispose() {
+    private void dispose() {
         infoMap.values().forEach(Visibility::dispose);
         infoMap.clear();
     }
+    
+    // Visibility Predicting -----
     
     private void updateQuerySet() {
         onUsed();
@@ -173,13 +213,13 @@ public class PortalPresentation {
         return infoMap.computeIfAbsent(desc, k -> new Visibility());
     }
     
-    public void onMispredict() {
+    private void onMispredict() {
         mispredictTime1 = mispredictTime2;
         mispredictTime2 = System.nanoTime();
         totalMispredictCount++;
     }
     
-    public boolean isFrequentlyMispredicted() {
+    private boolean isFrequentlyMispredicted() {
         if (totalMispredictCount > 5) {
             return true;
         }
@@ -189,7 +229,7 @@ public class PortalPresentation {
         return (currTime - mispredictTime1) < Helper.secondToNano(30);
     }
     
-    public void updatePredictionStatus(Visibility visibility, boolean thisFrameDecision) {
+    private void updatePredictionStatus(Visibility visibility, boolean thisFrameDecision) {
         visibility.thisFrameRendered = thisFrameDecision;
         
         if (thisFrameDecision) {
@@ -249,4 +289,61 @@ public class PortalPresentation {
         }
         return decision;
     }
+    
+    // Grouping -----
+    
+    private void onPortalCacheUpdate() {
+        needsGroupingUpdate = true;
+        renderingGroup = null;
+    }
+    
+    private void setGroup(Portal portal, @Nullable PortalRenderingGroup group) {
+        if (renderingGroup != null) {
+            renderingGroup.removePortal(portal);
+        }
+        
+        renderingGroup = group;
+        if (renderingGroup != null) {
+            renderingGroup.addPortal(portal);
+        }
+    }
+    
+    private void updateGrouping(Portal portal) {
+        Validate.isTrue(!portal.isGlobalPortal);
+        
+        List<Portal> nearbyPortals = McHelper.findEntitiesByBox(
+            Portal.class,
+            portal.getOriginWorld(),
+            portal.getBoundingBox().expand(0.5),
+            10,
+            p -> p != portal
+        );
+        
+        Portal.TransformationDesc thisDesc = portal.getTransformationDesc();
+        
+        for (Portal nearbyPortal : nearbyPortals) {
+            PortalPresentation nearbyPortalPresentation = get(nearbyPortal);
+            
+            PortalRenderingGroup itsGroup = nearbyPortalPresentation.renderingGroup;
+            if (itsGroup != null) {
+                if (itsGroup.transformationDesc.equals(thisDesc)) {
+                    setGroup(portal, itsGroup);
+                    return;
+                }
+            }
+            else {
+                Portal.TransformationDesc itsDesc = nearbyPortal.getTransformationDesc();
+                if (thisDesc.equals(itsDesc)) {
+                    PortalRenderingGroup newGroup = new PortalRenderingGroup(thisDesc);
+                    setGroup(portal, newGroup);
+                    get(nearbyPortal).setGroup(nearbyPortal, newGroup);
+                    return;
+                }
+            }
+            
+        }
+        
+        setGroup(portal, null);
+    }
+    
 }

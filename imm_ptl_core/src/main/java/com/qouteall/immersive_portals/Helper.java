@@ -981,4 +981,28 @@ public class Helper {
             result.stream().mapToDouble(b -> b.z).max().getAsDouble()
         );
     }
+    
+    private static double getDistanceToRange(double start, double end, double pos) {
+        Validate.isTrue(end >= start);
+        if (pos >= start) {
+            if (pos <= end) {
+                return 0;
+            }
+            else {
+                return pos - end;
+            }
+        }
+        else {
+            return start - pos;
+        }
+    }
+    
+    public static double getDistanceToBox(Box box, Vec3d point) {
+        double dx = getDistanceToRange(box.minX, box.maxX, point.x);
+        double dy = getDistanceToRange(box.minY, box.maxY, point.y);
+        double dz = getDistanceToRange(box.minZ, box.maxZ, point.z);
+        
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    
 }

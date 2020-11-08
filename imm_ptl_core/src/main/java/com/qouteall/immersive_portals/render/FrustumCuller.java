@@ -56,9 +56,13 @@ public class FrustumCuller {
             Vec3d portalOriginInLocalCoordinate = portal.getDestPos().add(
                 -cameraX, -cameraY, -cameraZ
             );
+            Vec3d[] innerFrustumCullingVertices = portal.getInnerFrustumCullingVertices();
+            if (innerFrustumCullingVertices == null) {
+                return nonePredicate;
+            }
             Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                 portalOriginInLocalCoordinate,
-                portal.getInnerFrustumCullingVertices()
+                innerFrustumCullingVertices
             );
             
             Vec3d downPlane = downLeftUpRightPlaneNormals[0];
@@ -83,13 +87,15 @@ public class FrustumCuller {
                 
                 Vec3d portalOrigin = portal.getOriginPos();
                 Vec3d portalOriginInLocalCoordinate = portalOrigin.add(
-                    -cameraX,
-                    -cameraY,
-                    -cameraZ
+                    -cameraX, -cameraY, -cameraZ
                 );
+                final Vec3d[] outerFrustumCullingVertices = portal.getOuterFrustumCullingVertices();
+                if (outerFrustumCullingVertices == null) {
+                    return nonePredicate;
+                }
                 Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                     portalOriginInLocalCoordinate,
-                    portal.getOuterFrustumCullingVertices()
+                    outerFrustumCullingVertices
                 );
                 
                 Vec3d downPlane = downLeftUpRightPlaneNormals[0];

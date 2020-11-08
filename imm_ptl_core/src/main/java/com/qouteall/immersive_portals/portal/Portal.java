@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.Plane;
+import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.render.PortalRenderer;
@@ -127,19 +128,19 @@ public class Portal extends Entity implements PortalLike {
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
+    public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
     
     public Portal(
-        EntityType<?> entityType_1,
-        World world_1
+        EntityType<?> entityType, World world
     ) {
-        super(entityType_1, world_1);
+        super(entityType, world);
     }
     
     // Scaling does not interfere camera transformation
     @Override
     @Nullable
     public Matrix4f getAdditionalCameraTransformation() {
-    
+        
         return PortalRenderer.getPortalTransformation(this);
     }
     
@@ -305,6 +306,7 @@ public class Portal extends Entity implements PortalLike {
         exactBoundingBoxCache = null;
         normal = null;
         contentDirection = null;
+        portalCacheUpdateSignal.emit(this);
     }
     
     public void initDefaultCullableRange() {
@@ -632,7 +634,6 @@ public class Portal extends Entity implements PortalLike {
         return transformLocalVecNonScale(localVec).multiply(scaling);
     }
     
-    @Override
     public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
             return localVec;
@@ -649,7 +650,6 @@ public class Portal extends Entity implements PortalLike {
         return inverseTransformLocalVecNonScale(localVec).multiply(1.0 / scaling);
     }
     
-    @Override
     public Vec3d inverseTransformPoint(Vec3d point) {
         return getOriginPos().add(inverseTransformLocalVec(point.subtract(getDestPos())));
     }
@@ -936,5 +936,66 @@ public class Portal extends Entity implements PortalLike {
     @Override
     public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
+    }
+    
+    public static class TransformationDesc {
+        public final RegistryKey<World> dimensionTo;
+        @Nullable
+        public final Quaternion rotation;
+        public final double scaling;
+        public final Vec3d offset;
+        public final boolean isMirror;
+        
+        public TransformationDesc(
+            RegistryKey<World> dimensionTo,
+            @Nullable Quaternion rotation, double scaling,
+            Vec3d offset, boolean isMirror
+        ) {
+            this.dimensionTo = dimensionTo;
+            this.rotation = rotation;
+            this.scaling = scaling;
+            this.offset = offset;
+            this.isMirror = isMirror;
+        }
+        
+        private static boolean rotationRoughlyEquals(Quaternion a, Quaternion b) {
+            if (a == null && b == null) {
+                return true;
+            }
+            if (a == null || b == null) {
+                return false;
+            }
+            
+            return RotationHelper.isClose(a, b, 0.01f);
+        }
+        
+        //roughly equals
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TransformationDesc that = (TransformationDesc) o;
+            
+            return Double.compare(that.scaling, scaling) == 0 &&
+                isMirror == that.isMirror &&
+                dimensionTo == that.dimensionTo &&
+                rotationRoughlyEquals(rotation, that.rotation) &&//approximately
+                offset.squaredDistanceTo(that.offset) < 0.01;//approximately
+        }
+        
+        @Override
+        public int hashCode() {
+            throw new RuntimeException("This cannot be put into a container");
+        }
+    }
+    
+    public TransformationDesc getTransformationDesc() {
+        return new TransformationDesc(
+            getDestDim(),
+            getRotation(),
+            getScale(),
+            getDestPos().subtract(getOriginPos().multiply(1.0 / getScale())),
+            this instanceof Mirror
+        );
     }
 }
