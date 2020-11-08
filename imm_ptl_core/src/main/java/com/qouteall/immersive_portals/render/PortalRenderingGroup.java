@@ -174,7 +174,11 @@ public class PortalRenderingGroup implements PortalLike {
     @Override
     public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
         for (Portal portal : portals) {
-            portal.renderViewAreaMesh(posInPlayerCoordinate, vertexOutput);
+            Vec3d relativeToGroup = portal.getOriginPos().subtract(getOriginPos());
+            portal.renderViewAreaMesh(
+                posInPlayerCoordinate.add(relativeToGroup),
+                vertexOutput
+            );
         }
     }
     

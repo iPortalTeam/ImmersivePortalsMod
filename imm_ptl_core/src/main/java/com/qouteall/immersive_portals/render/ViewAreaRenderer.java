@@ -3,9 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -36,14 +34,6 @@ public class ViewAreaRenderer {
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
     
         Vec3d posInPlayerCoordinate = portal.getOriginPos().subtract(cameraPos);
-        
-        if (portal instanceof Mirror) {
-            //rendering portal behind translucent objects with shader is broken
-            double mirrorOffset =
-                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
-            posInPlayerCoordinate = posInPlayerCoordinate.add(
-                ((Mirror) portal).getNormal().multiply(mirrorOffset));
-        }
         
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
             bufferbuilder, p, fogColor

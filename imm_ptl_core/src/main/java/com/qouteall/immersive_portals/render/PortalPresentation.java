@@ -166,6 +166,13 @@ public class PortalPresentation {
             needsGroupingUpdate = false;
             updateGrouping(portal);
         }
+    
+        if (renderingGroup != null) {
+            renderingGroup.purge();
+            if (renderingGroup.portals.size() <= 1) {
+                setGroup(portal, null);
+            }
+        }
     }
     
     private void onUsed() {

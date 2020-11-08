@@ -2,8 +2,10 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.Plane;
@@ -935,6 +937,14 @@ public class Portal extends Entity implements PortalLike {
     
     @Override
     public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
+        if (this instanceof Mirror) {
+            //rendering portal behind translucent objects with shader is broken
+            double mirrorOffset =
+                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
+            posInPlayerCoordinate = posInPlayerCoordinate.add(
+                ((Mirror) this).getNormal().multiply(mirrorOffset));
+        }
+        
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
     }
     

@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.my_util.Plane;
@@ -30,6 +31,10 @@ public class FrontClipping {
     public static void setupInnerClipping(
         MatrixStack matrixStack, PortalLike portalLike, boolean doCompensate
     ) {
+        if (!CGlobal.useFrontCulling) {
+            return;
+        }
+        
         final Plane clipping = portalLike.getInnerClipping();
         
         if (clipping != null) {
@@ -91,6 +96,10 @@ public class FrontClipping {
     }
     
     public static void setupOuterClipping(MatrixStack matrixStack, PortalLike portalLike) {
+        if (!CGlobal.useFrontCulling) {
+            return;
+        }
+        
         if (portalLike instanceof Portal) {
             activeClipPlaneEquation = getClipEquationOuter(((Portal) portalLike));
             if (!isShaderClipping()) {
