@@ -86,7 +86,7 @@ public class Portal extends Entity implements PortalLike {
     private Vec3d contentDirection;
     
     /**
-     * For advanced frustum culling
+     * For outer frustum culling
      */
     public double cullableXStart = 0;
     public double cullableXEnd = 0;
@@ -268,7 +268,7 @@ public class Portal extends Entity implements PortalLike {
         extension.writeToNbt(compoundTag);
     }
     
-    public boolean isCullable() {
+    public boolean canDoOuterFrustumCulling() {
         if (specialShape == null) {
             initDefaultCullableRange();
         }

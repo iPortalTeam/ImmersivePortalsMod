@@ -296,7 +296,7 @@ public class FrustumCuller {
         return CHelper.getClientNearbyPortals(16).filter(
             portal -> portal.isInFrontOfPortal(cameraPos)
         ).filter(
-            Portal::isCullable
+            Portal::canDoOuterFrustumCulling
         ).min(
             Comparator.comparingDouble(portal -> portal.getDistanceToNearestPointInPortal(cameraPos))
         ).orElse(null);
