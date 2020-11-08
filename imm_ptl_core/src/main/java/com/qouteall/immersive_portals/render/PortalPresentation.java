@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
@@ -166,7 +167,7 @@ public class PortalPresentation {
             needsGroupingUpdate = false;
             updateGrouping(portal);
         }
-    
+        
         if (renderingGroup != null) {
             renderingGroup.purge();
             if (renderingGroup.portals.size() <= 1) {
@@ -321,14 +322,18 @@ public class PortalPresentation {
         List<Portal> nearbyPortals = McHelper.findEntitiesByBox(
             Portal.class,
             portal.getOriginWorld(),
-            portal.getBoundingBox().expand(1.5),
-            10,
+            portal.getBoundingBox().expand(0.5),
+            portal.getSizeEstimation() * 2 + 5,
             p -> p != portal && !Portal.isFlippedPortal(p, portal)
         );
         
         Portal.TransformationDesc thisDesc = portal.getTransformationDesc();
         
         for (Portal nearbyPortal : nearbyPortals) {
+            if (nearbyPortal instanceof Mirror) {
+                continue;
+            }
+            
             PortalPresentation nearbyPortalPresentation = get(nearbyPortal);
             
             PortalRenderingGroup itsGroup = nearbyPortalPresentation.renderingGroup;

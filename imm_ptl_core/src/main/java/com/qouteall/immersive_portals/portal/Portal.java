@@ -1004,8 +1004,13 @@ public class Portal extends Entity implements PortalLike {
             getDestDim(),
             getRotation(),
             getScale(),
-            getDestPos().subtract(getOriginPos().multiply(1.0 / getScale())),
+            getDestPos().multiply(1.0 / getScale()).subtract(getOriginPos()),
             this instanceof Mirror
         );
+    }
+    
+    @Override
+    public boolean isParallelWith(Portal portal) {
+        return isParallelOrientedPortal(this, portal);
     }
 }

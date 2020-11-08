@@ -31,7 +31,7 @@ public class FrontClipping {
     public static void setupInnerClipping(
         MatrixStack matrixStack, PortalLike portalLike, boolean doCompensate
     ) {
-        if (!CGlobal.useFrontCulling) {
+        if (!CGlobal.useFrontClipping) {
             return;
         }
         
@@ -96,7 +96,7 @@ public class FrontClipping {
     }
     
     public static void setupOuterClipping(MatrixStack matrixStack, PortalLike portalLike) {
-        if (!CGlobal.useFrontCulling) {
+        if (!CGlobal.useFrontClipping) {
             return;
         }
         

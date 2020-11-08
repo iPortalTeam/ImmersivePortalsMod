@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.Plane;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -72,6 +73,8 @@ public interface PortalLike {
     @Nullable
     UUID getDiscriminator();
     
+    boolean isParallelWith(Portal portal);
+    
     default boolean hasScaling() {
         return getScale() != 1.0;
     }
@@ -90,4 +93,11 @@ public interface PortalLike {
         double v = entityPos.subtract(innerClipping.pos).dotProduct(innerClipping.normal);
         return v > valve;
     }
+    
+    default double getSizeEstimation() {
+        final Vec3d boxSize = Helper.getBoxSize(getExactAreaBox());
+        final double maxDimension = Math.max(Math.max(boxSize.x, boxSize.y), boxSize.z);
+        return maxDimension;
+    }
+    
 }

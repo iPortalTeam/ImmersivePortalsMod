@@ -112,11 +112,9 @@ public abstract class PortalRenderer {
         }
     }
     
-    private boolean shouldSkipRenderingPortal(PortalLike portal, Supplier<Frustum> frustumSupplier) {
-        if (portal instanceof Portal) {
-            if (!((Portal) portal).isPortalValid()) {
-                return true;
-            }
+    private boolean shouldSkipRenderingPortal(Portal portal, Supplier<Frustum> frustumSupplier) {
+        if (!portal.isPortalValid()) {
+            return true;
         }
         
         if (RenderStates.getRenderedPortalNum() >= Global.portalRenderLimit) {
@@ -131,10 +129,9 @@ public abstract class PortalRenderer {
         
         if (PortalRendering.isRendering()) {
             PortalLike outerPortal = PortalRendering.getRenderingPortal();
-            if (outerPortal instanceof Portal && portal instanceof Portal) {
-                if (Portal.isParallelOrientedPortal(((Portal) portal), ((Portal) outerPortal))) {
-                    return true;
-                }
+    
+            if (outerPortal.isParallelWith(portal)) {
+                return true;
             }
         }
         

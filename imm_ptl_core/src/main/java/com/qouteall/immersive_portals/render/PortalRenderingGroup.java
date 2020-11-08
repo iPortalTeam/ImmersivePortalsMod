@@ -94,10 +94,10 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Override
     public double getDestAreaRadiusEstimation() {
-        final Vec3d boxSize = Helper.getBoxSize(exactBoundingBox);
-        final double maxDimension = Math.max(Math.max(boxSize.x, boxSize.y), boxSize.z);
+        double maxDimension = getSizeEstimation();
         return maxDimension * transformationDesc.scaling;
     }
+    
     
     @Override
     public Vec3d getOriginPos() {
@@ -198,5 +198,15 @@ public class PortalRenderingGroup implements PortalLike {
         portals.removeIf(portal -> {
             return portal.removed;
         });
+    }
+    
+    @Override
+    public boolean isParallelWith(Portal portal) {
+        return portals.stream().anyMatch(p -> p.isParallelWith(portal));
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
     }
 }

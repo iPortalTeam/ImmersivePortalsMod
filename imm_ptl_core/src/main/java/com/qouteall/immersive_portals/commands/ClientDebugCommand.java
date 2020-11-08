@@ -168,20 +168,6 @@ public class ClientDebugCommand {
             })
         );
         builder = builder.then(CommandManager
-            .literal("front_culling_enable")
-            .executes(context -> {
-                CGlobal.useFrontCulling = true;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
-            .literal("front_culling_disable")
-            .executes(context -> {
-                CGlobal.useFrontCulling = false;
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
             .literal("report_server_entities")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
@@ -478,6 +464,11 @@ public class ClientDebugCommand {
                     return 0;
                 })
             )
+        );
+        registerSwitchCommand(
+            builder,
+            "front_clipping",
+            cond -> CGlobal.useFrontClipping = cond
         );
         registerSwitchCommand(
             builder,
