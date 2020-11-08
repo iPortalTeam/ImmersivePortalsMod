@@ -10,7 +10,6 @@ import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -56,7 +55,7 @@ public class ViewAreaRenderer {
     
     public static void generateViewAreaTriangles(Portal portal, Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
         if (portal.specialShape == null) {
-            if (portal instanceof GlobalTrackedPortal) {
+            if (portal.getIsGlobal()) {
                 generateTriangleForGlobalPortal(
                     vertexOutput,
                     portal,

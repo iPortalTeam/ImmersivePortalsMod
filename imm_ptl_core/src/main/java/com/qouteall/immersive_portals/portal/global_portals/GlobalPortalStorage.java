@@ -124,10 +124,6 @@ public class GlobalPortalStorage extends PersistentState {
         
         Entity e = entityType.create(currWorld);
         e.fromTag(compoundTag);
-        
-        if (!(e instanceof GlobalTrackedPortal)) {
-            return null;
-        }
     
         ((GlobalTrackedPortal) e).isGlobalPortal = true;
         

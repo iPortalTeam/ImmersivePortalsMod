@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.my_util.Plane;
@@ -20,15 +19,6 @@ public class FrontClipping {
     public static void disableClipping() {
         GL11.glDisable(GL11.GL_CLIP_PLANE0);
         isClippingEnabled = false;
-    }
-    
-    private static void enableClipping() {
-        //shaders do not compatible with glClipPlane
-        //I have to modify shader code
-        if (CGlobal.useFrontCulling && !isShaderClipping()) {
-            GL11.glEnable(GL11.GL_CLIP_PLANE0);
-        }
-        isClippingEnabled = true;
     }
     
     private static void startClassicalClipping() {
@@ -106,7 +96,7 @@ public class FrontClipping {
             if (!isShaderClipping()) {
                 loadClippingPlaneClassical(matrixStack);
             }
-            enableClipping();
+            startClassicalClipping();
         }
         else {
             disableClipping();

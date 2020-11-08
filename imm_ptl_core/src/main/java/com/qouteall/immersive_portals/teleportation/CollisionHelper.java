@@ -344,13 +344,15 @@ public class CollisionHelper {
         List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
         
-        for (Entity entity : worldEntityList) {
-            Box entityBoundingBoxStretched = getStretchedBoundingBox(entity);
-            for (GlobalTrackedPortal globalPortal : globalPortals) {
-                Box globalPortalBoundingBox = globalPortal.getBoundingBox();
-                if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
-                    if (canCollideWithPortal(entity, globalPortal, 1)) {
-                        ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
+        if (!globalPortals.isEmpty()) {
+            for (Entity entity : worldEntityList) {
+                Box entityBoundingBoxStretched = getStretchedBoundingBox(entity);
+                for (GlobalTrackedPortal globalPortal : globalPortals) {
+                    Box globalPortalBoundingBox = globalPortal.getBoundingBox();
+                    if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
+                        if (canCollideWithPortal(entity, globalPortal, 1)) {
+                            ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
+                        }
                     }
                 }
             }
