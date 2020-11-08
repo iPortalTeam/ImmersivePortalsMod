@@ -1014,6 +1014,6 @@ public class Portal extends Entity implements PortalLike {
     
     @Override
     public boolean isParallelWith(Portal portal) {
-        return isParallelOrientedPortal(this, portal);
+        return isParallelOrientedPortal(portal, this);
     }
 }
