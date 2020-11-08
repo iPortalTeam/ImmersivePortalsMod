@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -16,7 +17,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         ceil, floor
     }
     
-    private static Predicate<GlobalTrackedPortal> getPredicate(ConnectorType connectorType) {
+    private static Predicate<Portal> getPredicate(ConnectorType connectorType) {
         switch (connectorType) {
             case floor:
                 return portal -> portal instanceof VerticalConnectingPortal&& portal.getNormal().y > 0;
@@ -119,7 +120,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     }
     
     private static void removeConnectingPortal(
-        Predicate<GlobalTrackedPortal> predicate, RegistryKey<World> dimension
+        Predicate<Portal> predicate, RegistryKey<World> dimension
     ) {
         ServerWorld endWorld = McHelper.getServer().getWorld(dimension);
         GlobalPortalStorage storage = GlobalPortalStorage.get(endWorld);

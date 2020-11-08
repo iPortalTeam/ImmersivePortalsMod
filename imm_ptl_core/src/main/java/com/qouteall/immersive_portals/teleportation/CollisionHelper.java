@@ -7,7 +7,6 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
@@ -341,13 +340,13 @@ public class CollisionHelper {
     private static void updateGlobalPortalCollidingPortalForWorld(World world) {
         world.getProfiler().push("global_portal_colliding_portal");
         
-        List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
+        List<Portal> globalPortals = McHelper.getGlobalPortals(world);
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
         
         if (!globalPortals.isEmpty()) {
             for (Entity entity : worldEntityList) {
                 Box entityBoundingBoxStretched = getStretchedBoundingBox(entity);
-                for (GlobalTrackedPortal globalPortal : globalPortals) {
+                for (Portal globalPortal : globalPortals) {
                     Box globalPortalBoundingBox = globalPortal.getBoundingBox();
                     if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
                         if (canCollideWithPortal(entity, globalPortal, 1)) {

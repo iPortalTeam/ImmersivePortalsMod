@@ -4,16 +4,14 @@ import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -56,10 +54,10 @@ public class ChunkVisibilityManager {
         
         public LenientChunkRegion createChunkRegion() {
             ServerWorld world = McHelper.getServer().getWorld(center.dimension);
-    
+            
             return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
         }
-    
+        
         @Override
         public String toString() {
             return "{" +
@@ -165,8 +163,10 @@ public class ChunkVisibilityManager {
     
     private static ChunkLoader globalPortalDirectLoader(
         ServerPlayerEntity player,
-        GlobalTrackedPortal portal
+        Portal portal
     ) {
+        Validate.isTrue(portal.getIsGlobal());
+        
         int renderDistance = Math.min(
             Global.indirectLoadingRadiusCap,
             Math.max(
@@ -189,9 +189,12 @@ public class ChunkVisibilityManager {
     
     private static ChunkLoader globalPortalIndirectLoader(
         ServerPlayerEntity player,
-        GlobalTrackedPortal outerPortal,
-        GlobalTrackedPortal remotePortal
+        Portal outerPortal,
+        Portal remotePortal
     ) {
+        Validate.isTrue(outerPortal.getIsGlobal());
+        Validate.isTrue(remotePortal.getIsGlobal());
+        
         int renderDistance = Math.min(
             Global.indirectLoadingRadiusCap,
             McHelper.getRenderDistanceOnServer() / 2
@@ -209,17 +212,6 @@ public class ChunkVisibilityManager {
         );
     }
     
-    private static Stream<GlobalTrackedPortal> getGlobalPortals(
-        RegistryKey<World> dimension
-    ) {
-        List<GlobalTrackedPortal> data = GlobalPortalStorage.get(
-            McHelper.getServer().getWorld(dimension)
-        ).data;
-        if (data == null) {
-            return Stream.empty();
-        }
-        return data.stream();
-    }
     
     //includes:
     //1.player direct loader
@@ -260,7 +252,7 @@ public class ChunkVisibilityManager {
                 )
             ),
             
-            getGlobalPortals(player.world.getRegistryKey())
+            McHelper.getGlobalPortals(player.world).stream()
                 .flatMap(
                     portal -> Stream.concat(
                         Stream.of(globalPortalDirectLoader(
@@ -269,13 +261,12 @@ public class ChunkVisibilityManager {
                         
                         shrinkLoading() ?
                             Stream.empty() :
-                            getGlobalPortals(
-                                portal.dimensionTo
-                            ).filter(
-                                remotePortal -> remotePortal.getDistanceToNearestPointInPortal(
-                                    portal.transformPoint(player.getPos())
-                                ) < (shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange)
-                            ).map(
+                            McHelper.getGlobalPortals(portal.getDestinationWorld()).stream()
+                                .filter(
+                                    remotePortal -> remotePortal.getDistanceToNearestPointInPortal(
+                                        portal.transformPoint(player.getPos())
+                                    ) < (shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange)
+                                ).map(
                                 remotePortal -> globalPortalIndirectLoader(
                                     player, portal, remotePortal
                                 )

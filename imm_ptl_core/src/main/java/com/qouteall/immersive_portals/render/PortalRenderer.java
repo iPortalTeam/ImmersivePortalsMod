@@ -8,7 +8,6 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -74,8 +73,8 @@ public abstract class PortalRenderer {
         double renderRange = getRenderRange();
         
         List<Portal> portalsToRender = new ArrayList<>();
-        List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(client.world);
-        for (GlobalTrackedPortal globalPortal : globalPortals) {
+        List<Portal> globalPortals = McHelper.getGlobalPortals(client.world);
+        for (Portal globalPortal : globalPortals) {
             if (!shouldSkipRenderingPortal(globalPortal, frustumSupplier)) {
                 portalsToRender.add(globalPortal);
             }

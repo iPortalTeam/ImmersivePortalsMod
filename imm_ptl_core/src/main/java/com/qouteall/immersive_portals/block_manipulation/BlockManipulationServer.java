@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.block_manipulation;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -122,9 +122,9 @@ public class BlockManipulationServer {
         Vec3d sideVec = Vec3d.of(side.getVector());
         Vec3d hitCenter =  Vec3d.ofCenter(blockHitResult.getBlockPos());
         
-        List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
-        
-        GlobalTrackedPortal portal = globalPortals.stream().filter(p ->
+        List<Portal> globalPortals = McHelper.getGlobalPortals(world);
+    
+        Portal portal = globalPortals.stream().filter(p ->
             p.getContentDirection().dotProduct(sideVec) > 0.9
                 && p.isPointInPortalProjection(hitCenter)
                 && p.getDistanceToPlane(hitCenter) < 0.6

@@ -17,7 +17,6 @@ import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import net.minecraft.client.util.math.Vector3f;
@@ -1563,7 +1562,7 @@ public class PortalCommand {
             from.distanceTo(to)
         );
         if (includeGlobalPortal) {
-            List<GlobalTrackedPortal> globalPortals = McHelper.getGlobalPortals(world);
+            List<Portal> globalPortals = McHelper.getGlobalPortals(world);
             portalStream = Streams.concat(
                 portalStream,
                 globalPortals.stream()

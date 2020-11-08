@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.ducks;
 
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 
 import javax.annotation.Nullable;
@@ -12,7 +12,7 @@ public interface IEClientWorld {
     void setNetHandler(ClientPlayNetworkHandler handler);
     
     @Nullable
-    List<GlobalTrackedPortal> getGlobalPortals();
+    List<Portal> getGlobalPortals();
     
-    void setGlobalPortals(List<GlobalTrackedPortal> arg);
+    void setGlobalPortals(List<Portal> arg);
 }

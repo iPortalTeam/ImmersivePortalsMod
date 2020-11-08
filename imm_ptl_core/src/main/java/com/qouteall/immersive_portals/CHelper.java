@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -47,7 +46,7 @@ public class CHelper {
         return CGlobal.clientWorldLoader.getWorld(dimension);
     }
     
-    public static List<GlobalTrackedPortal> getClientGlobalPortal(World world) {
+    public static List<Portal> getClientGlobalPortal(World world) {
         if (world instanceof ClientWorld) {
             return ((IEClientWorld) world).getGlobalPortals();
         }

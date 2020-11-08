@@ -13,7 +13,6 @@ import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
@@ -294,8 +293,8 @@ public class McHelper {
     }
     
     @Nonnull
-    public static List<GlobalTrackedPortal> getGlobalPortals(World world) {
-        List<GlobalTrackedPortal> result;
+    public static List<Portal> getGlobalPortals(World world) {
+        List<Portal> result;
         if (world.isClient()) {
             result = CHelper.getClientGlobalPortal(world);
         }
@@ -309,7 +308,7 @@ public class McHelper {
     }
     
     public static Stream<Portal> getNearbyPortals(Entity center, double range) {
-        List<GlobalTrackedPortal> globalPortals = getGlobalPortals(center.world);
+        List<Portal> globalPortals = getGlobalPortals(center.world);
         Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
             center.world,
             center.getPos(),

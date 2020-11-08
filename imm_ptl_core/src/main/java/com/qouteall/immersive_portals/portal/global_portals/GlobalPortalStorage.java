@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GlobalPortalStorage extends PersistentState {
-    public List<GlobalTrackedPortal> data;
+    public List<Portal> data;
     public WeakReference<ServerWorld> world;
     private int version = 1;
     private boolean shouldReSync = false;
@@ -85,7 +86,7 @@ public class GlobalPortalStorage extends PersistentState {
         
         ServerWorld currWorld = world.get();
         Validate.notNull(currWorld);
-        List<GlobalTrackedPortal> newData = getPortalsFromTag(tag, currWorld);
+        List<Portal> newData = getPortalsFromTag(tag, currWorld);
         
         if (tag.contains("version")) {
             version = tag.getInt("version");
@@ -96,18 +97,18 @@ public class GlobalPortalStorage extends PersistentState {
         clearAbnormalPortals();
     }
     
-    private static List<GlobalTrackedPortal> getPortalsFromTag(
+    private static List<Portal> getPortalsFromTag(
         CompoundTag tag,
         World currWorld
     ) {
         /**{@link CompoundTag#getType()}*/
         ListTag listTag = tag.getList("data", 10);
         
-        List<GlobalTrackedPortal> newData = new ArrayList<>();
+        List<Portal> newData = new ArrayList<>();
         
         for (int i = 0; i < listTag.size(); i++) {
             CompoundTag compoundTag = listTag.getCompound(i);
-            GlobalTrackedPortal e = readPortalFromTag(currWorld, compoundTag);
+            Portal e = readPortalFromTag(currWorld, compoundTag);
             if (e != null) {
                 newData.add(e);
             }
@@ -118,7 +119,7 @@ public class GlobalPortalStorage extends PersistentState {
         return newData;
     }
     
-    private static GlobalTrackedPortal readPortalFromTag(World currWorld, CompoundTag compoundTag) {
+    private static Portal readPortalFromTag(World currWorld, CompoundTag compoundTag) {
         Identifier entityId = new Identifier(compoundTag.getString("entity_type"));
         EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
         
@@ -140,7 +141,7 @@ public class GlobalPortalStorage extends PersistentState {
         ServerWorld currWorld = world.get();
         Validate.notNull(currWorld);
         
-        for (GlobalTrackedPortal portal : data) {
+        for (Portal portal : data) {
             Validate.isTrue(portal.world == currWorld);
             CompoundTag portalTag = new CompoundTag();
             portal.toTag(portalTag);
@@ -199,15 +200,15 @@ public class GlobalPortalStorage extends PersistentState {
     public static void receiveGlobalPortalSync(RegistryKey<World> dimension, CompoundTag compoundTag) {
         ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimension);
         
-        List<GlobalTrackedPortal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
+        List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
         if (oldGlobalPortals != null) {
-            for (GlobalTrackedPortal p : oldGlobalPortals) {
+            for (Portal p : oldGlobalPortals) {
                 p.removed = true;
             }
         }
         
-        List<GlobalTrackedPortal> newPortals = getPortalsFromTag(compoundTag, world);
-        for (GlobalTrackedPortal p : newPortals) {
+        List<Portal> newPortals = getPortalsFromTag(compoundTag, world);
+        for (Portal p : newPortals) {
             p.removed = false;
             p.isGlobalPortal = true;
         }

@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin.client;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
-import com.qouteall.immersive_portals.portal.global_portals.GlobalTrackedPortal;
+import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.WorldRenderer;
@@ -44,7 +44,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
     @Shadow
     public abstract Entity getEntityById(int id);
     
-    private List<GlobalTrackedPortal> globalTrackedPortals;
+    private List<Portal> globalTrackedPortals;
     
     @Override
     public ClientPlayNetworkHandler getNetHandler() {
@@ -57,12 +57,12 @@ public abstract class MixinClientWorld implements IEClientWorld {
     }
     
     @Override
-    public List<GlobalTrackedPortal> getGlobalPortals() {
+    public List<Portal> getGlobalPortals() {
         return globalTrackedPortals;
     }
     
     @Override
-    public void setGlobalPortals(List<GlobalTrackedPortal> arg) {
+    public void setGlobalPortals(List<Portal> arg) {
         globalTrackedPortals = arg;
     }
 
