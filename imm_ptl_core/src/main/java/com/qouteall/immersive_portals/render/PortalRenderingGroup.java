@@ -209,4 +209,5 @@ public class PortalRenderingGroup implements PortalLike {
     public String toString() {
         return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
     }
+    
 }

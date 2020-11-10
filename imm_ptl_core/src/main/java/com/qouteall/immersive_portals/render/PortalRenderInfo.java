@@ -4,7 +4,6 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -105,6 +104,7 @@ public class PortalRenderInfo {
                 PortalRenderInfo presentation = getOptional(portal);
                 if (presentation != null) {
                     presentation.dispose();
+                    presentation.setGroup(portal, null);
                     objectMap.remove(portal);
                 }
             }
@@ -148,7 +148,6 @@ public class PortalRenderInfo {
     public void dispose() {
         infoMap.values().forEach(Visibility::dispose);
         infoMap.clear();
-        
     }
     
     // Visibility Predicting -----
@@ -295,24 +294,23 @@ public class PortalRenderInfo {
         Portal.TransformationDesc thisDesc = portal.getTransformationDesc();
         
         for (Portal that : nearbyPortals) {
-            if (that instanceof Mirror) {
-                continue;
-            }
-            
             PortalRenderInfo nearbyPortalPresentation = get(that);
             
             PortalRenderingGroup itsGroup = nearbyPortalPresentation.renderingGroup;
             if (itsGroup != null) {
-                if (itsGroup.transformationDesc.equals(thisDesc)) {
-                    if (renderingGroup == null) {
-                        // this is not in group, put into its group
-                        setGroup(portal, itsGroup);
+                //flipped portal pairs cannot be in the same group
+                if (itsGroup.portals.stream().noneMatch(p -> Portal.isFlippedPortal(p, portal))) {
+                    if (itsGroup.transformationDesc.equals(thisDesc)) {
+                        if (renderingGroup == null) {
+                            // this is not in group, put into its group
+                            setGroup(portal, itsGroup);
+                        }
+                        else {
+                            // this and that are both in group, merge
+                            mergeGroup(renderingGroup, itsGroup);
+                        }
+                        return;
                     }
-                    else {
-                        // this and that are both in group, merge
-                        mergeGroup(renderingGroup, itsGroup);
-                    }
-                    return;
                 }
             }
             else {
