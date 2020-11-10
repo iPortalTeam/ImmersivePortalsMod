@@ -198,8 +198,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
         
-        pa.extension.motionAffinity = 0.1;
-        pb.extension.motionAffinity = 0.1;
+        pa.getExtension().motionAffinity = 0.1;
+        pb.getExtension().motionAffinity = 0.1;
         
         McHelper.spawnServerEntity(pa);
         McHelper.spawnServerEntity(pb);

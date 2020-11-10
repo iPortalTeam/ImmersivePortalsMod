@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
+import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
@@ -118,9 +119,6 @@ public class Portal extends Entity implements PortalLike {
      */
     private boolean interactable = true;
     
-    /**
-     * Additional things
-     */
     public PortalExtension extension = new PortalExtension();
     
     @Nullable
@@ -132,6 +130,8 @@ public class Portal extends Entity implements PortalLike {
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalDisposeSignal = new SignalArged<>();
+    public static final SignalBiArged<Portal, CompoundTag> readPortalDataSignal = new SignalBiArged<>();
+    public static final SignalBiArged<Portal, CompoundTag> writePortalDataSignal = new SignalBiArged<>();
     
     public Portal(
         EntityType<?> entityType, World world
@@ -221,8 +221,7 @@ public class Portal extends Entity implements PortalLike {
             portalTag = compoundTag.getString("portalTag");
         }
         
-        extension = new PortalExtension();
-        extension.readFromNbt(compoundTag);
+        readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
     }
@@ -269,7 +268,8 @@ public class Portal extends Entity implements PortalLike {
             compoundTag.putString("portalTag", portalTag);
         }
         
-        extension.writeToNbt(compoundTag);
+        writePortalDataSignal.emit(this, compoundTag);
+        
     }
     
     public boolean canDoOuterFrustumCulling() {
@@ -357,7 +357,6 @@ public class Portal extends Entity implements PortalLike {
             }
             serverPortalTickSignal.emit(this);
         }
-        extension.tick(this);
         
         CollisionHelper.notifyCollidingPortals(this);
     }
@@ -947,6 +946,13 @@ public class Portal extends Entity implements PortalLike {
         }
         
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
+    }
+    
+    /**
+     * Additional things
+     */
+    public PortalExtension getExtension() {
+        return extension;
     }
     
     public static class TransformationDesc {

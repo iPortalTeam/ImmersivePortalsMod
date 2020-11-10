@@ -101,7 +101,7 @@ public class EndPortalEntity extends Portal {
             );
             portal.scaling = scale;
             portal.teleportChangesScale = false;
-            portal.extension.adjustPositionAfterTeleport = true;
+            portal.getExtension().adjustPositionAfterTeleport = true;
             portal.portalTag = "view_box";
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag

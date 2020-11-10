@@ -277,11 +277,11 @@ public class PortalManipulation {
     }
     
     public static void copyAdditionalProperties(Portal to, Portal from) {
-        to.extension.motionAffinity = from.extension.motionAffinity;
+        to.getExtension().motionAffinity = from.getExtension().motionAffinity;
         to.teleportable = from.teleportable;
         to.teleportChangesScale = from.teleportChangesScale;
         to.specificPlayerId = from.specificPlayerId;
-        to.extension.adjustPositionAfterTeleport = from.extension.adjustPositionAfterTeleport;
+        to.getExtension().adjustPositionAfterTeleport = from.getExtension().adjustPositionAfterTeleport;
         to.portalTag = from.portalTag;
     }
 }

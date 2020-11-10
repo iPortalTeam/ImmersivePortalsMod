@@ -11,6 +11,35 @@ import java.util.WeakHashMap;
 
 // the additional features of a portal
 public class PortalExtension {
+    
+    private static final WeakHashMap<Portal, PortalExtension> objectMap = new WeakHashMap<>();
+    
+    public static PortalExtension get(Portal portal) {
+        return objectMap.computeIfAbsent(portal, k -> new PortalExtension());
+    }
+    
+    public static void init() {
+        Portal.clientPortalTickSignal.connect(portal -> {
+            final PortalExtension extension = get(portal);
+            extension.tick(portal);
+            
+        });
+        
+        Portal.serverPortalTickSignal.connect(portal -> {
+            final PortalExtension extension = get(portal);
+            extension.tick(portal);
+            
+        });
+        
+        Portal.readPortalDataSignal.connect((portal, tag) -> {
+            get(portal).readFromNbt(tag);
+        });
+        
+        Portal.writePortalDataSignal.connect((portal, tag) -> {
+            get(portal).writeToNbt(tag);
+        });
+    }
+    
     public double motionAffinity = 0;
     
     public boolean adjustPositionAfterTeleport = false;
@@ -46,7 +75,7 @@ public class PortalExtension {
     
     }
     
-    public void readFromNbt(CompoundTag compoundTag) {
+    private void readFromNbt(CompoundTag compoundTag) {
         if (compoundTag.contains("motionAffinity")) {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
@@ -55,14 +84,14 @@ public class PortalExtension {
         }
     }
     
-    public void writeToNbt(CompoundTag compoundTag) {
+    private void writeToNbt(CompoundTag compoundTag) {
         if (motionAffinity != 0) {
             compoundTag.putDouble("motionAffinity", motionAffinity);
         }
         compoundTag.putBoolean("adjustPositionAfterTeleport", adjustPositionAfterTeleport);
     }
     
-    public void tick(Portal portal) {
+    private void tick(Portal portal) {
         if (portal.world.isClient()) {
             tickClient(portal);
         }

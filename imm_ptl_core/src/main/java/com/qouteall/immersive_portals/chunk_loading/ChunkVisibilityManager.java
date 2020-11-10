@@ -118,7 +118,7 @@ public class ChunkVisibilityManager {
             return cappedLoadingDistance;
         }
         
-        int maxLoadDistance = portal.extension.refreshAndGetLoadDistanceCap(
+        int maxLoadDistance = portal.getExtension().refreshAndGetLoadDistanceCap(
             portal, player, cappedLoadingDistance
         );
         return Math.min(maxLoadDistance, cappedLoadingDistance);

@@ -1122,7 +1122,7 @@ public class PortalCommand {
             );
             portal.scaling = scale;
             portal.teleportChangesScale = teleportChangesScale;
-            portal.extension.adjustPositionAfterTeleport = true;
+            portal.getExtension().adjustPositionAfterTeleport = true;
             
             McHelper.spawnServerEntity(portal);
             
