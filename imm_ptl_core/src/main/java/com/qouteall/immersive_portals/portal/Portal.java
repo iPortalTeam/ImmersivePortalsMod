@@ -131,6 +131,7 @@ public class Portal extends Entity implements PortalLike {
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
+    public static final SignalArged<Portal> portalDisposeSignal = new SignalArged<>();
     
     public Portal(
         EntityType<?> entityType, World world
@@ -985,7 +986,7 @@ public class Portal extends Entity implements PortalLike {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             TransformationDesc that = (TransformationDesc) o;
-    
+            
             if (isMirror || that.isMirror) {
                 return false;
             }
@@ -1015,5 +1016,11 @@ public class Portal extends Entity implements PortalLike {
     @Override
     public boolean isParallelWith(Portal portal) {
         return isParallelOrientedPortal(portal, this);
+    }
+    
+    @Override
+    public void remove() {
+        super.remove();
+        portalDisposeSignal.emit(this);
     }
 }

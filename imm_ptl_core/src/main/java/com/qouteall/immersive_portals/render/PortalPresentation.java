@@ -22,19 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 // A portal's rendering related things
 @Environment(EnvType.CLIENT)
 public class PortalPresentation {
-    
-    // not stored inside Portal because this has its own dispose strategy
-    private static final HashMap<Portal, PortalPresentation> dataMap = new HashMap<>();
-    
-    private static long lastPurgeTime = 0;
-    
-    // dispose by the last active time
-    // using finalize() depends on GC and is not reliable
-    private long lastActiveNanoTime;
     
     public static class Visibility {
         public GlQueryObject lastFrameQuery;
@@ -88,26 +80,10 @@ public class PortalPresentation {
     @Nullable
     private PortalRenderingGroup renderingGroup;
     
+    private static final WeakHashMap<Portal, PortalPresentation> objectMap =
+        new WeakHashMap<>();
+    
     public static void init() {
-        ModMain.preRenderSignal.connect(() -> {
-            long currTime = System.nanoTime();
-            if (currTime - lastPurgeTime > Helper.secondToNano(30)) {
-                lastPurgeTime = currTime;
-                dataMap.entrySet().removeIf(entry -> {
-                    Portal portal = entry.getKey();
-                    PortalPresentation presentation = entry.getValue();
-                    
-                    boolean shouldRemove = portal.removed || presentation.shouldDispose(currTime);
-                    
-                    if (shouldRemove) {
-                        presentation.dispose();
-                    }
-                    
-                    return shouldRemove;
-                });
-            }
-        });
-        
         Portal.clientPortalTickSignal.connect(portal -> {
             PortalPresentation presentation = getOptional(portal);
             if (presentation != null) {
@@ -123,42 +99,33 @@ public class PortalPresentation {
                 }
             }
         });
-    }
-    
-    public static void cleanup() {
-        for (PortalPresentation presentation : dataMap.values()) {
-            presentation.dispose();
-        }
-        dataMap.clear();
         
-        Helper.log("Cleaning up portal presentation info");
-    }
-    
-    private static void purge() {
-        final long currTime = System.nanoTime();
-        dataMap.entrySet().removeIf(entry -> {
-            PortalPresentation presentation = entry.getValue();
-            boolean shouldDispose = presentation.shouldDispose(currTime);
-            if (shouldDispose) {
-                presentation.dispose();
+        Portal.portalDisposeSignal.connect(portal -> {
+            if (portal.world.isClient()) {
+                PortalPresentation presentation = getOptional(portal);
+                if (presentation != null) {
+                    presentation.dispose();
+                    objectMap.remove(portal);
+                }
             }
-            return shouldDispose;
         });
-    }
-    
-    public static PortalPresentation get(Portal portal) {
-        return dataMap.computeIfAbsent(
-            portal, k -> new PortalPresentation()
-        );
     }
     
     @Nullable
     public static PortalPresentation getOptional(Portal portal) {
-        return dataMap.get(portal);
+        Validate.isTrue(portal.world.isClient());
+        
+        return objectMap.get(portal);
+    }
+    
+    public static PortalPresentation get(Portal portal) {
+        Validate.isTrue(portal.world.isClient());
+        
+        return objectMap.computeIfAbsent(portal, k -> new PortalPresentation());
     }
     
     public PortalPresentation() {
-        lastActiveNanoTime = System.nanoTime();
+    
     }
     
     private void tick(Portal portal) {
@@ -177,15 +144,8 @@ public class PortalPresentation {
         }
     }
     
-    private void onUsed() {
-        lastActiveNanoTime = System.nanoTime();
-    }
-    
-    private boolean shouldDispose(long currTime) {
-        return currTime - lastActiveNanoTime > Helper.secondToNano(60);
-    }
-    
-    private void dispose() {
+    // disposing twice is fine
+    public void dispose() {
         infoMap.values().forEach(Visibility::dispose);
         infoMap.clear();
         
@@ -194,7 +154,6 @@ public class PortalPresentation {
     // Visibility Predicting -----
     
     private void updateQuerySet() {
-        onUsed();
         if (RenderStates.frameIndex != thisFrameQueryFrameIndex) {
             
             if (RenderStates.frameIndex == thisFrameQueryFrameIndex + 1) {
@@ -392,4 +351,16 @@ public class PortalPresentation {
         }
     }
     
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        
+        // normally if a portal is removed by calling remove() it will dispose normally
+        // but that cannot be guaranteed
+        // use this to avoid potential resource leak
+        ModMain.clientTaskList.addTask(() -> {
+            dispose();
+            return true;
+        });
+    }
 }
