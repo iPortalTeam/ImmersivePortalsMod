@@ -146,9 +146,9 @@ public class GlobalPortalStorage extends PersistentState {
         Entity e = entityType.create(currWorld);
         e.fromTag(compoundTag);
         
-        ((GlobalTrackedPortal) e).isGlobalPortal = true;
+        ((Portal) e).isGlobalPortal = true;
         
-        return (GlobalTrackedPortal) e;
+        return (Portal) e;
     }
     
     @Override
@@ -203,7 +203,7 @@ public class GlobalPortalStorage extends PersistentState {
     
     public void clearAbnormalPortals() {
         data.removeIf(e -> {
-            RegistryKey<World> dimensionTo = ((GlobalTrackedPortal) e).dimensionTo;
+            RegistryKey<World> dimensionTo = ((Portal) e).dimensionTo;
             if (McHelper.getServer().getWorld(dimensionTo) == null) {
                 Helper.err("Missing Dimension for global portal " + dimensionTo.getValue());
                 return true;

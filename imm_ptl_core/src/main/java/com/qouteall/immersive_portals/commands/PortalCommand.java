@@ -16,7 +16,6 @@ import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
-import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
@@ -1099,38 +1098,10 @@ public class PortalCommand {
         boolean biWay = BoolArgumentType.getBool(context, "biWay");
         
         
-        createScaledBoxView(
+        PortalManipulation.createScaledBoxView(
             areaWorld, area, boxWorld, boxBottomCenter, scale,
             biWay, teleportChangesScale
         );
-    }
-    
-    private static void createScaledBoxView(
-        ServerWorld areaWorld, Box area,
-        ServerWorld boxWorld, Vec3d boxBottomCenter,
-        double scale,
-        boolean biWay,
-        boolean teleportChangesScale
-    ) {
-        Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
-        Box viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
-        for (Direction direction : Direction.values()) {
-            Portal portal = PortalManipulation.createOrthodoxPortal(
-                Portal.entityType,
-                boxWorld, areaWorld,
-                direction, Helper.getBoxSurface(viewBox, direction),
-                Helper.getBoxSurface(area, direction).getCenter()
-            );
-            portal.scaling = scale;
-            portal.teleportChangesScale = teleportChangesScale;
-            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
-            
-            McHelper.spawnServerEntity(portal);
-            
-            if (biWay) {
-                PortalManipulation.completeBiWayPortal(portal, Portal.entityType);
-            }
-        }
     }
     
     

@@ -330,4 +330,32 @@ public class PortalManipulation {
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
         to.portalTag = from.portalTag;
     }
+    
+    public static void createScaledBoxView(
+        ServerWorld areaWorld, Box area,
+        ServerWorld boxWorld, Vec3d boxBottomCenter,
+        double scale,
+        boolean biWay,
+        boolean teleportChangesScale
+    ) {
+        Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
+        Box viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
+        for (Direction direction : Direction.values()) {
+            Portal portal = createOrthodoxPortal(
+                Portal.entityType,
+                boxWorld, areaWorld,
+                direction, Helper.getBoxSurface(viewBox, direction),
+                Helper.getBoxSurface(area, direction).getCenter()
+            );
+            portal.scaling = scale;
+            portal.teleportChangesScale = teleportChangesScale;
+            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
+            
+            McHelper.spawnServerEntity(portal);
+            
+            if (biWay) {
+                completeBiWayPortal(portal, Portal.entityType);
+            }
+        }
+    }
 }
