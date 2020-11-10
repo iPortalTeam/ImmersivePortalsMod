@@ -6,8 +6,8 @@ import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.commands.PortalCommand;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.render.context_management.RenderInfo;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
+import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -68,14 +68,14 @@ public class CrossPortalThirdPersonView {
         ((IECamera) RenderStates.originalCamera).portal_setPos(renderingCameraPos);
         
         
-        RenderInfo renderInfo = new RenderInfo(
+        RenderingHierarchy renderingHierarchy = new RenderingHierarchy(
             CGlobal.clientWorldLoader.getWorld(portal.dimensionTo),
             renderingCameraPos,
             portal.getAdditionalCameraTransformation(),
             null
         );
         
-        CGlobal.renderer.invokeWorldRendering(renderInfo);
+        CGlobal.renderer.invokeWorldRendering(renderingHierarchy);
         
         return true;
     }

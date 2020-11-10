@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.client;
 
-import com.qouteall.immersive_portals.render.context_management.RenderInfo;
+import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ public class MixinEntity_C {
         )
     )
     private boolean redirectIsSpectator(PlayerEntity playerEntity) {
-        if (RenderInfo.isRendering()) {
+        if (RenderingHierarchy.isRendering()) {
             return false;
         }
         return playerEntity.isSpectator();

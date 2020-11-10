@@ -15,7 +15,7 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class RenderInfo {
+public class RenderingHierarchy {
     public final ClientWorld world;
     public final Vec3d cameraPos;
     @Nullable
@@ -24,9 +24,9 @@ public class RenderInfo {
     public final UUID description;
     public final int renderDistance;
     
-    private static final Stack<RenderInfo> renderInfoStack = new Stack<>();
+    private static final Stack<RenderingHierarchy> renderInfoStack = new Stack<>();
     
-    public RenderInfo(
+    public RenderingHierarchy(
         ClientWorld world, Vec3d cameraPos,
         Matrix4f additionalTransformation, @Nullable UUID description
     ) {
@@ -36,7 +36,7 @@ public class RenderInfo {
         );
     }
     
-    public RenderInfo(
+    public RenderingHierarchy(
         ClientWorld world, Vec3d cameraPos,
         @Nullable Matrix4f additionalTransformation,
         @Nullable UUID description, int renderDistance
@@ -48,8 +48,8 @@ public class RenderInfo {
         this.renderDistance = renderDistance;
     }
     
-    public static void pushRenderInfo(RenderInfo renderInfo) {
-        renderInfoStack.push(renderInfo);
+    public static void pushRenderInfo(RenderingHierarchy renderingHierarchy) {
+        renderInfoStack.push(renderingHierarchy);
     }
     
     public static void popRenderInfo() {
@@ -58,14 +58,14 @@ public class RenderInfo {
     
     public static void adjustCameraPos(Camera camera) {
         if (!renderInfoStack.isEmpty()) {
-            RenderInfo currRenderInfo = renderInfoStack.peek();
-            ((IECamera) camera).portal_setPos(currRenderInfo.cameraPos);
+            RenderingHierarchy currRenderingHierarchy = renderInfoStack.peek();
+            ((IECamera) camera).portal_setPos(currRenderingHierarchy.cameraPos);
         }
     }
     
     public static void applyAdditionalTransformations(MatrixStack matrixStack) {
-        for (RenderInfo renderInfo : renderInfoStack) {
-            Matrix4f matrix = renderInfo.additionalTransformation;
+        for (RenderingHierarchy renderingHierarchy : renderInfoStack) {
+            Matrix4f matrix = renderingHierarchy.additionalTransformation;
             if (matrix != null) {
                 matrixStack.peek().getModel().multiply(matrix);
                 matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));

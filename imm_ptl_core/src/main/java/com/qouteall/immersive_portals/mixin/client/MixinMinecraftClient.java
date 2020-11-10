@@ -7,7 +7,7 @@ import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.context_management.CloudContext;
-import com.qouteall.immersive_portals.render.context_management.RenderInfo;
+import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
@@ -95,7 +95,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     //avoid messing up rendering states in fabulous
     @Inject(method = "isFabulousGraphicsOrBetter", at = @At("HEAD"), cancellable = true)
     private static void onIsFabulousGraphicsOrBetter(CallbackInfoReturnable<Boolean> cir) {
-        if (RenderInfo.isRendering()) {
+        if (RenderingHierarchy.isRendering()) {
             cir.setReturnValue(false);
         }
     }
