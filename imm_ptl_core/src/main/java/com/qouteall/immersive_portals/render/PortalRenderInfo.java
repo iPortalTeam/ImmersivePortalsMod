@@ -26,7 +26,7 @@ import java.util.WeakHashMap;
 
 // A portal's rendering related things
 @Environment(EnvType.CLIENT)
-public class PortalPresentation {
+public class PortalRenderInfo {
     
     public static class Visibility {
         public GlQueryObject lastFrameQuery;
@@ -80,12 +80,12 @@ public class PortalPresentation {
     @Nullable
     private PortalRenderingGroup renderingGroup;
     
-    private static final WeakHashMap<Portal, PortalPresentation> objectMap =
+    private static final WeakHashMap<Portal, PortalRenderInfo> objectMap =
         new WeakHashMap<>();
     
     public static void init() {
         Portal.clientPortalTickSignal.connect(portal -> {
-            PortalPresentation presentation = getOptional(portal);
+            PortalRenderInfo presentation = getOptional(portal);
             if (presentation != null) {
                 presentation.tick(portal);
             }
@@ -93,7 +93,7 @@ public class PortalPresentation {
         
         Portal.portalCacheUpdateSignal.connect(portal -> {
             if (portal.world.isClient()) {
-                PortalPresentation presentation = getOptional(portal);
+                PortalRenderInfo presentation = getOptional(portal);
                 if (presentation != null) {
                     presentation.onPortalCacheUpdate();
                 }
@@ -102,7 +102,7 @@ public class PortalPresentation {
         
         Portal.portalDisposeSignal.connect(portal -> {
             if (portal.world.isClient()) {
-                PortalPresentation presentation = getOptional(portal);
+                PortalRenderInfo presentation = getOptional(portal);
                 if (presentation != null) {
                     presentation.dispose();
                     objectMap.remove(portal);
@@ -112,19 +112,19 @@ public class PortalPresentation {
     }
     
     @Nullable
-    public static PortalPresentation getOptional(Portal portal) {
+    public static PortalRenderInfo getOptional(Portal portal) {
         Validate.isTrue(portal.world.isClient());
         
         return objectMap.get(portal);
     }
     
-    public static PortalPresentation get(Portal portal) {
+    public static PortalRenderInfo get(Portal portal) {
         Validate.isTrue(portal.world.isClient());
         
-        return objectMap.computeIfAbsent(portal, k -> new PortalPresentation());
+        return objectMap.computeIfAbsent(portal, k -> new PortalRenderInfo());
     }
     
-    public PortalPresentation() {
+    public PortalRenderInfo() {
     
     }
     
@@ -217,7 +217,7 @@ public class PortalPresentation {
         
         boolean decision;
         if (Global.offsetOcclusionQuery && portal instanceof Portal) {
-            PortalPresentation presentation = get(((Portal) portal));
+            PortalRenderInfo presentation = get(((Portal) portal));
             
             List<UUID> renderingDescription = RenderingHierarchy.getRenderingDescription();
             
@@ -299,7 +299,7 @@ public class PortalPresentation {
                 continue;
             }
             
-            PortalPresentation nearbyPortalPresentation = get(that);
+            PortalRenderInfo nearbyPortalPresentation = get(that);
             
             PortalRenderingGroup itsGroup = nearbyPortalPresentation.renderingGroup;
             if (itsGroup != null) {

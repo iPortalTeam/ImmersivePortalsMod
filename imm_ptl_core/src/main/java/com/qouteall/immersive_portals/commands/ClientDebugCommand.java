@@ -18,7 +18,7 @@ import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
-import com.qouteall.immersive_portals.render.PortalPresentation;
+import com.qouteall.immersive_portals.render.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.PortalRenderingGroup;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
@@ -483,7 +483,7 @@ public class ClientDebugCommand {
                                     Stream.of(((Portal) entity)) : Stream.empty()
                             )
                             .collect(Collectors.groupingBy(
-                                p -> Optional.ofNullable(PortalPresentation.getGroupOf(p))
+                                p -> Optional.ofNullable(PortalRenderInfo.getGroupOf(p))
                             ));
                     final ServerPlayerEntity player = context.getSource().getPlayer();
                     McHelper.serverLog(player, "\n" + clientWorld.getRegistryKey().getValue().toString());

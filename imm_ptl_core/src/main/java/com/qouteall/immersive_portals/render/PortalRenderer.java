@@ -88,7 +88,7 @@ public abstract class PortalRenderer {
                 Portal portal = (Portal) e;
                 if (!shouldSkipRenderingPortal(portal, frustumSupplier)) {
                     
-                    PortalRenderingGroup group = PortalPresentation.getGroupOf(portal);
+                    PortalRenderingGroup group = PortalRenderInfo.getGroupOf(portal);
                     if (group == null) {
                         portalsToRender.add(portal);
                     }
