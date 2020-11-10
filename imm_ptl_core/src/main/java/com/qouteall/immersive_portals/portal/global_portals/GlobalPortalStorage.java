@@ -85,12 +85,19 @@ public class GlobalPortalStorage extends PersistentState {
         Validate.isTrue(!data.contains(portal));
         
         portal.isGlobalPortal = true;
+        portal.removed = false;
         data.add(portal);
         onDataChanged();
     }
     
     public void removePortals(Predicate<Portal> predicate) {
-        data.removeIf(predicate);
+        data.removeIf(portal -> {
+            final boolean shouldRemove = predicate.test(portal);
+            if (shouldRemove) {
+                portal.remove();
+            }
+            return shouldRemove;
+        });
         onDataChanged();
     }
     
@@ -236,5 +243,27 @@ public class GlobalPortalStorage extends PersistentState {
         ((IEClientWorld) world).setGlobalPortals(newPortals);
         
         Helper.log("Global Portals Updated " + dimension.getValue());
+    }
+    
+    public static void convertNormalPortalIntoGlobalPortal(Portal portal) {
+        Validate.isTrue(!portal.getIsGlobal());
+        Validate.isTrue(!portal.world.isClient());
+        
+        portal.remove();
+        
+        Portal newPortal = McHelper.copyEntity(portal);
+        
+        get(((ServerWorld) portal.world)).addPortal(newPortal);
+    }
+    
+    public static void convertGlobalPortalIntoNormalPortal(Portal portal) {
+        Validate.isTrue(portal.getIsGlobal());
+        Validate.isTrue(!portal.world.isClient());
+        
+        get(((ServerWorld) portal.world)).removePortal(portal);
+        
+        Portal newPortal = McHelper.copyEntity(portal);
+        
+        McHelper.spawnServerEntity(newPortal);
     }
 }

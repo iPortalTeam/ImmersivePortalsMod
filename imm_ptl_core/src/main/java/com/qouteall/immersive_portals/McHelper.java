@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -440,6 +441,15 @@ public class McHelper {
     //avoid dedicated server crash
     public static void onClientEntityTick(Entity entity) {
         CrossPortalEntityRenderer.onEntityTickClient(entity);
+    }
+    
+    public static Portal copyEntity(Portal portal) {
+        Portal newPortal = ((Portal) portal.getType().create(portal.world));
+        
+        Validate.notNull(newPortal);
+        
+        newPortal.fromTag(portal.toTag(new CompoundTag()));
+        return newPortal;
     }
     
     public static interface ChunkAccessor {
