@@ -304,6 +304,12 @@ public class Portal extends Entity implements PortalLike {
         this.interactable = interactable;
     }
     
+    @Override
+    public void setPos(double x, double y, double z) {
+        super.setPos(x, y, z);
+        updateCache();
+    }
+    
     public void updateCache() {
         boundingBoxCache = null;
         exactBoundingBoxCache = null;

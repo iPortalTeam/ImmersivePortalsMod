@@ -11,8 +11,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -20,6 +22,49 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PortalManipulation {
+    public static void setPortalPosition(
+        Portal portal,
+        Vec3d center,
+        Vec3d axisW, Vec3d axisH,
+        double width, double height
+    ) {
+        portal.axisW = axisW.normalize();
+        portal.axisH = axisH.normalize();
+        portal.width = width;
+        portal.height = height;
+        portal.setPos(center.x, center.y, center.z);
+        portal.updateCache();
+    }
+    
+    public static void setPortalPositionByArea(
+        Portal portal,
+        Vec3d startPoint,
+        Vec3d wVec, Vec3d hVec
+    ) {
+        setPortalPosition(
+            portal,
+            startPoint.add(wVec.multiply(0.5)).add(hVec.multiply(0.5)),
+            wVec.normalize(),
+            hVec.normalize(),
+            wVec.length(),
+            hVec.length()
+        );
+    }
+    
+    public static void setPortalTransformation(
+        Portal portal,
+        RegistryKey<World> destDim,
+        Vec3d destPos,
+        @Nullable Quaternion rotation,
+        double scale
+    ) {
+        portal.dimensionTo = destDim;
+        portal.setDestination(destPos);
+        portal.rotation = rotation;
+        portal.scaling = scale;
+        portal.updateCache();
+    }
+    
     public static void removeConnectedPortals(Portal portal, Consumer<Portal> removalInformer) {
         removeOverlappedPortals(
             portal.world,

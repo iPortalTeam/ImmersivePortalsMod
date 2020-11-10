@@ -60,4 +60,24 @@ public class MixinMatrix4f implements IEMatrix4f {
         a32 = arr[14];
         a33 = arr[15];
     }
+    
+    @Override
+    public void loadToArray(float[] arr) {
+        arr[0] = a00;
+        arr[1] = a01;
+        arr[2] = a02;
+        arr[3] = a03;
+        arr[4] = a10;
+        arr[5] = a11;
+        arr[6] = a12;
+        arr[7] = a13;
+        arr[8] = a20;
+        arr[9] = a21;
+        arr[10] = a22;
+        arr[11] = a23;
+        arr[12] = a30;
+        arr[13] = a31;
+        arr[14] = a32;
+        arr[15] = a33;
+    }
 }
