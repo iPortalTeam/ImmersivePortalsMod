@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -61,6 +62,8 @@ public class ServerTeleportationManager {
                 entity.getCameraPosVec(1).add(entity.getVelocity())
             );
     }
+    
+  
     
     public void tryToTeleportRegularEntity(Portal portal, Entity entity) {
         if (entity instanceof ServerPlayerEntity) {
@@ -251,7 +254,7 @@ public class ServerTeleportationManager {
     }
     
     /**
-     * {@link ServerPlayerEntity#changeDimension(ServerWorld)}
+     * {@link ServerPlayerEntity#moveToWorld(ServerWorld)}
      */
     private void changePlayerDimension(
         ServerPlayerEntity player,
@@ -532,6 +535,34 @@ public class ServerTeleportationManager {
             Helper.log(String.format("ignored dubious move packet %s %s %s %s %s %s %s",
                 player.world.getRegistryKey().getValue(), x, y, z, player.getX(), player.getY(), player.getZ()
             ));
+        }
+    }
+    
+    public static void teleportEntityGeneral(Entity entity, Vec3d targetPos, ServerWorld targetWorld) {
+        if (entity instanceof ServerPlayerEntity) {
+            Global.serverTeleportationManager.invokeTpmeCommand(
+                (ServerPlayerEntity) entity, targetWorld.getRegistryKey(), targetPos
+            );
+        }
+        else {
+            if (targetWorld == entity.world) {
+                entity.refreshPositionAndAngles(
+                    targetPos.x,
+                    targetPos.y,
+                    targetPos.z,
+                    entity.yaw,
+                    entity.pitch
+                );
+                entity.setHeadYaw(entity.yaw);
+            }
+            else {
+                Global.serverTeleportationManager.changeEntityDimension(
+                    entity,
+                    targetWorld.getRegistryKey(),
+                    targetPos.add(0, entity.getStandingEyeHeight(), 0),
+                    true
+                );
+            }
         }
     }
 }

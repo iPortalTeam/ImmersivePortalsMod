@@ -19,6 +19,7 @@ import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
+import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ColumnPosArgumentType;
@@ -695,7 +696,7 @@ public class PortalCommand {
                 .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                     .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
                         .executes(
-                            context -> processPortalArgumentedCommand(
+                            context -> processPortalArgumentedCBCommand(
                                 context,
                                 (portal) -> invokeSetPortalDestination(context, portal)
                             )
@@ -707,7 +708,7 @@ public class PortalCommand {
         
         builder.then(CommandManager.literal("cb_complete_bi_way_portal")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCommand(
+                .executes(context -> processPortalArgumentedCBCommand(
                     context,
                     portal -> {
                         invokeCompleteBiWayPortal(context, portal);
@@ -719,7 +720,7 @@ public class PortalCommand {
         
         builder.then(CommandManager.literal("cb_complete_bi_faced_portal")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCommand(
+                .executes(context -> processPortalArgumentedCBCommand(
                     context,
                     portal -> {
                         invokeCompleteBiFacedPortal(context, portal);
@@ -730,7 +731,7 @@ public class PortalCommand {
         
         builder.then(CommandManager.literal("cb_complete_bi_way_bi_faced_portal")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCommand(
+                .executes(context -> processPortalArgumentedCBCommand(
                     context,
                     portal -> {
                         invokeCompleteBiWayBiFacedPortal(context, portal);
@@ -742,7 +743,7 @@ public class PortalCommand {
         
         builder.then(CommandManager.literal("cb_remove_connected_portals")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCommand(
+                .executes(context -> processPortalArgumentedCBCommand(
                     context,
                     portal -> {
                         PortalManipulation.removeConnectedPortals(
@@ -818,7 +819,7 @@ public class PortalCommand {
         builder.then(CommandManager.literal("cb_set_portal_nbt")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
                 .then(CommandManager.argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
-                    .executes(context -> processPortalArgumentedCommand(
+                    .executes(context -> processPortalArgumentedCBCommand(
                         context,
                         (portal) -> invokeSetPortalNBT(context, portal)
                         )
@@ -1151,7 +1152,7 @@ public class PortalCommand {
         dispatcher.register(builder);
     }
     
-    public static int processPortalArgumentedCommand(
+    private static int processPortalArgumentedCBCommand(
         CommandContext<ServerCommandSource> context,
         PortalConsumerThrowsCommandSyntaxException invoker
     ) throws CommandSyntaxException {
@@ -1434,32 +1435,8 @@ public class PortalCommand {
         int numTeleported = 0;
         
         for (Entity entity : entities) {
-            if (entity instanceof ServerPlayerEntity) {
-                Global.serverTeleportationManager.invokeTpmeCommand(
-                    (ServerPlayerEntity) entity, targetDim, targetPos
-                );
-            }
-            else {
-                if (targetWorld == entity.world) {
-                    entity.refreshPositionAndAngles(
-                        targetPos.x,
-                        targetPos.y,
-                        targetPos.z,
-                        entity.yaw,
-                        entity.pitch
-                    );
-                    entity.setHeadYaw(entity.yaw);
-                }
-                else {
-                    Global.serverTeleportationManager.changeEntityDimension(
-                        entity,
-                        targetDim,
-                        targetPos.add(0, entity.getStandingEyeHeight(), 0),
-                        true
-                    );
-                }
-            }
-            
+            ServerTeleportationManager.teleportEntityGeneral(entity, targetPos, targetWorld);
+    
             numTeleported++;
         }
         
