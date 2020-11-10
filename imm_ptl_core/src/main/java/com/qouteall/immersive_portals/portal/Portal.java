@@ -351,7 +351,7 @@ public class Portal extends Entity implements PortalLike {
         else {
             if (!isPortalValid()) {
                 Helper.log("removed invalid portal" + this);
-                removed = true;
+                remove();
                 return;
             }
             serverPortalTickSignal.emit(this);

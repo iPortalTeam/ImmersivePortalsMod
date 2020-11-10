@@ -85,7 +85,7 @@ public class BreakableMirror extends Mirror {
                 isGlass(world, blockPos)
         );
         if (!wallValid) {
-            removed = true;
+            remove();
         }
     }
     

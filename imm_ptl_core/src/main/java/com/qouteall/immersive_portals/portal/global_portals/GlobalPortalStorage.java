@@ -77,6 +77,7 @@ public class GlobalPortalStorage extends PersistentState {
     
     public void removePortal(Portal portal) {
         data.remove(portal);
+        portal.remove();
         onDataChanged();
     }
     
@@ -222,7 +223,7 @@ public class GlobalPortalStorage extends PersistentState {
         List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
         if (oldGlobalPortals != null) {
             for (Portal p : oldGlobalPortals) {
-                p.removed = true;
+                p.remove();
             }
         }
         
