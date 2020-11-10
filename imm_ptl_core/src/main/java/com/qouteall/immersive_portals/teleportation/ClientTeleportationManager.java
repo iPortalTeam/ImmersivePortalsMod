@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -247,8 +248,8 @@ public class ClientTeleportationManager {
         
         isTeleportingTick = true;
         isTeleportingFrame = true;
-        
-        if (portal.getExtension().adjustPositionAfterTeleport) {
+    
+        if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
             adjustPlayerPosition(player);
         }
     }
@@ -380,10 +381,10 @@ public class ClientTeleportationManager {
         
         if (!portals.isEmpty()) {
             Portal portal = portals.get(0);
-            if (portal.getExtension().motionAffinity > 0) {
+            if (PortalExtension.get(portal).motionAffinity > 0) {
                 changeMotion(player, portal);
             }
-            else if (portal.getExtension().motionAffinity < 0) {
+            else if (PortalExtension.get(portal).motionAffinity < 0) {
                 if (player.getVelocity().length() > 0.7) {
                     changeMotion(player, portal);
                 }
@@ -393,7 +394,7 @@ public class ClientTeleportationManager {
     
     private void changeMotion(Entity player, Portal portal) {
         Vec3d velocity = player.getVelocity();
-        player.setVelocity(velocity.multiply(1 + portal.getExtension().motionAffinity));
+        player.setVelocity(velocity.multiply(1 + PortalExtension.get(portal).motionAffinity));
     }
     
     //foot pos, not eye pos

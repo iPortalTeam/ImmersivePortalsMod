@@ -20,14 +20,12 @@ public class PortalExtension {
     
     public static void init() {
         Portal.clientPortalTickSignal.connect(portal -> {
-            final PortalExtension extension = get(portal);
-            extension.tick(portal);
+            get(portal).tick(portal);
             
         });
         
         Portal.serverPortalTickSignal.connect(portal -> {
-            final PortalExtension extension = get(portal);
-            extension.tick(portal);
+            get(portal).tick(portal);
             
         });
         

@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
@@ -197,9 +198,9 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pb.blockPortalShape = toShape;
         pa.reversePortalId = pb.getUuid();
         pb.reversePortalId = pa.getUuid();
-        
-        pa.getExtension().motionAffinity = 0.1;
-        pb.getExtension().motionAffinity = 0.1;
+    
+        PortalExtension.get(pa).motionAffinity = 0.1;
+        PortalExtension.get(pb).motionAffinity = 0.1;
         
         McHelper.spawnServerEntity(pa);
         McHelper.spawnServerEntity(pb);

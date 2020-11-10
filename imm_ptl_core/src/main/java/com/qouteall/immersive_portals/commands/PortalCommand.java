@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
@@ -1122,7 +1123,7 @@ public class PortalCommand {
             );
             portal.scaling = scale;
             portal.teleportChangesScale = teleportChangesScale;
-            portal.getExtension().adjustPositionAfterTeleport = true;
+            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
             
             McHelper.spawnServerEntity(portal);
             

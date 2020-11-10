@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -101,7 +102,7 @@ public class EndPortalEntity extends Portal {
             );
             portal.scaling = scale;
             portal.teleportChangesScale = false;
-            portal.getExtension().adjustPositionAfterTeleport = true;
+            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
             portal.portalTag = "view_box";
             //creating a new entity type needs registering
             //it's easier to discriminate it by portalTag

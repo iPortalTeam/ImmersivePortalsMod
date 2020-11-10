@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
@@ -277,11 +278,11 @@ public class PortalManipulation {
     }
     
     public static void copyAdditionalProperties(Portal to, Portal from) {
-        to.getExtension().motionAffinity = from.getExtension().motionAffinity;
         to.teleportable = from.teleportable;
         to.teleportChangesScale = from.teleportChangesScale;
         to.specificPlayerId = from.specificPlayerId;
-        to.getExtension().adjustPositionAfterTeleport = from.getExtension().adjustPositionAfterTeleport;
+        PortalExtension.get(to).motionAffinity = PortalExtension.get(from).motionAffinity;
+        PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
         to.portalTag = from.portalTag;
     }
 }

@@ -948,13 +948,6 @@ public class Portal extends Entity implements PortalLike {
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
     }
     
-    /**
-     * Additional things
-     */
-    public PortalExtension getExtension() {
-        return extension;
-    }
-    
     public static class TransformationDesc {
         public final RegistryKey<World> dimensionTo;
         @Nullable

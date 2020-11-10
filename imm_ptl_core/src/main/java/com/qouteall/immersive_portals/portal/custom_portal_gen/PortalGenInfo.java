@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
+import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
@@ -66,7 +67,7 @@ public class PortalGenInfo {
         portal.rotation = rotation;
         
         if (portal.hasScaling() || portal.rotation != null) {
-            portal.getExtension().adjustPositionAfterTeleport = true;
+            PortalExtension.get(portal).adjustPositionAfterTeleport = true;
         }
         
         return portal;
