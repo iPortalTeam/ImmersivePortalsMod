@@ -190,7 +190,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             );
             
             WorldRenderer worldRenderer =
-                CGlobal.clientWorldLoader.getWorldRenderer(world.getRegistryKey());
+                ClientWorldLoader.getWorldRenderer(world.getRegistryKey());
             BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage();
             if (storage instanceof MyBuiltChunkStorage) {
                 for (int y = 0; y < 16; ++y) {
@@ -220,7 +220,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
                     return false;
                 }
                 
-                WorldRenderer wr = CGlobal.clientWorldLoader.getWorldRenderer(pos.dimension);
+                WorldRenderer wr = ClientWorldLoader.getWorldRenderer(pos.dimension);
                 
                 Profiler profiler = MinecraftClient.getInstance().getProfiler();
                 profiler.push("delayed_unload");

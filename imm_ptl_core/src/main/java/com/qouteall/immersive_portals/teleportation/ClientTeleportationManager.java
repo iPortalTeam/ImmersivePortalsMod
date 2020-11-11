@@ -2,7 +2,6 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
@@ -314,7 +313,7 @@ public class ClientTeleportationManager {
         
         client.world = toWorld;
         ((IEMinecraftClient) client).setWorldRenderer(
-            CGlobal.clientWorldLoader.getWorldRenderer(toDimension)
+            ClientWorldLoader.getWorldRenderer(toDimension)
         );
         
         toWorld.setScoreboard(fromWorld.getScoreboard());
@@ -325,7 +324,7 @@ public class ClientTeleportationManager {
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
         
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
-        gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
+        gameRenderer.setLightmapTextureManager(ClientWorldLoader
             .getDimensionRenderHelper(toDimension).lightmapTexture);
         
         if (vehicle != null) {

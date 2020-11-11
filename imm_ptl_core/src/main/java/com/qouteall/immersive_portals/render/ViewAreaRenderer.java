@@ -1,14 +1,12 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
-import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -32,15 +30,15 @@ public class ViewAreaRenderer {
         Vec3d cameraPos, float tickDelta, float layerWidth
     ) {
         bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
-    
+        
         Vec3d posInPlayerCoordinate = portal.getOriginPos().subtract(cameraPos);
         
         Consumer<Vec3d> vertexOutput = p -> putIntoVertex(
             bufferbuilder, p, fogColor
         );
-    
+        
         portal.renderViewAreaMesh(posInPlayerCoordinate, vertexOutput);
-    
+        
     }
     
     public static void generateViewAreaTriangles(Portal portal, Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
@@ -234,9 +232,6 @@ public class ViewAreaRenderer {
         
         MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
         
-        DimensionRenderHelper helper =
-            CGlobal.clientWorldLoader.getDimensionRenderHelper(portal.getDestDim());
-    
         Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
         
         if (doFaceCulling) {

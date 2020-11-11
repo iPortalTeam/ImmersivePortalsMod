@@ -77,7 +77,6 @@ public class ModMainClient {
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
             
             CGlobal.renderer = CGlobal.rendererUsingStencil;
-            CGlobal.clientWorldLoader = new ClientWorldLoader();
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
             
             if (CGlobal.shaderManager == null) {

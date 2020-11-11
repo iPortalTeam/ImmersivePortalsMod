@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.ShaderClippingManager;
@@ -69,7 +69,7 @@ public abstract class MixinShaders {
     //avoid uninit when creating faked world
     @Inject(method = "checkWorldChanged", at = @At("HEAD"), cancellable = true)
     private static void onCheckWorldChanged(ClientWorld world, CallbackInfo ci) {
-        if (CGlobal.clientWorldLoader.getIsCreatingClientWorld()) {
+        if (ClientWorldLoader.getIsCreatingClientWorld()) {
             ci.cancel();
         }
     }

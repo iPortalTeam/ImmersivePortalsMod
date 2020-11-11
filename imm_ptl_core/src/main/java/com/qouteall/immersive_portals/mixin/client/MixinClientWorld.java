@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.client;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -100,7 +100,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
         at = @At("TAIL")
     )
     private void onOnEntityAdded(int entityId, Entity entityIn, CallbackInfo ci) {
-        for (ClientWorld world : CGlobal.clientWorldLoader.clientWorldMap.values()) {
+        for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
             if (world != (Object) this) {
                 world.removeEntity(entityId);
             }

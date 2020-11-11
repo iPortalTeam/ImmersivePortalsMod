@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
@@ -183,7 +183,7 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public void onLightUpdate(LightType lightType, ChunkSectionPos chunkSectionPos) {
-        CGlobal.clientWorldLoader.getWorldRenderer(
+        ClientWorldLoader.getWorldRenderer(
             world.getRegistryKey()
         ).scheduleBlockRender(
             chunkSectionPos.getSectionX(),

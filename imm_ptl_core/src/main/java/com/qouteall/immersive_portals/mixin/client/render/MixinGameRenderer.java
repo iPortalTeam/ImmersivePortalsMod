@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.client.render;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
@@ -140,8 +141,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     //resize all world renderers when resizing window
     @Inject(method = "onResized", at = @At("RETURN"))
     private void onOnResized(int int_1, int int_2, CallbackInfo ci) {
-        if (CGlobal.clientWorldLoader != null) {
-            CGlobal.clientWorldLoader.worldRendererMap.values().stream()
+        if (ClientWorldLoader.getIsInitialized()) {
+            ClientWorldLoader.worldRendererMap.values().stream()
                 .filter(
                     worldRenderer -> worldRenderer != client.worldRenderer
                 )

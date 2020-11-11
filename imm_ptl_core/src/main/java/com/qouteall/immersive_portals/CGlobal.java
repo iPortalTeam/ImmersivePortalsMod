@@ -20,7 +20,6 @@ public class CGlobal {
     public static RendererDummy rendererDummy = new RendererDummy();
     public static RendererDebug rendererDebug = new RendererDebug();
     
-    public static ClientWorldLoader clientWorldLoader;
     public static ClientTeleportationManager clientTeleportationManager;
     public static ShaderManager shaderManager;
     

@@ -429,7 +429,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     //reload other world renderers when the main world renderer is reloaded
     @Inject(method = "reload", at = @At("TAIL"))
     private void onReloadFinished(CallbackInfo ci) {
-        ClientWorldLoader clientWorldLoader = CGlobal.clientWorldLoader;
         WorldRenderer this_ = (WorldRenderer) (Object) this;
         
         if (world != null) {
@@ -442,7 +441,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             return;
         }
-        if (clientWorldLoader.getIsCreatingClientWorld()) {
+        if (ClientWorldLoader.getIsCreatingClientWorld()) {
             return;
         }
         if (this_ != MinecraftClient.getInstance().worldRenderer) {
@@ -451,7 +450,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
         isReloadingOtherWorldRenderers = true;
         
-        for (WorldRenderer worldRenderer : clientWorldLoader.worldRendererMap.values()) {
+        for (WorldRenderer worldRenderer : ClientWorldLoader.worldRendererMap.values()) {
             if (worldRenderer != this_) {
                 worldRenderer.reload();
             }

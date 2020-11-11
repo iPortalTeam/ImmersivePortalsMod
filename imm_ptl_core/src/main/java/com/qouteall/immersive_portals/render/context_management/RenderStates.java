@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.render.context_management;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
@@ -171,7 +171,7 @@ public class RenderStates {
     public static void onTotalRenderEnd() {
         MinecraftClient client = MinecraftClient.getInstance();
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
-        gameRenderer.setLightmapTextureManager(CGlobal.clientWorldLoader
+        gameRenderer.setLightmapTextureManager(ClientWorldLoader
             .getDimensionRenderHelper(client.world.getRegistryKey()).lightmapTexture);
         
         if (getRenderedPortalNum() != 0) {

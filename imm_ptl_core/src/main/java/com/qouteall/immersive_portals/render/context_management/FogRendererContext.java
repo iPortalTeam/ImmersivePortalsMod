@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.render.context_management;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -40,7 +40,8 @@ public class FogRendererContext {
     public static void update() {
         swappingManager.setOuterDimension(RenderStates.originalPlayerDimension);
         swappingManager.resetChecks();
-        CGlobal.clientWorldLoader.clientWorldMap.keySet().forEach(dimension ->
+        ClientWorldLoader.getClientWorlds().forEach(world -> {
+            RegistryKey<World> dimension = world.getRegistryKey();
             swappingManager.contextMap.computeIfAbsent(
                 dimension,
                 k -> new StaticFieldsSwappingManager.ContextRecord<>(
@@ -48,8 +49,8 @@ public class FogRendererContext {
                     new FogRendererContext(),
                     dimension != RenderStates.originalPlayerDimension
                 )
-            )
-        );
+            );
+        });
     }
     
     public static Vec3d getFogColorOf(

@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -108,7 +109,7 @@ public class MyGameRenderer {
         McHelper.setEyePos(cameraEntity, thisTickCameraPos, lastTickCameraPos);
         cameraEntity.world = newWorld;
         
-        WorldRenderer worldRenderer = CGlobal.clientWorldLoader.getWorldRenderer(newDimension);
+        WorldRenderer worldRenderer = ClientWorldLoader.getWorldRenderer(newDimension);
         
         CHelper.checkGlError();
         
@@ -127,7 +128,7 @@ public class MyGameRenderer {
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
-            CGlobal.clientWorldLoader.getDimensionRenderHelper(
+            ClientWorldLoader.getDimensionRenderHelper(
                 RenderDimensionRedirect.getRedirectedDimension(newDimension)
             );
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();

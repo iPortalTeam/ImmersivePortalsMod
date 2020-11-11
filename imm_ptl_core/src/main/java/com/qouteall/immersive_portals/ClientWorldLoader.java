@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
-    public static final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
+    private static final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
     public static final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
     public static final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
     
@@ -47,11 +48,11 @@ public class ClientWorldLoader {
     public static boolean isClientRemoteTicking = false;
     
     public static void init() {
-    
+        ModMain.postClientTickSignal.connect(ClientWorldLoader::tick);
     }
     
-    public ClientWorldLoader() {
-        ModMain.postClientTickSignal.connect(ClientWorldLoader::tick);
+    public static boolean getIsInitialized() {
+        return isInitialized;
     }
     
     public static boolean getIsCreatingClientWorld() {
@@ -296,4 +297,9 @@ public class ClientWorldLoader {
         return newWorld;
     }
     
+    public static Collection<ClientWorld> getClientWorlds() {
+        Validate.isTrue(isInitialized);
+        
+        return clientWorldMap.values();
+    }
 }

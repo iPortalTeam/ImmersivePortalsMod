@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.mixin.client;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.network.CommonNetwork;
@@ -86,7 +87,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         at = @At("HEAD")
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
-        CGlobal.clientWorldLoader.cleanUp();
+        ClientWorldLoader.cleanUp();
         CGlobal.clientTeleportationManager.disableTeleportFor(40);
         CrossPortalEntityRenderer.cleanUp();
         CloudContext.cleanup();

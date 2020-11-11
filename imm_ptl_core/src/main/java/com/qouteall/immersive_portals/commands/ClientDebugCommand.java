@@ -7,11 +7,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
-import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
@@ -397,13 +397,13 @@ public class ClientDebugCommand {
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 MinecraftClient.getInstance().execute(() -> {
-                    CGlobal.clientWorldLoader.clientWorldMap.forEach((dim, world) -> {
+                    ClientWorldLoader.getClientWorlds().forEach((world) -> {
                         MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
-                            CGlobal.clientWorldLoader.getWorldRenderer(dim))
+                            ClientWorldLoader.getWorldRenderer(world.getRegistryKey()))
                             .getBuiltChunkStorage();
                         McHelper.serverLog(
                             player,
-                            dim.toString() + builtChunkStorage.getDebugString()
+                            world.getRegistryKey().getValue().toString() + builtChunkStorage.getDebugString()
                         );
                     });
                 });
@@ -475,7 +475,7 @@ public class ClientDebugCommand {
         builder.then(CommandManager
             .literal("report_portal_groups")
             .executes(context -> {
-                for (ClientWorld clientWorld : CGlobal.clientWorldLoader.clientWorldMap.values()) {
+                for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
                     Map<Optional<PortalRenderingGroup>, List<Portal>> result =
                         Streams.stream(clientWorld.getEntities())
                             .flatMap(
@@ -655,17 +655,17 @@ public class ClientDebugCommand {
         StringBuilder str = new StringBuilder();
         
         str.append("Client Chunk:\n");
-        CGlobal.clientWorldLoader.clientWorldMap.values().forEach(world -> {
+        ClientWorldLoader.getClientWorlds().forEach(world -> {
             str.append(String.format(
                 "%s %s\n",
                 world.getRegistryKey().getValue(),
-                ((MyClientChunkManager) world.getChunkManager()).getLoadedChunkCount()
+                world.getChunkManager().getLoadedChunkCount()
             ));
         });
         
         
         str.append("Chunk Mesh Sections:\n");
-        CGlobal.clientWorldLoader.worldRendererMap.forEach(
+        ClientWorldLoader.worldRendererMap.forEach(
             (dimension, worldRenderer) -> {
                 str.append(String.format(
                     "%s %s\n",
@@ -734,7 +734,7 @@ public class ClientDebugCommand {
         });
         
         result.append("Client Portals\n");
-        CGlobal.clientWorldLoader.clientWorldMap.forEach((dim, world) -> {
+        ClientWorldLoader.getClientWorlds().forEach((world) -> {
             result.append(world.getRegistryKey().getValue().toString() + "\n");
             for (Entity e : world.getEntities()) {
                 if (e instanceof Portal) {
