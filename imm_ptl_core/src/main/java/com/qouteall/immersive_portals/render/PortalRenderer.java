@@ -25,9 +25,7 @@ import org.apache.commons.lang3.Validate;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 public abstract class PortalRenderer {
@@ -72,10 +70,7 @@ public abstract class PortalRenderer {
             return frustum;
         });
         
-        double renderRange = getRenderRange();
-        
-        List<Portal> portalsToRender = new ArrayList<>();
-        Set<PortalRenderingGroup> portalGroupsToRender = new HashSet<>();
+        List<PortalLike> portalsToRender = new ArrayList<>();
         List<Portal> globalPortals = McHelper.getGlobalPortals(client.world);
         for (Portal globalPortal : globalPortals) {
             if (!shouldSkipRenderingPortal(globalPortal, frustumSupplier)) {
@@ -88,12 +83,10 @@ public abstract class PortalRenderer {
                 Portal portal = (Portal) e;
                 if (!shouldSkipRenderingPortal(portal, frustumSupplier)) {
                     
-                    PortalRenderingGroup group = PortalRenderInfo.getGroupOf(portal);
-                    if (group == null) {
-                        portalsToRender.add(portal);
-                    }
-                    else {
-                        portalGroupsToRender.add(group);
+                    PortalLike renderingDelegate = portal.getRenderingDelegate();
+                    
+                    if (!portalsToRender.contains(renderingDelegate)) {
+                        portalsToRender.add(renderingDelegate);
                     }
                 }
             }
@@ -104,10 +97,7 @@ public abstract class PortalRenderer {
             portalEntity.getDistanceToNearestPointInPortal(cameraPos)
         ));
         
-        for (PortalRenderingGroup renderingGroup : portalGroupsToRender) {
-            doRenderPortal(renderingGroup, matrixStack);
-        }
-        for (Portal portal : portalsToRender) {
+        for (PortalLike portal : portalsToRender) {
             doRenderPortal(portal, matrixStack);
         }
     }
@@ -129,7 +119,7 @@ public abstract class PortalRenderer {
         
         if (PortalRendering.isRendering()) {
             PortalLike outerPortal = PortalRendering.getRenderingPortal();
-    
+            
             if (outerPortal.isParallelWith(portal)) {
                 return true;
             }

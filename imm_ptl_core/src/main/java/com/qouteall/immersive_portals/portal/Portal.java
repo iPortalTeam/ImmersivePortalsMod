@@ -13,9 +13,13 @@ import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
+import com.qouteall.immersive_portals.render.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.PortalRenderer;
+import com.qouteall.immersive_portals.render.PortalRenderingGroup;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -1027,5 +1031,21 @@ public class Portal extends Entity implements PortalLike {
     public void remove() {
         super.remove();
         portalDisposeSignal.emit(this);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public PortalLike getRenderingDelegate() {
+        if (Global.mergePortalRendering) {
+            PortalRenderingGroup group = PortalRenderInfo.getGroupOf(this);
+            if (group != null) {
+                return group;
+            }
+            else {
+                return this;
+            }
+        }
+        else {
+            return this;
+        }
     }
 }
