@@ -4,14 +4,17 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.portal.extension.PortalExtension;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -357,5 +360,74 @@ public class PortalManipulation {
                 completeBiWayPortal(portal, Portal.entityType);
             }
         }
+    }
+    
+    /**
+     * Places a portal based on {@code entity}'s looking direction. Does not set the portal destination or add it to the
+     * world, you will have to do that yourself.
+     *
+     * @param width  The width of the portal.
+     * @param height The height of the portal.
+     * @param entity The entity to place this portal as.
+     * @return The placed portal, with no destination set.
+     * @author LoganDark
+     */
+    public static Portal placePortal(double width, double height, Entity entity) {
+        Vec3d playerLook = entity.getRotationVector();
+        
+        Pair<BlockHitResult, List<Portal>> rayTrace =
+            Helper.rayTrace(
+                entity.world,
+                new RaycastContext(
+                    entity.getCameraPosVec(1.0f),
+                    entity.getCameraPosVec(1.0f).add(playerLook.multiply(100.0)),
+                    RaycastContext.ShapeType.OUTLINE,
+                    RaycastContext.FluidHandling.NONE,
+                    entity
+                ),
+                true
+            );
+        
+        BlockHitResult hitResult = rayTrace.getLeft();
+        List<Portal> hitPortals = rayTrace.getRight();
+        
+        if (Helper.hitResultIsMissedOrNull(hitResult)) {
+            return null;
+        }
+        
+        for (Portal hitPortal : hitPortals) {
+            playerLook = hitPortal.transformLocalVecNonScale(playerLook);
+        }
+        
+        Direction lookingDirection = Helper.getFacingExcludingAxis(
+            playerLook,
+            hitResult.getSide().getAxis()
+        );
+        
+        // this should never happen...
+        if (lookingDirection == null) {
+            return null;
+        }
+        
+        Vec3d axisH = Vec3d.of(hitResult.getSide().getVector());
+        Vec3d axisW = axisH.crossProduct(Vec3d.of(lookingDirection.getOpposite().getVector()));
+        Vec3d pos = Vec3d.ofCenter(hitResult.getBlockPos())
+            .add(axisH.multiply(0.5 + height / 2));
+        
+        World world = hitPortals.isEmpty()
+            ? entity.world
+            : hitPortals.get(hitPortals.size() - 1).getDestinationWorld();
+        
+        Portal portal = new Portal(Portal.entityType, world);
+        
+        portal.setPos(pos.x, pos.y, pos.z);
+        
+        portal.axisW = axisW;
+        portal.axisH = axisH;
+        
+        portal.width = width;
+        portal.height = height;
+        
+        return portal;
     }
 }

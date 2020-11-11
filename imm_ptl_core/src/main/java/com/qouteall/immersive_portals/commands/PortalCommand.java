@@ -1386,7 +1386,7 @@ public class PortalCommand {
         RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to").getRegistryKey();
         Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
         
-        Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
+        Portal portal = PortalManipulation.placePortal(width, height, context.getSource().getPlayer());
         
         if (portal == null) {
             return 0;
@@ -1408,7 +1408,7 @@ public class PortalCommand {
         RegistryKey<World> to = DimensionArgumentType.getDimensionArgument(context, "to").getRegistryKey();
         double dist = DoubleArgumentType.getDouble(context, "dist");
         
-        Portal portal = Helper.placePortal(width, height, context.getSource().getPlayer());
+        Portal portal = PortalManipulation.placePortal(width, height, context.getSource().getPlayer());
         
         if (portal == null) {
             return 0;
