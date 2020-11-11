@@ -100,9 +100,11 @@ public abstract class MixinClientWorld implements IEClientWorld {
         at = @At("TAIL")
     )
     private void onOnEntityAdded(int entityId, Entity entityIn, CallbackInfo ci) {
-        for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
-            if (world != (Object) this) {
-                world.removeEntity(entityId);
+        if (ClientWorldLoader.getIsInitialized()) {
+            for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
+                if (world != (Object) this) {
+                    world.removeEntity(entityId);
+                }
             }
         }
     }
