@@ -49,6 +49,8 @@ public class ClientWorldLoader {
     
     public static void init() {
         ModMain.postClientTickSignal.connect(ClientWorldLoader::tick);
+        
+        ModMain.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
     }
     
     public static boolean getIsInitialized() {
@@ -148,7 +150,7 @@ public class ClientWorldLoader {
         });
     }
     
-    public static void cleanUp() {
+    private static void cleanUp() {
         worldRendererMap.values().forEach(
             worldRenderer -> worldRenderer.setWorld(null)
         );
@@ -161,7 +163,7 @@ public class ClientWorldLoader {
         
         isInitialized = false;
         
-        ModMain.clientTaskList.forceClearTasks();
+        
     }
     
     //@Nullable

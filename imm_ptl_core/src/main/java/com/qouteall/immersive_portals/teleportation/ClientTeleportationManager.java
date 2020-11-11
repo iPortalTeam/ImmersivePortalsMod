@@ -63,6 +63,10 @@ public class ClientTeleportationManager {
         ModMain.postClientTickSignal.connectWithWeakRef(
             this, ClientTeleportationManager::tick
         );
+        
+        ModMain.clientCleanupSignal.connectWithWeakRef(this,(this_)->{
+            this_.disableTeleportFor(40);
+        });
     }
     
     private void tick() {

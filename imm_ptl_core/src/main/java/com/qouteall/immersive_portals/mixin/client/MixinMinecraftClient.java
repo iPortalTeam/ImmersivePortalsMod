@@ -1,13 +1,10 @@
 package com.qouteall.immersive_portals.mixin.client;
 
 import com.qouteall.immersive_portals.CGlobal;
-import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.network.CommonNetwork;
-import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.FPSMonitor;
-import com.qouteall.immersive_portals.render.context_management.CloudContext;
 import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -87,10 +84,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         at = @At("HEAD")
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
-        ClientWorldLoader.cleanUp();
-        CGlobal.clientTeleportationManager.disableTeleportFor(40);
-        CrossPortalEntityRenderer.cleanUp();
-        CloudContext.cleanup();
+        ModMain.clientCleanupSignal.emit();
     }
     
     //avoid messing up rendering states in fabulous

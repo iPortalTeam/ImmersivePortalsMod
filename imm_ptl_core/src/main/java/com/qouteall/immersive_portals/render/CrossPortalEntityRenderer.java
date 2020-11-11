@@ -38,9 +38,11 @@ public class CrossPortalEntityRenderer {
     
     public static void init() {
         ModMain.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
+        
+        ModMain.clientCleanupSignal.connect(CrossPortalEntityRenderer::cleanUp);
     }
     
-    public static void cleanUp() {
+    private static void cleanUp() {
         collidedEntities.clear();
     }
     

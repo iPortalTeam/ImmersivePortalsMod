@@ -40,17 +40,19 @@ public class FogRendererContext {
     public static void update() {
         swappingManager.setOuterDimension(RenderStates.originalPlayerDimension);
         swappingManager.resetChecks();
-        ClientWorldLoader.getClientWorlds().forEach(world -> {
-            RegistryKey<World> dimension = world.getRegistryKey();
-            swappingManager.contextMap.computeIfAbsent(
-                dimension,
-                k -> new StaticFieldsSwappingManager.ContextRecord<>(
+        if (ClientWorldLoader.getIsInitialized()) {
+            ClientWorldLoader.getClientWorlds().forEach(world -> {
+                RegistryKey<World> dimension = world.getRegistryKey();
+                swappingManager.contextMap.computeIfAbsent(
                     dimension,
-                    new FogRendererContext(),
-                    dimension != RenderStates.originalPlayerDimension
-                )
-            );
-        });
+                    k -> new StaticFieldsSwappingManager.ContextRecord<>(
+                        dimension,
+                        new FogRendererContext(),
+                        dimension != RenderStates.originalPlayerDimension
+                    )
+                );
+            });
+        }
     }
     
     public static Vec3d getFogColorOf(

@@ -22,6 +22,8 @@ public class ModMain {
     public static final MyTaskList serverTaskList = new MyTaskList();
     public static final MyTaskList preRenderTaskList = new MyTaskList();
     
+    public static final Signal clientCleanupSignal = new Signal();
+    
     public static Block portalHelperBlock;
     public static BlockItem portalHelperBlockItem;
     
@@ -33,6 +35,8 @@ public class ModMain {
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
+        
+        clientCleanupSignal.connect(clientTaskList::forceClearTasks);
         
         Global.serverTeleportationManager = new ServerTeleportationManager();
         Global.chunkDataSyncManager = new ChunkDataSyncManager();
