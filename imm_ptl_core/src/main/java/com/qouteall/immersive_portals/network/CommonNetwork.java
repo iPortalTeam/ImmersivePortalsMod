@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.network;
 
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
@@ -29,8 +29,8 @@ public class CommonNetwork {
         Runnable func = () -> {
             try {
                 client.getProfiler().push("process_redirected_packet");
-                
-                ClientWorld packetWorld = CGlobal.clientWorldLoader.getWorld(dimension);
+    
+                ClientWorld packetWorld = ClientWorldLoader.getWorld(dimension);
                 
                 doProcessRedirectedMessage(packetWorld, packet);
             }

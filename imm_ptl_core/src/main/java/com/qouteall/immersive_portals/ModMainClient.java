@@ -70,6 +70,8 @@ public class ModMainClient {
         
         MyNetworkClient.init();
         
+        ClientWorldLoader.init();
+        
         MinecraftClient.getInstance().execute(() -> {
             CGlobal.rendererUsingStencil = new RendererUsingStencil();
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();

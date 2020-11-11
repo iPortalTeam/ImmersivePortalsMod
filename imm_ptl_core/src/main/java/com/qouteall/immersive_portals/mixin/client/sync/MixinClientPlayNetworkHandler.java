@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.client.sync;
 
 import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
@@ -208,7 +209,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             int[] counter = new int[1];
             counter[0] = (int) (Math.random() * 200);
             ModMain.clientTaskList.addTask(() -> {
-                ClientWorld world1 = CGlobal.clientWorldLoader.getWorld(pos.dimension);
+                ClientWorld world1 = ClientWorldLoader.getWorld(pos.dimension);
                 
                 if (world1.getChunkManager().isChunkLoaded(pos.x, pos.z)) {
                     return true;

@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.commands.PortalCommand;
 import com.qouteall.immersive_portals.ducks.IECamera;
@@ -66,10 +67,10 @@ public class CrossPortalThirdPersonView {
         
         Vec3d renderingCameraPos = getThirdPersonCameraPos(thirdPersonPos, portal, hitPos);
         ((IECamera) RenderStates.originalCamera).portal_setPos(renderingCameraPos);
-        
-        
+    
+    
         RenderingHierarchy renderingHierarchy = new RenderingHierarchy(
-            CGlobal.clientWorldLoader.getWorld(portal.dimensionTo),
+            ClientWorldLoader.getWorld(portal.dimensionTo),
             renderingCameraPos,
             portal.getAdditionalCameraTransformation(),
             null

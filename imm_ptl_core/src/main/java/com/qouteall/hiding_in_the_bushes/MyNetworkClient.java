@@ -2,6 +2,7 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
@@ -85,8 +86,8 @@ public class MyNetworkClient {
         
         CHelper.executeOnRenderThread(() -> {
             client.getProfiler().push("ip_spawn_entity");
-            
-            ClientWorld world = CGlobal.clientWorldLoader.getWorld(dim);
+    
+            ClientWorld world = ClientWorldLoader.getWorld(dim);
             
             Entity entity = entityType.get().create(
                 world
@@ -98,9 +99,7 @@ public class MyNetworkClient {
             
             //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {
-                CGlobal.clientWorldLoader.getWorld(
-                    ((Portal) entity).dimensionTo
-                );
+                ClientWorldLoader.getWorld(((Portal) entity).dimensionTo);
             }
             
             client.getProfiler().pop();

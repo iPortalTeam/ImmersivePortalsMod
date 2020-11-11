@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -167,8 +168,8 @@ public abstract class PortalRenderer {
         }
         
         Entity cameraEntity = client.cameraEntity;
-        
-        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(portal.getDestDim());
+    
+        ClientWorld newWorld = ClientWorldLoader.getWorld(portal.getDestDim());
         
         Camera camera = client.gameRenderer.getCamera();
         

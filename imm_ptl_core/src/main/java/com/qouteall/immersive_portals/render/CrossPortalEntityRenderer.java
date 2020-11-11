@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -204,10 +204,8 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-        
-        ClientWorld newWorld = CGlobal.clientWorldLoader.getWorld(
-            transformingPortal.dimensionTo
-        );
+    
+        ClientWorld newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
         
         Vec3d oldEyePos = McHelper.getEyePos(entity);
         Vec3d oldLastTickEyePos = McHelper.getLastTickEyePos(entity);

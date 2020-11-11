@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.ducks.IEWorld;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
@@ -33,29 +34,31 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
-    public final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
-    public final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
-    public final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
+    public static final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
+    public static final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
+    public static final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
     
     private static final MinecraftClient client = MinecraftClient.getInstance();
     
-    private boolean isInitialized = false;
+    private static boolean isInitialized = false;
     
-    private boolean isCreatingClientWorld = false;
+    private static boolean isCreatingClientWorld = false;
     
-    public boolean isClientRemoteTicking = false;
+    public static boolean isClientRemoteTicking = false;
     
-    public int ticksSinceEnteringWorld = 0;
+    public static void init() {
     
-    public ClientWorldLoader() {
-        ModMain.postClientTickSignal.connectWithWeakRef(this, ClientWorldLoader::tick);
     }
     
-    public boolean getIsCreatingClientWorld() {
+    public ClientWorldLoader() {
+        ModMain.postClientTickSignal.connect(ClientWorldLoader::tick);
+    }
+    
+    public static boolean getIsCreatingClientWorld() {
         return isCreatingClientWorld;
     }
     
-    private void tick() {
+    private static void tick() {
         if (CGlobal.isClientRemoteTickingEnabled) {
             isClientRemoteTicking = true;
             clientWorldMap.values().forEach(world -> {
@@ -90,12 +93,12 @@ public class ClientWorldLoader {
             renderHelperMap.clear();
             Helper.log("Refreshed Lightmaps");
         }
-        ticksSinceEnteringWorld++;
+        
     }
     
-    private static int reportedErrorNum = 0;
+    private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
-    private void tickRemoteWorld(ClientWorld newWorld) {
+    private static void tickRemoteWorld(ClientWorld newWorld) {
         List<Portal> nearbyPortals = CHelper.getClientNearbyPortals(10).collect(Collectors.toList());
         
         ClientWorld oldWorld = client.world;
@@ -112,10 +115,7 @@ public class ClientWorldLoader {
             }
         }
         catch (Throwable e) {
-            if (reportedErrorNum < 200) {
-                e.printStackTrace();
-                reportedErrorNum++;
-            }
+            limitedLogger.invoke(e::printStackTrace);
         }
         finally {
             client.world = oldWorld;
@@ -147,7 +147,7 @@ public class ClientWorldLoader {
         });
     }
     
-    public void cleanUp() {
+    public static void cleanUp() {
         worldRendererMap.values().forEach(
             worldRenderer -> worldRenderer.setWorld(null)
         );
@@ -161,31 +161,28 @@ public class ClientWorldLoader {
         isInitialized = false;
         
         ModMain.clientTaskList.forceClearTasks();
-        
-        ticksSinceEnteringWorld = 0;
     }
     
     //@Nullable
-    public WorldRenderer getWorldRenderer(RegistryKey<World> dimension) {
+    public static WorldRenderer getWorldRenderer(RegistryKey<World> dimension) {
         initializeIfNeeded();
         
         return worldRendererMap.get(dimension);
     }
     
-    //Create world if missing
-    public ClientWorld getWorld(RegistryKey<World> dimension) {
+    public static ClientWorld getWorld(RegistryKey<World> dimension) {
         Validate.notNull(dimension);
         
         initializeIfNeeded();
         
         if (!clientWorldMap.containsKey(dimension)) {
-            return createFakedClientWorld(dimension);
+            return createSecondaryClientWorld(dimension);
         }
         
         return clientWorldMap.get(dimension);
     }
     
-    public DimensionRenderHelper getDimensionRenderHelper(RegistryKey<World> dimension) {
+    public static DimensionRenderHelper getDimensionRenderHelper(RegistryKey<World> dimension) {
         initializeIfNeeded();
         
         DimensionRenderHelper result = renderHelperMap.computeIfAbsent(
@@ -202,7 +199,7 @@ public class ClientWorldLoader {
         return result;
     }
     
-    private void initializeIfNeeded() {
+    private static void initializeIfNeeded() {
         if (!isInitialized) {
             Validate.isTrue(client.world != null);
             Validate.isTrue(client.worldRenderer != null);
@@ -222,8 +219,7 @@ public class ClientWorldLoader {
         }
     }
     
-    //fool minecraft using the faked world
-    private ClientWorld createFakedClientWorld(RegistryKey<World> dimension) {
+    private static ClientWorld createSecondaryClientWorld(RegistryKey<World> dimension) {
         Validate.isTrue(client.player.world.getRegistryKey() != dimension);
         
         isCreatingClientWorld = true;

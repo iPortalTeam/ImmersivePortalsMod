@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -19,7 +19,7 @@ public class MixinLightmapTextureManager {
         )
     )
     ClientWorld redirectWorldInUpdate(MinecraftClient client) {
-        return CGlobal.clientWorldLoader.getWorld(RenderDimensionRedirect.getRedirectedDimension(
+        return ClientWorldLoader.getWorld(RenderDimensionRedirect.getRedirectedDimension(
             client.world.getRegistryKey()
         ));
     }

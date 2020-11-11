@@ -4,6 +4,7 @@ import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -210,7 +211,7 @@ public class ClientTeleportationManager {
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         
         if (fromDimension != toDimension) {
-            ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(toDimension);
+            ClientWorld toWorld = ClientWorldLoader.getWorld(toDimension);
             
             changePlayerDimension(player, fromWorld, toWorld, newEyePos);
         }
@@ -275,7 +276,7 @@ public class ClientTeleportationManager {
             McHelper.adjustVehicle(player);
         }
         else {
-            ClientWorld toWorld = CGlobal.clientWorldLoader.getWorld(toDimension);
+            ClientWorld toWorld = ClientWorldLoader.getWorld(toDimension);
             
             changePlayerDimension(player, fromWorld, toWorld, destination);
         }

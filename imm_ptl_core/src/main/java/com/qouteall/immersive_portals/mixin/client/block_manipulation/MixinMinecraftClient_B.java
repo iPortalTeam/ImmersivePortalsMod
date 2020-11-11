@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.client.block_manipulation;
 
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -81,9 +81,7 @@ public abstract class MixinMinecraftClient_B {
     )
     private void redirectDoItemPick(MinecraftClient minecraftClient) {
         if (BlockManipulationClient.isPointingToPortal()) {
-            ClientWorld remoteWorld = CGlobal.clientWorldLoader.getWorld(
-                BlockManipulationClient.remotePointedDim
-            );
+            ClientWorld remoteWorld = ClientWorldLoader.getWorld(BlockManipulationClient.remotePointedDim);
             ClientWorld oldWorld = this.world;
             HitResult oldTarget = this.crosshairTarget;
             

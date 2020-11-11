@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -225,7 +225,7 @@ public class GlobalPortalStorage extends PersistentState {
     
     @Environment(EnvType.CLIENT)
     public static void receiveGlobalPortalSync(RegistryKey<World> dimension, CompoundTag compoundTag) {
-        ClientWorld world = CGlobal.clientWorldLoader.getWorld(dimension);
+        ClientWorld world = ClientWorldLoader.getWorld(dimension);
         
         List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
         if (oldGlobalPortals != null) {

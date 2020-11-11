@@ -43,7 +43,7 @@ public class CHelper {
     //do not inline this
     //or it will crash in server
     public static World getClientWorld(RegistryKey<World> dimension) {
-        return CGlobal.clientWorldLoader.getWorld(dimension);
+        return ClientWorldLoader.getWorld(dimension);
     }
     
     public static List<Portal> getClientGlobalPortal(World world) {
