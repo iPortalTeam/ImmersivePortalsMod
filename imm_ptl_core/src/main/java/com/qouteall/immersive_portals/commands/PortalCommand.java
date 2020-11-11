@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
@@ -245,6 +246,87 @@ public class PortalCommand {
                     context,
                     Helper.myToString(McHelper.getGlobalPortals(player.world).stream())
                 );
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager.literal("convert_normal_portal_to_global_portal")
+            .executes(context -> {
+                final ServerPlayerEntity player = context.getSource().getPlayer();
+                final Portal portal = getPlayerPointingPortal(player, false);
+                
+                if (portal == null) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("You are not pointing to any portal"),
+                        false
+                    );
+                    return 0;
+                }
+                
+                GlobalPortalStorage.convertNormalPortalIntoGlobalPortal(portal);
+                
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager.literal("convert_global_portal_to_normal_portal")
+            .executes(context -> {
+                final ServerPlayerEntity player = context.getSource().getPlayer();
+                final Portal portal = getPlayerPointingPortal(player, true);
+                
+                if (portal == null) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("You are not pointing to any portal"),
+                        false
+                    );
+                    return 0;
+                }
+                
+                if (!portal.getIsGlobal()) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("You are not pointing to a global portal"),
+                        false
+                    );
+                    return 0;
+                }
+                
+                if (player.getPos().distanceTo(portal.getOriginPos()) > 64) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("You are too far away from the portal's center"),
+                        false
+                    );
+                    return 0;
+                }
+                
+                GlobalPortalStorage.convertGlobalPortalIntoNormalPortal(portal);
+                
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager.literal("delete_global_portal")
+            .executes(context -> {
+                final ServerPlayerEntity player = context.getSource().getPlayer();
+                final Portal portal = getPlayerPointingPortal(player, true);
+                
+                if (portal == null) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("You are not pointing to any portal"),
+                        false
+                    );
+                    return 0;
+                }
+                
+                if (!portal.getIsGlobal()) {
+                    context.getSource().sendFeedback(
+                        new LiteralText("You are not pointing to a global portal"),
+                        false
+                    );
+                    return 0;
+                }
+                
+                GlobalPortalStorage.get((ServerWorld) portal.world).removePortal(portal);
+                
                 return 0;
             })
         );
@@ -1119,7 +1201,7 @@ public class PortalCommand {
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
-        
+
 //        LiteralArgumentBuilder<ServerCommandSource> builderOPPerm = CommandManager
 //            .literal("portal")
 //            .requires(commandSource -> commandSource.hasPermissionLevel(2));
@@ -1145,7 +1227,7 @@ public class PortalCommand {
         
         LiteralArgumentBuilder<ServerCommandSource> global =
             CommandManager.literal("global")
-            .requires(commandSource -> commandSource.hasPermissionLevel(2));
+                .requires(commandSource -> commandSource.hasPermissionLevel(2));
         registerGlobalPortalCommands(global);
         builder.then(global);
         
@@ -1436,7 +1518,7 @@ public class PortalCommand {
         
         for (Entity entity : entities) {
             ServerTeleportationManager.teleportEntityGeneral(entity, targetPos, targetWorld);
-    
+            
             numTeleported++;
         }
         
@@ -1457,11 +1539,12 @@ public class PortalCommand {
         if (entity instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = ((ServerPlayerEntity) entity);
             
-            Portal portal = getPlayerPointingPortal(player);
+            Portal portal = getPlayerPointingPortal(player, false);
             
             if (portal == null) {
                 source.sendFeedback(
-                    new LiteralText("You are not pointing to any portal"),
+                    new LiteralText("You are not pointing to any non-global portal." +
+                        " (This command cannot process global portals)"),
                     true
                 );
                 return 0;
@@ -1486,9 +1569,9 @@ public class PortalCommand {
     }
     
     public static Portal getPlayerPointingPortal(
-        ServerPlayerEntity player
+        ServerPlayerEntity player, boolean includeGlobalPortal
     ) {
-        return getPlayerPointingPortalRaw(player, 1, 100, false)
+        return getPlayerPointingPortalRaw(player, 1, 100, includeGlobalPortal)
             .map(Pair::getFirst).orElse(null);
     }
     

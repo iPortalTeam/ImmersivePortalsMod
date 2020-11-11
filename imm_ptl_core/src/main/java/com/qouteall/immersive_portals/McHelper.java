@@ -54,6 +54,7 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+// mc related helper methods
 public class McHelper {
     
     public static WeakReference<MinecraftServer> refMinecraftServer =

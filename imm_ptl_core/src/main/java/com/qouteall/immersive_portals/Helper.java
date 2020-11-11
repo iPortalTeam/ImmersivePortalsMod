@@ -49,6 +49,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// helper methods
 public class Helper {
     
     private static final Logger LOGGER = LogManager.getLogger("Portal");
