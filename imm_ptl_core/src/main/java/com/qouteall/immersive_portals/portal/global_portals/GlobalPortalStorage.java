@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -42,6 +43,27 @@ public class GlobalPortalStorage extends PersistentState {
                 GlobalPortalStorage gps = GlobalPortalStorage.get(world1);
                 gps.tick();
             });
+        });
+        
+        ModMain.serverCleanupSignal.connect(() -> {
+            for (ServerWorld world : McHelper.getServer().getWorlds()) {
+                get(world).onServerClose();
+            }
+        });
+        
+        if (!O_O.isDedicatedServer()) {
+            initClient();
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void initClient() {
+        ModMain.clientCleanupSignal.connect(() -> {
+            for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
+                for (Portal globalPortal : McHelper.getGlobalPortals(clientWorld)) {
+                    globalPortal.remove();
+                }
+            }
         });
     }
     
@@ -265,5 +287,11 @@ public class GlobalPortalStorage extends PersistentState {
         Portal newPortal = McHelper.copyEntity(portal);
         
         McHelper.spawnServerEntity(newPortal);
+    }
+    
+    private void onServerClose() {
+        for (Portal portal : data) {
+            portal.remove();
+        }
     }
 }

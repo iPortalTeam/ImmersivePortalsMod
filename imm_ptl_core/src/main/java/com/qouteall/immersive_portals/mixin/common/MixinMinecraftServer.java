@@ -6,7 +6,6 @@ import com.mojang.datafixers.DataFixer;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdManagement;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
 import net.minecraft.resource.ResourcePackManager;
@@ -50,7 +49,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
     ) {
         McHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
-    
+        
         O_O.loadConfigFabric();
     }
     
@@ -67,8 +66,7 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
-        NewChunkTrackingGraph.cleanup();
-        ModMain.serverTaskList.forceClearTasks();
+        ModMain.serverCleanupSignal.emit();
     }
     
     @Inject(

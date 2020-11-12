@@ -257,6 +257,7 @@ public class NewChunkTrackingGraph {
     
     public static void init() {
         ModMain.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
+        ModMain.serverCleanupSignal.connect(NewChunkTrackingGraph::cleanup);
     }
     
     public static boolean isPlayerWatchingChunk(
@@ -298,7 +299,7 @@ public class NewChunkTrackingGraph {
         );
     }
     
-    public static void cleanup() {
+    private static void cleanup() {
         data.clear();
         additionalChunkLoaders.clear();
     }

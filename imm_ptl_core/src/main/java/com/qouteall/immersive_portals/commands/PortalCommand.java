@@ -1545,7 +1545,7 @@ public class PortalCommand {
                 source.sendFeedback(
                     new LiteralText("You are not pointing to any non-global portal." +
                         " (This command cannot process global portals)"),
-                    true
+                    false
                 );
                 return 0;
             }
