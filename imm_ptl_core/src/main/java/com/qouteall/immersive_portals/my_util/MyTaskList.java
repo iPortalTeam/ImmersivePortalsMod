@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals.my_util;
 
-import java.util.ArrayList;
+import com.qouteall.immersive_portals.Helper;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 //NOTE if the task returns true, it will be deleted
 //if the task returns false, it will be invoked again at next time
@@ -9,10 +11,10 @@ public class MyTaskList {
         public boolean runAndGetIsSucceeded();
     }
     
-    private final ArrayList<MyTask> tasks = new ArrayList<>();
-    private final ArrayList<MyTask> tasksToAdd = new ArrayList<>();
+    private final ObjectList<MyTask> tasks = new ObjectArrayList<>();
+    private final ObjectList<MyTask> tasksToAdd = new ObjectArrayList<>();
     
-    //NOTE this method could be invoked while a task is running
+    // this method could be invoked while a task is running
     public synchronized void addTask(MyTask task) {
         tasksToAdd.add(task);
     }
@@ -20,8 +22,8 @@ public class MyTaskList {
     public synchronized void processTasks() {
         tasks.addAll(tasksToAdd);
         tasksToAdd.clear();
-    
-        tasks.removeIf(task -> task.runAndGetIsSucceeded());
+        
+        Helper.removeIf(tasks, task -> task.runAndGetIsSucceeded());
     }
     
     public synchronized void forceClearTasks() {

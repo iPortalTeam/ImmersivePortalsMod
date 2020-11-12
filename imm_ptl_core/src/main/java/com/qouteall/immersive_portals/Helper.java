@@ -472,8 +472,11 @@ public class Helper {
         }
     }
     
-    //ObjectList does not override removeIf() so its complexity is O(n^2)
-    //this is O(n)
+    /**
+     * {@link ObjectList} does not override removeIf() so it's O(n^2)
+     * {@link ArrayList#removeIf(Predicate)} uses a bitset to ensure integrity
+     *  in case of exception thrown but introduces performance overhead
+     */
     public static <T> void removeIf(ObjectList<T> list, Predicate<T> predicate) {
         int placingIndex = 0;
         for (int i = 0; i < list.size(); i++) {
