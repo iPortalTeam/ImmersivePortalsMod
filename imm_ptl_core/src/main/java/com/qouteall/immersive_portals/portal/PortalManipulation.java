@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
-import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;

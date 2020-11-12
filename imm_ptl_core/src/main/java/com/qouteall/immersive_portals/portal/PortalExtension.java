@@ -1,7 +1,6 @@
-package com.qouteall.immersive_portals.portal.extension;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
-import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
@@ -12,10 +11,11 @@ import java.util.WeakHashMap;
 // the additional features of a portal
 public class PortalExtension {
     
-    private static final WeakHashMap<Portal, PortalExtension> objectMap = new WeakHashMap<>();
-    
     public static PortalExtension get(Portal portal) {
-        return objectMap.computeIfAbsent(portal, k -> new PortalExtension());
+        if (portal.extension == null) {
+            portal.extension = new PortalExtension();
+        }
+        return portal.extension;
     }
     
     public static void init() {
@@ -77,8 +77,14 @@ public class PortalExtension {
         if (compoundTag.contains("motionAffinity")) {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
+        else {
+            motionAffinity = 0;
+        }
         if (compoundTag.contains("adjustPositionAfterTeleport")) {
             adjustPositionAfterTeleport = compoundTag.getBoolean("adjustPositionAfterTeleport");
+        }
+        else {
+            adjustPositionAfterTeleport = false;
         }
     }
     

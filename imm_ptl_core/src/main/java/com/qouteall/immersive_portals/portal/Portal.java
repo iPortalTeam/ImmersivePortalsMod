@@ -12,7 +12,6 @@ import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
-import com.qouteall.immersive_portals.portal.extension.PortalExtension;
 import com.qouteall.immersive_portals.render.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderingGroup;
@@ -123,7 +122,7 @@ public class Portal extends Entity implements PortalLike {
      */
     private boolean interactable = true;
     
-    public PortalExtension extension = new PortalExtension();
+    PortalExtension extension;
     
     @Nullable
     public String portalTag;
