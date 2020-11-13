@@ -292,7 +292,7 @@ public class PortalCommand {
                 
                 if (player.getPos().distanceTo(portal.getOriginPos()) > 64) {
                     context.getSource().sendFeedback(
-                        new LiteralText("You are too far away from the portal's center"),
+                        new LiteralText("You are too far away from the portal's center " + portal),
                         false
                     );
                     return 0;

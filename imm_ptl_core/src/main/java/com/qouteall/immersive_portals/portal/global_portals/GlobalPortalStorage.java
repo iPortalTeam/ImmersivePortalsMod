@@ -59,9 +59,11 @@ public class GlobalPortalStorage extends PersistentState {
     @Environment(EnvType.CLIENT)
     private static void initClient() {
         ModMain.clientCleanupSignal.connect(() -> {
-            for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
-                for (Portal globalPortal : McHelper.getGlobalPortals(clientWorld)) {
-                    globalPortal.remove();
+            if (ClientWorldLoader.getIsInitialized()) {
+                for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
+                    for (Portal globalPortal : McHelper.getGlobalPortals(clientWorld)) {
+                        globalPortal.remove();
+                    }
                 }
             }
         });
