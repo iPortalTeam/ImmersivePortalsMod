@@ -96,45 +96,12 @@ public class CollisionHelper {
             entity, thisSideMove, collidingPortal,
             handleCollisionFunc, originalBoundingBox
         );
-
-//        return otherSideMove;
+        
         return new Vec3d(
             correctXZCoordinate(attemptedMove.x, otherSideMove.x),
             correctYCoordinate(attemptedMove.y, otherSideMove.y),
             correctXZCoordinate(attemptedMove.z, otherSideMove.z)
         );
-
-//        //handle stepping onto slab or stair through portal
-//        if (attemptedMove.y < 0) {
-//            if (otherSideMove.y > 0) {
-//                //stepping on the other side
-//                return new Vec3d(
-//                    absMin(thisSideMove.x, otherSideMove.x),
-//                    otherSideMove.y,
-//                    absMin(thisSideMove.z, otherSideMove.z)
-//                );
-//            }
-//            else if (thisSideMove.y > 0) {
-//                //stepping on this side
-//                //re-calc collision with intact collision box
-//                //the stepping is shorter using the clipped collision box
-//                Vec3d newThisSideMove = handleCollisionFunc.apply(attemptedMove);
-//
-//                //apply the stepping move for the other side
-//                Vec3d newOtherSideMove = getOtherSideMove(
-//                    entity, newThisSideMove, collidingPortal,
-//                    handleCollisionFunc, originalBoundingBox
-//                );
-//
-//                return newOtherSideMove;
-//            }
-//        }
-//
-//        return new Vec3d(
-//            absMin(thisSideMove.x, otherSideMove.x),
-//            absMin(thisSideMove.y, otherSideMove.y),
-//            absMin(thisSideMove.z, otherSideMove.z)
-//        );
     }
     
     private static double absMin(double a, double b) {
@@ -148,8 +115,7 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
-        //avoid cannot enter scaled view type end portal
-        if (!collidingPortal.teleportChangesScale && collidingPortal.hasScaling()) {
+        if (!collidingPortal.hasCrossPortalCollision()) {
             return attemptedMove;
         }
         
@@ -187,12 +153,6 @@ public class CollisionHelper {
         entity.setBoundingBox(originalBoundingBox);
         
         return result;
-
-//        double finalX = correctCoordinate(attemptedMove.x, result.x);
-//        double finalY = correctCoordinate(attemptedMove.y, result.y);
-//        double finalZ = correctCoordinate(attemptedMove.z, result.z);
-//
-//        return new Vec3d(finalX, finalY, finalZ);
     }
     
     // floating point deviation may cause collision issues

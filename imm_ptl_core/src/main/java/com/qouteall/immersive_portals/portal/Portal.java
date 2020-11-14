@@ -1035,6 +1035,10 @@ public class Portal extends Entity implements PortalLike {
         portalDisposeSignal.emit(this);
     }
     
+    public boolean hasCrossPortalCollision() {
+        return true;
+    }
+    
     @Environment(EnvType.CLIENT)
     public PortalLike getRenderingDelegate() {
         if (Global.mergePortalRendering) {
