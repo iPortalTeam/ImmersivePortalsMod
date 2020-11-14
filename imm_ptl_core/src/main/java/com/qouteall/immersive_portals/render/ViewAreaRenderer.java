@@ -125,21 +125,24 @@ public class ViewAreaRenderer {
         Portal portal,
         Vec3d posInPlayerCoordinate
     ) {
+        //avoid floating point error for converted global portal
+        final double w = Math.min(portal.width, 23333);
+        final double h = Math.min(portal.height, 23333);
         Vec3d v0 = portal.getPointInPlaneLocal(
-            portal.width / 2 - (double) 0,
-            -portal.height / 2 + (double) 0
+            w / 2 - (double) 0,
+            -h / 2 + (double) 0
         );
         Vec3d v1 = portal.getPointInPlaneLocal(
-            -portal.width / 2 + (double) 0,
-            -portal.height / 2 + (double) 0
+            -w / 2 + (double) 0,
+            -h / 2 + (double) 0
         );
         Vec3d v2 = portal.getPointInPlaneLocal(
-            portal.width / 2 - (double) 0,
-            portal.height / 2 - (double) 0
+            w / 2 - (double) 0,
+            h / 2 - (double) 0
         );
         Vec3d v3 = portal.getPointInPlaneLocal(
-            -portal.width / 2 + (double) 0,
-            portal.height / 2 - (double) 0
+            -w / 2 + (double) 0,
+            h / 2 - (double) 0
         );
         
         putIntoQuad(

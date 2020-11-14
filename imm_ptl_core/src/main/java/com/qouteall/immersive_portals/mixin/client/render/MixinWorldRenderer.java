@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
@@ -657,16 +658,23 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     public void portal_setRenderDistance(int arg) {
         renderDistance = arg;
         
+        ModMain.preRenderTaskList.addTask(() -> {
+            portal_increaseRenderDistance(arg);
+            return true;
+        });
+    }
+    
+    private void portal_increaseRenderDistance(int targetRadius) {
         if (chunks instanceof MyBuiltChunkStorage) {
             int radius = ((MyBuiltChunkStorage) chunks).getRadius();
             
-            if (radius < arg) {
-                Helper.log("Resizing built chunk storage to " + arg);
+            if (radius < targetRadius) {
+                Helper.log("Resizing built chunk storage to " + targetRadius);
                 
                 chunks.clear();
                 
                 chunks = new MyBuiltChunkStorage(
-                    chunkBuilder, world, arg, ((WorldRenderer) (Object) this)
+                    chunkBuilder, world, targetRadius, ((WorldRenderer) (Object) this)
                 );
             }
         }

@@ -273,6 +273,9 @@ public class GlobalPortalStorage extends PersistentState {
         Validate.isTrue(!portal.getIsGlobal());
         Validate.isTrue(!portal.world.isClient());
         
+        //global portal can only be square
+        portal.specialShape = null;
+        
         portal.remove();
         
         Portal newPortal = McHelper.copyEntity(portal);

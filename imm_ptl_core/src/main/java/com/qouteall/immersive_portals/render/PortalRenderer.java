@@ -168,7 +168,7 @@ public abstract class PortalRenderer {
         }
         
         Entity cameraEntity = client.cameraEntity;
-    
+        
         ClientWorld newWorld = ClientWorldLoader.getWorld(portal.getDestDim());
         
         Camera camera = client.gameRenderer.getCamera();
@@ -198,6 +198,8 @@ public abstract class PortalRenderer {
     private static int getPortalRenderDistance(PortalLike portal) {
         if (portal.getScale() > 2) {
             double radiusBlocks = portal.getDestAreaRadiusEstimation() * 1.4;
+            
+            radiusBlocks = Math.min(radiusBlocks, 32 * 16);
             
             return Math.max((int) (radiusBlocks / 16), client.options.viewDistance);
         }
