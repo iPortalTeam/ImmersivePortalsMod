@@ -266,6 +266,8 @@ public class GlobalPortalStorage extends PersistentState {
             p.isGlobalPortal = true;
             
             Validate.isTrue(p.isPortalValid());
+            
+            ClientWorldLoader.getWorld(p.getDestDim());
         }
         
         ((IEClientWorld) world).setGlobalPortals(newPortals);
