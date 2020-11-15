@@ -23,7 +23,16 @@ public class MyTaskList {
         tasks.addAll(tasksToAdd);
         tasksToAdd.clear();
         
-        Helper.removeIf(tasks, task -> task.runAndGetIsSucceeded());
+        Helper.removeIf(tasks, task -> {
+            try {
+                return task.runAndGetIsSucceeded();
+            }
+            catch (Throwable e) {
+                Helper.err("Failed to process task " + task);
+                e.printStackTrace();
+                return true;
+            }
+        });
     }
     
     public synchronized void forceClearTasks() {
