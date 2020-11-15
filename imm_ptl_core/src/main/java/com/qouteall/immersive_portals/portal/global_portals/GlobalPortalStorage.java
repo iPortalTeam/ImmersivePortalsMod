@@ -108,6 +108,8 @@ public class GlobalPortalStorage extends PersistentState {
     public void addPortal(Portal portal) {
         Validate.isTrue(!data.contains(portal));
         
+        Validate.isTrue(portal.isPortalValid());
+        
         portal.isGlobalPortal = true;
         portal.removed = false;
         data.add(portal);
@@ -262,6 +264,8 @@ public class GlobalPortalStorage extends PersistentState {
         for (Portal p : newPortals) {
             p.removed = false;
             p.isGlobalPortal = true;
+            
+            Validate.isTrue(p.isPortalValid());
         }
         
         ((IEClientWorld) world).setGlobalPortals(newPortals);

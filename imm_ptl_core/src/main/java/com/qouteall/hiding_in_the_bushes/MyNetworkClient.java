@@ -2,13 +2,11 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.network.CommonNetwork;
-import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -16,9 +14,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
@@ -32,7 +27,6 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
@@ -77,33 +71,8 @@ public class MyNetworkClient {
         RegistryKey<World> dim = DimId.readWorldId(buf, true);
         
         CompoundTag compoundTag = buf.readCompoundTag();
-        
-        Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
-        if (!entityType.isPresent()) {
-            Helper.err("unknown entity type " + entityTypeString);
-            return;
-        }
-        
-        CHelper.executeOnRenderThread(() -> {
-            client.getProfiler().push("ip_spawn_entity");
     
-            ClientWorld world = ClientWorldLoader.getWorld(dim);
-            
-            Entity entity = entityType.get().create(
-                world
-            );
-            entity.fromTag(compoundTag);
-            entity.setEntityId(entityId);
-            entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
-            world.addEntity(entityId, entity);
-            
-            //do not create client world while rendering or gl states will be disturbed
-            if (entity instanceof Portal) {
-                ClientWorldLoader.getWorld(((Portal) entity).dimensionTo);
-            }
-            
-            client.getProfiler().pop();
-        });
+        CommonNetwork.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
