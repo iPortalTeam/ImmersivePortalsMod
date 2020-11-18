@@ -3,6 +3,7 @@
   "package": "com.qouteall.imm_ptl_peripheral.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+
     "common.alternate_dimension.MixinAvoidSunlightGoal",
     "common.alternate_dimension.MixinBedBlock",
     "common.alternate_dimension.MixinDimensionType",
@@ -28,6 +29,7 @@
     "client.alternate_dimension.MixinBackgroundRenderer_A",
     "client.alternate_dimension.MixinClientWorld_A",
     "client.alternate_dimension.MixinWorldRenderer_A",
+    "client.altius_world.IEMoreOptionsDialog",
     "client.altius_world.MixinCreateWorldScreen",
     "client.altius_world.MixinWorldRenderer_A"
   ],

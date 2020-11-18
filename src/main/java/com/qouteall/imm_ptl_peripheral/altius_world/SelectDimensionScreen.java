@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
@@ -18,30 +19,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SelectDimensionScreen extends Screen {
     public final AltiusScreen parent;
     private DimListWidget dimListWidget;
     private ButtonWidget confirmButton;
     private Consumer<RegistryKey<World>> outerCallback;
+    private Supplier<GeneratorOptions> generatorOptionsSupplier;
     
-    protected SelectDimensionScreen(AltiusScreen parent, Consumer<RegistryKey<World>> callback) {
+    protected SelectDimensionScreen(AltiusScreen parent, Consumer<RegistryKey<World>> callback, Supplier<GeneratorOptions> generatorOptionsSupplier1) {
         super(new TranslatableText("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
+        
+        generatorOptionsSupplier = generatorOptionsSupplier1;
     }
     
-    public List<RegistryKey<World>> getDimensionList() {
-        GeneratorOptions generatorOptions =
-            parent.parent.moreOptionsDialog.getGeneratorOptions(false);
+    public static List<RegistryKey<World>> getDimensionList(
+        Supplier<GeneratorOptions> generatorOptionsSupplier,
+        DynamicRegistryManager.Impl dynamicRegistryManager
+    ) {
         
+        final GeneratorOptions generatorOptions = generatorOptionsSupplier.get();
         SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
         
-        // TODO use an appropriate way to detect other mod's dimensions
+        // Alternate dimensions are added in a special way
         if (Global.enableAlternateDimensions) {
             AlternateDimensions.addAlternateDimensions(
                 dimensionMap,
-                parent.parent.moreOptionsDialog.method_29700(),
+                dynamicRegistryManager,
                 generatorOptions.getSeed()
             );
         }
@@ -69,7 +76,7 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimTermWidget> callback = w -> dimListWidget.setSelected(w);
         
-        for (RegistryKey<World> dim : getDimensionList()) {
+        for (RegistryKey<World> dim : getDimensionList(this.generatorOptionsSupplier, this.parent.parent.moreOptionsDialog.method_29700())) {
             dimListWidget.terms.add(new DimTermWidget(dim, dimListWidget, callback));
         }
         
@@ -89,13 +96,13 @@ public class SelectDimensionScreen extends Screen {
         ));
         
     }
-
+    
     @Override
     public void onClose() {
         // When `esc` is pressed return to the parent screen rather than setting screen to `null` which returns to the main menu.
         this.client.openScreen(this.parent);
     }
-
+    
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrixStack);

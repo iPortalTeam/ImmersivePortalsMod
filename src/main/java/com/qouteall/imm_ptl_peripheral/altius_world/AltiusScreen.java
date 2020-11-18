@@ -3,6 +3,7 @@ package com.qouteall.imm_ptl_peripheral.altius_world;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -12,21 +13,24 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.GeneratorOptions;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AltiusScreen extends Screen {
     CreateWorldScreen parent;
-    private ButtonWidget backButton;
-    private ButtonWidget toggleButton;
-    private ButtonWidget addDimensionButton;
-    private ButtonWidget removeDimensionButton;
+    private final ButtonWidget backButton;
+    private final ButtonWidget toggleButton;
+    private final ButtonWidget addDimensionButton;
+    private final ButtonWidget removeDimensionButton;
     
     private int titleY;
     
     public boolean isEnabled = false;
-    private DimListWidget dimListWidget;
+    private final DimListWidget dimListWidget;
+    private final Supplier<GeneratorOptions> generatorOptionsSupplier1;
     
     public AltiusScreen(CreateWorldScreen parent) {
         super(new TranslatableText("imm_ptl.altius_screen"));
@@ -86,6 +90,11 @@ public class AltiusScreen extends Screen {
         dimListWidget.terms.add(
             new DimTermWidget(World.NETHER, dimListWidget, callback)
         );
+        
+        generatorOptionsSupplier1 = Helper.cached(() -> {
+            GeneratorOptions rawGeneratorOptions = this.parent.moreOptionsDialog.getGeneratorOptions(false);
+            return WorldCreationDimensionHelper.getPopulatedGeneratorOptions(this.parent, rawGeneratorOptions);
+        });
     }
     
     //nullable
@@ -153,13 +162,13 @@ public class AltiusScreen extends Screen {
             CHelper.LayoutElement.blankSpace(15)
         );
     }
-
+    
     @Override
     public void onClose() {
         // When `esc` is pressed return to the parent screen rather than setting screen to `null` which returns to the main menu.
         this.client.openScreen(this.parent);
     }
-
+    
     private Consumer<DimTermWidget> getElementSelectCallback() {
         return w -> dimListWidget.setSelected(w);
     }
@@ -212,6 +221,7 @@ public class AltiusScreen extends Screen {
         
         int insertingPosition = position + 1;
         
+        
         MinecraftClient.getInstance().openScreen(
             new SelectDimensionScreen(
                 this,
@@ -226,7 +236,7 @@ public class AltiusScreen extends Screen {
                     );
                     removeDuplicate(insertingPosition);
                     dimListWidget.update();
-                }
+                }, generatorOptionsSupplier1
             )
         );
     }

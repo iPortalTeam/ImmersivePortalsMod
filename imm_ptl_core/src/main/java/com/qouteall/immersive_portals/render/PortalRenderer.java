@@ -86,6 +86,7 @@ public abstract class PortalRenderer {
                     
                     PortalLike renderingDelegate = portal.getRenderingDelegate();
                     
+                    // this is O(n^2) but not hot spot
                     if (!portalsToRender.contains(renderingDelegate)) {
                         portalsToRender.add(renderingDelegate);
                     }
