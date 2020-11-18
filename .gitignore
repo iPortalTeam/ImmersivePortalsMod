@@ -38,3 +38,5 @@ deps/
 
 # whatever
 logs/
+/deps_unused/
+/deps/
