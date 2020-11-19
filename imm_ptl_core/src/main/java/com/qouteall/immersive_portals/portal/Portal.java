@@ -379,9 +379,14 @@ public class Portal extends Entity implements PortalLike {
             return new Box(0, 0, 0, 0, 0, 0);
         }
         if (boundingBoxCache == null) {
-            // avoid bounding box too big after converting global portal to normal portal
-            double w = Math.min(this.width, 64.0);
-            double h = Math.min(this.height, 64.0);
+            double w = width;
+            double h = height;
+            if (!getIsGlobal()) {
+                // avoid bounding box too big after converting global portal to normal portal
+                w = Math.min(this.width, 64.0);
+                h = Math.min(this.height, 64.0);
+            }
+            
             boundingBoxCache = new Box(
                 getPointInPlane(w / 2, h / 2)
                     .add(getNormal().multiply(0.2)),
