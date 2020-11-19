@@ -59,5 +59,6 @@
   "gamerule.ipDimensionStack": "Dimension Stack (Immersive Portals)",
   "gamerule.ipDimensionStack.description": "You don't need to change this here",
   "imm_ptl.chunk_unload_delay_ticks" : "Chunk Unload Delay (Ticks)",
-  "imm_ptl.automatic_rendering_merge": "Automatically Merge Portal Rendering (Experimental)"
+  "imm_ptl.automatic_rendering_merge": "Automatically Merge Portal Rendering (Experimental)",
+  "imm_ptl.dim_stack_initialized": "Dimension Stack World Initialized"
 }

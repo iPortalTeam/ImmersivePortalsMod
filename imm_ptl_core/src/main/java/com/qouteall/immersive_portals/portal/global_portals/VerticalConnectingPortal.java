@@ -40,7 +40,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         RegistryKey<World> to
     ) {
         int upY = connectorType == ConnectorType.ceil ? getHeight(from) : getHeight(to);
-        connect(from, connectorType, to, 0, upY);
+        connect(from, connectorType, to, 0, upY, false);
     }
     
     public static void connect(
@@ -48,7 +48,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         ConnectorType connectorType,
         RegistryKey<World> to,
         int downY,
-        int upY
+        int upY,
+        boolean respectSpaceRatio
     ) {
         removeConnectingPortal(connectorType, from);
         
@@ -59,7 +60,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             connectorType,
             McHelper.getServer().getWorld(to),
             downY,
-            upY
+            upY,
+            respectSpaceRatio
         );
         
         GlobalPortalStorage storage = GlobalPortalStorage.get(fromWorld);
@@ -71,10 +73,11 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         RegistryKey<World> up,
         RegistryKey<World> down,
         int downY,
-        int upY
+        int upY,
+        boolean respectSpaceRatio
     ) {
-        connect(up, ConnectorType.floor, down, downY, upY);
-        connect(down, ConnectorType.ceil, up, downY, upY);
+        connect(up, ConnectorType.floor, down, downY, upY, respectSpaceRatio);
+        connect(down, ConnectorType.ceil, up, downY, upY, respectSpaceRatio);
     }
     
     private static VerticalConnectingPortal createConnectingPortal(
@@ -82,7 +85,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         ConnectorType connectorType,
         ServerWorld toWorld,
         int downY,
-        int upY
+        int upY,
+        boolean respectSpaceRatio
     ) {
         VerticalConnectingPortal verticalConnectingPortal = new VerticalConnectingPortal(
             entityType, fromWorld
@@ -107,6 +111,12 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         verticalConnectingPortal.dimensionTo = toWorld.getRegistryKey();
         verticalConnectingPortal.width = 23333333333.0d;
         verticalConnectingPortal.height = 23333333333.0d;
+    
+        if (respectSpaceRatio) {
+            verticalConnectingPortal.scaling =
+                toWorld.getDimension().getCoordinateScale() / fromWorld.getDimension().getCoordinateScale();
+        }
+        
         return verticalConnectingPortal;
     }
     
