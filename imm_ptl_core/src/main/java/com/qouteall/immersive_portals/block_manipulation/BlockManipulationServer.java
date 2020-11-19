@@ -135,7 +135,7 @@ public class BlockManipulationServer {
             return new Pair<>(blockHitResult, world.getRegistryKey());
         }
         
-        Vec3d newCenter = portal.transformPoint(hitCenter.add(sideVec));
+        Vec3d newCenter = portal.transformPoint(hitCenter.add(sideVec.multiply(0.501)));
         BlockPos placingBlockPos = new BlockPos(newCenter);
         
         BlockHitResult newHitResult = new BlockHitResult(
