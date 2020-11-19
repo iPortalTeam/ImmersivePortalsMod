@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
-import com.qouteall.immersive_portals.chunk_loading.EntitySync;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
@@ -37,7 +37,7 @@ public abstract class MixinEntityTrackerEntry {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        EntitySync.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
     }
     
     @Inject(
@@ -48,7 +48,7 @@ public abstract class MixinEntityTrackerEntry {
         )
     )
     private void injectSendpacketsOnStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
-        this.sendPackets(packet -> EntitySync.sendRedirectedPacket(player.networkHandler, packet, entity.world.getRegistryKey()));
+        this.sendPackets(packet -> CommonNetwork.sendRedirectedPacket(player.networkHandler, packet, entity.world.getRegistryKey()));
     }
     
     @Redirect(
@@ -76,6 +76,6 @@ public abstract class MixinEntityTrackerEntry {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        EntitySync.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
     }
 }

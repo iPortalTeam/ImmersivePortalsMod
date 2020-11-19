@@ -1,8 +1,10 @@
 package com.qouteall.immersive_portals.network;
 
+import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
@@ -15,9 +17,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 // common between Fabric and Forge
@@ -27,6 +32,8 @@ public class CommonNetwork {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     private static boolean isProcessingRedirectedMessage = false;
+    @Nullable
+    public static RegistryKey<World> forceRedirect = null;
     
     public static boolean getIsProcessingRedirectedMessage() {
         return isProcessingRedirectedMessage;
@@ -130,5 +137,46 @@ public class CommonNetwork {
             
             client.getProfiler().pop();
         });
+    }
+    
+    public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
+        Validate.isTrue(McHelper.getServer().getThread() == Thread.currentThread());
+        
+        RegistryKey<World> oldForceRedirect = forceRedirect;
+        forceRedirect = dimension;
+        try {
+            func.run();
+        }
+        finally {
+            forceRedirect = oldForceRedirect;
+        }
+    }
+    
+    /**
+     * If it's not null, all sent packets will be wrapped into redirected packet
+     * {@link com.qouteall.immersive_portals.mixin.common.entity_sync.MixinServerPlayNetworkHandler_E}
+     */
+    @Nullable
+    public static RegistryKey<World> getForceRedirectDimension() {
+        return forceRedirect;
+    }
+    
+    // avoid duplicate redirect nesting
+    public static void sendRedirectedPacket(
+        ServerPlayNetworkHandler serverPlayNetworkHandler,
+        Packet<?> packet,
+        RegistryKey<World> dimension
+    ) {
+        if (getForceRedirectDimension() == dimension) {
+            serverPlayNetworkHandler.sendPacket(packet);
+        }
+        else {
+            serverPlayNetworkHandler.sendPacket(
+                MyNetwork.createRedirectedMessage(
+                    dimension,
+                    packet
+                )
+            );
+        }
     }
 }

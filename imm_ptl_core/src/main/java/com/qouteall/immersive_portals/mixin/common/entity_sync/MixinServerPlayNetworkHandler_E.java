@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.immersive_portals.chunk_loading.EntitySync;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,10 +16,10 @@ public class MixinServerPlayNetworkHandler_E {
         argsOnly = true
     )
     private Packet modifyPacket(Packet originalPacket) {
-        if (EntitySync.getForceRedirectDimension() == null) {
+        if (CommonNetwork.getForceRedirectDimension() == null) {
             return originalPacket;
         }
         
-        return MyNetwork.createRedirectedMessage(EntitySync.getForceRedirectDimension(), originalPacket);
+        return MyNetwork.createRedirectedMessage(CommonNetwork.getForceRedirectDimension(), originalPacket);
     }
 }

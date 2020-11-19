@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
 import com.google.common.collect.Lists;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -93,7 +93,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
             }
         }
         
-        EntitySync.withForceRedirect(
+        CommonNetwork.withForceRedirect(
             world.getRegistryKey(),
             () -> {
                 for (Entity entity : attachedEntityList) {

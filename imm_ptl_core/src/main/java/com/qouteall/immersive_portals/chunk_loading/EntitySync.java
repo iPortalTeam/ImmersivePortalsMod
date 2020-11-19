@@ -1,32 +1,23 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EntitySync {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
-    
-    @Nullable
-    private static RegistryKey<World> forceRedirect = null;
     
     public static void init() {
         ModMain.postServerTickSignal.connect(EntitySync::tick);
@@ -69,7 +60,7 @@ public class EntitySync {
             Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
             
-            withForceRedirect(world.getRegistryKey(), () -> {
+            CommonNetwork.withForceRedirect(world.getRegistryKey(), () -> {
                 for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
                     ((IEEntityTracker) tracker).tickEntry();
                     
@@ -100,44 +91,4 @@ public class EntitySync {
         ((IEEntityTracker) tracker).setLastCameraPosition(currPos);
     }
     
-    public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
-        Validate.isTrue(McHelper.getServer().getThread() == Thread.currentThread());
-        
-        RegistryKey<World> oldForceRedirect = EntitySync.forceRedirect;
-        forceRedirect = dimension;
-        try {
-            func.run();
-        }
-        finally {
-            forceRedirect = oldForceRedirect;
-        }
-    }
-    
-    /**
-     * If it's not null, all sent packets will be wrapped into redirected packet
-     * {@link com.qouteall.immersive_portals.mixin.common.entity_sync.MixinServerPlayNetworkHandler_E}
-     */
-    @Nullable
-    public static RegistryKey<World> getForceRedirectDimension() {
-        return forceRedirect;
-    }
-    
-    // avoid duplicate redirect nesting
-    public static void sendRedirectedPacket(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
-        Packet<?> packet,
-        RegistryKey<World> dimension
-    ) {
-        if (getForceRedirectDimension() == dimension) {
-            serverPlayNetworkHandler.sendPacket(packet);
-        }
-        else {
-            serverPlayNetworkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
-                    dimension,
-                    packet
-                )
-            );
-        }
-    }
 }

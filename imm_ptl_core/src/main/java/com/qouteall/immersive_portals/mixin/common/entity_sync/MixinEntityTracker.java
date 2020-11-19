@@ -2,10 +2,10 @@ package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
+import com.qouteall.immersive_portals.network.CommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
@@ -61,7 +61,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        EntitySync.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
     }
     
     @Redirect(
@@ -75,7 +75,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        EntitySync.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
     }
     
     /**
@@ -136,7 +136,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             }
             
             if (shouldTrack && this.playersTracking.add(player)) {
-                EntitySync.withForceRedirect(
+                CommonNetwork.withForceRedirect(
                     entity.world.getRegistryKey(),
                     () -> {
                         this.entry.startTracking(player);
@@ -145,7 +145,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             }
         }
         else if (this.playersTracking.remove(player)) {
-            EntitySync.withForceRedirect(
+            CommonNetwork.withForceRedirect(
                 entity.world.getRegistryKey(),
                 () -> {
                     this.entry.stopTracking(player);
