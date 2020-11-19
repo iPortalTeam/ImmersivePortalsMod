@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.global_portals;
 
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalExtension;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -20,10 +21,10 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     private static Predicate<Portal> getPredicate(ConnectorType connectorType) {
         switch (connectorType) {
             case floor:
-                return portal -> portal instanceof VerticalConnectingPortal&& portal.getNormal().y > 0;
+                return portal -> portal instanceof VerticalConnectingPortal && portal.getNormal().y > 0;
             default:
             case ceil:
-                return portal -> portal instanceof VerticalConnectingPortal&& portal.getNormal().y < 0;
+                return portal -> portal instanceof VerticalConnectingPortal && portal.getNormal().y < 0;
         }
     }
     
@@ -123,11 +124,12 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         verticalConnectingPortal.dimensionTo = toWorld.getRegistryKey();
         verticalConnectingPortal.width = 23333333333.0d;
         verticalConnectingPortal.height = 23333333333.0d;
-    
+        
         if (respectSpaceRatio) {
             verticalConnectingPortal.scaling =
                 fromWorld.getDimension().getCoordinateScale() / toWorld.getDimension().getCoordinateScale();
             verticalConnectingPortal.teleportChangesScale = false;
+            PortalExtension.get(verticalConnectingPortal).adjustPositionAfterTeleport = false;
         }
         
         return verticalConnectingPortal;

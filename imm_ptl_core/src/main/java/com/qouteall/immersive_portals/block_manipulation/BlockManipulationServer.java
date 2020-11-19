@@ -78,7 +78,8 @@ public class BlockManipulationServer {
             20
         ).anyMatch(portal ->
             portal.dimensionTo == dimension &&
-                portal.transformPointRough(playerPos).squaredDistanceTo(pos) < distanceSquare
+                portal.transformPointRough(playerPos).squaredDistanceTo(pos) <
+                    distanceSquare * portal.getScale() * portal.getScale()
         );
     }
     
@@ -120,10 +121,10 @@ public class BlockManipulationServer {
     ) {
         Direction side = blockHitResult.getSide();
         Vec3d sideVec = Vec3d.of(side.getVector());
-        Vec3d hitCenter =  Vec3d.ofCenter(blockHitResult.getBlockPos());
+        Vec3d hitCenter = Vec3d.ofCenter(blockHitResult.getBlockPos());
         
         List<Portal> globalPortals = McHelper.getGlobalPortals(world);
-    
+        
         Portal portal = globalPortals.stream().filter(p ->
             p.getContentDirection().dotProduct(sideVec) > 0.9
                 && p.isPointInPortalProjection(hitCenter)
