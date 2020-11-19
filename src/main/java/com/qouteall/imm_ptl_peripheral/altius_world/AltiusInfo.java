@@ -86,12 +86,6 @@ public class AltiusInfo {
         ((IELevelProperties) saveProperties).setAltiusInfo(null);
     }
     
-    // use AltiusGameRule
-    @Deprecated
-    public static boolean isAltius() {
-        return getInfoFromServer() != null;
-    }
-    
     public void createPortals() {
         List<ServerWorld> worldsFromTopToDown = dimsFromTopToDown.stream().flatMap(identifier -> {
             RegistryKey<World> dimension = DimId.idToKey(identifier);
@@ -126,13 +120,20 @@ public class AltiusInfo {
             (top, down) -> {
                 VerticalConnectingPortal.connectMutually(
                     top.getRegistryKey(), down.getRegistryKey(),
-                    0, VerticalConnectingPortal.getHeight(down.getRegistryKey()),
                     respectSpaceRatio
                 );
                 return null;
             }
         ).forEach(k -> {
         });
+        
+        if (loop) {
+            VerticalConnectingPortal.connectMutually(
+                Helper.lastOf(worldsFromTopToDown).getRegistryKey(),
+                Helper.firstOf(worldsFromTopToDown).getRegistryKey(),
+                respectSpaceRatio
+            );
+        }
         
         McHelper.sendMessageToFirstLoggedPlayer(
             new TranslatableText("imm_ptl.dim_stack_initialized")

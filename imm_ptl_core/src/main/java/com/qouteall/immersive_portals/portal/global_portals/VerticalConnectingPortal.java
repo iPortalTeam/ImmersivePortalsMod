@@ -72,6 +72,18 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     public static void connectMutually(
         RegistryKey<World> up,
         RegistryKey<World> down,
+        boolean respectSpaceRatio
+    ) {
+        connectMutually(
+            up, down,
+            0, getHeight(down),
+            respectSpaceRatio
+        );
+    }
+    
+    public static void connectMutually(
+        RegistryKey<World> up,
+        RegistryKey<World> down,
         int downY,
         int upY,
         boolean respectSpaceRatio
@@ -114,7 +126,8 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     
         if (respectSpaceRatio) {
             verticalConnectingPortal.scaling =
-                toWorld.getDimension().getCoordinateScale() / fromWorld.getDimension().getCoordinateScale();
+                fromWorld.getDimension().getCoordinateScale() / toWorld.getDimension().getCoordinateScale();
+            verticalConnectingPortal.teleportChangesScale = false;
         }
         
         return verticalConnectingPortal;

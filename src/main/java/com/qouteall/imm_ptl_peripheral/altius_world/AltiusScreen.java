@@ -4,6 +4,8 @@ import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Environment(EnvType.CLIENT)
 public class AltiusScreen extends Screen {
     CreateWorldScreen parent;
     private final ButtonWidget backButton;
@@ -26,11 +29,17 @@ public class AltiusScreen extends Screen {
     private final ButtonWidget addDimensionButton;
     private final ButtonWidget removeDimensionButton;
     
+    private final ButtonWidget respectSpaceRatioButton;
+    private final ButtonWidget loopButton;
+    
     private int titleY;
     
     public boolean isEnabled = false;
     private final DimListWidget dimListWidget;
     private final Supplier<GeneratorOptions> generatorOptionsSupplier1;
+    
+    private boolean respectSpaceRatio = false;
+    private boolean loop = false;
     
     public AltiusScreen(CreateWorldScreen parent) {
         super(new TranslatableText("imm_ptl.altius_screen"));
@@ -66,6 +75,30 @@ public class AltiusScreen extends Screen {
             }
         );
         
+        respectSpaceRatioButton = new ButtonWidget(
+            0, 0, 72, 20,
+            new TranslatableText("imm_ptl.respect_space_ratio_disabled"),
+            (buttonWidget) -> {
+                respectSpaceRatio = !respectSpaceRatio;
+                buttonWidget.setMessage(new TranslatableText(
+                    respectSpaceRatio ?
+                        "imm_ptl.respect_space_ratio_enabled" : "imm_ptl.respect_space_ratio_disabled"
+                ));
+            }
+        );
+        
+        loopButton = new ButtonWidget(
+            0, 0, 72, 20,
+            new TranslatableText("imm_ptl.loop_disabled"),
+            (buttonWidget) -> {
+                loop = !loop;
+                buttonWidget.setMessage(new TranslatableText(
+                    loop ?
+                        "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
+                ));
+            }
+        );
+        
         dimListWidget = new DimListWidget(
             width,
             height,
@@ -92,8 +125,11 @@ public class AltiusScreen extends Screen {
         );
         
         generatorOptionsSupplier1 = Helper.cached(() -> {
-            GeneratorOptions rawGeneratorOptions = this.parent.moreOptionsDialog.getGeneratorOptions(false);
-            return WorldCreationDimensionHelper.getPopulatedGeneratorOptions(this.parent, rawGeneratorOptions);
+            GeneratorOptions rawGeneratorOptions =
+                this.parent.moreOptionsDialog.getGeneratorOptions(false);
+            return WorldCreationDimensionHelper.getPopulatedGeneratorOptions(
+                this.parent, rawGeneratorOptions
+            );
         });
     }
     
@@ -103,7 +139,8 @@ public class AltiusScreen extends Screen {
             return new AltiusInfo(
                 dimListWidget.terms.stream().map(
                     w -> w.dimension
-                ).collect(Collectors.toList())
+                ).collect(Collectors.toList()),
+                loop, respectSpaceRatio
             );
         }
         else {
@@ -118,6 +155,9 @@ public class AltiusScreen extends Screen {
         addButton(backButton);
         addButton(addDimensionButton);
         addButton(removeDimensionButton);
+    
+        addButton(loopButton);
+        addButton(respectSpaceRatioButton);
         
         setEnabled(isEnabled);
         
@@ -144,6 +184,19 @@ public class AltiusScreen extends Screen {
                 );
             }),
             CHelper.LayoutElement.blankSpace(15),
+            new CHelper.LayoutElement(true, 20, (from, to) -> {
+                respectSpaceRatioButton.y = from;
+                loopButton.y = from;
+                CHelper.layout(
+                    0, width,
+                    CHelper.LayoutElement.blankSpace(20),
+                    CHelper.LayoutElement.layoutX(respectSpaceRatioButton, 1),
+                    CHelper.LayoutElement.blankSpace(10),
+                    CHelper.LayoutElement.layoutX(loopButton, 1),
+                    CHelper.LayoutElement.blankSpace(20)
+                );
+            }),
+            CHelper.LayoutElement.blankSpace(10),
             new CHelper.LayoutElement(true, 20, (from, to) -> {
                 backButton.y = from;
                 addDimensionButton.y = from;
@@ -202,6 +255,9 @@ public class AltiusScreen extends Screen {
         }
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;
+    
+        loopButton.visible = isEnabled;
+        respectSpaceRatioButton.visible = isEnabled;
     }
     
     private void onAddDimension() {
@@ -267,4 +323,5 @@ public class AltiusScreen extends Screen {
             }
         }
     }
+    
 }

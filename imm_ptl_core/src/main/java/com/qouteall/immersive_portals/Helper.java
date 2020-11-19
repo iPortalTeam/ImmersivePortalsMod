@@ -475,7 +475,7 @@ public class Helper {
     /**
      * {@link ObjectList} does not override removeIf() so it's O(n^2)
      * {@link ArrayList#removeIf(Predicate)} uses a bitset to ensure integrity
-     *  in case of exception thrown but introduces performance overhead
+     * in case of exception thrown but introduces performance overhead
      */
     public static <T> void removeIf(ObjectList<T> list, Predicate<T> predicate) {
         int placingIndex = 0;
@@ -938,6 +938,16 @@ public class Helper {
         double dz = getDistanceToRange(box.minZ, box.maxZ, point.z);
         
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    
+    public static <T> T firstOf(List<T> list) {
+        Validate.isTrue(!list.isEmpty());
+        return list.get(0);
+    }
+    
+    public static <T> T lastOf(List<T> list) {
+        Validate.isTrue(!list.isEmpty());
+        return list.get(list.size() - 1);
     }
     
 }
