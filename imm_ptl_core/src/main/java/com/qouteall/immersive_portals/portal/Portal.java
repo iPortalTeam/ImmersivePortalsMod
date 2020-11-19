@@ -496,6 +496,12 @@ public class Portal extends Entity implements PortalLike {
         else {
             entity.setVelocity(transformLocalVec(entity.getVelocity()));
         }
+        
+        final int maxVelocity = 15;
+        if (entity.getVelocity().length() > maxVelocity) {
+            // cannot be too fast
+            entity.setVelocity(entity.getVelocity().normalize().multiply(maxVelocity));
+        }
     }
     
     public boolean canTeleportEntity(Entity entity) {
