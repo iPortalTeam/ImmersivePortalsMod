@@ -16,6 +16,7 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -100,10 +101,16 @@ public class EntitySync {
     }
     
     public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
+        Validate.isTrue(McHelper.getServer().getThread() == Thread.currentThread());
+        
         RegistryKey<World> oldForceRedirect = EntitySync.forceRedirect;
         forceRedirect = dimension;
-        func.run();
-        forceRedirect = oldForceRedirect;
+        try {
+            func.run();
+        }
+        finally {
+            forceRedirect = oldForceRedirect;
+        }
     }
     
     /**
