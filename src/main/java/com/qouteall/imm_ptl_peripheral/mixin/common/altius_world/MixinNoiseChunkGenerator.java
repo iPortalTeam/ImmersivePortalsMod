@@ -41,7 +41,7 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
         cancellable = true
     )
     private void onBuildBedrock(Chunk chunk, Random random, CallbackInfo ci) {
-        if (AltiusGameRule.getIsDimensionStackCache()) {
+        if (AltiusGameRule.getIsDimensionStack()) {
             buildAltiusBedrock(chunk, random);
             ci.cancel();
         }
