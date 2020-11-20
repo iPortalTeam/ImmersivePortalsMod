@@ -478,17 +478,15 @@ public class McHelper {
         Predicate<T> predicate
     ) {
         ArrayList<T> result = new ArrayList<>();
-        
-        Consumer<T> consumer = entity1 -> {
-            if (predicate.test(entity1)) {
-                result.add(entity1);
-            }
-        };
-        
+    
         foreachEntities(
             entityClass, chunkAccessor,
             chunkXStart, chunkXEnd, chunkYStart, chunkYEnd, chunkZStart, chunkZEnd,
-            consumer
+            entity -> {
+                if (predicate.test(entity)) {
+                    result.add(entity);
+                }
+            }
         );
         return result;
     }
@@ -559,6 +557,27 @@ public class McHelper {
         double maxEntityRadius,
         Predicate<T> predicate
     ) {
+        ArrayList<T> result = new ArrayList<>();
+        
+        foreachEntitiesByBox(entityClass, world, box, maxEntityRadius, predicate, result::add);
+        return result;
+    }
+    
+    public static <T extends Entity> void foreachEntitiesByBox(
+        Class<T> entityClass, World world, Box box,
+        double maxEntityRadius, Predicate<T> predicate, Consumer<T> consumer
+    ) {
+        
+        foreachEntitiesByBoxApproximateRegions(entityClass, world, box, maxEntityRadius, entity -> {
+            if (entity.getBoundingBox().intersects(box) && predicate.test(entity)) {
+                consumer.accept(entity);
+            }
+        });
+    }
+    
+    public static <T extends Entity> void foreachEntitiesByBoxApproximateRegions(
+        Class<T> entityClass, World world, Box box, double maxEntityRadius, Consumer<T> consumer
+    ) {
         int xMin = (int) Math.floor(box.minX - maxEntityRadius);
         int yMin = (int) Math.floor(box.minY - maxEntityRadius);
         int zMin = (int) Math.floor(box.minZ - maxEntityRadius);
@@ -566,16 +585,12 @@ public class McHelper {
         int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
         int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
         
-        return findEntities(
-            entityClass,
-            getChunkAccessor(world),
-            xMin >> 4,
-            xMax >> 4,
-            Math.max(0, yMin >> 4),
-            Math.min(15, yMax >> 4),
-            zMin >> 4,
-            zMax >> 4,
-            e -> e.getBoundingBox().intersects(box) && predicate.test(e)
+        foreachEntities(
+            entityClass, getChunkAccessor(world),
+            xMin >> 4, xMax >> 4,
+            Math.max(0, yMin >> 4), Math.min(15, yMax >> 4),
+            zMin >> 4, zMax >> 4,
+            consumer
         );
     }
     
