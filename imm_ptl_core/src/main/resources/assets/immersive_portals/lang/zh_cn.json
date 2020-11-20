@@ -58,5 +58,11 @@
   "imm_ptl.visibility_prediction": "渲染时预测传送门是否可见",
   "gamerule.ipDimensionStack": "位面纵向堆叠",
   "gamerule.ipDimensionStack.description": "不用修改",
-  "imm_ptl.chunk_unload_delay_ticks": "区块卸载延迟（ticks）"
+  "imm_ptl.chunk_unload_delay_ticks": "区块卸载延迟（ticks）",
+  "imm_ptl.automatic_rendering_merge": "Automatically Merge Portal Rendering (Experimental)",
+  "imm_ptl.dim_stack_initialized": "[Immersive Portals] Dimension Stack World Initialized",
+  "imm_ptl.respect_space_ratio_enabled": "Respect Space Ratio Enabled",
+  "imm_ptl.respect_space_ratio_disabled": "Respect Space Ratio Disabled",
+  "imm_ptl.loop_enabled": "Loop Enabled",
+  "imm_ptl.loop_disabled": "Loop Disabled"
 }
