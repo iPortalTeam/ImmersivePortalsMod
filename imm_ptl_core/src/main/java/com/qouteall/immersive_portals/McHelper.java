@@ -478,6 +478,36 @@ public class McHelper {
         Predicate<T> predicate
     ) {
         ArrayList<T> result = new ArrayList<>();
+        
+        Consumer<T> consumer = entity1 -> {
+            if (predicate.test(entity1)) {
+                result.add(entity1);
+            }
+        };
+        
+        foreachEntities(
+            entityClass, chunkAccessor,
+            chunkXStart, chunkXEnd, chunkYStart, chunkYEnd, chunkZStart, chunkZEnd,
+            consumer
+        );
+        return result;
+    }
+    
+    public static <T extends Entity> void foreachEntities(
+        Class<T> entityClass, ChunkAccessor chunkAccessor,
+        int chunkXStart, int chunkXEnd,
+        int chunkYStart, int chunkYEnd,
+        int chunkZStart, int chunkZEnd,
+        Consumer<T> consumer
+    ) {
+        Validate.isTrue(chunkXEnd >= chunkXStart);
+        Validate.isTrue(chunkYEnd >= chunkYStart);
+        Validate.isTrue(chunkZEnd >= chunkZStart);
+        Validate.isTrue(chunkYStart >= 0);
+        Validate.isTrue(chunkYEnd < 16);
+        Validate.isTrue(chunkXEnd - chunkXStart < 1000, "too big");
+        Validate.isTrue(chunkZEnd - chunkZStart < 1000, "too big");
+        
         for (int x = chunkXStart; x <= chunkXEnd; x++) {
             for (int z = chunkZStart; z <= chunkZEnd; z++) {
                 WorldChunk chunk = chunkAccessor.getChunk(x, z);
@@ -487,15 +517,12 @@ public class McHelper {
                     for (int i = chunkYStart; i <= chunkYEnd; i++) {
                         TypeFilterableList<Entity> entitySection = entitySections[i];
                         for (T entity : entitySection.getAllOfType(entityClass)) {
-                            if (predicate.test(entity)) {
-                                result.add(entity);
-                            }
+                            consumer.accept(entity);
                         }
                     }
                 }
             }
         }
-        return result;
     }
     
     //faster
