@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.network.CommonNetwork;
+import com.qouteall.immersive_portals.network.CommonNetworkClient;
 import com.qouteall.immersive_portals.render.FPSMonitor;
 import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
 import net.minecraft.client.MinecraftClient;
@@ -108,7 +109,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
             if (CommonNetwork.getIsProcessingRedirectedMessage()) {
                 ClientWorld currWorld = this_.world;
                 Runnable newRunnable = () -> {
-                    CommonNetwork.withSwitchedWorld(currWorld, runnable);
+                    CommonNetworkClient.withSwitchedWorld(currWorld, runnable);
                 };
                 cir.setReturnValue(newRunnable);
             }

@@ -6,7 +6,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
-import com.qouteall.immersive_portals.network.CommonNetwork;
+import com.qouteall.immersive_portals.network.CommonNetworkClient;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -72,7 +72,7 @@ public class MyNetworkClient {
         
         CompoundTag compoundTag = buf.readCompoundTag();
     
-        CommonNetwork.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
+        CommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
@@ -106,7 +106,7 @@ public class MyNetworkClient {
             throw new IllegalArgumentException(e);
         }
         
-        CommonNetwork.processRedirectedPacket(dimension, packet);
+        CommonNetworkClient.processRedirectedPacket(dimension, packet);
     }
     
     public static void processDimSync(
