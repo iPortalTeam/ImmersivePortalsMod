@@ -340,8 +340,10 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     public static void updateClientGlobalPortalCollidingPortal() {
-        for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
-            updateGlobalPortalCollidingPortalForWorld(world);
+        if (ClientWorldLoader.getIsInitialized()) {
+            for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
+                updateGlobalPortalCollidingPortalForWorld(world);
+            }
         }
     }
     
