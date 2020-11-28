@@ -251,22 +251,10 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("convert_normal_portal_to_global_portal")
-            .executes(context -> {
-                final ServerPlayerEntity player = context.getSource().getPlayer();
-                final Portal portal = getPlayerPointingPortal(player, false);
-                
-                if (portal == null) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("You are not pointing to any portal"),
-                        false
-                    );
-                    return 0;
-                }
-                
-                GlobalPortalStorage.convertNormalPortalIntoGlobalPortal(portal);
-                
-                return 0;
-            })
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                GlobalPortalStorage::convertNormalPortalIntoGlobalPortal
+            ))
         );
         
         builder.then(CommandManager.literal("convert_global_portal_to_normal_portal")
