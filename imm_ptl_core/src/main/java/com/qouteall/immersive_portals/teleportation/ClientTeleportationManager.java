@@ -64,7 +64,7 @@ public class ClientTeleportationManager {
             this, ClientTeleportationManager::tick
         );
         
-        ModMain.clientCleanupSignal.connectWithWeakRef(this,(this_)->{
+        ModMain.clientCleanupSignal.connectWithWeakRef(this, (this_) -> {
             this_.disableTeleportFor(40);
         });
     }
@@ -161,7 +161,9 @@ public class ClientTeleportationManager {
             Portal portal = pair.getLeft();
             Vec3d collidingPos = pair.getRight();
             
+            client.getProfiler().push("portal_teleport");
             teleportPlayer(portal);
+            client.getProfiler().pop();
             
             moveStartPoint = portal.transformPoint(collidingPos)
                 .add(portal.getContentDirection().multiply(0.001));
@@ -176,22 +178,6 @@ public class ClientTeleportationManager {
     
     private Vec3d getPlayerHeadPos(float tickDelta) {
         return client.player.getCameraPosVec(tickDelta);
-//        Camera camera = client.gameRenderer.getCamera();
-//        float cameraY = MathHelper.lerp(
-//            tickDelta,
-//            ((IECamera) camera).getLastCameraY(),
-//            ((IECamera) camera).getCameraY()
-//        );
-//        return new Vec3d(
-//            MathHelper.lerp((double) tickDelta, client.player.prevX, client.player.getX()),
-//            MathHelper.lerp(
-//                (double) tickDelta,
-//                client.player.prevY,
-//                client.player.getY()
-//            ) + cameraY,
-//            MathHelper.lerp((double) tickDelta, client.player.prevZ, client.player.getZ())
-//        );
-        
     }
     
     private void teleportPlayer(Portal portal) {
@@ -252,7 +238,7 @@ public class ClientTeleportationManager {
         
         isTeleportingTick = true;
         isTeleportingFrame = true;
-    
+        
         if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
             adjustPlayerPosition(player);
         }
