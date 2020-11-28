@@ -118,7 +118,7 @@ public class ChunkVisibilityManager {
         if (!Global.serverSmoothLoading) {
             return cappedLoadingDistance;
         }
-    
+        
         int maxLoadDistance = PortalExtension.get(portal).refreshAndGetLoadDistanceCap(
             portal, player, cappedLoadingDistance
         );
@@ -169,7 +169,8 @@ public class ChunkVisibilityManager {
         Validate.isTrue(portal.getIsGlobal());
         
         int renderDistance = Math.min(
-            Global.indirectLoadingRadiusCap,
+            Global.indirectLoadingRadiusCap + (Global.indirectLoadingRadiusCap / 2),
+            //load a little more to make dimension stack more complete
             Math.max(
                 2,
                 McHelper.getRenderDistanceOnServer() -
