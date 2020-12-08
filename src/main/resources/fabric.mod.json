@@ -40,7 +40,10 @@
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
     "mm:early_risers": [
-    ]
+    ],
+    "lithium:options": {
+    	"mixin.world.player_chunk_tick": false
+    }
   },
   "accessWidener" : "imm_ptl_peripheral.accesswidener"
 }
