@@ -70,8 +70,8 @@ allprojects {
 
         modCompileOnly 'com.github.Virtuoel:Pehkui:c88cfe6'
 
-        modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1161_1'
-//        modImplementation("me.jellysquid.mods:sodium:0.1.0-SNAPSHOT")
+        modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1164_1'
+//        modImplementation("me.jellysquid.mods:sodium:0.1.2-SNAPSHOT")
     }
 
     afterEvaluate {

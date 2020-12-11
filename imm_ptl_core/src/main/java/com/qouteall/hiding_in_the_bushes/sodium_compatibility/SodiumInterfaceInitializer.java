@@ -37,5 +37,6 @@ public class SodiumInterfaceInitializer {
             };
             return floats;
         };
+        SodiumHooks.useClipping = () -> true;
     }
 }
