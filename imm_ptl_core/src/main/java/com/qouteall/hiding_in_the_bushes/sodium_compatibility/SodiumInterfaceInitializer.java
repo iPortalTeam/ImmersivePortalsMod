@@ -29,8 +29,8 @@ public class SodiumInterfaceInitializer {
             return sodiumWorldRenderer.switchRenderContext(((ChunkRenderManager.RenderContext) newContext));
         };
         
-        SodiumHooks.shouldEnableClipping = () -> FrontClipping.isClippingEnabled;
-        SodiumHooks.getClippingEquation = () -> {
+        SodiumHooks.shouldEnableCulling = () -> FrontClipping.isClippingEnabled;
+        SodiumHooks.getCullingEquation = () -> {
             double[] doubles = FrontClipping.getActiveClipPlaneEquation();
             float[] floats = new float[]{
                 (float) doubles[0], (float) doubles[1], (float) doubles[2], (float) doubles[3]
