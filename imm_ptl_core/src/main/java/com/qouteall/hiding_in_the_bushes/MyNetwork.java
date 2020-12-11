@@ -9,8 +9,7 @@ import com.qouteall.immersive_portals.dimension_sync.DimensionIdRecord;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.network.PacketContext;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
@@ -52,18 +51,40 @@ public class MyNetwork {
         new Identifier("imm_ptl", "right_click");
     
     public static void init() {
-        ServerSidePacketRegistry.INSTANCE.register(
+        ServerPlayNetworking.registerGlobalReceiver(
             id_ctsTeleport,
-            MyNetwork::processCtsTeleport
+            (server, player, handler, buf, responseSender) -> {
+                processCtsTeleport(player, buf);
+            }
         );
-        ServerSidePacketRegistry.INSTANCE.register(
+    
+        ServerPlayNetworking.registerGlobalReceiver(
             id_ctsPlayerAction,
-            MyNetwork::processCtsPlayerAction
+            (server, player, handler, buf, responseSender) -> {
+                processCtsPlayerAction(player, buf);
+            }
         );
-        ServerSidePacketRegistry.INSTANCE.register(
+    
+        ServerPlayNetworking.registerGlobalReceiver(
             id_ctsRightClick,
-            MyNetwork::processCtsRightClick
+            (server, player, handler, buf, responseSender) -> {
+                processCtsRightClick(player, buf);
+            }
         );
+
+
+//        ServerSidePacketRegistry.INSTANCE.register(
+//            id_ctsTeleport,
+//            MyNetwork::processCtsTeleport
+//        );
+//        ServerSidePacketRegistry.INSTANCE.register(
+//            id_ctsPlayerAction,
+//            MyNetwork::processCtsPlayerAction
+//        );
+//        ServerSidePacketRegistry.INSTANCE.register(
+//            id_ctsRightClick,
+//            MyNetwork::processCtsRightClick
+//        );
         
     }
     
@@ -157,7 +178,7 @@ public class MyNetwork {
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
     }
     
-    private static void processCtsTeleport(PacketContext context, PacketByteBuf buf) {
+    private static void processCtsTeleport(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
         Vec3d posBefore = new Vec3d(
             buf.readDouble(),
@@ -168,7 +189,7 @@ public class MyNetwork {
         
         McHelper.executeOnServerThread(() -> {
             Global.serverTeleportationManager.onPlayerTeleportedInClient(
-                (ServerPlayerEntity) context.getPlayer(),
+                player,
                 dim,
                 posBefore,
                 portalEntityId
@@ -176,7 +197,7 @@ public class MyNetwork {
         });
     }
     
-    private static void processCtsPlayerAction(PacketContext context, PacketByteBuf buf) {
+    private static void processCtsPlayerAction(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
         PlayerActionC2SPacket packet = new PlayerActionC2SPacket();
         try {
@@ -188,13 +209,13 @@ public class MyNetwork {
         ModMain.serverTaskList.addTask(() -> {
             BlockManipulationServer.processBreakBlock(
                 dim, packet,
-                ((ServerPlayerEntity) context.getPlayer())
+                player
             );
             return true;
         });
     }
     
-    private static void processCtsRightClick(PacketContext context, PacketByteBuf buf) {
+    private static void processCtsRightClick(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
         PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket();
         try {
@@ -206,7 +227,7 @@ public class MyNetwork {
         ModMain.serverTaskList.addTask(() -> {
             BlockManipulationServer.processRightClickBlock(
                 dim, packet,
-                ((ServerPlayerEntity) context.getPlayer())
+                player
             );
             return true;
         });
