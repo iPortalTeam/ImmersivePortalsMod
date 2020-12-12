@@ -24,5 +24,10 @@ Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minec
 
 
 
+accessible    field    net/minecraft/world/chunk/ChunkSection    container    Lnet/minecraft/world/chunk/PalettedContainer;
+accessible    field    net/minecraft/world/chunk/PalettedContainer    palette    Lnet/minecraft/world/chunk/Palette;
+
+
+
 
 

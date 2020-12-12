@@ -3,6 +3,7 @@
   "package": "com.qouteall.hiding_in_the_bushes.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "common.MixinFabricDebugRegistrySyncManager",
     "common.MixinLanguage",
     "common.MixinPlayerManager_MA",
     "common.MixinServerPlayerEntity_MA"
