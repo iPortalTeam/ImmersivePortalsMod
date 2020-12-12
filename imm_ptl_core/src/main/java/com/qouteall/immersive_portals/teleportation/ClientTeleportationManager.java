@@ -15,6 +15,7 @@ import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
+import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalExtension;
@@ -308,8 +309,11 @@ public class ClientTeleportationManager {
         
         toWorld.setScoreboard(fromWorld.getScoreboard());
         
-        if (client.particleManager != null)
-            client.particleManager.setWorld(toWorld);
+        if (client.particleManager != null) {
+//            client.particleManager.setWorld(toWorld);
+            // avoid clearing all particles
+            ((IEParticleManager) client.particleManager).mySetWorld(toWorld);
+        }
         
         BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
         
