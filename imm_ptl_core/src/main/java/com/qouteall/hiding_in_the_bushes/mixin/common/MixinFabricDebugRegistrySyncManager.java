@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 @Mixin(RegistrySyncManager.class)
 public class MixinFabricDebugRegistrySyncManager {
+    //temporal for development purposes
     @Inject(method = "receivePacket", at = @At("HEAD"), cancellable = true)
     private static void onReceivePacket(
         ThreadExecutor<?> executor, PacketByteBuf buf, boolean accept,
