@@ -15,6 +15,8 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -42,6 +44,8 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -478,7 +482,7 @@ public class McHelper {
         Predicate<T> predicate
     ) {
         ArrayList<T> result = new ArrayList<>();
-    
+        
         foreachEntities(
             entityClass, chunkAccessor,
             chunkXStart, chunkXEnd, chunkYStart, chunkYEnd, chunkZStart, chunkZEnd,
@@ -749,4 +753,24 @@ public class McHelper {
         return world;
     }
     
+    public static void openLinkConfirmScreen(
+        Screen parent,
+        String link
+    ) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        client.openScreen(new ConfirmChatLinkScreen(
+            (result) -> {
+                if (result) {
+                    try {
+                        Util.getOperatingSystem().open(new URI(link));
+                    }
+                    catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+                client.openScreen(parent);
+            },
+            link, true
+        ));
+    }
 }
