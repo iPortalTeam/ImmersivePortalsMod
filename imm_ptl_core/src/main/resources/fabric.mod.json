@@ -13,7 +13,7 @@
     "sources": "https://github.com/qouteall/ImmersivePortalsMod",
     "issues": "https://github.com/qouteall/ImmersivePortalsMod/issues"
   },
-  "license": "GPL",
+  "license": "Apache License",
   "icon": "assets/immersive_portals/icon.png",
   "environment": "*",
   "entrypoints": {
