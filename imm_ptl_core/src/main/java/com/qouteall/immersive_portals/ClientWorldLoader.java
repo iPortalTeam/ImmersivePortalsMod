@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
@@ -104,10 +105,16 @@ public class ClientWorldLoader {
     private static void tickRemoteWorld(ClientWorld newWorld) {
         List<Portal> nearbyPortals = CHelper.getClientNearbyPortals(10).collect(Collectors.toList());
         
+        WorldRenderer newWorldRenderer = getWorldRenderer(newWorld.getRegistryKey());
+        
         ClientWorld oldWorld = client.world;
+        WorldRenderer oldWorldRenderer = client.worldRenderer;
         
         client.world = newWorld;
         ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
+        
+        //the world renderer's world field is used for particle spawning
+        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         
         try {
             newWorld.tickEntities();
@@ -123,6 +130,7 @@ public class ClientWorldLoader {
         finally {
             client.world = oldWorld;
             ((IEParticleManager) client.particleManager).mySetWorld(oldWorld);
+            ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         }
     }
     
@@ -145,6 +153,8 @@ public class ClientWorldLoader {
             newWorld.doRandomBlockDisplayTicks(
                 (int) center.x, (int) center.y, (int) center.z
             );
+            
+            client.particleManager.tick();
             
             ((IECamera) camera).portal_setPos(oldCameraPos);
         });
