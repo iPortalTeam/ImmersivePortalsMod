@@ -976,6 +976,7 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("tp")
+            .requires(commandSource -> commandSource.hasPermissionLevel(2))
             .then(CommandManager.argument("from", EntityArgumentType.entities())
                 .then(CommandManager.argument("to", EntityArgumentType.entity())
                     .executes(context -> {
