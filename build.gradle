@@ -165,9 +165,9 @@ dependencies {
     include "io.github.prospector:modmenu:${modmenu_version}"
 
     //make the game launch faster in dev
-//        modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
-//            exclude module: "fabric-loader"
-//        }
+    modRuntime("com.github.SuperCoder7979:databreaker:715b589e55") {
+        exclude module: "fabric-loader"
+    }
 
     modImplementation 'com.github.Virtuoel:Pehkui:c88cfe6'
 
