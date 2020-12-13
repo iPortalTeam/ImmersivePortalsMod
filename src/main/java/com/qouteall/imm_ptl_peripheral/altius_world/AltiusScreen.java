@@ -4,7 +4,6 @@ import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -140,7 +139,7 @@ public class AltiusScreen extends Screen {
             0, 0, 72, 20,
             new LiteralText("?"),
             button -> {
-                McHelper.openLinkConfirmScreen(
+                CHelper.openLinkConfirmScreen(
                     this, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
                 );
             }
