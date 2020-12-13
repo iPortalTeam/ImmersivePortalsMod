@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal.custom_portal_gen;
 
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalExtension;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
@@ -15,6 +16,8 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 public class PortalGenInfo {
+    public static final SignalArged<PortalGenInfo> generatedSignal = new SignalArged<>();
+    
     public RegistryKey<World> from;
     public RegistryKey<World> to;
     public BlockPortalShape fromShape;
@@ -113,5 +116,7 @@ public class PortalGenInfo {
         NetherPortalGeneration.fillInPlaceHolderBlocks(
             server.getWorld(to), toShape
         );
+        
+        generatedSignal.emit(this);
     }
 }

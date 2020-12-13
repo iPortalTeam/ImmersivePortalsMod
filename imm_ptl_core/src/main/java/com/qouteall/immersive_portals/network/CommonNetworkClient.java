@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
+import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +25,8 @@ import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class CommonNetworkClient {
+    
+    public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
@@ -126,6 +129,7 @@ public class CommonNetworkClient {
             //do not create client world while rendering or gl states will be disturbed
             if (entity instanceof Portal) {
                 ClientWorldLoader.getWorld(((Portal) entity).dimensionTo);
+                clientPortalSpawnSignal.emit(((Portal) entity));
             }
             
             client.getProfiler().pop();
