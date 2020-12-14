@@ -47,7 +47,8 @@ public class MixinParticleManager implements IEParticleManager {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/particle/Particle;buildGeometry(Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/client/render/Camera;F)V"
-        )
+        ),
+        require = 0
     )
     private void redirectBuildGeometry(Particle particle, VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
         if (((IEParticle) particle).portal_getWorld() == MinecraftClient.getInstance().world) {
