@@ -511,7 +511,7 @@ public class McHelper {
                 WorldChunk chunk = chunkAccessor.getChunk(x, z);
                 if (chunk != null && !(chunk instanceof EmptyChunk)) {
                     TypeFilterableList<Entity>[] entitySections =
-                        ((IEWorldChunk) chunk).getEntitySections();
+                        ((IEWorldChunk) chunk).portal_getEntitySections();
                     for (int i = chunkYStart; i <= chunkYEnd; i++) {
                         TypeFilterableList<Entity> entitySection = entitySections[i];
                         for (T entity : entitySection.getAllOfType(entityClass)) {

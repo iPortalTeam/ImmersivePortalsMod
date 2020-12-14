@@ -625,7 +625,7 @@ public class Helper {
                 TypeFilterableList<Entity>[] entitySections = ((IEWorldChunk) world.getChunk(
                     aX,
                     aZ
-                )).getEntitySections();
+                )).portal_getEntitySections();
                 for (TypeFilterableList<Entity> entitySection : entitySections) {
                     entities.addAll(entitySection.getAllOfType(entityClass));
                 }
