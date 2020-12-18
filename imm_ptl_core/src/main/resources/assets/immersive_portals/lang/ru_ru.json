@@ -64,5 +64,6 @@
   "imm_ptl.respect_space_ratio_enabled": "Respect Space Ratio Enabled",
   "imm_ptl.respect_space_ratio_disabled": "Respect Space Ratio Disabled",
   "imm_ptl.loop_enabled": "Loop Enabled",
-  "imm_ptl.loop_disabled": "Loop Disabled"
+  "imm_ptl.loop_disabled": "Loop Disabled",
+  "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals "
 }
