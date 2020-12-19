@@ -217,12 +217,6 @@ public class EndPortalEntity extends Portal {
         return super.canTeleportEntity(entity);
     }
     
-    // avoid cannot enter the scaled view end portal
-    @Override
-    public boolean hasCrossPortalCollision() {
-        return false;
-    }
-    
     private boolean shouldAddSlowFalling(Entity entity) {
         if (entity instanceof LivingEntity) {
             if (entity instanceof ServerPlayerEntity) {

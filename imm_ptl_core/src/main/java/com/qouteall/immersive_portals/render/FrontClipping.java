@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.my_util.Plane;
@@ -67,7 +68,7 @@ public class FrontClipping {
     
     private static double[] getClipEquationInner(boolean doCompensate, Vec3d clippingPoint, Vec3d clippingDirection) {
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         
         
         Vec3d planeNormal = clippingDirection;

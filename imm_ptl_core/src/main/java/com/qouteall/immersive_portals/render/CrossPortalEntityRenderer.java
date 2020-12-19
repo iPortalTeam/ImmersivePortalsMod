@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
@@ -281,7 +282,7 @@ public class CrossPortalEntityRenderer {
             return;
         }
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         
         Vec3d anchor = entity.getCameraPosVec(RenderStates.tickDelta).subtract(cameraPos);
         

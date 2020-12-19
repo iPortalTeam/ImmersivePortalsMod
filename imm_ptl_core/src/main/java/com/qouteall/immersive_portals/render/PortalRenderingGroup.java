@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
@@ -21,6 +22,8 @@ import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -189,7 +192,18 @@ public class PortalRenderingGroup implements PortalLike {
     @Nullable
     @Override
     public Plane getInnerClipping() {
-        return null;
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        
+        Box innerAreaBox = Helper.transformBox(getExactAreaBox(), this::transformPoint);
+        
+        Vec3d closestVertex = Arrays.stream(Helper.eightVerticesOf(innerAreaBox))
+            .min(Comparator.comparingDouble(p -> p.squaredDistanceTo(cameraPos)))
+            .orElseThrow(RuntimeException::new);
+        
+        return new Plane(
+            closestVertex,
+            cameraPos.subtract(getOriginPos()).normalize()
+        );
     }
     
     @Nullable

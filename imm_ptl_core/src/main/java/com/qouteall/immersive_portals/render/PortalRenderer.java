@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
@@ -94,7 +95,7 @@ public abstract class PortalRenderer {
             }
         });
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         portalsToRender.sort(Comparator.comparingDouble(portalEntity ->
             portalEntity.getDistanceToNearestPointInPortal(cameraPos)
         ));
@@ -113,7 +114,7 @@ public abstract class PortalRenderer {
             return true;
         }
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         
         if (!portal.isRoughlyVisibleTo(cameraPos)) {
             return true;
@@ -221,7 +222,7 @@ public abstract class PortalRenderer {
     
     private boolean isOutOfDistance(PortalLike portal) {
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
             return true;
         }

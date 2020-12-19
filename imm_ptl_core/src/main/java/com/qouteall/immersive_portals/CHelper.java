@@ -105,6 +105,10 @@ public class CHelper {
         ));
     }
     
+    public static Vec3d getCurrentCameraPos() {
+        return MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+    }
+    
     public static class Rect {
         public float xMin;
         public float yMin;
