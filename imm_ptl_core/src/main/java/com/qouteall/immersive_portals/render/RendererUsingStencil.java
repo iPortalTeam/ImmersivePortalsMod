@@ -30,7 +30,7 @@ public class RendererUsingStencil extends PortalRenderer {
     public boolean replaceFrameBufferClearing() {
         boolean skipClearing = PortalRendering.isRendering();
         if (skipClearing) {
-            boolean isSkyTransparent = PortalRendering.getRenderingPortal().getIsFuseView();
+            boolean isSkyTransparent = PortalRendering.getRenderingPortal().isFuseView();
             
             if (!isSkyTransparent) {
                 RenderSystem.depthMask(false);
@@ -123,7 +123,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
-        if (!portal.getIsFuseView()) {
+        if (!portal.isFuseView()) {
             client.getProfiler().push("clear_depth_of_view_area");
             clearDepthOfThePortalViewArea(portal);
             client.getProfiler().pop();
@@ -133,7 +133,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         renderPortalContent(portal);
         
-        if (!portal.getIsFuseView()) {
+        if (!portal.isFuseView()) {
             restoreDepthOfPortalViewArea(portal, matrixStack);
         }
         
@@ -168,7 +168,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GL20.glUseProgram(0);
         
         
-        if (portal.getIsFuseView()) {
+        if (portal.isFuseView()) {
             GlStateManager.colorMask(false, false, false, false);
             
             RenderSystem.disableDepthTest();
@@ -182,7 +182,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
         
-        if (portal.getIsFuseView()) {
+        if (portal.isFuseView()) {
             GlStateManager.colorMask(true, true, true, true);
         }
         

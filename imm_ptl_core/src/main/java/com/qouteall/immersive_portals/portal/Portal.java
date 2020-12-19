@@ -133,6 +133,8 @@ public class Portal extends Entity implements PortalLike {
     
     public boolean fuseView = false;
     
+    public boolean renderingMergable = false;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -231,6 +233,10 @@ public class Portal extends Entity implements PortalLike {
         if (compoundTag.contains("fuseView")) {
             fuseView = compoundTag.getBoolean("fuseView");
         }
+    
+        if (compoundTag.contains("renderingMergable")) {
+            renderingMergable = compoundTag.getBoolean("renderingMergable");
+        }
         
         readPortalDataSignal.emit(this, compoundTag);
         
@@ -281,12 +287,14 @@ public class Portal extends Entity implements PortalLike {
         
         compoundTag.putBoolean("fuseView", fuseView);
         
+        compoundTag.putBoolean("renderingMergable", renderingMergable);
+        
         writePortalDataSignal.emit(this, compoundTag);
         
     }
     
     public boolean canDoOuterFrustumCulling() {
-        if (getIsFuseView()) {
+        if (isFuseView()) {
             return false;
         }
         if (specialShape == null) {
@@ -1098,7 +1106,7 @@ public class Portal extends Entity implements PortalLike {
     
     @Environment(EnvType.CLIENT)
     public PortalLike getRenderingDelegate() {
-        if (Global.mergePortalRendering) {
+        if (Global.enablePortalRenderingMerge) {
             PortalRenderingGroup group = PortalRenderInfo.getGroupOf(this);
             if (group != null) {
                 return group;
@@ -1113,7 +1121,11 @@ public class Portal extends Entity implements PortalLike {
     }
     
     @Override
-    public boolean getIsFuseView() {
+    public boolean isFuseView() {
         return fuseView;
+    }
+    
+    public boolean isRenderingMergable(){
+        return renderingMergable;
     }
 }

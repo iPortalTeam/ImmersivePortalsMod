@@ -265,8 +265,8 @@ public class PortalRenderingGroup implements PortalLike {
     }
     
     @Override
-    public boolean getIsFuseView() {
-        return portals.get(0).getIsFuseView();
+    public boolean isFuseView() {
+        return portals.get(0).isFuseView();
     }
     
     @Override

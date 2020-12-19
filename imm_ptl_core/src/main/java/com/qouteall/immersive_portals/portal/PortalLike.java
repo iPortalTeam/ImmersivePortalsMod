@@ -79,7 +79,7 @@ public interface PortalLike {
     
     boolean isParallelWith(Portal portal);
     
-    boolean getIsFuseView();
+    boolean isFuseView();
     
     default boolean hasScaling() {
         return getScale() != 1.0;

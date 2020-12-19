@@ -59,11 +59,11 @@
   "gamerule.ipDimensionStack": "位面纵向堆叠",
   "gamerule.ipDimensionStack.description": "不用修改",
   "imm_ptl.chunk_unload_delay_ticks": "区块卸载延迟（ticks）",
-  "imm_ptl.automatic_rendering_merge": "自动合并渲染传送门（实验性特性）",
   "imm_ptl.dim_stack_initialized": "[空间折叠]已生成位面纵向堆叠世界",
   "imm_ptl.respect_space_ratio_enabled": "保持空间比例：启用",
   "imm_ptl.respect_space_ratio_disabled": "保持空间比例：禁用",
   "imm_ptl.loop_enabled": "纵向循环：启用",
   "imm_ptl.loop_disabled": "纵向循环：禁用",
-  "imm_ptl.inform_wiki": "[空间折叠] 如何制作自定义传送门： "
+  "imm_ptl.inform_wiki": "[空间折叠] 如何制作自定义传送门： ",
+  "imm_ptl.force_portal_rendering_merge": "强制渲染合并"
 }

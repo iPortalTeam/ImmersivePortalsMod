@@ -279,7 +279,7 @@ public class PortalRenderInfo {
     private void updateGrouping(Portal portal) {
         Validate.isTrue(!portal.isGlobalPortal);
         
-        if (!Global.mergePortalRendering) {
+        if (!Global.enablePortalRenderingMerge) {
             return;
         }
         
@@ -288,7 +288,7 @@ public class PortalRenderInfo {
             portal.getOriginWorld(),
             portal.getBoundingBox().expand(0.5),
             portal.getSizeEstimation() * 2 + 5,
-            p -> p != portal && !Portal.isFlippedPortal(p, portal)
+            p -> p != portal && !Portal.isFlippedPortal(p, portal) && canMerge(p)
         );
         
         Portal.TransformationDesc thisDesc = portal.getTransformationDesc();
@@ -334,6 +334,13 @@ public class PortalRenderInfo {
         }
         
         setGroup(portal, null);
+    }
+    
+    private static boolean canMerge(Portal p) {
+        if (Global.forceMergePortalRendering) {
+            return true;
+        }
+        return p.isRenderingMergable();
     }
     
     @Nullable

@@ -466,7 +466,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
     
-            if (PortalRendering.getRenderingPortal().getIsFuseView()) {
+            if (PortalRendering.getRenderingPortal().isFuseView()) {
                 ci.cancel();
             }
             
