@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -42,10 +40,8 @@ public class PortalRenderingGroup implements PortalLike {
     private Vec3d origin;
     private Vec3d dest;
     
-    // null means not checked
-    // empty means does not enclose
     @Nullable
-    private Optional<Box> enclosedDestAreaBoxCache = null;
+    private Box destAreaBoxCache = null;
     
     private final UUID uuid = MathHelper.randomUuid();
     
@@ -76,42 +72,19 @@ public class PortalRenderingGroup implements PortalLike {
         exactBoundingBox = null;
         origin = null;
         dest = null;
-        enclosedDestAreaBoxCache = null;
+        destAreaBoxCache = null;
     }
     
-    public Box getEnclosedDestAreaBox() {
-        if (enclosedDestAreaBoxCache == null) {
-            initEnclosedDestAreaBox();
+    public Box getDestAreaBox() {
+        if (destAreaBoxCache == null) {
+            destAreaBoxCache = (
+                Helper.transformBox(getExactAreaBox(), pos -> {
+                    return portals.get(0).transformPoint(pos);
+                })
+            );
         }
         
-        return enclosedDestAreaBoxCache.orElse(null);
-    }
-    
-    private void initEnclosedDestAreaBox() {
-        if (portals.size() < 6) {
-            enclosedDestAreaBoxCache = Optional.empty();
-        }
-        else {
-            boolean enclose = portals.stream().map(
-                p -> {
-                    Vec3d contentDirection = p.getContentDirection();
-                    return Direction.getFacing(
-                        contentDirection.x, contentDirection.y, contentDirection.z
-                    );
-                }
-            ).collect(Collectors.toSet()).size() == 6;
-            
-            if (!enclose) {
-                enclosedDestAreaBoxCache = Optional.empty();
-            }
-            else {
-                enclosedDestAreaBoxCache = Optional.of(
-                    Helper.transformBox(getExactAreaBox(), pos -> {
-                        return portals.get(0).transformPoint(pos);
-                    })
-                );
-            }
-        }
+        return destAreaBoxCache;
     }
     
     @Override
@@ -192,18 +165,28 @@ public class PortalRenderingGroup implements PortalLike {
     @Nullable
     @Override
     public Plane getInnerClipping() {
+        return getInnerClippingClientOnly();
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private Plane getInnerClippingClientOnly() {
         Vec3d cameraPos = CHelper.getCurrentCameraPos();
         
-        Box innerAreaBox = Helper.transformBox(getExactAreaBox(), this::transformPoint);
+        Box destAreaBox = getDestAreaBox();
         
-        Vec3d closestVertex = Arrays.stream(Helper.eightVerticesOf(innerAreaBox))
+        Vec3d closestVertex = Arrays.stream(Helper.eightVerticesOf(destAreaBox))
             .min(Comparator.comparingDouble(p -> p.squaredDistanceTo(cameraPos)))
             .orElseThrow(RuntimeException::new);
         
         return new Plane(
             closestVertex,
-            cameraPos.subtract(getOriginPos()).normalize()
+            getDestPos().subtract(cameraPos).normalize()
         );
+    }
+    
+    @Override
+    public boolean isInside(Vec3d entityPos, double valve) {
+        return getDestAreaBox().contains(entityPos);
     }
     
     @Nullable
