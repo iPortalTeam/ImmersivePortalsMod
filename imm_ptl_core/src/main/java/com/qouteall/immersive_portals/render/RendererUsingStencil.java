@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.render.context_management.FogRendererConte
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -25,6 +26,7 @@ import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 //NOTE do not use glDisable(GL_DEPTH_TEST), use GlStateManager.disableDepthTest() instead
 //because GlStateManager will cache its state. Do not make its cache not synchronized
 public class RendererUsingStencil extends PortalRenderer {
+    
     
     @Override
     public boolean replaceFrameBufferClearing() {
@@ -104,6 +106,10 @@ public class RendererUsingStencil extends PortalRenderer {
         PortalLike portal,
         MatrixStack matrixStack
     ) {
+        if (shouldSkipRenderingInsideFuseViewPortal(portal)) {
+            return;
+        }
+        
         int outerPortalStencilValue = PortalRendering.getPortalLayer();
         
         client.getProfiler().push("render_view_area");
@@ -287,5 +293,24 @@ public class RendererUsingStencil extends PortalRenderer {
         
         //do not manipulate stencil packetBuffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    }
+    
+    private static boolean shouldSkipRenderingInsideFuseViewPortal(PortalLike portal) {
+        if (!PortalRendering.isRendering()) {
+            return false;
+        }
+        
+        PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+        
+        if (!renderingPortal.isFuseView()) {
+            return false;
+        }
+        
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        
+        Vec3d transformedCameraPos = portal.transformPoint(renderingPortal.transformPoint(cameraPos));
+        
+        // roughly test whether they are reverse portals
+        return cameraPos.squaredDistanceTo(transformedCameraPos) < 0.1;
     }
 }

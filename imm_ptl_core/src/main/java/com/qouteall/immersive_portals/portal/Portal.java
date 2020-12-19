@@ -148,6 +148,8 @@ public class Portal extends Entity implements PortalLike {
         super(entityType, world);
     }
     
+   
+    
     // Scaling does not interfere camera transformation
     @Override
     @Nullable
@@ -1128,4 +1130,5 @@ public class Portal extends Entity implements PortalLike {
     public boolean isRenderingMergable(){
         return renderingMergable;
     }
+    
 }
