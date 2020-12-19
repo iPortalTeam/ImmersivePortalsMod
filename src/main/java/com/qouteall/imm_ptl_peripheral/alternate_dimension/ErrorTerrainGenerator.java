@@ -173,7 +173,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     //don't know why
     @Override
     public int getSeaLevel() {
-        return 0;
+        return 63;
     }
     
     //may be incorrect
