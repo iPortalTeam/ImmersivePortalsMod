@@ -659,10 +659,14 @@ public class Portal extends Entity implements PortalLike {
     public Vec3d transformPoint(Vec3d pos) {
         Vec3d localPos = pos.subtract(getOriginPos());
         
-        Vec3d result = transformLocalVec(localPos).add(getDestPos());
+        return transformLocalVec(localPos).add(getDestPos());
         
-        return result;
+    }
+    
+    public Vec3d transformPointNonScale(Vec3d pos) {
+        Vec3d localPos = pos.subtract(getOriginPos());
         
+        return transformLocalVecNonScale(localPos).add(getDestPos());
     }
     
     public Vec3d transformLocalVecNonScale(Vec3d localVec) {
@@ -1090,10 +1094,6 @@ public class Portal extends Entity implements PortalLike {
     public void remove() {
         super.remove();
         portalDisposeSignal.emit(this);
-    }
-    
-    public boolean hasCrossPortalCollision() {
-        return true;
     }
     
     @Environment(EnvType.CLIENT)
