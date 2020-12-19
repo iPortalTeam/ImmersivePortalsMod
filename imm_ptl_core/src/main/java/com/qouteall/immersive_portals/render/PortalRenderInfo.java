@@ -344,7 +344,12 @@ public class PortalRenderInfo {
     }
     
     private static void mergeGroup(PortalRenderingGroup g1, PortalRenderingGroup g2) {
-        for (Portal portal : new ArrayList<>(g2.portals)) {
+        if (g1 == g2) {
+            return;
+        }
+        
+        ArrayList<Portal> g2Portals = new ArrayList<>(g2.portals);
+        for (Portal portal : g2Portals) {
             get(portal).setGroup(portal, g1);
         }
     }

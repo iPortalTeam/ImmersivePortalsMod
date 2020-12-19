@@ -104,7 +104,7 @@ public class PortalRenderingGroup implements PortalLike {
             }
             else {
                 enclosedDestAreaBoxCache = Optional.of(
-                    Helper.transformBox(exactBoundingBox, pos -> {
+                    Helper.transformBox(getExactAreaBox(), pos -> {
                         return portals.get(0).transformPoint(pos);
                     })
                 );
@@ -264,7 +264,7 @@ public class PortalRenderingGroup implements PortalLike {
                 ChunkBuilder.BuiltChunk builtChunk =
                     ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
                 
-                return builtChunk.boundingBox.intersects(enclosedDestAreaBox);
+                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
             });
         }
     }
