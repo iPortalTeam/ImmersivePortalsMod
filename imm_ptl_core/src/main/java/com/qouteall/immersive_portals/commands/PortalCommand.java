@@ -1132,13 +1132,27 @@ public class PortalCommand {
                         .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
                             .then(CommandManager.argument("biWay", BoolArgumentType.bool())
                                 .executes(context -> {
-                                    invokeCreateScaledViewCommand(context, false);
+                                    invokeCreateScaledViewCommand(
+                                        context,
+                                        false,
+                                        false,
+                                        false,
+                                        true,
+                                        BoolArgumentType.getBool(context, "biWay")
+                                    );
                                     return 0;
                                 })
                                 .then(CommandManager.argument("teleportChangesScale", BoolArgumentType.bool())
                                     .executes(context -> {
                                         boolean teleportChangesScale = BoolArgumentType.getBool(context, "teleportChangesScale");
-                                        invokeCreateScaledViewCommand(context, teleportChangesScale);
+                                        invokeCreateScaledViewCommand(
+                                            context,
+                                            teleportChangesScale,
+                                            false,
+                                            false,
+                                            true,
+                                            BoolArgumentType.getBool(context, "biWay")
+                                        );
                                         return 0;
                                     })
                                 )
@@ -1148,11 +1162,39 @@ public class PortalCommand {
                 )
             )
         );
+        
+        builder.then(CommandManager.literal("create_scaled_box_view_new")
+            .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
+                .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
+                    .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
+                        .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
+                            .executes(context -> {
+                                invokeCreateScaledViewCommand(
+                                    context,
+                                    false,
+                                    true,
+                                    false,
+                                    true,
+                                    true
+                                );
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
     }
     
     private static void invokeCreateScaledViewCommand(
-        CommandContext<ServerCommandSource> context, boolean teleportChangesScale
+        CommandContext<ServerCommandSource> context,
+        boolean teleportChangesScale,
+        boolean outerFuseView,
+        boolean outerRenderingMergable,
+        boolean innerRenderingMergable,
+        boolean isBiWay
     ) throws CommandSyntaxException {
+        
         BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
         BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
         IntBox intBox = new IntBox(bp1, bp2);
@@ -1167,12 +1209,11 @@ public class PortalCommand {
         
         double scale = DoubleArgumentType.getDouble(context, "scale");
         
-        boolean biWay = BoolArgumentType.getBool(context, "biWay");
-        
         
         PortalManipulation.createScaledBoxView(
             areaWorld, area, boxWorld, boxBottomCenter, scale,
-            biWay, teleportChangesScale
+            isBiWay, teleportChangesScale,
+            outerFuseView, outerRenderingMergable, innerRenderingMergable
         );
     }
     
