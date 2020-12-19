@@ -196,6 +196,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     
     @Override
     public void buildSurface(ChunkRegion region, Chunk chunk) {
+        // copied from NoiseChunkGenerator
         try {
             ChunkPos chunkPos = chunk.getPos();
             int i = chunkPos.x;
@@ -214,18 +215,11 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
                     int p = l + n;
                     int q = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, m, n) + 1;
                     double e = this.surfaceDepthNoise.sample(
-                        (double) o * 0.0625D,
-                        (double) p * 0.0625D,
-                        0.0625D,
-                        (double) m * 0.0625D
+                        (double) o * 0.0625D, (double) p * 0.0625D,
+                        0.0625D, (double) m * 0.0625D
                     ) * 15.0D;
                     region.getBiome(mutable.set(k + m, q, l + n)).buildSurface(
-                        chunkRandom,
-                        chunk,
-                        o,
-                        p,
-                        q,
-                        e,
+                        chunkRandom, chunk, o, p, q, e,
                         this.defaultBlock,
                         this.defaultFluid,
                         this.getSeaLevel(),
@@ -233,7 +227,6 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
                     );
                 }
             }
-            
             
             avoidSandLag(region);
         }

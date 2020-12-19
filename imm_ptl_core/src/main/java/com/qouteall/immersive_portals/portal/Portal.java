@@ -309,8 +309,13 @@ public class Portal extends Entity implements PortalLike {
     
     @Override
     public void setPos(double x, double y, double z) {
+        boolean shouldUpdate = getX() != x || getY() != y || getZ() != z;
+        
         super.setPos(x, y, z);
-        updateCache();
+        
+        if (shouldUpdate) {
+            updateCache();
+        }
     }
     
     public void updateCache() {

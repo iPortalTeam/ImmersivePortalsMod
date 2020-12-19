@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.Plane;
+import com.qouteall.immersive_portals.render.MyGameRenderer;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.math.Box;
@@ -98,6 +100,12 @@ public interface PortalLike {
         final Vec3d boxSize = Helper.getBoxSize(getExactAreaBox());
         final double maxDimension = Math.max(Math.max(boxSize.x, boxSize.y), boxSize.z);
         return maxDimension;
+    }
+    
+    // the container contains WorldRenderer.ChunkInfo
+    @Environment(EnvType.CLIENT)
+    default void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
+        MyGameRenderer.cullRenderingSections(visibleChunks, this);
     }
     
 }

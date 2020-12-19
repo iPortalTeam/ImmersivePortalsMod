@@ -94,7 +94,7 @@ public class PortalRenderInfo {
             if (portal.world.isClient()) {
                 PortalRenderInfo presentation = getOptional(portal);
                 if (presentation != null) {
-                    presentation.onPortalCacheUpdate();
+                    presentation.onPortalCacheUpdate(portal);
                 }
             }
         });
@@ -260,9 +260,9 @@ public class PortalRenderInfo {
     
     // Grouping -----
     
-    private void onPortalCacheUpdate() {
+    private void onPortalCacheUpdate(Portal portal) {
         needsGroupingUpdate = true;
-        renderingGroup = null;
+        setGroup(portal, null);
     }
     
     private void setGroup(Portal portal, @Nullable PortalRenderingGroup group) {
