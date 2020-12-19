@@ -133,7 +133,9 @@ public class RendererUsingStencil extends PortalRenderer {
         
         renderPortalContent(portal);
         
-        restoreDepthOfPortalViewArea(portal, matrixStack);
+        if (!portal.getIsFuseView()) {
+            restoreDepthOfPortalViewArea(portal, matrixStack);
+        }
         
         clampStencilValue(outerPortalStencilValue);
         
