@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,14 +17,7 @@ import java.util.Comparator;
 public class FrustumCuller {
     
     
-    public static interface BoxPredicate {
-        boolean test(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
-    }
-    
     private BoxPredicate canDetermineInvisibleFunc;
-    
-    private static final BoxPredicate nonePredicate =
-        (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) -> false;
     
     public FrustumCuller() {
     }
@@ -47,39 +40,15 @@ public class FrustumCuller {
         double cameraZ
     ) {
         if (!CGlobal.doUseAdvancedFrustumCulling) {
-            return nonePredicate;
+            return BoxPredicate.nonePredicate;
         }
         
         if (PortalRendering.isRendering()) {
-            PortalLike portal = PortalRendering.getRenderingPortal();
-            
-            Vec3d portalOriginInLocalCoordinate = portal.getDestPos().add(
-                -cameraX, -cameraY, -cameraZ
-            );
-            Vec3d[] innerFrustumCullingVertices = portal.getInnerFrustumCullingVertices();
-            if (innerFrustumCullingVertices == null) {
-                return nonePredicate;
-            }
-            Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
-                portalOriginInLocalCoordinate,
-                innerFrustumCullingVertices
-            );
-            
-            Vec3d downPlane = downLeftUpRightPlaneNormals[0];
-            Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
-            Vec3d upPlane = downLeftUpRightPlaneNormals[2];
-            Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
-            
-            return
-                (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) ->
-                    isFullyOutsideFrustum(
-                        minX, minY, minZ, maxX, maxY, maxZ,
-                        leftPlane, rightPlane, upPlane, downPlane
-                    );
+            return PortalRendering.getRenderingPortal().getInnerFrustumCullingFunc(cameraX, cameraY, cameraZ);
         }
         else {
             if (!CGlobal.useSuperAdvancedFrustumCulling) {
-                return nonePredicate;
+                return BoxPredicate.nonePredicate;
             }
             
             Portal portal = getCurrentNearestVisibleCullablePortal();
@@ -91,7 +60,7 @@ public class FrustumCuller {
                 );
                 final Vec3d[] outerFrustumCullingVertices = portal.getOuterFrustumCullingVertices();
                 if (outerFrustumCullingVertices == null) {
-                    return nonePredicate;
+                    return BoxPredicate.nonePredicate;
                 }
                 Vec3d[] downLeftUpRightPlaneNormals = getDownLeftUpRightPlaneNormals(
                     portalOriginInLocalCoordinate,
@@ -128,12 +97,12 @@ public class FrustumCuller {
                     };
             }
             else {
-                return nonePredicate;
+                return BoxPredicate.nonePredicate;
             }
         }
     }
     
-    public Vec3d[] getDownLeftUpRightPlaneNormals(
+    public static Vec3d[] getDownLeftUpRightPlaneNormals(
         Vec3d portalOriginInLocalCoordinate,
         Vec3d[] fourVertices
     ) {
@@ -244,7 +213,7 @@ public class FrustumCuller {
         return x * planeNormalX + y * planeNormalY + z * planeNormalZ >= 0;
     }
     
-    private static boolean isFullyOutsideFrustum(
+    public static boolean isFullyOutsideFrustum(
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
         Vec3d leftPlane,
         Vec3d rightPlane,

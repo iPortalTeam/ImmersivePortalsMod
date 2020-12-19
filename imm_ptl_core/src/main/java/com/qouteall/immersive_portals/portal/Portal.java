@@ -8,10 +8,12 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
+import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
+import com.qouteall.immersive_portals.render.FrustumCuller;
 import com.qouteall.immersive_portals.render.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderingGroup;
@@ -951,14 +953,6 @@ public class Portal extends Entity implements PortalLike {
     //1  0
     @Nullable
     @Override
-    public Vec3d[] getInnerFrustumCullingVertices() {
-        return getFourVerticesLocalRotated(0);
-    }
-    
-    //3  2
-    //1  0
-    @Nullable
-    @Override
     public Vec3d[] getOuterFrustumCullingVertices() {
         return getFourVerticesLocalCullable(0);
     }
@@ -974,6 +968,37 @@ public class Portal extends Entity implements PortalLike {
         }
         
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    @Override
+    public BoxPredicate getInnerFrustumCullingFunc(
+        double cameraX, double cameraY, double cameraZ
+    ) {
+    
+        Vec3d portalOriginInLocalCoordinate = getDestPos().add(
+            -cameraX, -cameraY, -cameraZ
+        );
+        Vec3d[] innerFrustumCullingVertices = getFourVerticesLocalRotated(0);
+        if (innerFrustumCullingVertices == null) {
+            return BoxPredicate.nonePredicate;
+        }
+        Vec3d[] downLeftUpRightPlaneNormals = FrustumCuller.getDownLeftUpRightPlaneNormals(
+            portalOriginInLocalCoordinate,
+            innerFrustumCullingVertices
+        );
+        
+        Vec3d downPlane = downLeftUpRightPlaneNormals[0];
+        Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
+        Vec3d upPlane = downLeftUpRightPlaneNormals[2];
+        Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
+        
+        return
+            (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) ->
+                FrustumCuller.isFullyOutsideFrustum(
+                    minX, minY, minZ, maxX, maxY, maxZ,
+                    leftPlane, rightPlane, upPlane, downPlane
+                );
     }
     
     public static class TransformationDesc {

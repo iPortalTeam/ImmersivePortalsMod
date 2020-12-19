@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
+import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -9,7 +9,6 @@ import com.qouteall.immersive_portals.portal.PortalLike;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -257,21 +256,29 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Environment(EnvType.CLIENT)
     @Override
+    public BoxPredicate getInnerFrustumCullingFunc(
+        double cameraX, double cameraY, double cameraZ
+    ) {
+    
+    
+    }
+    
+    @Environment(EnvType.CLIENT)
+    @Override
     public void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
-        Box enclosedDestAreaBox = getEnclosedDestAreaBox();
-        if (enclosedDestAreaBox != null) {
-            Helper.removeIf(visibleChunks, (obj) -> {
-                ChunkBuilder.BuiltChunk builtChunk =
-                    ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-                
-                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
-            });
-        }
+//        Box enclosedDestAreaBox = getEnclosedDestAreaBox();
+//        if (enclosedDestAreaBox != null) {
+//            Helper.removeIf(visibleChunks, (obj) -> {
+//                ChunkBuilder.BuiltChunk builtChunk =
+//                    ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+//
+//                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
+//            });
+//        }
     }
     
     @Override
     public String toString() {
         return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
     }
-    
 }

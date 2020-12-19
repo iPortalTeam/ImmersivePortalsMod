@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -18,6 +19,11 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface PortalLike {
+    @Environment(EnvType.CLIENT)
+    BoxPredicate getInnerFrustumCullingFunc(
+        double cameraX, double cameraY, double cameraZ
+    );
+    
     boolean isConventionalPortal();
     
     // bounding box
@@ -56,10 +62,6 @@ public interface PortalLike {
     double getScale();
     
     boolean getIsGlobal();
-    
-    // used for advanced frustum culling
-    @Nullable
-    Vec3d[] getInnerFrustumCullingVertices();
     
     // used for super advanced frustum culling
     @Nullable
