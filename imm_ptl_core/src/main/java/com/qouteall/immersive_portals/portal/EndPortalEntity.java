@@ -241,6 +241,13 @@ public class EndPortalEntity extends Portal {
         }
     }
     
+    // if the bounding box is too small
+    // grouping will fail
+    @Override
+    public boolean shouldLimitBoundingBox() {
+        return false;
+    }
+    
     private static void generateObsidianPlatform() {
         ServerWorld endWorld = McHelper.getServer().getWorld(World.END);
         

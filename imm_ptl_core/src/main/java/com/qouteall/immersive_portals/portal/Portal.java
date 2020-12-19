@@ -388,7 +388,7 @@ public class Portal extends Entity implements PortalLike {
         if (boundingBoxCache == null) {
             double w = width;
             double h = height;
-            if (!getIsGlobal()) {
+            if (shouldLimitBoundingBox()) {
                 // avoid bounding box too big after converting global portal to normal portal
                 w = Math.min(this.width, 64.0);
                 h = Math.min(this.height, 64.0);
@@ -407,6 +407,10 @@ public class Portal extends Entity implements PortalLike {
             ));
         }
         return boundingBoxCache;
+    }
+    
+    public boolean shouldLimitBoundingBox() {
+        return !getIsGlobal();
     }
     
     public Box getExactBoundingBox() {
