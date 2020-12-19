@@ -210,12 +210,6 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Nullable
     @Override
-    public Vec3d[] getInnerFrustumCullingVertices() {
-        return null;
-    }
-    
-    @Nullable
-    @Override
     public Vec3d[] getOuterFrustumCullingVertices() {
         return null;
     }
@@ -259,8 +253,23 @@ public class PortalRenderingGroup implements PortalLike {
     public BoxPredicate getInnerFrustumCullingFunc(
         double cameraX, double cameraY, double cameraZ
     ) {
-    
-    
+        Vec3d cameraPos = new Vec3d(cameraX, cameraY, cameraZ);
+        
+        List<BoxPredicate> funcs = portals.stream().filter(
+            portal -> portal.isInFrontOfPortal(cameraPos)
+        ).map(
+            portal -> portal.getInnerFrustumCullingFunc(cameraX, cameraY, cameraZ)
+        ).collect(Collectors.toList());
+        
+        return (minX, minY, minZ, maxX, maxY, maxZ) -> {
+            // return true if all funcs return true
+            for (BoxPredicate func : funcs) {
+                if (!func.test(minX, minY, minZ, maxX, maxY, maxZ)) {
+                    return false;
+                }
+            }
+            return true;
+        };
     }
     
     @Environment(EnvType.CLIENT)

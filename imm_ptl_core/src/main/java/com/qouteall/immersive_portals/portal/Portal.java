@@ -970,6 +970,7 @@ public class Portal extends Entity implements PortalLike {
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
     }
     
+    // function return true for culled
     @Environment(EnvType.CLIENT)
     @Override
     public BoxPredicate getInnerFrustumCullingFunc(
