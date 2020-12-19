@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.ducks.IEWorldRendererChunkInfo;
 import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.my_util.Plane;
@@ -9,6 +10,7 @@ import com.qouteall.immersive_portals.portal.PortalLike;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
@@ -40,6 +42,9 @@ public class PortalRenderingGroup implements PortalLike {
     @Nullable
     private Box destAreaBoxCache = null;
     
+    @Nullable
+    private Boolean isEnclosedCache = null;
+    
     private final UUID uuid = MathHelper.randomUuid();
     
     public PortalRenderingGroup(Portal.TransformationDesc transformationDesc) {
@@ -70,6 +75,7 @@ public class PortalRenderingGroup implements PortalLike {
         origin = null;
         dest = null;
         destAreaBoxCache = null;
+        isEnclosedCache = null;
     }
     
     public Box getDestAreaBox() {
@@ -253,15 +259,20 @@ public class PortalRenderingGroup implements PortalLike {
     @Environment(EnvType.CLIENT)
     @Override
     public void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
-//        Box enclosedDestAreaBox = getEnclosedDestAreaBox();
-//        if (enclosedDestAreaBox != null) {
-//            Helper.removeIf(visibleChunks, (obj) -> {
-//                ChunkBuilder.BuiltChunk builtChunk =
-//                    ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-//
-//                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
-//            });
-//        }
+        if (!isEnclosed()) {
+            return;
+        }
+        
+        //contract because the exact bounding box is a little bigger
+        Box enclosedDestAreaBox = getDestAreaBox().contract(0.5);
+        if (enclosedDestAreaBox != null) {
+            Helper.removeIf(visibleChunks, (obj) -> {
+                ChunkBuilder.BuiltChunk builtChunk =
+                    ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+
+                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
+            });
+        }
     }
     
     @Override
@@ -272,5 +283,15 @@ public class PortalRenderingGroup implements PortalLike {
     @Override
     public String toString() {
         return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
+    }
+    
+    public boolean isEnclosed(){
+        if (isEnclosedCache == null) {
+            isEnclosedCache = portals.stream().allMatch(
+                p -> p.getOriginPos().subtract(getOriginPos()).dotProduct(p.getNormal()) > 0.3
+            );
+        }
+    
+        return isEnclosedCache;
     }
 }

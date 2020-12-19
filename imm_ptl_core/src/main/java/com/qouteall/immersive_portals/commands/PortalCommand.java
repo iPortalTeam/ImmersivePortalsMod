@@ -1163,7 +1163,7 @@ public class PortalCommand {
             )
         );
         
-        builder.then(CommandManager.literal("create_scaled_box_view_new")
+        builder.then(CommandManager.literal("create_scaled_box_view_optimized")
             .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
                 .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
                     .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
@@ -1173,7 +1173,7 @@ public class PortalCommand {
                                     context,
                                     false,
                                     true,
-                                    false,
+                                    true,
                                     true,
                                     true
                                 );
