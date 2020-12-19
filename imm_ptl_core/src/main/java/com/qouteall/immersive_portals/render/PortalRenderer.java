@@ -236,7 +236,9 @@ public abstract class PortalRenderer {
         Matrix4f mirror = portal instanceof Mirror ?
             TransformationManager.getMirrorTransformation(portal.getNormal()) : null;
         
-        return combineNullable(rot, mirror);
+        Matrix4f scale = getPortalScaleMatrix(portal);
+        
+        return combineNullable(rot, combineNullable(mirror, scale));
     }
     
     @Nullable
@@ -260,6 +262,19 @@ public abstract class PortalRenderer {
         }
         a.multiply(b);
         return a;
+    }
+    
+    @Nullable
+    public static Matrix4f getPortalScaleMatrix(Portal portal) {
+        // if it's not a fuseView portal
+        // whether to apply scale transformation to camera does not change triangle position
+        // to avoid abrupt fog change, do not apply for non-fuse-view portal
+        // for fuse-view portal, the depth value should be correct so the scale should be applied
+        if (portal.hasScaling() && portal.getIsFuseView()) {
+            float v = (float) (1.0 / portal.getScale());
+            return Matrix4f.scale(v, v, v);
+        }
+        return null;
     }
     
 }

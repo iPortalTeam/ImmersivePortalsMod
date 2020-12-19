@@ -8,7 +8,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -144,33 +143,34 @@ public class EndPortalEntity extends Portal {
                     }
                 }
             }
-            if (player.world == this.world && player.getPos().squaredDistanceTo(getOriginPos()) < 10 * 10) {
-                if (clientFakedReversePortal == null) {
-                    // client only faked portal
-                    clientFakedReversePortal =
-                        PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
-                    
-                    int newEntityId = -getEntityId();
-                    clientFakedReversePortal.setEntityId(newEntityId);
-                    
-                    clientFakedReversePortal.teleportable = false;
-                    
-                    clientFakedReversePortal.portalTag = "view_box_faked_reverse";
-                    
-                    clientFakedReversePortal.clientFakedReversePortal = this;
-                    
-                    ((ClientWorld) getDestinationWorld()).addEntity(
-                        clientFakedReversePortal.getEntityId(),
-                        clientFakedReversePortal
-                    );
-                }
-            }
-            else {
-                if (clientFakedReversePortal != null) {
-                    clientFakedReversePortal.remove();
-                    clientFakedReversePortal = null;
-                }
-            }
+            fuseView = true;
+//            if (player.world == this.world && player.getPos().squaredDistanceTo(getOriginPos()) < 10 * 10) {
+//                if (clientFakedReversePortal == null) {
+//                    // client only faked portal
+//                    clientFakedReversePortal =
+//                        PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
+//
+//                    int newEntityId = -getEntityId();
+//                    clientFakedReversePortal.setEntityId(newEntityId);
+//
+//                    clientFakedReversePortal.teleportable = false;
+//
+//                    clientFakedReversePortal.portalTag = "view_box_faked_reverse";
+//
+//                    clientFakedReversePortal.clientFakedReversePortal = this;
+//
+//                    ((ClientWorld) getDestinationWorld()).addEntity(
+//                        clientFakedReversePortal.getEntityId(),
+//                        clientFakedReversePortal
+//                    );
+//                }
+//            }
+//            else {
+//                if (clientFakedReversePortal != null) {
+//                    clientFakedReversePortal.remove();
+//                    clientFakedReversePortal = null;
+//                }
+//            }
         }
         else if (Objects.equals(portalTag, "view_box_faked_reverse")) {
             if (clientFakedReversePortal.removed) {
