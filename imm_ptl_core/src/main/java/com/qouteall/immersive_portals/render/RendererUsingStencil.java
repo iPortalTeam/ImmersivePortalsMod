@@ -30,9 +30,13 @@ public class RendererUsingStencil extends PortalRenderer {
     public boolean replaceFrameBufferClearing() {
         boolean skipClearing = PortalRendering.isRendering();
         if (skipClearing) {
-            RenderSystem.depthMask(false);
-            MyRenderHelper.renderScreenTriangle(FogRendererContext.getCurrentFogColor.get());
-            RenderSystem.depthMask(true);
+            boolean isSkyTransparent = PortalRendering.getRenderingPortal().getIsFuseView();
+            
+            if (!isSkyTransparent) {
+                RenderSystem.depthMask(false);
+                MyRenderHelper.renderScreenTriangle(FogRendererContext.getCurrentFogColor.get());
+                RenderSystem.depthMask(true);
+            }
         }
         return skipClearing;
     }
@@ -119,9 +123,11 @@ public class RendererUsingStencil extends PortalRenderer {
         
         int thisPortalStencilValue = outerPortalStencilValue + 1;
         
-        client.getProfiler().push("clear_depth_of_view_area");
-        clearDepthOfThePortalViewArea(portal);
-        client.getProfiler().pop();
+        if (!portal.getIsFuseView()) {
+            client.getProfiler().push("clear_depth_of_view_area");
+            clearDepthOfThePortalViewArea(portal);
+            client.getProfiler().pop();
+        }
         
         setStencilStateForWorldRendering();
         
@@ -159,12 +165,24 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GL20.glUseProgram(0);
         
-        RenderSystem.enableDepthTest();
-        GlStateManager.depthMask(true);
+        
+        if (portal.getIsFuseView()) {
+            GlStateManager.colorMask(false, false, false, false);
+            
+            RenderSystem.disableDepthTest();
+        }
+        else {
+            RenderSystem.enableDepthTest();
+            GlStateManager.depthMask(true);
+        }
         
         GlStateManager.disableTexture();
         
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
+        
+        if (portal.getIsFuseView()) {
+            GlStateManager.colorMask(true, true, true, true);
+        }
         
         GlStateManager.enableTexture();
         

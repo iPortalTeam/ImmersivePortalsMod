@@ -131,6 +131,8 @@ public class Portal extends Entity implements PortalLike {
     
     public boolean isGlobalPortal = false;
     
+    public boolean fuseView = false;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -226,6 +228,10 @@ public class Portal extends Entity implements PortalLike {
             portalTag = compoundTag.getString("portalTag");
         }
         
+        if (compoundTag.contains("fuseView")) {
+            fuseView = compoundTag.getBoolean("fuseView");
+        }
+        
         readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
@@ -273,11 +279,16 @@ public class Portal extends Entity implements PortalLike {
             compoundTag.putString("portalTag", portalTag);
         }
         
+        compoundTag.putBoolean("fuseView", fuseView);
+        
         writePortalDataSignal.emit(this, compoundTag);
         
     }
     
     public boolean canDoOuterFrustumCulling() {
+        if (getIsFuseView()) {
+            return false;
+        }
         if (specialShape == null) {
             initDefaultCullableRange();
         }
@@ -980,7 +991,7 @@ public class Portal extends Entity implements PortalLike {
     public BoxPredicate getInnerFrustumCullingFunc(
         double cameraX, double cameraY, double cameraZ
     ) {
-    
+        
         Vec3d portalOriginInLocalCoordinate = getDestPos().add(
             -cameraX, -cameraY, -cameraZ
         );
@@ -1099,5 +1110,10 @@ public class Portal extends Entity implements PortalLike {
         else {
             return this;
         }
+    }
+    
+    @Override
+    public boolean getIsFuseView() {
+        return fuseView;
     }
 }

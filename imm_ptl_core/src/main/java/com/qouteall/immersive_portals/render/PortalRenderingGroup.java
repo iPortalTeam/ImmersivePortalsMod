@@ -287,6 +287,11 @@ public class PortalRenderingGroup implements PortalLike {
     }
     
     @Override
+    public boolean getIsFuseView() {
+        return portals.get(0).getIsFuseView();
+    }
+    
+    @Override
     public String toString() {
         return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
     }
