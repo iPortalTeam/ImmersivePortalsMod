@@ -40,6 +40,7 @@ public class EndPortalEntity extends Portal {
         super(entityType_1, world_1);
     
         renderingMergable = true;
+        hasCrossPortalCollision = false;
     }
     
     public static void onEndPortalComplete(ServerWorld world, Vec3d portalCenter) {

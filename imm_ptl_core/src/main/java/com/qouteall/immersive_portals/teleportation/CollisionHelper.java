@@ -115,9 +115,9 @@ public class CollisionHelper {
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
-//        if (!collidingPortal.hasCrossPortalCollision()) {
-//            return attemptedMove;
-//        }
+        if (!collidingPortal.hasCrossPortalCollision) {
+            return attemptedMove;
+        }
         
         Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
         
@@ -253,12 +253,7 @@ public class CollisionHelper {
             return originalBox.offset(portal.getDestPos().subtract(portal.getOriginPos()));
         }
         else {
-            if (portal.teleportChangesScale) {
-                return Helper.transformBox(originalBox, portal::transformPoint);
-            }
-            else {
-                return Helper.transformBox(originalBox, portal::transformPointNonScale);
-            }
+            return Helper.transformBox(originalBox, portal::transformPoint);
         }
     }
     

@@ -135,6 +135,8 @@ public class Portal extends Entity implements PortalLike {
     
     public boolean renderingMergable = false;
     
+    public boolean hasCrossPortalCollision = true;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -148,7 +150,6 @@ public class Portal extends Entity implements PortalLike {
         super(entityType, world);
     }
     
-   
     
     // Scaling does not interfere camera transformation
     @Override
@@ -235,9 +236,13 @@ public class Portal extends Entity implements PortalLike {
         if (compoundTag.contains("fuseView")) {
             fuseView = compoundTag.getBoolean("fuseView");
         }
-    
+        
         if (compoundTag.contains("renderingMergable")) {
             renderingMergable = compoundTag.getBoolean("renderingMergable");
+        }
+        
+        if (compoundTag.contains("hasCrossPortalCollision")) {
+            hasCrossPortalCollision = compoundTag.getBoolean("hasCrossPortalCollision");
         }
         
         readPortalDataSignal.emit(this, compoundTag);
@@ -290,6 +295,8 @@ public class Portal extends Entity implements PortalLike {
         compoundTag.putBoolean("fuseView", fuseView);
         
         compoundTag.putBoolean("renderingMergable", renderingMergable);
+        
+        compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
         
         writePortalDataSignal.emit(this, compoundTag);
         
@@ -671,12 +678,6 @@ public class Portal extends Entity implements PortalLike {
         
         return transformLocalVec(localPos).add(getDestPos());
         
-    }
-    
-    public Vec3d transformPointNonScale(Vec3d pos) {
-        Vec3d localPos = pos.subtract(getOriginPos());
-        
-        return transformLocalVecNonScale(localPos).add(getDestPos());
     }
     
     public Vec3d transformLocalVecNonScale(Vec3d localVec) {
@@ -1127,7 +1128,7 @@ public class Portal extends Entity implements PortalLike {
         return fuseView;
     }
     
-    public boolean isRenderingMergable(){
+    public boolean isRenderingMergable() {
         return renderingMergable;
     }
     

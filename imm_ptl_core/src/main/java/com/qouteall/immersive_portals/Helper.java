@@ -279,6 +279,14 @@ public class Helper {
         );
     }
     
+    public static Vec3d getBoxBottomCenter(Box box) {
+        return new Vec3d(
+            (box.maxX + box.minX) / 2,
+            box.minY,
+            (box.maxZ + box.minZ) / 2
+        );
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         

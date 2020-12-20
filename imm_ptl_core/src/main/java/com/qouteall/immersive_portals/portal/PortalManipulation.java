@@ -331,6 +331,7 @@ public class PortalManipulation {
         PortalExtension.get(to).motionAffinity = PortalExtension.get(from).motionAffinity;
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
         to.portalTag = from.portalTag;
+        to.hasCrossPortalCollision = from.hasCrossPortalCollision;
     }
     
     public static void createScaledBoxView(
