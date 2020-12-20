@@ -737,8 +737,8 @@ public class Portal extends Entity implements PortalLike {
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
         
-        boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.1) &&
-            Math.abs(yInPlane) < (height / 2 + 0.1);
+        boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.001) &&
+            Math.abs(yInPlane) < (height / 2 + 0.001);
         
         if (roughResult && specialShape != null) {
             return specialShape.triangles.stream()
