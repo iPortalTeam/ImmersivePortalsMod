@@ -342,7 +342,8 @@ public class PortalManipulation {
         boolean teleportChangesScale,
         boolean outerFuseView,
         boolean outerRenderingMergable,
-        boolean innerRenderingMergable
+        boolean innerRenderingMergable,
+        boolean hasCrossPortalCollision
     ) {
         Vec3d viewBoxSize = Helper.getBoxSize(area).multiply(1.0 / scale);
         Box viewBox = Helper.getBoxByBottomPosAndSize(boxBottomCenter, viewBoxSize);
@@ -357,6 +358,7 @@ public class PortalManipulation {
             portal.teleportChangesScale = teleportChangesScale;
             portal.fuseView = outerFuseView;
             portal.renderingMergable = outerRenderingMergable;
+            portal.hasCrossPortalCollision = hasCrossPortalCollision;
             PortalExtension.get(portal).adjustPositionAfterTeleport = true;
             
             McHelper.spawnServerEntity(portal);

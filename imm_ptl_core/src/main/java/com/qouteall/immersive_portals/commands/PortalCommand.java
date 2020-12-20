@@ -1213,7 +1213,8 @@ public class PortalCommand {
         PortalManipulation.createScaledBoxView(
             areaWorld, area, boxWorld, boxBottomCenter, scale,
             isBiWay, teleportChangesScale,
-            outerFuseView, outerRenderingMergable, innerRenderingMergable
+            outerFuseView, outerRenderingMergable, innerRenderingMergable,
+            false
         );
     }
     
