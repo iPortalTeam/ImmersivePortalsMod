@@ -133,6 +133,7 @@ public class RenderStates {
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {
         if (lastPortalRenderInfos.size() != 0) {
+            // view bobbing has issue with optifine
             if (OFInterface.isOptifinePresent) {
                 setViewBobFactor(0);
                 return;
