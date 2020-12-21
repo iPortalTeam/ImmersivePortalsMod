@@ -11,7 +11,6 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileReader;
@@ -50,7 +49,6 @@ public class IPGuide {
         return new GuideInfo();
     }
     
-    @NotNull
     private static File getStorageFile() {
         return new File(MinecraftClient.getInstance().runDirectory, "imm_ptl_state.json");
     }
