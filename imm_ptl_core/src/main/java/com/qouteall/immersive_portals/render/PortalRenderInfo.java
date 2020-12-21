@@ -283,11 +283,15 @@ public class PortalRenderInfo {
             return;
         }
         
+        if (!canMerge(portal)) {
+            return;
+        }
+        
         List<Portal> nearbyPortals = McHelper.findEntitiesByBox(
             Portal.class,
             portal.getOriginWorld(),
             portal.getBoundingBox().expand(0.5),
-            portal.getSizeEstimation() * 2 + 5,
+            Math.min(64, portal.getSizeEstimation()) * 2 + 5,
             p -> p != portal && !Portal.isFlippedPortal(p, portal) && canMerge(p)
         );
         
