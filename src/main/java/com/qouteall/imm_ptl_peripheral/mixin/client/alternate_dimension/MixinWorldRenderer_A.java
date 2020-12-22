@@ -1,27 +1,22 @@
 package com.qouteall.imm_ptl_peripheral.mixin.client.alternate_dimension;
 
-import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(WorldRenderer.class)
 public class MixinWorldRenderer_A {
-    //avoid alternate dimension dark sky in low y
-    @Redirect(
-        method = "renderSky",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight()D"
-        )
-    )
-    private double redirectGetSkyDarknessHeight(ClientWorld.Properties properties) {
-        if (AlternateDimensions.isAlternateDimension(MinecraftClient.getInstance().world)) {
-            return -10000;
-        }
-        return properties.getSkyDarknessHeight();
-    }
+//    //avoid alternate dimension dark sky in low y
+//    @Redirect(
+//        method = "renderSky",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight()D"
+//        )
+//    )
+//    private double redirectGetSkyDarknessHeight(ClientWorld.Properties properties) {
+//        if (AlternateDimensions.isAlternateDimension(MinecraftClient.getInstance().world)) {
+//            return -10000;
+//        }
+//        return properties.getSkyDarknessHeight();
+//    }
 }
