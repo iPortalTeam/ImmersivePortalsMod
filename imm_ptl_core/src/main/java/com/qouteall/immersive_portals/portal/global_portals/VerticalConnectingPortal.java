@@ -132,6 +132,12 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             PortalExtension.get(verticalConnectingPortal).adjustPositionAfterTeleport = false;
         }
         
+        if (fromWorld.getDimension().hasSkyLight()) {
+            if (connectorType == ConnectorType.ceil) {
+                verticalConnectingPortal.fuseView = true;
+            }
+        }
+        
         return verticalConnectingPortal;
     }
     
