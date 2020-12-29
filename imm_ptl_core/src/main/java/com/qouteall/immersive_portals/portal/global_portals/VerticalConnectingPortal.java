@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals.portal.global_portals;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalExtension;
 import net.minecraft.entity.EntityType;
@@ -40,16 +42,13 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         ConnectorType connectorType,
         RegistryKey<World> to
     ) {
-        int upY = connectorType == ConnectorType.ceil ? getHeight(from) : getHeight(to);
-        connect(from, connectorType, to, 0, upY, false);
+        connect(from, connectorType, to, false);
     }
     
     public static void connect(
         RegistryKey<World> from,
         ConnectorType connectorType,
         RegistryKey<World> to,
-        int downY,
-        int upY,
         boolean respectSpaceRatio
     ) {
         removeConnectingPortal(connectorType, from);
@@ -60,9 +59,12 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             fromWorld,
             connectorType,
             McHelper.getServer().getWorld(to),
-            downY,
-            upY,
-            respectSpaceRatio
+            respectSpaceRatio ?
+                fromWorld.getDimension().getCoordinateScale() /
+                    McHelper.getServer().getWorld(to).getDimension().getCoordinateScale()
+                : 1.0,
+            false,
+            0
         );
         
         GlobalPortalStorage storage = GlobalPortalStorage.get(fromWorld);
@@ -75,59 +77,72 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         RegistryKey<World> down,
         boolean respectSpaceRatio
     ) {
-        connectMutually(
-            up, down,
-            0, getHeight(down),
-            respectSpaceRatio
-        );
-    }
-    
-    public static void connectMutually(
-        RegistryKey<World> up,
-        RegistryKey<World> down,
-        int downY,
-        int upY,
-        boolean respectSpaceRatio
-    ) {
-        connect(up, ConnectorType.floor, down, downY, upY, respectSpaceRatio);
-        connect(down, ConnectorType.ceil, up, downY, upY, respectSpaceRatio);
+        
+        connect(up, ConnectorType.floor, down, respectSpaceRatio);
+        connect(down, ConnectorType.ceil, up, respectSpaceRatio);
     }
     
     private static VerticalConnectingPortal createConnectingPortal(
         ServerWorld fromWorld,
         ConnectorType connectorType,
         ServerWorld toWorld,
-        int downY,
-        int upY,
-        boolean respectSpaceRatio
+        double scaling,
+        boolean inverted,
+        double rotationAlongYDegrees
     ) {
         VerticalConnectingPortal verticalConnectingPortal = new VerticalConnectingPortal(
             entityType, fromWorld
         );
         
+        verticalConnectingPortal.dimensionTo = toWorld.getRegistryKey();
+        verticalConnectingPortal.width = 23333333333.0d;
+        verticalConnectingPortal.height = 23333333333.0d;
+        
         switch (connectorType) {
             case floor:
-                
-                verticalConnectingPortal.updatePosition(0, downY, 0);
-                verticalConnectingPortal.setDestination(new Vec3d(0, upY, 0));
+                verticalConnectingPortal.updatePosition(0, 0, 0);
                 verticalConnectingPortal.axisW = new Vec3d(0, 0, 1);
                 verticalConnectingPortal.axisH = new Vec3d(1, 0, 0);
                 break;
             case ceil:
-                verticalConnectingPortal.updatePosition(0, upY, 0);
-                verticalConnectingPortal.setDestination(new Vec3d(0, downY, 0));
+                verticalConnectingPortal.updatePosition(0, fromWorld.getDimensionHeight(), 0);
                 verticalConnectingPortal.axisW = new Vec3d(1, 0, 0);
                 verticalConnectingPortal.axisH = new Vec3d(0, 0, 1);
                 break;
         }
         
-        verticalConnectingPortal.dimensionTo = toWorld.getRegistryKey();
-        verticalConnectingPortal.width = 23333333333.0d;
-        verticalConnectingPortal.height = 23333333333.0d;
+        if (!inverted) {
+            switch (connectorType) {
+                case floor:
+                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorld.getDimensionHeight(), 0));
+                    break;
+                case ceil:
+                    verticalConnectingPortal.setDestination(new Vec3d(0, 0, 0));
+                    break;
+            }
+        }
+        else {
+            switch (connectorType) {
+                case floor:
+                    verticalConnectingPortal.setDestination(new Vec3d(0, 0, 0));
+                    break;
+                case ceil:
+                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorld.getDimensionHeight(), 0));
+                    break;
+            }
+        }
         
-        if (respectSpaceRatio) {
-            verticalConnectingPortal.scaling =
-                fromWorld.getDimension().getCoordinateScale() / toWorld.getDimension().getCoordinateScale();
+        DQuaternion inversionRotation = inverted ?
+            DQuaternion.rotationByDegrees(new Vec3d(1, 0, 0), 180) : null;
+        DQuaternion additionalRotation = rotationAlongYDegrees != 0 ?
+            DQuaternion.rotationByDegrees(new Vec3d(0, 1, 0), rotationAlongYDegrees) : null;
+        DQuaternion rotation = Helper.combineNullable(
+            inversionRotation, additionalRotation, DQuaternion::hamiltonProduct
+        );
+        verticalConnectingPortal.rotation = rotation != null ? rotation.toMcQuaternion() : null;
+        
+        if (scaling != 1.0) {
+            verticalConnectingPortal.scaling = scaling;
             verticalConnectingPortal.teleportChangesScale = false;
             PortalExtension.get(verticalConnectingPortal).adjustPositionAfterTeleport = false;
         }

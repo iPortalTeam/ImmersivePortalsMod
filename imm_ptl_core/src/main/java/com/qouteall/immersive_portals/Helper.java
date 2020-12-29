@@ -958,4 +958,14 @@ public class Helper {
         return list.get(list.size() - 1);
     }
     
+    @Nullable
+    public static <T> T combineNullable(@Nullable T a, @Nullable T b, BiFunction<T, T, T> combiner) {
+        if (a == null) {
+            return b;
+        }
+        if (b == null) {
+            return a;
+        }
+        return combiner.apply(a, b);
+    }
 }

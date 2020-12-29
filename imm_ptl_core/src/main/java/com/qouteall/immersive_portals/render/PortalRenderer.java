@@ -255,14 +255,18 @@ public abstract class PortalRenderer {
     
     @Nullable
     public static Matrix4f combineNullable(@Nullable Matrix4f a, @Nullable Matrix4f b) {
-        if (a == null) {
-            return b;
-        }
-        if (b == null) {
-            return a;
-        }
-        a.multiply(b);
-        return a;
+        return Helper.combineNullable(a, b, (m1, m2) -> {
+            m1.multiply(m2);
+            return m1;
+        });
+//        if (a == null) {
+//            return b;
+//        }
+//        if (b == null) {
+//            return a;
+//        }
+//        a.multiply(b);
+//        return a;
     }
     
     @Nullable
