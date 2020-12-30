@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -129,6 +130,8 @@ public class BorderBarrierFiller {
         
         int worldHeight = world.getHeight();
         
+        ServerLightingProvider lightingProvider = world.getChunkManager().getLightingProvider();
+        
         McHelper.performMultiThreadedFindingTaskOnServer(
             stream,
             columnPos -> {
@@ -136,7 +139,9 @@ public class BorderBarrierFiller {
                 for (int y = 0; y < worldHeight; y++) {
                     temp1.set(columnPos.getX(), y, columnPos.getZ());
                     chunk.setBlockState(temp1, Blocks.AIR.getDefaultState(), false);
+                    lightingProvider.checkBlock(temp1);
                 }
+                
                 return false;
             },
             columns -> {
@@ -151,7 +156,7 @@ public class BorderBarrierFiller {
                 //nothing
             },
             () -> {
-                informer.accept(new TranslatableText("imm_ptl.finished"));
+                informer.accept(new TranslatableText("imm_ptl.finished_clearing_border"));
             },
             () -> {
             
