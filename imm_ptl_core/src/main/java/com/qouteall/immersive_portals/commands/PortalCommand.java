@@ -20,6 +20,7 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
+import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.argument.BlockPosArgumentType;
@@ -1301,6 +1302,15 @@ public class PortalCommand {
         portal.reloadAndSyncToClient();
         
         sendMessage(context, portal.toString());
+        
+        if (portal instanceof BreakablePortalEntity) {
+            if (!((BreakablePortalEntity) portal).unbreakable) {
+                sendMessage(context, "You are editing a breakable portal." +
+                    " If the breakable portal entity is wrongly linked, it will automatically break." +
+                    " To avoid that, use command /portal set_portal_nbt {unbreakable:true} for 4 portal entities."
+                );
+            }
+        }
     }
     
     private static void invokeCompleteBiWayBiFacedPortal(
