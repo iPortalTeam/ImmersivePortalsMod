@@ -87,7 +87,7 @@ public class BorderBarrierFiller {
             player.sendMessage(
                 new TranslatableText(
                     "imm_ptl.clear_border_warning",
-                    sizeEstimationGB
+                    sizeEstimationGB < 0.01 ? 0 : sizeEstimationGB
                 ),
                 false
             );
