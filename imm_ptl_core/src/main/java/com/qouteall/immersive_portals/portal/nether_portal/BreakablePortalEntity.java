@@ -36,6 +36,8 @@ public abstract class BreakablePortalEntity extends Portal {
         super(entityType_1, world_1);
     }
     
+   
+    
     @Override
     public boolean isPortalValid() {
         if (world.isClient) {
@@ -147,15 +149,8 @@ public abstract class BreakablePortalEntity extends Portal {
         if (!isOtherSideChunkLoaded()) {
             return true;
         }
-        
-        List<BreakablePortalEntity> revs = McHelper.findEntitiesByBox(
-            BreakablePortalEntity.class,
-            getDestinationWorld(),
-            new Box(new BlockPos(getDestPos())),
-            10,
-            e -> (e.getOriginPos().squaredDistanceTo(getDestPos()) < 0.1) &&
-                e.getContentDirection().dotProduct(getNormal()) > 0.6
-        );
+    
+        List<BreakablePortalEntity> revs = findReversePortals(this);
         if (revs.size() == 1) {
             BreakablePortalEntity reversePortal = revs.get(0);
             if (reversePortal.getDestPos().squaredDistanceTo(getOriginPos()) > 1) {
@@ -199,5 +194,18 @@ public abstract class BreakablePortalEntity extends Portal {
         return McHelper.getServerChunkIfPresent(
             dimensionTo, destChunkPos.x, destChunkPos.z
         ) != null;
+    }
+    
+    
+    public static <T extends Portal> List<T> findReversePortals(T portal) {
+        List<T> revs = McHelper.findEntitiesByBox(
+            (Class<T>) portal.getClass(),
+            portal.getDestinationWorld(),
+            new Box(new BlockPos(portal.getDestPos())),
+            10,
+            e -> (e.getOriginPos().squaredDistanceTo(portal.getDestPos()) < 0.1) &&
+                e.getContentDirection().dotProduct(portal.getNormal()) > 0.6
+        );
+        return revs;
     }
 }

@@ -343,27 +343,35 @@ public class MyGameRenderer {
                 
                 PortalLike renderingPortal = PortalRendering.getRenderingPortal();
     
-                if (renderingPortal instanceof Portal) {
-                    int firstInsideOne = Helper.indexOf(
-                        visibleChunks,
-                        obj -> {
-                            ChunkBuilder.BuiltChunk builtChunk =
-                                ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-                            Box boundingBox = builtChunk.boundingBox;
-            
-                            return FrustumCuller.isTouchingInsideContentArea(
-                                ((Portal) renderingPortal), boundingBox
-                            );
-                        }
-                    );
+                renderingPortal.doAdditionalRenderingCull(visibleChunks);
+            }
+        }
+    }
     
-                    if (firstInsideOne != -1) {
-                        visibleChunks.removeElements(0, firstInsideOne);
-                    }
-                    else {
-                        visibleChunks.clear();
-                    }
+    // frustum culling is done elsewhere
+    // it's culling the sections behind the portal
+    public static void cullRenderingSections(
+        ObjectList<?> visibleChunks, PortalLike renderingPortal
+    ) {
+        if (renderingPortal instanceof Portal) {
+            int firstInsideOne = Helper.indexOf(
+                visibleChunks,
+                obj -> {
+                    ChunkBuilder.BuiltChunk builtChunk =
+                        ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+                    Box boundingBox = builtChunk.boundingBox;
+    
+                    return FrustumCuller.isTouchingInsideContentArea(
+                        ((Portal) renderingPortal), boundingBox
+                    );
                 }
+            );
+
+            if (firstInsideOne != -1) {
+                visibleChunks.removeElements(0, firstInsideOne);
+            }
+            else {
+                visibleChunks.clear();
             }
         }
     }

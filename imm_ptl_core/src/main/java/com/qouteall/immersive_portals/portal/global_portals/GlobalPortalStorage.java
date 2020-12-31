@@ -6,7 +6,6 @@ import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
@@ -91,7 +90,7 @@ public class GlobalPortalStorage extends PersistentState {
                 }
             }
         );
-        NewChunkTrackingGraph.updateForPlayer(player);
+        
     }
     
     public void onDataChanged() {

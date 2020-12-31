@@ -6,12 +6,14 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.List;
 import java.util.WeakHashMap;
@@ -75,14 +77,29 @@ public class BorderBarrierFiller {
         boolean warned = warnedPlayers.containsKey(player);
         if (!warned) {
             warnedPlayers.put(player, null);
-            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"),
-                false);
+            
+            BlockPos size = borderBox.getSize();
+            int totalColumns = size.getX() * 2 + size.getZ() * 2;
+            
+            // according to my test 80000 columns increase world saving by 465 MB
+            double sizeEstimationGB = (totalColumns / 80000.0) * 0.5;
+            
+            player.sendMessage(
+                new TranslatableText(
+                    "imm_ptl.clear_border_warning",
+                    sizeEstimationGB
+                ),
+                false
+            );
         }
         else {
             warnedPlayers.remove(player);
             
-            player.sendMessage(new TranslatableText("imm_ptl.start_clearing_border"),
-                false);
+            player.sendMessage(
+                new TranslatableText("imm_ptl.start_clearing_border"),
+                false
+            );
+            
             
             startFillingBorder(world, borderBox, l -> player.sendMessage(l, false));
         }
@@ -111,27 +128,35 @@ public class BorderBarrierFiller {
         BlockPos size = borderBox.getSize();
         int totalColumns = size.getX() * 2 + size.getZ() * 2;
         
-        McHelper.performSplittedFindingTaskOnServer(
+        int worldHeight = world.getHeight();
+        
+        ServerLightingProvider lightingProvider = world.getChunkManager().getLightingProvider();
+        
+        McHelper.performMultiThreadedFindingTaskOnServer(
             stream,
-            pos -> {
-                for (int y = 0; y < 256; y++) {
-                    temp1.set(pos.getX(), y, pos.getZ());
-                    world.setBlockState(temp1, Blocks.AIR.getDefaultState());
+            columnPos -> {
+                Chunk chunk = world.getChunk(columnPos);
+                for (int y = 0; y < worldHeight; y++) {
+                    temp1.set(columnPos.getX(), y, columnPos.getZ());
+                    chunk.setBlockState(temp1, Blocks.AIR.getDefaultState(), false);
+                    lightingProvider.checkBlock(temp1);
                 }
+                
                 return false;
             },
             columns -> {
-                double progress = ((double) columns) / totalColumns;
-                informer.accept(new LiteralText(
-                    Integer.toString((int) (progress * 100)) + "%"
-                ));
+                if (McHelper.getServerGameTime() % 20 == 0) {
+                    informer.accept(new LiteralText(
+                        String.format("Progress: %d / %d", columns, totalColumns)
+                    ));
+                }
                 return true;
             },
             e -> {
                 //nothing
             },
             () -> {
-                informer.accept(new TranslatableText("imm_ptl.finished"));
+                informer.accept(new TranslatableText("imm_ptl.finished_clearing_border"));
             },
             () -> {
             

@@ -8,10 +8,12 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
+import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
+import com.qouteall.immersive_portals.render.FrustumCuller;
 import com.qouteall.immersive_portals.render.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderingGroup;
@@ -129,6 +131,12 @@ public class Portal extends Entity implements PortalLike {
     
     public boolean isGlobalPortal = false;
     
+    public boolean fuseView = false;
+    
+    public boolean renderingMergable = false;
+    
+    public boolean hasCrossPortalCollision = true;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -141,6 +149,7 @@ public class Portal extends Entity implements PortalLike {
     ) {
         super(entityType, world);
     }
+    
     
     // Scaling does not interfere camera transformation
     @Override
@@ -224,6 +233,18 @@ public class Portal extends Entity implements PortalLike {
             portalTag = compoundTag.getString("portalTag");
         }
         
+        if (compoundTag.contains("fuseView")) {
+            fuseView = compoundTag.getBoolean("fuseView");
+        }
+        
+        if (compoundTag.contains("renderingMergable")) {
+            renderingMergable = compoundTag.getBoolean("renderingMergable");
+        }
+        
+        if (compoundTag.contains("hasCrossPortalCollision")) {
+            hasCrossPortalCollision = compoundTag.getBoolean("hasCrossPortalCollision");
+        }
+        
         readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
@@ -271,11 +292,20 @@ public class Portal extends Entity implements PortalLike {
             compoundTag.putString("portalTag", portalTag);
         }
         
+        compoundTag.putBoolean("fuseView", fuseView);
+        
+        compoundTag.putBoolean("renderingMergable", renderingMergable);
+        
+        compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
+        
         writePortalDataSignal.emit(this, compoundTag);
         
     }
     
     public boolean canDoOuterFrustumCulling() {
+        if (isFuseView()) {
+            return false;
+        }
         if (specialShape == null) {
             initDefaultCullableRange();
         }
@@ -309,8 +339,13 @@ public class Portal extends Entity implements PortalLike {
     
     @Override
     public void setPos(double x, double y, double z) {
+        boolean shouldUpdate = getX() != x || getY() != y || getZ() != z;
+        
         super.setPos(x, y, z);
-        updateCache();
+        
+        if (shouldUpdate) {
+            updateCache();
+        }
     }
     
     public void updateCache() {
@@ -381,7 +416,7 @@ public class Portal extends Entity implements PortalLike {
         if (boundingBoxCache == null) {
             double w = width;
             double h = height;
-            if (!getIsGlobal()) {
+            if (shouldLimitBoundingBox()) {
                 // avoid bounding box too big after converting global portal to normal portal
                 w = Math.min(this.width, 64.0);
                 h = Math.min(this.height, 64.0);
@@ -400,6 +435,10 @@ public class Portal extends Entity implements PortalLike {
             ));
         }
         return boundingBoxCache;
+    }
+    
+    public boolean shouldLimitBoundingBox() {
+        return !getIsGlobal();
     }
     
     public Box getExactBoundingBox() {
@@ -637,9 +676,7 @@ public class Portal extends Entity implements PortalLike {
     public Vec3d transformPoint(Vec3d pos) {
         Vec3d localPos = pos.subtract(getOriginPos());
         
-        Vec3d result = transformLocalVec(localPos).add(getDestPos());
-        
-        return result;
+        return transformLocalVec(localPos).add(getDestPos());
         
     }
     
@@ -700,8 +737,8 @@ public class Portal extends Entity implements PortalLike {
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
         
-        boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.1) &&
-            Math.abs(yInPlane) < (height / 2 + 0.1);
+        boolean roughResult = Math.abs(xInPlane) < (width / 2 + 0.001) &&
+            Math.abs(yInPlane) < (height / 2 + 0.001);
         
         if (roughResult && specialShape != null) {
             return specialShape.triangles.stream()
@@ -946,14 +983,6 @@ public class Portal extends Entity implements PortalLike {
     //1  0
     @Nullable
     @Override
-    public Vec3d[] getInnerFrustumCullingVertices() {
-        return getFourVerticesLocalRotated(0);
-    }
-    
-    //3  2
-    //1  0
-    @Nullable
-    @Override
     public Vec3d[] getOuterFrustumCullingVertices() {
         return getFourVerticesLocalCullable(0);
     }
@@ -969,6 +998,38 @@ public class Portal extends Entity implements PortalLike {
         }
         
         ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
+    }
+    
+    // function return true for culled
+    @Environment(EnvType.CLIENT)
+    @Override
+    public BoxPredicate getInnerFrustumCullingFunc(
+        double cameraX, double cameraY, double cameraZ
+    ) {
+        
+        Vec3d portalOriginInLocalCoordinate = getDestPos().add(
+            -cameraX, -cameraY, -cameraZ
+        );
+        Vec3d[] innerFrustumCullingVertices = getFourVerticesLocalRotated(0);
+        if (innerFrustumCullingVertices == null) {
+            return BoxPredicate.nonePredicate;
+        }
+        Vec3d[] downLeftUpRightPlaneNormals = FrustumCuller.getDownLeftUpRightPlaneNormals(
+            portalOriginInLocalCoordinate,
+            innerFrustumCullingVertices
+        );
+        
+        Vec3d downPlane = downLeftUpRightPlaneNormals[0];
+        Vec3d leftPlane = downLeftUpRightPlaneNormals[1];
+        Vec3d upPlane = downLeftUpRightPlaneNormals[2];
+        Vec3d rightPlane = downLeftUpRightPlaneNormals[3];
+        
+        return
+            (double minX, double minY, double minZ, double maxX, double maxY, double maxZ) ->
+                FrustumCuller.isFullyOutsideFrustum(
+                    minX, minY, minZ, maxX, maxY, maxZ,
+                    leftPlane, rightPlane, upPlane, downPlane
+                );
     }
     
     public static class TransformationDesc {
@@ -1046,13 +1107,9 @@ public class Portal extends Entity implements PortalLike {
         portalDisposeSignal.emit(this);
     }
     
-    public boolean hasCrossPortalCollision() {
-        return true;
-    }
-    
     @Environment(EnvType.CLIENT)
     public PortalLike getRenderingDelegate() {
-        if (Global.mergePortalRendering) {
+        if (Global.enablePortalRenderingMerge) {
             PortalRenderingGroup group = PortalRenderInfo.getGroupOf(this);
             if (group != null) {
                 return group;
@@ -1065,4 +1122,14 @@ public class Portal extends Entity implements PortalLike {
             return this;
         }
     }
+    
+    @Override
+    public boolean isFuseView() {
+        return fuseView;
+    }
+    
+    public boolean isRenderingMergable() {
+        return renderingMergable;
+    }
+    
 }

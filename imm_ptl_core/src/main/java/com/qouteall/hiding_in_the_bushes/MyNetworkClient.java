@@ -11,7 +11,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.CompoundTag;
@@ -36,30 +36,68 @@ public class MyNetworkClient {
     
     public static void init() {
         
-        ClientSidePacketRegistry.INSTANCE.register(
+        ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcRedirected,
-            MyNetworkClient::processRedirectedMessage
+            (c, handler, buf, responseSender) -> {
+                processRedirectedMessage(null, buf);
+            }
         );
         
-        ClientSidePacketRegistry.INSTANCE.register(
+        ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcDimSync,
-            MyNetworkClient::processDimSync
+            (c, handler, buf, responseSender) -> {
+                processDimSync(null, buf);
+                
+            }
         );
         
-        ClientSidePacketRegistry.INSTANCE.register(
+        ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcSpawnEntity,
-            MyNetworkClient::processStcSpawnEntity
+            (c, handler, buf, responseSender) -> {
+                processStcSpawnEntity(null, buf);
+                
+            }
         );
         
-        ClientSidePacketRegistry.INSTANCE.register(
+        ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcDimensionConfirm,
-            MyNetworkClient::processStcDimensionConfirm
+            (c, handler, buf, responseSender) -> {
+                processStcDimensionConfirm(null, buf);
+                
+            }
         );
         
-        ClientSidePacketRegistry.INSTANCE.register(
+        ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcUpdateGlobalPortal,
-            MyNetworkClient::processGlobalPortalUpdate
+            (c, handler, buf, responseSender) -> {
+                processGlobalPortalUpdate(null, buf);
+            }
         );
+
+//        ClientSidePacketRegistry.INSTANCE.register(
+//            MyNetwork.id_stcRedirected,
+//            MyNetworkClient::processRedirectedMessage
+//        );
+//
+//        ClientSidePacketRegistry.INSTANCE.register(
+//            MyNetwork.id_stcDimSync,
+//            MyNetworkClient::processDimSync
+//        );
+//
+//        ClientSidePacketRegistry.INSTANCE.register(
+//            MyNetwork.id_stcSpawnEntity,
+//            MyNetworkClient::processStcSpawnEntity
+//        );
+//
+//        ClientSidePacketRegistry.INSTANCE.register(
+//            MyNetwork.id_stcDimensionConfirm,
+//            MyNetworkClient::processStcDimensionConfirm
+//        );
+//
+//        ClientSidePacketRegistry.INSTANCE.register(
+//            MyNetwork.id_stcUpdateGlobalPortal,
+//            MyNetworkClient::processGlobalPortalUpdate
+//        );
         
     }
     
@@ -71,7 +109,7 @@ public class MyNetworkClient {
         RegistryKey<World> dim = DimId.readWorldId(buf, true);
         
         CompoundTag compoundTag = buf.readCompoundTag();
-    
+        
         CommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     

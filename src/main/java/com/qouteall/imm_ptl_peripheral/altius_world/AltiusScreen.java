@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -31,6 +32,8 @@ public class AltiusScreen extends Screen {
     
     private final ButtonWidget respectSpaceRatioButton;
     private final ButtonWidget loopButton;
+    
+    private final ButtonWidget helpButton;
     
     private int titleY;
     
@@ -131,6 +134,16 @@ public class AltiusScreen extends Screen {
                 this.parent, rawGeneratorOptions
             );
         });
+        
+        helpButton = new ButtonWidget(
+            0, 0, 72, 20,
+            new LiteralText("?"),
+            button -> {
+                CHelper.openLinkConfirmScreen(
+                    this, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
+                );
+            }
+        );
     }
     
     //nullable
@@ -155,9 +168,11 @@ public class AltiusScreen extends Screen {
         addButton(backButton);
         addButton(addDimensionButton);
         addButton(removeDimensionButton);
-    
+        
         addButton(loopButton);
         addButton(respectSpaceRatioButton);
+        
+        addButton(helpButton);
         
         setEnabled(isEnabled);
         
@@ -169,7 +184,9 @@ public class AltiusScreen extends Screen {
             0, height,
             CHelper.LayoutElement.blankSpace(15),
             new CHelper.LayoutElement(true, 20, (from, to) -> {
-                titleY = (from + to) / 2;
+                helpButton.x = width - 50;
+                helpButton.y = 10;
+                helpButton.setWidth(30);
             }),
             CHelper.LayoutElement.blankSpace(10),
             new CHelper.LayoutElement(true, 20, (a, b) -> {
@@ -255,7 +272,7 @@ public class AltiusScreen extends Screen {
         }
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;
-    
+        
         loopButton.visible = isEnabled;
         respectSpaceRatioButton.visible = isEnabled;
     }

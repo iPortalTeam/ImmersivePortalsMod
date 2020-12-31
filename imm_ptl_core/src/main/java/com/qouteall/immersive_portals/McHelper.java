@@ -14,7 +14,6 @@ import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -478,7 +477,7 @@ public class McHelper {
         Predicate<T> predicate
     ) {
         ArrayList<T> result = new ArrayList<>();
-    
+        
         foreachEntities(
             entityClass, chunkAccessor,
             chunkXStart, chunkXEnd, chunkYStart, chunkYEnd, chunkZStart, chunkZEnd,
@@ -511,7 +510,7 @@ public class McHelper {
                 WorldChunk chunk = chunkAccessor.getChunk(x, z);
                 if (chunk != null && !(chunk instanceof EmptyChunk)) {
                     TypeFilterableList<Entity>[] entitySections =
-                        ((IEWorldChunk) chunk).getEntitySections();
+                        ((IEWorldChunk) chunk).portal_getEntitySections();
                     for (int i = chunkYStart; i <= chunkYEnd; i++) {
                         TypeFilterableList<Entity> entitySection = entitySections[i];
                         for (T entity : entitySection.getAllOfType(entityClass)) {
@@ -607,10 +606,6 @@ public class McHelper {
         }
         
         return either.right().map(DataResult.PartialResult::toString).orElse("");
-    }
-    
-    public static Vec3d getCurrentCameraPos() {
-        return MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
     }
     
     public static class MyDecodeException extends RuntimeException {

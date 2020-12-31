@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
@@ -94,7 +95,7 @@ public abstract class PortalRenderer {
             }
         });
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         portalsToRender.sort(Comparator.comparingDouble(portalEntity ->
             portalEntity.getDistanceToNearestPointInPortal(cameraPos)
         ));
@@ -113,7 +114,7 @@ public abstract class PortalRenderer {
             return true;
         }
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         
         if (!portal.isRoughlyVisibleTo(cameraPos)) {
             return true;
@@ -221,7 +222,7 @@ public abstract class PortalRenderer {
     
     private boolean isOutOfDistance(PortalLike portal) {
         
-        Vec3d cameraPos = McHelper.getCurrentCameraPos();
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
         if (portal.getDistanceToNearestPointInPortal(cameraPos) > getRenderRange()) {
             return true;
         }
@@ -236,7 +237,9 @@ public abstract class PortalRenderer {
         Matrix4f mirror = portal instanceof Mirror ?
             TransformationManager.getMirrorTransformation(portal.getNormal()) : null;
         
-        return combineNullable(rot, mirror);
+        Matrix4f scale = getPortalScaleMatrix(portal);
+        
+        return combineNullable(rot, combineNullable(mirror, scale));
     }
     
     @Nullable
@@ -252,14 +255,31 @@ public abstract class PortalRenderer {
     
     @Nullable
     public static Matrix4f combineNullable(@Nullable Matrix4f a, @Nullable Matrix4f b) {
-        if (a == null) {
-            return b;
+        return Helper.combineNullable(a, b, (m1, m2) -> {
+            m1.multiply(m2);
+            return m1;
+        });
+//        if (a == null) {
+//            return b;
+//        }
+//        if (b == null) {
+//            return a;
+//        }
+//        a.multiply(b);
+//        return a;
+    }
+    
+    @Nullable
+    public static Matrix4f getPortalScaleMatrix(Portal portal) {
+        // if it's not a fuseView portal
+        // whether to apply scale transformation to camera does not change triangle position
+        // to avoid abrupt fog change, do not apply for non-fuse-view portal
+        // for fuse-view portal, the depth value should be correct so the scale should be applied
+        if (portal.hasScaling() && portal.isFuseView()) {
+            float v = (float) (1.0 / portal.getScale());
+            return Matrix4f.scale(v, v, v);
         }
-        if (b == null) {
-            return a;
-        }
-        a.multiply(b);
-        return a;
+        return null;
     }
     
 }

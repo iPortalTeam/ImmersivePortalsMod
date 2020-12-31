@@ -5,5 +5,5 @@ import net.minecraft.util.collection.TypeFilterableList;
 
 
 public interface IEWorldChunk {
-    TypeFilterableList<Entity>[] getEntitySections();
+    TypeFilterableList<Entity>[] portal_getEntitySections();
 }

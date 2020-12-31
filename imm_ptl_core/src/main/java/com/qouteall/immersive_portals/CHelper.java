@@ -5,18 +5,22 @@ import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -78,6 +82,31 @@ public class CHelper {
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
             new LiteralText(str)
         );
+    }
+    
+    public static void openLinkConfirmScreen(
+        Screen parent,
+        String link
+    ) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        client.openScreen(new ConfirmChatLinkScreen(
+            (result) -> {
+                if (result) {
+                    try {
+                        Util.getOperatingSystem().open(new URI(link));
+                    }
+                    catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                }
+                client.openScreen(parent);
+            },
+            link, true
+        ));
+    }
+    
+    public static Vec3d getCurrentCameraPos() {
+        return MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
     }
     
     public static class Rect {

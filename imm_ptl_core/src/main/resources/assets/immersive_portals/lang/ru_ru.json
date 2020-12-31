@@ -40,7 +40,6 @@
   "imm_ptl.pure_mirror": "Чистое Зеркало",
   "imm_ptl.portal_gen": "Пользовательская Генерация Портала",
   "imm_ptl.not_pointing_portal": "Вы не указываете на какой-либо портал",
-  "imm_ptl.clear_border_warning": "Осторожно! Это очистит все блоки во внешнем слое мировой оберточной границы.\nЭту операцию нельзя отменить. Вы должны сделать резервную копию мира, прежде чем делать это.\nВызовите эту команду еще раз, чтобы опередить.",
   "imm_ptl.not_in_wrapping_zone": "Вы не находитесь не в оберточной зоне",
   "imm_ptl.removed_invalid_wrapping_portals": "Удалены Недопустимые Порталы Обертывания %1$s",
   "imm_ptl.removed_portal": "Удален %1$s",
@@ -64,5 +63,6 @@
   "imm_ptl.respect_space_ratio_enabled": "Respect Space Ratio Enabled",
   "imm_ptl.respect_space_ratio_disabled": "Respect Space Ratio Disabled",
   "imm_ptl.loop_enabled": "Loop Enabled",
-  "imm_ptl.loop_disabled": "Loop Disabled"
+  "imm_ptl.loop_disabled": "Loop Disabled",
+  "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals "
 }

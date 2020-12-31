@@ -112,8 +112,8 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.visibilityPrediction
             ).setDefaultValue(true).build();
             BooleanListEntry entryAutomaticRenderingMerge = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.automatic_rendering_merge"),
-                currConfig.automaticRenderingMerge
+                new TranslatableText("imm_ptl.force_portal_rendering_merge"),
+                currConfig.forceMergePortalRendering
             ).setDefaultValue(false).build();
             IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
@@ -197,7 +197,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                     newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                     newConfig.chunkUnloadDelayTicks = entryChunkUnloadDelayTicks.getValue();
-                    newConfig.automaticRenderingMerge = entryAutomaticRenderingMerge.getValue();
+                    newConfig.forceMergePortalRendering = entryAutomaticRenderingMerge.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();

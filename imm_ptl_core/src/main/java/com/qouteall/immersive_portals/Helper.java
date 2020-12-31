@@ -279,6 +279,14 @@ public class Helper {
         );
     }
     
+    public static Vec3d getBoxBottomCenter(Box box) {
+        return new Vec3d(
+            (box.maxX + box.minX) / 2,
+            box.minY,
+            (box.maxZ + box.minZ) / 2
+        );
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         
@@ -625,7 +633,7 @@ public class Helper {
                 TypeFilterableList<Entity>[] entitySections = ((IEWorldChunk) world.getChunk(
                     aX,
                     aZ
-                )).getEntitySections();
+                )).portal_getEntitySections();
                 for (TypeFilterableList<Entity> entitySection : entitySections) {
                     entities.addAll(entitySection.getAllOfType(entityClass));
                 }
@@ -950,4 +958,14 @@ public class Helper {
         return list.get(list.size() - 1);
     }
     
+    @Nullable
+    public static <T> T combineNullable(@Nullable T a, @Nullable T b, BiFunction<T, T, T> combiner) {
+        if (a == null) {
+            return b;
+        }
+        if (b == null) {
+            return a;
+        }
+        return combiner.apply(a, b);
+    }
 }

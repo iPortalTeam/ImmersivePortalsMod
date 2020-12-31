@@ -15,7 +15,7 @@ public abstract class MixinWorldChunk implements IEWorldChunk {
     private TypeFilterableList<Entity>[] entitySections;
 
     @Override
-    public TypeFilterableList<Entity>[] getEntitySections() {
+    public TypeFilterableList<Entity>[] portal_getEntitySections() {
         return entitySections;
     }
 }

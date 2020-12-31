@@ -20,6 +20,7 @@ import com.qouteall.immersive_portals.portal.global_portals.BorderBarrierFiller;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
+import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.argument.BlockPosArgumentType;
@@ -976,6 +977,7 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("tp")
+            .requires(commandSource -> commandSource.hasPermissionLevel(2))
             .then(CommandManager.argument("from", EntityArgumentType.entities())
                 .then(CommandManager.argument("to", EntityArgumentType.entity())
                     .executes(context -> {
@@ -1131,13 +1133,27 @@ public class PortalCommand {
                         .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
                             .then(CommandManager.argument("biWay", BoolArgumentType.bool())
                                 .executes(context -> {
-                                    invokeCreateScaledViewCommand(context, false);
+                                    invokeCreateScaledViewCommand(
+                                        context,
+                                        false,
+                                        false,
+                                        false,
+                                        true,
+                                        BoolArgumentType.getBool(context, "biWay")
+                                    );
                                     return 0;
                                 })
                                 .then(CommandManager.argument("teleportChangesScale", BoolArgumentType.bool())
                                     .executes(context -> {
                                         boolean teleportChangesScale = BoolArgumentType.getBool(context, "teleportChangesScale");
-                                        invokeCreateScaledViewCommand(context, teleportChangesScale);
+                                        invokeCreateScaledViewCommand(
+                                            context,
+                                            teleportChangesScale,
+                                            false,
+                                            false,
+                                            true,
+                                            BoolArgumentType.getBool(context, "biWay")
+                                        );
                                         return 0;
                                     })
                                 )
@@ -1147,11 +1163,39 @@ public class PortalCommand {
                 )
             )
         );
+        
+        builder.then(CommandManager.literal("create_scaled_box_view_optimized")
+            .then(CommandManager.argument("p1", BlockPosArgumentType.blockPos())
+                .then(CommandManager.argument("p2", BlockPosArgumentType.blockPos())
+                    .then(CommandManager.argument("scale", DoubleArgumentType.doubleArg())
+                        .then(CommandManager.argument("placeTargetEntity", EntityArgumentType.entity())
+                            .executes(context -> {
+                                invokeCreateScaledViewCommand(
+                                    context,
+                                    false,
+                                    true,
+                                    true,
+                                    true,
+                                    true
+                                );
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
     }
     
     private static void invokeCreateScaledViewCommand(
-        CommandContext<ServerCommandSource> context, boolean teleportChangesScale
+        CommandContext<ServerCommandSource> context,
+        boolean teleportChangesScale,
+        boolean outerFuseView,
+        boolean outerRenderingMergable,
+        boolean innerRenderingMergable,
+        boolean isBiWay
     ) throws CommandSyntaxException {
+        
         BlockPos bp1 = BlockPosArgumentType.getBlockPos(context, "p1");
         BlockPos bp2 = BlockPosArgumentType.getBlockPos(context, "p2");
         IntBox intBox = new IntBox(bp1, bp2);
@@ -1166,12 +1210,12 @@ public class PortalCommand {
         
         double scale = DoubleArgumentType.getDouble(context, "scale");
         
-        boolean biWay = BoolArgumentType.getBool(context, "biWay");
-        
         
         PortalManipulation.createScaledBoxView(
             areaWorld, area, boxWorld, boxBottomCenter, scale,
-            biWay, teleportChangesScale
+            isBiWay, teleportChangesScale,
+            outerFuseView, outerRenderingMergable, innerRenderingMergable,
+            false
         );
     }
     
@@ -1258,6 +1302,15 @@ public class PortalCommand {
         portal.reloadAndSyncToClient();
         
         sendMessage(context, portal.toString());
+        
+        if (portal instanceof BreakablePortalEntity) {
+            if (!((BreakablePortalEntity) portal).unbreakable) {
+                sendMessage(context, "You are editing a breakable portal." +
+                    " If the breakable portal entity is wrongly linked, it will automatically break." +
+                    " To avoid that, use command /portal set_portal_nbt {unbreakable:true} for 4 portal entities."
+                );
+            }
+        }
     }
     
     private static void invokeCompleteBiWayBiFacedPortal(

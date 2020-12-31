@@ -35,6 +35,8 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     @Shadow
     private boolean inTeleportationState;
     
+    @Shadow protected abstract void worldChanged(ServerWorld origin);
+    
     public MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(world, pos, yaw, profile);
     }
@@ -116,7 +118,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     
     @Override
     public void updateDimensionTravelAdvancements(ServerWorld fromWorld) {
-    
+        worldChanged(fromWorld);
     }
     
     @Override
