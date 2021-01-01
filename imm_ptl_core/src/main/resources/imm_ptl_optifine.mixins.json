@@ -10,6 +10,7 @@
     "MixinShaders_DimensionRedirect",
     "MixinShaders_Swap",
     "MixinShadersRender",
+    "MixinVboRegion",
     "MixinWorldUtils"
   ],
   "injectors": {

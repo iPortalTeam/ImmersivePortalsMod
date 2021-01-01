@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
 import com.qouteall.immersive_portals.my_util.ObjectBuffer;
-import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkNeighborFix;
+import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkStorageFix;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
@@ -120,13 +120,13 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         if (!isRenderingPortal) {
             if (shouldUpdateMainPresetNeighbor) {
                 shouldUpdateMainPresetNeighbor = false;
-                OFBuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+                OFBuiltChunkStorageFix.updateNeighbor(this, preset.data);
                 preset.isNeighborUpdated = true;
             }
         }
         
         if (!preset.isNeighborUpdated) {
-            OFBuiltChunkNeighborFix.updateNeighbor(this, preset.data);
+            OFBuiltChunkStorageFix.updateNeighbor(this, preset.data);
             preset.isNeighborUpdated = true;
             if (isRenderingPortal) {
                 shouldUpdateMainPresetNeighbor = true;
@@ -209,6 +209,10 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 
                 builtChunk.setOrigin(
                     basePos.getX(), basePos.getY(), basePos.getZ()
+                );
+                
+                OFBuiltChunkStorageFix.onBuiltChunkCreated(
+                    this, builtChunk
                 );
                 
                 return builtChunk;

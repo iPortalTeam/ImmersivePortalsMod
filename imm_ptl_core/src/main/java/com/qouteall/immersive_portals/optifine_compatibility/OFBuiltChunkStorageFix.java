@@ -4,23 +4,49 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import java.lang.reflect.Method;
 
-public class OFBuiltChunkNeighborFix {
-    private static Method method_setRenderChunkNeighbour;
+public class OFBuiltChunkStorageFix {
+    private static Method BuiltChunk_setRenderChunkNeighbour;
+    
+    private static Method BuiltChunkStorage_updateVboRegion;
+    
+    private static Method VboRegion_deleteGlBuffers;
     
     public static void init() {
-        method_setRenderChunkNeighbour = Helper.noError(() ->
+        BuiltChunk_setRenderChunkNeighbour = Helper.noError(() ->
             ChunkBuilder.BuiltChunk.class
                 .getDeclaredMethod(
                     "setRenderChunkNeighbour",
                     Direction.class,
                     ChunkBuilder.BuiltChunk.class
                 )
+        );
+        BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
+            BuiltChunkStorage.class
+                .getDeclaredMethod(
+                    "updateVboRegion",
+                    ChunkBuilder.BuiltChunk.class
+                )
+        );
+        BuiltChunkStorage_updateVboRegion.setAccessible(true);
+    }
+    
+    public static void onBuiltChunkCreated(
+        BuiltChunkStorage builtChunkStorage,
+        ChunkBuilder.BuiltChunk builtChunk
+    ) {
+        if (!OFInterface.isOptifinePresent) {
+            return;
+        }
+        
+        Helper.noError(() ->
+            BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
         );
     }
     
@@ -41,7 +67,7 @@ public class OFBuiltChunkNeighborFix {
                     BlockPos neighborPos = renderChunk.getNeighborPosition(facing);
                     ChunkBuilder.BuiltChunk neighbour =
                         storage.myGetRenderChunkRaw(neighborPos, chunks);
-                    method_setRenderChunkNeighbour.invoke(
+                    BuiltChunk_setRenderChunkNeighbour.invoke(
                         renderChunk, facing, neighbour
                     );
                 }
