@@ -11,8 +11,6 @@ import com.qouteall.immersive_portals.portal.PortalExtension;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
 
 public class ModMain {
     public static final Signal postClientTickSignal = new Signal();
@@ -24,9 +22,6 @@ public class ModMain {
     
     public static final Signal clientCleanupSignal = new Signal();
     public static final Signal serverCleanupSignal = new Signal();
-    
-    public static Block portalHelperBlock;
-    public static BlockItem portalHelperBlockItem;
     
     public static void init() {
         Helper.log("Immersive Portals Mod Initializing");

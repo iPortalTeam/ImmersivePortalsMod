@@ -1,8 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
+import com.qouteall.imm_ptl_peripheral.PeripheralModMain;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
@@ -24,7 +24,7 @@ public class PortalHelperForm extends AbstractDiligentForm {
     @Override
     public void generateNewFrame(ServerWorld fromWorld, BlockPortalShape fromShape, ServerWorld toWorld, BlockPortalShape toShape) {
         for (BlockPos blockPos : toShape.frameAreaWithoutCorner) {
-            toWorld.setBlockState(blockPos, ModMain.portalHelperBlock.getDefaultState());
+            toWorld.setBlockState(blockPos, PeripheralModMain.portalHelperBlock.getDefaultState());
         }
     }
     
@@ -55,12 +55,12 @@ public class PortalHelperForm extends AbstractDiligentForm {
     
     @Override
     public Predicate<BlockState> getOtherSideFramePredicate() {
-        return blockState -> blockState.getBlock() == ModMain.portalHelperBlock;
+        return blockState -> blockState.getBlock() == PeripheralModMain.portalHelperBlock;
     }
     
     @Override
     public Predicate<BlockState> getThisSideFramePredicate() {
-        return blockState -> blockState.getBlock() == ModMain.portalHelperBlock;
+        return blockState -> blockState.getBlock() == PeripheralModMain.portalHelperBlock;
     }
     
     @Override
