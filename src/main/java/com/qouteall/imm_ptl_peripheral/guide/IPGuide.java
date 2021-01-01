@@ -91,7 +91,7 @@ public class IPGuide {
             writeToFile(guideInfo);
             
             informWithURL(
-                "https://qouteall.fun/immptl/wiki/Portal-Customization",
+                "https://qouteall.fun/immptl/wiki/Portal-Customization#portal-helper-block",
                 new TranslatableText("imm_ptl.inform_portal_helper")
             );
         }
