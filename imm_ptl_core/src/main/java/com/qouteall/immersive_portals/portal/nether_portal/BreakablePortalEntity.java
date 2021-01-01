@@ -19,6 +19,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,12 @@ public abstract class BreakablePortalEntity extends Portal {
     private boolean isNotified = true;
     private boolean shouldBreakPortal = false;
     
+    public String overlayTextureId;
+    public double overlayOffset;
+    
+    @Nullable
+    public Object overlayRenderingModel;
+    
     public BreakablePortalEntity(
         EntityType<?> entityType_1,
         World world_1
@@ -36,7 +43,6 @@ public abstract class BreakablePortalEntity extends Portal {
         super(entityType_1, world_1);
     }
     
-   
     
     @Override
     public boolean isPortalValid() {
@@ -54,6 +60,14 @@ public abstract class BreakablePortalEntity extends Portal {
         }
         reversePortalId = Helper.getUuid(compoundTag, "reversePortalId");
         unbreakable = compoundTag.getBoolean("unbreakable");
+        
+        if (compoundTag.contains("overlayTexture")) {
+            overlayTextureId = compoundTag.getString("overlayTexture");
+            overlayOffset = compoundTag.getDouble("overlayOffset");
+        }
+        else {
+            overlayTextureId = null;
+        }
     }
     
     @Override
@@ -64,6 +78,13 @@ public abstract class BreakablePortalEntity extends Portal {
         }
         Helper.putUuid(compoundTag, "reversePortalId", reversePortalId);
         compoundTag.putBoolean("unbreakable", unbreakable);
+        
+        if (overlayTextureId != null) {
+            compoundTag.putString("overlayTexture", overlayTextureId);
+            compoundTag.putDouble("overlayOffset", overlayOffset);
+        }
+    
+        overlayRenderingModel = null;
     }
     
     private void breakPortalOnThisSide() {
@@ -149,7 +170,7 @@ public abstract class BreakablePortalEntity extends Portal {
         if (!isOtherSideChunkLoaded()) {
             return true;
         }
-    
+        
         List<BreakablePortalEntity> revs = findReversePortals(this);
         if (revs.size() == 1) {
             BreakablePortalEntity reversePortal = revs.get(0);
