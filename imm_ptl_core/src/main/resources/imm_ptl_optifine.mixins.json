@@ -3,6 +3,8 @@
   "package": "com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "IEOFBuiltChunkStorage",
+    "IEOFVboRegion",
     "MixinConfig",
     "MixinDynamicLights",
     "MixinLightmapTextureManager",
