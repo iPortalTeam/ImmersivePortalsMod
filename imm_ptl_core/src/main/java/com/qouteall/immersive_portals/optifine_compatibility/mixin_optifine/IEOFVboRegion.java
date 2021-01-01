@@ -5,6 +5,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(targets = "net.optifine.render.VboRegion", remap = false)
 public interface IEOFVboRegion {
-    @Invoker("deleteGlBuffers")
+    @Invoker(value = "deleteGlBuffers",remap = false)
     void ip_deleteGlBuffers();
 }
