@@ -39,11 +39,11 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         }
     }
     
-    private ChunkBuilder factory;
-    private Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
-    private Map<ChunkPos, Preset> presets = new HashMap<>();
+    private final ChunkBuilder factory;
+    private final Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
+    private final Map<ChunkPos, Preset> presets = new HashMap<>();
     private boolean shouldUpdateMainPresetNeighbor = true;
-    private ObjectBuffer<ChunkBuilder.BuiltChunk> builtChunkBuffer;
+    private final ObjectBuffer<ChunkBuilder.BuiltChunk> builtChunkBuffer;
     
     public MyBuiltChunkStorage(
         ChunkBuilder chunkBuilder,
@@ -256,6 +256,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             }
         });
         
+        OFBuiltChunkStorageFix.purgeRenderRegions(this);
+        
         MinecraftClient.getInstance().getProfiler().pop();
     }
     
@@ -320,5 +322,17 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     public int getRadius() {
         return (sizeX - 1) / 2;
+    }
+    
+    public boolean isRegionActive(int cxStart, int czStart, int cxEnd, int czEnd) {
+        for (int cx = cxStart; cx < cxEnd; cx++) {
+            for (int cz = czStart; cz < czEnd; cz++) {
+                if (builtChunkMap.containsKey(new BlockPos(cx * 16, 0, cz * 16))) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }
