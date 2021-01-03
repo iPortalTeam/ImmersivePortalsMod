@@ -25,6 +25,10 @@ public class MixinAbstractFireBlock {
         )
     )
     Optional<AreaHelper> redirectCreateAreaHelper(WorldAccess worldAccess, BlockPos blockPos, Direction.Axis axis) {
+        if (Global.netherPortalMode == Global.NetherPortalMode.disabled) {
+            return Optional.empty();
+        }
+        
         if (Global.netherPortalMode == Global.NetherPortalMode.vanilla) {
             return AreaHelper.method_30485(worldAccess, blockPos, axis);
         }

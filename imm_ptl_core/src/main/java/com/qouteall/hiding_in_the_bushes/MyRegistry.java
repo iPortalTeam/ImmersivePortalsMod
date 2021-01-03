@@ -1,6 +1,5 @@
 package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
@@ -15,15 +14,11 @@ import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePorta
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DefaultedRegistry;
@@ -52,26 +47,8 @@ public class MyRegistry {
             new Identifier("immersive_portals", "nether_portal_block"),
             PortalPlaceholderBlock.instance
         );
-        
-        ModMain.portalHelperBlock = new Block(FabricBlockSettings.of(Material.METAL).nonOpaque()
-            .solidBlock((a, b, c) -> false));
     
-        ModMain.portalHelperBlockItem = new BlockItem(
-            ModMain.portalHelperBlock,
-            new Item.Settings().group(ItemGroup.MISC)
-        );
         
-        Registry.register(
-            Registry.BLOCK,
-            new Identifier("immersive_portals", "portal_helper"),
-            ModMain.portalHelperBlock
-        );
-        
-        Registry.register(
-            Registry.ITEM,
-            new Identifier("immersive_portals", "portal_helper"),
-            ModMain.portalHelperBlockItem
-        );
     }
     
     private static <T extends Entity> void registerEntity(

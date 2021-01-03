@@ -67,5 +67,7 @@
   "imm_ptl.respect_space_ratio_disabled": "Respect Space Ratio Disabled",
   "imm_ptl.loop_enabled": "Loop Enabled",
   "imm_ptl.loop_disabled": "Loop Disabled",
-  "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals "
+  "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals ",
+  "imm_ptl.inform_portal_helper": "[Immersive Portals] Check the wiki about how to use portal helper ",
+  "imm_ptl.portal_helper_tooltip": "Build two frames, use flint and steel to light it"
 }

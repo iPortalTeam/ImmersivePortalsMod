@@ -21,6 +21,7 @@ import java.io.IOException;
 public class IPGuide {
     public static class GuideInfo {
         public boolean wikiInformed = false;
+        public boolean portalHelperInformed = false;
         
         public GuideInfo() {}
     }
@@ -71,29 +72,35 @@ public class IPGuide {
         CommonNetworkClient.clientPortalSpawnSignal.connect(p -> {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
             
-            if (!getIsWikiInformed()) {
+            if (!guideInfo.wikiInformed) {
                 if (player != null && player.isCreative()) {
-                    setIsWikiInformed(true);
-                    informCustomizePortal();
+                    guideInfo.wikiInformed = true;
+                    writeToFile(guideInfo);
+                    informWithURL(
+                        "https://qouteall.fun/immptl/wiki/Portal-Customization",
+                        new TranslatableText("imm_ptl.inform_wiki")
+                    );
                 }
             }
         });
     }
     
-    public static boolean getIsWikiInformed() {
-        return guideInfo.wikiInformed;
+    public static void onClientPlacePortalHelper() {
+        if (!guideInfo.portalHelperInformed) {
+            guideInfo.portalHelperInformed = true;
+            writeToFile(guideInfo);
+            
+            informWithURL(
+                "https://qouteall.fun/immptl/wiki/Portal-Customization#portal-helper-block",
+                new TranslatableText("imm_ptl.inform_portal_helper")
+            );
+        }
     }
     
-    public static void setIsWikiInformed(boolean cond) {
-        guideInfo.wikiInformed = cond;
-        writeToFile(guideInfo);
-    }
-    
-    public static void informCustomizePortal() {
-        String link = "https://qouteall.fun/immptl/wiki/Portal-Customization";
+    private static void informWithURL(String link, TranslatableText text) {
         MinecraftClient.getInstance().inGameHud.addChatMessage(
             MessageType.SYSTEM,
-            new TranslatableText("imm_ptl.inform_wiki").append(
+            text.append(
                 new LiteralText(link).styled(
                     style -> style.withClickEvent(new ClickEvent(
                         ClickEvent.Action.OPEN_URL, link
