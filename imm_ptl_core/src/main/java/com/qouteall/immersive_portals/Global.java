@@ -2,14 +2,8 @@ package com.qouteall.immersive_portals;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.qouteall.hiding_in_the_bushes.MyConfig;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
-import net.minecraft.block.Block;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-
-import static net.minecraft.util.Identifier.*;
 
 public class Global {
     
@@ -42,9 +36,7 @@ public class Global {
     public static boolean correctCrossPortalEntityRendering = true;
     
     public static boolean multiThreadedNetherPortalSearching = true;
-
-    public static transient Block dsBlock = Registry.BLOCK.get(tryParse(MyConfig.readConfig().dimensionStackDivider));
-
+    
     public static boolean edgelessSky = false;
     
     public static boolean disableTeleportation = false;
@@ -84,7 +76,7 @@ public class Global {
     public static boolean enablePortalRenderingMerge = true;
     
     public static boolean forceMergePortalRendering = false;
-
+    
     public static enum RenderMode {
         normal,
         compatibility,

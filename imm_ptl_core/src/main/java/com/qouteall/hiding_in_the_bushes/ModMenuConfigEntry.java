@@ -5,12 +5,15 @@ import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
-import me.shedaniel.clothconfig2.gui.entries.*;
+import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
+import me.shedaniel.clothconfig2.gui.entries.EnumListEntry;
+import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
+import me.shedaniel.clothconfig2.gui.entries.StringListListEntry;
 import net.minecraft.text.TranslatableText;
 
 public class ModMenuConfigEntry implements ModMenuApi {
-
-
+    
+    
     @Override
     public String getModId() {
         return "immersive_portals";
@@ -20,7 +23,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> {
             MyConfig currConfig = MyConfig.readConfig();
-
+            
             ConfigBuilder builder = ConfigBuilder.create();
             ConfigCategory serverSide = builder.getOrCreateCategory(
                 new TranslatableText("imm_ptl.server_side_config")
@@ -112,10 +115,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.force_portal_rendering_merge"),
                 currConfig.forceMergePortalRendering
             ).setDefaultValue(false).build();
-            StringListEntry entryDimensionStackDivider = builder.entryBuilder().startStrField(
-                    new TranslatableText("imm_ptl.dimension_stack_divider"),
-                    currConfig.dimensionStackDivider
-            ).setDefaultValue("minecraft:obsidian").build();
             IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
                 currConfig.chunkUnloadDelayTicks,
@@ -154,11 +153,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryRenderYourselfInPortal);
             clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
             clientSide.addEntry(entryDimensionRenderRedirect);
-
+            
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
             serverSide.addEntry(entryNetherPortalMode);
             serverSide.addEntry(entryEndPortalMode);
-            serverSide.addEntry(entryDimensionStackDivider);
             serverSide.addEntry(entryLongerReachInCreative);
             serverSide.addEntry(entryEnableAlternateDimensions);
             serverSide.addEntry(entryPortalSearchingRange);
@@ -168,7 +166,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryLooseMovementCheck);
             serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
             serverSide.addEntry(entryMirrorInteractableThroughPortal);
-
+            
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
@@ -196,12 +194,11 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     );
                     newConfig.netherPortalMode = entryNetherPortalMode.getValue();
                     newConfig.endPortalMode = entryEndPortalMode.getValue();
-                    newConfig.dimensionStackDivider = entryDimensionStackDivider.getValue();
                     newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                     newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                     newConfig.chunkUnloadDelayTicks = entryChunkUnloadDelayTicks.getValue();
                     newConfig.forceMergePortalRendering = entryAutomaticRenderingMerge.getValue();
-
+                    
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();
                 })

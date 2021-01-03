@@ -32,7 +32,6 @@ public class MyConfig {
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
     public boolean multiThreadedNetherPortalSearching = true;
-    public String dimensionStackDivider = "minecraft:obsidian";
     public boolean edgelessSky = false;
     public boolean mirrorInteractableThroughPortal = false;
     public boolean looseMovementCheck = false;
@@ -136,7 +135,6 @@ public class MyConfig {
         Global.teleportationDebugEnabled = teleportationDebug;
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
-        dimensionStackDivider = dimensionStackDivider;
         Global.edgelessSky = edgelessSky;
         Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
         Global.looseMovementCheck = looseMovementCheck;
@@ -201,5 +199,4 @@ public class MyConfig {
         
         defaultRedirectMapList = mapToList(defaultRedirectMap);
     }
-
 }
