@@ -88,7 +88,8 @@ public class Global {
     public static enum NetherPortalMode {
         normal,
         vanilla,
-        adaptive
+        adaptive,
+        disabled
     }
     
     public static enum EndPortalMode {
