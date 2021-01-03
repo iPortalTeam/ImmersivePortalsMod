@@ -621,6 +621,20 @@ public class PortalCommand {
                 }))
             )
         );
+
+        builder.then(CommandManager.literal("set_portal_position")
+                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                        .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
+                                .executes(
+                                        context -> processPortalTargetedCommand(
+                                                context, portal -> {
+                                                    invokeSetPortalLocation(context, portal);
+                                                }
+                                        )
+                                )
+                        )
+                )
+        );
     }
     
     private static void registerPortalTargetedCommandWithRotationArgument(
@@ -1308,6 +1322,29 @@ public class PortalCommand {
                 sendMessage(context, "You are editing a breakable portal." +
                     " If the breakable portal entity is wrongly linked, it will automatically break." +
                     " To avoid that, use command /portal set_portal_nbt {unbreakable:true} for 4 portal entities."
+                );
+            }
+        }
+    }
+
+    private static void invokeSetPortalLocation(
+            CommandContext<ServerCommandSource> context,
+            Portal portal
+    ) throws CommandSyntaxException {
+        portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
+                context, "dim"
+        ).getRegistryKey();
+        portal.setOriginPos1(Vec3ArgumentType.getVec3(
+                context, "pos"
+                ));
+
+        sendMessage(context, portal.toString());
+
+        if (portal instanceof BreakablePortalEntity) {
+            if (!((BreakablePortalEntity) portal).unbreakable) {
+                sendMessage(context, "You are editing a breakable portal." +
+                        " If the breakable portal entity is wrongly linked, it will automatically break." +
+                        " To avoid that, use command /portal set_portal_nbt {unbreakable:true} for 4 portal entities."
                 );
             }
         }

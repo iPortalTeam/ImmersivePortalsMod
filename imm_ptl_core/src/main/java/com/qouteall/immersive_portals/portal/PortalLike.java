@@ -42,6 +42,8 @@ public interface PortalLike {
     double getDestAreaRadiusEstimation();
     
     Vec3d getOriginPos();
+
+    Vec3d getOriginPos1();
     
     Vec3d getDestPos();
     

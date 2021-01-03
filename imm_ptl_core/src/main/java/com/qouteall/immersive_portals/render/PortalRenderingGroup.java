@@ -135,6 +135,15 @@ public class PortalRenderingGroup implements PortalLike {
         
         return origin;
     }
+
+    @Override
+    public Vec3d getOriginPos1() {
+        if (origin == null) {
+            origin = getExactAreaBox().getCenter();
+        }
+
+        return origin;
+    }
     
     @Override
     public Vec3d getDestPos() {
