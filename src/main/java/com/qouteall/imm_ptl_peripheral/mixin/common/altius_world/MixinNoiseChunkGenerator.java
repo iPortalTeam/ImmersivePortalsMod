@@ -1,7 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import static com.qouteall.immersive_portals.Global.*;
-
 @Mixin(NoiseChunkGenerator.class)
 public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
     
@@ -32,9 +30,7 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
     @Shadow
     @Final
     private int worldHeight;
-
-    @Shadow protected abstract BlockState getBlockState(double density, int y);
-
+    
     public MixinNoiseChunkGenerator(BiomeSource biomeSource, StructuresConfig arg) {
         super(biomeSource, arg);
     }
@@ -58,7 +54,7 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
         ChunkGeneratorSettings chunkGeneratorSettings = (ChunkGeneratorSettings) this.settings.get();
         int k = chunkGeneratorSettings.getBedrockFloorY();
         int l = this.worldHeight - 1 - chunkGeneratorSettings.getBedrockCeilingY();
-
+        
         boolean bl = l + 4 >= 0 && l < this.worldHeight;
         boolean bl2 = k + 4 >= 0 && k < this.worldHeight;
         if (bl || bl2) {
@@ -77,7 +73,7 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
                         for (o = 0; o < 5; ++o) {
                             if (o <= random.nextInt(5)) {
                                 chunk.setBlockState(mutable.set(blockPos.getX(), l - o, blockPos.getZ()),
-                                    dsBlock.getDefaultState(), false);
+                                    Blocks.OBSIDIAN.getDefaultState(), false);
                             }
                         }
                     }
@@ -86,7 +82,7 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
                 for (o = 4; o >= 0; --o) {
                     if (o <= random.nextInt(5)) {
                         chunk.setBlockState(mutable.set(blockPos.getX(), k + o, blockPos.getZ()),
-                                dsBlock.getDefaultState(), false);
+                            Blocks.OBSIDIAN.getDefaultState(), false);
                     }
                 }
             }

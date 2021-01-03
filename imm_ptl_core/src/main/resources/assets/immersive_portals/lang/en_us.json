@@ -17,7 +17,6 @@
   "imm_ptl.teleportation_debug": "Teleportation Debug",
   "imm_ptl.correct_cross_portal_entity_rendering": "Cross Portal Entity Rendering",
   "imm_ptl.multi_threaded_nether_portal_searching": "Multi Threaded Nether Portal Searching",
-  "imm_ptl.dimension_stack_divider": "Dimension Stack Divider",
   "imm_ptl.edgeless_sky": "Edgeless Sky",
   "imm_ptl.render_redirect": "Dimension Render Redirect",
   "imm_ptl.enable_alternate_dimensions": "Enable Alternate Dimensions",
