@@ -163,16 +163,6 @@ public class DiligentMatcher {
             }
             
             return new Quaternion((float) qx, (float) qy, (float) qz, (float) qw);
-
-//            double w = Math.sqrt(1.0 + m00 + m11 + m22) / 2.0;
-//            double w4 = (4.0 * w);
-//            double x = (m21 - m12) / w4;
-//            double y = (m02 - m20) / w4;
-//            double z = (m10 - m01) / w4;
-//
-//            return new Quaternion(
-//                (float) x, (float) y, (float) z, (float) w
-//            );
         }
     }
     
