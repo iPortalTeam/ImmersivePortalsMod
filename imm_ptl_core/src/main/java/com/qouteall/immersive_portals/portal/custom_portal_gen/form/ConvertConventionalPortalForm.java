@@ -5,18 +5,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
+import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockTraverse;
+import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -96,7 +100,53 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         BlockPortalShape fromShape = convertToPortalShape(fromBox);
         BlockPortalShape toShape = convertToPortalShape(toBox);
         
+        if (fromShape == null || toShape == null) {
+            Helper.err("Cannot generate the portal shape");
+            return false;
+        }
         
+        PortalGenInfo portalGenInfo = tryToMatch(
+            fromWorld.getRegistryKey(), toWorld.getRegistryKey(),
+            fromShape, toShape
+        );
+        
+        if (portalGenInfo == null) {
+            Helper.err("Shapes are incompatible");
+            return false;
+        }
+        
+        portalGenInfo.generatePlaceholderBlocks();
+        
+        if (fromShape.axis == Direction.Axis.Y &&
+            toShape.axis == Direction.Axis.Y &&
+            portalGenInfo.scale == 1.0 &&
+            portalGenInfo.rotation == null
+        ) {
+            //flipping square portal
+            GeneralBreakablePortal[] portals = FlippingFloorSquareForm.createPortals(
+                fromWorld, toWorld,
+                portalGenInfo.fromShape, portalGenInfo.toShape
+            );
+            
+            for (GeneralBreakablePortal portal : portals) {
+                cpg.onPortalGenerated(portal);
+            }
+            
+            Helper.log("Created flipping floor portal");
+        }
+        else {
+            GeneralBreakablePortal[] portals =
+                portalGenInfo.generateBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
+            
+            for (GeneralBreakablePortal portal : portals) {
+                cpg.onPortalGenerated(portal);
+            }
+            
+            Helper.log("Created normal bi-way bi-faced portal");
+            
+        }
+        
+        return true;
     }
     
     @Nullable
@@ -163,5 +213,30 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
             box.stream().collect(Collectors.toSet()),
             axis
         );
+    }
+    
+    @Nullable
+    public static PortalGenInfo tryToMatch(
+        RegistryKey<World> fromDim, RegistryKey<World> toDim,
+        BlockPortalShape a, BlockPortalShape b
+    ) {
+        List<DiligentMatcher.TransformedShape> matchableShapeVariants =
+            DiligentMatcher.getMatchableShapeVariants(
+                a, 20
+            );
+        
+        for (DiligentMatcher.TransformedShape variant : matchableShapeVariants) {
+            BlockPortalShape variantMoved = variant.transformedShape.getShapeWithMovedAnchor(b.anchor);
+            if (variantMoved.equals(b)) {
+                return new PortalGenInfo(
+                    fromDim, toDim,
+                    a, b,
+                    variant.rotation.toQuaternion(),
+                    variant.scale
+                );
+            }
+        }
+        
+        return null;
     }
 }

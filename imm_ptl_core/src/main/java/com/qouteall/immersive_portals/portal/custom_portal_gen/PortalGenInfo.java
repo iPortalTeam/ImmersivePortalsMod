@@ -15,6 +15,8 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+
 public class PortalGenInfo {
     public static final SignalArged<PortalGenInfo> generatedSignal = new SignalArged<>();
     
@@ -22,6 +24,7 @@ public class PortalGenInfo {
     public RegistryKey<World> to;
     public BlockPortalShape fromShape;
     public BlockPortalShape toShape;
+    @Nullable
     public Quaternion rotation = null;
     public double scale = 1.0;
     
@@ -52,10 +55,15 @@ public class PortalGenInfo {
         this.rotation = rotation;
         this.scale = scale;
         
+        //floating point inaccuracy may make the portal to have near identity rotation or scale
         if (rotation != null) {
             if (Math.abs(1.0 - rotation.getW()) < 0.001) {
                 this.rotation = null;
             }
+        }
+        
+        if (Math.abs(this.scale - 1.0) < 0.00001) {
+            this.scale = 1.0;
         }
     }
     
