@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockTraverse;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -67,13 +68,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         }
         
         ServerPlayerEntity player = (ServerPlayerEntity) triggeringEntity;
-        Helper.log(String.format(
-            "Trying to convert conventional portal %s -> %s by %s (%d %d %d)",
-            fromWorld.getRegistryKey().getValue(),
-            toWorld.getRegistryKey().getValue(),
-            player.getName().asString(),
-            (int) player.getX(), (int) player.getY(), (int) player.getZ()
-        ));
+        
         
         if (player.world != toWorld) {
             Helper.err("The player is not in the correct world " +
@@ -83,29 +78,49 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         
         BlockPos playerCurrentPos = player.getBlockPos().toImmutable();
         
-        IntBox fromBox = findBlockBoxArea(fromWorld, startingPos, portalBlock);
+        BlockPos startFramePos = findBlockAround(
+            fromWorld, startingPos, portalBlock
+        );
         
-        if (fromBox == null) {
-            Helper.err("Cannot find the originating conventional portal");
+        if (startFramePos == null) {
             return false;
         }
         
-        IntBox toBox = findBlockBoxArea(toWorld, playerCurrentPos, portalBlock);
+        BlockPos toFramePos = findBlockAround(
+            toWorld, playerCurrentPos, portalBlock
+        );
         
-        if (toBox == null) {
-            Helper.err("Cannot find the destination conventional portal");
+        if (toFramePos == null) {
             return false;
         }
         
-        Helper.log(fromBox + " " + toBox);
+        Helper.log(String.format(
+            "Trying to convert conventional portal %s -> %s by %s (%d %d %d)",
+            fromWorld.getRegistryKey().getValue(),
+            toWorld.getRegistryKey().getValue(),
+            player.getName().asString(),
+            (int) player.getX(), (int) player.getY(), (int) player.getZ()
+        ));
         
-        BlockPortalShape fromShape = convertToPortalShape(fromBox);
-        BlockPortalShape toShape = convertToPortalShape(toBox);
+        BlockPortalShape fromShape = NetherPortalGeneration.findFrameShape(
+            fromWorld, startFramePos, portalBlock, s -> !s.isAir()
+        );
         
-        if (fromShape == null || toShape == null) {
-            Helper.err("Cannot generate the portal shape");
+        if (fromShape == null) {
+            Helper.err("Cannot find from side shape");
             return false;
         }
+        
+        BlockPortalShape toShape = NetherPortalGeneration.findFrameShape(
+            toWorld, toFramePos, portalBlock, s -> !s.isAir()
+        );
+        
+        if (toShape == null) {
+            Helper.err("Cannot fine to side shape");
+            return false;
+        }
+        
+        Helper.log(fromShape.innerAreaBox + " " + toShape.innerAreaBox);
         
         PortalGenInfo portalGenInfo = tryToMatch(
             fromWorld.getRegistryKey(), toWorld.getRegistryKey(),
@@ -157,6 +172,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         return true;
     }
     
+    @Deprecated
     @Nullable
     public static IntBox findBlockBoxArea(
         World world, BlockPos pos, Predicate<BlockState> predicate
@@ -199,6 +215,7 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         );
     }
     
+    @Deprecated
     @Nullable
     public static BlockPortalShape convertToPortalShape(IntBox box) {
         BlockPos size = box.getSize();
