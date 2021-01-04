@@ -138,7 +138,8 @@ public class CustomPortalGenManagement {
                 for (CustomPortalGeneration gen : useItemGen.get(item)) {
                     boolean result = gen.perform(
                         ((ServerWorld) context.getWorld()),
-                        context.getBlockPos().offset(context.getSide())
+                        context.getBlockPos().offset(context.getSide()),
+                        context.getPlayer()
                     );
                     if (result) {
                         if (gen.trigger instanceof PortalGenTrigger.UseItemTrigger) {
@@ -171,7 +172,8 @@ public class CustomPortalGenManagement {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(
                             ((ServerWorld) entity.world),
-                            entity.getBlockPos()
+                            entity.getBlockPos(),
+                            entity
                         );
                         if (result) {
                             entity.getStack().decrement(1);
@@ -204,7 +206,7 @@ public class CustomPortalGenManagement {
             
             for (CustomPortalGeneration gen : convGen) {
                 IntBox box = new IntBox(startPos.add(-1, -1, -1), startPos.add(1, 1, 1));
-                boolean succeeded = box.stream().anyMatch(pos -> gen.perform(startWorld, pos));
+                boolean succeeded = box.stream().anyMatch(pos -> gen.perform(startWorld, pos, player));
                 
                 if (succeeded) {
                     return;

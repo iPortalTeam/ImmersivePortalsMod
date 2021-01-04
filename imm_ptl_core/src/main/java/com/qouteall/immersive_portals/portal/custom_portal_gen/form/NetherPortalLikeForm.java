@@ -10,10 +10,12 @@ import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePorta
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -28,7 +30,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
     public boolean perform(
         CustomPortalGeneration cpg,
         ServerWorld fromWorld, BlockPos startingPos,
-        ServerWorld toWorld
+        ServerWorld toWorld,
+        @Nullable Entity triggeringEntity
     ) {
         if (!NetherPortalGeneration.checkPortalGeneration(fromWorld, startingPos)) {
             return false;
