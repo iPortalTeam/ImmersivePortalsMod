@@ -254,12 +254,24 @@ public class Helper {
         for (Direction direction : getAnotherFourDirections(axis)) {
             
             wallArea = expandArea(
-                wallArea,
-                blockPosPredicate,
-                direction
+                wallArea, blockPosPredicate, direction
             );
         }
         return wallArea;
+    }
+    
+    public static IntBox expandBoxArea(
+        BlockPos startingPos,
+        Predicate<BlockPos> blockPosPredicate
+    ) {
+        IntBox box = new IntBox(startingPos, startingPos);
+        
+        for (Direction direction : Direction.values()) {
+            box = expandArea(
+                box, blockPosPredicate, direction
+            );
+        }
+        return box;
     }
     
     public static int getChebyshevDistance(

@@ -278,7 +278,7 @@ public class DiligentMatcher {
                 ));
                 
                 for (int mul = 2; mul <= maxMultiplyFactor; mul++) {
-                    BlockPortalShape expanded = regularizeShape(expandShape(rotatedShape, mul));
+                    BlockPortalShape expanded = regularizeShape(upscaleShape(rotatedShape, mul));
                     isNew = shapeSet.add(expanded);
                     if (isNew) {
                         result.add(new TransformedShape(
@@ -357,7 +357,7 @@ public class DiligentMatcher {
         return boxList;
     }
     
-    public static BlockPortalShape expandShape(
+    public static BlockPortalShape upscaleShape(
         BlockPortalShape shape,
         int multiplyFactor
     ) {
