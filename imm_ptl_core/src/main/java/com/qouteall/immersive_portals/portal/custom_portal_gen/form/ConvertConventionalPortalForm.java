@@ -9,11 +9,13 @@ import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockTraverse;
+import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePortal;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.RegistryKey;
@@ -112,6 +114,12 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
         
         if (portalGenInfo == null) {
             Helper.err("Shapes are incompatible");
+            player.sendMessage(
+                new TranslatableText(
+                    "imm_ptl.incompatible_shape"
+                ), false
+            );
+            
             return false;
         }
         
@@ -135,10 +143,10 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
             Helper.log("Created flipping floor portal");
         }
         else {
-            GeneralBreakablePortal[] portals =
+            BreakablePortalEntity[] portals =
                 portalGenInfo.generateBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
             
-            for (GeneralBreakablePortal portal : portals) {
+            for (BreakablePortalEntity portal : portals) {
                 cpg.onPortalGenerated(portal);
             }
             

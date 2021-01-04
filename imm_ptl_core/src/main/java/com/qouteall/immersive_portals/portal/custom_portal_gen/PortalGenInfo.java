@@ -84,7 +84,7 @@ public class PortalGenInfo {
         return portal;
     }
     
-    public <T extends BreakablePortalEntity> T[] generateBiWayBiFacedPortal(
+    public <T extends BreakablePortalEntity> BreakablePortalEntity[] generateBiWayBiFacedPortal(
         EntityType<T> entityType
     ) {
         ServerWorld fromWorld = McHelper.getServer().getWorld(from);
@@ -112,7 +112,7 @@ public class PortalGenInfo {
         McHelper.spawnServerEntity(t1);
         McHelper.spawnServerEntity(t2);
         
-        return ((T[]) new BreakablePortalEntity[]{f1, f2, t1, t2});
+        return ( new BreakablePortalEntity[]{f1, f2, t1, t2});
     }
     
     public void generatePlaceholderBlocks() {
