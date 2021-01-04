@@ -8,10 +8,12 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -30,11 +32,8 @@ public abstract class BreakablePortalEntity extends Portal {
     private boolean isNotified = true;
     private boolean shouldBreakPortal = false;
     
-    public String overlayTextureId;
-    public double overlayOffset;
-    
     @Nullable
-    public Object overlayRenderingModel;
+    public BlockState overlayBlockState;
     
     public BreakablePortalEntity(
         EntityType<?> entityType_1,
@@ -61,12 +60,8 @@ public abstract class BreakablePortalEntity extends Portal {
         reversePortalId = Helper.getUuid(compoundTag, "reversePortalId");
         unbreakable = compoundTag.getBoolean("unbreakable");
         
-        if (compoundTag.contains("overlayTexture")) {
-            overlayTextureId = compoundTag.getString("overlayTexture");
-            overlayOffset = compoundTag.getDouble("overlayOffset");
-        }
-        else {
-            overlayTextureId = null;
+        if (compoundTag.contains("overlayBlockState")) {
+            overlayBlockState = NbtHelper.toBlockState(compoundTag.getCompound("overlayBlockState"));
         }
     }
     
@@ -79,12 +74,9 @@ public abstract class BreakablePortalEntity extends Portal {
         Helper.putUuid(compoundTag, "reversePortalId", reversePortalId);
         compoundTag.putBoolean("unbreakable", unbreakable);
         
-        if (overlayTextureId != null) {
-            compoundTag.putString("overlayTexture", overlayTextureId);
-            compoundTag.putDouble("overlayOffset", overlayOffset);
+        if (overlayBlockState != null) {
+            compoundTag.put("overlayBlockState", NbtHelper.fromBlockState(overlayBlockState));
         }
-    
-        overlayRenderingModel = null;
     }
     
     private void breakPortalOnThisSide() {
