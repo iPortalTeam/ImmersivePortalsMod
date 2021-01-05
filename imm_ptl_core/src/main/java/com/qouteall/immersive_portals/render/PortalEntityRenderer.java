@@ -19,6 +19,7 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
@@ -39,7 +40,7 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
         VertexConsumerProvider vertexConsumerProvider,
         int light
     ) {
-        super.render(portal, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
+        
         CGlobal.renderer.renderPortalInEntityRenderer(portal);
         
         if (portal instanceof BreakablePortalEntity) {
@@ -48,6 +49,8 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
                 breakablePortalEntity, tickDelta, matrixStack, vertexConsumerProvider, light
             );
         }
+        
+        super.render(portal, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
     }
     
     @Override
@@ -89,13 +92,17 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
         }
         
         matrixStack.push();
-        matrixStack.translate(-0.5D, 0.0D, -0.5D);
         
+        Vec3d pos = portal.getPos();
+        
+        BakedModel model = blockRenderManager.getModel(blockState);
+        VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayers.getMovingBlockLayer(blockState));
         
         for (BlockPos blockPos : blockPortalShape.area) {
-            BakedModel model = blockRenderManager.getModel(blockState);
-            VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayers.getMovingBlockLayer(blockState));
-            
+            matrixStack.push();
+            matrixStack.translate(
+                blockPos.getX() - pos.x, blockPos.getY() - pos.y, blockPos.getZ() - pos.z
+            );
             blockRenderManager.getModelRenderer().render(
                 portal.world,
                 model,
@@ -108,8 +115,10 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
                 blockState.getRenderingSeed(blockPos),
                 OverlayTexture.DEFAULT_UV
             );
+            matrixStack.pop();
         }
         
+        ((VertexConsumerProvider.Immediate) vertexConsumerProvider).draw();
         
         matrixStack.pop();
     }

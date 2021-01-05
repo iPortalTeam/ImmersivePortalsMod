@@ -62,6 +62,9 @@ public abstract class BreakablePortalEntity extends Portal {
         
         if (compoundTag.contains("overlayBlockState")) {
             overlayBlockState = NbtHelper.toBlockState(compoundTag.getCompound("overlayBlockState"));
+            if (overlayBlockState.isAir()) {
+                overlayBlockState = null;
+            }
         }
     }
     
