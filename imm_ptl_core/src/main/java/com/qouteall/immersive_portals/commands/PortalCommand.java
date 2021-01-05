@@ -623,7 +623,6 @@ public class PortalCommand {
         );
 
         builder.then(CommandManager.literal("set_portal_position")
-                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                         .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
                                 .executes(
                                         context -> processPortalTargetedCommand(
@@ -633,7 +632,6 @@ public class PortalCommand {
                                         )
                                 )
                         )
-                )
         );
     }
     
@@ -1331,9 +1329,6 @@ public class PortalCommand {
             CommandContext<ServerCommandSource> context,
             Portal portal
     ) throws CommandSyntaxException {
-        portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
-                context, "dim"
-        ).getRegistryKey();
         portal.setOriginPos1(Vec3ArgumentType.getVec3(
                 context, "pos"
                 ));
