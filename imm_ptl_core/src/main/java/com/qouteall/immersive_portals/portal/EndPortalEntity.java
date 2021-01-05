@@ -184,6 +184,8 @@ public class EndPortalEntity extends Portal {
     
     @Override
     public void onEntityTeleportedOnServer(Entity entity) {
+        super.onEntityTeleportedOnServer(entity);
+        
         if (shouldAddSlowFalling(entity)) {
             int duration = 120;
             

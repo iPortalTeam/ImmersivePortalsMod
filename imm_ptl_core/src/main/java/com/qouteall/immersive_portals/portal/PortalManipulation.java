@@ -332,6 +332,7 @@ public class PortalManipulation {
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
         to.portalTag = from.portalTag;
         to.hasCrossPortalCollision = from.hasCrossPortalCollision;
+        to.commandsOnTeleported = from.commandsOnTeleported;
     }
     
     public static void createScaledBoxView(
