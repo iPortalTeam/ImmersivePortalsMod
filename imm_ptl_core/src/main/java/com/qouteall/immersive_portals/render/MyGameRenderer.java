@@ -66,7 +66,6 @@ public class MyGameRenderer {
     
     // portal rendering and outer world rendering uses different buffer builder storages
     // theoretically every layer of portal rendering should have its own buffer builder storage
-    // but it's more complex
     private static BufferBuilderStorage secondaryBufferBuilderStorage = new BufferBuilderStorage();
     
     public static void renderWorldNew(
