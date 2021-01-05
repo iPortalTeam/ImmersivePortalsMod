@@ -23,6 +23,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
@@ -1168,5 +1170,16 @@ public class Portal extends Entity implements PortalLike {
     public boolean isRenderingMergable() {
         return renderingMergable;
     }
+    
+    @Override
+    public void calculateDimensions() {
+        boundingBoxCache = null;
+    }
+    
+    @Override
+    protected float getEyeHeight(EntityPose pose, EntityDimensions dimensions) {
+        return 0;
+    }
+    
     
 }
