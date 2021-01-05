@@ -146,6 +146,10 @@ public class RendererUsingStencil extends PortalRenderer {
         clampStencilValue(outerPortalStencilValue);
         
         PortalRendering.popPortalLayer();
+        
+        //test
+        setStencilStateForWorldRendering();
+        OverlayRendering.onPortalRendered(portal, matrixStack);
     }
     
     @Override

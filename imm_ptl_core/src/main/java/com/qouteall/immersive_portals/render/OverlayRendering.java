@@ -1,12 +1,15 @@
 package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
@@ -24,22 +27,37 @@ import java.util.Random;
 public class OverlayRendering {
     private static final Random random = new Random();
     
+    private static final VertexConsumerProvider.Immediate vertexConsumerProvider =
+        VertexConsumerProvider.immediate(new BufferBuilder(256));
+    
+    public static void onPortalRendered(
+        PortalLike portal,
+        MatrixStack matrixStack
+    ) {
+        if (portal instanceof BreakablePortalEntity) {
+//            VertexConsumerProvider.Immediate entityVertexConsumers =
+//                MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+            renderBreakablePortalOverlay(
+                ((BreakablePortalEntity) portal),
+                RenderStates.tickDelta,
+                matrixStack,
+                vertexConsumerProvider
+            );
+        }
+    }
+    
     /**
      * {@link net.minecraft.client.render.entity.FallingBlockEntityRenderer}
      */
-    public static void renderBreakablePortalOverlay(
+    private static void renderBreakablePortalOverlay(
         BreakablePortalEntity portal,
         float tickDelta,
         MatrixStack matrixStack,
-        VertexConsumerProvider vertexConsumerProvider,
-        int light
+        VertexConsumerProvider.Immediate vertexConsumerProvider
     ) {
         BlockState blockState = portal.overlayBlockState;
-    
+        
         Vec3d cameraPos = CHelper.getCurrentCameraPos();
-        if (!portal.isInFrontOfPortal(cameraPos)) {
-            return;
-        }
         
         if (blockState == null) {
             return;
@@ -55,7 +73,7 @@ public class OverlayRendering {
         matrixStack.push();
         
         Vec3d pos = portal.getPos();
-    
+        
         matrixStack.translate(pos.x - cameraPos.x, pos.y - cameraPos.y, pos.z - cameraPos.z);
         
         BakedModel model = blockRenderManager.getModel(blockState);
@@ -82,9 +100,12 @@ public class OverlayRendering {
             matrixStack.pop();
         }
         
-//        ((VertexConsumerProvider.Immediate) vertexConsumerProvider).draw();
-        
-        
         matrixStack.pop();
+    
+//        RenderSystem.disableDepthTest();
+        
+        vertexConsumerProvider.draw(movingBlockLayer);
+        
+//        RenderSystem.enableDepthTest();
     }
 }
