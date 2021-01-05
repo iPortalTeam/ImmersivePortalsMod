@@ -952,17 +952,6 @@ public class Portal extends Entity implements PortalLike {
         return getPos();
     }
 
-    public void setOriginPos(Vec3d pos) {
-        double posX = pos.getX();
-        double posY = pos.getY() + 1.0;
-        double posZ = pos.getZ();
-        setPos(
-                posX,
-                posY,
-                posZ
-        );
-    }
-    
     /**
      * The destination position
      */
