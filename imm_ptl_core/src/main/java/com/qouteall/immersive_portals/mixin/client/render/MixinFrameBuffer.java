@@ -58,7 +58,8 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     @Shadow
     public abstract void endRead();
     
-    @Shadow public abstract void initFbo(int width, int height, boolean getError);
+    @Shadow
+    public abstract void initFbo(int width, int height, boolean getError);
     
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(
@@ -79,14 +80,9 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         )
     )
     private void redirectTexImage2d(
-        int target,
-        int level,
-        int internalFormat,
-        int width,
-        int height,
-        int border,
-        int format,
-        int type,
+        int target, int level, int internalFormat,
+        int width, int height,
+        int border, int format, int type,
         IntBuffer pixels
     ) {
         if (internalFormat == 6402 && isStencilBufferEnabled) {
@@ -104,15 +100,8 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         }
         else {
             GlStateManager.texImage2D(
-                target,
-                level,
-                internalFormat,
-                width,
-                height,
-                border,
-                format,
-                type,
-                pixels
+                target, level, internalFormat, width, height,
+                border, format, type, pixels
             );
         }
     }
@@ -125,103 +114,17 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         )
     )
     private void redirectFrameBufferTexture2d(
-        int target,
-        int attachment,
-        int textureTarget,
-        int texture,
-        int level
+        int target, int attachment, int textureTarget, int texture, int level
     ) {
         if (attachment == FramebufferInfo.DEPTH_ATTACHMENT && isStencilBufferEnabled) {
             GlStateManager.framebufferTexture2D(
-                target,
-                GL30.GL_DEPTH_STENCIL_ATTACHMENT,
-                textureTarget,
-                texture,
-                level
+                target, GL30.GL_DEPTH_STENCIL_ATTACHMENT, textureTarget, texture, level
             );
         }
         else {
             GlStateManager.framebufferTexture2D(target, attachment, textureTarget, texture, level);
         }
     }
-
-//    /**
-//     * @author qouteall
-//     */
-//    @Overwrite
-//    public void initFbo(int width, int height, boolean getError) {
-//        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-//        this.viewportWidth = width;
-//        this.viewportHeight = height;
-//        this.textureWidth = width;
-//        this.textureHeight = height;
-//        this.fbo = GlStateManager.genFramebuffers();
-//        this.colorAttachment = TextureUtil.generateId();
-//        if (this.useDepthAttachment) {
-//            this.depthAttachment = TextureUtil.generateId();
-//            GlStateManager.bindTexture(this.depthAttachment);
-//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, 9728);
-//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, 9728);
-//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10496);
-//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10496);
-//            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_MODE, 0);
-//            if (isStencilBufferEnabled) {
-//                //https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
-//                GlStateManager.texImage2D(
-//                    GL11.GL_TEXTURE_2D, 0, ARBFramebufferObject.GL_DEPTH24_STENCIL8,
-//                    this.textureWidth, this.textureHeight,
-//                    0, ARBFramebufferObject.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8, (IntBuffer) null
-//                );
-//            }
-//            else {
-//                GlStateManager.texImage2D(
-//                    GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT,
-//                    this.textureWidth, this.textureHeight,
-//                    0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (IntBuffer) null
-//                );
-//            }
-//        }
-//
-//        this.setTexFilter(9728);
-//        GlStateManager.bindTexture(this.colorAttachment);
-//        GlStateManager.texImage2D(
-//            GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8,
-//            this.textureWidth, this.textureHeight,
-//            0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (IntBuffer) null
-//        );
-//        GlStateManager.bindFramebuffer(FramebufferInfo.FRAME_BUFFER, this.fbo);
-//        GlStateManager.framebufferTexture2D(
-//            FramebufferInfo.FRAME_BUFFER,
-//            FramebufferInfo.COLOR_ATTACHMENT,
-//            GL11.GL_TEXTURE_2D,
-//            this.colorAttachment,
-//            0
-//        );
-//        if (this.useDepthAttachment) {
-//            if (isStencilBufferEnabled) {
-//                GlStateManager.framebufferTexture2D(
-//                    FramebufferInfo.FRAME_BUFFER,
-//                    GL30.GL_DEPTH_STENCIL_ATTACHMENT,
-//                    GL11.GL_TEXTURE_2D,
-//                    this.depthAttachment,
-//                    0
-//                );
-//            }
-//            else {
-//                GlStateManager.framebufferTexture2D(
-//                    FramebufferInfo.FRAME_BUFFER,
-//                    FramebufferInfo.DEPTH_ATTACHMENT,
-//                    GL11.GL_TEXTURE_2D,
-//                    this.depthAttachment,
-//                    0
-//                );
-//            }
-//        }
-//
-//        this.checkFramebufferStatus();
-//        this.clear(getError);
-//        this.endRead();
-//    }
     
     @Override
     public boolean getIsStencilBufferEnabled() {

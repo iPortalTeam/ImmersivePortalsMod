@@ -26,7 +26,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Packet;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
@@ -42,8 +46,10 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Portal entity. Global portals are also entities but not added into world.
@@ -136,6 +142,9 @@ public class Portal extends Entity implements PortalLike {
     public boolean renderingMergable = false;
     
     public boolean hasCrossPortalCollision = true;
+    
+    @Nullable
+    public List<String> commandsOnTeleported;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -245,6 +254,15 @@ public class Portal extends Entity implements PortalLike {
             hasCrossPortalCollision = compoundTag.getBoolean("hasCrossPortalCollision");
         }
         
+        if (compoundTag.contains("commandsOnTeleported")) {
+            ListTag list = compoundTag.getList("commandsOnTeleported", 8);
+            commandsOnTeleported = list.stream()
+                .map(t -> ((StringTag) t).asString()).collect(Collectors.toList());
+        }
+        else {
+            commandsOnTeleported = null;
+        }
+        
         readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
@@ -297,6 +315,17 @@ public class Portal extends Entity implements PortalLike {
         compoundTag.putBoolean("renderingMergable", renderingMergable);
         
         compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
+        
+        if (commandsOnTeleported != null) {
+            ListTag list = new ListTag();
+            for (String command : commandsOnTeleported) {
+                list.add(StringTag.of(command));
+            }
+            compoundTag.put(
+                "commandsOnTeleported",
+                list
+            );
+        }
         
         writePortalDataSignal.emit(this, compoundTag);
         
@@ -497,7 +526,15 @@ public class Portal extends Entity implements PortalLike {
     }
     
     public void onEntityTeleportedOnServer(Entity entity) {
-        //nothing
+        if (commandsOnTeleported != null) {
+            ServerCommandSource commandSource =
+                entity.getCommandSource().withLevel(4).withSilent();
+            
+            CommandManager commandManager = McHelper.getServer().getCommandManager();
+            for (String command : commandsOnTeleported) {
+                commandManager.execute(commandSource, command);
+            }
+        }
     }
     
     public void reloadAndSyncToClient() {

@@ -9,7 +9,6 @@ import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
@@ -34,13 +33,13 @@ public class CustomPortalGenManagement {
     private static final Multimap<Item, CustomPortalGeneration> throwItemGen = HashMultimap.create();
     
     private static final ArrayList<CustomPortalGeneration> convGen = new ArrayList<>();
-    private static final Map<UUID, UCoordinate> posBeforeTravel = new HashMap<>();
+    private static final Map<UUID, UCoordinate> playerPosBeforeTravel = new HashMap<>();
     
     public static void onDatapackReload() {
         useItemGen.clear();
         throwItemGen.clear();
         convGen.clear();
-        posBeforeTravel.clear();
+        playerPosBeforeTravel.clear();
         
         Helper.log("Loading custom portal gen");
         
@@ -138,7 +137,8 @@ public class CustomPortalGenManagement {
                 for (CustomPortalGeneration gen : useItemGen.get(item)) {
                     boolean result = gen.perform(
                         ((ServerWorld) context.getWorld()),
-                        context.getBlockPos().offset(context.getSide())
+                        context.getBlockPos().offset(context.getSide()),
+                        context.getPlayer()
                     );
                     if (result) {
                         if (gen.trigger instanceof PortalGenTrigger.UseItemTrigger) {
@@ -171,7 +171,8 @@ public class CustomPortalGenManagement {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(
                             ((ServerWorld) entity.world),
-                            entity.getBlockPos()
+                            entity.getBlockPos(),
+                            entity
                         );
                         if (result) {
                             entity.getStack().decrement(1);
@@ -187,29 +188,31 @@ public class CustomPortalGenManagement {
     public static void onBeforeConventionalDimensionChange(
         ServerPlayerEntity player
     ) {
-        posBeforeTravel.put(player.getUuid(), new UCoordinate(player));
+        playerPosBeforeTravel.put(player.getUuid(), new UCoordinate(player));
     }
     
     public static void onAfterConventionalDimensionChange(
         ServerPlayerEntity player
     ) {
         UUID uuid = player.getUuid();
-        if (posBeforeTravel.containsKey(uuid)) {
-            UCoordinate startCoord = posBeforeTravel.get(uuid);
-            posBeforeTravel.remove(uuid);
+        if (playerPosBeforeTravel.containsKey(uuid)) {
+            UCoordinate startCoord = playerPosBeforeTravel.get(uuid);
             
             ServerWorld startWorld = McHelper.getServerWorld(startCoord.dimension);
             
             BlockPos startPos = new BlockPos(startCoord.pos);
             
             for (CustomPortalGeneration gen : convGen) {
-                IntBox box = new IntBox(startPos.add(-1, -1, -1), startPos.add(1, 1, 1));
-                boolean succeeded = box.stream().anyMatch(pos -> gen.perform(startWorld, pos));
+                boolean succeeded = gen.perform(startWorld, startPos, player);
+//                IntBox box = new IntBox(startPos.add(-1, -1, -1), startPos.add(1, 1, 1));
+//                boolean succeeded = box.stream().anyMatch(pos -> gen.perform(startWorld, pos, player));
                 
                 if (succeeded) {
+                    playerPosBeforeTravel.remove(uuid);
                     return;
                 }
             }
         }
+        playerPosBeforeTravel.remove(uuid);
     }
 }
