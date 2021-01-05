@@ -1329,7 +1329,7 @@ public class PortalCommand {
             CommandContext<ServerCommandSource> context,
             Portal portal
     ) throws CommandSyntaxException {
-        portal.setOriginPos1(Vec3ArgumentType.getVec3(
+        portal.setOriginPos(Vec3ArgumentType.getVec3(
                 context, "pos"
                 ));
 

@@ -71,8 +71,6 @@ public class Portal extends Entity implements PortalLike {
      */
     public RegistryKey<World> dimensionTo;
     public Vec3d destination;
-
-    public Vec3d origin;
     
     /**
      * If false, cannot teleport entities
@@ -917,19 +915,14 @@ public class Portal extends Entity implements PortalLike {
         return getPos();
     }
 
-    @Override
-    public Vec3d getOriginPos1() {
-        return origin;
-    }
-
-    public void setOriginPos1(Vec3d origin) {
-        double originX = origin.getX();
-        double originY = origin.getY() + 1.0;
-        double originZ = origin.getZ();
+    public void setOriginPos(Vec3d pos) {
+        double posX = pos.getX();
+        double posY = pos.getY() + 1.0;
+        double posZ = pos.getZ();
         setPos(
-                originX,
-                originY,
-                originZ
+                posX,
+                posY,
+                posZ
         );
     }
     
