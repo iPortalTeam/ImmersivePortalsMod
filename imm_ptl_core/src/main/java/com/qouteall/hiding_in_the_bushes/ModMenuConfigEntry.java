@@ -115,6 +115,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.force_portal_rendering_merge"),
                 currConfig.forceMergePortalRendering
             ).setDefaultValue(false).build();
+            BooleanListEntry entryNetherPortalOverlay = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.enable_nether_portal_overlay"),
+                currConfig.netherPortalOverlay
+            ).setDefaultValue(false).build();
             IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
                 currConfig.chunkUnloadDelayTicks,
@@ -159,6 +163,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryEndPortalMode);
             serverSide.addEntry(entryLongerReachInCreative);
             serverSide.addEntry(entryEnableAlternateDimensions);
+            serverSide.addEntry(entryNetherPortalOverlay);
             serverSide.addEntry(entryPortalSearchingRange);
             serverSide.addEntry(entryActiveLoading);
             serverSide.addEntry(entryChunkUnloadDelayTicks);
@@ -183,7 +188,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
-//                    newConfig.edgelessSky = entryEdgelessSky.getValue();
                     newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
@@ -198,6 +202,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                     newConfig.chunkUnloadDelayTicks = entryChunkUnloadDelayTicks.getValue();
                     newConfig.forceMergePortalRendering = entryAutomaticRenderingMerge.getValue();
+                    newConfig.netherPortalOverlay = entryNetherPortalOverlay.getValue();
                     
                     newConfig.saveConfigFile();
                     newConfig.onConfigChanged();

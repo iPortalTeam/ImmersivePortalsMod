@@ -77,6 +77,8 @@ public class Global {
     
     public static boolean forceMergePortalRendering = false;
     
+    public static boolean netherPortalOverlay = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,
