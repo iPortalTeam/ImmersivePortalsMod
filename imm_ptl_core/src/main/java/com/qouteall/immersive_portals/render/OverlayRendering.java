@@ -12,15 +12,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.List;
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
@@ -30,13 +32,33 @@ public class OverlayRendering {
     private static final VertexConsumerProvider.Immediate vertexConsumerProvider =
         VertexConsumerProvider.immediate(new BufferBuilder(256));
     
+    public static class PortalOverlayRenderLayer extends RenderLayer {
+        
+        public PortalOverlayRenderLayer() {
+            super(
+                "imm_ptl_portal_overlay",
+                RenderLayer.getTranslucentMovingBlock().getVertexFormat(),
+                RenderLayer.getTranslucentMovingBlock().getDrawMode(),
+                RenderLayer.getTranslucentMovingBlock().getExpectedBufferSize(),
+                RenderLayer.getTranslucentMovingBlock().hasCrumbling(),
+                true,
+                () -> {
+                    RenderLayer.getTranslucentMovingBlock().startDrawing();
+                },
+                () -> {
+                    RenderLayer.getTranslucentMovingBlock().endDrawing();
+                }
+            );
+        }
+    }
+    
+    public static final PortalOverlayRenderLayer portalOverlayRenderLayer = new PortalOverlayRenderLayer();
+    
     public static void onPortalRendered(
         PortalLike portal,
         MatrixStack matrixStack
     ) {
         if (portal instanceof BreakablePortalEntity) {
-//            VertexConsumerProvider.Immediate entityVertexConsumers =
-//                MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
             renderBreakablePortalOverlay(
                 ((BreakablePortalEntity) portal),
                 RenderStates.tickDelta,
@@ -77,14 +99,21 @@ public class OverlayRendering {
         matrixStack.translate(pos.x - cameraPos.x, pos.y - cameraPos.y, pos.z - cameraPos.z);
         
         BakedModel model = blockRenderManager.getModel(blockState);
-        RenderLayer movingBlockLayer = RenderLayers.getMovingBlockLayer(blockState);
-        VertexConsumer buffer = vertexConsumerProvider.getBuffer(movingBlockLayer);
+        PortalOverlayRenderLayer renderLayer = OverlayRendering.portalOverlayRenderLayer;
+        VertexConsumer buffer = vertexConsumerProvider.getBuffer(renderLayer);
+        
+        Direction facing =
+            Direction.getFacing(portal.getNormal().x, portal.getNormal().y, portal.getNormal().z);
+        
+        List<BakedQuad> quads = model.getQuads(blockState, facing, random);
+        BakedQuad quad = quads.get(0);
         
         for (BlockPos blockPos : blockPortalShape.area) {
             matrixStack.push();
             matrixStack.translate(
                 blockPos.getX() - pos.x, blockPos.getY() - pos.y, blockPos.getZ() - pos.z
             );
+            
             blockRenderManager.getModelRenderer().render(
                 portal.world,
                 model,
@@ -101,11 +130,8 @@ public class OverlayRendering {
         }
         
         matrixStack.pop();
-    
-//        RenderSystem.disableDepthTest();
         
-        vertexConsumerProvider.draw(movingBlockLayer);
+        vertexConsumerProvider.draw(renderLayer);
         
-//        RenderSystem.enableDepthTest();
     }
 }
