@@ -623,6 +623,7 @@ public class PortalCommand {
         );
 
         builder.then(CommandManager.literal("set_portal_position")
+                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                         .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
                                 .executes(
                                         context -> processPortalTargetedCommand(
@@ -632,6 +633,7 @@ public class PortalCommand {
                                         )
                                 )
                         )
+                )
         );
     }
     
@@ -1329,28 +1331,22 @@ public class PortalCommand {
             CommandContext<ServerCommandSource> context,
             Portal portal
     ) throws CommandSyntaxException {
+        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
+                context, "dim"
+        ).getRegistryKey();
         Vec3d pos = Vec3ArgumentType.getVec3(
                 context, "pos"
                 );
-        double posX = pos.getX();
-        double posY = pos.getY() + 1.000;
-        double posZ = pos.getZ();
-        portal.setPos(
-                posX,
-                posY,
-                posZ
+        ServerWorld targetDim = McHelper.getServer().getWorld(dim);
+
+        ServerTeleportationManager.teleportEntityGeneral(
+                portal,
+                pos,
+                targetDim
         );
 
         sendMessage(context, portal.toString());
 
-        if (portal instanceof BreakablePortalEntity) {
-            if (!((BreakablePortalEntity) portal).unbreakable) {
-                sendMessage(context, "You are editing a breakable portal." +
-                        " If the breakable portal entity is wrongly linked, it will automatically break." +
-                        " To avoid that, use command /portal set_portal_nbt {unbreakable:true} for 4 portal entities."
-                );
-            }
-        }
     }
     
     private static void invokeCompleteBiWayBiFacedPortal(
