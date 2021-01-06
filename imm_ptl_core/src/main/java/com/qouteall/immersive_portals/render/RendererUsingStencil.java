@@ -146,6 +146,16 @@ public class RendererUsingStencil extends PortalRenderer {
         clampStencilValue(outerPortalStencilValue);
         
         PortalRendering.popPortalLayer();
+        
+        // because the vanilla VertexConsumerProvider does not delay transparent drawing
+        // rendering the overlay in entity renderer will cause it to render too early
+        // if delayed into another buffer, the nested portal overlay cannot be correctly rendered
+        // so render the overlay here
+        // overlay incompatible with optifine shaders
+        if (OverlayRendering.shouldRenderOverlay(portal)) {
+            setStencilStateForWorldRendering();
+            OverlayRendering.onPortalRendered(portal, matrixStack);
+        }
     }
     
     @Override
