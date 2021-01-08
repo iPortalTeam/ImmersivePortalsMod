@@ -621,6 +621,20 @@ public class PortalCommand {
                 }))
             )
         );
+
+        builder.then(CommandManager.literal("set_portal_position")
+                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                        .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
+                                .executes(
+                                        context -> processPortalTargetedCommand(
+                                                context, portal -> {
+                                                    invokeSetPortalLocation(context, portal);
+                                                }
+                                        )
+                                )
+                        )
+                )
+        );
     }
     
     private static void registerPortalTargetedCommandWithRotationArgument(
@@ -1311,6 +1325,28 @@ public class PortalCommand {
                 );
             }
         }
+    }
+
+    private static void invokeSetPortalLocation(
+            CommandContext<ServerCommandSource> context,
+            Portal portal
+    ) throws CommandSyntaxException {
+        RegistryKey<World> dim = DimensionArgumentType.getDimensionArgument(
+                context, "dim"
+        ).getRegistryKey();
+        Vec3d pos = Vec3ArgumentType.getVec3(
+                context, "pos"
+                );
+        ServerWorld targetDim = McHelper.getServer().getWorld(dim);
+
+        ServerTeleportationManager.teleportEntityGeneral(
+                portal,
+                pos,
+                targetDim
+        );
+
+        sendMessage(context, portal.toString());
+
     }
     
     private static void invokeCompleteBiWayBiFacedPortal(

@@ -953,7 +953,7 @@ public class Portal extends Entity implements PortalLike {
     public Vec3d getOriginPos() {
         return getPos();
     }
-    
+
     /**
      * The destination position
      */
