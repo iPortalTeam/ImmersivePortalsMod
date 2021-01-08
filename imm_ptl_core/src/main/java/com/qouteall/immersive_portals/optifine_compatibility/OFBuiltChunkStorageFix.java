@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFBuiltChunk;
-import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFBuiltChunkStorage;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFConfig;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFVboRegion;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
@@ -14,13 +13,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 
-// TODO replace reflection with mixin
 public class OFBuiltChunkStorageFix {
 //    private static Method BuiltChunk_setRenderChunkNeighbour;
-
-//    private static Method BuiltChunkStorage_updateVboRegion;
+    
+    private static Method BuiltChunkStorage_updateVboRegion;
+    
+    private static Field BuiltChunkStorage_mapVboRegions;
     
     public static void init() {
 //        BuiltChunk_setRenderChunkNeighbour = Helper.noError(() ->
@@ -31,14 +33,20 @@ public class OFBuiltChunkStorageFix {
 //                    ChunkBuilder.BuiltChunk.class
 //                )
 //        );
-//        BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
-//            BuiltChunkStorage.class
-//                .getDeclaredMethod(
-//                    "updateVboRegion",
-//                    ChunkBuilder.BuiltChunk.class
-//                )
-//        );
-//        BuiltChunkStorage_updateVboRegion.setAccessible(true);
+        BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
+            BuiltChunkStorage.class
+                .getDeclaredMethod(
+                    "updateVboRegion",
+                    ChunkBuilder.BuiltChunk.class
+                )
+        );
+        BuiltChunkStorage_updateVboRegion.setAccessible(true);
+        
+        BuiltChunkStorage_mapVboRegions = Helper.noError(() ->
+            BuiltChunkStorage.class
+                .getDeclaredField("mapVboRegions")
+        );
+        BuiltChunkStorage_mapVboRegions.setAccessible(true);
     }
     
     public static void onBuiltChunkCreated(
@@ -50,11 +58,11 @@ public class OFBuiltChunkStorageFix {
         }
         
         if (IEOFConfig.ip_isRenderRegions()) {
-            ((IEOFBuiltChunkStorage) builtChunkStorage).ip_updateVboRegion(builtChunk);
-
-//            Helper.noError(() ->
-//                BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
-//            );
+//            ((IEOFBuiltChunkStorage1) builtChunkStorage).ip_updateVboRegion(builtChunk);
+            
+            Helper.noError(() ->
+                BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
+            );
         }
     }
     
@@ -68,7 +76,10 @@ public class OFBuiltChunkStorageFix {
         MinecraftClient.getInstance().getProfiler().push("ip_purge_optifine_render_regions");
         
         Map<ChunkPos, Object> vboRegionMap =
-            ((IEOFBuiltChunkStorage) storage).ip_getMapVboRegions();
+            (Map<ChunkPos, Object>) Helper.noError(() -> BuiltChunkStorage_mapVboRegions.get(storage));
+
+//        Map<ChunkPos, Object> vboRegionMap =
+//            ((IEOFBuiltChunkStorage1) storage).ip_getMapVboRegions();
         
         vboRegionMap.entrySet().removeIf(chunkPosObjectEntry -> {
             ChunkPos key = chunkPosObjectEntry.getKey();// it's the start block pos not chunk pos
