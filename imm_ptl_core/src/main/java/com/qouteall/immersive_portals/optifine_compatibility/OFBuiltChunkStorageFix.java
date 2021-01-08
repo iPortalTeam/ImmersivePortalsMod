@@ -18,21 +18,11 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 public class OFBuiltChunkStorageFix {
-//    private static Method BuiltChunk_setRenderChunkNeighbour;
-    
     private static Method BuiltChunkStorage_updateVboRegion;
     
     private static Field BuiltChunkStorage_mapVboRegions;
     
     public static void init() {
-//        BuiltChunk_setRenderChunkNeighbour = Helper.noError(() ->
-//            ChunkBuilder.BuiltChunk.class
-//                .getDeclaredMethod(
-//                    "setRenderChunkNeighbour",
-//                    Direction.class,
-//                    ChunkBuilder.BuiltChunk.class
-//                )
-//        );
         BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
             BuiltChunkStorage.class
                 .getDeclaredMethod(
@@ -58,8 +48,6 @@ public class OFBuiltChunkStorageFix {
         }
         
         if (IEOFConfig.ip_isRenderRegions()) {
-//            ((IEOFBuiltChunkStorage1) builtChunkStorage).ip_updateVboRegion(builtChunk);
-            
             Helper.noError(() ->
                 BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
             );
@@ -77,9 +65,6 @@ public class OFBuiltChunkStorageFix {
         
         Map<ChunkPos, Object> vboRegionMap =
             (Map<ChunkPos, Object>) Helper.noError(() -> BuiltChunkStorage_mapVboRegions.get(storage));
-
-//        Map<ChunkPos, Object> vboRegionMap =
-//            ((IEOFBuiltChunkStorage1) storage).ip_getMapVboRegions();
         
         vboRegionMap.entrySet().removeIf(chunkPosObjectEntry -> {
             ChunkPos key = chunkPosObjectEntry.getKey();// it's the start block pos not chunk pos
@@ -135,10 +120,6 @@ public class OFBuiltChunkStorageFix {
                     ((IEOFBuiltChunk) renderChunk).ip_setRenderChunkNeighbour(
                         facing, neighbour
                     );
-
-//                    BuiltChunk_setRenderChunkNeighbour.invoke(
-//                        renderChunk, facing, neighbour
-//                    );
                 }
             }
         }
