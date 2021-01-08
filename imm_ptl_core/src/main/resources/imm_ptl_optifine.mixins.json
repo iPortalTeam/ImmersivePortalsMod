@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "IEOFBuiltChunkStorage",
+    "IEOFConfig",
     "IEOFVboRegion",
     "MixinConfig",
     "MixinDynamicLights",

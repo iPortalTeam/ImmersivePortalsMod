@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFBuiltChunkStorage;
+import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFConfig;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFVboRegion;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
 import net.minecraft.client.MinecraftClient;
@@ -50,9 +51,11 @@ public class OFBuiltChunkStorageFix {
             return;
         }
         
-        Helper.noError(() ->
-            BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
-        );
+        if (IEOFConfig.ip_isRenderRegions()) {
+            Helper.noError(() ->
+                BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
+            );
+        }
     }
     
     public static void purgeRenderRegions(
