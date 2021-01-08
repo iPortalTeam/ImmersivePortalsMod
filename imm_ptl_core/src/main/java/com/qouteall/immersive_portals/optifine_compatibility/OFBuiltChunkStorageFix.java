@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFBuiltChunk;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFBuiltChunkStorage;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFConfig;
 import com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine.IEOFVboRegion;
@@ -13,34 +14,31 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 // TODO replace reflection with mixin
 public class OFBuiltChunkStorageFix {
-    private static Method BuiltChunk_setRenderChunkNeighbour;
-    
-    private static Method BuiltChunkStorage_updateVboRegion;
-    
-    private static Method VboRegion_deleteGlBuffers;
+//    private static Method BuiltChunk_setRenderChunkNeighbour;
+
+//    private static Method BuiltChunkStorage_updateVboRegion;
     
     public static void init() {
-        BuiltChunk_setRenderChunkNeighbour = Helper.noError(() ->
-            ChunkBuilder.BuiltChunk.class
-                .getDeclaredMethod(
-                    "setRenderChunkNeighbour",
-                    Direction.class,
-                    ChunkBuilder.BuiltChunk.class
-                )
-        );
-        BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
-            BuiltChunkStorage.class
-                .getDeclaredMethod(
-                    "updateVboRegion",
-                    ChunkBuilder.BuiltChunk.class
-                )
-        );
-        BuiltChunkStorage_updateVboRegion.setAccessible(true);
+//        BuiltChunk_setRenderChunkNeighbour = Helper.noError(() ->
+//            ChunkBuilder.BuiltChunk.class
+//                .getDeclaredMethod(
+//                    "setRenderChunkNeighbour",
+//                    Direction.class,
+//                    ChunkBuilder.BuiltChunk.class
+//                )
+//        );
+//        BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
+//            BuiltChunkStorage.class
+//                .getDeclaredMethod(
+//                    "updateVboRegion",
+//                    ChunkBuilder.BuiltChunk.class
+//                )
+//        );
+//        BuiltChunkStorage_updateVboRegion.setAccessible(true);
     }
     
     public static void onBuiltChunkCreated(
@@ -52,9 +50,11 @@ public class OFBuiltChunkStorageFix {
         }
         
         if (IEOFConfig.ip_isRenderRegions()) {
-            Helper.noError(() ->
-                BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
-            );
+            ((IEOFBuiltChunkStorage) builtChunkStorage).ip_updateVboRegion(builtChunk);
+
+//            Helper.noError(() ->
+//                BuiltChunkStorage_updateVboRegion.invoke(builtChunkStorage, builtChunk)
+//            );
         }
     }
     
@@ -120,9 +120,14 @@ public class OFBuiltChunkStorageFix {
                     BlockPos neighborPos = renderChunk.getNeighborPosition(facing);
                     ChunkBuilder.BuiltChunk neighbour =
                         storage.myGetRenderChunkRaw(neighborPos, chunks);
-                    BuiltChunk_setRenderChunkNeighbour.invoke(
-                        renderChunk, facing, neighbour
+                    
+                    ((IEOFBuiltChunk) renderChunk).ip_setRenderChunkNeighbour(
+                        facing, neighbour
                     );
+
+//                    BuiltChunk_setRenderChunkNeighbour.invoke(
+//                        renderChunk, facing, neighbour
+//                    );
                 }
             }
         }
