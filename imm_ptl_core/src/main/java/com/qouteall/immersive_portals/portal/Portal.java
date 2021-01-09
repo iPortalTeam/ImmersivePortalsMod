@@ -104,7 +104,14 @@ public class Portal extends Entity implements PortalLike {
     @Nullable
     public GeometryPortalShape specialShape;
     
+    /**
+     * The bounding box. Expanded very little.
+     */
     private Box exactBoundingBoxCache;
+    
+    /**
+     * The bounding box. Expanded a little.
+     */
     private Box boundingBoxCache;
     private Vec3d normal;
     private Vec3d contentDirection;
@@ -737,7 +744,9 @@ public class Portal extends Entity implements PortalLike {
         return vertices;
     }
     
-    //Server side does not have Matrix3f
+    /**
+     * Transform a point regardless of rotation transformation and scale transformation
+     */
     public final Vec3d transformPointRough(Vec3d pos) {
         Vec3d offset = getDestPos().subtract(getOriginPos());
         return pos.add(offset);
@@ -762,6 +771,9 @@ public class Portal extends Entity implements PortalLike {
         return new Vec3d(temp);
     }
     
+    /**
+     * Transform a vector without translation transformation
+     */
     @Override
     public Vec3d transformLocalVec(Vec3d localVec) {
         return transformLocalVecNonScale(localVec).multiply(scaling);
@@ -787,14 +799,6 @@ public class Portal extends Entity implements PortalLike {
         return getOriginPos().add(inverseTransformLocalVec(point.subtract(getDestPos())));
     }
     
-    public Vec3d scaleLocalVec(Vec3d localVec) {
-        if (scaling == 1.0) {
-            return localVec;
-        }
-        
-        return localVec.multiply(scaling);
-    }
-    
     public Box getThinAreaBox() {
         return new Box(
             getPointInPlane(width / 2, height / 2),
@@ -802,6 +806,9 @@ public class Portal extends Entity implements PortalLike {
         );
     }
     
+    /**
+     * Project the point into the portal plane, is it in the portal area
+     */
     public boolean isPointInPortalProjection(Vec3d pos) {
         Vec3d offset = pos.subtract(getOriginPos());
         
@@ -862,31 +869,12 @@ public class Portal extends Entity implements PortalLike {
         Vec3d localPos = posInPlane.subtract(getOriginPos());
         double localX = localPos.dotProduct(axisW);
         double localY = localPos.dotProduct(axisH);
-        double distanceToRect = getDistanceToRectangle(
+        double distanceToRect = Helper.getDistanceToRectangle(
             localX, localY,
             -(width / 2), -(height / 2),
             (width / 2), (height / 2)
         );
         return Math.sqrt(distanceToPlane * distanceToPlane + distanceToRect * distanceToRect);
-    }
-    
-    public static double getDistanceToRectangle(
-        double pointX, double pointY,
-        double rectAX, double rectAY,
-        double rectBX, double rectBY
-    ) {
-        assert rectAX <= rectBX;
-        assert rectAY <= rectBY;
-        
-        double wx1 = rectAX - pointX;
-        double wx2 = rectBX - pointX;
-        double dx = (wx1 * wx2 < 0 ? 0 : Math.min(Math.abs(wx1), Math.abs(wx2)));
-        
-        double wy1 = rectAY - pointY;
-        double wy2 = rectBY - pointY;
-        double dy = (wy1 * wy2 < 0 ? 0 : Math.min(Math.abs(wy1), Math.abs(wy2)));
-        
-        return Math.sqrt(dx * dx + dy * dy);
     }
     
     public Vec3d getPointInPortalProjection(Vec3d pos) {
@@ -996,6 +984,7 @@ public class Portal extends Entity implements PortalLike {
     
     public void setDestination(Vec3d destination) {
         this.destination = destination;
+        updateCache();
     }
     
     @Override

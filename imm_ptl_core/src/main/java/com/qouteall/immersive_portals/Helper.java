@@ -299,6 +299,25 @@ public class Helper {
         );
     }
     
+    public static double getDistanceToRectangle(
+        double pointX, double pointY,
+        double rectAX, double rectAY,
+        double rectBX, double rectBY
+    ) {
+        assert rectAX <= rectBX;
+        assert rectAY <= rectBY;
+        
+        double wx1 = rectAX - pointX;
+        double wx2 = rectBX - pointX;
+        double dx = (wx1 * wx2 < 0 ? 0 : Math.min(Math.abs(wx1), Math.abs(wx2)));
+        
+        double wy1 = rectAY - pointY;
+        double wy2 = rectBY - pointY;
+        double dy = (wy1 * wy2 < 0 ? 0 : Math.min(Math.abs(wy1), Math.abs(wy2)));
+        
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    
     public static class SimpleBox<T> {
         public T obj;
         
