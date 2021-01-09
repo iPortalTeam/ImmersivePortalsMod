@@ -410,6 +410,7 @@ public class Portal extends Entity implements PortalLike {
         }
     }
     
+    // TODO rename
     public void updateCache() {
         boundingBoxCache = null;
         exactBoundingBoxCache = null;
@@ -503,6 +504,7 @@ public class Portal extends Entity implements PortalLike {
         return !getIsGlobal();
     }
     
+    // TODO rename
     public Box getExactBoundingBox() {
         if (exactBoundingBoxCache == null) {
             exactBoundingBoxCache = new Box(
@@ -577,6 +579,7 @@ public class Portal extends Entity implements PortalLike {
     }
     
     public void reloadAndSyncToClient() {
+        Validate.isTrue(!isGlobalPortal);
         Validate.isTrue(!world.isClient());
         updateCache();
         McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
