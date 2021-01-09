@@ -18,6 +18,11 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * The PortalLike interface is introduced for the merge portal rendering optimization.
+ * (A portal or a portal rendering group is a PortalLike)
+ * You probably need to manipulate portal entities, not PortalLike
+ */
 public interface PortalLike {
     @Environment(EnvType.CLIENT)
     BoxPredicate getInnerFrustumCullingFunc(

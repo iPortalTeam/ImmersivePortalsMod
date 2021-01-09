@@ -375,6 +375,7 @@ public class Portal extends Entity implements PortalLike {
     }
     
     // use canTeleportEntity
+    // TODO remove
     @Deprecated
     public boolean isTeleportable() {
         return teleportable;
@@ -419,7 +420,7 @@ public class Portal extends Entity implements PortalLike {
         portalCacheUpdateSignal.emit(this);
     }
     
-    public void initDefaultCullableRange() {
+    private void initDefaultCullableRange() {
         cullableXStart = -(width / 2);
         cullableXEnd = (width / 2);
         cullableYStart = -(height / 2);
@@ -500,7 +501,7 @@ public class Portal extends Entity implements PortalLike {
         return boundingBoxCache;
     }
     
-    public boolean shouldLimitBoundingBox() {
+    protected boolean shouldLimitBoundingBox() {
         return !getIsGlobal();
     }
     
@@ -578,6 +579,9 @@ public class Portal extends Entity implements PortalLike {
         }
     }
     
+    /**
+     * Update the portal's cache and send the entity spawn packet to client again
+     */
     public void reloadAndSyncToClient() {
         Validate.isTrue(!isGlobalPortal);
         Validate.isTrue(!world.isClient());
@@ -622,6 +626,10 @@ public class Portal extends Entity implements PortalLike {
         }
     }
     
+    /**
+     * @param entity
+     * @return Can the portal teleport this entity.
+     */
     public boolean canTeleportEntity(Entity entity) {
         if (!teleportable) {
             return false;
@@ -665,18 +673,36 @@ public class Portal extends Entity implements PortalLike {
         return contentDirection;
     }
     
+    /**
+     * @param pos
+     * @return the distance to the portal plane without regarding the shape
+     */
     public double getDistanceToPlane(Vec3d pos) {
         return pos.subtract(getOriginPos()).dotProduct(getNormal());
     }
     
-    public boolean isInFrontOfPortal(Vec3d playerPos) {
-        return getDistanceToPlane(playerPos) > 0;
+    /**
+     * @param pos
+     * @return is the point in front of the portal plane without regarding the shape
+     */
+    public boolean isInFrontOfPortal(Vec3d pos) {
+        return getDistanceToPlane(pos) > 0;
     }
     
+    /**
+     * @param xInPlane
+     * @param yInPlane
+     * @return Convert the 2D coordinate in portal plane into the world coordinate
+     */
     public Vec3d getPointInPlane(double xInPlane, double yInPlane) {
         return getOriginPos().add(getPointInPlaneLocal(xInPlane, yInPlane));
     }
     
+    /**
+     * @param xInPlane
+     * @param yInPlane
+     * @return Convert the 2D coordinate in portal plane into the portal-centered coordinate
+     */
     public Vec3d getPointInPlaneLocal(double xInPlane, double yInPlane) {
         return axisW.multiply(xInPlane).add(axisH.multiply(yInPlane));
     }
@@ -755,6 +781,10 @@ public class Portal extends Entity implements PortalLike {
         return pos.add(offset);
     }
     
+    /**
+     * @param pos
+     * @return use the portal's transformation to transform a point
+     */
     @Override
     public Vec3d transformPoint(Vec3d pos) {
         Vec3d localPos = pos.subtract(getOriginPos());
@@ -775,7 +805,7 @@ public class Portal extends Entity implements PortalLike {
     }
     
     /**
-     * Transform a vector without translation transformation
+     * Transform a vector in portal-centered coordinate (without translation transformation)
      */
     @Override
     public Vec3d transformLocalVec(Vec3d localVec) {
@@ -838,6 +868,7 @@ public class Portal extends Entity implements PortalLike {
         return rayTrace(lastTickPos, pos) != null;
     }
     
+    @Nullable
     public Vec3d rayTrace(
         Vec3d from,
         Vec3d to
@@ -972,19 +1003,33 @@ public class Portal extends Entity implements PortalLike {
         return matrix3f;
     }
     
+    /**
+     * @return The portal center
+     */
     @Override
     public Vec3d getOriginPos() {
         return getPos();
     }
 
     /**
-     * The destination position
+     * @return The destination position
      */
     @Override
     public Vec3d getDestPos() {
         return destination;
     }
     
+    /**
+     * Set the portal's center position
+     */
+    public void setOriginPos(Vec3d pos) {
+        updatePosition(pos.x, pos.y, pos.z);
+        updateCache();
+    }
+    
+    /**
+     * Set the portal's destination
+     */
     public void setDestination(Vec3d destination) {
         this.destination = destination;
         updateCache();
