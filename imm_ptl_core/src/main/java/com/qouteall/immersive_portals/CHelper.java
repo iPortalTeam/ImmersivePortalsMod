@@ -79,9 +79,11 @@ public class CHelper {
     }
     
     public static void printChat(String str) {
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
-            new LiteralText(str)
-        );
+        printChat(new LiteralText(str));
+    }
+    
+    public static void printChat(LiteralText text) {
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
     }
     
     public static void openLinkConfirmScreen(

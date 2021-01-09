@@ -96,7 +96,7 @@ public class ModMainClient {
         CollisionHelper.initClient();
         
         PortalRenderInfo.init();
-    
+        
         CloudContext.init();
         
         OFInterface.isOptifinePresent = O_O.detectOptiFine();

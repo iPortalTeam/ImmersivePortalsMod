@@ -1,7 +1,9 @@
 package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.hiding_in_the_bushes.sodium_compatibility.SodiumInterfaceInitializer;
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
@@ -19,7 +21,9 @@ import com.qouteall.immersive_portals.render.PortalEntityRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
+import net.minecraft.text.LiteralText;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
@@ -69,6 +73,31 @@ public class ModEntryClient implements ClientModInitializer {
         else {
             Helper.log("Sodium is not present");
         }
+        
+        initWarnings();
+    }
+    
+    
+    private static boolean checked = false;
+    
+    private static void initWarnings() {
+        ModMain.postClientTickSignal.connect(() -> {
+            if (MinecraftClient.getInstance().world == null) {
+                return;
+            }
+            
+            if (checked) {
+                return;
+            }
+            
+            if (FabricLoader.getInstance().isModLoaded("canvas")) {
+                CHelper.printChat(new LiteralText(
+                    "[Immersive Portals] Warning: Canvas is incompatible with Immersive Portals."
+                ));
+            }
+            
+            checked = true;
+        });
     }
     
 }
