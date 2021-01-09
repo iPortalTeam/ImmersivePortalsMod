@@ -11,6 +11,10 @@ import java.util.WeakHashMap;
 // the additional features of a portal
 public class PortalExtension {
     
+    /**
+     * @param portal
+     * @return the portal extension object
+     */
     public static PortalExtension get(Portal portal) {
         if (portal.extension == null) {
             portal.extension = new PortalExtension();
@@ -38,8 +42,17 @@ public class PortalExtension {
         });
     }
     
+    /**
+     * If positive, the player that's touching the portal will be accelerated
+     * If negative, the player that's touching the portal and moving quickly will
+     *  be decelerated
+     */
     public double motionAffinity = 0;
     
+    /**
+     * If true, when the player comes out from the portal and get stuck in block
+     * the player will be smoothly levitated to avoid falling through floor
+     */
     public boolean adjustPositionAfterTeleport = false;
     
     private static class PlayerPortalVisibility {

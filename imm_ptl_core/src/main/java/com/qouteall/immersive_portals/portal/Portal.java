@@ -78,18 +78,25 @@ public class Portal extends Entity implements PortalLike {
      * The destination dimension
      */
     public RegistryKey<World> dimensionTo;
+    
+    
+    /**
+     * The destination position
+     */
     public Vec3d destination;
     
     /**
      * If false, cannot teleport entities
      */
     public boolean teleportable = true;
+    
     /**
      * If not null, this portal can only be accessed by one player
      * If it's {@link Portal#nullUUID} the portal can only be accessed by entities
      */
     @Nullable
     public UUID specificPlayerId;
+    
     /**
      * If not null, defines the special shape of the portal
      * The shape should not exceed the area defined by width and height
@@ -126,7 +133,6 @@ public class Portal extends Entity implements PortalLike {
      */
     public boolean teleportChangesScale = true;
     
-    
     /**
      * Whether the player can place and break blocks across the portal
      */
@@ -137,12 +143,30 @@ public class Portal extends Entity implements PortalLike {
     @Nullable
     public String portalTag;
     
+    /**
+     * Non-global portals are normal entities,
+     * global portals are in GlobalPortalStorage and always loaded
+     */
     public boolean isGlobalPortal = false;
     
+    /**
+     * If true, the portal rendering will not render the sky and maintain the outer world depth.
+     * So that the things inside portal will look fused with the things outside portal
+     */
     public boolean fuseView = false;
     
+    /**
+     * If true, if the portal touches another portal that have the same spacial transformation,
+     * these two portals' rendering will be merged.
+     * It can improve rendering performance.
+     * However, the merged rendering's front clipping won't work as if they are separately rendered.
+     * So this is by default disabled.
+     */
     public boolean renderingMergable = false;
     
+    /**
+     *
+     */
     public boolean hasCrossPortalCollision = true;
     
     @Nullable
@@ -500,6 +524,9 @@ public class Portal extends Entity implements PortalLike {
         //portal cannot be moved
     }
     
+    /**
+     * Invalid portals will be automatically removed
+     */
     public boolean isPortalValid() {
         boolean valid = dimensionTo != null &&
             width != 0 &&
@@ -521,6 +548,9 @@ public class Portal extends Entity implements PortalLike {
         return valid;
     }
     
+    /**
+     * @return A UUID for discriminating portal rendering units.
+     */
     @Nullable
     @Override
     public UUID getDiscriminator() {
@@ -605,6 +635,9 @@ public class Portal extends Entity implements PortalLike {
         return entity.canUsePortals();
     }
     
+    /**
+     * @return The normal vector of the portal plane
+     */
     public Vec3d getNormal() {
         if (normal == null) {
             normal = axisW.crossProduct(axisH).normalize();
@@ -612,6 +645,9 @@ public class Portal extends Entity implements PortalLike {
         return normal;
     }
     
+    /**
+     * @return The direction of "portal content", the "direction" of the "inner world view"
+     */
     public Vec3d getContentDirection() {
         if (contentDirection == null) {
             contentDirection = transformLocalVecNonScale(getNormal().multiply(-1));
@@ -619,15 +655,11 @@ public class Portal extends Entity implements PortalLike {
         return contentDirection;
     }
     
-    public double getDistanceToPlane(
-        Vec3d pos
-    ) {
+    public double getDistanceToPlane(Vec3d pos) {
         return pos.subtract(getOriginPos()).dotProduct(getNormal());
     }
     
-    public boolean isInFrontOfPortal(
-        Vec3d playerPos
-    ) {
+    public boolean isInFrontOfPortal(Vec3d playerPos) {
         return getDistanceToPlane(playerPos) > 0;
     }
     
