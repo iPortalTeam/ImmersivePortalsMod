@@ -95,8 +95,7 @@ public class NetherPortalGeneration {
             pos,
             PortalPlaceholderBlock.instance.getDefaultState().with(
                 PortalPlaceholderBlock.AXIS, normalAxis
-            ),
-            3
+            )
         );
     }
     

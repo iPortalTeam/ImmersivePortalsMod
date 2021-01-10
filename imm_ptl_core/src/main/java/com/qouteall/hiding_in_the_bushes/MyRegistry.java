@@ -36,10 +36,10 @@ public class MyRegistry {
             FabricBlockSettings.of(Material.PORTAL)
                 .noCollision()
                 .sounds(BlockSoundGroup.GLASS)
-                .strength(99999, 0)
-                .lightLevel(15)
+                .strength(1.0f, 0)
                 .nonOpaque()
                 .dropsNothing()
+                .luminance(15)
         );
         Registry.register(
             Registry.BLOCK,
@@ -47,7 +47,7 @@ public class MyRegistry {
             new Identifier("immersive_portals", "nether_portal_block"),
             PortalPlaceholderBlock.instance
         );
-    
+        
         
     }
     
