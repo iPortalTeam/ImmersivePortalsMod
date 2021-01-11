@@ -49,6 +49,30 @@ public class MyTaskList {
         };
     }
     
+    public static MyTask nullTask() {
+        return () -> true;
+    }
+    
+    public static MyTask chainTask(MyTask a, MyTask b) {
+        return new MyTask() {
+            boolean aFinished = false;
+            
+            @Override
+            public boolean runAndGetIsFinished() {
+                if (!aFinished) {
+                    boolean finished = a.runAndGetIsFinished();
+                    if (finished) {
+                        aFinished = true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                return b.runAndGetIsFinished();
+            }
+        };
+    }
+    
     public static MyTask withDelay(int iterations, MyTask task) {
         return new MyTask() {
             private int counter = iterations;
@@ -76,9 +100,9 @@ public class MyTaskList {
         };
     }
     
-    public static MyTask withRetryCondition(BooleanSupplier shouldRetry, MyTask task) {
+    public static MyTask withIgnoreCondition(BooleanSupplier shouldIgnore, MyTask task) {
         return () -> {
-            if (shouldRetry.getAsBoolean()) {
+            if (shouldIgnore.getAsBoolean()) {
                 return false;
             }
             
@@ -86,7 +110,7 @@ public class MyTaskList {
         };
     }
     
-    public static MyTask withRetryNumberLimit(int retryNumberLimit, MyTask task) {
+    public static MyTask withRetryNumberLimit(int retryNumberLimit, MyTask task, Runnable onLimitReached) {
         return new MyTask() {
             private int retryNumber = 0;
             
@@ -99,6 +123,7 @@ public class MyTaskList {
                 else {
                     retryNumber += 1;
                     if (retryNumber > retryNumberLimit) {
+                        onLimitReached.run();
                         return true;
                     }
                     return false;

@@ -14,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.SaveProperties;
 import net.minecraft.world.level.storage.LevelStorage;
@@ -29,10 +30,12 @@ import java.net.Proxy;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
-public class MixinMinecraftServer implements IEMinecraftServer {
+public abstract class MixinMinecraftServer implements IEMinecraftServer {
     @Shadow
     @Final
     private MetricsData metricsData;
+    
+    @Shadow public abstract Profiler getProfiler();
     
     private boolean portal_areAllWorldsLoaded;
     
@@ -58,7 +61,9 @@ public class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("TAIL")
     )
     private void onServerTick(BooleanSupplier booleanSupplier_1, CallbackInfo ci) {
+        getProfiler().push("imm_ptl_tick");
         ModMain.postServerTickSignal.emit();
+        getProfiler().pop();
     }
     
     @Inject(

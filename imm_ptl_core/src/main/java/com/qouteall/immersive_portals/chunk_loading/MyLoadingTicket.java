@@ -16,8 +16,15 @@ import java.util.Comparator;
 import java.util.WeakHashMap;
 
 public class MyLoadingTicket {
-    public static final ChunkTicketType<ChunkPos> ticketType =
+    public static final ChunkTicketType<ChunkPos> portalLoadingTicketType =
         ChunkTicketType.create("imm_ptl", Comparator.comparingLong(ChunkPos::toLong));
+    
+    public static final ChunkTicketType<ChunkPos> temporalLoadingTicketType =
+        ChunkTicketType.create(
+            "imm_ptl_temportal",
+            Comparator.comparingLong(ChunkPos::toLong),
+            300//15 seconds
+        );
     
     private static ChunkTicketManager getTicketManager(ServerWorld world) {
         return ((IEServerChunkManager) world.getChunkManager()).getTicketManager();
@@ -30,14 +37,14 @@ public class MyLoadingTicket {
         SortedArraySet<ChunkTicket<?>> chunkTickets =
             ((IEChunkTicketManager) getTicketManager(world))
                 .portal_getTicketSet(chunkPos.toLong());
-        return chunkTickets.stream().anyMatch(t -> t.getType() != ticketType);
+        return chunkTickets.stream().anyMatch(t -> t.getType() != portalLoadingTicketType);
     }
     
     public static void addTicketIfNotLoaded(ServerWorld world, ChunkPos chunkPos) {
         boolean isNewlyAdded = getRecord(world).add(chunkPos.toLong());
         if (isNewlyAdded) {
             getTicketManager(world).addTicket(
-                ticketType, chunkPos, getLoadingRadius(), chunkPos
+                portalLoadingTicketType, chunkPos, getLoadingRadius(), chunkPos
             );
         }
     }
@@ -47,7 +54,7 @@ public class MyLoadingTicket {
         
         if (isNewlyRemoved) {
             getTicketManager(world).removeTicket(
-                ticketType, chunkPos, getLoadingRadius(), chunkPos
+                portalLoadingTicketType, chunkPos, getLoadingRadius(), chunkPos
             );
         }
     }
@@ -65,5 +72,22 @@ public class MyLoadingTicket {
         return loadedChunkRecord.computeIfAbsent(
             world, k -> new LongLinkedOpenHashSet()
         );
+    }
+    
+    public static void loadTemporally(ServerWorld world, ChunkPos chunkPos) {
+        getTicketManager(world).removeTicket(
+            temporalLoadingTicketType, chunkPos, 2, chunkPos
+        );
+    }
+    
+    public static void loadTemporally(ServerWorld world, ChunkPos centerChunkPos, int radius) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                loadTemporally(
+                    world,
+                    new ChunkPos(centerChunkPos.x + dx, centerChunkPos.z + dz)
+                );
+            }
+        }
     }
 }

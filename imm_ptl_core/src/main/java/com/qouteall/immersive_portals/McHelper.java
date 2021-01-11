@@ -421,6 +421,10 @@ public class McHelper {
         player.updatePosition(player.getX(), player.getY(), player.getZ());
     }
     
+    public static void updatePosition(Entity entity, Vec3d pos) {
+        entity.updatePosition(pos.x, pos.y, pos.z);
+    }
+    
     public static <T extends Entity> List<T> getEntitiesRegardingLargeEntities(
         World world,
         Box box,
@@ -450,6 +454,11 @@ public class McHelper {
         
         newPortal.fromTag(portal.toTag(new CompoundTag()));
         return newPortal;
+    }
+    
+    public static boolean getIsServerChunkGenerated(RegistryKey<World> toDimension, BlockPos toPos) {
+        return getIEStorage(toDimension)
+            .portal_isChunkGenerated(new ChunkPos(toPos));
     }
     
     public static interface ChunkAccessor {

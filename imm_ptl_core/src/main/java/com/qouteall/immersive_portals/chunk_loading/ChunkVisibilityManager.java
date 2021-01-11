@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Objects;
@@ -38,6 +39,21 @@ public class ChunkVisibilityManager {
             this.center = center;
             this.radius = radius;
             this.isDirectLoader = isDirectLoader;
+        }
+        
+        public int getLoadedChunkNum() {
+            int[] numBox = {0};
+            foreachChunkPos((dim, x, z, dist) -> {
+                WorldChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
+                if (chunk != null) {
+                    numBox[0] += 1;
+                }
+            });
+            return numBox[0];
+        }
+        
+        public int getChunkNum() {
+            return (this.radius * 2 + 1) * (this.radius * 2 + 1);
         }
         
         public void foreachChunkPos(ChunkPosConsumer func) {

@@ -22,7 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -105,7 +105,8 @@ public class NetherPortalGeneration {
         BlockPos toPos,
         int existingFrameSearchingRadius,
         Predicate<BlockState> otherSideFramePredicate,
-        Consumer<BlockPortalShape> newFrameGenerateFunc, Consumer<PortalGenInfo> portalEntityGeneratingFunc,
+        Consumer<BlockPortalShape> newFrameGenerateFunc,
+        Consumer<PortalGenInfo> portalEntityGeneratingFunc,
         //return null for not generate new frame
         Supplier<PortalGenInfo> newFramePlacer,
         BooleanSupplier portalIntegrityChecker,
@@ -143,16 +144,21 @@ public class NetherPortalGeneration {
             }
         };
         
-        boolean shouldSkip = !McHelper.getIEStorage(toDimension)
-            .portal_isChunkGenerated(new ChunkPos(toPos));
-        if (shouldSkip) {
-            Helper.log("Skip Portal Frame Searching Because The Region is not Generated");
-            onGenerateNewFrame.run();
-            indicatorEntity.remove();
-            return;
-        }
+        boolean otherSideChunkAlreadyGenerated = McHelper.getIsServerChunkGenerated(toDimension, toPos);
         
-        int loaderRadius = Math.floorDiv(existingFrameSearchingRadius, 16) + 1;
+        int frameSearchingRadius = Math.floorDiv(existingFrameSearchingRadius, 16) + 1;
+        
+        /**
+         * if the other side chunk is already generated, generate 128 range for searching the frame
+         * if the other side chunk is not yet generated, generate 1 chunk range for searching the frame placing position
+         * when generating chunks by getBlockState, subsequent setBlockState may leave lighting issues
+         * {@link net.minecraft.server.world.ServerLightingProvider#light(Chunk, boolean)}
+         *  may get invoked twice for a chunk.
+         * Maybe related to https://bugs.mojang.com/browse/MC-170010
+         * Rough experiments shows that the lighting issue won't possibly manifest when manipulating blocks
+         *  after the chunk has been fully generated.
+         */
+        int loaderRadius = otherSideChunkAlreadyGenerated ? frameSearchingRadius : 1;
         ChunkVisibilityManager.ChunkLoader chunkLoader = new ChunkVisibilityManager.ChunkLoader(
             new DimensionalChunkPos(toDimension, new ChunkPos(toPos)), loaderRadius
         );
@@ -173,46 +179,47 @@ public class NetherPortalGeneration {
                 return true;
             }
             
-            int[] loadedChunkNum = {0};
-            chunkLoader.foreachChunkPos((dim, x, z, dist) -> {
-                WorldChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
-                if (chunk != null) {
-                    loadedChunkNum[0] += 1;
-                }
-            });
+            int loadedChunks = chunkLoader.getLoadedChunkNum();
             
-            int allChunksNeedsLoading = (loaderRadius * 2 + 1) * (loaderRadius * 2 + 1);
+            int allChunksNeedsLoading = chunkLoader.getChunkNum();
             
-            if (allChunksNeedsLoading > loadedChunkNum[0]) {
+            if (loadedChunks < allChunksNeedsLoading) {
                 indicatorEntity.inform(new TranslatableText(
-                    "imm_ptl.loading_chunks", loadedChunkNum[0], allChunksNeedsLoading
+                    "imm_ptl.loading_chunks", loadedChunks, allChunksNeedsLoading
                 ));
                 return false;
             }
-            else {
-                ChunkRegion chunkRegion = chunkLoader.createChunkRegion();
-                
-                indicatorEntity.inform(new TranslatableText("imm_ptl.searching_for_frame"));
-                
-                BlockPos.Mutable temp1 = new BlockPos.Mutable();
-                
-                FrameSearching.startSearchingPortalFrameAsync(
-                    chunkRegion, loaderRadius,
-                    toPos, otherSideFramePredicate,
-                    matchShapeByFramePos.apply(chunkRegion),
-                    (info) -> {
-                        portalEntityGeneratingFunc.accept(info);
-                        finalizer.run();
-                        
-                        O_O.postPortalSpawnEventForge(info);
-                    },
-                    () -> {
-                        onGenerateNewFrame.run();
-                        finalizer.run();
-                    });
-                
+            
+            if (!otherSideChunkAlreadyGenerated) {
+                onGenerateNewFrame.run();
+                finalizer.run();
                 return true;
             }
+            
+            ChunkRegion chunkRegion = new ChunkVisibilityManager.ChunkLoader(
+                chunkLoader.center, frameSearchingRadius
+            ).createChunkRegion();
+            
+            indicatorEntity.inform(new TranslatableText("imm_ptl.searching_for_frame"));
+            
+            BlockPos.Mutable temp1 = new BlockPos.Mutable();
+            
+            FrameSearching.startSearchingPortalFrameAsync(
+                chunkRegion, frameSearchingRadius,
+                toPos, otherSideFramePredicate,
+                matchShapeByFramePos.apply(chunkRegion),
+                (info) -> {
+                    portalEntityGeneratingFunc.accept(info);
+                    finalizer.run();
+                    
+                    O_O.postPortalSpawnEventForge(info);
+                },
+                () -> {
+                    onGenerateNewFrame.run();
+                    finalizer.run();
+                });
+            
+            return true;
         });
     }
     

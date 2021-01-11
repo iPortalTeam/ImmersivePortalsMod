@@ -31,6 +31,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -308,6 +309,25 @@ public class ClientDebugCommand {
                     ).forEach(blockPos -> {
                         player.world.getLightingProvider().checkBlock(blockPos);
                     });
+                });
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("update_server_light")
+            .executes(context -> {
+                McHelper.getServer().execute(() -> {
+                    ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
+                    
+                    ServerLightingProvider lightingProvider = (ServerLightingProvider) player.world.getLightingProvider();
+                    lightingProvider.light(
+                        player.world.getChunk(player.chunkX, player.chunkZ),
+                        false
+                    );
+//                    lightingProvider.light(
+//                        player.world.getChunk(player.chunkX, player.chunkZ),
+//                        true
+//                    );
                 });
                 return 0;
             })

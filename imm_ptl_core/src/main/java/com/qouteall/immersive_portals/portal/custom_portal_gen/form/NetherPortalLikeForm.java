@@ -137,6 +137,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
         ServerWorld toWorld, BlockPos toPos,
         ServerWorld fromWorld, BlockPortalShape fromShape
     ) {
+        
+        
         IntBox airCubePlacement =
             NetherPortalGeneration.findAirCubePlacement(
                 toWorld, toPos,
