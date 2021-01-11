@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ModMainClient;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.render.CrossPortalThirdPersonView;
+import com.qouteall.immersive_portals.render.GuiPortalRendering;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -108,6 +109,8 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CGlobal.renderer.finishRendering();
         
         RenderStates.onTotalRenderEnd();
+    
+        GuiPortalRendering.onGameRenderEnd();
     }
     
     //special rendering in third person view
