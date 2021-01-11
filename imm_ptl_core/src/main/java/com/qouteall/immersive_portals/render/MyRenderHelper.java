@@ -139,7 +139,7 @@ public class MyRenderHelper {
     /**
      * {@link Framebuffer#draw(int, int)}
      */
-    public static void drawFrameBuffer(
+    public static void drawScreenFrameBuffer(
         Framebuffer textureProvider,
         boolean doEnableAlphaTest,
         boolean doEnableModifyAlpha

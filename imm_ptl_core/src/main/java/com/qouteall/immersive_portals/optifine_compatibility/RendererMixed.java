@@ -70,7 +70,7 @@ public class RendererMixed extends PortalRenderer {
             MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
             
             deferredFbs[portalLayer].fb.beginWrite(true);
-            MyRenderHelper.drawFrameBuffer(mcFrameBuffer, false, true);
+            MyRenderHelper.drawScreenFrameBuffer(mcFrameBuffer, false, true);
             
             glDisable(GL_STENCIL_TEST);
         }
@@ -207,7 +207,7 @@ public class RendererMixed extends PortalRenderer {
         
         deferredFbs[outerLayer].fb.beginWrite(true);
         
-        MyRenderHelper.drawFrameBuffer(
+        MyRenderHelper.drawScreenFrameBuffer(
             deferredFbs[innerLayer].fb,
             true,
             true
