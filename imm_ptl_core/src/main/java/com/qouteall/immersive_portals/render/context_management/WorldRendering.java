@@ -15,41 +15,45 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class RenderingHierarchy {
+public class WorldRendering {
     public final ClientWorld world;
     public final Vec3d cameraPos;
     @Nullable
-    public final Matrix4f additionalTransformation;
+    public final Matrix4f cameraTransformation;
     @Nullable
     public final UUID description;
     public final int renderDistance;
+    public final boolean overwriteCameraTransformation;
     
-    private static final Stack<RenderingHierarchy> renderInfoStack = new Stack<>();
+    private static final Stack<WorldRendering> renderInfoStack = new Stack<>();
     
-    public RenderingHierarchy(
+    public WorldRendering(
         ClientWorld world, Vec3d cameraPos,
-        Matrix4f additionalTransformation, @Nullable UUID description
+        Matrix4f cameraTransformation, @Nullable UUID description
     ) {
         this(
-            world, cameraPos, additionalTransformation, description,
-            MinecraftClient.getInstance().options.viewDistance
+            world, cameraPos, cameraTransformation, description,
+            MinecraftClient.getInstance().options.viewDistance,
+            false
         );
     }
     
-    public RenderingHierarchy(
+    public WorldRendering(
         ClientWorld world, Vec3d cameraPos,
-        @Nullable Matrix4f additionalTransformation,
-        @Nullable UUID description, int renderDistance
+        @Nullable Matrix4f cameraTransformation,
+        @Nullable UUID description, int renderDistance,
+        boolean overwriteCameraTransformation
     ) {
         this.world = world;
         this.cameraPos = cameraPos;
-        this.additionalTransformation = additionalTransformation;
+        this.cameraTransformation = cameraTransformation;
         this.description = description;
         this.renderDistance = renderDistance;
+        this.overwriteCameraTransformation = overwriteCameraTransformation;
     }
     
-    public static void pushRenderInfo(RenderingHierarchy renderingHierarchy) {
-        renderInfoStack.push(renderingHierarchy);
+    public static void pushRenderInfo(WorldRendering worldRendering) {
+        renderInfoStack.push(worldRendering);
     }
     
     public static void popRenderInfo() {
@@ -58,14 +62,19 @@ public class RenderingHierarchy {
     
     public static void adjustCameraPos(Camera camera) {
         if (!renderInfoStack.isEmpty()) {
-            RenderingHierarchy currRenderingHierarchy = renderInfoStack.peek();
-            ((IECamera) camera).portal_setPos(currRenderingHierarchy.cameraPos);
+            WorldRendering currWorldRendering = renderInfoStack.peek();
+            ((IECamera) camera).portal_setPos(currWorldRendering.cameraPos);
         }
     }
     
     public static void applyAdditionalTransformations(MatrixStack matrixStack) {
-        for (RenderingHierarchy renderingHierarchy : renderInfoStack) {
-            Matrix4f matrix = renderingHierarchy.additionalTransformation;
+        for (WorldRendering worldRendering : renderInfoStack) {
+            if (worldRendering.overwriteCameraTransformation) {
+                matrixStack.peek().getModel().loadIdentity();
+                matrixStack.peek().getNormal().loadIdentity();
+            }
+            
+            Matrix4f matrix = worldRendering.cameraTransformation;
             if (matrix != null) {
                 matrixStack.peek().getModel().multiply(matrix);
                 matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));

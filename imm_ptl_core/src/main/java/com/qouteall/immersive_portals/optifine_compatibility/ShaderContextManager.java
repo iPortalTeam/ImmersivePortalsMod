@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
+import com.qouteall.immersive_portals.render.context_management.WorldRendering;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.registry.RegistryKey;
@@ -226,7 +226,7 @@ public class ShaderContextManager {
     }
     
     public static RegistryKey<World> getOriginalDimension() {
-        if (RenderingHierarchy.isRendering()) {
+        if (WorldRendering.isRendering()) {
             return RenderStates.originalPlayerDimension;
         }
         else {

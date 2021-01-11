@@ -14,7 +14,7 @@ import com.qouteall.immersive_portals.render.MyGameRenderer;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
-import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
+import com.qouteall.immersive_portals.render.context_management.WorldRendering;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
@@ -136,7 +136,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         // draw the entity vertices before rendering portal
         // because there is only one additional buffer builder for portal rendering
         /**{@link MyGameRenderer#secondaryBufferBuilderStorage}*/
-        if (RenderingHierarchy.isRendering()) {
+        if (WorldRendering.isRendering()) {
             client.getBufferBuilders().getEntityVertexConsumers().draw();
         }
         
@@ -422,7 +422,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     // sometimes we change renderDistance but we don't want to reload it
     @Inject(method = "reload", at = @At("HEAD"), cancellable = true)
     private void onReloadStarted(CallbackInfo ci) {
-        if (RenderingHierarchy.isRendering()) {
+        if (WorldRendering.isRendering()) {
             ci.cancel();
         }
     }

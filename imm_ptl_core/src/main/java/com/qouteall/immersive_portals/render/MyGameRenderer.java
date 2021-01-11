@@ -24,7 +24,7 @@ import com.qouteall.immersive_portals.render.context_management.FogRendererConte
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.RenderingHierarchy;
+import com.qouteall.immersive_portals.render.context_management.WorldRendering;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
@@ -69,20 +69,20 @@ public class MyGameRenderer {
     private static BufferBuilderStorage secondaryBufferBuilderStorage = new BufferBuilderStorage();
     
     public static void renderWorldNew(
-        RenderingHierarchy renderingHierarchy,
+        WorldRendering worldRendering,
         Consumer<Runnable> invokeWrapper
     ) {
-        RenderingHierarchy.pushRenderInfo(renderingHierarchy);
+        WorldRendering.pushRenderInfo(worldRendering);
         
         switchAndRenderTheWorld(
-            renderingHierarchy.world,
-            renderingHierarchy.cameraPos,
-            renderingHierarchy.cameraPos,
+            worldRendering.world,
+            worldRendering.cameraPos,
+            worldRendering.cameraPos,
             invokeWrapper,
-            renderingHierarchy.renderDistance
+            worldRendering.renderDistance
         );
         
-        RenderingHierarchy.popRenderInfo();
+        WorldRendering.popRenderInfo();
     }
     
     private static void switchAndRenderTheWorld(
@@ -375,8 +375,8 @@ public class MyGameRenderer {
         }
     }
     
-    public static void renderWorldInfoFramebuffer(
-        RenderingHierarchy renderingHierarchy,
+    public static void renderWorldIntoFrameBuffer(
+        WorldRendering worldRendering,
         Framebuffer framebuffer
     ) {
         CHelper.checkGlError();
@@ -389,7 +389,7 @@ public class MyGameRenderer {
         
         framebuffer.beginWrite(true);
         
-        CGlobal.renderer.invokeWorldRendering(renderingHierarchy);
+        CGlobal.renderer.invokeWorldRendering(worldRendering);
         
         ((IEMinecraftClient) client).setFrameBuffer(mcFb);
         
