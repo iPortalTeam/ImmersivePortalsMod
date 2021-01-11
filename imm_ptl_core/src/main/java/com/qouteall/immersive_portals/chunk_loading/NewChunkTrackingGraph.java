@@ -367,7 +367,7 @@ public class NewChunkTrackingGraph {
     }
     
     // if this method is accidentally not called
-    // the chunk loader will still be removed if it's not referenced (maybe after a long time)
+    // the chunk loader will still be removed if it's not GCed (maybe after a long time)
     public static void removeAdditionalChunkLoader(ChunkVisibilityManager.ChunkLoader chunkLoader) {
         // WeakReference does not have equals()
         additionalChunkLoaders.removeIf(weakRef -> weakRef.get() == chunkLoader);
