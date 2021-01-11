@@ -39,7 +39,7 @@ public class BorderBarrierFiller {
         ).findFirst().orElse(null);
         
         if (zone == null) {
-            player.sendMessage(new TranslatableText("imm_ptl.clear_border_warning"), false);
+            player.sendMessage(new TranslatableText("imm_ptl.cannot_find_zone"), false);
             return;
         }
         
