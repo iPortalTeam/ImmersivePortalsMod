@@ -11,10 +11,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class WorldInfoSender {
     public static void init() {
@@ -22,7 +19,7 @@ public class WorldInfoSender {
             McHelper.getServer().getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
-                    Set<RegistryKey<World>> visibleDimensions = getVisibleDimensions(player);
+                    Set<RegistryKey<World>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
                     
                     if (player.world.getRegistryKey() != World.OVERWORLD) {
                         sendWorldInfo(
@@ -95,19 +92,6 @@ public class WorldInfoSender {
                 world.getThunderGradient(1.0F)
             )
         ));
-    }
-    
-    public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {
-        return Stream.concat(
-            ChunkVisibilityManager.getChunkLoaders(player)
-                .map(chunkLoader -> chunkLoader.center.dimension),
-            Optional.of(McHelper.getGlobalPortals(player.world))
-                .map(p ->
-                    p.stream().map(
-                        p1 -> p1.dimensionTo
-                    )
-                ).orElse(Stream.empty())
-        ).collect(Collectors.toSet());
     }
     
     public static boolean isNonOverworldSurfaceDimension(World world) {

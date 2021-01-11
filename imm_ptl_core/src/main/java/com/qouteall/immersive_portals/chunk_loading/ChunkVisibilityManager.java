@@ -237,7 +237,7 @@ public class ChunkVisibilityManager {
     //3.portal secondary loader
     //4.global portal direct loader
     //5.global portal secondary loader
-    public static Stream<ChunkLoader> getChunkLoaders(
+    public static Stream<ChunkLoader> getBaseChunkLoaders(
         ServerPlayerEntity player
     ) {
         ((ServerWorld) player.world).checkEntityChunkPos(player);

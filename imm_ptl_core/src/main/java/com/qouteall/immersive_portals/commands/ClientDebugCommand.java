@@ -274,7 +274,7 @@ public class ClientDebugCommand {
             .literal("report_chunk_loaders")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-                ChunkVisibilityManager.getChunkLoaders(
+                ChunkVisibilityManager.getBaseChunkLoaders(
                     player
                 ).forEach(
                     loader -> McHelper.serverLog(

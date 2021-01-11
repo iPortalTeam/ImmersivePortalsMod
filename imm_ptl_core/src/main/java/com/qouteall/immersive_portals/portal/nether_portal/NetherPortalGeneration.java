@@ -163,11 +163,11 @@ public class NetherPortalGeneration {
             new DimensionalChunkPos(toDimension, new ChunkPos(toPos)), loaderRadius
         );
         
-        NewChunkTrackingGraph.addAdditionalChunkLoader(chunkLoader);
+        NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(chunkLoader);
         
         Runnable finalizer = () -> {
             indicatorEntity.remove();
-            NewChunkTrackingGraph.removeAdditionalChunkLoader(chunkLoader);
+            NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(chunkLoader);
         };
         
         ModMain.serverTaskList.addTask(() -> {
