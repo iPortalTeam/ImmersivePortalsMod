@@ -139,15 +139,15 @@ public class MyRenderHelper {
     /**
      * {@link Framebuffer#draw(int, int)}
      */
-    public static void myDrawFrameBuffer(
+    public static void drawFrameBuffer(
         Framebuffer textureProvider,
         boolean doEnableAlphaTest,
         boolean doEnableModifyAlpha
     ) {
         CHelper.checkGlError();
         
-        int int_1 = textureProvider.viewportWidth;
-        int int_2 = textureProvider.viewportHeight;
+        int viewportWidth = textureProvider.viewportWidth;
+        int viewportHeight = textureProvider.viewportHeight;
         
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (doEnableModifyAlpha) {
@@ -161,12 +161,12 @@ public class MyRenderHelper {
         GlStateManager.matrixMode(GL_PROJECTION);
         GlStateManager.pushMatrix();
         GlStateManager.loadIdentity();
-        GlStateManager.ortho(0.0D, (double) int_1, (double) int_2, 0.0D, 1000.0D, 3000.0D);
+        GlStateManager.ortho(0.0D, (double) viewportWidth, (double) viewportHeight, 0.0D, 1000.0D, 3000.0D);
         GlStateManager.matrixMode(GL_MODELVIEW);
         GlStateManager.pushMatrix();
         GlStateManager.loadIdentity();
         GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
-        GlStateManager.viewport(0, 0, int_1, int_2);
+        GlStateManager.viewport(0, 0, viewportWidth, viewportHeight);
         GlStateManager.enableTexture();
         GlStateManager.disableLighting();
         GlStateManager.disableFog();
@@ -182,36 +182,31 @@ public class MyRenderHelper {
         
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         textureProvider.beginRead();
-        float float_1 = (float) int_1;
-        float float_2 = (float) int_2;
-        float float_3 = (float) textureProvider.viewportWidth / (float) textureProvider.textureWidth;
-        float float_4 = (float) textureProvider.viewportHeight / (float) textureProvider.textureHeight;
-        Tessellator tessellator_1 = RenderSystem.renderThreadTesselator();
-        BufferBuilder bufferBuilder_1 = tessellator_1.getBuffer();
-        bufferBuilder_1.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-        bufferBuilder_1.vertex(0.0D, (double) float_2, 0.0D).texture(0.0F, 0.0F).color(
-            255,
-            255,
-            255,
-            255
-        ).next();
-        bufferBuilder_1.vertex((double) float_1, (double) float_2, 0.0D).texture(
-            float_3,
-            0.0F
-        ).color(255, 255, 255, 255).next();
-        bufferBuilder_1.vertex((double) float_1, 0.0D, 0.0D).texture(float_3, float_4).color(
-            255,
-            255,
-            255,
-            255
-        ).next();
-        bufferBuilder_1.vertex(0.0D, 0.0D, 0.0D).texture(0.0F, float_4).color(
-            255,
-            255,
-            255,
-            255
-        ).next();
-        tessellator_1.draw();
+        float right = (float) viewportWidth;
+        float up = (float) viewportHeight;
+        float textureX = (float) textureProvider.viewportWidth / (float) textureProvider.textureWidth;
+        float textureY = (float) textureProvider.viewportHeight / (float) textureProvider.textureHeight;
+        Tessellator tessellator = RenderSystem.renderThreadTesselator();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
+        
+        bufferBuilder.vertex(0.0D, (double) up, 0.0D)
+            .texture(0.0F, 0.0F)
+            .color(255, 255, 255, 255).next();
+        
+        bufferBuilder.vertex((double) right, (double) up, 0.0D)
+            .texture(textureX, 0.0F)
+            .color(255, 255, 255, 255).next();
+        
+        bufferBuilder.vertex((double) right, 0.0D, 0.0D)
+            .texture(textureX, textureY)
+            .color(255, 255, 255, 255).next();
+        
+        bufferBuilder.vertex(0.0D, 0.0D, 0.0D)
+            .texture(0.0F, textureY)
+            .color(255, 255, 255, 255).next();
+        
+        tessellator.draw();
         textureProvider.endRead();
         GlStateManager.depthMask(true);
         GlStateManager.colorMask(true, true, true, true);

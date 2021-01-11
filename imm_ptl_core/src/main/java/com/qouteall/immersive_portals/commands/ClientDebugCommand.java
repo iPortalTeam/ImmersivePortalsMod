@@ -314,23 +314,23 @@ public class ClientDebugCommand {
             })
         );
         builder.then(CommandManager
-            .literal("update_server_light")
-            .executes(context -> {
-                McHelper.getServer().execute(() -> {
-                    ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
-                    
-                    ServerLightingProvider lightingProvider = (ServerLightingProvider) player.world.getLightingProvider();
-                    lightingProvider.light(
-                        player.world.getChunk(player.chunkX, player.chunkZ),
-                        false
-                    );
+                .literal("update_server_light")
+                .executes(context -> {
+                    McHelper.getServer().execute(() -> {
+                        ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
+                        
+                        ServerLightingProvider lightingProvider = (ServerLightingProvider) player.world.getLightingProvider();
+                        lightingProvider.light(
+                            player.world.getChunk(player.chunkX, player.chunkZ),
+                            false
+                        );
 //                    lightingProvider.light(
 //                        player.world.getChunk(player.chunkX, player.chunkZ),
 //                        true
 //                    );
-                });
-                return 0;
-            })
+                    });
+                    return 0;
+                })
         );
         builder = builder.then(CommandManager
             .literal("uniform_report_textured")
@@ -530,6 +530,23 @@ public class ClientDebugCommand {
                         );
                     });
                 }
+                return 0;
+            })
+        );
+        builder.then(CommandManager
+            .literal("gui_portal_test")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    try {
+                        Class.forName("com.qouteall.imm_ptl_peripheral.test.GuiPortalTest")
+                            .getDeclaredMethod("open")
+                            .invoke(null);
+                    }
+                    catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+                });
+                
                 return 0;
             })
         );

@@ -181,7 +181,7 @@ public class RendererDeferred extends PortalRenderer {
         Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
 
-        MyRenderHelper.myDrawFrameBuffer(
+        MyRenderHelper.drawFrameBuffer(
             deferredBuffer.fb,
             false,
             false
