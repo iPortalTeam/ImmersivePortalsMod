@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -47,7 +47,7 @@ public class TransformationManager {
             matrixStack.multiply(finalRotation.toMcQuaternion());
         }
         
-        WorldRendering.applyAdditionalTransformations(matrixStack);
+        WorldRenderInfo.applyAdditionalTransformations(matrixStack);
         
     }
     

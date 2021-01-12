@@ -3,7 +3,7 @@ package com.qouteall.imm_ptl_peripheral.test;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.render.GuiPortalRendering;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -40,13 +40,13 @@ public class GuiPortalTest {
             Matrix4f cameraTransformation = new Matrix4f();
             cameraTransformation.loadIdentity();
             
-            WorldRendering worldRendering = new WorldRendering(
+            WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
                 ClientWorldLoader.getWorld(World.OVERWORLD),
                 client.player.getPos().add(0, 5, 0),
                 cameraTransformation, null,
                 client.options.viewDistance, true
             );
-            GuiPortalRendering.submitNextFrameRendering(worldRendering, frameBuffer);
+            GuiPortalRendering.submitNextFrameRendering(worldRenderInfo, frameBuffer);
             
             MyRenderHelper.drawFramebuffer(
                 frameBuffer,

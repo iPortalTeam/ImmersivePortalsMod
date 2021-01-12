@@ -24,7 +24,7 @@ import com.qouteall.immersive_portals.render.context_management.FogRendererConte
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
@@ -67,20 +67,20 @@ public class MyGameRenderer {
     private static BufferBuilderStorage secondaryBufferBuilderStorage = new BufferBuilderStorage();
     
     public static void renderWorldNew(
-        WorldRendering worldRendering,
+        WorldRenderInfo worldRenderInfo,
         Consumer<Runnable> invokeWrapper
     ) {
-        WorldRendering.pushRenderInfo(worldRendering);
+        WorldRenderInfo.pushRenderInfo(worldRenderInfo);
         
         switchAndRenderTheWorld(
-            worldRendering.world,
-            worldRendering.cameraPos,
-            worldRendering.cameraPos,
+            worldRenderInfo.world,
+            worldRenderInfo.cameraPos,
+            worldRenderInfo.cameraPos,
             invokeWrapper,
-            worldRendering.renderDistance
+            worldRenderInfo.renderDistance
         );
         
-        WorldRendering.popRenderInfo();
+        WorldRenderInfo.popRenderInfo();
     }
     
     private static void switchAndRenderTheWorld(

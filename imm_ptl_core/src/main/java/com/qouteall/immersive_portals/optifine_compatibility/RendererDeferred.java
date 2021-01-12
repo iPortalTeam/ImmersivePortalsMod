@@ -16,7 +16,7 @@ import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -113,10 +113,10 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     public void invokeWorldRendering(
-        WorldRendering worldRendering
+        WorldRenderInfo worldRenderInfo
     ) {
         MyGameRenderer.renderWorldNew(
-            worldRendering,
+            worldRenderInfo,
             runnable -> {
                 OFGlobal.shaderContextManager.switchContextAndRun(() -> {
                     OFGlobal.bindToShaderFrameBuffer.run();

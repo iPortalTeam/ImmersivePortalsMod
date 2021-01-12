@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +32,7 @@ public class GuiPortalRendering {
     }
     
     public static void renderWorldIntoFrameBuffer(
-        WorldRendering worldRendering,
+        WorldRenderInfo worldRenderInfo,
         Framebuffer framebuffer
     ) {
         RenderStates.projectionMatrix = null;
@@ -54,7 +54,7 @@ public class GuiPortalRendering {
         
         CGlobal.renderer.prepareRendering();
         
-        CGlobal.renderer.invokeWorldRendering(worldRendering);
+        CGlobal.renderer.invokeWorldRendering(worldRenderInfo);
         
         CGlobal.renderer.finishRendering();
         
@@ -71,18 +71,19 @@ public class GuiPortalRendering {
         RenderStates.projectionMatrix = null;
     }
     
-    private static final HashMap<Framebuffer, WorldRendering> renderingTasks = new HashMap<>();
+    private static final HashMap<Framebuffer, WorldRenderInfo> renderingTasks = new HashMap<>();
     
     public static void submitNextFrameRendering(
-        WorldRendering worldRendering,
+        WorldRenderInfo worldRenderInfo,
         Framebuffer renderTarget
     ) {
         Validate.isTrue(!renderingTasks.containsKey(renderTarget));
         
-        renderingTasks.put(renderTarget, worldRendering);
+        renderingTasks.put(renderTarget, worldRenderInfo);
         
         if (MinecraftClient.isFabulousGraphicsOrBetter()) {
-            limitedLogger.err("GUI Portal Rendering is Currently Problematic with Fabulous Graphics!");
+            limitedLogger.err("GUI Portal Rendering is Currently Problematic with Fabulous Graphics!" +
+                " It's recommended to turn to fancy.");
         }
     }
     

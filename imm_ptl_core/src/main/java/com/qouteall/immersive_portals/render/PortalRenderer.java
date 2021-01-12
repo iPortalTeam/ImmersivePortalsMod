@@ -12,7 +12,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
@@ -185,7 +185,7 @@ public abstract class PortalRenderer {
         
         int renderDistance = getPortalRenderDistance(portal);
         
-        invokeWorldRendering(new WorldRendering(
+        invokeWorldRendering(new WorldRenderInfo(
             newWorld,
             PortalRendering.getRenderingCameraPos(),
             portal.getAdditionalCameraTransformation(),
@@ -219,10 +219,10 @@ public abstract class PortalRenderer {
     }
     
     public void invokeWorldRendering(
-        WorldRendering worldRendering
+        WorldRenderInfo worldRenderInfo
     ) {
         MyGameRenderer.renderWorldNew(
-            worldRendering,
+            worldRenderInfo,
             Runnable::run
         );
     }

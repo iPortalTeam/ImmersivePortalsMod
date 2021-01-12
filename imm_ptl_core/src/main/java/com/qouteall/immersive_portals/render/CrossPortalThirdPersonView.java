@@ -8,7 +8,7 @@ import com.qouteall.immersive_portals.commands.PortalCommand;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -69,14 +69,13 @@ public class CrossPortalThirdPersonView {
         ((IECamera) RenderStates.originalCamera).portal_setPos(renderingCameraPos);
     
     
-        WorldRendering worldRendering = new WorldRendering(
-            ClientWorldLoader.getWorld(portal.dimensionTo),
-            renderingCameraPos,
-            portal.getAdditionalCameraTransformation(),
-            null
-        );
+        WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
+            ClientWorldLoader.getWorld(portal.dimensionTo), renderingCameraPos, portal.getAdditionalCameraTransformation(), null,
+                    MinecraftClient.getInstance().options.viewDistance,
+                    false
+                );
         
-        CGlobal.renderer.invokeWorldRendering(worldRendering);
+        CGlobal.renderer.invokeWorldRendering(worldRenderInfo);
         
         return true;
     }

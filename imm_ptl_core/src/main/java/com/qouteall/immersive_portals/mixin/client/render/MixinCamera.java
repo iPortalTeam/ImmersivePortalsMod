@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin.client.render;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
-import com.qouteall.immersive_portals.render.context_management.WorldRendering;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -44,7 +44,7 @@ public abstract class MixinCamera implements IECamera {
         BlockView area, Entity focusedEntity, boolean thirdPerson,
         boolean inverseView, float tickDelta, CallbackInfo ci
     ) {
-        WorldRendering.adjustCameraPos((Camera) (Object) this);
+        WorldRenderInfo.adjustCameraPos((Camera) (Object) this);
     }
     
     @Inject(

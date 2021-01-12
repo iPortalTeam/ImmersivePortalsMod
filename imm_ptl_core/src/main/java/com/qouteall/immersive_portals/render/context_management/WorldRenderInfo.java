@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.render.context_management;
 
 import com.qouteall.immersive_portals.ducks.IECamera;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -15,30 +14,47 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class WorldRendering {
+/**
+ * A world rendering task.
+ */
+public class WorldRenderInfo {
+    
+    /**
+     * The dimension that it's going to render
+     */
     public final ClientWorld world;
+    
+    /**
+     * Camera position
+     */
     public final Vec3d cameraPos;
-    @Nullable
-    public final Matrix4f cameraTransformation;
-    @Nullable
-    public final UUID description;
-    public final int renderDistance;
+    
     public final boolean overwriteCameraTransformation;
     
-    private static final Stack<WorldRendering> renderInfoStack = new Stack<>();
+    /**
+     * If overwriteCameraTransformation is true,
+     * the world rendering camera transformation will be replaced by this.
+     * If overwriteCameraTransformation is false,
+     * this will be applied to the original camera transformation, and this can be null
+     */
+    @Nullable
+    public final Matrix4f cameraTransformation;
     
-    public WorldRendering(
-        ClientWorld world, Vec3d cameraPos,
-        Matrix4f cameraTransformation, @Nullable UUID description
-    ) {
-        this(
-            world, cameraPos, cameraTransformation, description,
-            MinecraftClient.getInstance().options.viewDistance,
-            false
-        );
-    }
+    /**
+     * Used for visibility prediction optimization
+     */
+    @Nullable
+    public final UUID description;
     
-    public WorldRendering(
+    /**
+     * Render distance.
+     * It cannot render the chunks that are not synced to client.
+     */
+    public final int renderDistance;
+    
+    private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
+    
+    public WorldRenderInfo(
         ClientWorld world, Vec3d cameraPos,
         @Nullable Matrix4f cameraTransformation,
         @Nullable UUID description, int renderDistance,
@@ -52,8 +68,8 @@ public class WorldRendering {
         this.overwriteCameraTransformation = overwriteCameraTransformation;
     }
     
-    public static void pushRenderInfo(WorldRendering worldRendering) {
-        renderInfoStack.push(worldRendering);
+    public static void pushRenderInfo(WorldRenderInfo worldRenderInfo) {
+        renderInfoStack.push(worldRenderInfo);
     }
     
     public static void popRenderInfo() {
@@ -62,19 +78,19 @@ public class WorldRendering {
     
     public static void adjustCameraPos(Camera camera) {
         if (!renderInfoStack.isEmpty()) {
-            WorldRendering currWorldRendering = renderInfoStack.peek();
-            ((IECamera) camera).portal_setPos(currWorldRendering.cameraPos);
+            WorldRenderInfo currWorldRenderInfo = renderInfoStack.peek();
+            ((IECamera) camera).portal_setPos(currWorldRenderInfo.cameraPos);
         }
     }
     
     public static void applyAdditionalTransformations(MatrixStack matrixStack) {
-        for (WorldRendering worldRendering : renderInfoStack) {
-            if (worldRendering.overwriteCameraTransformation) {
+        for (WorldRenderInfo worldRenderInfo : renderInfoStack) {
+            if (worldRenderInfo.overwriteCameraTransformation) {
                 matrixStack.peek().getModel().loadIdentity();
                 matrixStack.peek().getNormal().loadIdentity();
             }
             
-            Matrix4f matrix = worldRendering.cameraTransformation;
+            Matrix4f matrix = worldRenderInfo.cameraTransformation;
             if (matrix != null) {
                 matrixStack.peek().getModel().multiply(matrix);
                 matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
