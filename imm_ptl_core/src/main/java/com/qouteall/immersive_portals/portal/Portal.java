@@ -258,7 +258,10 @@ public class Portal extends Entity implements PortalLike {
         McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
     }
     
-    
+    /**
+     * The bounding box, normal vector, content direction vector is cached
+     * If the portal attributes get changed, these cache should be updated
+     */
     // TODO rename
     public void updateCache() {
         boolean updates =
@@ -275,6 +278,74 @@ public class Portal extends Entity implements PortalLike {
         }
     }
     
+    /**
+     * @return The portal center
+     */
+    @Override
+    public Vec3d getOriginPos() {
+        return getPos();
+    }
+    
+    /**
+     * @return The destination position
+     */
+    @Override
+    public Vec3d getDestPos() {
+        return destination;
+    }
+    
+    /**
+     * Set the portal's center position
+     */
+    public void setOriginPos(Vec3d pos) {
+        updatePosition(pos.x, pos.y, pos.z);
+        // it will call setPos and update the cache
+    }
+    
+    /**
+     * Set the destination dimension
+     * If the dimension does not exist, the portal is invalid and will be automatically removed
+     */
+    public void setDestinationDimension(RegistryKey<World> dim) {
+        dimensionTo = dim;
+    }
+    
+    /**
+     * Set the portal's destination
+     */
+    public void setDestination(Vec3d destination) {
+        this.destination = destination;
+        updateCache();
+    }
+    
+    /**
+     * @param portalPosRelativeToCamera The portal position relative to camera
+     * @param vertexOutput Output the triangles that constitute the portal view area.
+     *        Every 3 vertices correspond to a triangle.
+     *        In camera-centered coordinate.
+     */
+    @Environment(EnvType.CLIENT)
+    @Override
+    public void renderViewAreaMesh(Vec3d portalPosRelativeToCamera, Consumer<Vec3d> vertexOutput) {
+        if (this instanceof Mirror) {
+            //rendering portal behind translucent objects with shader is broken
+            double mirrorOffset =
+                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
+            portalPosRelativeToCamera = portalPosRelativeToCamera.add(
+                ((Mirror) this).getNormal().multiply(mirrorOffset));
+        }
+        
+        ViewAreaRenderer.generateViewAreaTriangles(this, portalPosRelativeToCamera, vertexOutput);
+    }
+    
+    @Override
+    public boolean isFuseView() {
+        return fuseView;
+    }
+    
+    public boolean isRenderingMergable() {
+        return renderingMergable;
+    }
     
     /**
      * Determines whether the player should be able to reach through the portal or not.
@@ -293,6 +364,242 @@ public class Portal extends Entity implements PortalLike {
      */
     public void setInteractable(boolean interactable) {
         this.interactable = interactable;
+    }
+    
+    @Override
+    public World getOriginWorld() {
+        return world;
+    }
+    
+    @Override
+    public World getDestWorld() {
+        return getDestinationWorld();
+    }
+    
+    @Override
+    public RegistryKey<World> getDestDim() {
+        return dimensionTo;
+    }
+    
+    @Override
+    public double getScale() {
+        return scaling;
+    }
+    
+    @Override
+    public boolean getIsGlobal() {
+        return isGlobalPortal;
+    }
+    
+    /**
+     * @param entity
+     * @return Can the portal teleport this entity.
+     */
+    public boolean canTeleportEntity(Entity entity) {
+        if (!teleportable) {
+            return false;
+        }
+        if (entity instanceof ServerPlayerEntity) {
+            if (specificPlayerId != null) {
+                if (!entity.getUuid().equals(specificPlayerId)) {
+                    return false;
+                }
+            }
+        }
+        else {
+            if (specificPlayerId != null) {
+                if (!specificPlayerId.equals(nullUUID)) {
+                    // it can only be used by the player
+                    return false;
+                }
+            }
+        }
+        
+        return entity.canUsePortals();
+    }
+    
+    @Nullable
+    @Override
+    public Quaternion getRotation() {
+        return rotation;
+    }
+    
+    public void setSquareShape(
+        Vec3d newAxisW, Vec3d newAxisH,
+        double newWidth, double newHeight
+    ) {
+        axisW = newAxisW;
+        axisH = newAxisH;
+        width = newWidth;
+        height = newHeight;
+        
+        updateCache();
+    }
+    
+    public void setRotationTransformation(Quaternion quaternion) {
+        rotation = quaternion;
+        updateCache();
+    }
+    
+    public void setScaleTransformation(double newScale) {
+        scaling = newScale;
+    }
+    
+    @Override
+    protected void readCustomDataFromTag(CompoundTag compoundTag) {
+        width = compoundTag.getDouble("width");
+        height = compoundTag.getDouble("height");
+        axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
+        axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
+        dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", world.isClient);
+        setDestination(Helper.getVec3d(compoundTag, "destination"));
+        if (compoundTag.contains("specificPlayer")) {
+            specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
+        }
+        if (compoundTag.contains("specialShape")) {
+            specialShape = new GeometryPortalShape(
+                compoundTag.getList("specialShape", 6)
+            );
+            if (specialShape.triangles.isEmpty()) {
+                specialShape = null;
+            }
+        }
+        if (compoundTag.contains("teleportable")) {
+            teleportable = compoundTag.getBoolean("teleportable");
+        }
+        if (compoundTag.contains("cullableXStart")) {
+            cullableXStart = compoundTag.getDouble("cullableXStart");
+            cullableXEnd = compoundTag.getDouble("cullableXEnd");
+            cullableYStart = compoundTag.getDouble("cullableYStart");
+            cullableYEnd = compoundTag.getDouble("cullableYEnd");
+            
+            cullableXEnd = Math.min(cullableXEnd, width / 2);
+            cullableXStart = Math.max(cullableXStart, -width / 2);
+            cullableYEnd = Math.min(cullableYEnd, height / 2);
+            cullableYStart = Math.max(cullableYStart, -height / 2);
+        }
+        else {
+            if (specialShape != null) {
+                cullableXStart = 0;
+                cullableXEnd = 0;
+                cullableYStart = 0;
+                cullableYEnd = 0;
+            }
+            else {
+                initDefaultCullableRange();
+            }
+        }
+        if (compoundTag.contains("rotationA")) {
+            rotation = new Quaternion(
+                compoundTag.getFloat("rotationB"),
+                compoundTag.getFloat("rotationC"),
+                compoundTag.getFloat("rotationD"),
+                compoundTag.getFloat("rotationA")
+            );
+        }
+        
+        if (compoundTag.contains("interactable")) {
+            interactable = compoundTag.getBoolean("interactable");
+        }
+        
+        if (compoundTag.contains("scale")) {
+            scaling = compoundTag.getDouble("scale");
+        }
+        if (compoundTag.contains("teleportChangesScale")) {
+            teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
+        }
+        
+        if (compoundTag.contains("portalTag")) {
+            portalTag = compoundTag.getString("portalTag");
+        }
+        
+        if (compoundTag.contains("fuseView")) {
+            fuseView = compoundTag.getBoolean("fuseView");
+        }
+        
+        if (compoundTag.contains("renderingMergable")) {
+            renderingMergable = compoundTag.getBoolean("renderingMergable");
+        }
+        
+        if (compoundTag.contains("hasCrossPortalCollision")) {
+            hasCrossPortalCollision = compoundTag.getBoolean("hasCrossPortalCollision");
+        }
+        
+        if (compoundTag.contains("commandsOnTeleported")) {
+            ListTag list = compoundTag.getList("commandsOnTeleported", 8);
+            commandsOnTeleported = list.stream()
+                .map(t -> ((StringTag) t).asString()).collect(Collectors.toList());
+        }
+        else {
+            commandsOnTeleported = null;
+        }
+        
+        readPortalDataSignal.emit(this, compoundTag);
+        
+        updateCache();
+    }
+    
+    @Override
+    protected void writeCustomDataToTag(CompoundTag compoundTag) {
+        compoundTag.putDouble("width", width);
+        compoundTag.putDouble("height", height);
+        Helper.putVec3d(compoundTag, "axisW", axisW);
+        Helper.putVec3d(compoundTag, "axisH", axisH);
+        DimId.putWorldId(compoundTag, "dimensionTo", dimensionTo);
+        Helper.putVec3d(compoundTag, "destination", getDestPos());
+        
+        if (specificPlayerId != null) {
+            Helper.putUuid(compoundTag, "specificPlayer", specificPlayerId);
+        }
+        
+        if (specialShape != null) {
+            compoundTag.put("specialShape", specialShape.writeToTag());
+        }
+        
+        compoundTag.putBoolean("teleportable", teleportable);
+        
+        if (specialShape == null) {
+            initDefaultCullableRange();
+        }
+        compoundTag.putDouble("cullableXStart", cullableXStart);
+        compoundTag.putDouble("cullableXEnd", cullableXEnd);
+        compoundTag.putDouble("cullableYStart", cullableYStart);
+        compoundTag.putDouble("cullableYEnd", cullableYEnd);
+        if (rotation != null) {
+            compoundTag.putDouble("rotationA", rotation.getW());
+            compoundTag.putDouble("rotationB", rotation.getX());
+            compoundTag.putDouble("rotationC", rotation.getY());
+            compoundTag.putDouble("rotationD", rotation.getZ());
+        }
+        
+        compoundTag.putBoolean("interactable", interactable);
+        
+        compoundTag.putDouble("scale", scaling);
+        compoundTag.putBoolean("teleportChangesScale", teleportChangesScale);
+        
+        if (portalTag != null) {
+            compoundTag.putString("portalTag", portalTag);
+        }
+        
+        compoundTag.putBoolean("fuseView", fuseView);
+        
+        compoundTag.putBoolean("renderingMergable", renderingMergable);
+        
+        compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
+        
+        if (commandsOnTeleported != null) {
+            ListTag list = new ListTag();
+            for (String command : commandsOnTeleported) {
+                list.add(StringTag.of(command));
+            }
+            compoundTag.put(
+                "commandsOnTeleported",
+                list
+            );
+        }
+        
+        writePortalDataSignal.emit(this, compoundTag);
+        
     }
     
     @Override
@@ -454,223 +761,6 @@ public class Portal extends Entity implements PortalLike {
         return getUuid();
     }
     
-    
-    /**
-     * @return The portal center
-     */
-    @Override
-    public Vec3d getOriginPos() {
-        return getPos();
-    }
-    
-    /**
-     * @return The destination position
-     */
-    @Override
-    public Vec3d getDestPos() {
-        return destination;
-    }
-    
-    /**
-     * Set the portal's center position
-     */
-    public void setOriginPos(Vec3d pos) {
-        updatePosition(pos.x, pos.y, pos.z);
-        // it will call setPos and update the cache
-    }
-    
-    public void setDestinationDimension(RegistryKey<World> dim) {
-        dimensionTo = dim;
-    }
-    
-    /**
-     * Set the portal's destination
-     */
-    public void setDestination(Vec3d destination) {
-        this.destination = destination;
-        updateCache();
-    }
-    
-    @Override
-    public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
-        if (this instanceof Mirror) {
-            //rendering portal behind translucent objects with shader is broken
-            double mirrorOffset =
-                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
-            posInPlayerCoordinate = posInPlayerCoordinate.add(
-                ((Mirror) this).getNormal().multiply(mirrorOffset));
-        }
-        
-        ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
-    }
-    
-    @Override
-    public boolean isFuseView() {
-        return fuseView;
-    }
-    
-    public boolean isRenderingMergable() {
-        return renderingMergable;
-    }
-    
-    @Override
-    protected void readCustomDataFromTag(CompoundTag compoundTag) {
-        width = compoundTag.getDouble("width");
-        height = compoundTag.getDouble("height");
-        axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
-        axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
-        dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", world.isClient);
-        setDestination(Helper.getVec3d(compoundTag, "destination"));
-        if (compoundTag.contains("specificPlayer")) {
-            specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
-        }
-        if (compoundTag.contains("specialShape")) {
-            specialShape = new GeometryPortalShape(
-                compoundTag.getList("specialShape", 6)
-            );
-            if (specialShape.triangles.isEmpty()) {
-                specialShape = null;
-            }
-        }
-        if (compoundTag.contains("teleportable")) {
-            teleportable = compoundTag.getBoolean("teleportable");
-        }
-        if (compoundTag.contains("cullableXStart")) {
-            cullableXStart = compoundTag.getDouble("cullableXStart");
-            cullableXEnd = compoundTag.getDouble("cullableXEnd");
-            cullableYStart = compoundTag.getDouble("cullableYStart");
-            cullableYEnd = compoundTag.getDouble("cullableYEnd");
-            
-            cullableXEnd = Math.min(cullableXEnd, width / 2);
-            cullableXStart = Math.max(cullableXStart, -width / 2);
-            cullableYEnd = Math.min(cullableYEnd, height / 2);
-            cullableYStart = Math.max(cullableYStart, -height / 2);
-        }
-        else {
-            if (specialShape != null) {
-                cullableXStart = 0;
-                cullableXEnd = 0;
-                cullableYStart = 0;
-                cullableYEnd = 0;
-            }
-            else {
-                initDefaultCullableRange();
-            }
-        }
-        if (compoundTag.contains("rotationA")) {
-            rotation = new Quaternion(
-                compoundTag.getFloat("rotationB"),
-                compoundTag.getFloat("rotationC"),
-                compoundTag.getFloat("rotationD"),
-                compoundTag.getFloat("rotationA")
-            );
-        }
-        
-        if (compoundTag.contains("interactable")) {
-            interactable = compoundTag.getBoolean("interactable");
-        }
-        
-        if (compoundTag.contains("scale")) {
-            scaling = compoundTag.getDouble("scale");
-        }
-        if (compoundTag.contains("teleportChangesScale")) {
-            teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
-        }
-        
-        if (compoundTag.contains("portalTag")) {
-            portalTag = compoundTag.getString("portalTag");
-        }
-        
-        if (compoundTag.contains("fuseView")) {
-            fuseView = compoundTag.getBoolean("fuseView");
-        }
-        
-        if (compoundTag.contains("renderingMergable")) {
-            renderingMergable = compoundTag.getBoolean("renderingMergable");
-        }
-        
-        if (compoundTag.contains("hasCrossPortalCollision")) {
-            hasCrossPortalCollision = compoundTag.getBoolean("hasCrossPortalCollision");
-        }
-        
-        if (compoundTag.contains("commandsOnTeleported")) {
-            ListTag list = compoundTag.getList("commandsOnTeleported", 8);
-            commandsOnTeleported = list.stream()
-                .map(t -> ((StringTag) t).asString()).collect(Collectors.toList());
-        }
-        else {
-            commandsOnTeleported = null;
-        }
-        
-        readPortalDataSignal.emit(this, compoundTag);
-        
-        updateCache();
-    }
-    
-    @Override
-    protected void writeCustomDataToTag(CompoundTag compoundTag) {
-        compoundTag.putDouble("width", width);
-        compoundTag.putDouble("height", height);
-        Helper.putVec3d(compoundTag, "axisW", axisW);
-        Helper.putVec3d(compoundTag, "axisH", axisH);
-        DimId.putWorldId(compoundTag, "dimensionTo", dimensionTo);
-        Helper.putVec3d(compoundTag, "destination", getDestPos());
-        
-        if (specificPlayerId != null) {
-            Helper.putUuid(compoundTag, "specificPlayer", specificPlayerId);
-        }
-        
-        if (specialShape != null) {
-            compoundTag.put("specialShape", specialShape.writeToTag());
-        }
-        
-        compoundTag.putBoolean("teleportable", teleportable);
-        
-        if (specialShape == null) {
-            initDefaultCullableRange();
-        }
-        compoundTag.putDouble("cullableXStart", cullableXStart);
-        compoundTag.putDouble("cullableXEnd", cullableXEnd);
-        compoundTag.putDouble("cullableYStart", cullableYStart);
-        compoundTag.putDouble("cullableYEnd", cullableYEnd);
-        if (rotation != null) {
-            compoundTag.putDouble("rotationA", rotation.getW());
-            compoundTag.putDouble("rotationB", rotation.getX());
-            compoundTag.putDouble("rotationC", rotation.getY());
-            compoundTag.putDouble("rotationD", rotation.getZ());
-        }
-        
-        compoundTag.putBoolean("interactable", interactable);
-        
-        compoundTag.putDouble("scale", scaling);
-        compoundTag.putBoolean("teleportChangesScale", teleportChangesScale);
-        
-        if (portalTag != null) {
-            compoundTag.putString("portalTag", portalTag);
-        }
-        
-        compoundTag.putBoolean("fuseView", fuseView);
-        
-        compoundTag.putBoolean("renderingMergable", renderingMergable);
-        
-        compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
-        
-        if (commandsOnTeleported != null) {
-            ListTag list = new ListTag();
-            for (String command : commandsOnTeleported) {
-                list.add(StringTag.of(command));
-            }
-            compoundTag.put(
-                "commandsOnTeleported",
-                list
-            );
-        }
-        
-        writePortalDataSignal.emit(this, compoundTag);
-        
-    }
-    
-    
     @Override
     public String toString() {
         return String.format(
@@ -707,34 +797,6 @@ public class Portal extends Entity implements PortalLike {
             entity.setVelocity(entity.getVelocity().normalize().multiply(maxVelocity));
         }
     }
-    
-    /**
-     * @param entity
-     * @return Can the portal teleport this entity.
-     */
-    public boolean canTeleportEntity(Entity entity) {
-        if (!teleportable) {
-            return false;
-        }
-        if (entity instanceof ServerPlayerEntity) {
-            if (specificPlayerId != null) {
-                if (!entity.getUuid().equals(specificPlayerId)) {
-                    return false;
-                }
-            }
-        }
-        else {
-            if (specificPlayerId != null) {
-                if (!specificPlayerId.equals(nullUUID)) {
-                    // it can only be used by the player
-                    return false;
-                }
-            }
-        }
-        
-        return entity.canUsePortals();
-    }
-    
     
     /**
      * @param pos
@@ -854,7 +916,6 @@ public class Portal extends Entity implements PortalLike {
         
         return new Vec3d(temp);
     }
-    
     
     public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
@@ -1047,27 +1108,6 @@ public class Portal extends Entity implements PortalLike {
         return matrix3f;
     }
     
-    public void setSquareShape(
-        Vec3d newAxisW, Vec3d newAxisH,
-        double newWidth, double newHeight
-    ) {
-        axisW = newAxisW;
-        axisH = newAxisH;
-        width = newWidth;
-        height = newHeight;
-        
-        updateCache();
-    }
-    
-    public void setRotationTransformation(Quaternion quaternion) {
-        rotation = quaternion;
-        updateCache();
-    }
-    
-    public void setScaleTransformation(double newScale) {
-        scaling = newScale;
-    }
-    
     @Override
     public boolean isConventionalPortal() {
         return true;
@@ -1079,39 +1119,8 @@ public class Portal extends Entity implements PortalLike {
     }
     
     @Override
-    public World getOriginWorld() {
-        return world;
-    }
-    
-    @Override
-    public World getDestWorld() {
-        return getDestinationWorld();
-    }
-    
-    @Override
-    public RegistryKey<World> getDestDim() {
-        return dimensionTo;
-    }
-    
-    @Override
     public boolean isRoughlyVisibleTo(Vec3d cameraPos) {
         return isInFrontOfPortal(cameraPos);
-    }
-    
-    @Nullable
-    @Override
-    public Quaternion getRotation() {
-        return rotation;
-    }
-    
-    @Override
-    public double getScale() {
-        return scaling;
-    }
-    
-    @Override
-    public boolean getIsGlobal() {
-        return isGlobalPortal;
     }
     
     @Nullable
