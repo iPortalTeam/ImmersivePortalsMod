@@ -30,7 +30,6 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -53,7 +52,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 
 import java.util.function.Consumer;
@@ -341,7 +339,7 @@ public class MyGameRenderer {
                 // this thing has no optimization effect -_-
                 
                 PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-    
+                
                 renderingPortal.doAdditionalRenderingCull(visibleChunks);
             }
         }
@@ -359,13 +357,13 @@ public class MyGameRenderer {
                     ChunkBuilder.BuiltChunk builtChunk =
                         ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
                     Box boundingBox = builtChunk.boundingBox;
-    
+                    
                     return FrustumCuller.isTouchingInsideContentArea(
                         ((Portal) renderingPortal), boundingBox
                     );
                 }
             );
-
+            
             if (firstInsideOne != -1) {
                 visibleChunks.removeElements(0, firstInsideOne);
             }
@@ -373,29 +371,6 @@ public class MyGameRenderer {
                 visibleChunks.clear();
             }
         }
-    }
-    
-    public static void renderWorldIntoFrameBuffer(
-        WorldRendering worldRendering,
-        Framebuffer framebuffer
-    ) {
-        CHelper.checkGlError();
-        
-        Framebuffer mcFb = client.getFramebuffer();
-        
-        Validate.isTrue(mcFb != framebuffer);
-        
-        ((IEMinecraftClient) client).setFrameBuffer(framebuffer);
-        
-        framebuffer.beginWrite(true);
-        
-        CGlobal.renderer.invokeWorldRendering(worldRendering);
-        
-        ((IEMinecraftClient) client).setFrameBuffer(mcFb);
-        
-        mcFb.beginWrite(true);
-        
-        CHelper.checkGlError();
     }
     
 }

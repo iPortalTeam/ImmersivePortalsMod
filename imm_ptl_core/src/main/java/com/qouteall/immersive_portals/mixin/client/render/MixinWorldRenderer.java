@@ -411,7 +411,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private boolean redirectGlowing(MinecraftClient client, Entity entity) {
-        if (PortalRendering.isRendering()) {
+        if (WorldRendering.isRendering()) {
             return false;
         }
         return client.hasOutline(entity);
