@@ -1,5 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.hiding_in_the_bushes.util.networking.ImplRemoteProcedureCall;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
@@ -39,14 +40,14 @@ public class MyNetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcRedirected,
             (c, handler, buf, responseSender) -> {
-                processRedirectedMessage(null, buf);
+                processRedirectedMessage(buf);
             }
         );
         
         ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcDimSync,
             (c, handler, buf, responseSender) -> {
-                processDimSync(null, buf);
+                processDimSync(buf);
                 
             }
         );
@@ -70,34 +71,16 @@ public class MyNetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcUpdateGlobalPortal,
             (c, handler, buf, responseSender) -> {
-                processGlobalPortalUpdate(null, buf);
+                processGlobalPortalUpdate(buf);
             }
         );
-
-//        ClientSidePacketRegistry.INSTANCE.register(
-//            MyNetwork.id_stcRedirected,
-//            MyNetworkClient::processRedirectedMessage
-//        );
-//
-//        ClientSidePacketRegistry.INSTANCE.register(
-//            MyNetwork.id_stcDimSync,
-//            MyNetworkClient::processDimSync
-//        );
-//
-//        ClientSidePacketRegistry.INSTANCE.register(
-//            MyNetwork.id_stcSpawnEntity,
-//            MyNetworkClient::processStcSpawnEntity
-//        );
-//
-//        ClientSidePacketRegistry.INSTANCE.register(
-//            MyNetwork.id_stcDimensionConfirm,
-//            MyNetworkClient::processStcDimensionConfirm
-//        );
-//
-//        ClientSidePacketRegistry.INSTANCE.register(
-//            MyNetwork.id_stcUpdateGlobalPortal,
-//            MyNetworkClient::processGlobalPortalUpdate
-//        );
+        
+        ClientPlayNetworking.registerGlobalReceiver(
+            MyNetwork.id_stcRemote,
+            (c, handler, buf, responseSender) -> {
+                ImplRemoteProcedureCall.clientHandlePacket(buf);
+            }
+        );
         
     }
     
@@ -131,7 +114,6 @@ public class MyNetworkClient {
     }
     
     public static void processRedirectedMessage(
-        PacketContext context,
         PacketByteBuf buf
     ) {
         RegistryKey<World> dimension = DimId.readWorldId(buf, true);
@@ -148,7 +130,7 @@ public class MyNetworkClient {
     }
     
     public static void processDimSync(
-        PacketContext context, PacketByteBuf buf
+        PacketByteBuf buf
     ) {
         CompoundTag idMap = buf.readCompoundTag();
         
@@ -162,7 +144,7 @@ public class MyNetworkClient {
         Helper.log("\n" + DimensionIdRecord.clientRecord);
     }
     
-    private static void processGlobalPortalUpdate(PacketContext context, PacketByteBuf buf) {
+    private static void processGlobalPortalUpdate(PacketByteBuf buf) {
         RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         CompoundTag compoundTag = buf.readCompoundTag();
         CHelper.executeOnRenderThread(() -> {

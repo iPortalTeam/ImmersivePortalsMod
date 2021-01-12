@@ -1,5 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.hiding_in_the_bushes.util.networking.ImplRemoteProcedureCall;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
@@ -49,6 +50,10 @@ public class MyNetwork {
         new Identifier("imm_ptl", "player_action");
     public static final Identifier id_ctsRightClick =
         new Identifier("imm_ptl", "right_click");
+    public static final Identifier id_stcRemote =
+        new Identifier("imm_ptl", "remote_stc");
+    public static final Identifier id_ctsRemote =
+        new Identifier("imm_ptl", "remote_cts");
     
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(
@@ -57,34 +62,27 @@ public class MyNetwork {
                 processCtsTeleport(player, buf);
             }
         );
-    
+        
         ServerPlayNetworking.registerGlobalReceiver(
             id_ctsPlayerAction,
             (server, player, handler, buf, responseSender) -> {
                 processCtsPlayerAction(player, buf);
             }
         );
-    
+        
         ServerPlayNetworking.registerGlobalReceiver(
             id_ctsRightClick,
             (server, player, handler, buf, responseSender) -> {
                 processCtsRightClick(player, buf);
             }
         );
-
-
-//        ServerSidePacketRegistry.INSTANCE.register(
-//            id_ctsTeleport,
-//            MyNetwork::processCtsTeleport
-//        );
-//        ServerSidePacketRegistry.INSTANCE.register(
-//            id_ctsPlayerAction,
-//            MyNetwork::processCtsPlayerAction
-//        );
-//        ServerSidePacketRegistry.INSTANCE.register(
-//            id_ctsRightClick,
-//            MyNetwork::processCtsRightClick
-//        );
+        
+        ServerPlayNetworking.registerGlobalReceiver(
+            id_ctsRemote,
+            (server, player, handler, buf, responseSender) -> {
+                ImplRemoteProcedureCall.serverHandlePacket(player, buf);
+            }
+        );
         
     }
     
