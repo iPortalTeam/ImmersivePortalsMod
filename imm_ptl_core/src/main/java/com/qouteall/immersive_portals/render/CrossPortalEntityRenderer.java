@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
+import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -302,7 +303,7 @@ public class CrossPortalEntityRenderer {
         if (!Global.renderYourselfInPortal) {
             return false;
         }
-        if (!PortalRendering.isRendering()) {
+        if (!WorldRenderInfo.isRendering()) {
             return false;
         }
         if (client.cameraEntity.world.getRegistryKey() == RenderStates.originalPlayerDimension) {

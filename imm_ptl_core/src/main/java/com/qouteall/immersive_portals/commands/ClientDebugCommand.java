@@ -538,7 +538,7 @@ public class ClientDebugCommand {
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
                     try {
-                        Class.forName("com.qouteall.imm_ptl_peripheral.test.GuiPortalTest")
+                        Class.forName("com.qouteall.imm_ptl_peripheral.test.ExampleGuiPortalRendering")
                             .getDeclaredMethod("open")
                             .invoke(null);
                     }
