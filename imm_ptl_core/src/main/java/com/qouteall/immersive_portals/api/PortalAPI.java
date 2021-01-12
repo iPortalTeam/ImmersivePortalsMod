@@ -1,9 +1,17 @@
 package com.qouteall.immersive_portals.api;
 
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalManipulation;
+import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -26,6 +34,21 @@ public class PortalAPI {
         );
     }
     
+    public static void setPortalOrthodoxShape(Portal portal, Direction facing, Box portalArea) {
+        Pair<Direction, Direction> directions = Helper.getPerpendicularDirections(facing);
+        
+        Vec3d areaSize = Helper.getBoxSize(portalArea);
+        
+        Box boxSurface = Helper.getBoxSurface(portalArea, facing);
+        Vec3d center = boxSurface.getCenter();
+        portal.updatePosition(center.x, center.y, center.z);
+        
+        portal.axisW = Vec3d.of(directions.getLeft().getVector());
+        portal.axisH = Vec3d.of(directions.getRight().getVector());
+        portal.width = Helper.getCoordinate(areaSize, directions.getLeft().getAxis());
+        portal.height = Helper.getCoordinate(areaSize, directions.getRight().getAxis());
+    }
+    
     public static void setPortalTransformation(
         Portal portal,
         RegistryKey<World> destinationDimension,
@@ -41,5 +64,33 @@ public class PortalAPI {
     
     public static void spawnServerEntity(Entity entity) {
         McHelper.spawnServerEntity(entity);
+    }
+    
+    public static <T extends Portal> T createReversePortal(T portal) {
+        return (T) PortalManipulation.createReversePortal(
+            portal, (EntityType<? extends Portal>) portal.getType()
+        );
+    }
+    
+    public static <T extends Portal> T createFlippedPortal(T portal) {
+        return (T) PortalManipulation.createFlippedPortal(
+            portal, (EntityType<? extends Portal>) portal.getType()
+        );
+    }
+    
+    public static <T extends Portal> T copyPortal(Portal portal, EntityType<T> entityType) {
+        return (T) PortalManipulation.copyPortal(portal, (EntityType<Portal>) entityType);
+    }
+    
+    public static void addGlobalPortal(
+        ServerWorld world, Portal portal
+    ) {
+        GlobalPortalStorage.get(world).addPortal(portal);
+    }
+    
+    public static void removeGlobalPortal(
+        ServerWorld world, Portal portal
+    ) {
+        GlobalPortalStorage.get(world).removePortal(portal);
     }
 }

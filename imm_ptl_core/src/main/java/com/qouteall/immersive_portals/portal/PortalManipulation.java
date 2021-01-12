@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.api.PortalAPI;
+import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -24,35 +26,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PortalManipulation {
-    public static void setPortalPosition(
-        Portal portal,
-        Vec3d center,
-        Vec3d axisW, Vec3d axisH,
-        double width, double height
-    ) {
-        portal.axisW = axisW.normalize();
-        portal.axisH = axisH.normalize();
-        portal.width = width;
-        portal.height = height;
-        portal.setPos(center.x, center.y, center.z);
-        portal.updateCache();
-    }
-    
-    public static void setPortalPositionByArea(
-        Portal portal,
-        Vec3d startPoint,
-        Vec3d wVec, Vec3d hVec
-    ) {
-        setPortalPosition(
-            portal,
-            startPoint.add(wVec.multiply(0.5)).add(hVec.multiply(0.5)),
-            wVec.normalize(),
-            hVec.normalize(),
-            wVec.length(),
-            hVec.length()
-        );
-    }
-    
     public static void setPortalTransformation(
         Portal portal,
         RegistryKey<World> destDim,
@@ -305,20 +278,9 @@ public class PortalManipulation {
     ) {
         T portal = entityType.create(fromWorld);
         
-        Pair<Direction, Direction> directions = Helper.getPerpendicularDirections(facing);
+        PortalAPI.setPortalOrthodoxShape(portal, facing, portalArea);
         
-        Vec3d areaSize = Helper.getBoxSize(portalArea);
-        
-        Box boxSurface = Helper.getBoxSurface(portalArea, facing);
-        Vec3d center = boxSurface.getCenter();
-        portal.updatePosition(center.x, center.y, center.z);
         portal.setDestination(destination);
-        
-        portal.axisW = Vec3d.of(directions.getLeft().getVector());
-        portal.axisH = Vec3d.of(directions.getRight().getVector());
-        portal.width = Helper.getCoordinate(areaSize, directions.getLeft().getAxis());
-        portal.height = Helper.getCoordinate(areaSize, directions.getRight().getAxis());
-        
         portal.dimensionTo = toWorld.getRegistryKey();
         
         return portal;
@@ -442,5 +404,19 @@ public class PortalManipulation {
         portal.height = height;
         
         return portal;
+    }
+    
+    public static DQuaternion getPortalOrientationQuaternion(
+        Vec3d axisW, Vec3d axisH
+    ) {
+        DQuaternion r1 = DQuaternion.getRotationBetween(
+            new Vec3d(1, 0, 0), axisW
+        );
+        
+        DQuaternion r2 = DQuaternion.getRotationBetween(
+            r1.rotate(new Vec3d(0, 1, 0)), axisH
+        );
+        
+        return r1.hamiltonProduct(r2);
     }
 }
