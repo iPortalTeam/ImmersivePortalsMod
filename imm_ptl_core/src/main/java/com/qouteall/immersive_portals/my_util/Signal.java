@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-//signal is a list of functions.
+// Similar to event, connect means subscribe, emit means posting event
 public class Signal {
     private List<Runnable> funcList = new ArrayList<>();
     private boolean isEmitting = false;

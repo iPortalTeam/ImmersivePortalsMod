@@ -897,8 +897,8 @@ public class ClientDebugCommand {
                 new int[]{777, 765}
             );
         });
-    
-        McHelper.getServer().execute(()->{
+        
+        McHelper.getServer().execute(() -> {
             RemoteProcedureCall.tellClientToInvoke(
                 player,
                 "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",

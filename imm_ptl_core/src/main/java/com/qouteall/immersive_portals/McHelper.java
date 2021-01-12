@@ -701,14 +701,18 @@ public class McHelper {
     
     /**
      * It will spawn even if the chunk is not loaded
-     * ServerWorld#addEntity(Entity)
+     * @link ServerWorld#addEntity(Entity)
      */
     public static void spawnServerEntity(Entity entity) {
         Validate.isTrue(!entity.world.isClient());
         
         entity.teleporting = true;
         
-        entity.world.spawnEntity(entity);
+        boolean spawned = entity.world.spawnEntity(entity);
+        
+        if (!spawned) {
+            Helper.err("Failed to spawn " + entity + entity.world);
+        }
         
         entity.teleporting = false;
     }

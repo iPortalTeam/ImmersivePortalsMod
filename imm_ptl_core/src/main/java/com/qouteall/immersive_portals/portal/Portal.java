@@ -172,7 +172,7 @@ public class Portal extends Entity implements PortalLike {
     public boolean renderingMergable = false;
     
     /**
-     *
+     * If false, the cross portal collision will be ignored
      */
     public boolean hasCrossPortalCollision = true;
     
@@ -192,19 +192,325 @@ public class Portal extends Entity implements PortalLike {
         super(entityType, world);
     }
     
-    
-    // Scaling does not interfere camera transformation
+    /**
+     * @param pos
+     * @return use the portal's transformation to transform a point
+     */
     @Override
-    @Nullable
-    public Matrix4f getAdditionalCameraTransformation() {
+    public Vec3d transformPoint(Vec3d pos) {
+        Vec3d localPos = pos.subtract(getOriginPos());
         
-        return PortalRenderer.getPortalTransformation(this);
+        return transformLocalVec(localPos).add(getDestPos());
+        
+    }
+    
+    /**
+     * Transform a vector in portal-centered coordinate (without translation transformation)
+     */
+    @Override
+    public Vec3d transformLocalVec(Vec3d localVec) {
+        return transformLocalVecNonScale(localVec).multiply(scaling);
+    }
+    
+    /**
+     * @return The normal vector of the portal plane
+     */
+    public Vec3d getNormal() {
+        if (normal == null) {
+            normal = axisW.crossProduct(axisH).normalize();
+        }
+        return normal;
+    }
+    
+    /**
+     * @return The direction of "portal content", the "direction" of the "inner world view"
+     */
+    public Vec3d getContentDirection() {
+        if (contentDirection == null) {
+            contentDirection = transformLocalVecNonScale(getNormal().multiply(-1));
+        }
+        return contentDirection;
+    }
+    
+    /**
+     * Will be invoked when an entity teleports through this portal on server side.
+     * This method can be overridden.
+     */
+    public void onEntityTeleportedOnServer(Entity entity) {
+        if (commandsOnTeleported != null) {
+            ServerCommandSource commandSource =
+                entity.getCommandSource().withLevel(4).withSilent();
+            
+            CommandManager commandManager = McHelper.getServer().getCommandManager();
+            for (String command : commandsOnTeleported) {
+                commandManager.execute(commandSource, command);
+            }
+        }
+    }
+    
+    /**
+     * Update the portal's cache and send the entity spawn packet to client again
+     */
+    public void reloadAndSyncToClient() {
+        Validate.isTrue(!isGlobalPortal);
+        Validate.isTrue(!world.isClient());
+        updateCache();
+        McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
     }
     
     
+    // TODO rename
+    public void updateCache() {
+        boolean updates =
+            boundingBoxCache != null || exactBoundingBoxCache != null ||
+                normal != null || contentDirection != null;
+        
+        boundingBoxCache = null;
+        exactBoundingBoxCache = null;
+        normal = null;
+        contentDirection = null;
+        
+        if (updates) {
+            portalCacheUpdateSignal.emit(this);
+        }
+    }
+    
+    
+    /**
+     * Determines whether the player should be able to reach through the portal or not.
+     * Can be overridden by a sub class.
+     *
+     * @return the interactability of the portal
+     */
+    public boolean isInteractable() {
+        return interactable;
+    }
+    
+    /**
+     * Changes the reach-through behavior of the portal.
+     *
+     * @param interactable the interactability of the portal
+     */
+    public void setInteractable(boolean interactable) {
+        this.interactable = interactable;
+    }
+    
     @Override
-    protected void initDataTracker() {
-        //do nothing
+    public void setPos(double x, double y, double z) {
+        boolean shouldUpdate = getX() != x || getY() != y || getZ() != z;
+        
+        super.setPos(x, y, z);
+        
+        if (shouldUpdate) {
+            updateCache();
+        }
+    }
+    
+    
+    private void initDefaultCullableRange() {
+        cullableXStart = -(width / 2);
+        cullableXEnd = (width / 2);
+        cullableYStart = -(height / 2);
+        cullableYEnd = (height / 2);
+    }
+    
+    public void initCullableRange(
+        double cullableXStart,
+        double cullableXEnd,
+        double cullableYStart,
+        double cullableYEnd
+    ) {
+        this.cullableXStart = Math.min(cullableXStart, cullableXEnd);
+        this.cullableXEnd = Math.max(cullableXStart, cullableXEnd);
+        this.cullableYStart = Math.min(cullableYStart, cullableYEnd);
+        this.cullableYEnd = Math.max(cullableYStart, cullableYEnd);
+    }
+    
+    @Override
+    public Packet<?> createSpawnPacket() {
+        return MyNetwork.createStcSpawnEntity(this);
+    }
+    
+    @Override
+    public boolean canBeSpectated(ServerPlayerEntity spectator) {
+        if (specificPlayerId == null) {
+            return true;
+        }
+        return spectator.getUuid().equals(specificPlayerId);
+    }
+    
+    @Override
+    public void tick() {
+        if (world.isClient) {
+            clientPortalTickSignal.emit(this);
+        }
+        else {
+            if (!isPortalValid()) {
+                Helper.log("removed invalid portal" + this);
+                remove();
+                return;
+            }
+            serverPortalTickSignal.emit(this);
+        }
+        
+        CollisionHelper.notifyCollidingPortals(this);
+    }
+    
+    @Override
+    public Box getBoundingBox() {
+        if (axisW == null) {
+            //avoid npe with pehkui
+            //pehkui will invoke this when axisW is not initialized
+            boundingBoxCache = null;
+            return new Box(0, 0, 0, 0, 0, 0);
+        }
+        if (boundingBoxCache == null) {
+            double w = width;
+            double h = height;
+            if (shouldLimitBoundingBox()) {
+                // avoid bounding box too big after converting global portal to normal portal
+                w = Math.min(this.width, 64.0);
+                h = Math.min(this.height, 64.0);
+            }
+            
+            boundingBoxCache = new Box(
+                getPointInPlane(w / 2, h / 2)
+                    .add(getNormal().multiply(0.2)),
+                getPointInPlane(-w / 2, -h / 2)
+                    .add(getNormal().multiply(-0.2))
+            ).union(new Box(
+                getPointInPlane(-w / 2, h / 2)
+                    .add(getNormal().multiply(0.2)),
+                getPointInPlane(w / 2, -h / 2)
+                    .add(getNormal().multiply(-0.2))
+            ));
+        }
+        return boundingBoxCache;
+    }
+    
+    protected boolean shouldLimitBoundingBox() {
+        return !getIsGlobal();
+    }
+    
+    // TODO rename
+    public Box getExactBoundingBox() {
+        if (exactBoundingBoxCache == null) {
+            exactBoundingBoxCache = new Box(
+                getPointInPlane(width / 2, height / 2)
+                    .add(getNormal().multiply(0.02)),
+                getPointInPlane(-width / 2, -height / 2)
+                    .add(getNormal().multiply(-0.02))
+            ).union(new Box(
+                getPointInPlane(-width / 2, height / 2)
+                    .add(getNormal().multiply(0.02)),
+                getPointInPlane(width / 2, -height / 2)
+                    .add(getNormal().multiply(-0.02))
+            ));
+        }
+        
+        return exactBoundingBoxCache;
+    }
+    
+    @Override
+    public void setBoundingBox(Box boundingBox) {
+        boundingBoxCache = null;
+    }
+    
+    @Override
+    public void move(MovementType type, Vec3d movement) {
+        //portal cannot be moved
+    }
+    
+    /**
+     * Invalid portals will be automatically removed
+     */
+    public boolean isPortalValid() {
+        boolean valid = dimensionTo != null &&
+            width != 0 &&
+            height != 0 &&
+            axisW != null &&
+            axisH != null &&
+            getDestPos() != null &&
+            axisW.lengthSquared() > 0.9 &&
+            axisH.lengthSquared() > 0.9;
+        if (valid) {
+            if (world instanceof ServerWorld) {
+                ServerWorld destWorld = McHelper.getServer().getWorld(dimensionTo);
+                if (destWorld == null) {
+                    Helper.err("Missing Dimension " + dimensionTo.getValue());
+                    return false;
+                }
+            }
+        }
+        return valid;
+    }
+    
+    /**
+     * @return A UUID for discriminating portal rendering units.
+     */
+    @Nullable
+    @Override
+    public UUID getDiscriminator() {
+        return getUuid();
+    }
+    
+    
+    /**
+     * @return The portal center
+     */
+    @Override
+    public Vec3d getOriginPos() {
+        return getPos();
+    }
+    
+    /**
+     * @return The destination position
+     */
+    @Override
+    public Vec3d getDestPos() {
+        return destination;
+    }
+    
+    /**
+     * Set the portal's center position
+     */
+    public void setOriginPos(Vec3d pos) {
+        updatePosition(pos.x, pos.y, pos.z);
+        // it will call setPos and update the cache
+    }
+    
+    public void setDestinationDimension(RegistryKey<World> dim) {
+        dimensionTo = dim;
+    }
+    
+    /**
+     * Set the portal's destination
+     */
+    public void setDestination(Vec3d destination) {
+        this.destination = destination;
+        updateCache();
+    }
+    
+    @Override
+    public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
+        if (this instanceof Mirror) {
+            //rendering portal behind translucent objects with shader is broken
+            double mirrorOffset =
+                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
+            posInPlayerCoordinate = posInPlayerCoordinate.add(
+                ((Mirror) this).getNormal().multiply(mirrorOffset));
+        }
+        
+        ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
+    }
+    
+    @Override
+    public boolean isFuseView() {
+        return fuseView;
+    }
+    
+    public boolean isRenderingMergable() {
+        return renderingMergable;
     }
     
     @Override
@@ -364,230 +670,6 @@ public class Portal extends Entity implements PortalLike {
         
     }
     
-    public boolean canDoOuterFrustumCulling() {
-        if (isFuseView()) {
-            return false;
-        }
-        if (specialShape == null) {
-            initDefaultCullableRange();
-        }
-        return cullableXStart != cullableXEnd;
-    }
-    
-    // use canTeleportEntity
-    // TODO remove
-    @Deprecated
-    public boolean isTeleportable() {
-        return teleportable;
-    }
-    
-    /**
-     * Determines whether the player should be able to reach through the portal or not.
-     * Can be overridden by a sub class.
-     *
-     * @return the interactability of the portal
-     */
-    public boolean isInteractable() {
-        return interactable;
-    }
-    
-    /**
-     * Changes the reach-through behavior of the portal.
-     *
-     * @param interactable the interactability of the portal
-     */
-    public void setInteractable(boolean interactable) {
-        this.interactable = interactable;
-    }
-    
-    @Override
-    public void setPos(double x, double y, double z) {
-        boolean shouldUpdate = getX() != x || getY() != y || getZ() != z;
-        
-        super.setPos(x, y, z);
-        
-        if (shouldUpdate) {
-            updateCache();
-        }
-    }
-    
-    // TODO rename
-    public void updateCache() {
-        boundingBoxCache = null;
-        exactBoundingBoxCache = null;
-        normal = null;
-        contentDirection = null;
-        portalCacheUpdateSignal.emit(this);
-    }
-    
-    private void initDefaultCullableRange() {
-        cullableXStart = -(width / 2);
-        cullableXEnd = (width / 2);
-        cullableYStart = -(height / 2);
-        cullableYEnd = (height / 2);
-    }
-    
-    public void initCullableRange(
-        double cullableXStart,
-        double cullableXEnd,
-        double cullableYStart,
-        double cullableYEnd
-    ) {
-        this.cullableXStart = Math.min(cullableXStart, cullableXEnd);
-        this.cullableXEnd = Math.max(cullableXStart, cullableXEnd);
-        this.cullableYStart = Math.min(cullableYStart, cullableYEnd);
-        this.cullableYEnd = Math.max(cullableYStart, cullableYEnd);
-    }
-    
-    @Override
-    public Packet<?> createSpawnPacket() {
-        return MyNetwork.createStcSpawnEntity(this);
-    }
-    
-    @Override
-    public boolean canBeSpectated(ServerPlayerEntity spectator) {
-        if (specificPlayerId == null) {
-            return true;
-        }
-        return spectator.getUuid().equals(specificPlayerId);
-    }
-    
-    @Override
-    public void tick() {
-        if (world.isClient) {
-            clientPortalTickSignal.emit(this);
-        }
-        else {
-            if (!isPortalValid()) {
-                Helper.log("removed invalid portal" + this);
-                remove();
-                return;
-            }
-            serverPortalTickSignal.emit(this);
-        }
-        
-        CollisionHelper.notifyCollidingPortals(this);
-    }
-    
-    @Override
-    public Box getBoundingBox() {
-        if (axisW == null) {
-            //avoid npe with pehkui
-            //pehkui will invoke this when axisW is not initialized
-            boundingBoxCache = null;
-            return new Box(0, 0, 0, 0, 0, 0);
-        }
-        if (boundingBoxCache == null) {
-            double w = width;
-            double h = height;
-            if (shouldLimitBoundingBox()) {
-                // avoid bounding box too big after converting global portal to normal portal
-                w = Math.min(this.width, 64.0);
-                h = Math.min(this.height, 64.0);
-            }
-            
-            boundingBoxCache = new Box(
-                getPointInPlane(w / 2, h / 2)
-                    .add(getNormal().multiply(0.2)),
-                getPointInPlane(-w / 2, -h / 2)
-                    .add(getNormal().multiply(-0.2))
-            ).union(new Box(
-                getPointInPlane(-w / 2, h / 2)
-                    .add(getNormal().multiply(0.2)),
-                getPointInPlane(w / 2, -h / 2)
-                    .add(getNormal().multiply(-0.2))
-            ));
-        }
-        return boundingBoxCache;
-    }
-    
-    protected boolean shouldLimitBoundingBox() {
-        return !getIsGlobal();
-    }
-    
-    // TODO rename
-    public Box getExactBoundingBox() {
-        if (exactBoundingBoxCache == null) {
-            exactBoundingBoxCache = new Box(
-                getPointInPlane(width / 2, height / 2)
-                    .add(getNormal().multiply(0.02)),
-                getPointInPlane(-width / 2, -height / 2)
-                    .add(getNormal().multiply(-0.02))
-            ).union(new Box(
-                getPointInPlane(-width / 2, height / 2)
-                    .add(getNormal().multiply(0.02)),
-                getPointInPlane(width / 2, -height / 2)
-                    .add(getNormal().multiply(-0.02))
-            ));
-        }
-        
-        return exactBoundingBoxCache;
-    }
-    
-    @Override
-    public void setBoundingBox(Box boundingBox) {
-        boundingBoxCache = null;
-    }
-    
-    @Override
-    public void move(MovementType type, Vec3d movement) {
-        //portal cannot be moved
-    }
-    
-    /**
-     * Invalid portals will be automatically removed
-     */
-    public boolean isPortalValid() {
-        boolean valid = dimensionTo != null &&
-            width != 0 &&
-            height != 0 &&
-            axisW != null &&
-            axisH != null &&
-            getDestPos() != null &&
-            axisW.lengthSquared() > 0.9 &&
-            axisH.lengthSquared() > 0.9;
-        if (valid) {
-            if (world instanceof ServerWorld) {
-                ServerWorld destWorld = McHelper.getServer().getWorld(dimensionTo);
-                if (destWorld == null) {
-                    Helper.err("Missing Dimension " + dimensionTo.getValue());
-                    return false;
-                }
-            }
-        }
-        return valid;
-    }
-    
-    /**
-     * @return A UUID for discriminating portal rendering units.
-     */
-    @Nullable
-    @Override
-    public UUID getDiscriminator() {
-        return getUuid();
-    }
-    
-    public void onEntityTeleportedOnServer(Entity entity) {
-        if (commandsOnTeleported != null) {
-            ServerCommandSource commandSource =
-                entity.getCommandSource().withLevel(4).withSilent();
-            
-            CommandManager commandManager = McHelper.getServer().getCommandManager();
-            for (String command : commandsOnTeleported) {
-                commandManager.execute(commandSource, command);
-            }
-        }
-    }
-    
-    /**
-     * Update the portal's cache and send the entity spawn packet to client again
-     */
-    public void reloadAndSyncToClient() {
-        Validate.isTrue(!isGlobalPortal);
-        Validate.isTrue(!world.isClient());
-        updateCache();
-        McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
-    }
     
     @Override
     public String toString() {
@@ -653,25 +735,6 @@ public class Portal extends Entity implements PortalLike {
         return entity.canUsePortals();
     }
     
-    /**
-     * @return The normal vector of the portal plane
-     */
-    public Vec3d getNormal() {
-        if (normal == null) {
-            normal = axisW.crossProduct(axisH).normalize();
-        }
-        return normal;
-    }
-    
-    /**
-     * @return The direction of "portal content", the "direction" of the "inner world view"
-     */
-    public Vec3d getContentDirection() {
-        if (contentDirection == null) {
-            contentDirection = transformLocalVecNonScale(getNormal().multiply(-1));
-        }
-        return contentDirection;
-    }
     
     /**
      * @param pos
@@ -781,18 +844,6 @@ public class Portal extends Entity implements PortalLike {
         return pos.add(offset);
     }
     
-    /**
-     * @param pos
-     * @return use the portal's transformation to transform a point
-     */
-    @Override
-    public Vec3d transformPoint(Vec3d pos) {
-        Vec3d localPos = pos.subtract(getOriginPos());
-        
-        return transformLocalVec(localPos).add(getDestPos());
-        
-    }
-    
     public Vec3d transformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
             return localVec;
@@ -804,13 +855,6 @@ public class Portal extends Entity implements PortalLike {
         return new Vec3d(temp);
     }
     
-    /**
-     * Transform a vector in portal-centered coordinate (without translation transformation)
-     */
-    @Override
-    public Vec3d transformLocalVec(Vec3d localVec) {
-        return transformLocalVecNonScale(localVec).multiply(scaling);
-    }
     
     public Vec3d inverseTransformLocalVecNonScale(Vec3d localVec) {
         if (rotation == null) {
@@ -1003,36 +1047,25 @@ public class Portal extends Entity implements PortalLike {
         return matrix3f;
     }
     
-    /**
-     * @return The portal center
-     */
-    @Override
-    public Vec3d getOriginPos() {
-        return getPos();
-    }
-
-    /**
-     * @return The destination position
-     */
-    @Override
-    public Vec3d getDestPos() {
-        return destination;
-    }
-    
-    /**
-     * Set the portal's center position
-     */
-    public void setOriginPos(Vec3d pos) {
-        updatePosition(pos.x, pos.y, pos.z);
+    public void setSquareShape(
+        Vec3d newAxisW, Vec3d newAxisH,
+        double newWidth, double newHeight
+    ) {
+        axisW = newAxisW;
+        axisH = newAxisH;
+        width = newWidth;
+        height = newHeight;
+        
         updateCache();
     }
     
-    /**
-     * Set the portal's destination
-     */
-    public void setDestination(Vec3d destination) {
-        this.destination = destination;
+    public void setRotationTransformation(Quaternion quaternion) {
+        rotation = quaternion;
         updateCache();
+    }
+    
+    public void setScaleTransformation(double newScale) {
+        scaling = newScale;
     }
     
     @Override
@@ -1095,18 +1128,6 @@ public class Portal extends Entity implements PortalLike {
         return getFourVerticesLocalCullable(0);
     }
     
-    @Override
-    public void renderViewAreaMesh(Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
-        if (this instanceof Mirror) {
-            //rendering portal behind translucent objects with shader is broken
-            double mirrorOffset =
-                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
-            posInPlayerCoordinate = posInPlayerCoordinate.add(
-                ((Mirror) this).getNormal().multiply(mirrorOffset));
-        }
-        
-        ViewAreaRenderer.generateViewAreaTriangles(this, posInPlayerCoordinate, vertexOutput);
-    }
     
     // function return true for culled
     @Environment(EnvType.CLIENT)
@@ -1231,14 +1252,6 @@ public class Portal extends Entity implements PortalLike {
         }
     }
     
-    @Override
-    public boolean isFuseView() {
-        return fuseView;
-    }
-    
-    public boolean isRenderingMergable() {
-        return renderingMergable;
-    }
     
     @Override
     public void calculateDimensions() {
@@ -1250,5 +1263,36 @@ public class Portal extends Entity implements PortalLike {
         return 0;
     }
     
+    
+    // Scaling does not interfere camera transformation
+    @Override
+    @Nullable
+    public Matrix4f getAdditionalCameraTransformation() {
+        
+        return PortalRenderer.getPortalTransformation(this);
+    }
+    
+    
+    @Override
+    protected void initDataTracker() {
+        //do nothing
+    }
+    
+    public boolean canDoOuterFrustumCulling() {
+        if (isFuseView()) {
+            return false;
+        }
+        if (specialShape == null) {
+            initDefaultCullableRange();
+        }
+        return cullableXStart != cullableXEnd;
+    }
+    
+    // use canTeleportEntity
+    // TODO remove
+    @Deprecated
+    public boolean isTeleportable() {
+        return teleportable;
+    }
     
 }
