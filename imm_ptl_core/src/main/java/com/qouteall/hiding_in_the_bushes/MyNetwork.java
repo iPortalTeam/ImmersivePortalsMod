@@ -80,7 +80,9 @@ public class MyNetwork {
         ServerPlayNetworking.registerGlobalReceiver(
             id_ctsRemote,
             (server, player, handler, buf, responseSender) -> {
-                ImplRemoteProcedureCall.serverHandlePacket(player, buf);
+                McHelper.executeOnServerThread(() -> {
+                    ImplRemoteProcedureCall.serverHandlePacket(player, buf);
+                });
             }
         );
         

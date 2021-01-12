@@ -78,7 +78,9 @@ public class MyNetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcRemote,
             (c, handler, buf, responseSender) -> {
-                ImplRemoteProcedureCall.clientHandlePacket(buf);
+                CHelper.executeOnRenderThread(() -> {
+                    ImplRemoteProcedureCall.clientHandlePacket(buf);
+                });
             }
         );
         

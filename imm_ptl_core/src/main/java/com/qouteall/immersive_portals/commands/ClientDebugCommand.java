@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.qouteall.hiding_in_the_bushes.util.networking.RemoteProcedureCall;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
@@ -23,22 +24,37 @@ import com.qouteall.immersive_portals.render.PortalRenderingGroup;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.ProfilerSystem;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -54,6 +70,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -550,6 +567,13 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
+        builder.then(CommandManager
+            .literal("remote_procedure_call_test")
+            .executes(context -> {
+                testRemoteProcedureCall(context.getSource().getPlayer());
+                return 0;
+            })
+        );
         registerSwitchCommand(
             builder,
             "front_clipping",
@@ -834,4 +858,55 @@ public class ClientDebugCommand {
         return 0;
     }
     
+    public static class TestRemoteCallable {
+        public static void serverToClient(
+            String str, int integer, double doubleNum, Identifier identifier,
+            RegistryKey<World> dimension, RegistryKey<Biome> biomeKey,
+            BlockPos blockPos, Vec3d vec3d
+        ) {
+            Helper.log(str + integer + doubleNum + identifier + dimension + biomeKey + blockPos + vec3d);
+        }
+        
+        public static void clientToServer(
+            ServerPlayerEntity player,
+            UUID uuid,
+            Block block, BlockState blockState,
+            Item item, ItemStack itemStack,
+            CompoundTag compoundTag, Text text, int[] intArray
+        ) {
+            Helper.log(
+                player.getName().asString() + uuid + block + blockState + item + itemStack
+                    + compoundTag + text + Arrays.toString(intArray)
+            );
+        }
+    }
+    
+    private static void testRemoteProcedureCall(ServerPlayerEntity player) {
+        MinecraftClient.getInstance().execute(() -> {
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.put("test", IntTag.of(7));
+            RemoteProcedureCall.tellServerToInvoke(
+                "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.clientToServer",
+                new UUID(3, 3),
+                Blocks.ACACIA_PLANKS,
+                Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, Direction.Axis.Z),
+                Items.COMPASS,
+                new ItemStack(Items.ACACIA_LOG, 2),
+                compoundTag,
+                new LiteralText("test"),
+                new int[]{777, 765}
+            );
+        });
+    
+        McHelper.getServer().execute(()->{
+            RemoteProcedureCall.tellClientToInvoke(
+                player,
+                "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",
+                "string", 2, 3.5, new Identifier("imm_ptl:oops"),
+                World.NETHER, BiomeKeys.JUNGLE,
+                new BlockPos(3, 5, 4),
+                new Vec3d(7, 4, 1)
+            );
+        });
+    }
 }
