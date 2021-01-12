@@ -3,10 +3,12 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import com.qouteall.immersive_portals.render.context_management.WorldRendering;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import org.apache.commons.lang3.Validate;
 
@@ -15,6 +17,8 @@ import java.util.HashMap;
 
 @Environment(EnvType.CLIENT)
 public class GuiPortalRendering {
+    private static final LimitedLogger limitedLogger = new LimitedLogger(10);
+    
     @Nullable
     private static Framebuffer renderingFrameBuffer = null;
     
@@ -23,7 +27,7 @@ public class GuiPortalRendering {
         return renderingFrameBuffer;
     }
     
-    public static boolean isRendering(){
+    public static boolean isRendering() {
         return getRenderingFrameBuffer() != null;
     }
     
@@ -57,13 +61,13 @@ public class GuiPortalRendering {
         ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(mcFb);
         
         mcFb.beginWrite(true);
-    
+        
         renderingFrameBuffer = null;
         
         MyRenderHelper.restoreViewPort();
         
         CHelper.checkGlError();
-    
+        
         RenderStates.projectionMatrix = null;
     }
     
@@ -76,6 +80,10 @@ public class GuiPortalRendering {
         Validate.isTrue(!renderingTasks.containsKey(renderTarget));
         
         renderingTasks.put(renderTarget, worldRendering);
+        
+        if (MinecraftClient.isFabulousGraphicsOrBetter()) {
+            limitedLogger.err("GUI Portal Rendering is Currently Problematic with Fabulous Graphics!");
+        }
     }
     
     // Not API
