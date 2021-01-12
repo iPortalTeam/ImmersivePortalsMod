@@ -64,7 +64,6 @@ public class MyNetworkClient {
             MyNetwork.id_stcDimensionConfirm,
             (c, handler, buf, responseSender) -> {
                 processStcDimensionConfirm(null, buf);
-                
             }
         );
         
@@ -78,9 +77,9 @@ public class MyNetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(
             MyNetwork.id_stcRemote,
             (c, handler, buf, responseSender) -> {
-                CHelper.executeOnRenderThread(() -> {
-                    ImplRemoteProcedureCall.clientHandlePacket(buf);
-                });
+                CHelper.executeOnRenderThread(
+                    ImplRemoteProcedureCall.clientReadFunctionAndArguments(buf)
+                );
             }
         );
         

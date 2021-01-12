@@ -3,8 +3,11 @@ package com.qouteall.hiding_in_the_bushes.util.networking;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -28,11 +31,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.apache.commons.lang3.Validate;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -45,6 +48,8 @@ public class ImplRemoteProcedureCall {
     
     private static final ImmutableMap<Class, BiConsumer<PacketByteBuf, Object>> serializerMap;
     private static final ImmutableMap<Type, Function<PacketByteBuf, Object>> deserializerMap;
+    
+    private static final JsonParser jsonParser = new JsonParser();
     
     static {
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -61,10 +66,10 @@ public class ImplRemoteProcedureCall {
                 buf.writeDouble(vec.z);
             })
             .put(UUID.class, (buf, o) -> buf.writeUuid(((UUID) o)))
-            .put(Block.class, (buf, o) -> serialize(buf, Registry.BLOCK))
-            .put(Item.class, (buf, o) -> serialize(buf, Registry.ITEM))
-            .put(BlockState.class, (buf, o) -> serialize(buf, BlockState.CODEC))
-            .put(ItemStack.class, (buf, o) -> serialize(buf, ItemStack.CODEC))
+            .put(Block.class, (buf, o) -> serializeByCodec(buf, Registry.BLOCK, o))
+            .put(Item.class, (buf, o) -> serializeByCodec(buf, Registry.ITEM, o))
+            .put(BlockState.class, (buf, o) -> serializeByCodec(buf, BlockState.CODEC, o))
+            .put(ItemStack.class, (buf, o) -> serializeByCodec(buf, ItemStack.CODEC, o))
             .put(CompoundTag.class, (buf, o) -> buf.writeCompoundTag(((CompoundTag) o)))
             .put(Text.class, (buf, o) -> buf.writeText(((Text) o)))
             .build();
@@ -98,12 +103,18 @@ public class ImplRemoteProcedureCall {
     }
     
     private static Object deserializeByCodec(PacketByteBuf buf, Codec codec) {
-        try {
-            return buf.decode(codec);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String jsonString = buf.readString();
+        JsonElement jsonElement = jsonParser.parse(jsonString);
+        
+        return codec.parse(JsonOps.INSTANCE, jsonElement).getOrThrow(
+            false, e -> {throw new RuntimeException(e.toString());}
+        );
+//        try {
+//            return buf.decode(codec);
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
     
     private static Object deserialize(PacketByteBuf buf, Type type) {
@@ -118,6 +129,13 @@ public class ImplRemoteProcedureCall {
     
     private static void serialize(PacketByteBuf buf, Object object) {
         BiConsumer<PacketByteBuf, Object> serializer = serializerMap.get(object.getClass());
+        
+        if (serializer == null) {
+            serializer = serializerMap.entrySet().stream().filter(
+                e -> e.getKey().isAssignableFrom(object.getClass())
+            ).findFirst().map(Map.Entry::getValue).orElse(null);
+        }
+        
         if (serializer == null) {
             String json = gson.toJson(object);
             buf.writeString(json);
@@ -128,12 +146,21 @@ public class ImplRemoteProcedureCall {
     }
     
     private static void serializeByCodec(PacketByteBuf buf, Codec codec, Object object) {
-        try {
-            buf.encode(codec, object);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        JsonElement result = (JsonElement) codec.encodeStart(JsonOps.INSTANCE, object).getOrThrow(
+            false, e -> {
+                throw new RuntimeException(e.toString());
+            }
+        );
+        
+        String jsonString = gson.toJson(result);
+        buf.writeString(jsonString);
+
+//        try {
+//            buf.encode(codec, object);
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
     
     @Environment(EnvType.CLIENT)
@@ -160,7 +187,7 @@ public class ImplRemoteProcedureCall {
     }
     
     @Environment(EnvType.CLIENT)
-    public static void clientHandlePacket(PacketByteBuf buf) {
+    public static Runnable clientReadFunctionAndArguments(PacketByteBuf buf) {
         String methodPath = buf.readString();
         
         Method method = getMethodByPath(methodPath);
@@ -171,46 +198,45 @@ public class ImplRemoteProcedureCall {
         
         for (int i = 0; i < genericParameterTypes.length; i++) {
             Type parameterType = genericParameterTypes[i];
-            String str = buf.readString();
-            Object obj = deserializeObjectFromJson(parameterType, str);
+            Object obj = deserialize(buf, parameterType);
             arguments[i] = obj;
         }
         
-        try {
-            method.invoke(null, arguments);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        return () -> {
+            try {
+                method.invoke(null, arguments);
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
     
-    public static Object deserializeObjectFromJson(Type parameterType, String str) {
-        return gson.fromJson(str, parameterType);
-    }
-    
-    public static void serverHandlePacket(ServerPlayerEntity player, PacketByteBuf buf) {
+    public static Runnable serverReadFunctionAndArguments(ServerPlayerEntity player, PacketByteBuf buf) {
         String methodPath = buf.readString();
         
         Method method = getMethodByPath(methodPath);
         
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         
-        Object[] arguments = new Object[genericParameterTypes.length + 1];
+        Object[] arguments = new Object[genericParameterTypes.length];
         arguments[0] = player;
         
-        for (int i = 0; i < genericParameterTypes.length; i++) {
+        //the first argument is the player
+        for (int i = 1; i < genericParameterTypes.length; i++) {
             Type parameterType = genericParameterTypes[i];
-            String str = buf.readString();
-            Object obj = deserializeObjectFromJson(parameterType, str);
-            arguments[i + 1] = obj;
+            Object obj = deserialize(buf, parameterType);
+            arguments[i] = obj;
         }
         
-        try {
-            method.invoke(null, arguments);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        return () -> {
+            try {
+                method.invoke(null, arguments);
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
     
     private static void serializeStringWithArguments(
@@ -218,11 +244,8 @@ public class ImplRemoteProcedureCall {
     ) {
         buf.writeString(methodPath);
         
-        Object[] argumentArray = arguments;
-        
-        for (Object obj : argumentArray) {
-            String jsonInfo = gson.toJson(obj);
-            buf.writeString(jsonInfo);
+        for (Object argument : arguments) {
+            serialize(buf, argument);
         }
     }
     
@@ -256,7 +279,20 @@ public class ImplRemoteProcedureCall {
             aClass = Class.forName(classPath);
         }
         catch (ClassNotFoundException e) {
-            throw new RuntimeException("Cannot find class " + classPath, e);
+            int dotIndex = classPath.lastIndexOf('.');
+            if (dotIndex != -1) {
+                String newClassPath =
+                    classPath.substring(0, dotIndex) + "$" + classPath.substring(dotIndex + 1);
+                try {
+                    aClass = Class.forName(newClassPath);
+                }
+                catch (ClassNotFoundException e1) {
+                    throw new RuntimeException("Cannot find class " + classPath, e);
+                }
+            }
+            else {
+                throw new RuntimeException("Cannot find class " + classPath, e);
+            }
         }
         
         Method method = Arrays.stream(aClass.getMethods()).filter(
