@@ -24,3 +24,4 @@ Accessible method net/minecraft/world/GameRules register (Ljava/lang/String;Lnet
 Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minecraft/world/GameRules$Type;
 
 
+accessible method net/minecraft/util/dynamic/RegistryOps <init> (Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/util/dynamic/RegistryOps$EntryLoader;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Ljava/util/IdentityHashMap;)V

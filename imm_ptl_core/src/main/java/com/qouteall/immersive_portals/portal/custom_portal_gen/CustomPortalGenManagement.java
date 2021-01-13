@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.portal.custom_portal_gen;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
@@ -13,6 +14,7 @@ import com.qouteall.immersive_portals.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -48,12 +50,14 @@ public class CustomPortalGenManagement {
         DynamicRegistryManager.Impl registryTracker =
             ((DynamicRegistryManager.Impl) server.getRegistryManager());
         
-        RegistryOps<JsonElement> registryOps =
-            RegistryOps.of(
-                JsonOps.INSTANCE,
-                server.serverResourceManager.getResourceManager(),
-                registryTracker
-            );
+        ResourceManager resourceManager = server.serverResourceManager.getResourceManager();
+        
+        RegistryOps<JsonElement> registryOps = new RegistryOps<>(
+            JsonOps.INSTANCE,
+            RegistryOps.EntryLoader.resourceBacked(resourceManager),
+            registryTracker,
+            Maps.newIdentityHashMap()
+        );
         
         SimpleRegistry<CustomPortalGeneration> emptyRegistry = new SimpleRegistry<>(
             CustomPortalGeneration.registryRegistryKey,
