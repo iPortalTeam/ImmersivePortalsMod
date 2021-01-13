@@ -208,8 +208,6 @@ public class CustomPortalGenManagement {
             
             for (CustomPortalGeneration gen : convGen) {
                 boolean succeeded = gen.perform(startWorld, startPos, player);
-//                IntBox box = new IntBox(startPos.add(-1, -1, -1), startPos.add(1, 1, 1));
-//                boolean succeeded = box.stream().anyMatch(pos -> gen.perform(startWorld, pos, player));
                 
                 if (succeeded) {
                     playerPosBeforeTravel.remove(uuid);

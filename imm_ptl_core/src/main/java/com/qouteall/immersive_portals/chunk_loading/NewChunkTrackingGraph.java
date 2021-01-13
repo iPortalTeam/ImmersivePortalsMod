@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -141,6 +142,9 @@ public class NewChunkTrackingGraph {
     }
     
     public static void updateForPlayer(ServerPlayerEntity player) {
+        ((IEEntity) player).portal_requestUpdateChunkPos();
+        ((ServerWorld) player.world).checkEntityChunkPos(player);
+        
         PlayerInfo playerInfo = getPlayerInfo(player);
         playerInfo.visibleDimensions.clear();
         

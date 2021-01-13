@@ -240,7 +240,7 @@ public class ChunkVisibilityManager {
     public static Stream<ChunkLoader> getBaseChunkLoaders(
         ServerPlayerEntity player
     ) {
-        ((ServerWorld) player.world).checkEntityChunkPos(player);
+        
         return Streams.concat(
             Stream.of(playerDirectLoader(player)),
             

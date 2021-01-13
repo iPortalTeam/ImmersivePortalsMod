@@ -79,10 +79,14 @@ public class ChunkDataSyncManager {
                 ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
                 
                 McHelper.getServer().getProfiler().pop();
+                
+                return;
             }
         }
         //if the chunk is not present then the packet will be sent when chunk is ready
         
+        //test
+//        Helper.log("chunk not ready" + chunkPos);
     }
     
     /**
@@ -91,6 +95,9 @@ public class ChunkDataSyncManager {
     public void onChunkProvidedDeferred(WorldChunk chunk) {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
+        
+        //test
+//        Helper.log("deferred chunk " + chunk.getPos() + chunk.getWorld());
         
         McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         

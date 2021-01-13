@@ -59,6 +59,9 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     public boolean inanimate;
     
+    @Shadow
+    private boolean chunkPosUpdateRequested;
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
@@ -204,5 +207,10 @@ public abstract class MixinEntity implements IEEntity {
     @Override
     public boolean isRecentlyCollidingWithPortal() {
         return (world.getTime() - collidingPortalActiveTickTime) < 20;
+    }
+    
+    @Override
+    public void portal_requestUpdateChunkPos() {
+        chunkPosUpdateRequested = true;
     }
 }
