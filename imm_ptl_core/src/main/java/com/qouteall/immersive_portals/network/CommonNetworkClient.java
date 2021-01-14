@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.my_util.SignalArged;
@@ -13,6 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -20,6 +22,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Packet;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Optional;
 
@@ -88,20 +91,29 @@ public class CommonNetworkClient {
     
     public static void withSwitchedWorld(ClientWorld newWorld, Runnable runnable) {
         ClientWorld originalWorld = client.world;
-        //some packet handling may use mc.world so switch it
+        WorldRenderer originalWorldRenderer = client.worldRenderer;
+        
+        WorldRenderer newWorldRenderer = ClientWorldLoader.getWorldRenderer(newWorld.getRegistryKey());
+        
+        Validate.notNull(newWorldRenderer);
+        
         client.world = newWorld;
         ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
+        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         
         try {
             runnable.run();
         }
         finally {
             if (client.world != newWorld) {
-                Helper.err("oops, respawn packet should not be redirected");
+                Helper.err("Respawn packet should not be redirected");
                 originalWorld = client.world;
+                originalWorldRenderer = client.worldRenderer;
+                throw new RuntimeException("Respawn packet should not be redirected");
             }
             
             client.world = originalWorld;
+            ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
             ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
         }
     }
