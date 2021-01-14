@@ -119,6 +119,10 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.enable_nether_portal_overlay"),
                 currConfig.netherPortalOverlay
             ).setDefaultValue(false).build();
+            BooleanListEntry entryIncreaseLoadingRangeGradually = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.increase_loading_range_gradually"),
+                currConfig.graduallyIncreaseLoadingRange
+            ).setDefaultValue(true).build();
             IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
                 currConfig.chunkUnloadDelayTicks,
@@ -171,6 +175,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryLooseMovementCheck);
             serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
             serverSide.addEntry(entryMirrorInteractableThroughPortal);
+            serverSide.addEntry(entryIncreaseLoadingRangeGradually);
             
             return builder
                 .setParentScreen(parent)

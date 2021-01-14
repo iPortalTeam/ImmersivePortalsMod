@@ -42,6 +42,7 @@ public class MyConfig {
     public int chunkUnloadDelayTicks = 15 * 20;
     public boolean forceMergePortalRendering = false;
     public boolean netherPortalOverlay = false;
+    public boolean graduallyIncreaseLoadingRange = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
     public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
@@ -157,6 +158,8 @@ public class MyConfig {
         Global.forceMergePortalRendering = forceMergePortalRendering;
     
         Global.netherPortalOverlay = netherPortalOverlay;
+    
+        Global.serverSmoothLoading = graduallyIncreaseLoadingRange;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

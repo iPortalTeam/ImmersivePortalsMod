@@ -11,10 +11,16 @@ import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.ChunkBlockLightProvider;
+import net.minecraft.world.chunk.light.ChunkLightingView;
 
 import java.util.function.Supplier;
 
@@ -24,6 +30,8 @@ import java.util.function.Supplier;
 public class ChunkDataSyncManager {
     
     private static final int unloadWaitingTickTime = 20 * 10;
+    
+    private static final boolean debugLightStatus = true;
     
     public ChunkDataSyncManager() {
         NewChunkTrackingGraph.beginWatchChunkSignal.connectWithWeakRef(
@@ -58,6 +66,8 @@ public class ChunkDataSyncManager {
             if (chunk != null) {
                 McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
+                debugCheckLight(chunk);
+                
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         chunkPos.dimension,
@@ -89,12 +99,37 @@ public class ChunkDataSyncManager {
 //        Helper.log("chunk not ready" + chunkPos);
     }
     
+    private void debugCheckLight(WorldChunk chunk) {
+        if (!debugLightStatus) {
+            return;
+        }
+        
+        if (!chunk.isLightOn()) {
+            Helper.err("Sending light update when the light is not on " + chunk.getPos());
+            new Throwable().printStackTrace();
+        }
+        
+        ChunkLightingView chunkLightingView =
+            ((ServerLightingProvider) chunk.getWorld().getLightingProvider()).get(LightType.BLOCK);
+        
+        ChunkNibbleArray lightSection = ((ChunkBlockLightProvider) chunkLightingView).getLightSection(
+            ChunkSectionPos.from(chunk.getPos(), 0)
+        );
+        
+        if (lightSection == null) {
+            Helper.err("Missing light " + chunk.getPos());
+            new Throwable().printStackTrace();
+        }
+    }
+    
     /**
      * {@link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)}r
      */
     public void onChunkProvidedDeferred(WorldChunk chunk) {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
+        
+        debugCheckLight(chunk);
         
         //test
 //        Helper.log("deferred chunk " + chunk.getPos() + chunk.getWorld());
@@ -115,8 +150,6 @@ public class ChunkDataSyncManager {
             )
         );
         
-        McHelper.getServer().getProfiler().pop();
-        
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunk.getPos().x, chunk.getPos().z
         ).forEach(player -> {
@@ -126,6 +159,8 @@ public class ChunkDataSyncManager {
             
             ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
         });
+        
+        McHelper.getServer().getProfiler().pop();
     }
     
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
