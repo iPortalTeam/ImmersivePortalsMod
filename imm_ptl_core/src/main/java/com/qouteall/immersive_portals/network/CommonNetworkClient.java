@@ -90,6 +90,8 @@ public class CommonNetworkClient {
     
     
     public static void withSwitchedWorld(ClientWorld newWorld, Runnable runnable) {
+        Validate.isTrue(client.isOnThread());
+        
         ClientWorld originalWorld = client.world;
         WorldRenderer originalWorldRenderer = client.worldRenderer;
         
