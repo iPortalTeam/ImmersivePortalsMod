@@ -320,9 +320,9 @@ public class Portal extends Entity implements PortalLike {
     
     /**
      * @param portalPosRelativeToCamera The portal position relative to camera
-     * @param vertexOutput Output the triangles that constitute the portal view area.
-     *        Every 3 vertices correspond to a triangle.
-     *        In camera-centered coordinate.
+     * @param vertexOutput              Output the triangles that constitute the portal view area.
+     *                                  Every 3 vertices correspond to a triangle.
+     *                                  In camera-centered coordinate.
      */
     @Environment(EnvType.CLIENT)
     @Override
@@ -460,8 +460,15 @@ public class Portal extends Entity implements PortalLike {
             specialShape = new GeometryPortalShape(
                 compoundTag.getList("specialShape", 6)
             );
+            
             if (specialShape.triangles.isEmpty()) {
                 specialShape = null;
+            }
+            else {
+                if (!specialShape.isValid()) {
+                    Helper.err("Portal shape invalid ");
+                    specialShape = null;
+                }
             }
         }
         if (compoundTag.contains("teleportable")) {
