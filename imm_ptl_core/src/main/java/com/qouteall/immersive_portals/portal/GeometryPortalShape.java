@@ -56,7 +56,7 @@ public class GeometryPortalShape {
             return crossProduct2D(
                 x2 - x1, y2 - y1,
                 x3 - x1, y3 - y1
-            ) / 2;
+            ) / -2.0;
         }
     }
     
