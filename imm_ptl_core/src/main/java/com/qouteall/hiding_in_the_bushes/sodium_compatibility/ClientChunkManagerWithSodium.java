@@ -38,11 +38,13 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     public void unload(int x, int z) {
         synchronized (chunkMap) {
             ChunkPos chunkPos = new ChunkPos(x, z);
-            WorldChunk worldChunk_1 = chunkMap.get(chunkPos.toLong());
-            if (positionEquals(worldChunk_1, x, z)) {
+            WorldChunk worldChunk = chunkMap.get(chunkPos.toLong());
+            if (positionEquals(worldChunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 
-                O_O.postClientChunkUnloadEvent(worldChunk_1);
+                O_O.postClientChunkUnloadEvent(worldChunk);
+                world.unloadBlockEntities(worldChunk);
+                clientChunkUnloadSignal.emit(worldChunk);
                 
                 if (listener != null) {
                     listener.onChunkRemoved(x, z);

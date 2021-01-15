@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
@@ -40,6 +41,9 @@ public class MyClientChunkManager extends ClientChunkManager {
     protected final Long2ObjectLinkedOpenHashMap<WorldChunk> chunkMap =
         new Long2ObjectLinkedOpenHashMap<>();
     
+    public static final SignalArged<WorldChunk> clientChunkLoadSignal = new SignalArged<>();
+    public static final SignalArged<WorldChunk> clientChunkUnloadSignal = new SignalArged<>();
+    
     public MyClientChunkManager(ClientWorld clientWorld, int loadDistance) {
         super(clientWorld, loadDistance);
         this.world = clientWorld;
@@ -67,6 +71,7 @@ public class MyClientChunkManager extends ClientChunkManager {
                 chunkMap.remove(chunkPos.toLong());
                 O_O.postClientChunkUnloadEvent(chunk);
                 world.unloadBlockEntities(chunk);
+                clientChunkUnloadSignal.emit(chunk);
             }
         }
     }
@@ -137,6 +142,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         this.world.resetChunkColor(x, z);
         
         O_O.postClientChunkLoadEvent(worldChunk);
+        clientChunkLoadSignal.emit(worldChunk);
         
         return worldChunk;
     }
