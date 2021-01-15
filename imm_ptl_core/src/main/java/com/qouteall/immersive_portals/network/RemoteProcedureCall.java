@@ -1,4 +1,4 @@
-package com.qouteall.hiding_in_the_bushes.util.networking;
+package com.qouteall.immersive_portals.network;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

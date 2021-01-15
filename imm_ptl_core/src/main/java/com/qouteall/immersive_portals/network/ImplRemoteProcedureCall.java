@@ -1,4 +1,4 @@
-package com.qouteall.hiding_in_the_bushes.util.networking;
+package com.qouteall.immersive_portals.network;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -109,12 +109,6 @@ public class ImplRemoteProcedureCall {
         return codec.parse(JsonOps.INSTANCE, jsonElement).getOrThrow(
             false, e -> {throw new RuntimeException(e.toString());}
         );
-//        try {
-//            return buf.decode(codec);
-//        }
-//        catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
     
     private static Object deserialize(PacketByteBuf buf, Type type) {
@@ -154,13 +148,6 @@ public class ImplRemoteProcedureCall {
         
         String jsonString = gson.toJson(result);
         buf.writeString(jsonString);
-
-//        try {
-//            buf.encode(codec, object);
-//        }
-//        catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
     
     @Environment(EnvType.CLIENT)
