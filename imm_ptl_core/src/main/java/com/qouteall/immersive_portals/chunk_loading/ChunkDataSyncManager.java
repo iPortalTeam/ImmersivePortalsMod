@@ -58,8 +58,6 @@ public class ChunkDataSyncManager {
             if (chunk != null) {
                 McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
-                checkLight(chunk);
-                
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         chunkPos.dimension,
