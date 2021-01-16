@@ -12,8 +12,6 @@ import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -21,9 +19,6 @@ import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.function.Supplier;
 
-//the chunks near player are managed by vanilla
-//we only manage the chunks that's seen by portal and not near player
-//it is not multi-threaded like vanilla
 public class ChunkDataSyncManager {
     
     private static final int unloadWaitingTickTime = 20 * 10;
@@ -100,41 +95,6 @@ public class ChunkDataSyncManager {
             }
         }
         //if the chunk is not present then the packet will be sent when chunk is ready
-        
-        //test
-//        Helper.log("chunk not ready" + chunkPos);
-    }
-    
-    private void checkLight(WorldChunk chunk) {
-        if (Global.flushLightTasksBeforeSendingPacket) {
-            ((ServerLightingProvider) ((ServerWorld) chunk.getWorld()).getLightingProvider()).tick();
-        }
-
-//        if (!debugLightStatus) {
-//            return;
-//        }
-//
-//        if (!chunk.isLightOn()) {
-//            Helper.err("Sending light update when the light is not on " + chunk.getPos());
-//            new Throwable().printStackTrace();
-//        }
-//
-//        ChunkLightingView chunkLightingView =
-//            ((ServerLightingProvider) chunk.getWorld().getLightingProvider()).get(LightType.BLOCK);
-//
-//        ChunkNibbleArray lightSection = ((ChunkBlockLightProvider) chunkLightingView).getLightSection(
-//            ChunkSectionPos.from(chunk.getPos(), 0)
-//        );
-//
-//        if (lightSection == null) {
-//            Helper.err("Missing light " + chunk.getPos());
-//            new Throwable().printStackTrace();
-//        }
-//
-////        if (lightSection.isUninitialized()) {
-////            Helper.err("light uninitialized " + chunk.getPos() + chunk.getWorld().getRegistryKey());
-////            new Throwable().printStackTrace();
-////        }
     }
     
     /**
@@ -143,11 +103,6 @@ public class ChunkDataSyncManager {
     public void onChunkProvidedDeferred(WorldChunk chunk) {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
-        
-        checkLight(chunk);
-        
-        //test
-//        Helper.log("deferred chunk " + chunk.getPos() + chunk.getWorld());
         
         McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
