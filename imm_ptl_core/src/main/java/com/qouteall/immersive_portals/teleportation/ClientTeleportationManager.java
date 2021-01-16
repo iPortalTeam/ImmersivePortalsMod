@@ -136,7 +136,7 @@ public class ClientTeleportationManager {
         Vec3d newHeadPos = getPlayerHeadPos(tickDelta);
         
         if (moveStartPoint.squaredDistanceTo(newHeadPos) > 1600) {
-            Helper.log("The Player is Moving Too Fast!");
+//            Helper.log("The Player is Moving Too Fast!");
             return false;
         }
         

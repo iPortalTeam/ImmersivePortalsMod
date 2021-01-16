@@ -568,6 +568,15 @@ public class ClientDebugCommand {
             })
         );
         builder.then(CommandManager
+            .literal("report_light_status")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                
+                });
+                return 0;
+            })
+        );
+        builder.then(CommandManager
             .literal("remote_procedure_call_test")
             .executes(context -> {
                 testRemoteProcedureCall(context.getSource().getPlayer());
@@ -665,6 +674,16 @@ public class ClientDebugCommand {
             builder,
             "cross_portal_collision",
             cond -> Global.crossPortalCollision = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "light_logging",
+            cond -> Global.lightLogging = cond
+        );
+        registerSwitchCommand(
+            builder,
+            "flush_light_tasks_before_sending_packet",
+            cond -> Global.flushLightTasksBeforeSendingPacket = cond
         );
         
         builder.then(CommandManager
@@ -835,24 +854,26 @@ public class ClientDebugCommand {
         McHelper.serverLog(
             playerMP,
             String.format(
-                "On Server %s %s removed:%s added:%s age:%s",
-                playerMP.world.getRegistryKey(),
+                "On Server %s %s removed:%s added:%s age:%s chunk:%s %s",
+                playerMP.world.getRegistryKey().getValue(),
                 playerMP.getPos(),
                 playerMP.removed,
                 playerMP.world.getEntityById(playerMP.getEntityId()) != null,
-                playerMP.age
+                playerMP.age,
+                playerMP.chunkX, playerMP.chunkZ
             )
         );
         
         McHelper.serverLog(
             playerMP,
             String.format(
-                "On Client %s %s removed:%s added:%s age:%s",
-                playerSP.world.getRegistryKey(),
+                "On Client %s %s removed:%s added:%s age:%s chunk:%s %s",
+                playerSP.world.getRegistryKey().getValue(),
                 playerSP.getPos(),
-                playerMP.removed,
-                playerMP.world.getEntityById(playerMP.getEntityId()) != null,
-                playerMP.age
+                playerSP.removed,
+                playerSP.world.getEntityById(playerSP.getEntityId()) != null,
+                playerSP.age,
+                playerSP.chunkX, playerSP.chunkZ
             )
         );
         return 0;

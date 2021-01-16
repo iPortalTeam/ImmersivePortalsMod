@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
@@ -12,15 +13,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerLightingProvider;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.LightType;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.chunk.light.ChunkBlockLightProvider;
-import net.minecraft.world.chunk.light.ChunkLightingView;
 
 import java.util.function.Supplier;
 
@@ -66,7 +63,7 @@ public class ChunkDataSyncManager {
             if (chunk != null) {
                 McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
-                debugCheckLight(chunk);
+                checkLight(chunk);
                 
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
@@ -75,16 +72,25 @@ public class ChunkDataSyncManager {
                     )
                 );
                 
+                LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(
+                    chunkPos.getChunkPos(),
+                    ieStorage.getLightingProvider(),
+                    true
+                );
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         chunkPos.dimension,
-                        new LightUpdateS2CPacket(
-                            chunkPos.getChunkPos(),
-                            ieStorage.getLightingProvider(),
-                            true
-                        )
+                        lightPacket
                     )
                 );
+                if (Global.lightLogging) {
+                    Helper.log(String.format(
+                        "light sent immediately %s %d %d %d %d",
+                        chunk.getWorld().getRegistryKey().getValue(),
+                        chunk.getPos().x, chunk.getPos().z,
+                        lightPacket.getBlockLightMask(), lightPacket.getFilledBlockLightMask())
+                    );
+                }
                 
                 ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
                 
@@ -99,27 +105,36 @@ public class ChunkDataSyncManager {
 //        Helper.log("chunk not ready" + chunkPos);
     }
     
-    private void debugCheckLight(WorldChunk chunk) {
-        if (!debugLightStatus) {
-            return;
+    private void checkLight(WorldChunk chunk) {
+        if (Global.flushLightTasksBeforeSendingPacket) {
+            ((ServerLightingProvider) ((ServerWorld) chunk.getWorld()).getLightingProvider()).tick();
         }
-        
-        if (!chunk.isLightOn()) {
-            Helper.err("Sending light update when the light is not on " + chunk.getPos());
-            new Throwable().printStackTrace();
-        }
-        
-        ChunkLightingView chunkLightingView =
-            ((ServerLightingProvider) chunk.getWorld().getLightingProvider()).get(LightType.BLOCK);
-        
-        ChunkNibbleArray lightSection = ((ChunkBlockLightProvider) chunkLightingView).getLightSection(
-            ChunkSectionPos.from(chunk.getPos(), 0)
-        );
-        
-        if (lightSection == null) {
-            Helper.err("Missing light " + chunk.getPos());
-            new Throwable().printStackTrace();
-        }
+
+//        if (!debugLightStatus) {
+//            return;
+//        }
+//
+//        if (!chunk.isLightOn()) {
+//            Helper.err("Sending light update when the light is not on " + chunk.getPos());
+//            new Throwable().printStackTrace();
+//        }
+//
+//        ChunkLightingView chunkLightingView =
+//            ((ServerLightingProvider) chunk.getWorld().getLightingProvider()).get(LightType.BLOCK);
+//
+//        ChunkNibbleArray lightSection = ((ChunkBlockLightProvider) chunkLightingView).getLightSection(
+//            ChunkSectionPos.from(chunk.getPos(), 0)
+//        );
+//
+//        if (lightSection == null) {
+//            Helper.err("Missing light " + chunk.getPos());
+//            new Throwable().printStackTrace();
+//        }
+//
+////        if (lightSection.isUninitialized()) {
+////            Helper.err("light uninitialized " + chunk.getPos() + chunk.getWorld().getRegistryKey());
+////            new Throwable().printStackTrace();
+////        }
     }
     
     /**
@@ -129,7 +144,7 @@ public class ChunkDataSyncManager {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
         
-        debugCheckLight(chunk);
+        checkLight(chunk);
         
         //test
 //        Helper.log("deferred chunk " + chunk.getPos() + chunk.getWorld());
@@ -144,10 +159,21 @@ public class ChunkDataSyncManager {
         );
         
         Supplier<Packet> lightPacketRedirected = Helper.cached(
-            () -> MyNetwork.createRedirectedMessage(
-                dimension,
-                new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider(), true)
-            )
+            () -> {
+                LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider(), true);
+                if (Global.lightLogging) {
+                    Helper.log(String.format(
+                        "light sent deferred %s %d %d %d %d",
+                        chunk.getWorld().getRegistryKey().getValue(),
+                        chunk.getPos().x, chunk.getPos().z,
+                        lightPacket.getBlockLightMask(), lightPacket.getFilledBlockLightMask())
+                    );
+                }
+                return MyNetwork.createRedirectedMessage(
+                    dimension,
+                    lightPacket
+                );
+            }
         );
         
         NewChunkTrackingGraph.getPlayersViewingChunk(

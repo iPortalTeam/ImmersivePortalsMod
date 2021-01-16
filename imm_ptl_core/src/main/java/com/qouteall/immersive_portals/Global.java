@@ -80,6 +80,10 @@ public class Global {
     
     public static boolean netherPortalOverlay = false;
     
+    public static boolean flushLightTasksBeforeSendingPacket = false;
+    
+    public static boolean lightLogging = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,
