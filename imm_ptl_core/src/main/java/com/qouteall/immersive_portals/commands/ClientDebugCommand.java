@@ -52,10 +52,12 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
@@ -568,10 +570,39 @@ public class ClientDebugCommand {
             })
         );
         builder.then(CommandManager
-            .literal("report_light_status")
+            .literal("report_client_light_status")
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
-                
+                    ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                    ChunkNibbleArray lightSection = player.world.getLightingProvider().get(LightType.BLOCK).getLightSection(
+                        ChunkSectionPos.from(player.chunkX, player.chunkY, player.chunkZ)
+                    );
+                    if (lightSection != null) {
+                        boolean uninitialized = lightSection.isUninitialized();
+    
+                        byte[] byteArray = lightSection.asByteArray();
+                        boolean allZero = true;
+                        for (byte b : byteArray) {
+                            if (b != 0) {
+                                allZero = false;
+                                break;
+                            }
+                        }
+                        
+                        context.getSource().sendFeedback(
+                            new LiteralText(
+                                "has light section " +
+                                    (allZero ? "all zero" : "not all zero") +
+                                    (uninitialized ? " uninitialized" : " fine")
+                            ),
+                            false
+                        );
+                    }
+                    else {
+                        context.getSource().sendFeedback(
+                            new LiteralText("does not have light section"), false
+                        );
+                    }
                 });
                 return 0;
             })

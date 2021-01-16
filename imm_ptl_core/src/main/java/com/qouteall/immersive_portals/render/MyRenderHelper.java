@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.portal.PortalLike;
@@ -249,19 +250,21 @@ public class MyRenderHelper {
         CHelper.checkGlError();
     }
     
-    @Deprecated
+    // it will remove the light sections that are marked to be removed
+    // if not, light data will cause minor memory leak
+    // and wrongly remove the light data when the chunks get reloaded to client
     public static void earlyUpdateLight() {
-//        if (!ClientWorldLoader.getIsInitialized()) {
-//            return;
-//        }
-//
-//        ClientWorldLoader.getClientWorlds().forEach(world -> {
-//            if (world != MinecraftClient.getInstance().world) {
-//                int updateNum = world.getChunkManager().getLightingProvider().doLightUpdates(
-//                    1000, true, true
-//                );
-//            }
-//        });
+        if (!ClientWorldLoader.getIsInitialized()) {
+            return;
+        }
+
+        ClientWorldLoader.getClientWorlds().forEach(world -> {
+            if (world != MinecraftClient.getInstance().world) {
+                int updateNum = world.getChunkManager().getLightingProvider().doLightUpdates(
+                    1000, true, true
+                );
+            }
+        });
     }
     
     public static void applyMirrorFaceCulling() {

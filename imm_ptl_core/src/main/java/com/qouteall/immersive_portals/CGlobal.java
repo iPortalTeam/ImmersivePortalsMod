@@ -33,7 +33,7 @@ public class CGlobal {
     public static boolean useFrontClipping = true;
     public static boolean doDisableAlphaTestWhenRenderingFrameBuffer = true;
     public static boolean smoothChunkUnload = true;
-    public static boolean earlyClientLightUpdate = false;
+    public static boolean earlyClientLightUpdate = true;
     public static boolean useSuperAdvancedFrustumCulling = true;
     public static boolean earlyFrustumCullingPortal = true;
 }
