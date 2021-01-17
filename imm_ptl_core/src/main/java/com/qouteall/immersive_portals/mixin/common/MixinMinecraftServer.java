@@ -54,6 +54,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         McHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
         
         O_O.loadConfigFabric();
+        O_O.onServerConstructed();
     }
     
     @Inject(

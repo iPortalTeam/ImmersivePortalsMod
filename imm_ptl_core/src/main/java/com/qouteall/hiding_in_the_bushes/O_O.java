@@ -72,6 +72,10 @@ public class O_O {
         myConfig.saveConfigFile();
     }
     
+    public static void onServerConstructed() {
+        // forge version initialize server config
+    }
+    
     private static final BlockState obsidianState = Blocks.OBSIDIAN.getDefaultState();
     
     public static boolean isObsidian(BlockState blockState) {
