@@ -35,6 +35,7 @@ public abstract class BreakablePortalEntity extends Portal {
     @Nullable
     public BlockState overlayBlockState;
     public double overlayOpacity = 0.5;
+    public double overlayOffset = 0;
     
     public BreakablePortalEntity(
         EntityType<?> entityType_1,
@@ -70,6 +71,7 @@ public abstract class BreakablePortalEntity extends Portal {
             if (overlayOpacity == 0) {
                 overlayOpacity = 0.5;
             }
+            overlayOffset = compoundTag.getDouble("overlayOffset");
         }
     }
     
@@ -85,6 +87,7 @@ public abstract class BreakablePortalEntity extends Portal {
         if (overlayBlockState != null) {
             compoundTag.put("overlayBlockState", NbtHelper.fromBlockState(overlayBlockState));
             compoundTag.putDouble("overlayOpacity", overlayOpacity);
+            compoundTag.putDouble("overlayOffset", overlayOffset);
         }
     }
     
