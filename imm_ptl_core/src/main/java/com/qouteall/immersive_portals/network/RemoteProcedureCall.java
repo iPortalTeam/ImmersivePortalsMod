@@ -43,6 +43,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
  * );
  * }
  * </pre>
+ * That method will be invoked on the client thread (render thread).
+ *
+ * <p></p>
+ *
  * The client can send packet to server using
  * <pre>
  * {@code
@@ -53,6 +57,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
  * );
  * }
  * </pre>
+ * That method will be invoked on the server thread.
  *
  * <p>For security concerns, the class path must contain "RemoteCallable". For example,
  *      the class name can be "XXRemoteCallableYYY" or "RemoteCallables"</p>
@@ -69,7 +74,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
  * </p>
  *
  * <p>
- *     If you are sending the packets thousands of times per second, then performance issues may arise.
+ *     If you are sending the packets thousands of times every second, then performance issues may arise.
  *     In this case it's not recommended to use this.
  * </p>
  */
@@ -125,7 +130,6 @@ public class RemoteProcedureCall {
      * {@code
      * RemoteProcedureCall.tellServerToInvoke(
      *     "path.to.the_class.AAARemoteCallableBBB.serverMethod",
-     *     player,
      *     Blocks.STONE
      * );
      * }
@@ -134,6 +138,7 @@ public class RemoteProcedureCall {
      * @param methodPath If you are using Intellij IDEA, right click on the method,
      *                   click "Copy Reference", then you get the method path
      * @param arguments The arguments. The types must match the remotely invoked method signature.
+     *                  The remote method's first argument must be the player that's sending the packet.
      */
     @Environment(EnvType.CLIENT)
     public static void tellServerToInvoke(
