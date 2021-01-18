@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -265,5 +266,9 @@ public class CHelper {
         else {
             client.execute(runnable);
         }
+    }
+    
+    public static double getSmoothCycles(long unitTicks) {
+        return (double) ((MinecraftClient.getInstance().world.getTime() % unitTicks) / (double)unitTicks) + RenderStates.tickDelta / (double)unitTicks;
     }
 }

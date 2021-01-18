@@ -116,12 +116,12 @@ public class NewChunkTrackingGraph {
     private static final Map<RegistryKey<World>, Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>>>
         data = new HashMap<>();
     
-    private static final ArrayList<WeakReference<ChunkVisibilityManager.ChunkLoader>>
+    private static final ArrayList<WeakReference<ChunkLoader>>
         additionalChunkLoaders = new ArrayList<>();
     
     public static class PlayerInfo {
         public final Set<RegistryKey<World>> visibleDimensions = new HashSet<>();
-        public final ArrayList<WeakReference<ChunkVisibilityManager.ChunkLoader>> additionalChunkLoaders
+        public final ArrayList<WeakReference<ChunkLoader>> additionalChunkLoaders
             = new ArrayList<>();
         
         public PlayerInfo() {
@@ -154,14 +154,14 @@ public class NewChunkTrackingGraph {
         
         playerInfo.additionalChunkLoaders.removeIf(w -> w.get() == null);
         playerInfo.additionalChunkLoaders.forEach(l -> {
-            ChunkVisibilityManager.ChunkLoader chunkLoader = l.get();
+            ChunkLoader chunkLoader = l.get();
             assert chunkLoader != null;
             updatePlayerForChunkLoader(player, gameTime, chunkLoader);
         });
     }
     
     private static void updatePlayerForChunkLoader(
-        ServerPlayerEntity player, long gameTime, ChunkVisibilityManager.ChunkLoader chunkLoader
+        ServerPlayerEntity player, long gameTime, ChunkLoader chunkLoader
     ) {
         getPlayerInfo(player).visibleDimensions.add(chunkLoader.center.dimension);
         
@@ -234,7 +234,7 @@ public class NewChunkTrackingGraph {
             
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(weakRef -> {
-                ChunkVisibilityManager.ChunkLoader loader = weakRef.get();
+                ChunkLoader loader = weakRef.get();
                 if (loader == null) return;
                 loader.foreachChunkPos(
                     (dim, x, z, dis) -> {
@@ -403,14 +403,14 @@ public class NewChunkTrackingGraph {
         return !map.isEmpty();
     }
     
-    public static void addGlobalAdditionalChunkLoader(ChunkVisibilityManager.ChunkLoader chunkLoader) {
+    public static void addGlobalAdditionalChunkLoader(ChunkLoader chunkLoader) {
         additionalChunkLoaders.add(new WeakReference<>(chunkLoader));
         updateAndPurge();
     }
     
     // if this method is accidentally not called
     // the chunk loader will still be removed if it's not GCed (maybe after a long time)
-    public static void removeGlobalAdditionalChunkLoader(ChunkVisibilityManager.ChunkLoader chunkLoader) {
+    public static void removeGlobalAdditionalChunkLoader(ChunkLoader chunkLoader) {
         // WeakReference does not have equals()
         additionalChunkLoaders.removeIf(weakRef -> weakRef.get() == chunkLoader);
     }
@@ -434,14 +434,14 @@ public class NewChunkTrackingGraph {
     
     public static void addPerPlayerAdditionalChunkLoader(
         ServerPlayerEntity player,
-        ChunkVisibilityManager.ChunkLoader chunkLoader
+        ChunkLoader chunkLoader
     ) {
         getPlayerInfo(player).additionalChunkLoaders.add(new WeakReference<>(chunkLoader));
     }
     
     public static void removePerPlayerAdditionalChunkLoader(
         ServerPlayerEntity player,
-        ChunkVisibilityManager.ChunkLoader chunkLoader
+        ChunkLoader chunkLoader
     ) {
         getPlayerInfo(player).additionalChunkLoaders.removeIf(w -> w.get() == chunkLoader);
     }

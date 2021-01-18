@@ -553,23 +553,6 @@ public class ClientDebugCommand {
             })
         );
         builder.then(CommandManager
-            .literal("gui_portal_test")
-            .executes(context -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    try {
-                        Class.forName("com.qouteall.imm_ptl_peripheral.test.ExampleGuiPortalRendering")
-                            .getDeclaredMethod("open")
-                            .invoke(null);
-                    }
-                    catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                });
-                
-                return 0;
-            })
-        );
-        builder.then(CommandManager
             .literal("report_client_light_status")
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
@@ -579,7 +562,7 @@ public class ClientDebugCommand {
                     );
                     if (lightSection != null) {
                         boolean uninitialized = lightSection.isUninitialized();
-    
+                        
                         byte[] byteArray = lightSection.asByteArray();
                         boolean allZero = true;
                         for (byte b : byteArray) {

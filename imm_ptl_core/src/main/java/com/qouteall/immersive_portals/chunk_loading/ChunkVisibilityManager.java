@@ -6,15 +6,12 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalExtension;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.Validate;
 
-import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ChunkVisibilityManager {
@@ -23,79 +20,6 @@ public class ChunkVisibilityManager {
     
     public static interface ChunkPosConsumer {
         void consume(RegistryKey<World> dimensionType, int x, int z, int distanceToSource);
-    }
-    
-    //the players and portals are chunk loaders
-    public static class ChunkLoader {
-        public DimensionalChunkPos center;
-        public int radius;
-        public boolean isDirectLoader = false;
-        
-        public ChunkLoader(DimensionalChunkPos center, int radius) {
-            this(center, radius, false);
-        }
-        
-        public ChunkLoader(DimensionalChunkPos center, int radius, boolean isDirectLoader) {
-            this.center = center;
-            this.radius = radius;
-            this.isDirectLoader = isDirectLoader;
-        }
-        
-        public int getLoadedChunkNum() {
-            int[] numBox = {0};
-            foreachChunkPos((dim, x, z, dist) -> {
-                WorldChunk chunk = McHelper.getServerChunkIfPresent(dim, x, z);
-                if (chunk != null) {
-                    numBox[0] += 1;
-                }
-            });
-            return numBox[0];
-        }
-        
-        public int getChunkNum() {
-            return (this.radius * 2 + 1) * (this.radius * 2 + 1);
-        }
-        
-        public void foreachChunkPos(ChunkPosConsumer func) {
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dz = -radius; dz <= radius; dz++) {
-                    func.consume(
-                        center.dimension,
-                        center.x + dx,
-                        center.z + dz,
-                        Math.max(Math.abs(dx), Math.abs(dz))
-                    );
-                }
-            }
-        }
-        
-        public LenientChunkRegion createChunkRegion() {
-            ServerWorld world = McHelper.getServer().getWorld(center.dimension);
-            
-            return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
-        }
-        
-        @Override
-        public String toString() {
-            return "{" +
-                "center=" + center +
-                ", radius=" + radius +
-                '}';
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ChunkLoader that = (ChunkLoader) o;
-            return radius == that.radius &&
-                center.equals(that.center);
-        }
-        
-        @Override
-        public int hashCode() {
-            return Objects.hash(center, radius);
-        }
     }
     
     public static ChunkLoader playerDirectLoader(ServerPlayerEntity player) {

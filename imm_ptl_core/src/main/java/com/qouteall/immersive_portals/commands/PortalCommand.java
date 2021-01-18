@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -1277,6 +1278,23 @@ public class PortalCommand {
                 .requires(commandSource -> commandSource.hasPermissionLevel(2));
         registerGlobalPortalCommands(global);
         builder.then(global);
+        
+        LiteralArgumentBuilder<ServerCommandSource> debugCommands = CommandManager
+            .literal("gui_portal")
+            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
+                    .executes(context -> {
+                        ExampleGuiPortalRendering.onCommandExecuted(
+                            context.getSource().getPlayer(),
+                            DimensionArgumentType.getDimensionArgument(context, "dim"),
+                            Vec3ArgumentType.getVec3(context, "pos")
+                        );
+                        return 0;
+                    })
+                )
+            );
+        
+        builder.then(CommandManager.literal("debug").then(debugCommands));
         
         dispatcher.register(builder);
     }
