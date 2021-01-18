@@ -366,6 +366,15 @@ public class PortalCommand {
                             context, "nbt"
                         );
                         
+                        if (newNbt.contains("commandsOnTeleported")) {
+                            if (!context.getSource().hasPermissionLevel(2)) {
+                                context.getSource().sendError(new LiteralText(
+                                    "You do not have the permission to set commandsOnTeleported"
+                                ));
+                                return;
+                            }
+                        }
+                        
                         setPortalNbt(portal, newNbt);
                         
                         sendPortalInfo(context, portal);
@@ -1243,10 +1252,6 @@ public class PortalCommand {
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
-
-//        LiteralArgumentBuilder<ServerCommandSource> builderOPPerm = CommandManager
-//            .literal("portal")
-//            .requires(commandSource -> commandSource.hasPermissionLevel(2));
         
         LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("portal")
