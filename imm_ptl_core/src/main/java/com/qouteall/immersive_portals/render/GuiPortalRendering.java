@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -31,13 +33,17 @@ public class GuiPortalRendering {
         return getRenderingFrameBuffer() != null;
     }
     
-    public static void renderWorldIntoFrameBuffer(
+    private static void renderWorldIntoFrameBuffer(
         WorldRenderInfo worldRenderInfo,
         Framebuffer framebuffer
     ) {
         RenderStates.projectionMatrix = null;
         
         CHelper.checkGlError();
+        
+        ((IECamera) RenderStates.originalCamera).resetState(
+            worldRenderInfo.cameraPos, worldRenderInfo.world
+        );
         
         Validate.isTrue(renderingFrameBuffer == null);
         renderingFrameBuffer = framebuffer;
@@ -79,12 +85,13 @@ public class GuiPortalRendering {
     ) {
         Validate.isTrue(!renderingTasks.containsKey(renderTarget));
         
-        renderingTasks.put(renderTarget, worldRenderInfo);
-        
-        if (MinecraftClient.isFabulousGraphicsOrBetter()) {
-            limitedLogger.err("GUI Portal Rendering is Currently Problematic with Fabulous Graphics!" +
-                " It's recommended to turn to fancy.");
+        Framebuffer mcFB = MinecraftClient.getInstance().getFramebuffer();
+        if (renderTarget.textureWidth != mcFB.textureWidth || renderTarget.textureHeight != mcFB.textureHeight) {
+            renderTarget.resize(mcFB.textureWidth, mcFB.textureHeight, true);
+            Helper.log("Resized Framebuffer for GUI Portal Rendering");
         }
+        
+        renderingTasks.put(renderTarget, worldRenderInfo);
     }
     
     // Not API

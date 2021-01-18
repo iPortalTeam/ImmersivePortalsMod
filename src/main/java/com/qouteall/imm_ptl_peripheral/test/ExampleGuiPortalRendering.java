@@ -44,30 +44,30 @@ public class ExampleGuiPortalRendering {
             cameraTransformation.loadIdentity();
             cameraTransformation.multiply(
                 DQuaternion.rotationByDegrees(
-                    new Vec3d(1, 0, 0),
-                    ((double) ((client.world.getTime() % 100) / 100.0) + RenderStates.tickDelta / 100.0) * 360
+                    new Vec3d(1, 1, 0).normalize(),
+                    ((double) ((client.world.getTime() % 500) / 500.0) + RenderStates.tickDelta / 500.0) * 360
                 ).toMcQuaternion()
             );
             
             WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
                 ClientWorldLoader.getWorld(World.OVERWORLD),
-                client.player.getPos().add(0, 5, 0),
+                client.player.getPos().add(0, 3, 0),
                 cameraTransformation, null,
                 client.options.viewDistance, true
             );
             GuiPortalRendering.submitNextFrameRendering(worldRenderInfo, frameBuffer);
             
-            int windowHeight = client.getWindow().getFramebufferHeight();
-            int windowWidth = client.getWindow().getFramebufferWidth();
-            float sideLen = windowHeight * 0.6f;
+            int h = client.getWindow().getFramebufferHeight();
+            int w = client.getWindow().getFramebufferWidth();
+            float sideLen = h * 0.6f;
             
             MyRenderHelper.drawFramebuffer(
                 frameBuffer,
                 false, false,
-                (windowWidth - sideLen) / 2,
-                (windowWidth - sideLen) / 2 + sideLen,
-                windowHeight * 0.2f,
-                windowHeight * 0.2f + sideLen
+                w * 0.2f,
+                w * 0.8f,
+                h * 0.2f,
+                h * 0.8f
             );
             
             drawCenteredText(
