@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.optifine_compatibility;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
@@ -44,6 +45,12 @@ public class RendererMixed extends PortalRenderer {
     
     private boolean portalRenderingNeeded = false;
     private boolean nextFramePortalRenderingNeeded = false;
+    
+    public RendererMixed() {
+        ModMain.preRenderSignal.connect(() -> {
+            updateNeedsPortalRendering();
+        });
+    }
     
     @Override
     public boolean replaceFrameBufferClearing() {
@@ -148,7 +155,9 @@ public class RendererMixed extends PortalRenderer {
         }
         
         OFGlobal.bindToShaderFrameBuffer.run();
+    }
     
+    private void updateNeedsPortalRendering() {
         portalRenderingNeeded = nextFramePortalRenderingNeeded;
         nextFramePortalRenderingNeeded = false;
     }
