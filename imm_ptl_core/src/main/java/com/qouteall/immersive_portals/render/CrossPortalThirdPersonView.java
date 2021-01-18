@@ -70,10 +70,9 @@ public class CrossPortalThirdPersonView {
     
     
         WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
-            ClientWorldLoader.getWorld(portal.dimensionTo), renderingCameraPos, portal.getAdditionalCameraTransformation(), null,
-                    MinecraftClient.getInstance().options.viewDistance,
-                    false
-                );
+            ClientWorldLoader.getWorld(portal.dimensionTo), renderingCameraPos, portal.getAdditionalCameraTransformation(), false, null,
+                    MinecraftClient.getInstance().options.viewDistance
+        );
         
         CGlobal.renderer.invokeWorldRendering(worldRenderInfo);
         

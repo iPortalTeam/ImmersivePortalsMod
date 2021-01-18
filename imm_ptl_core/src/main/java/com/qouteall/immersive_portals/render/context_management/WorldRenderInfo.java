@@ -57,8 +57,9 @@ public class WorldRenderInfo {
     public WorldRenderInfo(
         ClientWorld world, Vec3d cameraPos,
         @Nullable Matrix4f cameraTransformation,
-        @Nullable UUID description, int renderDistance,
-        boolean overwriteCameraTransformation
+        boolean overwriteCameraTransformation,
+        @Nullable UUID description,
+        int renderDistance
     ) {
         this.world = world;
         this.cameraPos = cameraPos;

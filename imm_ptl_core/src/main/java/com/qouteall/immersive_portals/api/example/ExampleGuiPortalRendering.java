@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
 
 /**
  * <p>
- *     Example code about how to use
+ * Example code about how to use
  * </p>
  * <ul>
  *     <li>GUI Portal API</li>
@@ -78,10 +78,9 @@ public class ExampleGuiPortalRendering {
     public static void onCommandExecuted(ServerPlayerEntity player, ServerWorld world, Vec3d pos) {
         removeChunkLoaderFor(player);
         
-        ChunkPos chunkPos = new ChunkPos(new BlockPos(pos));
         ChunkLoader chunkLoader = new ChunkLoader(
             new DimensionalChunkPos(
-                world.getRegistryKey(), chunkPos
+                world.getRegistryKey(), new ChunkPos(new BlockPos(pos))
             ),
             8
         );
@@ -164,13 +163,15 @@ public class ExampleGuiPortalRendering {
             
             // Create the world render info
             WorldRenderInfo worldRenderInfo = new WorldRenderInfo(
-                ClientWorldLoader.getWorld(viewingDimension),
-                cameraPosition,
-                cameraTransformation, null,
-                client.options.viewDistance, true
+                ClientWorldLoader.getWorld(viewingDimension),// the world that it renders
+                cameraPosition,// the camera position
+                cameraTransformation,// the camera transformation
+                true,// does not apply this transformation to the existing player camera
+                null,
+                client.options.viewDistance// render distance
             );
             
-            // It will render the world into the framebuffer the next frame
+            // Ask it to render the world into the framebuffer the next frame
             GuiPortalRendering.submitNextFrameRendering(worldRenderInfo, frameBuffer);
             
             // Draw the framebuffer
