@@ -468,10 +468,6 @@ public class ServerTeleportationManager {
      * {@link Entity#moveToWorld(ServerWorld)}
      * Sometimes resuing the same entity object is problematic
      * because entity's AI related things may have world reference inside
-     * These fields should also get changed but it's not easy
-     * <p>
-     * Recreating the entity is the vanilla way.
-     * But it requires changing the corresponding entity reference on other places
      */
     public Entity changeEntityDimension(
         Entity entity,
