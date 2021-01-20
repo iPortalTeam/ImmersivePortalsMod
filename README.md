@@ -4,6 +4,8 @@ It's a minecraft mod that provides see-through portals and seamless teleportatio
 
 https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
 
+(The experimental website: https://qouteall.fun/immptl)
+
 This is one of the most complex minecraft mods.
 * It eliminates the limitation that only one dimension can be loaded and rendered on client
 * It eliminates the limitation that only the chunks nearby player can be synchronized to client
@@ -38,7 +40,7 @@ Many optimizations have been made to portal rendering which includes:
 https://fabricmc.net/wiki/tutorial:setup
 
 ## Wiki
-https://github.com/qouteall/ImmersivePortalsMod/wiki
+https://qouteall.fun/immptl/wiki
 
 ## Discord Server
 https://discord.gg/BZxgURK
