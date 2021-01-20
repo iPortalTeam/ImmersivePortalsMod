@@ -27,7 +27,7 @@ In vanilla when the player moves only the edge chunks are loaded/unloaded.
 * Change portal render distance gradually on the server side
 * Defer chunk unloading
 * Defer the client light updates caused by chunk unloading
-* Merge glGenBuffer calls
+* Reduce the lag spikes caused by dynamically creating GL buffer objects
 
 It also provides performance configurations to adjust the performance.
 
@@ -35,6 +35,7 @@ Many optimizations have been made to portal rendering which includes:
 * Do aggressive frustum culling during portal rendering
 * Do aggressive frustum culling for the sections that are hidden by the portal during outer world rendering
 * Reduce occlusion query stalls by utilizing temporal coherence
+* Merge the rendering of the portals that have the same spacial transformation (for example the scale box end portal)
 
 ## How to run this code
 https://fabricmc.net/wiki/tutorial:setup
