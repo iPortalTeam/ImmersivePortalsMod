@@ -12,7 +12,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -67,99 +66,6 @@ public class ChunkVisibilityManager {
             portal, player, cappedLoadingDistance
         );
         return Math.min(maxLoadDistance, cappedLoadingDistance);
-    }
-    
-    @Deprecated
-    private static ChunkLoader portalDirectLoader(
-        Portal portal,
-        ServerPlayerEntity player
-    ) {
-        int renderDistance = McHelper.getRenderDistanceOnServer();
-        double distance = portal.getDistanceToNearestPointInPortal(player.getPos());
-        
-        // load more for up scaling portal
-        if (portal.scaling > 2 && distance < 5) {
-            renderDistance = (int) ((portal.getDestAreaRadiusEstimation() * 1.4) / 16);
-        }
-        
-        return new ChunkLoader(
-            new DimensionalChunkPos(
-                portal.dimensionTo,
-                new ChunkPos(new BlockPos(portal.getDestPos()))
-            ),
-            getSmoothedLoadingDistance(
-                portal, player,
-                getDirectLoadingDistance(renderDistance, distance)
-            )
-        );
-    }
-    
-    @Deprecated
-    private static ChunkLoader portalIndirectLoader(Portal portal, ServerPlayerEntity player) {
-        int renderDistance = McHelper.getRenderDistanceOnServer();
-        return new ChunkLoader(
-            new DimensionalChunkPos(
-                portal.dimensionTo,
-                new ChunkPos(new BlockPos(portal.getDestPos()))
-            ),
-            getSmoothedLoadingDistance(
-                portal, player, renderDistance / 4
-            )
-        );
-    }
-    
-    @Deprecated
-    private static ChunkLoader globalPortalDirectLoader(
-        ServerPlayerEntity player,
-        Portal portal
-    ) {
-        Validate.isTrue(portal.getIsGlobal());
-        
-        int renderDistance = Math.min(
-            Global.indirectLoadingRadiusCap + (Global.indirectLoadingRadiusCap / 2),
-            //load a little more to make dimension stack more complete
-            Math.max(
-                2,
-                McHelper.getRenderDistanceOnServer() -
-                    Math.floorDiv((int) portal.getDistanceToNearestPointInPortal(player.getPos()), 16)
-            )
-        );
-        
-        return new ChunkLoader(
-            new DimensionalChunkPos(
-                portal.dimensionTo,
-                new ChunkPos(new BlockPos(
-                    portal.transformPoint(player.getPos())
-                ))
-            ),
-            renderDistance
-        );
-    }
-    
-    @Deprecated
-    private static ChunkLoader globalPortalIndirectLoader(
-        ServerPlayerEntity player,
-        Portal outerPortal,
-        Portal remotePortal
-    ) {
-        Validate.isTrue(outerPortal.getIsGlobal());
-        Validate.isTrue(remotePortal.getIsGlobal());
-        
-        int renderDistance = Math.min(
-            Global.indirectLoadingRadiusCap,
-            McHelper.getRenderDistanceOnServer() / 2
-        );
-        return new ChunkLoader(
-            new DimensionalChunkPos(
-                remotePortal.dimensionTo,
-                new ChunkPos(new BlockPos(
-                    remotePortal.transformPoint(
-                        outerPortal.transformPoint(player.getPos())
-                    )
-                ))
-            ),
-            renderDistance
-        );
     }
     
     public static List<Portal> getNearbyPortals(
@@ -263,14 +169,11 @@ public class ChunkVisibilityManager {
     
     //includes:
     //1.player direct loader
-    //2.portal direct loader
-    //3.portal secondary loader
-    //4.global portal direct loader
-    //5.global portal secondary loader
+    //2.loaders from the portals that are directly visible
+    //3.loaders from the portals that are indirectly visible through portals
     public static Stream<ChunkLoader> getBaseChunkLoaders(
         ServerPlayerEntity player
     ) {
-        
         ChunkLoader playerDirectLoader = playerDirectLoader(player);
         
         return Streams.concat(
@@ -302,59 +205,7 @@ public class ChunkVisibilityManager {
                     );
                 }
             )
-        );
-
-//        return Streams.concat(
-//            Stream.of(playerDirectLoader),
-//
-//            McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-//                player.world,
-//                player.getPos(),
-//                Portal.class,
-//                shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange
-//            ).filter(
-//                portal -> portal.canBeSpectated(player)
-//            ).flatMap(
-//                portal -> Stream.concat(
-//                    Stream.of(portalDirectLoader(portal, player)),
-//
-//                    shrinkLoading() ?
-//                        Stream.empty() :
-//                        McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-//                            McHelper.getServer().getWorld(portal.dimensionTo),
-//                            portal.getDestPos(),
-//                            Portal.class,
-//                            secondaryPortalLoadingRange
-//                        ).filter(
-//                            remotePortal -> remotePortal.canBeSpectated(player)
-//                        ).map(
-//                            remotePortal -> portalIndirectLoader(remotePortal, player)
-//                        )
-//                )
-//            ),
-//
-//            McHelper.getGlobalPortals(player.world).stream()
-//                .flatMap(
-//                    portal -> Stream.concat(
-//                        Stream.of(globalPortalDirectLoader(
-//                            player, portal
-//                        )),
-//
-//                        shrinkLoading() ?
-//                            Stream.empty() :
-//                            McHelper.getGlobalPortals(portal.getDestinationWorld()).stream()
-//                                .filter(
-//                                    remotePortal -> remotePortal.getDistanceToNearestPointInPortal(
-//                                        portal.transformPoint(player.getPos())
-//                                    ) < (shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange)
-//                                ).map(
-//                                remotePortal -> globalPortalIndirectLoader(
-//                                    player, portal, remotePortal
-//                                )
-//                            )
-//                    )
-//                )
-//        ).distinct();
+        ).distinct();
     }
     
     public static boolean shrinkLoading() {
