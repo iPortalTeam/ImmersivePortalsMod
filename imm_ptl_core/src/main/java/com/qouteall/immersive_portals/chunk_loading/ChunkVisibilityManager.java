@@ -10,8 +10,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -20,10 +18,6 @@ import java.util.stream.Stream;
 public class ChunkVisibilityManager {
     private static final int portalLoadingRange = 48;
     public static final int secondaryPortalLoadingRange = 16;
-    
-    public static interface ChunkPosConsumer {
-        void consume(RegistryKey<World> dimensionType, int x, int z, int distanceToSource);
-    }
     
     public static ChunkLoader playerDirectLoader(ServerPlayerEntity player) {
         return new ChunkLoader(

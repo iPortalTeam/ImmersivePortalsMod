@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Objects;
@@ -37,7 +39,7 @@ public class ChunkLoader {
         return (this.radius * 2 + 1) * (this.radius * 2 + 1);
     }
     
-    public void foreachChunkPos(ChunkVisibilityManager.ChunkPosConsumer func) {
+    public void foreachChunkPos(ChunkPosConsumer func) {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 func.consume(
@@ -76,5 +78,9 @@ public class ChunkLoader {
     @Override
     public int hashCode() {
         return Objects.hash(center, radius);
+    }
+    
+    public static interface ChunkPosConsumer {
+        void consume(RegistryKey<World> dimension, int x, int z, int distanceToSource);
     }
 }

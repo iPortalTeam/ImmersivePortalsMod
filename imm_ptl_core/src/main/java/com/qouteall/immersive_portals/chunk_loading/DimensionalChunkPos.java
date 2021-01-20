@@ -8,9 +8,9 @@ import java.util.Objects;
 
 
 public class DimensionalChunkPos {
-    public RegistryKey<World> dimension;
-    public int x;
-    public int z;
+    public final RegistryKey<World> dimension;
+    public final int x;
+    public final int z;
     
     public DimensionalChunkPos(RegistryKey<World> dimension, int x, int z) {
         this.dimension = dimension;
