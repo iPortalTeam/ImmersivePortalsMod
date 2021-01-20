@@ -14,6 +14,7 @@ import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -47,10 +48,11 @@ public class ServerTeleportationManager {
     public ServerTeleportationManager() {
         ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
         Portal.serverPortalTickSignal.connectWithWeakRef(
-            this, (this_, portal) ->
+            this, (this_, portal) -> {
                 getEntitiesToTeleport(portal).forEach(entity -> {
-                    tryToTeleportRegularEntity(portal, entity);
-                })
+                    this_.tryToTeleportRegularEntity(portal, entity);
+                });
+            }
         );
     }
     
@@ -63,7 +65,6 @@ public class ServerTeleportationManager {
             );
     }
     
-  
     
     public void tryToTeleportRegularEntity(Portal portal, Entity entity) {
         if (entity instanceof ServerPlayerEntity) {
@@ -81,7 +82,7 @@ public class ServerTeleportationManager {
         if (!entity.canUsePortals()) {
             return;
         }
-        if (isJustTeleported(entity, 10)) {
+        if (isJustTeleported(entity, 1)) {
             return;
         }
         //a new born entity may have last tick pos 0 0 0
@@ -402,7 +403,7 @@ public class ServerTeleportationManager {
         
         long currGameTime = McHelper.getServerGameTime();
         Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
-        if (currGameTime - lastTeleportGameTime < 3) {
+        if (currGameTime - lastTeleportGameTime <= 1) {
             return;
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
@@ -415,7 +416,7 @@ public class ServerTeleportationManager {
         
         List<Entity> passengerList = entity.getPassengerList();
         
-        Vec3d newEyePos = portal.transformPoint(McHelper.getEyePos(entity));
+        Vec3d newEyePos = getRegularEntityTeleportedEyePos(entity, portal);
         
         if (portal.dimensionTo != entity.world.getRegistryKey()) {
             entity = changeEntityDimension(entity, portal.dimensionTo, newEyePos, true);
@@ -442,6 +443,25 @@ public class ServerTeleportationManager {
         
         // a new entity may be created
         this.lastTeleportGameTime.put(entity, currGameTime);
+    }
+    
+    private static Vec3d getRegularEntityTeleportedEyePos(Entity entity, Portal portal) {
+        Vec3d eyePos = McHelper.getEyePos(entity);
+        if (entity instanceof ProjectileEntity) {
+            Vec3d collidingPoint = portal.rayTrace(
+                eyePos.subtract(entity.getVelocity().normalize().multiply(5)),
+                eyePos
+            );
+            
+            if (collidingPoint == null) {
+                collidingPoint = eyePos;
+            }
+            
+            return portal.transformPoint(collidingPoint);
+        }
+        else {
+            return portal.transformPoint(eyePos);
+        }
     }
     
     /**

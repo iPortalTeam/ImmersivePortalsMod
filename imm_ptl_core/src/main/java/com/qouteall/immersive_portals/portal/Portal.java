@@ -1024,13 +1024,13 @@ public class Portal extends Entity implements PortalLike {
     }
     
     public Vec3d getPointInPortalProjection(Vec3d pos) {
-        Vec3d myPos = getOriginPos();
-        Vec3d offset = pos.subtract(myPos);
+        Vec3d originPos = getOriginPos();
+        Vec3d offset = pos.subtract(originPos);
         
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
         
-        return myPos.add(
+        return originPos.add(
             axisW.multiply(xInPlane)
         ).add(
             axisH.multiply(yInPlane)
