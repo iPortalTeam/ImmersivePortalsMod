@@ -11,12 +11,12 @@ import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
@@ -322,13 +322,11 @@ public class ClientWorldLoader {
         ClientWorld soundWorld,
         Vec3d soundPos
     ) {
-        ClientPlayerEntity player = client.player;
-        
         return McHelper.getNearbyPortals(
-            soundWorld, soundPos, 20
+            soundWorld, soundPos, 10
         ).filter(
-            portal -> portal.getDestDim() == player.world.getRegistryKey() &&
-                portal.getDestPos().distanceTo(player.getPos()) < 30
+            portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&
+                portal.transformPoint(soundPos).distanceTo(RenderStates.originalPlayerPos) < 20
         ).findFirst().map(
             portal -> portal.transformPoint(soundPos)
         ).orElse(null);
