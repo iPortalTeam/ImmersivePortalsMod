@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.mixin.common;
 
-import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IERayTraceContext;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -53,7 +52,7 @@ public abstract class MixinRayTraceContext implements IERayTraceContext {
         BlockPos blockPos,
         CallbackInfoReturnable<VoxelShape> cir
     ) {
-        if (Global.portalPlaceholderPassthrough && blockState.getBlock() == PortalPlaceholderBlock.instance) {
+        if (blockState.getBlock() == PortalPlaceholderBlock.instance) {
             if (blockView instanceof World) {
                 boolean isIntersectingWithPortal = McHelper.getEntitiesRegardingLargeEntities(
                     (World) blockView, new Box(blockPos),

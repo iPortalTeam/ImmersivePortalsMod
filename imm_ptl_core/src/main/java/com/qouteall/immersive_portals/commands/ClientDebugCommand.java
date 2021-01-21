@@ -641,11 +641,6 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "portal_placeholder_passthrough",
-            cond -> Global.portalPlaceholderPassthrough = cond
-        );
-        registerSwitchCommand(
-            builder,
             "early_cull_portal",
             cond -> CGlobal.earlyFrustumCullingPortal = cond
         );
