@@ -43,11 +43,6 @@ public class Global {
     
     public static boolean looseVisibleChunkIteration = true;
     
-    //TODO remove
-    public static boolean portalPlaceholderPassthrough = true;
-    
-    public static boolean mirrorInteractableThroughPortal = false;
-    
     public static boolean looseMovementCheck = false;
     
     public static boolean pureMirror = false;

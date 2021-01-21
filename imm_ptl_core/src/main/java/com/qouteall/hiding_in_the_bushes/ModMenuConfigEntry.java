@@ -87,10 +87,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.multi_threaded_nether_portal_searching"),
                 currConfig.multiThreadedNetherPortalSearching
             ).setDefaultValue(true).build();
-            BooleanListEntry entryMirrorInteractableThroughPortal = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.mirror_interactable_through_portal"),
-                currConfig.mirrorInteractableThroughPortal
-            ).setDefaultValue(false).build();
             BooleanListEntry entryPureMirror = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.pure_mirror"),
                 currConfig.pureMirror
@@ -174,7 +170,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryTeleportDebug);
             serverSide.addEntry(entryLooseMovementCheck);
             serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
-            serverSide.addEntry(entryMirrorInteractableThroughPortal);
             serverSide.addEntry(entryIncreaseLoadingRangeGradually);
             
             return builder
@@ -193,7 +188,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
-                    newConfig.mirrorInteractableThroughPortal = entryMirrorInteractableThroughPortal.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
                     newConfig.reducedPortalRendering = entryReducedPortalRendering.getValue();

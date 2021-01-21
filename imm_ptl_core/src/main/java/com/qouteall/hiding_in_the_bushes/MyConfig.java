@@ -33,7 +33,6 @@ public class MyConfig {
     public boolean correctCrossPortalEntityRendering = true;
     public boolean multiThreadedNetherPortalSearching = true;
     public boolean edgelessSky = false;
-    public boolean mirrorInteractableThroughPortal = false;
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
     public boolean enableAlternateDimensions = true;
@@ -138,7 +137,6 @@ public class MyConfig {
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
         Global.edgelessSky = edgelessSky;
-        Global.mirrorInteractableThroughPortal = mirrorInteractableThroughPortal;
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
         

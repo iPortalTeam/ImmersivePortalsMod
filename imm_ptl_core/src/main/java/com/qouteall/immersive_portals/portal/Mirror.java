@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.immersive_portals.Global;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Vec3d;
@@ -19,11 +18,6 @@ public class Mirror extends Portal {
         teleportable = false;
     }
     
-    @Override
-    public boolean isInteractable() {
-        return Global.mirrorInteractableThroughPortal && super.isInteractable();
-    }
-
 //    @Override
 //    public Vec3d getContentDirection() {
 //        return getNormal();
