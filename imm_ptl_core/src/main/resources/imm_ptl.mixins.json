@@ -75,6 +75,7 @@
     "client.render.MixinWorldRenderer_Clouds",
     "client.render.MixinWorldRenderer_Optional",
     "client.render.MixinWorldRendererChunkInfo",
+    "client.sound.MixinClientWorld_Sound",
     "client.sync.MixinClientPlayNetworkHandler",
     "client.sync.MixinPlayerMoveC2SPacket_C",
     "client.sync.MixinPlayerMoveC2SPacketBoth",

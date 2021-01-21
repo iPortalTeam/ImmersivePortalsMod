@@ -4,16 +4,22 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -77,5 +83,28 @@ public class MixinPlayerManager {
         }
         
         ci.cancel();
+    }
+    
+    /**
+     * @author qoutall
+     * mostly for sound events
+     */
+    @Overwrite
+    public void sendToAround(
+        @Nullable PlayerEntity excludingPlayer,
+        double x, double y, double z, double distance,
+        RegistryKey<World> dimension, Packet<?> packet
+    ) {
+        ChunkPos chunkPos = new ChunkPos(new BlockPos(new Vec3d(x, y, z)));
+        
+        NewChunkTrackingGraph.getPlayersViewingChunk(
+            dimension, chunkPos.x, chunkPos.z
+        ).filter(playerEntity -> NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
+            playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance+16
+        )).forEach(playerEntity -> {
+            playerEntity.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+                dimension, packet
+            ));
+        });
     }
 }

@@ -16,6 +16,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
@@ -28,6 +29,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -313,5 +315,22 @@ public class ClientWorldLoader {
         Validate.isTrue(isInitialized);
         
         return clientWorldMap.values();
+    }
+    
+    @Nullable
+    public static Vec3d getTransformedSoundPosition(
+        ClientWorld soundWorld,
+        Vec3d soundPos
+    ) {
+        ClientPlayerEntity player = client.player;
+        
+        return McHelper.getNearbyPortals(
+            soundWorld, soundPos, 20
+        ).filter(
+            portal -> portal.getDestDim() == player.world.getRegistryKey() &&
+                portal.getDestPos().distanceTo(player.getPos()) < 30
+        ).findFirst().map(
+            portal -> portal.transformPoint(soundPos)
+        ).orElse(null);
     }
 }

@@ -309,17 +309,21 @@ public class McHelper {
         return result != null ? result : Collections.emptyList();
     }
     
+    // includes global portals
     public static Stream<Portal> getNearbyPortals(Entity center, double range) {
-        List<Portal> globalPortals = getGlobalPortals(center.world);
+        return getNearbyPortals(center.world, center.getPos(), range);
+    }
+    
+    // includes global portals
+    public static Stream<Portal> getNearbyPortals(World world, Vec3d pos, double range) {
+        List<Portal> globalPortals = getGlobalPortals(world);
+        
         Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-            center.world,
-            center.getPos(),
-            Portal.class,
-            range
+            world, pos, Portal.class, range
         );
         return Streams.concat(
             globalPortals.stream().filter(
-                p -> p.getDistanceToNearestPointInPortal(center.getPos()) < range * 2
+                p -> p.getDistanceToNearestPointInPortal(pos) < range * 2
             ),
             nearbyPortals
         );
