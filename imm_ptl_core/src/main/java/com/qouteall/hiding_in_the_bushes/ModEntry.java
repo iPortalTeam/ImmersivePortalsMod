@@ -19,8 +19,6 @@ public class ModEntry implements ModInitializer {
         
         MyRegistry.registerBlocksFabric();
         
-        MyRegistry.registerEffectAndPotion();
-        
         MyRegistry.registerChunkGenerators();
         
         O_O.isReachEntityAttributesPresent =

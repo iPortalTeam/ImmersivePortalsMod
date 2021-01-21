@@ -1,6 +1,5 @@
 package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
 import com.qouteall.immersive_portals.portal.BreakableMirror;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
@@ -155,14 +154,6 @@ public class MyRegistry {
             ).dimensions(
                 new EntityDimensions(1, 1, true)
             ).fireImmune().trackable(96, 20).build()
-        );
-    }
-    
-    public static void registerEffectAndPotion() {
-        Registry.register(
-            Registry.ATTRIBUTE,
-            "immersive_portals:hand_reach_multiplier",
-            HandReachTweak.handReachMultiplierAttribute
         );
     }
     

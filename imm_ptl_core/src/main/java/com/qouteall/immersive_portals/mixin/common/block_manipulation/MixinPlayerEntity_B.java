@@ -1,27 +1,9 @@
 package com.qouteall.immersive_portals.mixin.common.block_manipulation;
 
-import com.qouteall.hiding_in_the_bushes.O_O;
-import com.qouteall.immersive_portals.block_manipulation.HandReachTweak;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public class MixinPlayerEntity_B {
-    @Inject(method = "createPlayerAttributes", at = @At("RETURN"), cancellable = true)
-    private static void onCreatePlayerAttributes(
-        CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir
-    ) {
-        if (!O_O.isForge()) {
-            cir.setReturnValue(
-                cir.getReturnValue().add(
-                    HandReachTweak.handReachMultiplierAttribute,
-                    1.0
-                )
-            );
-        }
-    }
+
 }
