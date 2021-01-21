@@ -2,9 +2,9 @@ package com.qouteall.immersive_portals.api.example;
 
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.api.PortalAPI;
 import com.qouteall.immersive_portals.chunk_loading.ChunkLoader;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
-import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.network.RemoteProcedureCall;
 import com.qouteall.immersive_portals.render.GuiPortalRendering;
@@ -71,7 +71,7 @@ public class ExampleGuiPortalRendering {
     private static void removeChunkLoaderFor(ServerPlayerEntity player) {
         ChunkLoader chunkLoader = chunkLoaderMap.remove(player);
         if (chunkLoader != null) {
-            NewChunkTrackingGraph.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
+            PortalAPI.removeChunkLoaderForPlayer(player, chunkLoader);
         }
     }
     
@@ -86,7 +86,7 @@ public class ExampleGuiPortalRendering {
         );
         
         // Add the per-player additional chunk loader
-        NewChunkTrackingGraph.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
+        PortalAPI.addChunkLoaderForPlayer(player, chunkLoader);
         chunkLoaderMap.put(player, chunkLoader);
         
         // Tell the client to open the screen

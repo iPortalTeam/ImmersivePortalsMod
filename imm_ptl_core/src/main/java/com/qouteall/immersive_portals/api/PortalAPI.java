@@ -2,12 +2,15 @@ package com.qouteall.immersive_portals.api;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.chunk_loading.ChunkLoader;
+import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
@@ -92,5 +95,13 @@ public class PortalAPI {
         ServerWorld world, Portal portal
     ) {
         GlobalPortalStorage.get(world).removePortal(portal);
+    }
+    
+    public static void addChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
+        NewChunkTrackingGraph.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
+    }
+    
+    public static void removeChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
+        NewChunkTrackingGraph.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
 }
