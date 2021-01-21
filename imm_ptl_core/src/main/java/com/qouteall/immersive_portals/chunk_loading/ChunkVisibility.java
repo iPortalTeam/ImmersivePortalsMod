@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class ChunkVisibilityManager {
+public class ChunkVisibility {
     private static final int portalLoadingRange = 48;
     public static final int secondaryPortalLoadingRange = 16;
     
@@ -177,14 +177,14 @@ public class ChunkVisibilityManager {
                 ((ServerWorld) player.world),
                 player.getPos(),
                 portal -> portal.canBeSpectated(player),
-                shrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange
+                isShrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange
             ).stream().flatMap(
                 portal -> {
                     Vec3d transformedPlayerPos = portal.transformPoint(player.getPos());
     
                     return Stream.concat(
                         Stream.of(getGeneralDirectPortalLoader(player, portal)),
-                        shrinkLoading() ?
+                        isShrinkLoading() ?
                             Stream.empty() :
                             getNearbyPortals(
                                 ((ServerWorld) portal.getDestinationWorld()),
@@ -202,7 +202,7 @@ public class ChunkVisibilityManager {
         ).distinct();
     }
     
-    public static boolean shrinkLoading() {
+    public static boolean isShrinkLoading() {
         return Global.indirectLoadingRadiusCap < 4;
     }
     

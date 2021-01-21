@@ -11,7 +11,7 @@ import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.chunk_loading.ChunkVisibilityManager;
+import com.qouteall.immersive_portals.chunk_loading.ChunkVisibility;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
@@ -293,7 +293,7 @@ public class ClientDebugCommand {
             .literal("report_chunk_loaders")
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
-                ChunkVisibilityManager.getBaseChunkLoaders(
+                ChunkVisibility.getBaseChunkLoaders(
                     player
                 ).forEach(
                     loader -> McHelper.serverLog(

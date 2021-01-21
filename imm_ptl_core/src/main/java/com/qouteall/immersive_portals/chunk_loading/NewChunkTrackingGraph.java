@@ -149,7 +149,7 @@ public class NewChunkTrackingGraph {
         playerInfo.visibleDimensions.clear();
         
         long gameTime = McHelper.getOverWorldOnServer().getTime();
-        ChunkVisibilityManager.getBaseChunkLoaders(player)
+        ChunkVisibility.getBaseChunkLoaders(player)
             .forEach(chunkLoader -> updatePlayerForChunkLoader(player, gameTime, chunkLoader));
         
         playerInfo.additionalChunkLoaders.removeIf(w -> w.get() == null);
@@ -420,7 +420,7 @@ public class NewChunkTrackingGraph {
     // may have no ticket for a short period of time (because the chunk tracking refreshes
     // every 2 seconds) and the chunk may be unloaded and reloaded.
     public static void addAdditionalDirectLoadingTickets(ServerPlayerEntity player) {
-        ChunkVisibilityManager.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
+        ChunkVisibility.playerDirectLoader(player).foreachChunkPos((dim, x, z, dis) -> {
             if (isPlayerWatchingChunk(player, dim, x, z)) {
                 
                 MyLoadingTicket.addTicketIfNotLoaded(((ServerWorld) player.world), new ChunkPos(x, z));
