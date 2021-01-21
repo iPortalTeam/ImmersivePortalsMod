@@ -6,12 +6,14 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -21,6 +23,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public class CollisionHelper {
+    
+    private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
     //cut a box with a plane
     //the facing that normal points to will be remained
@@ -129,13 +133,19 @@ public class CollisionHelper {
         if (boxOtherSide == null) {
             return attemptedMove;
         }
+    
+        World destinationWorld = collidingPortal.getDestinationWorld();
+    
+        if (!destinationWorld.isChunkLoaded(new BlockPos(boxOtherSide.getCenter()))) {
+            return Vec3d.ZERO;
+        }
         
         //switch world and check collision
         World oldWorld = entity.world;
         Vec3d oldPos = entity.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(entity);
         
-        entity.world = collidingPortal.getDestinationWorld();
+        entity.world = destinationWorld;
         entity.setBoundingBox(boxOtherSide);
         
         Vec3d collided = handleCollisionFunc.apply(transformedAttemptedMove);
