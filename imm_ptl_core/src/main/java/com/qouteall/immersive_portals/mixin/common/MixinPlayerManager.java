@@ -100,11 +100,13 @@ public class MixinPlayerManager {
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunkPos.x, chunkPos.z
         ).filter(playerEntity -> NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
-            playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance+16
+            playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
         )).forEach(playerEntity -> {
-            playerEntity.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
-                dimension, packet
-            ));
+            if (playerEntity != excludingPlayer) {
+                playerEntity.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+                    dimension, packet
+                ));
+            }
         });
     }
 }

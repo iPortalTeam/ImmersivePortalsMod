@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.client.sound;
 
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.EntityTrackingSoundInstance;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.world.ClientWorld;
@@ -35,11 +36,13 @@ public class MixinClientWorld_Sound {
         CallbackInfo ci
     ) {
         ClientWorld this_ = (ClientWorld) (Object) this;
-        if (client.player.world != this_) {
+        Vec3d soundPos = new Vec3d(x, y, z);
+        
+        if (!portal_isPosNearPlayer(soundPos)) {
             Vec3d transformedSoundPosition =
-                ClientWorldLoader.getTransformedSoundPosition(this_, new Vec3d(x, y, z));
+                ClientWorldLoader.getTransformedSoundPosition(this_, soundPos);
             if (transformedSoundPosition != null) {
-                 portal_playSound(
+                portal_playSound(
                     transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z,
                     sound, category, volume, pitch, bl
                 );
@@ -59,7 +62,7 @@ public class MixinClientWorld_Sound {
     ) {
         ClientWorld this_ = (ClientWorld) (Object) this;
         
-        if (this_ != player.world) {
+        if (!portal_isPosNearPlayer(entity.getPos())) {
             Vec3d entityPos = entity.getPos();
             Vec3d transformedSoundPosition = ClientWorldLoader.getTransformedSoundPosition(
                 this_, entityPos
@@ -75,7 +78,7 @@ public class MixinClientWorld_Sound {
         }
     }
     
-    public void portal_playSound(
+    private void portal_playSound(
         double x, double y, double z,
         SoundEvent sound, SoundCategory category, float volume, float pitch, boolean bl
     ) {
@@ -88,6 +91,18 @@ public class MixinClientWorld_Sound {
         else {
             client.getSoundManager().play(positionedSoundInstance);
         }
+    }
+    
+    private boolean portal_isPosNearPlayer(Vec3d pos) {
+        ClientWorld this_ = (ClientWorld) (Object) this;
+        
+        ClientPlayerEntity player = client.player;
+        
+        if (this_ != player.world) {
+            return false;
+        }
+        
+        return pos.squaredDistanceTo(player.getPos()) < 30 * 30;
     }
     
 }
