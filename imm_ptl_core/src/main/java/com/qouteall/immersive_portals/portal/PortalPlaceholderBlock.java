@@ -61,12 +61,9 @@ public class PortalPlaceholderBlock extends Block {
     
     @Override
     public VoxelShape getOutlineShape(
-        BlockState blockState_1,
-        BlockView blockView_1,
-        BlockPos blockPos_1,
-        ShapeContext entityContext_1
+        BlockState state, BlockView world, BlockPos blockPos, ShapeContext shapeContext
     ) {
-        switch ((Direction.Axis) blockState_1.get(AXIS)) {
+        switch ((Direction.Axis) state.get(AXIS)) {
             case Z:
                 return Z_AABB;
             case Y:
@@ -91,7 +88,7 @@ public class PortalPlaceholderBlock extends Block {
         BlockPos blockPos,
         BlockPos neighborPos
     ) {
-        if(!world.isClient()){
+        if (!world.isClient()) {
             Direction.Axis axis = thisState.get(AXIS);
             if (direction.getAxis() != axis) {
                 McHelper.findEntitiesRough(
@@ -99,7 +96,7 @@ public class PortalPlaceholderBlock extends Block {
                     ((World) world),
                     Vec3d.of(blockPos),
                     2,
-                    e->true
+                    e -> true
                 ).forEach(
                     portal -> {
                         ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
@@ -129,7 +126,7 @@ public class PortalPlaceholderBlock extends Block {
         //nothing
     }
     
-   
+    
     //---------These are copied from BlockBarrier
     @Override
     public boolean isTranslucent(

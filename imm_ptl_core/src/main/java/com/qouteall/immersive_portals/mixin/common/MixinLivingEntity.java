@@ -42,6 +42,21 @@ public class MixinLivingEntity {
     private void onCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity.world != ((Entity) (Object) this).world) {
             cir.setReturnValue(false);
+            return;
         }
     }
+    
+//    @Inject(
+//        method = "canSee",
+//        at = @At("RETURN"),
+//        cancellable = true
+//    )
+//    private void onCanSeeReturns(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+//        LivingEntity this_ = (LivingEntity) (Object) this;
+//        if (cir.getReturnValue()) {
+//            if (Portal.doesPortalBlockEntityView(this_, entity)) {
+//                cir.setReturnValue(false);
+//            }
+//        }
+//    }
 }

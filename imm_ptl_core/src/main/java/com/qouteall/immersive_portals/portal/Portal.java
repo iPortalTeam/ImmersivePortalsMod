@@ -26,6 +26,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -1311,4 +1312,21 @@ public class Portal extends Entity implements PortalLike {
         return teleportable;
     }
     
+    public static boolean doesPortalBlockEntityView(
+        LivingEntity observer, Entity target
+    ) {
+        observer.world.getProfiler().push("portal_block_view");
+        
+        List<Portal> viewBlockingPortals = McHelper.findEntitiesByBox(
+            Portal.class,
+            observer.world,
+            observer.getBoundingBox().union(target.getBoundingBox()),
+            8,
+            p -> p.rayTrace(observer.getCameraPosVec(1), target.getCameraPosVec(1)) != null
+        );
+        
+        observer.world.getProfiler().pop();
+        
+        return !viewBlockingPortals.isEmpty();
+    }
 }

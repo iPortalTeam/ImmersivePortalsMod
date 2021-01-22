@@ -9,7 +9,7 @@
     "common.MixinMinecraftServer",
     "common.MixinPlayerManager",
     "common.MixinProfilerSystem",
-    "common.MixinRayTraceContext",
+    "common.MixinRaycastContext",
     "common.MixinServerChunkManager",
     "common.MixinServerWorld",
     "common.MixinWorld",
