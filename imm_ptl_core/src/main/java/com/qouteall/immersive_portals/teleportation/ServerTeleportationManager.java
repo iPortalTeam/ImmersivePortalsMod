@@ -637,7 +637,7 @@ public class ServerTeleportationManager {
                     }
                 }
                 
-                if (chaser.getPos().distanceTo(targetPos) < 1) {
+                if (chaser.getPos().distanceTo(targetPos) < 2) {
                     chaser.getMoveControl().moveTo(
                         targetPos.x, targetPos.y, targetPos.z, 1
                     );
