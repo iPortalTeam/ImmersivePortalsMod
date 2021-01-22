@@ -10,9 +10,12 @@ import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.Packet;
@@ -20,6 +23,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -128,6 +132,8 @@ public class ServerTeleportationManager {
             if (isTeleporting(player)) {
                 Helper.log(player.toString() + "is teleporting frequently");
             }
+            
+            notifyChasersForPlayer(player, portal);
             
             RegistryKey<World> dimensionTo = portal.dimensionTo;
             Vec3d newEyePos = portal.transformPoint(oldEyePos);
@@ -584,5 +590,56 @@ public class ServerTeleportationManager {
                 );
             }
         }
+    }
+    
+    // make the mobs chase the player through portal
+    // (only works in simple cases)
+    public static void notifyChasersForPlayer(
+        ServerPlayerEntity player,
+        Portal portal
+    ) {
+        List<MobEntity> attackers = McHelper.findEntitiesRough(
+            MobEntity.class,
+            player.world,
+            player.getPos(),
+            1,
+            e -> e.getTarget() == player
+        );
+        
+        for (MobEntity attacker : attackers) {
+            attacker.setTarget(null);
+        }
+        
+        Vec3d targetPos = player.getPos();
+        
+        ModMain.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
+            140,
+            () -> {
+                for (MobEntity attacker : attackers) {
+                    if (attacker.removed) {
+                        return true;
+                    }
+                    
+                    if (attacker.getTarget() != null) {
+                        return true;
+                    }
+                    
+                    if (attacker.getPos().distanceTo(targetPos) < 1) {
+                        attacker.getMoveControl().moveTo(
+                            targetPos.x, targetPos.y, targetPos.z, 1
+                        );
+                    }
+                    else {
+                        Path path = attacker.getNavigation().findPathTo(
+                            new BlockPos(targetPos),
+                            0
+                        );
+                        attacker.getNavigation().startMovingAlong(path, 1);
+                    }
+                }
+                return false;
+            },
+            () -> {}
+        ));
     }
 }
