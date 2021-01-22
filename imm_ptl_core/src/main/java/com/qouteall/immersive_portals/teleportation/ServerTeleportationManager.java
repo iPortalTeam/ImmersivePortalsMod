@@ -610,7 +610,7 @@ public class ServerTeleportationManager {
             attacker.setTarget(null);
         }
         
-        Vec3d targetPos = player.getPos();
+        Vec3d targetPos = player.getPos().add(portal.getNormal().multiply(-0.1));
         
         ModMain.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
             140,
