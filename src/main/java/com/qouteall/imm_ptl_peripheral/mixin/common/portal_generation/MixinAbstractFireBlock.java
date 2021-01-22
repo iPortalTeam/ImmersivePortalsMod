@@ -51,4 +51,22 @@ public class MixinAbstractFireBlock {
         }
         return false;
     }
+    
+    // allow lighting fire on the side of obsidian
+    // for lighting horizontal portals
+    @Redirect(
+        method = "method_30033",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/Optional;isPresent()Z"
+        )
+    )
+    private static boolean redirectIsPresent(Optional optional) {
+        if (Global.netherPortalMode != Global.NetherPortalMode.vanilla) {
+            return true;
+        }
+        else {
+            return optional.isPresent();
+        }
+    }
 }
