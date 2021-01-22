@@ -43,7 +43,6 @@ public class MixinParticleManager implements IEParticleManager {
         }
     }
     
-    // if the particle does not belong to the current dimension, do not render
     @Redirect(
         method = "renderParticles",
         at = @At(
