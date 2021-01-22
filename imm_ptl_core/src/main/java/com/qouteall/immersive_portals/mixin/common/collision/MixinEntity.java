@@ -62,6 +62,8 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     private boolean chunkPosUpdateRequested;
     
+    @Shadow public int age;
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
@@ -193,7 +195,7 @@ public abstract class MixinEntity implements IEEntity {
                 }
             }
             
-            if (Math.abs(world.getTime() - collidingPortalActiveTickTime) >= 3) {
+            if (Math.abs(age - collidingPortalActiveTickTime) >= 3) {
                 collidingPortal = null;
             }
         }
@@ -206,12 +208,12 @@ public abstract class MixinEntity implements IEEntity {
     @Override
     public void notifyCollidingWithPortal(Entity portal) {
         collidingPortal = portal;
-        collidingPortalActiveTickTime = world.getTime();
+        collidingPortalActiveTickTime = age;//world time may jump due to time synchroization
     }
     
     @Override
     public boolean isRecentlyCollidingWithPortal() {
-        return (world.getTime() - collidingPortalActiveTickTime) < 20;
+        return (age - collidingPortalActiveTickTime) < 20;
     }
     
     @Override
