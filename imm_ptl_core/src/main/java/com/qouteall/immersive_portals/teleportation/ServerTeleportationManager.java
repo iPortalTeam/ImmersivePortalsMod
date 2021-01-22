@@ -29,6 +29,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -621,7 +622,7 @@ public class ServerTeleportationManager {
         
         UUID chaserId = chaser.getUuid();
         ServerWorld destWorld = ((ServerWorld) portal.getDestinationWorld());
-    
+        
         ModMain.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
             140,
             () -> {
@@ -643,6 +644,7 @@ public class ServerTeleportationManager {
                     );
                 }
                 else {
+                    @Nullable
                     Path path = chaser.getNavigation().findPathTo(
                         new BlockPos(targetPos), 0
                     );
