@@ -2,8 +2,8 @@ package com.qouteall.hiding_in_the_bushes.sodium_compatibility;
 
 import com.qouteall.immersive_portals.SodiumInterface;
 import com.qouteall.immersive_portals.render.FrontClipping;
+import me.jellysquid.mods.sodium.client.IWorldRenderer;
 import me.jellysquid.mods.sodium.client.SodiumHooks;
-import me.jellysquid.mods.sodium.client.WorldRendererAccessor;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderManager;
 import net.fabricmc.api.EnvType;
@@ -15,13 +15,13 @@ public class SodiumInterfaceInitializer {
         SodiumInterface.createClientChunkManager = ClientChunkManagerWithSodium::new;
         
         SodiumInterface.createNewRenderingContext = worldRenderer -> {
-            SodiumWorldRenderer swr = ((WorldRendererAccessor) worldRenderer).getSodiumWorldRenderer();
+            SodiumWorldRenderer swr = ((IWorldRenderer) worldRenderer).getSodiumWorldRenderer();
             return swr.createNewRenderContext();
         };
         
         SodiumInterface.switchRenderingContext = (worldRenderer, newContext) -> {
             SodiumWorldRenderer sodiumWorldRenderer =
-                ((WorldRendererAccessor) worldRenderer).getSodiumWorldRenderer();
+                ((IWorldRenderer) worldRenderer).getSodiumWorldRenderer();
             
             // must update render list
             sodiumWorldRenderer.scheduleTerrainUpdate();
