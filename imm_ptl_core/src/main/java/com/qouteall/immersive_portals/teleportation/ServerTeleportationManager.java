@@ -594,11 +594,11 @@ public class ServerTeleportationManager {
     
     // make the mobs chase the player through portal
     // (only works in simple cases)
-    public static void notifyChasersForPlayer(
+    private static void notifyChasersForPlayer(
         ServerPlayerEntity player,
         Portal portal
     ) {
-        List<MobEntity> attackers = McHelper.findEntitiesRough(
+        List<MobEntity> chasers = McHelper.findEntitiesRough(
             MobEntity.class,
             player.world,
             player.getPos(),
@@ -606,36 +606,47 @@ public class ServerTeleportationManager {
             e -> e.getTarget() == player
         );
         
-        for (MobEntity attacker : attackers) {
-            attacker.setTarget(null);
+        for (MobEntity chaser : chasers) {
+            chaser.setTarget(null);
+            notifyChaser(player, portal, chaser);
         }
-        
+    }
+    
+    private static void notifyChaser(
+        ServerPlayerEntity player,
+        Portal portal,
+        MobEntity chaser
+    ) {
         Vec3d targetPos = player.getPos().add(portal.getNormal().multiply(-0.1));
         
+        UUID chaserId = chaser.getUuid();
+        ServerWorld destWorld = ((ServerWorld) portal.getDestinationWorld());
+    
         ModMain.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
             140,
             () -> {
-                for (MobEntity attacker : attackers) {
-                    if (attacker.removed) {
+                if (chaser.removed) {
+                    // the chaser teleported
+                    Entity newChaser = destWorld.getEntity(chaserId);
+                    if (newChaser instanceof MobEntity) {
+                        ((MobEntity) newChaser).setTarget(player);
                         return true;
-                    }
-                    
-                    if (attacker.getTarget() != null) {
-                        return true;
-                    }
-                    
-                    if (attacker.getPos().distanceTo(targetPos) < 1) {
-                        attacker.getMoveControl().moveTo(
-                            targetPos.x, targetPos.y, targetPos.z, 1
-                        );
                     }
                     else {
-                        Path path = attacker.getNavigation().findPathTo(
-                            new BlockPos(targetPos),
-                            0
-                        );
-                        attacker.getNavigation().startMovingAlong(path, 1);
+                        return false;
                     }
+                }
+                
+                if (chaser.getPos().distanceTo(targetPos) < 1) {
+                    chaser.getMoveControl().moveTo(
+                        targetPos.x, targetPos.y, targetPos.z, 1
+                    );
+                }
+                else {
+                    Path path = chaser.getNavigation().findPathTo(
+                        new BlockPos(targetPos), 0
+                    );
+                    chaser.getNavigation().startMovingAlong(path, 1);
                 }
                 return false;
             },
