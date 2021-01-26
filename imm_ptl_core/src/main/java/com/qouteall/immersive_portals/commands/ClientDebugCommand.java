@@ -689,11 +689,6 @@ public class ClientDebugCommand {
             "light_logging",
             cond -> Global.lightLogging = cond
         );
-        registerSwitchCommand(
-            builder,
-            "flush_light_tasks_before_sending_packet",
-            cond -> Global.flushLightTasksBeforeSendingPacket = cond
-        );
         
         builder.then(CommandManager
             .literal("print_class_path")
