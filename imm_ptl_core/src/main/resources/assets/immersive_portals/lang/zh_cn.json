@@ -30,7 +30,6 @@
   "imm_ptl.multi_threaded_nether_portal_searching": "多线程传送门框架搜索",
   "imm_ptl.edgeless_sky": "去除位面连接传送门的天空渲染边界",
   "imm_ptl.render_redirect": "位面渲染风格替换",
-  "imm_ptl.mirror_interactable_through_portal": "透过镜子交互方块",
   "imm_ptl.command.make_portal.success": "已生成传送门 %sx%s %s%s -> %s%s",
   "imm_ptl.command.tpme.success": "将玩家传送至 %s",
   "imm_ptl.command.tp.success": "传送实体 %d 至 %s",
@@ -64,5 +63,12 @@
   "imm_ptl.loop_enabled": "纵向循环：启用",
   "imm_ptl.loop_disabled": "纵向循环：禁用",
   "imm_ptl.inform_wiki": "[空间折叠] 如何制作自定义传送门： ",
-  "imm_ptl.force_portal_rendering_merge": "强制渲染合并"
+  "imm_ptl.force_portal_rendering_merge": "强制渲染合并",
+  "imm_ptl.clear_border_warning": "注意! 即将清除折叠区域外部边界的所有方块。\n此操作无法撤销，建议提前备份存档\n 此操作将生成世界区块，增加存档大小约 %1$s GB.\n再次使用这个命令以继续",
+  "imm_ptl.finished_clearing_border": "已完成外部边界清除 方块更新可能未同步到客户端，重新进入世界以查看",
+  "imm_ptl.inform_portal_helper": "[Immersive Portals] 查看如何使用传送门框架 ",
+  "imm_ptl.portal_helper_tooltip": "建造两个框架，用打火石点燃",
+  "imm_ptl.incompatible_shape": "[Immersive Portals] 无法转换传送门，因为形状不兼容",
+  "imm_ptl.enable_nether_portal_overlay": "启用地狱传送门外附材质",
+  "imm_ptl.increase_loading_range_gradually": "逐渐提高加载距离"
 }

@@ -32,7 +32,6 @@
   "imm_ptl.remove_dimension": "Удалить Измерение",
   "imm_ptl.confirm_select_dimension": "Подтвердить",
   "imm_ptl.select_dimension": "Выбрать Измерение",
-  "imm_ptl.mirror_interactable_through_portal": "Зеркала могут быть достигнуты путем",
   "imm_ptl.command.make_portal.success": "Создан %sx%s портал %s%s -> %s%s",
   "imm_ptl.command.tpme.success": "Телепортировал себя в %s",
   "imm_ptl.command.tp.success": "Телепортировал %d сущностей в %s",
@@ -58,11 +57,18 @@
   "gamerule.ipDimensionStack": "Dimension Stack (Immersive Portals)",
   "gamerule.ipDimensionStack.description": "You don't need to change this here",
   "imm_ptl.chunk_unload_delay_ticks": "Chunk Unload Delay (Ticks)",
-  "imm_ptl.automatic_rendering_merge": "Automatically Merge Portal Rendering (Experimental)",
   "imm_ptl.dim_stack_initialized": "[Immersive Portals] Dimension Stack World Initialized",
   "imm_ptl.respect_space_ratio_enabled": "Respect Space Ratio Enabled",
   "imm_ptl.respect_space_ratio_disabled": "Respect Space Ratio Disabled",
   "imm_ptl.loop_enabled": "Loop Enabled",
   "imm_ptl.loop_disabled": "Loop Disabled",
-  "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals "
+  "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals ",
+  "imm_ptl.clear_border_warning": "Warning! It will clear all blocks in the outer layer of the world wrapping border.\nThis operation cannot be undone. You should backup the world before doing that.\n This operation will generate the chunks along the border which may increase the world saving size by %1$s GB.\nInvoke this command again to proceed.",
+  "imm_ptl.finished_clearing_border": "Finished Clearing Border. The blocks updates are not synchronized to the client. Re-enter the world to check.",
+  "imm_ptl.force_portal_rendering_merge": "Force Merge Portal Rendering",
+  "imm_ptl.inform_portal_helper": "[Immersive Portals] Check the wiki about how to use portal helper ",
+  "imm_ptl.portal_helper_tooltip": "Build two frames, use flint and steel to light it",
+  "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
+  "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
+  "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance"
 }
