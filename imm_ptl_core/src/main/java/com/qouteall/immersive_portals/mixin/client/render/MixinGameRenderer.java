@@ -109,7 +109,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         CGlobal.renderer.finishRendering();
         
         RenderStates.onTotalRenderEnd();
-    
+        
         GuiPortalRendering.onGameRenderEnd();
     }
     
@@ -155,7 +155,19 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         }
     }
     
-    //View bobbing will make the camera pos offset to actuall camera pos
+    private static boolean portal_isRenderingHand = false;
+    
+    @Inject(method = "renderHand", at = @At("HEAD"))
+    private void onRenderHandBegins(MatrixStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
+        portal_isRenderingHand = true;
+    }
+    
+    @Inject(method = "renderHand", at = @At("RETURN"))
+    private void onRenderHandEnds(MatrixStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
+        portal_isRenderingHand = false;
+    }
+    
+    //View bobbing will make the camera pos offset to actual camera pos
     //Teleportation is based on camera pos. If the teleportation is incorrect
     //then rendering will have problem
     //So smoothly disable view bobbing when player is near a portal
@@ -167,7 +179,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectBobViewTranslate(MatrixStack matrixStack, double x, double y, double z) {
-        double viewBobFactor = RenderStates.viewBobFactor;
+        double viewBobFactor = portal_isRenderingHand ? 1 : RenderStates.viewBobFactor;
         matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
     }
     
