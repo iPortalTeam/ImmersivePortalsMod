@@ -17,14 +17,8 @@
   "imm_ptl.teleportation_debug": "Teleportation Debug",
   "imm_ptl.correct_cross_portal_entity_rendering": "Cross Portal Entity Rendering",
   "imm_ptl.multi_threaded_nether_portal_searching": "Multi Threaded Nether Portal Searching",
-  "imm_ptl.edgeless_sky": "Edgeless Sky",
   "imm_ptl.render_redirect": "Dimension Render Redirect",
   "imm_ptl.enable_alternate_dimensions": "Enable Alternate Dimensions",
-  "effect.immersive_portals.longer_reach": "Longer Hand Reach",
-  "item.minecraft.potion.effect.longer_reach_potion": "Potion of Longer Hand Reach",
-  "item.minecraft.splash_potion.effect.longer_reach_potion": "Splash Potion of Longer Hand Reach",
-  "item.minecraft.lingering_potion.effect.longer_reach_potion": "Lingering Potion of Longer Hand Reach",
-  "attribute.name.imm_ptl.hand_reach_multiplier": "Hand Reach",
   "imm_ptl.altius_screen_button": "Dimension Stack",
   "imm_ptl.altius_screen": "Dimension Stack (Immersive Portals)",
   "imm_ptl.altius_toggle_true": "Dimension Stack Enabled",
@@ -58,7 +52,7 @@
   "imm_ptl.visibility_prediction": "Portal Visibility Prediction",
   "gamerule.ipDimensionStack": "Dimension Stack (Immersive Portals)",
   "gamerule.ipDimensionStack.description": "You don't need to change this here",
-  "imm_ptl.chunk_unload_delay_ticks" : "Chunk Unload Delay (Ticks)",
+  "imm_ptl.chunk_unload_delay_ticks": "Chunk Unload Delay (Ticks)",
   "imm_ptl.force_portal_rendering_merge": "Force Merge Portal Rendering",
   "imm_ptl.dim_stack_initialized": "[Immersive Portals] Dimension Stack World Initialized",
   "imm_ptl.respect_space_ratio_enabled": "Respect Space Ratio Enabled",
@@ -71,6 +65,4 @@
   "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
   "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
   "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance"
-
-
 }
