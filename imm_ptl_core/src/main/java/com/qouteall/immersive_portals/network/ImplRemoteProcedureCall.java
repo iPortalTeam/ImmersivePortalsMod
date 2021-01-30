@@ -103,7 +103,7 @@ public class ImplRemoteProcedureCall {
     }
     
     private static Object deserializeByCodec(PacketByteBuf buf, Codec codec) {
-        String jsonString = buf.readString();
+        String jsonString = readStringNonClientOnly(buf);
         JsonElement jsonElement = jsonParser.parse(jsonString);
         
         return codec.parse(JsonOps.INSTANCE, jsonElement).getOrThrow(
@@ -111,10 +111,15 @@ public class ImplRemoteProcedureCall {
         );
     }
     
+    // readString() is client only
+    private static String readStringNonClientOnly(PacketByteBuf buf) {
+        return buf.readString(32767);
+    }
+    
     private static Object deserialize(PacketByteBuf buf, Type type) {
         Function<PacketByteBuf, Object> deserializer = deserializerMap.get(type);
         if (deserializer == null) {
-            String json = buf.readString();
+            String json = readStringNonClientOnly(buf);
             return gson.fromJson(json, type);
         }
         
@@ -175,7 +180,7 @@ public class ImplRemoteProcedureCall {
     
     @Environment(EnvType.CLIENT)
     public static Runnable clientReadFunctionAndArguments(PacketByteBuf buf) {
-        String methodPath = buf.readString();
+        String methodPath = readStringNonClientOnly(buf);
         
         Method method = getMethodByPath(methodPath);
         
@@ -200,7 +205,7 @@ public class ImplRemoteProcedureCall {
     }
     
     public static Runnable serverReadFunctionAndArguments(ServerPlayerEntity player, PacketByteBuf buf) {
-        String methodPath = buf.readString();
+        String methodPath = readStringNonClientOnly(buf);
         
         Method method = getMethodByPath(methodPath);
         
