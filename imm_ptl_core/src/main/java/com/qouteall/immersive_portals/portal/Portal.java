@@ -425,7 +425,7 @@ public class Portal extends Entity implements PortalLike {
         return rotation;
     }
     
-    public void setSquareShape(
+    public void setOrientationAndSize(
         Vec3d newAxisW, Vec3d newAxisH,
         double newWidth, double newHeight
     ) {

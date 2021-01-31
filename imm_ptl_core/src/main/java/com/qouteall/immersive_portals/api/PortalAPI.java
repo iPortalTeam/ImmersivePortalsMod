@@ -23,14 +23,14 @@ import javax.annotation.Nullable;
 
 public class PortalAPI {
     
-    public static void setPortalPositionShape(
+    public static void setPortalPositionOrientationAndSize(
         Portal portal,
         Vec3d position,
         DQuaternion orientation,
         double width, double height
     ) {
         portal.setOriginPos(position);
-        portal.setSquareShape(
+        portal.setOrientationAndSize(
             orientation.rotate(new Vec3d(1, 0, 0)),
             orientation.rotate(new Vec3d(0, 1, 0)),
             width, height
