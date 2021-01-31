@@ -12,24 +12,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntity.class)
 public class MixinLivingEntity {
     
-    @Shadow
-    private LivingEntity attacker;
-    
-    @Shadow
-    private LivingEntity attacking;
-    
     //maybe avoid memory leak???
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTickEnded(CallbackInfo ci) {
-        Entity this_ = (Entity) (Object) this;
-        if (attacker != null) {
-            if (attacker.world != this_.world) {
-                attacker = null;
+        LivingEntity this_ = (LivingEntity) (Object) this;
+        if (this_.getAttacker() != null) {
+            if (this_.getAttacker().world != this_.world) {
+            	this_.setAttacker(null);
             }
         }
-        if (attacking != null) {
-            if (attacking.world != this_.world) {
-                attacking = null;
+        if (this_.getAttacking() != null) {
+            if (this_.getAttacking().world != this_.world) {
+            	this_.setAttacking(null);
             }
         }
     }
