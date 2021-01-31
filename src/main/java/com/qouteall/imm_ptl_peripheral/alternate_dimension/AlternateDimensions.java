@@ -196,7 +196,7 @@ public class AlternateDimensions {
             registry,
             alternate1Option,
             () -> surfaceTypeObject,
-            createSkylandGenerator(seed, rm)
+            createSkylandGenerator(seed + 1, rm)//different seed
         );
         
         addDimension(
@@ -212,7 +212,7 @@ public class AlternateDimensions {
             registry,
             alternate3Option,
             () -> surfaceTypeObject,
-            createErrorTerrainGenerator(seed, rm)
+            createErrorTerrainGenerator(seed + 1, rm)//different seed
         );
         
         addDimension(
