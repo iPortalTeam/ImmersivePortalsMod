@@ -44,7 +44,8 @@ public abstract class MixinCamera implements IECamera {
         BlockView area, Entity focusedEntity, boolean thirdPerson,
         boolean inverseView, float tickDelta, CallbackInfo ci
     ) {
-        WorldRenderInfo.adjustCameraPos((Camera) (Object) this);
+        Camera this_ = (Camera) (Object) this;
+        WorldRenderInfo.adjustCameraPos(this_);
     }
     
     @Inject(

@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
 public class TransformationManager {
+    
     private static DQuaternion interpolationStart;
     private static DQuaternion lastCameraRotation;
     
@@ -25,16 +26,11 @@ public class TransformationManager {
     private static long interpolationEndTime = 1;
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
-
-//    private static boolean shouldOverrideVanillaCameraTransformation() {
-//        return RenderingHierarchy.isRendering() || isAnimationRunning();
-//    }
+    
+    public static boolean isIsometricView = false;
+    public static float isometricViewLength = 50;
     
     public static void processTransformation(Camera camera, MatrixStack matrixStack) {
-//        if (!shouldOverrideVanillaCameraTransformation()) {
-//            return;
-//        }
-        
         if (isAnimationRunning()) {
             // override vanilla camera transformation
             matrixStack.peek().getModel().loadIdentity();
@@ -159,16 +155,54 @@ public class TransformationManager {
         float x = (float) normal.x;
         float y = (float) normal.y;
         float z = (float) normal.z;
-        float[] arr =
-            new float[]{
-                1 - 2 * x * x, 0 - 2 * x * y, 0 - 2 * x * z, 0,
-                0 - 2 * y * x, 1 - 2 * y * y, 0 - 2 * y * z, 0,
-                0 - 2 * z * x, 0 - 2 * z * y, 1 - 2 * z * z, 0,
-                0, 0, 0, 1
-            };
+        float[] arr = new float[]{
+            1 - 2 * x * x, 0 - 2 * x * y, 0 - 2 * x * z, 0,
+            0 - 2 * y * x, 1 - 2 * y * y, 0 - 2 * y * z, 0,
+            0 - 2 * z * x, 0 - 2 * z * y, 1 - 2 * z * z, 0,
+            0, 0, 0, 1
+        };
         Matrix4f matrix = new Matrix4f();
         ((IEMatrix4f) (Object) matrix).loadFromArray(arr);
         return matrix;
     }
     
+    // https://docs.microsoft.com/en-us/windows/win32/opengl/glortho
+    public static Matrix4f getIsometricProjection() {
+        int w = client.getWindow().getFramebufferWidth();
+        int h = client.getWindow().getFramebufferHeight();
+        
+        float wView = (isometricViewLength / h) * w;
+        
+        float near = -2000;
+        float far = 2000;
+        
+        float left = -wView / 2;
+        float right = wView / 2;
+        
+        float top = isometricViewLength / 2;
+        float bottom = -isometricViewLength / 2;
+        
+        float[] arr = new float[]{
+            2.0f / (right - left), 0, 0, -(right + left) / (right - left),
+            0, 2.0f / (top - bottom), 0, -(top + bottom) / (top - bottom),
+            0, 0, -2.0f / (far - near), -(far + near) / (far - near),
+            0, 0, 0, 1
+        };
+        Matrix4f m1 = new Matrix4f();
+        ((IEMatrix4f) (Object) m1).loadFromArray(arr);
+        
+        return m1;
+    }
+    
+    @Environment(EnvType.CLIENT)
+    public static class RemoteCallables {
+        public static void enableIsometricView(float viewLength) {
+            isometricViewLength = viewLength;
+            isIsometricView = true;
+        }
+        
+        public static void disableIsometricView() {
+            isIsometricView = false;
+        }
+    }
 }

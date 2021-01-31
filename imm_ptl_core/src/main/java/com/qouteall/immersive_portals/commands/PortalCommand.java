@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,6 +15,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.network.McRemoteProcedureCall;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalManipulation;
@@ -62,6 +64,93 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class PortalCommand {
+    public static void register(
+        CommandDispatcher<ServerCommandSource> dispatcher
+    ) {
+        
+        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
+            .literal("portal")
+            .requires(commandSource -> {
+                Entity entity = commandSource.getEntity();
+                if (entity instanceof ServerPlayerEntity) {
+                    if (((ServerPlayerEntity) entity).isCreative()) {
+                        return true;
+                    }
+                }
+                
+                return commandSource.hasPermissionLevel(2);
+            });
+        
+        registerPortalTargetedCommands(builder);
+        
+        registerCBPortalCommands(builder);
+        
+        registerUtilityCommands(builder);
+        
+        LiteralArgumentBuilder<ServerCommandSource> global =
+            CommandManager.literal("global")
+                .requires(commandSource -> commandSource.hasPermissionLevel(2));
+        registerGlobalPortalCommands(global);
+        builder.then(global);
+        
+        LiteralArgumentBuilder<ServerCommandSource> debugBuilder = CommandManager.literal("debug");
+        registerDebugCommands(debugBuilder);
+        builder.then(debugBuilder);
+        
+        dispatcher.register(builder);
+    }
+    
+    private static void registerDebugCommands(
+        LiteralArgumentBuilder<ServerCommandSource> builder
+    ) {
+        
+        builder.then(CommandManager
+            .literal("gui_portal")
+            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
+                    .executes(context -> {
+                        ExampleGuiPortalRendering.onCommandExecuted(
+                            context.getSource().getPlayer(),
+                            DimensionArgumentType.getDimensionArgument(context, "dim"),
+                            Vec3ArgumentType.getVec3(context, "pos")
+                        );
+                        return 0;
+                    })
+                )
+            ));
+        
+        builder.then(CommandManager
+            .literal("isometric_enable")
+            .then(CommandManager.argument("viewLength", FloatArgumentType.floatArg())
+                .executes(context -> {
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    
+                    float viewLength = FloatArgumentType.getFloat(context, "viewLength");
+                    
+                    McRemoteProcedureCall.tellClientToInvoke(
+                        player,
+                        "com.qouteall.immersive_portals.render.TransformationManager.RemoteCallables.enableIsometricView",
+                        viewLength
+                    );
+                    
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("isometric_disable")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                McRemoteProcedureCall.tellClientToInvoke(
+                    player,
+                    "com.qouteall.immersive_portals.render.TransformationManager.RemoteCallables.disableIsometricView"
+                );
+                return 0;
+            })
+        );
+    }
+    
     public static void registerClientDebugCommand(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
@@ -1248,55 +1337,6 @@ public class PortalCommand {
             );
             McHelper.spawnServerEntity(portal);
         }
-    }
-    
-    public static void register(
-        CommandDispatcher<ServerCommandSource> dispatcher
-    ) {
-        
-        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
-            .literal("portal")
-            .requires(commandSource -> {
-                Entity entity = commandSource.getEntity();
-                if (entity instanceof ServerPlayerEntity) {
-                    if (((ServerPlayerEntity) entity).isCreative()) {
-                        return true;
-                    }
-                }
-                
-                return commandSource.hasPermissionLevel(2);
-            });
-        
-        registerPortalTargetedCommands(builder);
-        
-        registerCBPortalCommands(builder);
-        
-        registerUtilityCommands(builder);
-        
-        LiteralArgumentBuilder<ServerCommandSource> global =
-            CommandManager.literal("global")
-                .requires(commandSource -> commandSource.hasPermissionLevel(2));
-        registerGlobalPortalCommands(global);
-        builder.then(global);
-        
-        LiteralArgumentBuilder<ServerCommandSource> debugCommands = CommandManager
-            .literal("gui_portal")
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
-                    .executes(context -> {
-                        ExampleGuiPortalRendering.onCommandExecuted(
-                            context.getSource().getPlayer(),
-                            DimensionArgumentType.getDimensionArgument(context, "dim"),
-                            Vec3ArgumentType.getVec3(context, "pos")
-                        );
-                        return 0;
-                    })
-                )
-            );
-        
-        builder.then(CommandManager.literal("debug").then(debugCommands));
-        
-        dispatcher.register(builder);
     }
     
     private static int processPortalArgumentedCBCommand(

@@ -53,6 +53,8 @@
     "client.block_manipulation.MixinMinecraftClient_B",
     "client.collisions.MixinClientPlayerEntity",
     "client.debug.MixinBuiltChunk",
+    "client.debug.isometric.MixinCamera_I",
+    "client.debug.isometric.MixinGameRenderer_I",
     "client.gui_portal.MixinWindow",
     "client.gui_portal.MixinWorldRenderer_G",
     "client.multiworld_awareness.MixinBackgroundRenderer",
