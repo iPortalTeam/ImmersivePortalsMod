@@ -15,7 +15,7 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkVisibility;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.network.RemoteProcedureCall;
+import com.qouteall.immersive_portals.network.McRemoteProcedureCall;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.MyBuiltChunkStorage;
@@ -910,7 +910,7 @@ public class ClientDebugCommand {
         MinecraftClient.getInstance().execute(() -> {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.put("test", IntTag.of(7));
-            RemoteProcedureCall.tellServerToInvoke(
+            McRemoteProcedureCall.tellServerToInvoke(
                 "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.clientToServer",
                 new UUID(3, 3),
                 Blocks.ACACIA_PLANKS,
@@ -924,7 +924,7 @@ public class ClientDebugCommand {
         });
         
         McHelper.getServer().execute(() -> {
-            RemoteProcedureCall.tellClientToInvoke(
+            McRemoteProcedureCall.tellClientToInvoke(
                 player,
                 "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",
                 "string", 2, 3.5, new Identifier("imm_ptl:oops"),

@@ -36,7 +36,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
  * The server can send packet to client using
  * <pre>
  * {@code
- * RemoteProcedureCall.tellClientToInvoke(
+ * McRemoteProcedureCall.tellClientToInvoke(
  *     player,
  *     "path.to.the_class.AAARemoteCallableBBB.clientMethod",
  *     3, 4.5
@@ -50,7 +50,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
  * The client can send packet to server using
  * <pre>
  * {@code
- * RemoteProcedureCall.tellServerToInvoke(
+ * McRemoteProcedureCall.tellServerToInvoke(
  *     "path.to.the_class.AAARemoteCallableBBB.serverMethod",
  *     player,
  *     Blocks.STONE
@@ -78,7 +78,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
  *     In this case it's not recommended to use this.
  * </p>
  */
-public class RemoteProcedureCall {
+public class McRemoteProcedureCall {
     /**
      * For example:
      * <pre>
@@ -91,7 +91,7 @@ public class RemoteProcedureCall {
      * The server can send packet to client using
      * <pre>
      * {@code
-     * RemoteProcedureCall.tellClientToInvoke(
+     * McRemoteProcedureCall.tellClientToInvoke(
      *     player,
      *     "path.to.the_class.AAARemoteCallableBBB.clientMethod",
      *     3, 4.5
@@ -128,7 +128,7 @@ public class RemoteProcedureCall {
      * The client can send packet to server using
      * <pre>
      * {@code
-     * RemoteProcedureCall.tellServerToInvoke(
+     * McRemoteProcedureCall.tellServerToInvoke(
      *     "path.to.the_class.AAARemoteCallableBBB.serverMethod",
      *     Blocks.STONE
      * );

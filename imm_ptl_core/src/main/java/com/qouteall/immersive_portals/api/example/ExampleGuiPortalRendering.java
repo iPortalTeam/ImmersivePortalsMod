@@ -6,7 +6,7 @@ import com.qouteall.immersive_portals.api.PortalAPI;
 import com.qouteall.immersive_portals.chunk_loading.ChunkLoader;
 import com.qouteall.immersive_portals.chunk_loading.DimensionalChunkPos;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
-import com.qouteall.immersive_portals.network.RemoteProcedureCall;
+import com.qouteall.immersive_portals.network.McRemoteProcedureCall;
 import com.qouteall.immersive_portals.render.GuiPortalRendering;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
@@ -90,7 +90,7 @@ public class ExampleGuiPortalRendering {
         chunkLoaderMap.put(player, chunkLoader);
         
         // Tell the client to open the screen
-        RemoteProcedureCall.tellClientToInvoke(
+        McRemoteProcedureCall.tellClientToInvoke(
             player,
             "com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering.RemoteCallables.clientActivateExampleGuiPortal",
             world.getRegistryKey(),
@@ -134,7 +134,7 @@ public class ExampleGuiPortalRendering {
             super.onClose();
             
             // Tell the server to remove the additional chunk loader
-            RemoteProcedureCall.tellServerToInvoke(
+            McRemoteProcedureCall.tellServerToInvoke(
                 "com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering.RemoteCallables.serverRemoveChunkLoader"
             );
         }
