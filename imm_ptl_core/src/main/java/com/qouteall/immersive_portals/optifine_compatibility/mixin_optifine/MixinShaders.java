@@ -87,7 +87,7 @@ public abstract class MixinShaders {
         OFGlobal.shaderContextManager.onShaderUninit();
     }
     
-    @Inject(method = "storeConfig", at = @At("HEAD"))
+    @Inject(method = "storeConfig", at = @At("HEAD"), cancellable = true)
     private static void onStoreConfig(CallbackInfo ci) {
         if (OFGlobal.shaderContextManager.isContextSwitched()) {
             Helper.err("Trying to store config when context switched");
@@ -240,7 +240,7 @@ public abstract class MixinShaders {
             return entityRenderDispatcher.getLight(entity, tickDelta);
         }
     }
-    
+
 //    @Redirect(
 //        method = "init",
 //        at = @At(
