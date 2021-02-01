@@ -119,9 +119,6 @@ public class MyGameRenderer {
             );
         }
         
-        if (Global.looseVisibleChunkIteration) {
-            client.chunkCullingEnabled = false;
-        }
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
@@ -146,6 +143,7 @@ public class MyGameRenderer {
         ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
         BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
+        boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
@@ -182,6 +180,10 @@ public class MyGameRenderer {
         ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
+        
+        if (Global.looseVisibleChunkIteration) {
+            client.chunkCullingEnabled = false;
+        }
         
         //update lightmap
         if (!RenderStates.isDimensionRendered(newDimension)) {
@@ -233,7 +235,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
         
         if (Global.looseVisibleChunkIteration) {
-            client.chunkCullingEnabled = true;
+            client.chunkCullingEnabled = oldChunkCullingEnabled;
         }
         
         client.getEntityRenderDispatcher()

@@ -199,10 +199,14 @@ public class TransformationManager {
         public static void enableIsometricView(float viewLength) {
             isometricViewLength = viewLength;
             isIsometricView = true;
+            
+            client.chunkCullingEnabled = false;
         }
         
         public static void disableIsometricView() {
             isIsometricView = false;
+            
+            client.chunkCullingEnabled = true;
         }
     }
 }

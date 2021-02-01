@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
+import javax.annotation.Nullable;
 import java.util.Comparator;
 
 @Environment(EnvType.CLIENT)
@@ -266,7 +267,12 @@ public class FrustumCuller {
             == BatchTestResult.all_true;
     }
     
+    @Nullable
     private static Portal getCurrentNearestVisibleCullablePortal() {
+        if (TransformationManager.isIsometricView) {
+            return null;
+        }
+        
         Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
         return CHelper.getClientNearbyPortals(16).filter(
             portal -> portal.isInFrontOfPortal(cameraPos)

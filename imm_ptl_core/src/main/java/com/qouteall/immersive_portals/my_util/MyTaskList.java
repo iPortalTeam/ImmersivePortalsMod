@@ -100,9 +100,9 @@ public class MyTaskList {
         };
     }
     
-    public static MyTask withIgnoreCondition(BooleanSupplier shouldIgnore, MyTask task) {
+    public static MyTask withDelayCondition(BooleanSupplier shouldDelay, MyTask task) {
         return () -> {
-            if (shouldIgnore.getAsBoolean()) {
+            if (shouldDelay.getAsBoolean()) {
                 return false;
             }
             
