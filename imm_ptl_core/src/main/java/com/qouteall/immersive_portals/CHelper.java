@@ -165,14 +165,16 @@ public class CHelper {
         }
         
         public static LayoutElement blankSpace(int length) {
-            return new LayoutElement(true, length, (a, b) -> {
-            });
+            return new LayoutElement(true, length, (a, b) -> {});
         }
         
-        public static LayoutElement layoutX(ButtonWidget widget, int widthRatio) {
+        public static LayoutElement elasticBlankSpace() {
+            return new LayoutElement(false, 1, (a, b) -> {});
+        }
+        
+        public static LayoutElement layoutXElastic(ButtonWidget widget, int widthRatio) {
             return new LayoutElement(
-                false,
-                widthRatio,
+                false, widthRatio,
                 (a, b) -> {
                     widget.x = a;
                     widget.setWidth(b - a);
@@ -180,7 +182,17 @@ public class CHelper {
             );
         }
         
-        public static LayoutElement layoutY(ButtonWidget widget, int height) {
+        public static LayoutElement layoutXFixed(ButtonWidget widget, int width) {
+            return new LayoutElement(
+                true, width,
+                (a, b) -> {
+                    widget.x = a;
+                    widget.setWidth(b - a);
+                }
+            );
+        }
+        
+        public static LayoutElement layoutYFixed(ButtonWidget widget, int height) {
             return new LayoutElement(
                 true,
                 height,
@@ -269,6 +281,6 @@ public class CHelper {
     }
     
     public static double getSmoothCycles(long unitTicks) {
-        return (double) ((MinecraftClient.getInstance().world.getTime() % unitTicks) / (double)unitTicks) + RenderStates.tickDelta / (double)unitTicks;
+        return (double) ((MinecraftClient.getInstance().world.getTime() % unitTicks) / (double) unitTicks) + RenderStates.tickDelta / (double) unitTicks;
     }
 }

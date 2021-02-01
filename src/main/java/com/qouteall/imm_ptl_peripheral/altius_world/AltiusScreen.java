@@ -107,7 +107,7 @@ public class AltiusScreen extends Screen {
             height,
             100,
             200,
-            15,
+            40,//15
             this
         );
         
@@ -182,54 +182,56 @@ public class AltiusScreen extends Screen {
         
         CHelper.layout(
             0, height,
-            CHelper.LayoutElement.blankSpace(15),
+            CHelper.LayoutElement.blankSpace(5),
             new CHelper.LayoutElement(true, 20, (from, to) -> {
                 helpButton.x = width - 50;
-                helpButton.y = 10;
+                helpButton.y = from;
                 helpButton.setWidth(30);
             }),
-            CHelper.LayoutElement.blankSpace(10),
             new CHelper.LayoutElement(true, 20, (a, b) -> {
-                toggleButton.x = 20;
+                toggleButton.x = 10;
                 toggleButton.y = a;
             }),
-            CHelper.LayoutElement.blankSpace(10),
+            CHelper.LayoutElement.blankSpace(5),
             new CHelper.LayoutElement(false, 1, (from, to) -> {
                 dimListWidget.updateSize(
                     width, height,
                     from, to
                 );
             }),
-            CHelper.LayoutElement.blankSpace(15),
+            CHelper.LayoutElement.blankSpace(5),
             new CHelper.LayoutElement(true, 20, (from, to) -> {
                 respectSpaceRatioButton.y = from;
-                loopButton.y = from;
+//                loopButton.y = from;
                 CHelper.layout(
                     0, width,
                     CHelper.LayoutElement.blankSpace(20),
-                    CHelper.LayoutElement.layoutX(respectSpaceRatioButton, 1),
+                    CHelper.LayoutElement.layoutXElastic(respectSpaceRatioButton, 1),
                     CHelper.LayoutElement.blankSpace(10),
-                    CHelper.LayoutElement.layoutX(loopButton, 1),
+//                    CHelper.LayoutElement.layoutXElastic(loopButton, 1),
                     CHelper.LayoutElement.blankSpace(20)
                 );
             }),
-            CHelper.LayoutElement.blankSpace(10),
+            CHelper.LayoutElement.blankSpace(5),
             new CHelper.LayoutElement(true, 20, (from, to) -> {
                 backButton.y = from;
                 addDimensionButton.y = from;
                 removeDimensionButton.y = from;
+                loopButton.y = from;
                 CHelper.layout(
                     0, width,
-                    CHelper.LayoutElement.blankSpace(20),
-                    CHelper.LayoutElement.layoutX(backButton, 1),
                     CHelper.LayoutElement.blankSpace(10),
-                    CHelper.LayoutElement.layoutX(addDimensionButton, 1),
-                    CHelper.LayoutElement.blankSpace(10),
-                    CHelper.LayoutElement.layoutX(removeDimensionButton, 1),
-                    CHelper.LayoutElement.blankSpace(20)
+                    CHelper.LayoutElement.layoutXElastic(backButton, 2),
+                    CHelper.LayoutElement.blankSpace(5),
+                    CHelper.LayoutElement.layoutXElastic(addDimensionButton, 3),
+                    CHelper.LayoutElement.blankSpace(5),
+                    CHelper.LayoutElement.layoutXElastic(removeDimensionButton, 3),
+                    CHelper.LayoutElement.blankSpace(5),
+                    CHelper.LayoutElement.layoutXElastic(loopButton, 3),
+                    CHelper.LayoutElement.blankSpace(10)
                 );
             }),
-            CHelper.LayoutElement.blankSpace(15)
+            CHelper.LayoutElement.blankSpace(5)
         );
     }
     
@@ -257,7 +259,7 @@ public class AltiusScreen extends Screen {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         textRenderer.drawWithShadow(
             matrixStack, this.title,
-            20, 20, -1
+            20, 10, -1
         );
         
     }

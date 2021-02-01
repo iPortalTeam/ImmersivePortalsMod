@@ -50,7 +50,7 @@
   "imm_ptl.reduced_portal_rendering": "Reduced Portal Rendering",
   "imm_ptl.loose_movement_check": "Loose Player Movement Check",
   "imm_ptl.visibility_prediction": "Portal Visibility Prediction",
-  "gamerule.ipDimensionStack": "Dimension Stack (Immersive Portals)",
+  "gamerule.ipDimensionStack": "Dimension Stack Obsidian Generation(Immersive Portals)",
   "gamerule.ipDimensionStack.description": "You don't need to change this here",
   "imm_ptl.chunk_unload_delay_ticks": "Chunk Unload Delay (Ticks)",
   "imm_ptl.force_portal_rendering_merge": "Force Merge Portal Rendering",
