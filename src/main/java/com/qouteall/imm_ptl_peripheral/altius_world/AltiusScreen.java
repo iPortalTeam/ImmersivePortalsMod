@@ -94,7 +94,7 @@ public class AltiusScreen extends Screen {
             height,
             100,
             200,
-            40,//15
+            DimTermWidget.widgetHeight,
             this
         );
         

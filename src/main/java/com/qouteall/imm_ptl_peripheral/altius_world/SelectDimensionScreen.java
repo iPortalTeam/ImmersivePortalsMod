@@ -69,7 +69,7 @@ public class SelectDimensionScreen extends Screen {
             height,
             48,
             height - 64,
-            15,
+            DimTermWidget.widgetHeight,
             this
         );
         children.add(dimListWidget);

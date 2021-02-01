@@ -65,5 +65,15 @@
   "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
   "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
   "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance",
-  "imm_ptl.optifine_warning": "[Immersive Portals] You are using OptiFine with Immersive Portals. Portal rendering artefacts may appear."
+  "imm_ptl.optifine_warning": "[Immersive Portals] You are using OptiFine with Immersive Portals. Portal rendering artefacts may appear.",
+
+  "dimension.minecraft.overworld": "Overworld",
+  "dimension.minecraft.the_nether": "Nether",
+  "dimension.minecraft.the_end": "The End",
+
+  "dimension.immersive_portals.alternate1": "Overworld Skyland1",
+  "dimension.immersive_portals.alternate2": "Overworld Skyland2",
+  "dimension.immersive_portals.alternate3": "Chaos World1",
+  "dimension.immersive_portals.alternate4": "Chaos World2",
+  "dimension.immersive_portals.alternate5": "The Void"
 }
