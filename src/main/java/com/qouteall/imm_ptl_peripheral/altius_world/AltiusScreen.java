@@ -18,6 +18,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.GeneratorOptions;
 
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,7 +31,6 @@ public class AltiusScreen extends Screen {
     private final ButtonWidget addDimensionButton;
     private final ButtonWidget removeDimensionButton;
     
-    private final ButtonWidget respectSpaceRatioButton;
     private final ButtonWidget loopButton;
     
     private final ButtonWidget helpButton;
@@ -41,7 +41,6 @@ public class AltiusScreen extends Screen {
     private final DimListWidget dimListWidget;
     private final Supplier<GeneratorOptions> generatorOptionsSupplier1;
     
-    private boolean respectSpaceRatio = false;
     private boolean loop = false;
     
     public AltiusScreen(CreateWorldScreen parent) {
@@ -75,18 +74,6 @@ public class AltiusScreen extends Screen {
             new TranslatableText("imm_ptl.remove_dimension"),
             (buttonWidget) -> {
                 onRemoveDimension();
-            }
-        );
-        
-        respectSpaceRatioButton = new ButtonWidget(
-            0, 0, 72, 20,
-            new TranslatableText("imm_ptl.respect_space_ratio_disabled"),
-            (buttonWidget) -> {
-                respectSpaceRatio = !respectSpaceRatio;
-                buttonWidget.setMessage(new TranslatableText(
-                    respectSpaceRatio ?
-                        "imm_ptl.respect_space_ratio_enabled" : "imm_ptl.respect_space_ratio_disabled"
-                ));
             }
         );
         
@@ -146,14 +133,14 @@ public class AltiusScreen extends Screen {
         );
     }
     
-    //nullable
+    @Nullable
     public AltiusInfo getAltiusInfo() {
         if (isEnabled) {
             return new AltiusInfo(
                 dimListWidget.terms.stream().map(
                     w -> w.dimension
                 ).collect(Collectors.toList()),
-                loop, respectSpaceRatio
+                loop, false
             );
         }
         else {
@@ -170,7 +157,6 @@ public class AltiusScreen extends Screen {
         addButton(removeDimensionButton);
         
         addButton(loopButton);
-        addButton(respectSpaceRatioButton);
         
         addButton(helpButton);
         
@@ -197,19 +183,6 @@ public class AltiusScreen extends Screen {
                 dimListWidget.updateSize(
                     width, height,
                     from, to
-                );
-            }),
-            CHelper.LayoutElement.blankSpace(5),
-            new CHelper.LayoutElement(true, 20, (from, to) -> {
-                respectSpaceRatioButton.y = from;
-//                loopButton.y = from;
-                CHelper.layout(
-                    0, width,
-                    CHelper.LayoutElement.blankSpace(20),
-                    CHelper.LayoutElement.layoutXElastic(respectSpaceRatioButton, 1),
-                    CHelper.LayoutElement.blankSpace(10),
-//                    CHelper.LayoutElement.layoutXElastic(loopButton, 1),
-                    CHelper.LayoutElement.blankSpace(20)
                 );
             }),
             CHelper.LayoutElement.blankSpace(5),
@@ -276,7 +249,6 @@ public class AltiusScreen extends Screen {
         removeDimensionButton.visible = isEnabled;
         
         loopButton.visible = isEnabled;
-        respectSpaceRatioButton.visible = isEnabled;
     }
     
     private void onAddDimension() {
@@ -295,7 +267,6 @@ public class AltiusScreen extends Screen {
         }
         
         int insertingPosition = position + 1;
-        
         
         MinecraftClient.getInstance().openScreen(
             new SelectDimensionScreen(
