@@ -64,5 +64,6 @@
   "imm_ptl.portal_helper_tooltip": "Build two frames, use flint and steel to light it",
   "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
   "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
-  "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance"
+  "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance",
+  "imm_ptl.optifine_warning": "[Immersive Portals] You are using OptiFine with Immersive Portals. Portal rendering artefacts may appear."
 }

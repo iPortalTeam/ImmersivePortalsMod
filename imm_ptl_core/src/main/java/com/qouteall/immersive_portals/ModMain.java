@@ -32,7 +32,11 @@ public class ModMain {
         postServerTickSignal.connect(serverTaskList::processTasks);
         preRenderSignal.connect(preRenderTaskList::processTasks);
         
-        clientCleanupSignal.connect(clientTaskList::forceClearTasks);
+        clientCleanupSignal.connect(() -> {
+            if (ClientWorldLoader.getIsInitialized()) {
+                clientTaskList.forceClearTasks();
+            }
+        });
         serverCleanupSignal.connect(serverTaskList::forceClearTasks);
         
         Global.serverTeleportationManager = new ServerTeleportationManager();
@@ -47,7 +51,7 @@ public class ModMain {
         EntitySync.init();
         
         CollisionHelper.init();
-    
+        
         PortalExtension.init();
         
     }

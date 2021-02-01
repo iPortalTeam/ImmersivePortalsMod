@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkStorageFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
@@ -17,6 +18,10 @@ import com.qouteall.immersive_portals.render.lag_spike_fix.GlBufferCache;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.MessageType;
+import net.minecraft.text.TranslatableText;
+
+import java.util.UUID;
 
 public class ModMainClient {
     
@@ -66,9 +71,20 @@ public class ModMainClient {
         }
     }
     
+    private static void showOptiFineWarning() {
+        ModMain.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            () -> MinecraftClient.getInstance().world == null,
+            MyTaskList.oneShotTask(() -> {
+                MinecraftClient.getInstance().inGameHud.addChatMessage(
+                    MessageType.CHAT,
+                    new TranslatableText("imm_ptl.optifine_warning"),
+                    UUID.randomUUID()
+                );
+            })
+        ));
+    }
+    
     public static void init() {
-        Helper.log("initializing client");
-        
         MyNetworkClient.init();
         
         ClientWorldLoader.init();
@@ -103,6 +119,7 @@ public class ModMainClient {
         if (OFInterface.isOptifinePresent) {
             OFInterfaceInitializer.init();
             OFBuiltChunkStorageFix.init();
+            showOptiFineWarning();
         }
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
