@@ -24,7 +24,6 @@ public class AltiusGameRule {
     private static void serverTick() {
         if (doUpgradeOldDimensionStack) {
             setIsDimensionStack(true);
-            AltiusInfo.removeAltius();
             doUpgradeOldDimensionStack = false;
             Helper.log("Upgraded old dimension stack info");
         }

@@ -1,6 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.EntryListWidget;
@@ -11,6 +12,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
@@ -20,6 +22,7 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
     private final Consumer<DimTermWidget> selectCallback;
     private final Identifier dimIconPath;
     private final Text dimensionName;
+    private boolean dimensionIconPresent = true;
     
     public final static int widgetHeight = 50;
     
@@ -35,6 +38,14 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         this.dimIconPath = getDimensionIconPath(this.dimension);
         
         this.dimensionName = getDimensionName(dimension);
+    
+        try {
+            MinecraftClient.getInstance().getResourceManager().getResource(dimIconPath);
+        }
+        catch (IOException e) {
+            Helper.err("Cannot load texture " + dimIconPath);
+            dimensionIconPresent = false;
+        }
     }
     
     @Override
@@ -63,16 +74,18 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
             width + widgetHeight + 3, (float) (y + 10),
             0xFF999999
         );
-        
-        client.getTextureManager().bindTexture(dimIconPath);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        DrawableHelper.drawTexture(
-            matrixStack,
-            width, y, 0, (float) 0,
-            widgetHeight - 4, widgetHeight - 4,
-            widgetHeight - 4, widgetHeight - 4
-        );
+    
+        if (dimensionIconPresent) {
+            client.getTextureManager().bindTexture(dimIconPath);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    
+            DrawableHelper.drawTexture(
+                matrixStack,
+                width, y, 0, (float) 0,
+                widgetHeight - 4, widgetHeight - 4,
+                widgetHeight - 4, widgetHeight - 4
+            );
+        }
     }
     
     @Override

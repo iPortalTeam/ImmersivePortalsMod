@@ -1,6 +1,5 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.qouteall.imm_ptl_peripheral.ducks.IELevelProperties;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
@@ -13,7 +12,6 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.SaveProperties;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -72,18 +70,6 @@ public class AltiusInfo {
         });
         tag.put("dimensions", listTag);
         return tag;
-    }
-    
-    public static AltiusInfo getInfoFromServer() {
-        SaveProperties saveProperties = McHelper.getServer().getSaveProperties();
-        
-        return ((IELevelProperties) saveProperties).getAltiusInfo();
-    }
-    
-    public static void removeAltius() {
-        SaveProperties saveProperties = McHelper.getServer().getSaveProperties();
-        
-        ((IELevelProperties) saveProperties).setAltiusInfo(null);
     }
     
     public void createPortals() {

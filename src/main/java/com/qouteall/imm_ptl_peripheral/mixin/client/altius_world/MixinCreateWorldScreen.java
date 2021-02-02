@@ -36,9 +36,6 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     public abstract void removed();
     
     @Shadow
-    @Nullable
-    private ResourcePackManager field_25792;
-    @Shadow
     protected DataPackSettings field_25479;
     
     @Shadow
@@ -46,6 +43,8 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     protected abstract Pair<File, ResourcePackManager> method_30296();
     
     private ButtonWidget altiusButton;
+    
+    @Nullable
     private AltiusScreen altiusScreen;
     
     protected MixinCreateWorldScreen(Text title) {
@@ -61,7 +60,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         Screen screen, DataPackSettings dataPackSettings, MoreOptionsDialog moreOptionsDialog,
         CallbackInfo ci
     ) {
-        altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
+    
     }
     
     @Inject(
@@ -105,21 +104,27 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         MinecraftClient client, String worldName, LevelInfo levelInfo,
         DynamicRegistryManager.Impl registryTracker, GeneratorOptions generatorOptions
     ) {
-        AltiusInfo info = altiusScreen.getAltiusInfo();
-        
-        if (info != null) {
-            AltiusManagement.dimensionStackPortalsToGenerate = info;
+        if (altiusScreen != null) {
+            AltiusInfo info = altiusScreen.getAltiusInfo();
             
-            GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
-            rule.set(true, null);
-            
-            Helper.log("Generating dimension stack world");
+            if (info != null) {
+                AltiusManagement.dimensionStackPortalsToGenerate = info;
+                
+                GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
+                rule.set(true, null);
+                
+                Helper.log("Generating dimension stack world");
+            }
         }
         
         client.method_29607(worldName, levelInfo, registryTracker, generatorOptions);
     }
     
     private void openAltiusScreen() {
+        if (altiusScreen == null) {
+            altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
+        }
+        
         MinecraftClient.getInstance().openScreen(altiusScreen);
     }
     
