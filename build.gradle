@@ -172,7 +172,7 @@ dependencies {
         exclude module: "fabric-loader"
     }
 
-    modImplementation 'com.github.Virtuoel:Pehkui:c88cfe6'
+    modImplementation 'com.github.virtuoel:Pehkui:1.16.4-SNAPSHOT'
 
     // OptiFine
 //    modImplementation 'com.github.qouteall:OptiFabric:llama-SNAPSHOT'
