@@ -23,22 +23,29 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
     private final Identifier dimIconPath;
     private final Text dimensionName;
     private boolean dimensionIconPresent = true;
+    private final Type type;
     
     public final static int widgetHeight = 50;
+    
+    public static enum Type {
+        simple, withAdvancedOptions
+    }
     
     public DimTermWidget(
         RegistryKey<World> dimension,
         DimListWidget parent,
-        Consumer<DimTermWidget> selectCallback
+        Consumer<DimTermWidget> selectCallback,
+        Type type
     ) {
         this.dimension = dimension;
         this.parent = parent;
         this.selectCallback = selectCallback;
-        
+        this.type = type;
+    
         this.dimIconPath = getDimensionIconPath(this.dimension);
         
         this.dimensionName = getDimensionName(dimension);
-    
+        
         try {
             MinecraftClient.getInstance().getResourceManager().getResource(dimIconPath);
         }
@@ -48,12 +55,14 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         }
     }
     
+    
+    
     @Override
     public void render(
         MatrixStack matrixStack,
         int index,
         int y,
-        int width,
+        int x,
         int height,
         int mouseX,
         int mouseY,
@@ -65,23 +74,23 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         
         client.textRenderer.draw(
             matrixStack, dimensionName.getString(),
-            width + widgetHeight + 3, (float) (y),
+            x + widgetHeight + 3, (float) (y),
             0xFFFFFFFF
         );
         
         client.textRenderer.draw(
             matrixStack, dimension.getValue().toString(),
-            width + widgetHeight + 3, (float) (y + 10),
+            x + widgetHeight + 3, (float) (y + 10),
             0xFF999999
         );
-    
+        
         if (dimensionIconPresent) {
             client.getTextureManager().bindTexture(dimIconPath);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-    
+            
             DrawableHelper.drawTexture(
                 matrixStack,
-                width, y, 0, (float) 0,
+                x, y, 0, (float) 0,
                 widgetHeight - 4, widgetHeight - 4,
                 widgetHeight - 4, widgetHeight - 4
             );

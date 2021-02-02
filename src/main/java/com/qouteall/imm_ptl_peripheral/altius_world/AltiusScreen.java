@@ -17,6 +17,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.GeneratorOptions;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -101,19 +102,11 @@ public class AltiusScreen extends Screen {
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();
         if (Global.enableAlternateDimensions) {
-            dimListWidget.terms.add(
-                new DimTermWidget(AlternateDimensions.alternate5, dimListWidget, callback)
-            );
-            dimListWidget.terms.add(
-                new DimTermWidget(AlternateDimensions.alternate2, dimListWidget, callback)
-            );
+            dimListWidget.terms.add(createDimTermWidget(AlternateDimensions.alternate5));
+            dimListWidget.terms.add(createDimTermWidget(AlternateDimensions.alternate2));
         }
-        dimListWidget.terms.add(
-            new DimTermWidget(World.OVERWORLD, dimListWidget, callback)
-        );
-        dimListWidget.terms.add(
-            new DimTermWidget(World.NETHER, dimListWidget, callback)
-        );
+        dimListWidget.terms.add(createDimTermWidget(World.OVERWORLD));
+        dimListWidget.terms.add(createDimTermWidget(World.NETHER));
         
         generatorOptionsSupplier1 = Helper.cached(() -> {
             GeneratorOptions rawGeneratorOptions =
@@ -132,6 +125,11 @@ public class AltiusScreen extends Screen {
                 );
             }
         );
+    }
+    
+    @NotNull
+    private DimTermWidget createDimTermWidget(RegistryKey<World> dimension) {
+        return new DimTermWidget(dimension, dimListWidget, getElementSelectCallback(), DimTermWidget.Type.withAdvancedOptions);
     }
     
     @Nullable
@@ -275,11 +273,7 @@ public class AltiusScreen extends Screen {
                 dimensionType -> {
                     dimListWidget.terms.add(
                         insertingPosition,
-                        new DimTermWidget(
-                            dimensionType,
-                            dimListWidget,
-                            getElementSelectCallback()
-                        )
+                        createDimTermWidget(dimensionType)
                     );
                     removeDuplicate(insertingPosition);
                     dimListWidget.update();
