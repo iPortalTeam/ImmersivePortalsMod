@@ -95,7 +95,8 @@ public class AltiusScreen extends Screen {
             100,
             200,
             DimTermWidget.widgetHeight,
-            this
+            this,
+            DimListWidget.Type.mainDimensionList
         );
         
         Consumer<DimTermWidget> callback = getElementSelectCallback();

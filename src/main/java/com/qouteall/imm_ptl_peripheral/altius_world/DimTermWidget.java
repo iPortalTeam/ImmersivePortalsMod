@@ -51,7 +51,7 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         float f
     ) {
         MinecraftClient client = MinecraftClient.getInstance();
-    
+        
         client.textRenderer.draw(
             matrixStack, dimensionName.getString(),
             width + widgetHeight + 3, (float) (y),
@@ -78,7 +78,11 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         selectCallback.accept(this);
-        return super.mouseClicked(mouseX, mouseY, button);
+        super.mouseClicked(mouseX, mouseY, button);
+        return true;//allow outer dragging
+        /**
+         * {@link EntryListWidget#mouseClicked(double, double, int)}
+         */
     }
     
     public static Identifier getDimensionIconPath(RegistryKey<World> dimension) {
