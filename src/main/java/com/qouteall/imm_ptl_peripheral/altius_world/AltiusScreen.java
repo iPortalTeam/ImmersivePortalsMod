@@ -112,12 +112,16 @@ public class AltiusScreen extends Screen {
             );
         });
         
-        helpButton = new ButtonWidget(
-            0, 0, 72, 20,
+        helpButton = createHelpButton(this);
+    }
+    
+    public static ButtonWidget createHelpButton(Screen parent) {
+        return new ButtonWidget(
+            0, 0, 30, 20,
             new LiteralText("?"),
             button -> {
                 CHelper.openLinkConfirmScreen(
-                    this, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
+                    parent, "https://qouteall.fun/immptl/wiki/Dimension-Stack"
                 );
             }
         );

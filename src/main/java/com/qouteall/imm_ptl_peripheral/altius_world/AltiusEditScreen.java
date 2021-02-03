@@ -29,6 +29,8 @@ public class AltiusEditScreen extends Screen {
     private final GuiHelper.Rect horizontalRotationLabelRect = new GuiHelper.Rect();
     private final GuiHelper.Rect loopLabelRect = new GuiHelper.Rect();
     
+    private final ButtonWidget helpButton;
+    
     protected AltiusEditScreen(AltiusScreen parent, DimEntryWidget editing) {
         super(new TranslatableText("imm_ptl.dim_stack_edit_screen"));
         
@@ -107,6 +109,8 @@ public class AltiusEditScreen extends Screen {
                 MinecraftClient.getInstance().openScreen(parent);
             }
         );
+        
+        this.helpButton = AltiusScreen.createHelpButton(this);
     }
     
     @Override
@@ -119,14 +123,11 @@ public class AltiusEditScreen extends Screen {
     @Override
     protected void init() {
         addChild(scaleField);
-        
         addButton(flipButton);
-        
         addChild(horizontalRotationField);
-        
         addButton(loopButton);
-    
         addButton(backButton);
+        addButton(helpButton);
         
         GuiHelper.layout(
             0, height,
@@ -195,6 +196,9 @@ public class AltiusEditScreen extends Screen {
             ),
             GuiHelper.elasticBlankSpace()
         );
+        
+        helpButton.x = width - 50;
+        helpButton.y = 5;
     }
     
     @Override
