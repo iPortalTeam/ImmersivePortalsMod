@@ -31,8 +31,7 @@ public class AltiusScreen extends Screen {
     private final ButtonWidget toggleButton;
     private final ButtonWidget addDimensionButton;
     private final ButtonWidget removeDimensionButton;
-    
-    private final ButtonWidget loopButton;
+    private final ButtonWidget editButton;
     
     private final ButtonWidget helpButton;
     
@@ -41,8 +40,6 @@ public class AltiusScreen extends Screen {
     public boolean isEnabled = false;
     private final DimListWidget dimListWidget;
     private final Supplier<GeneratorOptions> generatorOptionsSupplier1;
-    
-    private boolean loop = false;
     
     public AltiusScreen(CreateWorldScreen parent) {
         super(new TranslatableText("imm_ptl.altius_screen"));
@@ -65,28 +62,24 @@ public class AltiusScreen extends Screen {
         );
         addDimensionButton = new ButtonWidget(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.add_dimension"),
+            new TranslatableText("imm_ptl.dim_stack_add"),
             (buttonWidget) -> {
-                onAddDimension();
+                onAddEntry();
             }
         );
         removeDimensionButton = new ButtonWidget(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.remove_dimension"),
+            new TranslatableText("imm_ptl.dim_stack_remove"),
             (buttonWidget) -> {
-                onRemoveDimension();
+                onRemoveEntry();
             }
         );
         
-        loopButton = new ButtonWidget(
+        editButton = new ButtonWidget(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.loop_disabled"),
+            new TranslatableText("imm_ptl.dim_stack_edit"),
             (buttonWidget) -> {
-                loop = !loop;
-                buttonWidget.setMessage(new TranslatableText(
-                    loop ?
-                        "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
-                ));
+                onEditEntry();
             }
         );
         
@@ -139,7 +132,7 @@ public class AltiusScreen extends Screen {
                 dimListWidget.terms.stream().map(
                     w -> w.dimension
                 ).collect(Collectors.toList()),
-                loop, false
+                false, false
             );
         }
         else {
@@ -155,7 +148,7 @@ public class AltiusScreen extends Screen {
         addButton(addDimensionButton);
         addButton(removeDimensionButton);
         
-        addButton(loopButton);
+        addButton(editButton);
         
         addButton(helpButton);
         
@@ -189,17 +182,17 @@ public class AltiusScreen extends Screen {
                 backButton.y = from;
                 addDimensionButton.y = from;
                 removeDimensionButton.y = from;
-                loopButton.y = from;
+                editButton.y = from;
                 CHelper.layout(
                     0, width,
                     CHelper.LayoutElement.blankSpace(10),
-                    CHelper.LayoutElement.layoutXElastic(backButton, 2),
+                    CHelper.LayoutElement.layoutXElastic(backButton, 1),
                     CHelper.LayoutElement.blankSpace(5),
-                    CHelper.LayoutElement.layoutXElastic(addDimensionButton, 3),
+                    CHelper.LayoutElement.layoutXElastic(addDimensionButton, 1),
                     CHelper.LayoutElement.blankSpace(5),
-                    CHelper.LayoutElement.layoutXElastic(removeDimensionButton, 3),
+                    CHelper.LayoutElement.layoutXElastic(removeDimensionButton, 1),
                     CHelper.LayoutElement.blankSpace(5),
-                    CHelper.LayoutElement.layoutXElastic(loopButton, 3),
+                    CHelper.LayoutElement.layoutXElastic(editButton, 1),
                     CHelper.LayoutElement.blankSpace(10)
                 );
             }),
@@ -247,10 +240,10 @@ public class AltiusScreen extends Screen {
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;
         
-        loopButton.visible = isEnabled;
+        editButton.visible = isEnabled;
     }
     
-    private void onAddDimension() {
+    private void onAddEntry() {
         DimEntryWidget selected = dimListWidget.getSelected();
         
         int position;
@@ -282,7 +275,7 @@ public class AltiusScreen extends Screen {
         );
     }
     
-    private void onRemoveDimension() {
+    private void onRemoveEntry() {
         DimEntryWidget selected = dimListWidget.getSelected();
         if (selected == null) {
             return;
@@ -296,6 +289,17 @@ public class AltiusScreen extends Screen {
         
         dimListWidget.terms.remove(position);
         dimListWidget.update();
+    }
+    
+    private void onEditEntry() {
+        DimEntryWidget selected = dimListWidget.getSelected();
+        if (selected == null) {
+            return;
+        }
+        
+        MinecraftClient.getInstance().openScreen(new AltiusEditScreen(
+            this, selected
+        ));
     }
     
     private void removeDuplicate(int insertedIndex) {
