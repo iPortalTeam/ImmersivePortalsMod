@@ -4,6 +4,7 @@ import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.my_util.GuiHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -57,7 +58,7 @@ public class AltiusScreen extends Screen {
         
         backButton = new ButtonWidget(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.back_to_create_world"),
+            new TranslatableText("imm_ptl.back"),
             (buttonWidget) -> {
                 MinecraftClient.getInstance().openScreen(parent);
             }
@@ -160,45 +161,57 @@ public class AltiusScreen extends Screen {
         
         dimListWidget.update();
         
-        CHelper.layout(
+        GuiHelper.layout(
             0, height,
-            CHelper.LayoutElement.blankSpace(5),
-            new CHelper.LayoutElement(true, 20, (from, to) -> {
+            GuiHelper.blankSpace(5),
+            new GuiHelper.LayoutElement(true, 20, (from, to) -> {
                 helpButton.x = width - 50;
                 helpButton.y = from;
                 helpButton.setWidth(30);
             }),
-            new CHelper.LayoutElement(true, 20, (a, b) -> {
+            new GuiHelper.LayoutElement(true, 20, (a, b) -> {
                 toggleButton.x = 10;
                 toggleButton.y = a;
             }),
-            CHelper.LayoutElement.blankSpace(5),
-            new CHelper.LayoutElement(false, 1, (from, to) -> {
+            GuiHelper.blankSpace(5),
+            new GuiHelper.LayoutElement(false, 1, (from, to) -> {
                 dimListWidget.updateSize(
                     width, height,
                     from, to
                 );
             }),
-            CHelper.LayoutElement.blankSpace(5),
-            new CHelper.LayoutElement(true, 20, (from, to) -> {
+            GuiHelper.blankSpace(5),
+            new GuiHelper.LayoutElement(true, 20, (from, to) -> {
                 backButton.y = from;
                 addDimensionButton.y = from;
                 removeDimensionButton.y = from;
                 editButton.y = from;
-                CHelper.layout(
+                GuiHelper.layout(
                     0, width,
-                    CHelper.LayoutElement.blankSpace(10),
-                    CHelper.LayoutElement.layoutXElastic(backButton, 1),
-                    CHelper.LayoutElement.blankSpace(5),
-                    CHelper.LayoutElement.layoutXElastic(addDimensionButton, 1),
-                    CHelper.LayoutElement.blankSpace(5),
-                    CHelper.LayoutElement.layoutXElastic(removeDimensionButton, 1),
-                    CHelper.LayoutElement.blankSpace(5),
-                    CHelper.LayoutElement.layoutXElastic(editButton, 1),
-                    CHelper.LayoutElement.blankSpace(10)
+                    GuiHelper.blankSpace(10),
+                    new GuiHelper.LayoutElement(
+                        false, 1,
+                        GuiHelper.layoutButtonHorizontally(backButton)
+                    ),
+                    GuiHelper.blankSpace(5),
+                    new GuiHelper.LayoutElement(
+                        false, 1,
+                        GuiHelper.layoutButtonHorizontally(addDimensionButton)
+                    ),
+                    GuiHelper.blankSpace(5),
+                    new GuiHelper.LayoutElement(
+                        false, 1,
+                        GuiHelper.layoutButtonHorizontally(removeDimensionButton)
+                    ),
+                    GuiHelper.blankSpace(5),
+                    new GuiHelper.LayoutElement(
+                        false, 1,
+                        GuiHelper.layoutButtonHorizontally(editButton)
+                    ),
+                    GuiHelper.blankSpace(10)
                 );
             }),
-            CHelper.LayoutElement.blankSpace(5)
+            GuiHelper.blankSpace(5)
         );
     }
     

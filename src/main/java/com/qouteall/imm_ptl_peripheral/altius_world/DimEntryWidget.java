@@ -8,6 +8,9 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.BaseText;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -107,8 +110,50 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
                 widgetHeight - 4, widgetHeight - 4
             );
         }
+        
+        if (type == Type.withAdvancedOptions) {
+            client.textRenderer.draw(
+                matrixStack, getText1(),
+                x + widgetHeight + 3, (float) (y + 20),
+                0xFF999999
+            );
+            client.textRenderer.draw(
+                matrixStack, getText2(),
+                x + widgetHeight + 3, (float) (y + 30),
+                0xFF999999
+            );
+        }
     }
     
+    private Text getText1() {
+        MutableText scaleText = entry.scale != 1.0 ?
+            new TranslatableText("imm_ptl.scale")
+                .append(new LiteralText(" : " + Double.toString(entry.scale)))
+            : new LiteralText("");
+        
+        BaseText loopText = getIsLoop() ?
+            new TranslatableText("imm_ptl.loop") : new LiteralText("");
+        
+        return scaleText.append(new LiteralText(" ")).append(loopText);
+    }
+    
+    private boolean getIsLoop() {
+        AltiusScreen altiusScreen = (AltiusScreen) this.parent.parent;
+        
+        return altiusScreen.loopEnabled && parent.entryWidgets.get(parent.entryWidgets.size() - 1) == this;
+    }
+    
+    private Text getText2() {
+        MutableText flippedText = entry.flipped ?
+            new TranslatableText("imm_ptl.flipped") : new LiteralText("");
+    
+        MutableText horizontalRotationText = entry.horizontalRotation != 0 ?
+            new TranslatableText("imm_ptl.horizontal_rotation")
+                .append(new LiteralText(":" + Double.toString(entry.horizontalRotation)))
+            : new LiteralText("");
+    
+        return horizontalRotationText.append(new LiteralText(" ")).append(flippedText);
+    }
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {

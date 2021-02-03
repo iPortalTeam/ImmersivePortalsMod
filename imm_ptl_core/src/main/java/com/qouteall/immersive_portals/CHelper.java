@@ -6,17 +6,12 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -26,7 +21,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -114,155 +108,6 @@ public class CHelper {
     
     public static Vec3d getCurrentCameraPos() {
         return MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
-    }
-    
-    public static class Rect {
-        public float xMin;
-        public float yMin;
-        public float xMax;
-        public float yMax;
-        
-        public Rect(float xMin, float yMin, float xMax, float yMax) {
-            this.xMin = xMin;
-            this.yMin = yMin;
-            this.xMax = xMax;
-            this.yMax = yMax;
-        }
-        
-        void renderTextCentered(Text text, MatrixStack matrixStack) {
-            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-            
-            OrderedText orderedText = text.asOrderedText();
-            textRenderer.drawWithShadow(
-                matrixStack, orderedText,
-                (((xMin + xMax) / 2.0f) - textRenderer.getWidth(orderedText) / 2.0f), yMin,
-                -1
-            );
-        }
-        
-        void renderTextLeft(Text text, MatrixStack matrixStack) {
-            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-            textRenderer.drawWithShadow(
-                matrixStack, text,
-                xMin, yMin, -1
-            );
-        }
-    }
-    
-    public static interface LayoutFunc {
-        public void apply(int from, int to);
-    }
-    
-    public static class LayoutElement {
-        public boolean fixedLength;
-        //if fixed, this length. if not fixed, this is weight
-        public int length;
-        public LayoutFunc apply;
-        
-        public LayoutElement(boolean fixedLength, int length, LayoutFunc apply) {
-            this.fixedLength = fixedLength;
-            this.length = length;
-            this.apply = apply;
-        }
-        
-        public static LayoutElement blankSpace(int length) {
-            return new LayoutElement(true, length, (a, b) -> {});
-        }
-        
-        public static LayoutElement elasticBlankSpace() {
-            return new LayoutElement(false, 1, (a, b) -> {});
-        }
-        
-        public static LayoutElement layoutXElastic(ButtonWidget widget, int widthRatio) {
-            return new LayoutElement(
-                false, widthRatio,
-                (a, b) -> {
-                    widget.x = a;
-                    widget.setWidth(b - a);
-                }
-            );
-        }
-        
-        public static LayoutElement layoutXElastic(Rect widget, int widthRatio) {
-            return new LayoutElement(
-                false, widthRatio,
-                (a, b) -> {
-                    widget.xMin = a;
-                    widget.xMax = b;
-                }
-            );
-        }
-        
-        public static LayoutElement layoutXFixed(ButtonWidget widget, int width) {
-            return new LayoutElement(
-                true, width,
-                (a, b) -> {
-                    widget.x = a;
-                    widget.setWidth(b - a);
-                }
-            );
-        }
-        
-        public static LayoutElement layoutXFixed(Rect widget, int widthRatio) {
-            return new LayoutElement(
-                false, widthRatio,
-                (a, b) -> {
-                    widget.xMin = a;
-                    widget.xMax = b;
-                }
-            );
-        }
-        
-        public static LayoutElement layoutYFixed(ButtonWidget widget, int height) {
-            return new LayoutElement(
-                true,
-                height,
-                (a, b) -> {
-                    widget.y = a;
-                }
-            );
-        }
-        
-        public static LayoutElement layoutYFixed(Rect widget, int height) {
-            return new LayoutElement(
-                true,
-                height,
-                (a, b) -> {
-                    widget.yMin = a;
-                    widget.yMax = b;
-                }
-            );
-        }
-    }
-    
-    public static void layout(
-        int from, int to,
-        LayoutElement... elements
-    ) {
-        int totalElasticWeight = Arrays.stream(elements)
-            .filter(e -> !e.fixedLength)
-            .mapToInt(e -> e.length)
-            .sum();
-        
-        int totalFixedLen = Arrays.stream(elements)
-            .filter(e -> e.fixedLength)
-            .mapToInt(e -> e.length)
-            .sum();
-        
-        int totalEscalateLen = (to - from - totalFixedLen);
-        
-        int currCoordinate = from;
-        for (LayoutElement element : elements) {
-            int currLen;
-            if (element.fixedLength) {
-                currLen = element.length;
-            }
-            else {
-                currLen = element.length * totalEscalateLen / totalElasticWeight;
-            }
-            element.apply.apply(currCoordinate, currCoordinate + currLen);
-            currCoordinate += currLen;
-        }
     }
     
     public static <T> T withWorldSwitched(Entity entity, Portal portal, Supplier<T> func) {

@@ -23,7 +23,7 @@
   "imm_ptl.altius_screen": "Dimension Stack (Immersive Portals)",
   "imm_ptl.altius_toggle_true": "Dimension Stack Enabled",
   "imm_ptl.altius_toggle_false": "Dimension Stack Disabled",
-  "imm_ptl.back_to_create_world": "Back",
+  "imm_ptl.back": "Back",
   "imm_ptl.dim_stack_add": "Add",
   "imm_ptl.dim_stack_remove": "Remove",
   "imm_ptl.dim_stack_edit": "Edit",
@@ -58,8 +58,6 @@
   "imm_ptl.dim_stack_initialized": "[Immersive Portals] Dimension Stack World Initialized",
   "imm_ptl.respect_space_ratio_enabled": "Respect Space Ratio Enabled",
   "imm_ptl.respect_space_ratio_disabled": "Respect Space Ratio Disabled",
-  "imm_ptl.loop_enabled": "Loop Enabled",
-  "imm_ptl.loop_disabled": "Loop Disabled",
   "imm_ptl.inform_wiki": "[Immersive Portals] Check the wiki about how to customize portals ",
   "imm_ptl.inform_portal_helper": "[Immersive Portals] Check the wiki about how to use portal helper ",
   "imm_ptl.portal_helper_tooltip": "Build two frames, use flint and steel to light it",
@@ -76,5 +74,13 @@
   "dimension.immersive_portals.alternate2": "Overworld Skyland2",
   "dimension.immersive_portals.alternate3": "Chaos World1",
   "dimension.immersive_portals.alternate4": "Chaos World2",
-  "dimension.immersive_portals.alternate5": "The Void"
+  "dimension.immersive_portals.alternate5": "The Void",
+
+  "imm_ptl.flipped": "Flipped",
+  "imm_ptl.dim_stack_entry_loop": "Loops",
+  "imm_ptl.scale": "Scale",
+  "imm_ptl.horizontal_rotation": "Horizontal Rotation",
+  "imm_ptl.loop": "Loop",
+  "imm_ptl.enabled": "Enabled",
+  "imm_ptl.disabled": "Disabled"
 }
