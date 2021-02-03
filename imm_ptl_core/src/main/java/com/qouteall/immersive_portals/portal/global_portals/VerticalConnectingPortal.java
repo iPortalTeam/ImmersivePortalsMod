@@ -82,7 +82,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         connect(down, ConnectorType.ceil, up, respectSpaceRatio);
     }
     
-    private static VerticalConnectingPortal createConnectingPortal(
+    public static VerticalConnectingPortal createConnectingPortal(
         ServerWorld fromWorld,
         ConnectorType connectorType,
         ServerWorld toWorld,

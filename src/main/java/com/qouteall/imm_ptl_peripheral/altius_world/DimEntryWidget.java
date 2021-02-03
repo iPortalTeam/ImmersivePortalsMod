@@ -146,12 +146,12 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     private Text getText2() {
         MutableText flippedText = entry.flipped ?
             new TranslatableText("imm_ptl.flipped") : new LiteralText("");
-    
+        
         MutableText horizontalRotationText = entry.horizontalRotation != 0 ?
             new TranslatableText("imm_ptl.horizontal_rotation")
                 .append(new LiteralText(":" + Double.toString(entry.horizontalRotation)))
             : new LiteralText("");
-    
+        
         return horizontalRotationText.append(new LiteralText(" ")).append(flippedText);
     }
     

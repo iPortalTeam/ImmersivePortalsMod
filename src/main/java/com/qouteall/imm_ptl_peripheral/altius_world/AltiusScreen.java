@@ -133,9 +133,8 @@ public class AltiusScreen extends Screen {
         if (isEnabled) {
             return new AltiusInfo(
                 dimListWidget.entryWidgets.stream().map(
-                    w -> w.dimension
-                ).collect(Collectors.toList()),
-                false, false
+                    dimEntryWidget -> dimEntryWidget.entry
+                ).collect(Collectors.toList()), loopEnabled
             );
         }
         else {
