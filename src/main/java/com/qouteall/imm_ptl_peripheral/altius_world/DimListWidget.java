@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DimListWidget extends EntryListWidget<DimEntryWidget> {
-    public final List<DimEntryWidget> terms = new ArrayList<>();
+    public final List<DimEntryWidget> entryWidgets = new ArrayList<>();
     public final Screen parent;
     private final Type type;
     
@@ -33,7 +33,7 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     
     public void update() {
         this.clearEntries();
-        this.terms.forEach(this::addEntry);
+        this.entryWidgets.forEach(this::addEntry);
     }
     
     @Override
@@ -55,16 +55,16 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     }
     
     private void switchEntries(DimEntryWidget a, DimEntryWidget b) {
-        int i1 = terms.indexOf(a);
-        int i2 = terms.indexOf(b);
+        int i1 = entryWidgets.indexOf(a);
+        int i2 = entryWidgets.indexOf(b);
         if (i1 == -1 || i2 == -1) {
             Helper.err("Dimension Stack GUI Abnormal");
             return;
         }
         
-        DimEntryWidget temp = terms.get(i1);
-        terms.set(i1, terms.get(i2));
-        terms.set(i2, temp);
+        DimEntryWidget temp = entryWidgets.get(i1);
+        entryWidgets.set(i1, entryWidgets.get(i2));
+        entryWidgets.set(i2, temp);
         
         update();
     }

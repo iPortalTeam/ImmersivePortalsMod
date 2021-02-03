@@ -38,8 +38,10 @@ public class AltiusScreen extends Screen {
     private int titleY;
     
     public boolean isEnabled = false;
-    private final DimListWidget dimListWidget;
+    public final DimListWidget dimListWidget;
     private final Supplier<GeneratorOptions> generatorOptionsSupplier1;
+    
+    public boolean loopEnabled = false;
     
     public AltiusScreen(CreateWorldScreen parent) {
         super(new TranslatableText("imm_ptl.altius_screen"));
@@ -95,11 +97,11 @@ public class AltiusScreen extends Screen {
         
         Consumer<DimEntryWidget> callback = getElementSelectCallback();
         if (Global.enableAlternateDimensions) {
-            dimListWidget.terms.add(createDimEntryWidget(AlternateDimensions.alternate5));
-            dimListWidget.terms.add(createDimEntryWidget(AlternateDimensions.alternate2));
+            dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate5));
+            dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate2));
         }
-        dimListWidget.terms.add(createDimEntryWidget(World.OVERWORLD));
-        dimListWidget.terms.add(createDimEntryWidget(World.NETHER));
+        dimListWidget.entryWidgets.add(createDimEntryWidget(World.OVERWORLD));
+        dimListWidget.entryWidgets.add(createDimEntryWidget(World.NETHER));
         
         generatorOptionsSupplier1 = Helper.cached(() -> {
             GeneratorOptions rawGeneratorOptions =
@@ -129,7 +131,7 @@ public class AltiusScreen extends Screen {
     public AltiusInfo getAltiusInfo() {
         if (isEnabled) {
             return new AltiusInfo(
-                dimListWidget.terms.stream().map(
+                dimListWidget.entryWidgets.stream().map(
                     w -> w.dimension
                 ).collect(Collectors.toList()),
                 false, false
@@ -251,10 +253,10 @@ public class AltiusScreen extends Screen {
             position = 0;
         }
         else {
-            position = dimListWidget.terms.indexOf(selected);
+            position = dimListWidget.entryWidgets.indexOf(selected);
         }
         
-        if (position < 0 || position > dimListWidget.terms.size()) {
+        if (position < 0 || position > dimListWidget.entryWidgets.size()) {
             position = -1;
         }
         
@@ -264,7 +266,7 @@ public class AltiusScreen extends Screen {
             new SelectDimensionScreen(
                 this,
                 dimensionType -> {
-                    dimListWidget.terms.add(
+                    dimListWidget.entryWidgets.add(
                         insertingPosition,
                         createDimEntryWidget(dimensionType)
                     );
@@ -281,13 +283,13 @@ public class AltiusScreen extends Screen {
             return;
         }
         
-        int position = dimListWidget.terms.indexOf(selected);
+        int position = dimListWidget.entryWidgets.indexOf(selected);
         
         if (position == -1) {
             return;
         }
         
-        dimListWidget.terms.remove(position);
+        dimListWidget.entryWidgets.remove(position);
         dimListWidget.update();
     }
     
@@ -303,11 +305,11 @@ public class AltiusScreen extends Screen {
     }
     
     private void removeDuplicate(int insertedIndex) {
-        RegistryKey<World> inserted = dimListWidget.terms.get(insertedIndex).dimension;
-        for (int i = dimListWidget.terms.size() - 1; i >= 0; i--) {
-            if (dimListWidget.terms.get(i).dimension == inserted) {
+        RegistryKey<World> inserted = dimListWidget.entryWidgets.get(insertedIndex).dimension;
+        for (int i = dimListWidget.entryWidgets.size() - 1; i >= 0; i--) {
+            if (dimListWidget.entryWidgets.get(i).dimension == inserted) {
                 if (i != insertedIndex) {
-                    dimListWidget.terms.remove(i);
+                    dimListWidget.entryWidgets.remove(i);
                 }
             }
         }

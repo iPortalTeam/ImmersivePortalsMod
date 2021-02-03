@@ -6,13 +6,17 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -125,27 +129,24 @@ public class CHelper {
             this.yMax = yMax;
         }
         
-        public void grow(float delta) {
-            xMin -= delta;
-            xMax += delta;
-            yMin -= delta;
-            yMax += delta;
-        }
-        
-        public static Rect of(Screen screen) {
-            return new Rect(
-                0, 0,
-                screen.width, screen.height
+        void renderTextCentered(Text text, MatrixStack matrixStack) {
+            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+            
+            OrderedText orderedText = text.asOrderedText();
+            textRenderer.drawWithShadow(
+                matrixStack, orderedText,
+                (((xMin + xMax) / 2.0f) - textRenderer.getWidth(orderedText) / 2.0f), yMin,
+                -1
             );
         }
-
-//        public static Rect of(AbstractButtonWidget widget) {
-//            return new Rect(
-//                widget.x,widget.y,
-//                widget.x+widget.getWidth(),
-//                widget.y+widget.
-//            )
-//        }
+        
+        void renderTextLeft(Text text, MatrixStack matrixStack) {
+            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+            textRenderer.drawWithShadow(
+                matrixStack, text,
+                xMin, yMin, -1
+            );
+        }
     }
     
     public static interface LayoutFunc {
@@ -182,6 +183,16 @@ public class CHelper {
             );
         }
         
+        public static LayoutElement layoutXElastic(Rect widget, int widthRatio) {
+            return new LayoutElement(
+                false, widthRatio,
+                (a, b) -> {
+                    widget.xMin = a;
+                    widget.xMax = b;
+                }
+            );
+        }
+        
         public static LayoutElement layoutXFixed(ButtonWidget widget, int width) {
             return new LayoutElement(
                 true, width,
@@ -192,12 +203,33 @@ public class CHelper {
             );
         }
         
+        public static LayoutElement layoutXFixed(Rect widget, int widthRatio) {
+            return new LayoutElement(
+                false, widthRatio,
+                (a, b) -> {
+                    widget.xMin = a;
+                    widget.xMax = b;
+                }
+            );
+        }
+        
         public static LayoutElement layoutYFixed(ButtonWidget widget, int height) {
             return new LayoutElement(
                 true,
                 height,
                 (a, b) -> {
                     widget.y = a;
+                }
+            );
+        }
+        
+        public static LayoutElement layoutYFixed(Rect widget, int height) {
+            return new LayoutElement(
+                true,
+                height,
+                (a, b) -> {
+                    widget.yMin = a;
+                    widget.yMax = b;
                 }
             );
         }
@@ -281,6 +313,7 @@ public class CHelper {
     }
     
     public static double getSmoothCycles(long unitTicks) {
-        return (double) ((MinecraftClient.getInstance().world.getTime() % unitTicks) / (double) unitTicks) + RenderStates.tickDelta / (double) unitTicks;
+        int playerAge = MinecraftClient.getInstance().player.age;
+        return (playerAge % unitTicks + RenderStates.tickDelta) / (double) unitTicks;
     }
 }

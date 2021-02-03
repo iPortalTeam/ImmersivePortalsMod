@@ -78,7 +78,7 @@ public class SelectDimensionScreen extends Screen {
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
         
         for (RegistryKey<World> dim : getDimensionList(this.generatorOptionsSupplier, this.parent.parent.moreOptionsDialog.method_29700())) {
-            dimListWidget.terms.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));
+            dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));
         }
         
         dimListWidget.update();
