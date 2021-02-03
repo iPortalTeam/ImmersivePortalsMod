@@ -662,7 +662,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     public void portal_setRenderDistance(int arg) {
         renderDistance = arg;
         
-        ModMain.preRenderTaskList.addTask(() -> {
+        ModMain.preGameRenderTaskList.addTask(() -> {
             portal_increaseRenderDistance(arg);
             return true;
         });

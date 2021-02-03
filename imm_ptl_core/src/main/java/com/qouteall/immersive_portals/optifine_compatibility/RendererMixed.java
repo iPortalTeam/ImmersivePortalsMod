@@ -47,7 +47,7 @@ public class RendererMixed extends PortalRenderer {
     private boolean nextFramePortalRenderingNeeded = false;
     
     public RendererMixed() {
-        ModMain.preRenderSignal.connect(() -> {
+        ModMain.preGameRenderSignal.connect(() -> {
             updateNeedsPortalRendering();
         });
     }

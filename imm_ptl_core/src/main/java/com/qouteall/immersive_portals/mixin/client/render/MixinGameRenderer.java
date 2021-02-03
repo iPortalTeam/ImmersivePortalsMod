@@ -59,12 +59,13 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean renderWorldIn,
         CallbackInfo ci
     ) {
+        ModMain.preTotalRenderTaskList.processTasks();
         if (client.world == null) {
             return;
         }
         RenderStates.updatePreRenderInfo(tickDelta);
         CGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
-        ModMain.preRenderSignal.emit();
+        ModMain.preGameRenderSignal.emit();
         if (CGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
         }

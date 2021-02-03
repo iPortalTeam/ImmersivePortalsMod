@@ -82,5 +82,7 @@
   "imm_ptl.horizontal_rotation": "Horizontal Rotation",
   "imm_ptl.loop": "Loop",
   "imm_ptl.enabled": "Enabled",
-  "imm_ptl.disabled": "Disabled"
+  "imm_ptl.disabled": "Disabled",
+
+  "imm_ptl.loading_datapack_dimensions": "Loading Datapack Dimensions"
 }

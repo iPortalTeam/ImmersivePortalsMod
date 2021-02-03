@@ -69,7 +69,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             ChunkBuilder.BuiltChunk::delete
         );
         
-        ModMain.preRenderSignal.connectWithWeakRef(this, (this_) -> {
+        ModMain.preGameRenderSignal.connectWithWeakRef(this, (this_) -> {
             MinecraftClient.getInstance().getProfiler().push("reserve");
             this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 100);
             MinecraftClient.getInstance().getProfiler().pop();

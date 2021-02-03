@@ -4,11 +4,14 @@ import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.my_util.GuiHelper;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.SaveLevelScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -279,18 +282,25 @@ public class AltiusScreen extends Screen {
         int insertingPosition = position + 1;
         
         MinecraftClient.getInstance().openScreen(
-            new SelectDimensionScreen(
-                this,
-                dimensionType -> {
-                    dimListWidget.entryWidgets.add(
-                        insertingPosition,
-                        createDimEntryWidget(dimensionType)
-                    );
-                    removeDuplicate(insertingPosition);
-                    dimListWidget.update();
-                }, generatorOptionsSupplier1
-            )
+            new SaveLevelScreen(new TranslatableText("imm_ptl.loading_datapack_dimensions"))
         );
+        
+        ModMain.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
+            MinecraftClient.getInstance().openScreen(
+                new SelectDimensionScreen(
+                    this,
+                    dimensionType -> {
+                        dimListWidget.entryWidgets.add(
+                            insertingPosition,
+                            createDimEntryWidget(dimensionType)
+                        );
+                        removeDuplicate(insertingPosition);
+                        dimListWidget.update();
+                    }, generatorOptionsSupplier1
+                )
+            );
+            return true;
+        }));
     }
     
     private void onRemoveEntry() {

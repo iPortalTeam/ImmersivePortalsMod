@@ -15,10 +15,12 @@ import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 public class ModMain {
     public static final Signal postClientTickSignal = new Signal();
     public static final Signal postServerTickSignal = new Signal();
-    public static final Signal preRenderSignal = new Signal();
+    public static final Signal preGameRenderSignal = new Signal();
     public static final MyTaskList clientTaskList = new MyTaskList();
     public static final MyTaskList serverTaskList = new MyTaskList();
-    public static final MyTaskList preRenderTaskList = new MyTaskList();
+    public static final MyTaskList preGameRenderTaskList = new MyTaskList();
+    
+    public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
     
     public static final Signal clientCleanupSignal = new Signal();
     public static final Signal serverCleanupSignal = new Signal();
@@ -30,7 +32,7 @@ public class ModMain {
         
         postClientTickSignal.connect(clientTaskList::processTasks);
         postServerTickSignal.connect(serverTaskList::processTasks);
-        preRenderSignal.connect(preRenderTaskList::processTasks);
+        preGameRenderSignal.connect(preGameRenderTaskList::processTasks);
         
         clientCleanupSignal.connect(() -> {
             if (ClientWorldLoader.getIsInitialized()) {
