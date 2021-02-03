@@ -128,31 +128,39 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     private Text getText1() {
         MutableText scaleText = entry.scale != 1.0 ?
             new TranslatableText("imm_ptl.scale")
-                .append(new LiteralText(" : " + Double.toString(entry.scale)))
+                .append(new LiteralText(":" + Double.toString(entry.scale)))
+                .append(new LiteralText(" "))
             : new LiteralText("");
         
         BaseText loopText = getIsLoop() ?
             new TranslatableText("imm_ptl.loop") : new LiteralText("");
         
-        return scaleText.append(new LiteralText(" ")).append(loopText);
+        return scaleText.append(loopText);
     }
     
     private boolean getIsLoop() {
         AltiusScreen altiusScreen = (AltiusScreen) this.parent.parent;
         
-        return altiusScreen.loopEnabled && parent.entryWidgets.get(parent.entryWidgets.size() - 1) == this;
+        return altiusScreen.loopEnabled && (
+            parent.entryWidgets.get(parent.entryWidgets.size() - 1) == this
+                || parent.entryWidgets.get(0) == this
+        );
     }
     
     private Text getText2() {
-        MutableText flippedText = entry.flipped ?
-            new TranslatableText("imm_ptl.flipped") : new LiteralText("");
+        
         
         MutableText horizontalRotationText = entry.horizontalRotation != 0 ?
             new TranslatableText("imm_ptl.horizontal_rotation")
                 .append(new LiteralText(":" + Double.toString(entry.horizontalRotation)))
+                .append(new LiteralText(" "))
             : new LiteralText("");
         
-        return horizontalRotationText.append(new LiteralText(" ")).append(flippedText);
+        MutableText flippedText = entry.flipped ?
+            new TranslatableText("imm_ptl.flipped")
+            : new LiteralText("");
+        
+        return horizontalRotationText.append(flippedText);
     }
     
     @Override
