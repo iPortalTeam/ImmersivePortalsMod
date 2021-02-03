@@ -126,7 +126,7 @@ public class BlockManipulationServer {
         List<Portal> globalPortals = McHelper.getGlobalPortals(world);
         
         Portal portal = globalPortals.stream().filter(p ->
-            p.getContentDirection().dotProduct(sideVec) > 0.9
+            p.getNormal().dotProduct(sideVec) < -0.9
                 && p.isPointInPortalProjection(hitCenter)
                 && p.getDistanceToPlane(hitCenter) < 0.6
         ).findFirst().orElse(null);
