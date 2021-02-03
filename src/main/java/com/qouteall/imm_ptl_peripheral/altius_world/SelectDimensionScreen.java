@@ -69,16 +69,16 @@ public class SelectDimensionScreen extends Screen {
             height,
             20,
             height - 30,
-            DimTermWidget.widgetHeight,
+            DimEntryWidget.widgetHeight,
             this,
             DimListWidget.Type.addDimensionList
         );
         children.add(dimListWidget);
         
-        Consumer<DimTermWidget> callback = w -> dimListWidget.setSelected(w);
+        Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
         
         for (RegistryKey<World> dim : getDimensionList(this.generatorOptionsSupplier, this.parent.parent.moreOptionsDialog.method_29700())) {
-            dimListWidget.terms.add(new DimTermWidget(dim, dimListWidget, callback, DimTermWidget.Type.simple));
+            dimListWidget.terms.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));
         }
         
         dimListWidget.update();
@@ -87,7 +87,7 @@ public class SelectDimensionScreen extends Screen {
             this.width / 2 - 75, this.height - 28, 150, 20,
             new TranslatableText("imm_ptl.confirm_select_dimension"),
             (buttonWidget) -> {
-                DimTermWidget selected = dimListWidget.getSelected();
+                DimEntryWidget selected = dimListWidget.getSelected();
                 if (selected == null) {
                     return;
                 }

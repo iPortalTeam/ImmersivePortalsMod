@@ -8,8 +8,8 @@ import net.minecraft.client.gui.widget.EntryListWidget;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DimListWidget extends EntryListWidget<DimTermWidget> {
-    public final List<DimTermWidget> terms = new ArrayList<>();
+public class DimListWidget extends EntryListWidget<DimEntryWidget> {
+    public final List<DimEntryWidget> terms = new ArrayList<>();
     public final Screen parent;
     private final Type type;
     
@@ -39,10 +39,10 @@ public class DimListWidget extends EntryListWidget<DimTermWidget> {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (type == Type.mainDimensionList) {
-            DimTermWidget selected = getSelected();
+            DimEntryWidget selected = getSelected();
             
             if (selected != null) {
-                DimTermWidget mouseOn = getEntryAtPosition(mouseX, mouseY);
+                DimEntryWidget mouseOn = getEntryAtPosition(mouseX, mouseY);
                 if (mouseOn != null) {
                     if (mouseOn != selected) {
                         switchEntries(selected, mouseOn);
@@ -54,7 +54,7 @@ public class DimListWidget extends EntryListWidget<DimTermWidget> {
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
     
-    private void switchEntries(DimTermWidget a, DimTermWidget b) {
+    private void switchEntries(DimEntryWidget a, DimEntryWidget b) {
         int i1 = terms.indexOf(a);
         int i2 = terms.indexOf(b);
         if (i1 == -1 || i2 == -1) {
@@ -62,7 +62,7 @@ public class DimListWidget extends EntryListWidget<DimTermWidget> {
             return;
         }
         
-        DimTermWidget temp = terms.get(i1);
+        DimEntryWidget temp = terms.get(i1);
         terms.set(i1, terms.get(i2));
         terms.set(i2, temp);
         

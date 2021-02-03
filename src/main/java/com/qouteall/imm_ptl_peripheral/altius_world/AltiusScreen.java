@@ -95,18 +95,18 @@ public class AltiusScreen extends Screen {
             height,
             100,
             200,
-            DimTermWidget.widgetHeight,
+            DimEntryWidget.widgetHeight,
             this,
             DimListWidget.Type.mainDimensionList
         );
         
-        Consumer<DimTermWidget> callback = getElementSelectCallback();
+        Consumer<DimEntryWidget> callback = getElementSelectCallback();
         if (Global.enableAlternateDimensions) {
-            dimListWidget.terms.add(createDimTermWidget(AlternateDimensions.alternate5));
-            dimListWidget.terms.add(createDimTermWidget(AlternateDimensions.alternate2));
+            dimListWidget.terms.add(createDimEntryWidget(AlternateDimensions.alternate5));
+            dimListWidget.terms.add(createDimEntryWidget(AlternateDimensions.alternate2));
         }
-        dimListWidget.terms.add(createDimTermWidget(World.OVERWORLD));
-        dimListWidget.terms.add(createDimTermWidget(World.NETHER));
+        dimListWidget.terms.add(createDimEntryWidget(World.OVERWORLD));
+        dimListWidget.terms.add(createDimEntryWidget(World.NETHER));
         
         generatorOptionsSupplier1 = Helper.cached(() -> {
             GeneratorOptions rawGeneratorOptions =
@@ -128,8 +128,8 @@ public class AltiusScreen extends Screen {
     }
     
     @NotNull
-    private DimTermWidget createDimTermWidget(RegistryKey<World> dimension) {
-        return new DimTermWidget(dimension, dimListWidget, getElementSelectCallback(), DimTermWidget.Type.withAdvancedOptions);
+    private DimEntryWidget createDimEntryWidget(RegistryKey<World> dimension) {
+        return new DimEntryWidget(dimension, dimListWidget, getElementSelectCallback(), DimEntryWidget.Type.withAdvancedOptions);
     }
     
     @Nullable
@@ -213,7 +213,7 @@ public class AltiusScreen extends Screen {
         this.client.openScreen(this.parent);
     }
     
-    private Consumer<DimTermWidget> getElementSelectCallback() {
+    private Consumer<DimEntryWidget> getElementSelectCallback() {
         return w -> dimListWidget.setSelected(w);
     }
     
@@ -251,7 +251,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onAddDimension() {
-        DimTermWidget selected = dimListWidget.getSelected();
+        DimEntryWidget selected = dimListWidget.getSelected();
         
         int position;
         if (selected == null) {
@@ -273,7 +273,7 @@ public class AltiusScreen extends Screen {
                 dimensionType -> {
                     dimListWidget.terms.add(
                         insertingPosition,
-                        createDimTermWidget(dimensionType)
+                        createDimEntryWidget(dimensionType)
                     );
                     removeDuplicate(insertingPosition);
                     dimListWidget.update();
@@ -283,7 +283,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onRemoveDimension() {
-        DimTermWidget selected = dimListWidget.getSelected();
+        DimEntryWidget selected = dimListWidget.getSelected();
         if (selected == null) {
             return;
         }

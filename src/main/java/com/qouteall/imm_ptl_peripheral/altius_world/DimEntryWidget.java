@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -13,17 +15,20 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
-public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
+public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     
     public final RegistryKey<World> dimension;
     public final DimListWidget parent;
-    private final Consumer<DimTermWidget> selectCallback;
+    private final Consumer<DimEntryWidget> selectCallback;
     private final Identifier dimIconPath;
     private final Text dimensionName;
     private boolean dimensionIconPresent = true;
     private final Type type;
+    public final AltiusEntry entry;
     
     public final static int widgetHeight = 50;
     
@@ -31,17 +36,17 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         simple, withAdvancedOptions
     }
     
-    public DimTermWidget(
+    public DimEntryWidget(
         RegistryKey<World> dimension,
         DimListWidget parent,
-        Consumer<DimTermWidget> selectCallback,
+        Consumer<DimEntryWidget> selectCallback,
         Type type
     ) {
         this.dimension = dimension;
         this.parent = parent;
         this.selectCallback = selectCallback;
         this.type = type;
-    
+        
         this.dimIconPath = getDimensionIconPath(this.dimension);
         
         this.dimensionName = getDimensionName(dimension);
@@ -53,9 +58,16 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
             Helper.err("Cannot load texture " + dimIconPath);
             dimensionIconPresent = false;
         }
+        
+        entry = new AltiusEntry(dimension);
     }
     
+    private final List<Element> children = new ArrayList<>();
     
+    @Override
+    public List<? extends Element> children() {
+        return children;
+    }
     
     @Override
     public void render(
@@ -63,12 +75,12 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
         int index,
         int y,
         int x,
-        int height,
+        int rowWidth,
+        int itemHeight,
         int mouseX,
         int mouseY,
-        int i,
         boolean bl,
-        float f
+        float delta
     ) {
         MinecraftClient client = MinecraftClient.getInstance();
         
@@ -96,6 +108,7 @@ public class DimTermWidget extends EntryListWidget.Entry<DimTermWidget> {
             );
         }
     }
+    
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
