@@ -9,8 +9,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 
-import java.util.List;
-
 public class AltiusEditScreen extends Screen {
     
     
@@ -20,14 +18,12 @@ public class AltiusEditScreen extends Screen {
     private final TextFieldWidget scaleField;
     private final ButtonWidget flipButton;
     private final TextFieldWidget horizontalRotationField;
-    private final ButtonWidget loopButton;
     
     private final ButtonWidget backButton;
     
     private final GuiHelper.Rect scaleLabelRect = new GuiHelper.Rect();
     private final GuiHelper.Rect flipLabelRect = new GuiHelper.Rect();
     private final GuiHelper.Rect horizontalRotationLabelRect = new GuiHelper.Rect();
-    private final GuiHelper.Rect loopLabelRect = new GuiHelper.Rect();
     
     private final ButtonWidget helpButton;
     
@@ -64,28 +60,6 @@ public class AltiusEditScreen extends Screen {
         horizontalRotationField.setText(Double.toString(editing.entry.horizontalRotation));
         horizontalRotationField.setSelectionStart(0);
         horizontalRotationField.setSelectionEnd(0);
-        
-        loopButton = new ButtonWidget(
-            0, 0, 0, 20,
-            new TranslatableText(
-                parent.loopEnabled ? "imm_ptl.enabled" : "imm_ptl.disabled"
-            ),
-            button -> {
-                parent.loopEnabled = !parent.loopEnabled;
-                button.setMessage(new TranslatableText(
-                    parent.loopEnabled ? "imm_ptl.enabled" : "imm_ptl.disabled"
-                ));
-            }
-        );
-        
-        List<DimEntryWidget> entryWidgets = parent.dimListWidget.entryWidgets;
-        int editingIndex = entryWidgets.indexOf(editing);
-        if (editingIndex == entryWidgets.size() - 1 || editingIndex == 0) {
-            loopButton.visible = true;
-        }
-        else {
-            loopButton.visible = false;
-        }
         
         backButton = new ButtonWidget(
             0, 0, 0, 20, new TranslatableText("imm_ptl.back"),
@@ -125,7 +99,6 @@ public class AltiusEditScreen extends Screen {
         addChild(scaleField);
         addButton(flipButton);
         addChild(horizontalRotationField);
-        addButton(loopButton);
         addButton(backButton);
         addButton(helpButton);
         
@@ -152,13 +125,6 @@ public class AltiusEditScreen extends Screen {
                     GuiHelper.layoutButtonVertically(horizontalRotationField)
                 )
             ),
-            GuiHelper.blankSpace(20),
-            GuiHelper.fixedLength(20,
-                GuiHelper.combine(
-                    GuiHelper.layoutRectVertically(loopLabelRect),
-                    GuiHelper.layoutButtonVertically(loopButton)
-                )
-            ),
             GuiHelper.elasticBlankSpace(),
             GuiHelper.fixedLength(20, GuiHelper.layoutButtonVertically(backButton)),
             GuiHelper.blankSpace(20)
@@ -171,8 +137,7 @@ public class AltiusEditScreen extends Screen {
                 GuiHelper.combine(
                     GuiHelper.layoutRectHorizontally(scaleLabelRect),
                     GuiHelper.layoutRectHorizontally(flipLabelRect),
-                    GuiHelper.layoutRectHorizontally(horizontalRotationLabelRect),
-                    GuiHelper.layoutRectHorizontally(loopLabelRect)
+                    GuiHelper.layoutRectHorizontally(horizontalRotationLabelRect)
                 )
             ),
             GuiHelper.blankSpace(20),
@@ -180,8 +145,7 @@ public class AltiusEditScreen extends Screen {
                 GuiHelper.combine(
                     GuiHelper.layoutButtonHorizontally(scaleField),
                     GuiHelper.layoutButtonHorizontally(flipButton),
-                    GuiHelper.layoutButtonHorizontally(horizontalRotationField),
-                    GuiHelper.layoutButtonHorizontally(loopButton)
+                    GuiHelper.layoutButtonHorizontally(horizontalRotationField)
                 )
             ),
             GuiHelper.elasticBlankSpace()
@@ -218,9 +182,5 @@ public class AltiusEditScreen extends Screen {
         scaleLabelRect.renderTextLeft(new TranslatableText("imm_ptl.scale"), matrices);
         flipLabelRect.renderTextLeft(new TranslatableText("imm_ptl.flipped"), matrices);
         horizontalRotationLabelRect.renderTextLeft(new TranslatableText("imm_ptl.horizontal_rotation"), matrices);
-        
-        if (loopButton.visible) {
-            loopLabelRect.renderTextLeft(new TranslatableText("imm_ptl.loop"), matrices);
-        }
     }
 }

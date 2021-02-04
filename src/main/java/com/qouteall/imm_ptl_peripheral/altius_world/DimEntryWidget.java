@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.BaseText;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -130,27 +129,12 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         MutableText scaleText = entry.scale != 1.0 ?
             new TranslatableText("imm_ptl.scale")
                 .append(new LiteralText(":" + Double.toString(entry.scale)))
-                .append(new LiteralText(" "))
             : new LiteralText("");
         
-        BaseText loopText = getIsLoop() ?
-            new TranslatableText("imm_ptl.loop") : new LiteralText("");
-        
-        return scaleText.append(loopText);
-    }
-    
-    private boolean getIsLoop() {
-        AltiusScreen altiusScreen = (AltiusScreen) this.parent.parent;
-        
-        return altiusScreen.loopEnabled && (
-            parent.entryWidgets.get(parent.entryWidgets.size() - 1) == this
-                || parent.entryWidgets.get(0) == this
-        );
+        return scaleText;
     }
     
     private Text getText2() {
-        
-        
         MutableText horizontalRotationText = entry.horizontalRotation != 0 ?
             new TranslatableText("imm_ptl.horizontal_rotation")
                 .append(new LiteralText(":" + Double.toString(entry.horizontalRotation)))

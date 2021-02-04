@@ -3,10 +3,8 @@ package com.qouteall.imm_ptl_peripheral.altius_world;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.GuiHelper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
@@ -19,7 +17,7 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     public final Screen parent;
     private final Type type;
     
-    private LoopSwitchEntry loopSwitchEntry;
+    private ButtonWidget extraLoopButton;
     
     public static enum Type {
         mainDimensionList, addDimensionList
@@ -37,19 +35,28 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
         super(MinecraftClient.getInstance(), width, height, top, bottom, itemHeight);
         this.parent = parent;
         this.type = type;
-    
+        
         if (type == Type.mainDimensionList) {
-            loopSwitchEntry = new LoopSwitchEntry(this);
+            AltiusScreen parent1 = (AltiusScreen) parent;
+            
+            extraLoopButton = new ButtonWidget(
+                0, 0, 100, 20,
+                new TranslatableText(parent1.loopEnabled ?
+                    "imm_ptl.enabled" : "imm_ptl.disabled"),
+                button -> {
+                    parent1.loopEnabled = !parent1.loopEnabled;
+                    button.setMessage(
+                        new TranslatableText(parent1.loopEnabled ?
+                            "imm_ptl.enabled" : "imm_ptl.disabled")
+                    );
+                }
+            );
         }
     }
     
     public void update() {
         this.clearEntries();
         this.entryWidgets.forEach(this::addEntry);
-    
-        if (type == Type.mainDimensionList) {
-//            addEntry(loopSwitchEntry);
-        }
     }
     
     @Override
@@ -85,57 +92,46 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
         update();
     }
     
-    public static class LoopSwitchEntry extends ElementListWidget.Entry<LoopSwitchEntry> {
-        
-        public final DimListWidget parent;
-        
-        private final ArrayList<Element> children = new ArrayList<>();
-        
-        private final ButtonWidget loopSwitchButton;
-        
-        public LoopSwitchEntry(DimListWidget parent) {
-            this.parent = parent;
-            
-            this.loopSwitchButton = new ButtonWidget(
-                0, 0, 100, 20,
-                new TranslatableText(getParentParent().loopEnabled ?
-                    "imm_ptl.enabled" : "imm_ptl.disabled"),
-                button -> {
-                    getParentParent().loopEnabled = !getParentParent().loopEnabled;
-                    button.setMessage(
-                        new TranslatableText(getParentParent().loopEnabled ?
-                            "imm_ptl.enabled" : "imm_ptl.disabled")
-                    );
-                }
-            );
+    @Override
+    protected int getMaxPosition() {
+        if (type == Type.mainDimensionList) {
+            return super.getMaxPosition() + itemHeight;
         }
         
-        public AltiusScreen getParentParent() {
-            return ((AltiusScreen) parent.parent);
-        }
+        return super.getMaxPosition();
+    }
+    
+    @Override
+    protected void renderList(MatrixStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
+        super.renderList(matrices, x, y, mouseX, mouseY, delta);
         
-        @Override
-        public void render(
-            MatrixStack matrixStack,
-            int index,
-            int y,
-            int x,
-            int rowWidth,
-            int itemHeight,
-            int mouseX,
-            int mouseY,
-            boolean bl,
-            float delta
-        ) {
-            new GuiHelper.Rect(x, y, x + 100, y + itemHeight)
-                .renderTextLeft(new TranslatableText("imm_ptl.loop"), matrixStack);
-            
-            loopSwitchButton.render(matrixStack, mouseX, mouseY, delta);
+        if (type == Type.mainDimensionList) {
+            renderLoopButton(matrices, mouseX, mouseY, delta);
         }
+    }
+    
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        super.render(matrices, mouseX, mouseY, delta);
+    }
+    
+    private void renderLoopButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        int localOffset = getMaxPosition() - 35;
+        int currY = top + 4 - (int) getScrollAmount() + localOffset;
+        extraLoopButton.y = currY;
+        extraLoopButton.x = getRowLeft()+100;
         
-        @Override
-        public List<? extends Element> children() {
-            return children;
-        }
+        extraLoopButton.render(matrices, mouseX, mouseY, delta);
+        
+        new GuiHelper.Rect(
+            getRowLeft()+30, currY, 200, currY + 100
+        ).renderTextLeft(new TranslatableText("imm_ptl.loop"), matrices);
+    }
+    
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        extraLoopButton.mouseClicked(mouseX, mouseY, button);
+        
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }
