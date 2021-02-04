@@ -119,18 +119,20 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
         int localOffset = getMaxPosition() - 35;
         int currY = top + 4 - (int) getScrollAmount() + localOffset;
         extraLoopButton.y = currY;
-        extraLoopButton.x = getRowLeft()+100;
+        extraLoopButton.x = getRowLeft() + 100;
         
         extraLoopButton.render(matrices, mouseX, mouseY, delta);
         
         new GuiHelper.Rect(
-            getRowLeft()+30, currY, 200, currY + 100
+            getRowLeft() + 30, currY, 200, currY + 100
         ).renderTextLeft(new TranslatableText("imm_ptl.loop"), matrices);
     }
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        extraLoopButton.mouseClicked(mouseX, mouseY, button);
+        if (type == Type.mainDimensionList) {
+            extraLoopButton.mouseClicked(mouseX, mouseY, button);
+        }
         
         return super.mouseClicked(mouseX, mouseY, button);
     }
