@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+// extending EntryListWidget.Entry is also fine
 public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     
     public final RegistryKey<World> dimension;
