@@ -149,6 +149,28 @@ public class PortalCommand {
                 return 0;
             })
         );
+        
+        builder.then(CommandManager
+            .literal("align")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                
+                Vec3d pos = player.getPos();
+                
+                Vec3d newPos = new Vec3d(
+                    Math.round(pos.x * 2) / 2.0,
+                    Math.round(pos.y * 2) / 2.0,
+                    Math.round(pos.z * 2) / 2.0
+                );
+                
+                player.networkHandler.requestTeleport(
+                    newPos.x, newPos.y, newPos.z,
+                    45, 30
+                );
+                
+                return 0;
+            })
+        );
     }
     
     public static void registerClientDebugCommand(
