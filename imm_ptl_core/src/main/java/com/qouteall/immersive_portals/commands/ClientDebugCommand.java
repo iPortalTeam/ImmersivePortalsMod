@@ -395,57 +395,56 @@ public class ClientDebugCommand {
         );
         builder.then(CommandManager
             .literal("erase_chunk")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                
-                eraseChunk(new ChunkPos(new BlockPos(player.getPos())), player.world, 0, 256);
-                
-                return 0;
-            })
+            .then(CommandManager.argument("r", IntegerArgumentType.integer())
+                .executes(context -> {
+                    int r = IntegerArgumentType.getInteger(context, "r");
+                    
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    
+                    ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
+                    
+                    for (int dx = -r; dx <= r; dx++) {
+                        for (int dz = -r; dz <= r; dz++) {
+                            eraseChunk(
+                                new ChunkPos(
+                                    player.chunkX + dx,
+                                    player.chunkZ + dz
+                                ),
+                                player.world, 0, 256
+                            );
+                        }
+                    }
+                    
+                    return 0;
+                })
+            )
         );
         builder.then(CommandManager
-            .literal("erase_chunk_large")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                
-                ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-                
-                for (int dx = -4; dx <= 4; dx++) {
-                    for (int dz = -4; dz <= 4; dz++) {
-                        eraseChunk(
-                            new ChunkPos(
-                                player.chunkX + dx,
-                                player.chunkZ + dz
-                            ),
-                            player.world, 0, 256
-                        );
+            .literal("erase_chunk_middle")
+            .then(CommandManager.argument("r", IntegerArgumentType.integer())
+                .executes(context -> {
+                    int r = IntegerArgumentType.getInteger(context, "r");
+                    
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    
+                    ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
+                    
+                    for (int dx = -r; dx <= r; dx++) {
+                        for (int dz = -r; dz <= r; dz++) {
+                            eraseChunk(
+                                new ChunkPos(
+                                    player.chunkX + dx,
+                                    player.chunkZ + dz
+                                ),
+                                player.world, 96, 128
+                            );
+                        }
                     }
-                }
-                
-                return 0;
-            })
-        );
-        builder.then(CommandManager
-            .literal("erase_chunk_large_middle")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                
-                ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-                
-                for (int dx = -4; dx <= 4; dx++) {
-                    for (int dz = -4; dz <= 4; dz++) {
-                        eraseChunk(
-                            new ChunkPos(
-                                player.chunkX + dx,
-                                player.chunkZ + dz
-                            ),
-                            player.world, 64, 128
-                        );
-                    }
-                }
-                
-                return 0;
-            })
+                    
+                    return 0;
+                })
+            )
+        
         );
         builder.then(CommandManager
             .literal("report_rebuild_status")
