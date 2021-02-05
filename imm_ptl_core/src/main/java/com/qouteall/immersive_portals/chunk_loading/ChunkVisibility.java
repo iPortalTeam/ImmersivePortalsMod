@@ -63,18 +63,21 @@ public class ChunkVisibility {
     }
     
     public static List<Portal> getNearbyPortals(
-        ServerWorld world, Vec3d pos, Predicate<Portal> predicate, int range
+        ServerWorld world, Vec3d pos, Predicate<Portal> predicate, boolean isDirect
     ) {
         List<Portal> result = McHelper.findEntitiesRough(
             Portal.class,
             world,
             pos,
-            range / 16,
+            (isDirect ?
+                (isShrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange) :
+                secondaryPortalLoadingRange)
+                / 16,
             predicate
         );
         
         for (Portal globalPortal : McHelper.getGlobalPortals(world)) {
-            if (globalPortal.getDistanceToNearestPointInPortal(pos) < range * 2) {
+            if (globalPortal.getDistanceToNearestPointInPortal(pos) < (isDirect ? 256 : 32)) {
                 result.add(globalPortal);
             }
         }
@@ -177,7 +180,7 @@ public class ChunkVisibility {
                 ((ServerWorld) player.world),
                 player.getPos(),
                 portal -> portal.canBeSpectated(player),
-                isShrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange
+                true
             ).stream().flatMap(
                 portal -> {
                     Vec3d transformedPlayerPos = portal.transformPoint(player.getPos());
@@ -190,7 +193,7 @@ public class ChunkVisibility {
                                 ((ServerWorld) portal.getDestinationWorld()),
                                 transformedPlayerPos,
                                 p -> p.canBeSpectated(player),
-                                secondaryPortalLoadingRange
+                                false
                             ).stream().map(
                                 innerPortal -> getGeneralPortalIndirectLoader(
                                     player, transformedPlayerPos, innerPortal
