@@ -19,6 +19,7 @@
     "common.altius_world.MixinMinecraftServer_A",
     "common.altius_world.MixinNoiseChunkGenerator",
     "common.altius_world.MixinSpawnHelper",
+    "common.fix_concurrency.MixinWeightedList",
     "common.portal_generation.MixinAbstractFireBlock",
     "common.portal_generation.MixinEnderEyeItem",
     "common.portal_generation.MixinFlintAndSteelItem",
