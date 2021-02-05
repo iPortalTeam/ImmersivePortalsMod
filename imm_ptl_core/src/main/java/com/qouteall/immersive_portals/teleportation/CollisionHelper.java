@@ -10,9 +10,12 @@ import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -133,10 +136,13 @@ public class CollisionHelper {
         if (boxOtherSide == null) {
             return attemptedMove;
         }
-    
+        
         World destinationWorld = collidingPortal.getDestinationWorld();
-    
+        
         if (!destinationWorld.isChunkLoaded(new BlockPos(boxOtherSide.getCenter()))) {
+            if (entity instanceof PlayerEntity && entity.world.isClient()) {
+                informClientStagnant();
+            }
             return Vec3d.ZERO;
         }
         
@@ -375,5 +381,13 @@ public class CollisionHelper {
     
     private static Box getStretchedBoundingBox(Entity entity) {
         return entity.getBoundingBox().stretch(entity.getVelocity());
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void informClientStagnant() {
+        MinecraftClient.getInstance().inGameHud.setOverlayMessage(
+            new TranslatableText("imm_ptl.stagnate_movement"),
+            true
+        );
     }
 }
