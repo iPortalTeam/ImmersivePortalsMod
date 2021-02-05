@@ -3,6 +3,7 @@ package com.qouteall.imm_ptl_peripheral.altius_world;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.api.PortalAPI;
+import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -20,6 +21,14 @@ public class AltiusInfo {
         this.loop = loop;
     }
     
+    public static void initializeFuseViewProperty(Portal portal) {
+        if (portal.world.getDimension().hasSkyLight()) {
+            if (portal.getNormal().y < 0) {
+                portal.fuseView = true;
+            }
+        }
+    }
+    
     public static void createConnectionBetween(
         AltiusEntry a, AltiusEntry b
     ) {
@@ -28,7 +37,7 @@ public class AltiusInfo {
         ServerWorld toWorld = McHelper.getServerWorld(b.dimension);
         
         boolean xorFlipped = a.flipped ^ b.flipped;
-    
+        
         VerticalConnectingPortal connectingPortal = VerticalConnectingPortal.createConnectingPortal(
             fromWorld,
             a.flipped ? VerticalConnectingPortal.ConnectorType.ceil :
@@ -38,9 +47,12 @@ public class AltiusInfo {
             xorFlipped,
             b.horizontalRotation - a.horizontalRotation
         );
-    
+        
         VerticalConnectingPortal reverse = PortalAPI.createReversePortal(connectingPortal);
-    
+        
+        initializeFuseViewProperty(connectingPortal);
+        initializeFuseViewProperty(reverse);
+        
         PortalAPI.addGlobalPortal(fromWorld, connectingPortal);
         PortalAPI.addGlobalPortal(toWorld, reverse);
     }
