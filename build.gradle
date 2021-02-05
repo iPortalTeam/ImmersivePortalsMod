@@ -68,7 +68,7 @@ allprojects {
         modCompileOnly "me.shedaniel.cloth:config-${cloth_config_version}"
         modCompileOnly "io.github.prospector:modmenu:${modmenu_version}"
 
-        modCompileOnly 'com.github.Virtuoel:Pehkui:c88cfe6'
+        modCompileOnly 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1164_1'
 //        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
@@ -203,8 +203,9 @@ dependencies {
 //
 //        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
 //
-//        modCompileOnly name
-//        modRuntime name
+//        modImplementation name
+////        modCompileOnly name
+////        modRuntime name
 //    }
 }
 
