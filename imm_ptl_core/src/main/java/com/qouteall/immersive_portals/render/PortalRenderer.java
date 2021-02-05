@@ -120,7 +120,7 @@ public abstract class PortalRenderer {
             return true;
         }
         
-        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        Vec3d cameraPos = TransformationManager.getIsometricAdjustedCameraPos();
         
         if (!portal.isRoughlyVisibleTo(cameraPos)) {
             return true;

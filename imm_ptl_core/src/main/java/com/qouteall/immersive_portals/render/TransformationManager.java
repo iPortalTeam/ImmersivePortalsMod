@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.render;
 
+import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
@@ -12,8 +13,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
@@ -208,5 +211,22 @@ public class TransformationManager {
             
             client.chunkCullingEnabled = true;
         }
+    }
+    
+    // isometric is equivalent to the camera being in infinitely far place
+    public static Vec3d getIsometricAdjustedCameraPos() {
+        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        
+        if (!isIsometricView) {
+            return cameraPos;
+        }
+        
+        Camera camera = client.gameRenderer.getCamera();
+        
+        Quaternion rotation = camera.getRotation();
+        Vector3f vec = new Vector3f(0, 0, client.options.viewDistance * -8);
+        vec.rotate(rotation);
+        
+        return cameraPos.add(vec.getX(), vec.getY(), vec.getZ());
     }
 }
