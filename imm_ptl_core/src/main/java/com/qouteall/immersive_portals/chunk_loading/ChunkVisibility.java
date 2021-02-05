@@ -87,7 +87,7 @@ public class ChunkVisibility {
     ) {
         if (portal.getIsGlobal()) {
             int renderDistance = Math.min(
-                Global.indirectLoadingRadiusCap + (Global.indirectLoadingRadiusCap / 2),
+                Global.indirectLoadingRadiusCap * 2,
                 //load a little more to make dimension stack more complete
                 Math.max(
                     2,
@@ -181,7 +181,7 @@ public class ChunkVisibility {
             ).stream().flatMap(
                 portal -> {
                     Vec3d transformedPlayerPos = portal.transformPoint(player.getPos());
-    
+                    
                     return Stream.concat(
                         Stream.of(getGeneralDirectPortalLoader(player, portal)),
                         isShrinkLoading() ?
