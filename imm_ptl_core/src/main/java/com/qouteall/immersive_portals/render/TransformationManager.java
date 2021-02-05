@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals.render;
 
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ducks.IEMatrix4f;
 import com.qouteall.immersive_portals.my_util.DQuaternion;
@@ -215,13 +214,16 @@ public class TransformationManager {
     
     // isometric is equivalent to the camera being in infinitely far place
     public static Vec3d getIsometricAdjustedCameraPos() {
-        Vec3d cameraPos = CHelper.getCurrentCameraPos();
+        Camera camera = client.gameRenderer.getCamera();
+        return getIsometricAdjustedCameraPos(camera);
+    }
+    
+    public static Vec3d getIsometricAdjustedCameraPos(Camera camera) {
+        Vec3d cameraPos = camera.getPos();
         
         if (!isIsometricView) {
             return cameraPos;
         }
-        
-        Camera camera = client.gameRenderer.getCamera();
         
         Quaternion rotation = camera.getRotation();
         Vector3f vec = new Vector3f(0, 0, client.options.viewDistance * -8);
