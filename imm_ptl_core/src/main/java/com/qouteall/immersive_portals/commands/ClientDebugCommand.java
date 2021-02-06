@@ -11,10 +11,12 @@ import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.chunk_loading.ChunkVisibility;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.network.McRemoteProcedureCall;
 import com.qouteall.immersive_portals.optifine_compatibility.UniformReport;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -68,7 +70,9 @@ import java.lang.ref.Reference;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -395,56 +399,39 @@ public class ClientDebugCommand {
         );
         builder.then(CommandManager
             .literal("erase_chunk")
-            .then(CommandManager.argument("r", IntegerArgumentType.integer())
+            .then(CommandManager.argument("rChunks", IntegerArgumentType.integer())
                 .executes(context -> {
-                    int r = IntegerArgumentType.getInteger(context, "r");
-                    
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     
                     ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
                     
-                    for (int dx = -r; dx <= r; dx++) {
-                        for (int dz = -r; dz <= r; dz++) {
-                            eraseChunk(
-                                new ChunkPos(
-                                    player.chunkX + dx,
-                                    player.chunkZ + dz
-                                ),
-                                player.world, 0, 256
-                            );
-                        }
-                    }
+                    invokeEraseChunk(
+                        player.world, center,
+                        IntegerArgumentType.getInteger(context, "rChunks"),
+                        0, 256
+                    );
                     
                     return 0;
                 })
-            )
-        );
-        builder.then(CommandManager
-            .literal("erase_chunk_middle")
-            .then(CommandManager.argument("r", IntegerArgumentType.integer())
-                .executes(context -> {
-                    int r = IntegerArgumentType.getInteger(context, "r");
-                    
-                    ServerPlayerEntity player = context.getSource().getPlayer();
-                    
-                    ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-                    
-                    for (int dx = -r; dx <= r; dx++) {
-                        for (int dz = -r; dz <= r; dz++) {
-                            eraseChunk(
-                                new ChunkPos(
-                                    player.chunkX + dx,
-                                    player.chunkZ + dz
-                                ),
-                                player.world, 96, 128
+                .then(CommandManager.argument("downY", IntegerArgumentType.integer())
+                    .then(CommandManager.argument("upY", IntegerArgumentType.integer())
+                        .executes(context -> {
+                            
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            
+                            ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
+                            
+                            invokeEraseChunk(
+                                player.world, center,
+                                IntegerArgumentType.getInteger(context, "rChunks"),
+                                IntegerArgumentType.getInteger(context, "downY"),
+                                IntegerArgumentType.getInteger(context, "upY")
                             );
-                        }
-                    }
-                    
-                    return 0;
-                })
+                            return 0;
+                        })
+                    )
+                )
             )
-        
         );
         builder.then(CommandManager
             .literal("report_rebuild_status")
@@ -700,6 +687,27 @@ public class ClientDebugCommand {
         dispatcher.register(builder);
         
         Helper.log("Successfully initialized command /immersive_portals_debug");
+    }
+    
+    public static void invokeEraseChunk(World world, ChunkPos center, int r, int downY, int upY) {
+        ArrayList<ChunkPos> poses = new ArrayList<>();
+        for (int x = -r; x <= r; x++) {
+            for (int z = -r; z <= r; z++) {
+                poses.add(new ChunkPos(x + center.x, z + center.z));
+            }
+        }
+        poses.sort(Comparator.comparingDouble(c ->
+            Vec3d.of(center.getStartPos()).distanceTo(Vec3d.of(c.getStartPos()))
+        ));
+        
+        ModMain.serverTaskList.addTask(MyTaskList.chainTasks(
+            poses.stream().map(chunkPos -> (MyTaskList.MyTask) () -> {
+                eraseChunk(
+                    chunkPos, world, downY, upY
+                );
+                return true;
+            }).iterator()
+        ));
     }
     
     public static void eraseChunk(ChunkPos chunkPos, World world, int yStart, int yEnd) {

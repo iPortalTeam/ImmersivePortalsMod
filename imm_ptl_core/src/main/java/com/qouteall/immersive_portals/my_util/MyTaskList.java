@@ -1,9 +1,12 @@
 package com.qouteall.immersive_portals.my_util;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import com.qouteall.immersive_portals.Helper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.util.Iterator;
 import java.util.function.BooleanSupplier;
 
 //NOTE if the task returns true, it will be deleted
@@ -177,6 +180,21 @@ public class MyTaskList {
             boolean finished = task.runAndGetIsFinished();
             endAction.run();
             return finished;
+        };
+    }
+    
+    public static MyTask chainTasks(Iterator<MyTask> tasks) {
+        PeekingIterator<MyTask> peekingIterator = Iterators.peekingIterator(tasks);
+        return () -> {
+            if (peekingIterator.hasNext()) {
+                MyTask curr = peekingIterator.peek();
+                boolean finished = curr.runAndGetIsFinished();
+                if (finished) {
+                    peekingIterator.next();
+                }
+            }
+            
+            return !peekingIterator.hasNext();
         };
     }
 }
