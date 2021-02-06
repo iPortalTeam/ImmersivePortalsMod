@@ -102,7 +102,7 @@ public class AltiusScreen extends Screen {
         Consumer<DimEntryWidget> callback = getElementSelectCallback();
         if (Global.enableAlternateDimensions) {
             dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate5));
-            dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate2));
+            dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate1));
         }
         dimListWidget.entryWidgets.add(createDimEntryWidget(World.OVERWORLD));
         dimListWidget.entryWidgets.add(createDimEntryWidget(World.NETHER));
