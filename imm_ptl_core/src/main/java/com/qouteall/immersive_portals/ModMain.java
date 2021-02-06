@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
+import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.Signal;
 import com.qouteall.immersive_portals.portal.PortalExtension;
@@ -55,6 +56,8 @@ public class ModMain {
         CollisionHelper.init();
         
         PortalExtension.init();
+        
+        GcMonitor.initCommon();
         
     }
     

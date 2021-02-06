@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals;
 
 import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
 import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkStorageFix;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
@@ -121,6 +122,8 @@ public class ModMainClient {
             OFBuiltChunkStorageFix.init();
             showOptiFineWarning();
         }
+        
+        GcMonitor.initClient();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

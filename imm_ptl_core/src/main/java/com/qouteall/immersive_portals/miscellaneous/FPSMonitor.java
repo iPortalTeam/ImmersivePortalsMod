@@ -1,4 +1,4 @@
-package com.qouteall.immersive_portals.render;
+package com.qouteall.immersive_portals.miscellaneous;
 
 import java.util.ArrayDeque;
 

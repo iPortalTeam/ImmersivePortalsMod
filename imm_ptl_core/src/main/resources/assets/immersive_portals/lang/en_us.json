@@ -78,5 +78,6 @@
   "imm_ptl.loop": "Loop",
   "imm_ptl.enabled": "Enabled",
   "imm_ptl.disabled": "Disabled",
-  "imm_ptl.loading_datapack_dimensions": "Loading Datapack Dimensions"
+  "imm_ptl.loading_datapack_dimensions": "Loading Datapack Dimensions",
+  "imm_ptl.memory_not_enough": "Memory not enough. You may experience GC lag. Try to Shrink render distance or allocate more memory."
 }

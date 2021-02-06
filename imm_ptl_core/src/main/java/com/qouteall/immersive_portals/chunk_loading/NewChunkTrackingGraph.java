@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -268,7 +269,14 @@ public class NewChunkTrackingGraph {
         if (record.player.removed) {
             return true;
         }
-        return currTime - record.lastWatchTime > (long) Global.chunkUnloadDelayTicks;
+        long unloadDelay = Global.chunkUnloadDelayTicks;
+        
+        if (GcMonitor.isMemoryNotEnough()) {
+            // does not delay unloading
+            unloadDelay = 21;
+        }
+        
+        return currTime - record.lastWatchTime > unloadDelay;
     }
     
     private static void tick() {
