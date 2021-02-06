@@ -4,9 +4,11 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ducks.IEEntity;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.EndPortalEntity;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
+import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -62,13 +64,16 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     private boolean chunkPosUpdateRequested;
     
-    @Shadow public int age;
+    @Shadow
+    public int age;
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
         tickCollidingPortal(1);
     }
+    
+    private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
     @Redirect(
         method = "move",
@@ -78,10 +83,20 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
-        if (attemptedMove.lengthSquared() > 1600) {
-            Helper.err("Entity moves too fast " + entity + attemptedMove);
-            new Throwable().printStackTrace();
-            return attemptedMove;
+        if (attemptedMove.lengthSquared() > 60 * 60) {
+            Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
+            limitedLogger.invoke(() -> {
+                new Throwable().printStackTrace();
+            });
+            
+            if (entity instanceof ServerPlayerEntity) {
+                ServerTeleportationManager.sendPositionConfirmMessage(((ServerPlayerEntity) entity));
+                Helper.log("position confirm message sent " + entity);
+                return Vec3d.ZERO;
+            }
+            else {
+                return attemptedMove;
+            }
         }
         
         if (collidingPortal == null ||

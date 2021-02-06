@@ -10,6 +10,7 @@ import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
@@ -337,7 +338,7 @@ public class ServerTeleportationManager {
         
     }
     
-    private void sendPositionConfirmMessage(ServerPlayerEntity player) {
+    public static void sendPositionConfirmMessage(ServerPlayerEntity player) {
         Packet packet = MyNetwork.createStcDimensionConfirm(
             player.world.getRegistryKey(),
             player.getPos()
@@ -539,6 +540,8 @@ public class ServerTeleportationManager {
         return currGameTime - lastTeleportGameTime < valveTickTime;
     }
     
+    private static final LimitedLogger limitedLogger = new LimitedLogger(20);
+    
     public void acceptDubiousMovePacket(
         ServerPlayerEntity player,
         PlayerMoveC2SPacket packet,
@@ -554,12 +557,12 @@ public class ServerTeleportationManager {
         if (canPlayerReachPos(player, dimension, newPos)) {
             recordLastPosition(player);
             teleportPlayer(player, dimension, newPos);
-            Helper.log(String.format("accepted dubious move packet %s %s %s %s %s %s %s",
+            limitedLogger.log(String.format("accepted dubious move packet %s %s %s %s %s %s %s",
                 player.world.getRegistryKey(), x, y, z, player.getX(), player.getY(), player.getZ()
             ));
         }
         else {
-            Helper.log(String.format("ignored dubious move packet %s %s %s %s %s %s %s",
+            limitedLogger.log(String.format("ignored dubious move packet %s %s %s %s %s %s %s",
                 player.world.getRegistryKey().getValue(), x, y, z, player.getX(), player.getY(), player.getZ()
             ));
         }
