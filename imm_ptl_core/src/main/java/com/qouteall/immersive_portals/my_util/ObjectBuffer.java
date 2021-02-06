@@ -62,5 +62,6 @@ public class ObjectBuffer<T> {
     
     public void destroyAll() {
         objects.forEach(destroyer);
+        objects.clear();
     }
 }
