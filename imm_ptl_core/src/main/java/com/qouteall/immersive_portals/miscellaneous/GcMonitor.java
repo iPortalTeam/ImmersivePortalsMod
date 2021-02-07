@@ -67,8 +67,6 @@ public class GcMonitor {
         
         if (usage > 0.8) {
             memoryNotEnough = true;
-            
-            
             Helper.err(
                 "Memory not enough. Try to Shrink loading distance or allocate more memory." +
                     " If this happens with low loading distance, it usually indicates memory leak"
@@ -77,6 +75,9 @@ public class GcMonitor {
             if (!O_O.isDedicatedServer()) {
                 informMemoryNotEnoughClient();
             }
+        }
+        else {
+            memoryNotEnough = false;
         }
     }
     

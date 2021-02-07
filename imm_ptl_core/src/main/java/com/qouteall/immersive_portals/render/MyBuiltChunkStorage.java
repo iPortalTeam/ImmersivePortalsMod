@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
+import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.ObjectBuffer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkStorageFix;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
@@ -223,8 +224,15 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private void tick() {
         ClientWorld worldClient = MinecraftClient.getInstance().world;
         if (worldClient != null) {
-            if (worldClient.getTime() % 213 == 66) {
-                purge();
+            if (GcMonitor.isMemoryNotEnough()) {
+                if (worldClient.getTime() % 3 == 0) {
+                    purge();
+                }
+            }
+            else {
+                if (worldClient.getTime() % 213 == 66) {
+                    purge();
+                }
             }
         }
     }
@@ -232,13 +240,15 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private void purge() {
         MinecraftClient.getInstance().getProfiler().push("my_built_chunk_storage_purge");
         
+        long dropTime = Helper.secondToNano(GcMonitor.isMemoryNotEnough() ? 3 : 20);
+        
         long currentTime = System.nanoTime();
         presets.entrySet().removeIf(entry -> {
             Preset preset = entry.getValue();
             if (preset.data == this.chunks) {
                 return false;
             }
-            return currentTime - preset.lastActiveTime > Helper.secondToNano(20);
+            return currentTime - preset.lastActiveTime > dropTime;
         });
         
         foreachActiveBuiltChunks(builtChunk -> {
