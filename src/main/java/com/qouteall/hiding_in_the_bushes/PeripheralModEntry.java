@@ -1,5 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.imm_ptl_peripheral.CommandStickItem;
 import com.qouteall.imm_ptl_peripheral.PeripheralModMain;
 import com.qouteall.imm_ptl_peripheral.guide.IPGuide;
 import net.fabricmc.api.ModInitializer;
@@ -48,7 +49,7 @@ public class PeripheralModEntry implements ModInitializer {
         }
     }
     
-    static void registerPortalHelperBlock() {
+    private static void registerBlockItems() {
         PeripheralModMain.portalHelperBlock = new Block(FabricBlockSettings.of(Material.METAL).nonOpaque()
             .solidBlock((a, b, c) -> false));
         
@@ -68,11 +69,19 @@ public class PeripheralModEntry implements ModInitializer {
             new Identifier("immersive_portals", "portal_helper"),
             PeripheralModMain.portalHelperBlockItem
         );
+        
+        Registry.register(
+            Registry.ITEM,
+            new Identifier("immersive_portals:command_stick"),
+            CommandStickItem.instance
+        );
+    
+        PeripheralModMain.registerCommandStickTypes();
     }
     
     @Override
     public void onInitialize() {
-        PeripheralModEntry.registerPortalHelperBlock();
+        PeripheralModEntry.registerBlockItems();
         
         PeripheralModMain.init();
     }

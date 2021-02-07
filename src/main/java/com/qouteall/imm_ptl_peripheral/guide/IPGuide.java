@@ -1,14 +1,13 @@
 package com.qouteall.imm_ptl_peripheral.guide;
 
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.network.CommonNetworkClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.MessageType;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 
@@ -101,13 +100,10 @@ public class IPGuide {
         MinecraftClient.getInstance().inGameHud.addChatMessage(
             MessageType.SYSTEM,
             text.append(
-                new LiteralText(link).styled(
-                    style -> style.withClickEvent(new ClickEvent(
-                        ClickEvent.Action.OPEN_URL, link
-                    )).withUnderline(true)
-                )
+                McHelper.getLinkText(link)
             ),
             Util.NIL_UUID
         );
     }
+    
 }

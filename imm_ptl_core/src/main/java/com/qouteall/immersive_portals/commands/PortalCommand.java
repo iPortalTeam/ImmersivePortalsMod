@@ -1319,6 +1319,21 @@ public class PortalCommand {
                 )
             )
         );
+        
+        builder.then(CommandManager
+            .literal("wiki")
+            .executes(context -> {
+                context.getSource().sendFeedback(
+                    McHelper.getLinkText("https://qouteall.fun/immptl/wiki/Commands-Reference"),
+                    false
+                );
+                context.getSource().sendFeedback(
+                    new TranslatableText("imm_ptl.press_t"),
+                    false
+                );
+                return 0;
+            })
+        );
     }
     
     private static void invokeCreateScaledViewCommand(

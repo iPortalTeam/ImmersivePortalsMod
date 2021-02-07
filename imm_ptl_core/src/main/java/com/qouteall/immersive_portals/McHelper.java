@@ -22,7 +22,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -463,6 +465,14 @@ public class McHelper {
     public static boolean getIsServerChunkGenerated(RegistryKey<World> toDimension, BlockPos toPos) {
         return getIEStorage(toDimension)
             .portal_isChunkGenerated(new ChunkPos(toPos));
+    }
+    
+    public static MutableText getLinkText(String link) {
+        return new LiteralText(link).styled(
+            style -> style.withClickEvent(new ClickEvent(
+                ClickEvent.Action.OPEN_URL, link
+            )).withUnderline(true)
+        );
     }
     
     public static interface ChunkAccessor {
