@@ -675,6 +675,11 @@ public class ClientDebugCommand {
             "light_logging",
             cond -> Global.lightLogging = cond
         );
+        registerSwitchCommand(
+            builder,
+            "disable_fog",
+            cond -> Global.debugDisableFog = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

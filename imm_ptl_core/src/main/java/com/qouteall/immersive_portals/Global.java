@@ -77,6 +77,8 @@ public class Global {
     
     public static boolean lightLogging = false;
     
+    public static boolean debugDisableFog = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

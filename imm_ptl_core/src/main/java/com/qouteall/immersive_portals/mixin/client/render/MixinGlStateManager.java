@@ -42,4 +42,11 @@ public abstract class MixinGlStateManager {
         }
     }
     
+    @Inject(method = "enableFog", at = @At("HEAD"), cancellable = true)
+    private static void onEnableFog(CallbackInfo ci) {
+        if (Global.debugDisableFog) {
+            ci.cancel();
+        }
+    }
+    
 }
