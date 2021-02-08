@@ -27,6 +27,8 @@ public class DubiousThings {
         }
     }
     
+    // TODO test is it necessary
+    @Deprecated
     private static void doUpdateLight(ClientPlayerEntity player) {
         MinecraftClient.getInstance().getProfiler().push("my_light_update");
         MyClientChunkManager.updateLightStatus(player.world.getChunk(

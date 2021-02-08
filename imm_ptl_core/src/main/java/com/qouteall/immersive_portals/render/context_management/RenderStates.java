@@ -70,6 +70,7 @@ public class RenderStates {
     public static void updatePreRenderInfo(
         float tickDelta_
     ) {
+        ClientWorldLoader.initializeIfNeeded();
         
         Entity cameraEntity = MyRenderHelper.client.cameraEntity;
         

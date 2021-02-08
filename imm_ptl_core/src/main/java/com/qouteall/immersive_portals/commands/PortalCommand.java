@@ -49,9 +49,11 @@ import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -173,6 +175,20 @@ public class PortalCommand {
                 
                 return 0;
             })
+        );
+        
+        ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(70).toNanos();
+        builder.then(CommandManager
+            .literal("set_profiler_logging_threshold")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+            .then(CommandManager.argument("ms", IntegerArgumentType.integer())
+                .executes(context -> {
+                    int ms = IntegerArgumentType.getInteger(context, "ms");
+                    ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
+                    
+                    return 0;
+                })
+            )
         );
     }
     

@@ -215,7 +215,7 @@ public class ClientWorldLoader {
         return result;
     }
     
-    private static void initializeIfNeeded() {
+    public static void initializeIfNeeded() {
         if (!isInitialized) {
             Validate.isTrue(client.world != null);
             Validate.isTrue(client.worldRenderer != null);

@@ -52,7 +52,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
@@ -69,7 +68,6 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import java.lang.ref.Reference;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -501,17 +499,6 @@ public class ClientDebugCommand {
                 
                 return 0;
             })
-        );
-        builder.then(CommandManager
-            .literal("set_profiler_logging_threshold")
-            .then(CommandManager.argument("ms", IntegerArgumentType.integer())
-                .executes(context -> {
-                    int ms = IntegerArgumentType.getInteger(context, "ms");
-                    ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
-                    
-                    return 0;
-                })
-            )
         );
         builder.then(CommandManager
             .literal("report_portal_groups")
