@@ -154,13 +154,18 @@ public class MyConfig {
         Global.chunkUnloadDelayTicks = chunkUnloadDelayTicks;
         
         Global.forceMergePortalRendering = forceMergePortalRendering;
-    
+        
         Global.netherPortalOverlay = netherPortalOverlay;
-    
+        
         Global.serverSmoothLoading = graduallyIncreaseLoadingRange;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
+        }
+        
+        if (Global.chunkUnloadDelayTicks < 21) {
+            Global.chunkUnloadDelayTicks = 21;
+            Helper.err("Chunk unload delay should be at least 21");
         }
         
         Helper.log("IP Config Applied");

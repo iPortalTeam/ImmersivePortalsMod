@@ -1,5 +1,6 @@
 package com.qouteall.hiding_in_the_bushes;
 
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.PehkuiInterface;
@@ -10,6 +11,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import virtuoel.pehkui.api.ScaleData;
 
@@ -42,7 +45,7 @@ public class PehkuiInterfaceInitializer {
             
             float oldScale = scaleData.getScale();
             final float newScale = transformScale(portal, oldScale);
-            
+
 //            scaleData.setScaleTickDelay(0);
             scaleData.setTargetScale(newScale);
             scaleData.setScale(newScale);
@@ -72,9 +75,16 @@ public class PehkuiInterfaceInitializer {
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
             
             float oldScale = scaleData.getScale();
-            final float newScale = transformScale(portal, oldScale);
+            float newScale = transformScale(portal, oldScale);
             
-//            scaleData.setScaleTickDelay(0);
+            if (isScaleIllegal(newScale)) {
+                newScale = 1;
+                entity.sendSystemMessage(
+                    new LiteralText("Scale out of range"),
+                    Util.NIL_UUID
+                );
+            }
+            
             scaleData.setTargetScale(newScale);
             scaleData.setScale(newScale);
             scaleData.setScale(newScale);
@@ -86,7 +96,7 @@ public class PehkuiInterfaceInitializer {
                 return true;
             });
             
-            scaleData.markForSync();
+            scaleData.onUpdate();
         }
     }
     
@@ -100,4 +110,9 @@ public class PehkuiInterfaceInitializer {
         
         return result;
     }
+    
+    private static boolean isScaleIllegal(float scale) {
+        return (scale > Global.scaleLimit) || (scale < (1.0f / Global.scaleLimit));
+    }
+    
 }

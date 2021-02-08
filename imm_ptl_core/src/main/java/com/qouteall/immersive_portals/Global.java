@@ -79,6 +79,8 @@ public class Global {
     
     public static boolean debugDisableFog = false;
     
+    public static int scaleLimit = 30;
+    
     public static enum RenderMode {
         normal,
         compatibility,
