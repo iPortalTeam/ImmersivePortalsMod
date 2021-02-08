@@ -1012,8 +1012,7 @@ public class Portal extends Entity implements PortalLike {
         Vec3d point
     ) {
         double distanceToPlane = getDistanceToPlane(point);
-        Vec3d posInPlane = point.add(getNormal().multiply(-distanceToPlane));
-        Vec3d localPos = posInPlane.subtract(getOriginPos());
+        Vec3d localPos = point.subtract(getOriginPos());
         double localX = localPos.dotProduct(axisW);
         double localY = localPos.dotProduct(axisH);
         double distanceToRect = Helper.getDistanceToRectangle(
@@ -1024,12 +1023,29 @@ public class Portal extends Entity implements PortalLike {
         return Math.sqrt(distanceToPlane * distanceToPlane + distanceToRect * distanceToRect);
     }
     
-    public Vec3d getPointInPortalProjection(Vec3d pos) {
+    public Vec3d getPointProjectedToPlane(Vec3d pos) {
         Vec3d originPos = getOriginPos();
         Vec3d offset = pos.subtract(originPos);
         
         double yInPlane = offset.dotProduct(axisH);
         double xInPlane = offset.dotProduct(axisW);
+        
+        return originPos.add(
+            axisW.multiply(xInPlane)
+        ).add(
+            axisH.multiply(yInPlane)
+        );
+    }
+    
+    public Vec3d getNearestPointInPortal(Vec3d pos) {
+        Vec3d originPos = getOriginPos();
+        Vec3d offset = pos.subtract(originPos);
+        
+        double yInPlane = offset.dotProduct(axisH);
+        double xInPlane = offset.dotProduct(axisW);
+        
+        xInPlane = MathHelper.clamp(xInPlane, -width / 2, width / 2);
+        yInPlane = MathHelper.clamp(yInPlane, -height / 2, height / 2);
         
         return originPos.add(
             axisW.multiply(xInPlane)

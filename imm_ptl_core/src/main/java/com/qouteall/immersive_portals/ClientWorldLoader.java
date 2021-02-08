@@ -323,36 +323,58 @@ public class ClientWorldLoader {
         ClientWorld soundWorld,
         Vec3d soundPos
     ) {
-        return McHelper.getNearbyPortals(
+        if (client.player == null) {
+            return null;
+        }
+        
+        soundWorld.getProfiler().push("cross_portal_sound");
+        
+        Vec3d result = McHelper.getNearbyPortals(
             soundWorld, soundPos, 10
         ).filter(
             portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&
                 portal.transformPoint(soundPos).distanceTo(RenderStates.originalPlayerPos) < 20
         ).findFirst().map(
             portal -> {
-                // calculate projected position through portal
-                // doing this projection makes sure that the volume behaves correctly through the portal
-                // if you just used portal.getDestPos() everything would play at full volume at the portal position
-
-                Vec3d soundToPortal = portal.getOriginPos().subtract(soundPos);
-                Vec3d playerToPortal = portal.getDestPos().subtract(RenderStates.originalPlayerPos);
-                Vec3d projectedPos = portal.getDestPos().add(playerToPortal.normalize().multiply(soundToPortal.length()));
-
+                // sound goes to portal then goes through portal then goes to player
+                
+                Vec3d playerCameraPos = RenderStates.originalPlayerPos.add(
+                    0, client.player.getStandingEyeHeight(), 0
+                );
+                
+                Vec3d soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
+                double soundEnterPortalDistance = soundEnterPortalPoint.distanceTo(soundPos);
+                Vec3d soundExitPortalPoint = portal.transformPoint(soundEnterPortalPoint);
+                
+                Vec3d playerToSoundExitPoint = soundExitPortalPoint.subtract(playerCameraPos);
+                
+                // the distance between sound source and the portal is applied by
+                //  moving the pos further away from the player
+                Vec3d projectedPos = portal.getDestPos().add(
+                    playerToSoundExitPoint.normalize().multiply(soundEnterPortalDistance)
+                );
+                
                 // lerp to actual position when you get close to the portal
                 // this helps smooth the transition when the player is going through the portal
-
+                
                 Vec3d actualPos = portal.transformPoint(soundPos);
-
-                double dist = portal.getDestPos().distanceTo(RenderStates.originalPlayerPos);
-                double fadeDistance = 5.0;
-                // thru: 0 means close, 1 means far
-                double thru = MathHelper.clamp(dist / fadeDistance, 0.0, 1.0);
-
+                
+                double playerDistanceToPortalDest = soundExitPortalPoint.distanceTo(playerCameraPos);
+                final double fadeDistance = 5.0;
+                // 0 means close, 1 means far
+                double lerpRatio = MathHelper.clamp(
+                    playerDistanceToPortalDest / fadeDistance, 0.0, 1.0
+                );
+                
                 // do the lerp
-                Vec3d resultPos = actualPos.add(projectedPos.subtract(actualPos).multiply(thru));
-
+                Vec3d resultPos = actualPos.add(projectedPos.subtract(actualPos).multiply(lerpRatio));
+                
                 return resultPos;
             }
         ).orElse(null);
+        
+        soundWorld.getProfiler().pop();
+        
+        return result;
     }
 }
