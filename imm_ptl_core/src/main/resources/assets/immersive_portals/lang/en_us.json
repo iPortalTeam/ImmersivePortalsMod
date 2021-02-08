@@ -82,6 +82,7 @@
   "imm_ptl.loading_datapack_dimensions": "Loading Datapack Dimensions",
   "imm_ptl.memory_not_enough": "Memory not enough. You may experience GC lag. Try to Shrink render distance or allocate more memory.",
   "imm_ptl.press_t": "Press 'T' to click the link",
+  "imm_ptl.command_stick": "Immersive Portals Command Stick",
   "imm_ptl.command.delete_portal": "Delete the portal entity",
   "imm_ptl.command_desc.delete_portal": "Delete the one-way one-faced portal component",
   "imm_ptl.command.remove_connected_portals": "Make the portal one-way and one-faced",
@@ -110,12 +111,14 @@
   "imm_ptl.command_desc.make_unbreakable": "Used for breakable portals (nether portals)",
   "imm_ptl.command.make_fuse_view": "Make the portal fuse-view",
   "imm_ptl.command_desc.make_fuse_view": "",
-  "imm_ptl.command.enable_isometric": "Enable isometric view",
+  "imm_ptl.command.enable_isometric": "Enable isometric view for you",
   "imm_ptl.command_desc.enable_isometric": "",
-  "imm_ptl.command.disable_isometric": "Disable isometric view",
+  "imm_ptl.command.disable_isometric": "Disable isometric view for you",
   "imm_ptl.command_desc.disable_isometric": "",
+  "imm_ptl.command.reset_scale": "Reset your scale",
+  "imm_ptl.command_desc.reset_scale": "Requires Pehkui mod",
   "imm_ptl.command.goback": "Go back",
   "imm_ptl.command_desc.goback": "Return to the last entered portal",
   "imm_ptl.command.show_wiki": "Check Immersive Portals Wiki",
-  "imm_ptl.command_desc.show_wiki": ""
+  "imm_ptl.command_desc.show_wiki": "Discover cool features"
 }

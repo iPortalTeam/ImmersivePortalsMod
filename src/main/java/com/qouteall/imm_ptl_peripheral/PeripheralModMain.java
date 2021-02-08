@@ -68,6 +68,11 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "disable_isometric", "debug isometric_disable"
         );
+        CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
+            "/setscale @s 1",
+            "imm_ptl.command.reset_scale",
+            Lists.newArrayList("imm_ptl.command_desc.reset_scale")
+        ));
         registerPortalSubCommandStick(
             "goback"
         );

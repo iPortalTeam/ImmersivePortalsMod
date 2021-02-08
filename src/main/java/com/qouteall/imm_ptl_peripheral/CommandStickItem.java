@@ -121,7 +121,7 @@ public class CommandStickItem extends Item {
     private void doInvoke(PlayerEntity player, ItemStack stack) {
         Data data = Data.deserialize(stack.getOrCreateTag());
         
-        ServerCommandSource commandSource = player.getCommandSource();
+        ServerCommandSource commandSource = player.getCommandSource().withLevel(2);
         
         CommandManager commandManager = McHelper.getServer().getCommandManager();
         
@@ -139,6 +139,8 @@ public class CommandStickItem extends Item {
         for (String descriptionTranslationKey : data.descriptionTranslationKeys) {
             tooltip.add(new TranslatableText(descriptionTranslationKey));
         }
+    
+        tooltip.add(new TranslatableText("imm_ptl.command_stick"));
     }
     
     @Override
