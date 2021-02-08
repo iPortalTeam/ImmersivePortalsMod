@@ -177,7 +177,6 @@ public class PortalCommand {
             })
         );
         
-        ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(70).toNanos();
         builder.then(CommandManager
             .literal("set_profiler_logging_threshold")
             .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
