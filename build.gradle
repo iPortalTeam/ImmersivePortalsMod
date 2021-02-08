@@ -68,9 +68,9 @@ allprojects {
         modCompileOnly "me.shedaniel.cloth:config-${cloth_config_version}"
         modCompileOnly "io.github.prospector:modmenu:${modmenu_version}"
 
-        modCompileOnly 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
+        modImplementation 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
 
-        modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1164_1'
+        modImplementation 'com.github.qouteall:sodium-fabric:ipc1164_1'
 //        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
 //        modImplementation("me.jellysquid.mods:sodium:0.1.1-SNAPSHOT")
 
@@ -171,8 +171,6 @@ dependencies {
     modRuntime("com.github.SuperCoder7979:databreaker:master-SNAPSHOT") {
         exclude module: "fabric-loader"
     }
-
-    modImplementation 'com.github.virtuoel:Pehkui:1.16.4-SNAPSHOT'
 
     // OptiFine
 //    modImplementation 'com.github.qouteall:OptiFabric:llama-SNAPSHOT'
