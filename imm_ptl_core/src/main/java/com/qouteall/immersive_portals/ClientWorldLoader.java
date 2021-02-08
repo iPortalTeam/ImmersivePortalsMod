@@ -22,6 +22,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.RegistryKey;
@@ -328,7 +329,30 @@ public class ClientWorldLoader {
             portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&
                 portal.transformPoint(soundPos).distanceTo(RenderStates.originalPlayerPos) < 20
         ).findFirst().map(
-            portal -> portal.transformPoint(soundPos)
+            portal -> {
+                // calculate projected position through portal
+                // doing this projection makes sure that the volume behaves correctly through the portal
+                // if you just used portal.getDestPos() everything would play at full volume at the portal position
+
+                Vec3d soundToPortal = portal.getOriginPos().subtract(soundPos);
+                Vec3d playerToPortal = portal.getDestPos().subtract(RenderStates.originalPlayerPos);
+                Vec3d projectedPos = portal.getDestPos().add(playerToPortal.normalize().multiply(soundToPortal.length()));
+
+                // lerp to actual position when you get close to the portal
+                // this helps smooth the transition when the player is going through the portal
+
+                Vec3d actualPos = portal.transformPoint(soundPos);
+
+                double dist = portal.getDestPos().distanceTo(RenderStates.originalPlayerPos);
+                double fadeDistance = 5.0;
+                // thru: 0 means close, 1 means far
+                double thru = MathHelper.clamp(dist / fadeDistance, 0.0, 1.0);
+
+                // do the lerp
+                Vec3d resultPos = actualPos.add(projectedPos.subtract(actualPos).multiply(thru));
+
+                return resultPos;
+            }
         ).orElse(null);
     }
 }
