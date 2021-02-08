@@ -5,9 +5,13 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.api.PortalAPI;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.List;
 
@@ -87,6 +91,27 @@ public class AltiusInfo {
         McHelper.sendMessageToFirstLoggedPlayer(
             new TranslatableText("imm_ptl.dim_stack_initialized")
         );
+    }
+    
+    public static void replaceBedrock(ServerWorld world, Chunk chunk) {
+        if (AltiusGameRule.getIsDimensionStack()) {
+            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    for (int y = 0; y < chunk.getHeight(); y++) {
+                        mutable.set(x, y, z);
+                        BlockState blockState = chunk.getBlockState(mutable);
+                        if (blockState.getBlock() == Blocks.BEDROCK) {
+                            chunk.setBlockState(
+                                mutable,
+                                Blocks.OBSIDIAN.getDefaultState(),
+                                false
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
     
 }

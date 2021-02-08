@@ -64,7 +64,9 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
         )
     )
     private void onAfterClientTick(CallbackInfo ci) {
+        getProfiler().push("imm_ptl_tick_signal");
         ModMain.postClientTickSignal.emit();
+        getProfiler().pop();
         
         CGlobal.clientTeleportationManager.manageTeleportation(0);
     }
