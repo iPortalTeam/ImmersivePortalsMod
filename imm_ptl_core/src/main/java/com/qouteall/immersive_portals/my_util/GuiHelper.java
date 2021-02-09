@@ -6,13 +6,11 @@ import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
 public class GuiHelper {
     // mc does not expose the height
-    @NotNull
     public static LayoutFunc layoutButtonHorizontally(AbstractButtonWidget widget) {
         return (a, b) -> {
             widget.x = a;
@@ -20,7 +18,6 @@ public class GuiHelper {
         };
     }
     
-    @NotNull
     public static LayoutFunc layoutRectHorizontally(Rect widget) {
         return (a, b) -> {
             widget.xMin = a;

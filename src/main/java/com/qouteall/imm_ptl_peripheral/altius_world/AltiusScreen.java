@@ -21,7 +21,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.GeneratorOptions;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -130,7 +129,6 @@ public class AltiusScreen extends Screen {
         );
     }
     
-    @NotNull
     private DimEntryWidget createDimEntryWidget(RegistryKey<World> dimension) {
         return new DimEntryWidget(dimension, dimListWidget, getElementSelectCallback(), DimEntryWidget.Type.withAdvancedOptions);
     }
