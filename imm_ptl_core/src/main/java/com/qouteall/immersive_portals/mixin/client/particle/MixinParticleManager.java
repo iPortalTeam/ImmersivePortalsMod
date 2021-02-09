@@ -1,7 +1,6 @@
 package com.qouteall.immersive_portals.mixin.client.particle;
 
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
-import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +12,6 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -53,7 +51,7 @@ public class MixinParticleManager implements IEParticleManager {
     )
     private void redirectBuildGeometry(Particle particle, VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
         if (((IEParticle) particle).portal_getWorld() == MinecraftClient.getInstance().world) {
-            if (portal_shouldRenderParticle(particle)) {
+            if (RenderStates.shouldRenderParticle(particle)) {
                 particle.buildGeometry(vertexConsumer, camera, tickDelta);
             }
         }
@@ -73,12 +71,4 @@ public class MixinParticleManager implements IEParticleManager {
         world = world_;
     }
     
-    private static boolean portal_shouldRenderParticle(Particle particle) {
-        if (PortalRendering.isRendering()) {
-            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            Vec3d particlePos = particle.getBoundingBox().getCenter();
-            return renderingPortal.isInside(particlePos, 0.5);
-        }
-        return true;
-    }
 }

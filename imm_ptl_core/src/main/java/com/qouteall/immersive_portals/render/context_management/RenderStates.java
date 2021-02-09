@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.QueryManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
@@ -208,4 +209,12 @@ public class RenderStates {
         return renderedDimensions.contains(dimensionType);
     }
     
+    public static boolean shouldRenderParticle(Particle particle) {
+        if (PortalRendering.isRendering()) {
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+            Vec3d particlePos = particle.getBoundingBox().getCenter();
+            return renderingPortal.isInside(particlePos, 0.5);
+        }
+        return true;
+    }
 }
