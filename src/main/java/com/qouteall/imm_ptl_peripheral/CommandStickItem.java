@@ -2,6 +2,7 @@ package com.qouteall.imm_ptl_peripheral;
 
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.commands.PortalCommand;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -28,6 +29,7 @@ import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -139,7 +141,7 @@ public class CommandStickItem extends Item {
         for (String descriptionTranslationKey : data.descriptionTranslationKeys) {
             tooltip.add(new TranslatableText(descriptionTranslationKey));
         }
-    
+        
         tooltip.add(new TranslatableText("imm_ptl.command_stick"));
     }
     
@@ -162,5 +164,19 @@ public class CommandStickItem extends Item {
     
     public static void sendMessage(PlayerEntity player, Text message) {
         ((ServerPlayerEntity) player).sendMessage(message, MessageType.GAME_INFO, Util.NIL_UUID);
+    }
+    
+    public static void init() {
+        PortalCommand.createCommandStickCommandSignal.connect((player, command) -> {
+            ItemStack itemStack = new ItemStack(instance, 1);
+            Data data = new Data(
+                command,
+                command, new ArrayList<>()
+            );
+            data.serialize(itemStack.getOrCreateTag());
+            
+            player.inventory.insertStack(itemStack);
+            player.playerScreenHandler.sendContentUpdates();
+        });
     }
 }

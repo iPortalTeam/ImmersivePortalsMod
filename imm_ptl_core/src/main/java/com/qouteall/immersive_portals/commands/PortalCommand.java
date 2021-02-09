@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -15,6 +16,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.network.McRemoteProcedureCall;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -66,6 +68,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class PortalCommand {
+    // it needs to invoke the outer mod but the core does not have outer mod dependency
+    public static final SignalBiArged<ServerPlayerEntity, String>
+        createCommandStickCommandSignal = new SignalBiArged<>();
+    
     public static void register(
         CommandDispatcher<ServerCommandSource> dispatcher
     ) {
@@ -185,6 +191,20 @@ public class PortalCommand {
                     int ms = IntegerArgumentType.getInteger(context, "ms");
                     ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
                     
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("create_command_stick")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2))
+            .then(CommandManager.argument("command", StringArgumentType.string())
+                .executes(context -> {
+                    createCommandStickCommandSignal.emit(
+                        context.getSource().getPlayer(),
+                        StringArgumentType.getString(context, "command")
+                    );
                     return 0;
                 })
             )
