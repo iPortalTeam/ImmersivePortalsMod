@@ -16,12 +16,8 @@ public class Mirror extends Portal {
     public void tick() {
         super.tick();
         teleportable = false;
+        setInteractable(false);
     }
-    
-//    @Override
-//    public Vec3d getContentDirection() {
-//        return getNormal();
-//    }
     
     @Override
     public Vec3d transformLocalVecNonScale(Vec3d localVec) {
