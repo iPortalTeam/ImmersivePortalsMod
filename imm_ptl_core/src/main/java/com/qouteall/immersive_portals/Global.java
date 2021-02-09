@@ -23,8 +23,6 @@ public class Global {
     
     public static boolean doCheckGlError = false;
     
-    public static boolean longerReachInCreative = true;
-    
     public static boolean renderYourselfInPortal = true;
     
     public static boolean activeLoading = true;

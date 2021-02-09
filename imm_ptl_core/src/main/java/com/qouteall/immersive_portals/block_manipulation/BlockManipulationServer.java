@@ -66,8 +66,7 @@ public class BlockManipulationServer {
     ) {
         Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
-        double multiplier = HandReachTweak.getActualHandReachMultiplier(player);
-        double distanceSquare = 6 * 6 * multiplier * multiplier;
+        double distanceSquare = 6 * 6 * 4 * 4;//TODO get pehkui reach scale
         if (player.world.getRegistryKey() == dimension) {
             if (playerPos.squaredDistanceTo(pos) < distanceSquare) {
                 return true;

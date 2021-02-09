@@ -63,10 +63,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.portalSearchingRange,
                 32, 1000
             ).setDefaultValue(128).build();
-            BooleanListEntry entryLongerReachInCreative = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.long_reach_in_creative"),
-                currConfig.longerReachInCreative
-            ).setDefaultValue(false).build();
             BooleanListEntry entryRenderYourselfInPortal = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.render_yourself_in_portal"),
                 currConfig.renderYourselfInPortal
@@ -161,7 +157,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
             serverSide.addEntry(entryNetherPortalMode);
             serverSide.addEntry(entryEndPortalMode);
-            serverSide.addEntry(entryLongerReachInCreative);
             serverSide.addEntry(entryEnableAlternateDimensions);
             serverSide.addEntry(entryNetherPortalOverlay);
             serverSide.addEntry(entryPortalSearchingRange);
@@ -182,7 +177,6 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.compatibilityRenderMode = entryCompatibilityRenderMode.getValue();
                     newConfig.doCheckGlError = entryCheckGlError.getValue();
                     newConfig.portalSearchingRange = entryPortalSearchingRange.getValue();
-                    newConfig.longerReachInCreative = entryLongerReachInCreative.getValue();
                     newConfig.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
                     newConfig.activeLoading = entryActiveLoading.getValue();
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();

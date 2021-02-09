@@ -26,7 +26,6 @@ public class MyConfig {
     public boolean compatibilityRenderMode = false;
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
-    public boolean longerReachInCreative = false;
     public boolean renderYourselfInPortal = true;
     public boolean activeLoading = true;
     public boolean teleportationDebug = false;
@@ -125,12 +124,7 @@ public class MyConfig {
         Global.lagAttackProof = lagAttackProof;
         Global.portalRenderLimit = portalRenderLimit;
         Global.netherPortalFindingRadius = portalSearchingRange;
-        Global.longerReachInCreative = longerReachInCreative;
         Global.renderYourselfInPortal = renderYourselfInPortal;
-        
-        if (O_O.isReachEntityAttributesPresent) {
-            Global.longerReachInCreative = false;
-        }
         
         Global.activeLoading = activeLoading;
         Global.teleportationDebugEnabled = teleportationDebug;
