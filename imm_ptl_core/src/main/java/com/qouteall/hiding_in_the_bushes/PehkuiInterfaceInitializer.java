@@ -14,7 +14,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
+import org.apache.commons.lang3.Validate;
 import virtuoel.pehkui.api.ScaleData;
+import virtuoel.pehkui.api.ScaleType;
 
 public class PehkuiInterfaceInitializer {
     
@@ -39,14 +41,15 @@ public class PehkuiInterfaceInitializer {
             
             ClientPlayerEntity player = client.player;
             
-            ScaleData scaleData = ScaleData.of(player);
+            Validate.notNull(player);
+            
+            ScaleData scaleData = ScaleType.BASE.getScaleData(player);
             Vec3d eyePos = McHelper.getEyePos(player);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
             
-            float oldScale = scaleData.getScale();
+            float oldScale = scaleData.getBaseScale();
             final float newScale = transformScale(portal, oldScale);
-
-//            scaleData.setScaleTickDelay(0);
+            
             scaleData.setTargetScale(newScale);
             scaleData.setScale(newScale);
             scaleData.setScale(newScale);
@@ -70,11 +73,11 @@ public class PehkuiInterfaceInitializer {
             if (!portal.teleportChangesScale) {
                 return;
             }
-            ScaleData scaleData = ScaleData.of(entity);
+            ScaleData scaleData = ScaleType.BASE.getScaleData(entity);
             Vec3d eyePos = McHelper.getEyePos(entity);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
             
-            float oldScale = scaleData.getScale();
+            float oldScale = scaleData.getBaseScale();
             float newScale = transformScale(portal, oldScale);
             
             if (isScaleIllegal(newScale)) {
