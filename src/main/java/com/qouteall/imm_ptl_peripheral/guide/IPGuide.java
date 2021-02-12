@@ -106,4 +106,13 @@ public class IPGuide {
         );
     }
     
+    @Environment(EnvType.CLIENT)
+    public static class RemoteCallables {
+        public static void showWiki() {
+            informWithURL(
+                "https://qouteall.fun/immptl/wiki/Commands-Reference",
+                new TranslatableText("imm_ptl.press_t")
+            );
+        }
+    }
 }

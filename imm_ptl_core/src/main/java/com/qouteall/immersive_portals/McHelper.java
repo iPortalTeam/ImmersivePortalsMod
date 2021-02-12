@@ -14,6 +14,8 @@ import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
@@ -467,6 +469,8 @@ public class McHelper {
             .portal_isChunkGenerated(new ChunkPos(toPos));
     }
     
+    // because withUnderline is client only
+    @Environment(EnvType.CLIENT)
     public static MutableText getLinkText(String link) {
         return new LiteralText(link).styled(
             style -> style.withClickEvent(new ClickEvent(

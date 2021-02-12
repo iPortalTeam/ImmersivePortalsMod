@@ -1358,18 +1358,15 @@ public class PortalCommand {
         builder.then(CommandManager
             .literal("wiki")
             .executes(context -> {
-                context.getSource().sendFeedback(
-                    McHelper.getLinkText("https://qouteall.fun/immptl/wiki/Commands-Reference"),
-                    false
-                );
-                context.getSource().sendFeedback(
-                    new TranslatableText("imm_ptl.press_t"),
-                    false
+                McRemoteProcedureCall.tellClientToInvoke(
+                    context.getSource().getPlayer(),
+                    "com.qouteall.imm_ptl_peripheral.guide.IPGuide.RemoteCallables.showWiki"
                 );
                 return 0;
             })
         );
     }
+    
     
     private static void invokeCreateScaledViewCommand(
         CommandContext<ServerCommandSource> context,
