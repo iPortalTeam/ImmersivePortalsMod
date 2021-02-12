@@ -271,9 +271,13 @@ public class NewChunkTrackingGraph {
         }
         long unloadDelay = Global.chunkUnloadDelayTicks;
         
+        if (unloadDelay < updateInterval + 1) {
+            unloadDelay = updateInterval + 1;
+        }
+        
         if (GcMonitor.isMemoryNotEnough()) {
             // does not delay unloading
-            unloadDelay = 21;
+            unloadDelay = updateInterval + 1;
         }
         
         return currTime - record.lastWatchTime > unloadDelay;
