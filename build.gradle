@@ -70,7 +70,7 @@ allprojects {
 
         modImplementation 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
 
-        modCompileOnly 'com.github.qouteall:sodium-fabric:ipc1164_1'
+        modImplementation 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
 //        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
 //        modImplementation("me.jellysquid.mods:sodium:0.1.1-SNAPSHOT")
 
