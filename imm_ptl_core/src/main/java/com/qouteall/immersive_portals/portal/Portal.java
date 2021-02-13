@@ -240,7 +240,7 @@ public class Portal extends Entity implements PortalLike {
     public void onEntityTeleportedOnServer(Entity entity) {
         if (commandsOnTeleported != null) {
             ServerCommandSource commandSource =
-                entity.getCommandSource().withLevel(4).withSilent();
+                entity.getCommandSource().withLevel(2).withSilent();
             
             CommandManager commandManager = McHelper.getServer().getCommandManager();
             for (String command : commandsOnTeleported) {
