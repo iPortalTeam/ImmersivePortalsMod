@@ -84,9 +84,9 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
         if (attemptedMove.lengthSquared() > 60 * 60) {
-            Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
-            limitedLogger.invoke(() -> {
-                new Throwable().printStackTrace();
+           limitedLogger.invoke(() -> {
+               Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
+               new Throwable().printStackTrace();
             });
             
             if (entity instanceof ServerPlayerEntity) {
