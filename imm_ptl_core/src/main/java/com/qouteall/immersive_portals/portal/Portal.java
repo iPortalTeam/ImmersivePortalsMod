@@ -747,7 +747,8 @@ public class Portal extends Entity implements PortalLike {
             axisH != null &&
             getDestPos() != null &&
             axisW.lengthSquared() > 0.9 &&
-            axisH.lengthSquared() > 0.9;
+            axisH.lengthSquared() > 0.9 &&
+            getY() > -1000;
         if (valid) {
             if (world instanceof ServerWorld) {
                 ServerWorld destWorld = McHelper.getServer().getWorld(dimensionTo);

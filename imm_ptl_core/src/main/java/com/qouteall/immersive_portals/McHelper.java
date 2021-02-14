@@ -34,6 +34,7 @@ import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
@@ -614,7 +615,8 @@ public class McHelper {
         foreachEntities(
             entityClass, getChunkAccessor(world),
             xMin >> 4, xMax >> 4,
-            Math.max(0, yMin >> 4), Math.min(15, yMax >> 4),
+            MathHelper.clamp(yMin >> 4, 0, 15),
+            MathHelper.clamp(yMax >> 4, 0, 15),
             zMin >> 4, zMax >> 4,
             consumer
         );
@@ -719,6 +721,7 @@ public class McHelper {
     
     /**
      * It will spawn even if the chunk is not loaded
+     *
      * @link ServerWorld#addEntity(Entity)
      */
     public static void spawnServerEntity(Entity entity) {
