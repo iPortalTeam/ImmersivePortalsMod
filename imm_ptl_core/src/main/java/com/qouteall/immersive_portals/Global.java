@@ -79,6 +79,8 @@ public class Global {
     
     public static int scaleLimit = 30;
     
+    public static boolean creativePlayerCanUsePortalCommands = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

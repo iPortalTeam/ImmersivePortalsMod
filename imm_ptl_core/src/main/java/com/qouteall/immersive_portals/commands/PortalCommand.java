@@ -103,8 +103,10 @@ public class PortalCommand {
     public static boolean level2OrCreativeMode(ServerCommandSource commandSource) {
         Entity entity = commandSource.getEntity();
         if (entity instanceof ServerPlayerEntity) {
-            if (((ServerPlayerEntity) entity).isCreative()) {
-                return true;
+            if (Global.creativePlayerCanUsePortalCommands) {
+                if (((ServerPlayerEntity) entity).isCreative()) {
+                    return true;
+                }
             }
         }
         

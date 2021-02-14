@@ -41,6 +41,8 @@ public class MyConfig {
     public boolean forceMergePortalRendering = false;
     public boolean netherPortalOverlay = false;
     public boolean graduallyIncreaseLoadingRange = true;
+    public int scaleLimit = 30;
+    public boolean creativePlayerCanUsePortalCommands = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
     public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
@@ -133,25 +135,18 @@ public class MyConfig {
         Global.edgelessSky = edgelessSky;
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
-        
         Global.enableAlternateDimensions = enableAlternateDimensions;
-        
         Global.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
-        
         Global.netherPortalMode = netherPortalMode;
         Global.endPortalMode = endPortalMode;
-        
         Global.reducedPortalRendering = reducedPortalRendering;
-        
         Global.offsetOcclusionQuery = visibilityPrediction;
-        
         Global.chunkUnloadDelayTicks = chunkUnloadDelayTicks;
-        
         Global.forceMergePortalRendering = forceMergePortalRendering;
-        
         Global.netherPortalOverlay = netherPortalOverlay;
-        
         Global.serverSmoothLoading = graduallyIncreaseLoadingRange;
+        Global.scaleLimit = scaleLimit;
+        Global.creativePlayerCanUsePortalCommands = creativePlayerCanUsePortalCommands;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
