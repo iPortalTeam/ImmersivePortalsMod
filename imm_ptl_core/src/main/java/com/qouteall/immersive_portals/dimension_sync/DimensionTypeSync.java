@@ -72,6 +72,8 @@ public class DimensionTypeSync {
                         Identifier id = dimensionTypes.getId(dimensionType);
                         if (id == null) {
                             Helper.err("Missing dim type id for " + w.getRegistryKey());
+                            Helper.err("Registered dimension types " +
+                                Helper.myToString(dimensionTypes.getIds().stream()));
                             return DimensionType.OVERWORLD_REGISTRY_KEY;
                         }
                         return idToDimType(id);
