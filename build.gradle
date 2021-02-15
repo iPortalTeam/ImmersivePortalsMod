@@ -99,6 +99,7 @@ allprojects {
                 exclude "fabric.mod.json"
             }
         }
+
     }
 
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
@@ -214,3 +215,7 @@ task printClasspath {
     }
 }
 
+task additionalCopy(type:Copy){
+    from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
+    into file("${project.buildDir}/to_upload")
+}

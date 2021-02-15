@@ -22,12 +22,12 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Gradle
-      run: gradle build
+      run: gradle build additionalCopy
       env:
         BUILD_RELEASE: ${{ github.event.prerelease == false }}
 
     - name: Upload assets to GitHub
       uses: AButler/upload-release-assets@v2.0
       with:
-        files: 'build/libs/*'
+        files: 'build/to_upload/*'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
