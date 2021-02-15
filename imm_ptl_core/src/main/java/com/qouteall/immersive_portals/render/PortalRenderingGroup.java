@@ -173,7 +173,10 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Override
     public boolean isInside(Vec3d entityPos, double valve) {
-        return getDestAreaBox().contains(entityPos);
+        if (isEnclosed()) {
+            return getDestAreaBox().contains(entityPos);
+        }
+        return true;
     }
     
     @Nullable
@@ -270,7 +273,7 @@ public class PortalRenderingGroup implements PortalLike {
             Helper.removeIf(visibleChunks, (obj) -> {
                 ChunkBuilder.BuiltChunk builtChunk =
                     ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-
+                
                 return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
             });
         }
@@ -286,13 +289,13 @@ public class PortalRenderingGroup implements PortalLike {
         return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
     }
     
-    public boolean isEnclosed(){
+    public boolean isEnclosed() {
         if (isEnclosedCache == null) {
             isEnclosedCache = portals.stream().allMatch(
                 p -> p.getOriginPos().subtract(getOriginPos()).dotProduct(p.getNormal()) > 0.3
             );
         }
-    
+        
         return isEnclosedCache;
     }
 }
