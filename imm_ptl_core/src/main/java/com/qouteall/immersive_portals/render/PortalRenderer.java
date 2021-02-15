@@ -129,7 +129,7 @@ public abstract class PortalRenderer {
         if (PortalRendering.isRendering()) {
             PortalLike outerPortal = PortalRendering.getRenderingPortal();
             
-            if (outerPortal.isParallelWith(portal)) {
+            if (outerPortal.cannotRenderInMe(portal)) {
                 return true;
             }
         }

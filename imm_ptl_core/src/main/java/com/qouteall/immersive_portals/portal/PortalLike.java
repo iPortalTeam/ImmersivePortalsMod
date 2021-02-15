@@ -83,7 +83,7 @@ public interface PortalLike {
     @Nullable
     UUID getDiscriminator();
     
-    boolean isParallelWith(Portal portal);
+    boolean cannotRenderInMe(Portal portal);
     
     boolean isFuseView();
     

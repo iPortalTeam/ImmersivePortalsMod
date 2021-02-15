@@ -233,8 +233,14 @@ public class PortalRenderingGroup implements PortalLike {
     }
     
     @Override
-    public boolean isParallelWith(Portal portal) {
-        return portals.stream().anyMatch(p -> p.isParallelWith(portal));
+    public boolean cannotRenderInMe(Portal portal) {
+        if (isEnclosed()) {
+            if (!getDestAreaBox().intersects(portal.getExactAreaBox())) {
+                return true;
+            }
+        }
+        
+        return portals.stream().anyMatch(p -> p.cannotRenderInMe(portal));
     }
     
     @Environment(EnvType.CLIENT)
