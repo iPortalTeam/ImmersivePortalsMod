@@ -263,8 +263,8 @@ public class PortalManipulation {
         return world.getEntitiesByClass(
             Portal.class,
             new Box(
-                pos.add(0.5, 0.5, 0.5),
-                pos.subtract(0.5, 0.5, 0.5)
+                pos.add(0.1, 0.1, 0.1),
+                pos.subtract(0.1, 0.1, 0.1)
             ),
             p -> p.getNormal().dotProduct(normal) > 0.5 && predicate.test(p)
         );
