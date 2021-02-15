@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.chunk.ChunkBuilder;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
@@ -243,7 +244,7 @@ public class PortalRenderingGroup implements PortalLike {
     ) {
         Vec3d innerCameraPos = new Vec3d(innerCameraX, innerCameraY, innerCameraZ);
         Vec3d outerCameraPos = portals.get(0).inverseTransformPoint(innerCameraPos);
-    
+        
         List<BoxPredicate> funcs = portals.stream().filter(
             portal1 -> portal1.isInFrontOfPortal(outerCameraPos)
         ).map(
@@ -268,14 +269,30 @@ public class PortalRenderingGroup implements PortalLike {
             return;
         }
         
-        //contract because the exact bounding box is a little bigger
-        Box enclosedDestAreaBox = getDestAreaBox().contract(0.5);
+        Box enclosedDestAreaBox = getDestAreaBox();
+        
         if (enclosedDestAreaBox != null) {
+            int xMin = (int) Math.round(enclosedDestAreaBox.minX / 16);
+            int xMax = (int) Math.round(enclosedDestAreaBox.maxX / 16) - 1;
+            int yMin = (int) Math.round(enclosedDestAreaBox.minY / 16);
+            int yMax = (int) Math.round(enclosedDestAreaBox.maxY / 16) - 1;
+            int zMin = (int) Math.round(enclosedDestAreaBox.minZ / 16);
+            int zMax = (int) Math.round(enclosedDestAreaBox.maxZ / 16) - 1;
+            
             Helper.removeIf(visibleChunks, (obj) -> {
                 ChunkBuilder.BuiltChunk builtChunk =
                     ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
                 
-                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
+                BlockPos origin = builtChunk.getOrigin();
+                int cx = origin.getX() >> 4;
+                int cy = origin.getY() >> 4;
+                int cz = origin.getZ() >> 4;
+                
+                return !(cx >= xMin && cx <= xMax &&
+                    cy >= yMin && cy <= yMax &&
+                    cz >= zMin && cz <= zMax);
+
+//                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
             });
         }
     }

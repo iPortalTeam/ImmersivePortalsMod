@@ -101,7 +101,7 @@ public class CrossPortalEntityRenderer {
                 
                 //draw already built triangles
                 client.getBufferBuilders().getEntityVertexConsumers().draw();
-    
+                
                 FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
                 if (OFInterface.isShaders.getAsBoolean()) {
                     ShaderClippingManager.update();
@@ -164,7 +164,7 @@ public class CrossPortalEntityRenderer {
             //correctly rendering it needs two culling planes
             //use some rough check to work around
             
-            if(renderingPortal instanceof Portal) {
+            if (renderingPortal instanceof Portal) {
                 if (!Portal.isFlippedPortal(((Portal) renderingPortal), collidingPortal)) {
                     Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
                     
@@ -180,7 +180,7 @@ public class CrossPortalEntityRenderer {
             FrontClipping.disableClipping();
             // don't draw the existing triangles with culling enabled
             client.getBufferBuilders().getEntityVertexConsumers().draw();
-    
+            
             FrontClipping.setupInnerClipping(matrixStack, collidingPortal, false);
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             FrontClipping.disableClipping();
@@ -208,7 +208,7 @@ public class CrossPortalEntityRenderer {
         MatrixStack matrixStack
     ) {
         Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-    
+        
         ClientWorld newWorld = ClientWorldLoader.getWorld(transformingPortal.dimensionTo);
         
         Vec3d oldEyePos = McHelper.getEyePos(entity);
@@ -323,10 +323,10 @@ public class CrossPortalEntityRenderer {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
             if (collidingPortal != null) {
-                if(renderingPortal instanceof Portal) {
+                if (renderingPortal instanceof Portal) {
                     if (!Portal.isReversePortal(collidingPortal, ((Portal) renderingPortal))) {
                         Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
-        
+                        
                         boolean isHidden = cameraPos.subtract(collidingPortal.getOriginPos())
                             .dotProduct(collidingPortal.getNormal()) < 0;
                         if (isHidden) {

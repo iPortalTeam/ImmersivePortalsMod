@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.Plane;
+import com.qouteall.immersive_portals.my_util.TriIntPredicate;
 import com.qouteall.immersive_portals.render.MyGameRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
@@ -115,6 +116,13 @@ public interface PortalLike {
     @Environment(EnvType.CLIENT)
     default void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
         MyGameRenderer.cullRenderingSections(visibleChunks, this);
+    }
+    
+    // do additional cull when sodium is present
+    @Environment(EnvType.CLIENT)
+    @Nullable
+    default TriIntPredicate getAdditionalCullPredicateSodium() {
+        return null;
     }
     
 }
