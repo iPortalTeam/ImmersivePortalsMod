@@ -26,6 +26,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import java.util.WeakHashMap;
 
@@ -299,7 +300,7 @@ public class CrossPortalEntityRenderer {
         matrixStack.translate(-anchor.x, -anchor.y, -anchor.z);
     }
     
-    public static boolean shouldRenderPlayerItself() {
+    public static boolean shouldRenderPlayerDefault() {
         if (!Global.renderYourselfInPortal) {
             return false;
         }
@@ -313,16 +314,16 @@ public class CrossPortalEntityRenderer {
     }
     
     public static boolean shouldRenderEntityNow(Entity entity) {
+        Validate.notNull(entity);
         if (OFInterface.isShadowPass.getAsBoolean()) {
             return true;
         }
         if (PortalRendering.isRendering()) {
-            if (entity instanceof ClientPlayerEntity) {
-                return shouldRenderPlayerItself();
-            }
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
-            if (collidingPortal != null) {
+            
+            // client colliding portal update is not immediate
+            if (collidingPortal != null && !(entity instanceof ClientPlayerEntity)) {
                 if (renderingPortal instanceof Portal) {
                     if (!Portal.isReversePortal(collidingPortal, ((Portal) renderingPortal))) {
                         Vec3d cameraPos = PortalRenderer.client.gameRenderer.getCamera().getPos();
@@ -337,7 +338,7 @@ public class CrossPortalEntityRenderer {
             }
             
             return renderingPortal.isInside(
-                entity.getCameraPosVec(RenderStates.tickDelta), -0.01
+                getRenderingCameraPos(entity), -0.01
             );
         }
         return true;
@@ -349,9 +350,16 @@ public class CrossPortalEntityRenderer {
         }
         
         double distanceToCamera =
-            entity.getCameraPosVec(RenderStates.tickDelta)
+            getRenderingCameraPos(entity)
                 .distanceTo(client.gameRenderer.getCamera().getPos());
         //avoid rendering player too near and block view except mirror
         return distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors();
+    }
+    
+    public static Vec3d getRenderingCameraPos(Entity entity) {
+        if (entity instanceof ClientPlayerEntity) {
+            return RenderStates.originalPlayerPos.add(0, entity.getStandingEyeHeight(), 0);
+        }
+        return entity.getCameraPosVec(RenderStates.tickDelta);
     }
 }

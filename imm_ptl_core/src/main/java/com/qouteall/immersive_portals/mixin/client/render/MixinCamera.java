@@ -36,6 +36,9 @@ public abstract class MixinCamera implements IECamera {
     @Shadow
     protected abstract void setPos(Vec3d vec3d_1);
     
+    @Shadow
+    public abstract Entity getFocusedEntity();
+    
     @Inject(
         method = "update",
         at = @At("RETURN")
@@ -76,7 +79,7 @@ public abstract class MixinCamera implements IECamera {
     //to let the player be rendered when rendering portal
     @Inject(method = "isThirdPerson", at = @At("HEAD"), cancellable = true)
     private void onIsThirdPerson(CallbackInfoReturnable<Boolean> cir) {
-        if (CrossPortalEntityRenderer.shouldRenderPlayerItself()) {
+        if (CrossPortalEntityRenderer.shouldRenderPlayerDefault()) {
             cir.setReturnValue(true);
         }
     }
