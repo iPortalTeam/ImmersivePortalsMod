@@ -239,14 +239,15 @@ public class PortalRenderingGroup implements PortalLike {
     @Environment(EnvType.CLIENT)
     @Override
     public BoxPredicate getInnerFrustumCullingFunc(
-        double cameraX, double cameraY, double cameraZ
+        double innerCameraX, double innerCameraY, double innerCameraZ
     ) {
-        Vec3d cameraPos = new Vec3d(cameraX, cameraY, cameraZ);
-        
+        Vec3d innerCameraPos = new Vec3d(innerCameraX, innerCameraY, innerCameraZ);
+        Vec3d outerCameraPos = portals.get(0).inverseTransformPoint(innerCameraPos);
+    
         List<BoxPredicate> funcs = portals.stream().filter(
-            portal -> portal.isInFrontOfPortal(cameraPos)
+            portal1 -> portal1.isInFrontOfPortal(outerCameraPos)
         ).map(
-            portal -> portal.getInnerFrustumCullingFunc(cameraX, cameraY, cameraZ)
+            portal -> portal.getInnerFrustumCullingFunc(innerCameraX, innerCameraY, innerCameraZ)
         ).collect(Collectors.toList());
         
         return (minX, minY, minZ, maxX, maxY, maxZ) -> {
