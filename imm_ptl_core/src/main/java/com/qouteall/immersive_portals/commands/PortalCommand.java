@@ -1309,7 +1309,7 @@ public class PortalCommand {
                                         false,
                                         false,
                                         false,
-                                        true,
+                                        false,
                                         BoolArgumentType.getBool(context, "biWay")
                                     );
                                     return 0;
@@ -1322,7 +1322,7 @@ public class PortalCommand {
                                             teleportChangesScale,
                                             false,
                                             false,
-                                            true,
+                                            false,
                                             BoolArgumentType.getBool(context, "biWay")
                                         );
                                         return 0;
