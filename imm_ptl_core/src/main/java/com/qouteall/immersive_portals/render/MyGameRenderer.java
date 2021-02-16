@@ -285,7 +285,10 @@ public class MyGameRenderer {
         );
         ((IEPlayerListEntry) playerListEntry).setGameMode(originalGameMode);
         
-        doRenderEntity.run();
+        // if the camera is inside player, don't render
+        if (CrossPortalEntityRenderer.shouldRenderPlayerInPortalWithTransformedPosition(player)) {
+            doRenderEntity.run();
+        }
         
         McHelper.setPosAndLastTickPos(
             player, oldPos, oldLastTickPos

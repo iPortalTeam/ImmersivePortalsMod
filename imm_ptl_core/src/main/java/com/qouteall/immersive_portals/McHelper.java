@@ -435,8 +435,8 @@ public class McHelper {
         ).stream();
     }
     
-    public static void updateBoundingBox(Entity player) {
-        player.updatePosition(player.getX(), player.getY(), player.getZ());
+    public static void updateBoundingBox(Entity entity) {
+        entity.updatePosition(entity.getX(), entity.getY(), entity.getZ());
     }
     
     public static void updatePosition(Entity entity, Vec3d pos) {

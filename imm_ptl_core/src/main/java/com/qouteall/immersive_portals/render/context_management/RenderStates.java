@@ -17,6 +17,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
@@ -38,6 +39,7 @@ public class RenderStates {
     public static Vec3d originalPlayerPos;
     public static Vec3d originalPlayerLastTickPos;
     public static GameMode originalGameMode;
+    public static Box originalPlayerBoundingBox;
     public static float tickDelta = 0;
     
     public static Set<RegistryKey<World>> renderedDimensions = new HashSet<>();
@@ -84,6 +86,7 @@ public class RenderStates {
         originalPlayerLastTickPos = McHelper.lastTickPosOf(cameraEntity);
         PlayerListEntry entry = CHelper.getClientPlayerListEntry();
         originalGameMode = entry != null ? entry.getGameMode() : GameMode.CREATIVE;
+        originalPlayerBoundingBox = cameraEntity.getBoundingBox();
         tickDelta = tickDelta_;
         
         renderedDimensions.clear();
