@@ -78,7 +78,7 @@ public class PortalCommand {
         
         LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
             .literal("portal")
-            .requires(PortalCommand::level2OrCreativeMode);
+            .requires(PortalCommand::canUsePortalCommand);
         
         registerPortalTargetedCommands(builder);
         
@@ -93,14 +93,14 @@ public class PortalCommand {
         builder.then(global);
         
         LiteralArgumentBuilder<ServerCommandSource> debugBuilder = CommandManager.literal("debug")
-            .requires(PortalCommand::level2OrCreativeMode);
+            .requires(PortalCommand::canUsePortalCommand);
         registerDebugCommands(debugBuilder);
         builder.then(debugBuilder);
         
         dispatcher.register(builder);
     }
     
-    public static boolean level2OrCreativeMode(ServerCommandSource commandSource) {
+    public static boolean canUsePortalCommand(ServerCommandSource commandSource) {
         Entity entity = commandSource.getEntity();
         if (entity instanceof ServerPlayerEntity) {
             if (Global.creativePlayerCanUsePortalCommands) {

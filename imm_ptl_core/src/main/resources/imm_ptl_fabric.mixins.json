@@ -6,6 +6,7 @@
     "common.MixinDebugClientPlayNetworkHandler",
     "common.MixinDebugLightUpdateS2CPacket",
     "common.MixinLanguage",
+    "common.MixinPehkuiScaleCommand",
     "common.MixinPlayerManager_MA",
     "common.MixinServerPlayerEntity_MA"
   ],
