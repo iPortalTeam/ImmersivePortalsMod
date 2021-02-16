@@ -1640,7 +1640,7 @@ public class PortalCommand {
         
         sendMessage(
             context,
-            "\n\n" + portal.toString()
+            portal.toString() + "\n"
         );
     }
     
