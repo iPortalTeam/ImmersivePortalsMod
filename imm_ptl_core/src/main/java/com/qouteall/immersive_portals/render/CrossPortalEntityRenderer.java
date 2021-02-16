@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
@@ -23,6 +24,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -240,6 +242,12 @@ public class CrossPortalEntityRenderer {
                 if (dis < valve) {
                     return;
                 }
+                
+                Box transformedBoundingBox =
+                    Helper.transformBox(RenderStates.originalPlayerBoundingBox, transformingPortal::transformPoint);
+                if (transformedBoundingBox.contains(CHelper.getCurrentCameraPos())) {
+                    return;
+                }
             }
         }
         
@@ -347,6 +355,10 @@ public class CrossPortalEntityRenderer {
     public static boolean shouldRenderPlayerNormally(Entity entity) {
         if (!client.options.getPerspective().isFirstPerson()) {
             return true;
+        }
+        
+        if (RenderStates.originalPlayerBoundingBox.contains(CHelper.getCurrentCameraPos())) {
+            return false;
         }
         
         double distanceToCamera =
