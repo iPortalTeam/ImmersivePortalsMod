@@ -17,7 +17,7 @@ public class MixinPehkuiScaleCommand {
             target = "Lnet/minecraft/server/command/ServerCommandSource;hasPermissionLevel(I)Z"
         )
     )
-    static boolean redirectHasPermissionLevel(ServerCommandSource serverCommandSource) {
+    private static boolean redirectHasPermissionLevel(ServerCommandSource serverCommandSource, int level) {
         return PortalCommand.canUsePortalCommand(serverCommandSource);
     }
 }
