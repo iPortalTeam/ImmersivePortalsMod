@@ -1,5 +1,7 @@
 package com.qouteall.immersive_portals;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,7 +20,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -28,6 +35,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -47,6 +55,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -776,6 +785,78 @@ public class McHelper {
             throw new RuntimeException("Missing dimension " + dim.getValue());
         }
         return world;
+    }
+    
+    private static Text prettyPrintTagKey(String key) {
+        return (new LiteralText(key)).formatted(Formatting.AQUA);
+    }
+    
+    public static Text tagToTextSorted(Tag tag, String indent, int depth) {
+        if (tag instanceof CompoundTag) {
+            return compoundTagToTextSorted(((CompoundTag) tag), indent, depth);
+        }
+        if (tag instanceof ListTag) {
+            if (!((ListTag) tag).isEmpty()) {
+                Tag firstElement = ((ListTag) tag).get(0);
+                if (firstElement instanceof IntTag || firstElement instanceof DoubleTag) {
+                    return tag.toText("", depth);
+                }
+            }
+        }
+        if (tag instanceof ByteTag) {
+            byte value = ((ByteTag) tag).getByte();
+            if (value == 1) {
+                return new LiteralText("true").formatted(Formatting.GOLD);
+            }
+            else if (value == 0) {
+                return new LiteralText("false").formatted(Formatting.GOLD);
+            }
+        }
+        return tag.toText(indent, depth);
+    }
+    
+    /**
+     * {@link CompoundTag#toText(String, int)}
+     */
+    public static Text compoundTagToTextSorted(CompoundTag tag, String indent, int depth) {
+        if (tag.isEmpty()) {
+            return new LiteralText("{}");
+        }
+        else {
+            MutableText mutableText = new LiteralText("{");
+            Collection<String> collection = tag.getKeys();
+            
+            List<String> list = Lists.newArrayList(collection);
+            Collections.sort(list);
+            collection = list;
+            
+            
+            if (!indent.isEmpty()) {
+                mutableText.append("\n");
+            }
+            
+            MutableText mutableText2;
+            for (Iterator iterator = ((Collection) collection).iterator(); iterator.hasNext(); mutableText.append((Text) mutableText2)) {
+                String keyName = (String) iterator.next();
+                mutableText2 = (new LiteralText(Strings.repeat(indent, depth + 1)))
+                    .append(prettyPrintTagKey(keyName))
+                    .append(String.valueOf(':'))
+                    .append(" ")
+                    .append(
+                        tagToTextSorted(tag.get(keyName), indent, depth)
+                    );
+                if (iterator.hasNext()) {
+                    mutableText2.append(String.valueOf(',')).append(indent.isEmpty() ? " " : "\n");
+                }
+            }
+            
+            if (!indent.isEmpty()) {
+                mutableText.append("\n").append(Strings.repeat(indent, depth));
+            }
+            
+            mutableText.append("}");
+            return mutableText;
+        }
     }
     
 }

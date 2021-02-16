@@ -1630,7 +1630,11 @@ public class PortalCommand {
     
     public static void sendPortalInfo(CommandContext<ServerCommandSource> context, Portal portal) {
         context.getSource().sendFeedback(
-            portal.toTag(new CompoundTag()).toText(),
+            McHelper.compoundTagToTextSorted(
+                portal.toTag(new CompoundTag()),
+                " ",
+                0
+            ),
             false
         );
         
