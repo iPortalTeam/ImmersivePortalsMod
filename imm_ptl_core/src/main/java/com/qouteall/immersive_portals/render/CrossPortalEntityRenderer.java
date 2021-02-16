@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
@@ -24,7 +23,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -219,7 +217,13 @@ public class CrossPortalEntityRenderer {
         World oldWorld = entity.world;
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
-        Vec3d newLastTickEyePos = transformingPortal.transformPoint(oldLastTickEyePos);
+
+//        if (PortalRendering.isRendering()) {
+//            Portal renderingPortal = PortalRendering.getRenderingPortal();
+//            if (!renderingPortal.isInside(newEyePos, -3)) {
+//                return;
+//            }
+//        }
         
         if (entity instanceof ClientPlayerEntity) {
             if (!Global.renderYourselfInPortal) {
@@ -228,20 +232,21 @@ public class CrossPortalEntityRenderer {
             
             if (client.options.getPerspective().isFirstPerson()) {
                 //avoid rendering player too near and block view
-                Vec3d velocity = entity.getVelocity();
-                Box boundingBox = RenderStates.originalPlayerBoundingBox.stretch(-velocity.x, -velocity.y, -velocity.z);
-                Box transformedBox = Helper.transformBox(boundingBox, transformingPortal::transformPoint);
-                if (transformedBox.contains(CHelper.getCurrentCameraPos())) {
+                double dis = newEyePos.distanceTo(cameraPos);
+                double valve = 0.5 + McHelper.lastTickPosOf(entity).distanceTo(entity.getPos());
+                if (transformingPortal.scaling > 1) {
+                    valve *= transformingPortal.scaling;
+                }
+                if (dis < valve) {
                     return;
                 }
             }
         }
         
-        
         McHelper.setEyePos(
             entity,
             newEyePos,
-            newLastTickEyePos
+            transformingPortal.transformPoint(oldLastTickEyePos)
         );
         
         entity.world = newWorld;
@@ -333,41 +338,28 @@ public class CrossPortalEntityRenderer {
             }
             
             return renderingPortal.isInside(
-                getRenderingEyePos(entity), -0.01
+                getRenderingCameraPos(entity), -0.01
             );
         }
         return true;
     }
     
-    @Deprecated
     public static boolean shouldRenderPlayerNormally(Entity entity) {
         if (!client.options.getPerspective().isFirstPerson()) {
             return true;
         }
         
         double distanceToCamera =
-            getRenderingEyePos(entity)
+            getRenderingCameraPos(entity)
                 .distanceTo(client.gameRenderer.getCamera().getPos());
         //avoid rendering player too near and block view except mirror
         return distanceToCamera > 1 || PortalRendering.isRenderingOddNumberOfMirrors();
     }
     
-    public static Vec3d getRenderingEyePos(Entity entity) {
+    public static Vec3d getRenderingCameraPos(Entity entity) {
         if (entity instanceof ClientPlayerEntity) {
             return RenderStates.originalPlayerPos.add(0, entity.getStandingEyeHeight(), 0);
         }
         return entity.getCameraPosVec(RenderStates.tickDelta);
-    }
-    
-    public static boolean shouldRenderPlayerInPortalWithTransformedPosition(Entity player) {
-        double expanding = 0;
-        if (PortalRendering.isRendering()) {
-            expanding = Math.max(1, 1.0 / PortalRendering.getRenderingPortal().getScale()) - 1;
-        }
-        
-        Vec3d velocity = player.getVelocity();
-        return !RenderStates.originalPlayerBoundingBox.stretch(
-            -velocity.x, -velocity.y, -velocity.z
-        ).expand(expanding).contains(CHelper.getCurrentCameraPos());
     }
 }

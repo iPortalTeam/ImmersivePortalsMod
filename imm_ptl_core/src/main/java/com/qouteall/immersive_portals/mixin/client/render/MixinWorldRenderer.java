@@ -328,7 +328,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (entity == camera.getFocusedEntity()) { //player
             if (CrossPortalEntityRenderer.shouldRenderEntityNow(entity)) {
                 MyGameRenderer.renderPlayerItself(() -> {
-//                    if (CrossPortalEntityRenderer.shouldRenderPlayerNormally(entity)) {
+                    if (CrossPortalEntityRenderer.shouldRenderPlayerNormally(entity)) {
                         CrossPortalEntityRenderer.beforeRenderingEntity(entity, matrixStack);
                         renderEntity(
                             entity,
@@ -337,7 +337,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                             matrixStack, vertexConsumerProvider
                         );
                         CrossPortalEntityRenderer.afterRenderingEntity(entity);
-//                    }
+                    }
                 });
                 return;
             }
