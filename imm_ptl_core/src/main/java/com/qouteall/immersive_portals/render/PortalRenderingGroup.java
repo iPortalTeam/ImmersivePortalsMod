@@ -275,15 +275,15 @@ public class PortalRenderingGroup implements PortalLike {
             return;
         }
         
-        Box enclosedDestAreaBox = getDestAreaBox();
+        Box enclosedDestAreaBox = getDestAreaBox().contract(0.5);
         
         if (enclosedDestAreaBox != null) {
-            int xMin = (int) Math.round(enclosedDestAreaBox.minX / 16);
-            int xMax = (int) Math.round(enclosedDestAreaBox.maxX / 16) - 1;
-            int yMin = (int) Math.round(enclosedDestAreaBox.minY / 16);
-            int yMax = (int) Math.round(enclosedDestAreaBox.maxY / 16) - 1;
-            int zMin = (int) Math.round(enclosedDestAreaBox.minZ / 16);
-            int zMax = (int) Math.round(enclosedDestAreaBox.maxZ / 16) - 1;
+            int xMin = (int) Math.floor(enclosedDestAreaBox.minX / 16);
+            int xMax = (int) Math.ceil(enclosedDestAreaBox.maxX / 16) - 1;
+            int yMin = (int) Math.floor(enclosedDestAreaBox.minY / 16);
+            int yMax = (int) Math.ceil(enclosedDestAreaBox.maxY / 16) - 1;
+            int zMin = (int) Math.floor(enclosedDestAreaBox.minZ / 16);
+            int zMax = (int) Math.ceil(enclosedDestAreaBox.maxZ / 16) - 1;
             
             Helper.removeIf(visibleChunks, (obj) -> {
                 ChunkBuilder.BuiltChunk builtChunk =
