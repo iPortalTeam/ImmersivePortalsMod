@@ -4,19 +4,23 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 //sometimes minecraft stores some dimension-specific things into static fields
 //for example BackgroundRenderer
 //we have to render multiple dimensions at the same time
 //so we have to store multiple sets of these static fields
 public class StaticFieldsSwappingManager<Context> {
-    private Consumer<Context> copyFromObject;
-    private Consumer<Context> copyToObject;
-    private boolean strictCheck;
+    private final Consumer<Context> copyFromObject;
+    private final Consumer<Context> copyToObject;
+    private final boolean strictCheck;
+    @Nullable
+    private final Supplier<Context> contextConstructor;
     
     public static class ContextRecord<Ctx> {
         public RegistryKey<World> dimension;
@@ -42,13 +46,14 @@ public class StaticFieldsSwappingManager<Context> {
     public StaticFieldsSwappingManager(
         Consumer<Context> copyFromObject,
         Consumer<Context> copyToObject,
-        boolean doStrictCheck
+        boolean doStrictCheck,
+        @Nullable Supplier<Context> contextConstructor
     ) {
-        Validate.notNull(copyFromObject);
         
         this.copyFromObject = copyFromObject;
         this.copyToObject = copyToObject;
         this.strictCheck = doStrictCheck;
+        this.contextConstructor = contextConstructor;
     }
     
     public boolean isSwapped() {
@@ -83,7 +88,9 @@ public class StaticFieldsSwappingManager<Context> {
         RegistryKey<World> currentDimension = getCurrentDimension();
         
         ContextRecord<Context> oldContext = contextMap.get(currentDimension);
-        ContextRecord<Context> newContext = contextMap.get(newDimension);
+        ContextRecord<Context> newContext = contextMap.computeIfAbsent(newDimension, k -> {
+            return new ContextRecord<>(newDimension, contextConstructor.get(), true);
+        });
         Validate.notNull(oldContext);
         Validate.notNull(newContext);
         

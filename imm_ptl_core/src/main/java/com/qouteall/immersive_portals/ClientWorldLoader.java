@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.ducks.IEWorld;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
+import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.render.context_management.DimensionRenderHelper;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -50,6 +51,8 @@ public class ClientWorldLoader {
     private static boolean isCreatingClientWorld = false;
     
     public static boolean isClientRemoteTicking = false;
+    
+    public static final SignalArged<ClientWorld> clientWorldLoadSignal = new SignalArged<>();
     
     public static void init() {
         ModMain.postClientTickSignal.connect(ClientWorldLoader::tick);
@@ -304,8 +307,11 @@ public class ClientWorldLoader {
         worldRendererMap.put(dimension, worldRenderer);
         
         Helper.log("Client World Created " + dimension.getValue());
+//        new Throwable().printStackTrace();
         
         isCreatingClientWorld = false;
+        
+        clientWorldLoadSignal.emit(newWorld);
         
         client.getProfiler().pop();
         
