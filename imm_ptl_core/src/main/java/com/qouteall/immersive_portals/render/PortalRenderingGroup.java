@@ -297,8 +297,6 @@ public class PortalRenderingGroup implements PortalLike {
                 return !(cx >= xMin && cx <= xMax &&
                     cy >= yMin && cy <= yMax &&
                     cz >= zMin && cz <= zMax);
-
-//                return !builtChunk.boundingBox.intersects(enclosedDestAreaBox);
             });
         }
     }
