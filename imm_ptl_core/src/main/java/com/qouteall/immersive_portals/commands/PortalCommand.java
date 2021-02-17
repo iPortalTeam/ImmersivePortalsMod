@@ -103,7 +103,7 @@ public class PortalCommand {
     public static boolean canUsePortalCommand(ServerCommandSource commandSource) {
         Entity entity = commandSource.getEntity();
         if (entity instanceof ServerPlayerEntity) {
-            if (Global.creativePlayerCanUsePortalCommands) {
+            if (Global.easePermission) {
                 if (((ServerPlayerEntity) entity).isCreative()) {
                     return true;
                 }

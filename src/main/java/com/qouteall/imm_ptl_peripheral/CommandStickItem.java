@@ -128,7 +128,7 @@ public class CommandStickItem extends Item {
     }
     
     private static boolean canUseCommand(PlayerEntity player) {
-        if (Global.creativePlayerCanUsePortalCommands) {
+        if (Global.easePermission) {
             return true;// any player regardless of gamemode can use
         }
         else {
