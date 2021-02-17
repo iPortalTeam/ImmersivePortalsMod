@@ -115,7 +115,7 @@ public class PehkuiInterfaceInitializer {
     }
     
     private static boolean isScaleIllegal(float scale) {
-        return (scale > Global.scaleLimit) || (scale < (1.0f / (Global.scaleLimit)));
+        return (scale > Global.scaleLimit) || (scale < (1.0f / (Global.scaleLimit * 2)));
     }
     
 }
