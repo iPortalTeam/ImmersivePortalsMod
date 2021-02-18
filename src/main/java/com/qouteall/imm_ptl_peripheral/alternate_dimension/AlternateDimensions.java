@@ -33,11 +33,79 @@ import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Optional;
 
 public class AlternateDimensions {
-    public static final HashSet<RegistryKey<World>> notStoredDimensions = new HashSet<>();
+    public static void init() {
+        IPDimensionAPI.onServerWorldInit.connect(AlternateDimensions::initializeAlternateDimensions);
+        
+        ModMain.postServerTickSignal.connect(AlternateDimensions::tick);
+    }
+    
+    private static void initializeAlternateDimensions(
+        GeneratorOptions generatorOptions, DynamicRegistryManager registryManager
+    ) {
+        SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
+        long seed = generatorOptions.getSeed();
+        if (!Global.enableAlternateDimensions) {
+            return;
+        }
+        
+        DimensionType surfaceTypeObject = registryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+        
+        if (surfaceTypeObject == null) {
+            Helper.err("Missing dimension type immersive_portals:surface_type");
+            return;
+        }
+        
+        //different seed
+        IPDimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate1Option.getValue(),
+            () -> surfaceTypeObject,
+            createSkylandGenerator(seed + 1, registryManager)
+        );
+        IPDimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
+        
+        IPDimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate2Option.getValue(),
+            () -> surfaceTypeObject,
+            createSkylandGenerator(seed, registryManager)
+        );
+        IPDimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
+        
+        //different seed
+        IPDimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate3Option.getValue(),
+            () -> surfaceTypeObject,
+            createErrorTerrainGenerator(seed + 1, registryManager)
+        );
+        IPDimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
+        
+        IPDimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate4Option.getValue(),
+            () -> surfaceTypeObject,
+            createErrorTerrainGenerator(seed, registryManager)
+        );
+        IPDimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
+        
+        IPDimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate5Option.getValue(),
+            () -> surfaceTypeObject,
+            createVoidGenerator(registryManager)
+        );
+        IPDimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
+    }
+    
     
     public static final RegistryKey<DimensionOptions> alternate1Option = RegistryKey.of(
         Registry.DIMENSION_OPTIONS,
@@ -92,24 +160,6 @@ public class AlternateDimensions {
             key == alternate3 ||
             key == alternate4 ||
             key == alternate5;
-    }
-    
-    public static void init() {
-        IPDimensionAPI.onServerWorldInit.connect(AlternateDimensions::addAlternateDimensions);
-        
-        ModMain.postServerTickSignal.connect(() -> {
-            if (!Global.enableAlternateDimensions) {
-                return;
-            }
-            
-            ServerWorld overworld = McHelper.getServerWorld(World.OVERWORLD);
-            
-            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
-            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
-            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate3), overworld);
-            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate4), overworld);
-            syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
-        });
     }
     
     private static void syncWithOverworldTimeWeather(ServerWorld world, ServerWorld overworld) {
@@ -169,74 +219,20 @@ public class AlternateDimensions {
         return new FlatChunkGenerator(flatChunkGeneratorConfig);
     }
     
-    private static void addAlternateDimensions(
-        GeneratorOptions generatorOptions, DynamicRegistryManager registryManager
-    ) {
-        SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
-        long seed = generatorOptions.getSeed();
+    
+    private static void tick() {
         if (!Global.enableAlternateDimensions) {
             return;
         }
         
-        DimensionType surfaceTypeObject = registryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+        ServerWorld overworld = McHelper.getServerWorld(World.OVERWORLD);
         
-        if (surfaceTypeObject == null) {
-            Helper.err("Missing dimension type immersive_portals:surface_type");
-            return;
-        }
-
-//        AlternateDimensions.surfaceTypeObject = surfaceTypeObject;
-        
-        //different seed
-        IPDimensionAPI.addDimension(
-            seed,
-            registry,
-            alternate1Option.getValue(),
-            () -> surfaceTypeObject,
-            createSkylandGenerator(seed + 1, registryManager)
-        );
-        IPDimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
-        
-        IPDimensionAPI.addDimension(
-            seed,
-            registry,
-            alternate2Option.getValue(),
-            () -> surfaceTypeObject,
-            createSkylandGenerator(seed, registryManager)
-        );
-        IPDimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
-        
-        //different seed
-        IPDimensionAPI.addDimension(
-            seed,
-            registry,
-            alternate3Option.getValue(),
-            () -> surfaceTypeObject,
-            createErrorTerrainGenerator(seed + 1, registryManager)
-        );
-        IPDimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
-        
-        IPDimensionAPI.addDimension(
-            seed,
-            registry,
-            alternate4Option.getValue(),
-            () -> surfaceTypeObject,
-            createErrorTerrainGenerator(seed, registryManager)
-        );
-        IPDimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
-        
-        IPDimensionAPI.addDimension(
-            seed,
-            registry,
-            alternate5Option.getValue(),
-            () -> surfaceTypeObject,
-            createVoidGenerator(registryManager)
-        );
-        IPDimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate3), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate4), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
     }
     
-    // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
-    // then the nether and the end will be swallowed
-    // it's not IP's issue. but I add the fix code because many people encounter the issue
     
 }

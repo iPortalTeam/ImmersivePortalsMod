@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class IPDimensionAPI {
     public static final SignalBiArged<GeneratorOptions, DynamicRegistryManager> onServerWorldInit = new SignalBiArged<>();
     
-    public static final Set<Identifier> dimensionsExcludedFromBeingSaved = new HashSet<>();
+    private static final Set<Identifier> nonPersistentDimensions = new HashSet<>();
     
     public static void init() {
         onServerWorldInit.connect(IPDimensionAPI::addMissingVanillaDimensions);
@@ -47,19 +47,25 @@ public class IPDimensionAPI {
     }
     
     public static void markDimensionNonPersistent(Identifier dimensionId) {
-        dimensionsExcludedFromBeingSaved.add(dimensionId);
+        nonPersistentDimensions.add(dimensionId);
     }
     
-    // don't store dimension info into level.dat
-    // avoid weird dfu error
+    // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
+    // then the nether and the end will be swallowed
+    // it's not IP's issue. but I add the fix code because many people encounter the issue
+    //https://github.com/TelepathicGrunt/Bumblezone-Fabric/issues/20
     public static SimpleRegistry<DimensionOptions> getAdditionalDimensionsRemoved(
         SimpleRegistry<DimensionOptions> registry
     ) {
+        if (nonPersistentDimensions.isEmpty()) {
+            return registry;
+        }
+        
         return McHelper.filterAndCopyRegistry(
             registry,
             (key, obj) -> {
                 Identifier identifier = key.getValue();
-                return !dimensionsExcludedFromBeingSaved.contains(identifier);
+                return !nonPersistentDimensions.contains(identifier);
             }
         );
     }

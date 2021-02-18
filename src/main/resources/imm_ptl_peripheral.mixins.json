@@ -8,7 +8,6 @@
     "common.alternate_dimension.MixinBedBlock",
     "common.alternate_dimension.MixinDimensionType",
     "common.alternate_dimension.MixinGeneratorOptions",
-    "common.alternate_dimension.MixinMinecraftServer_A",
     "common.alternate_dimension.MixinOreFeature",
     "common.alternate_dimension.MixinSimpleRegistry",
     "common.alternate_dimension.MixinStructureFeature",
