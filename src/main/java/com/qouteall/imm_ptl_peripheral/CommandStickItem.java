@@ -128,11 +128,11 @@ public class CommandStickItem extends Item {
     }
     
     private static boolean canUseCommand(PlayerEntity player) {
-        if (Global.easePermission) {
+        if (Global.easeCommandStickPermission) {
             return true;// any player regardless of gamemode can use
         }
         else {
-            return player.hasPermissionLevel(2);
+            return player.hasPermissionLevel(2) || player.isCreative();
         }
     }
     

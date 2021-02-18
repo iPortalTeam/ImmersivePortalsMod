@@ -42,7 +42,8 @@ public class MyConfig {
     public boolean netherPortalOverlay = false;
     public boolean graduallyIncreaseLoadingRange = true;
     public int scaleLimit = 30;
-    public boolean easePermission = true;
+    public boolean easeCreativePermission = true;
+    public boolean easeCommandStickPermission = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
     public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
@@ -146,7 +147,7 @@ public class MyConfig {
         Global.netherPortalOverlay = netherPortalOverlay;
         Global.serverSmoothLoading = graduallyIncreaseLoadingRange;
         Global.scaleLimit = scaleLimit;
-        Global.easePermission = easePermission;
+        Global.easeCreativePermission = easeCreativePermission;
         
         if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

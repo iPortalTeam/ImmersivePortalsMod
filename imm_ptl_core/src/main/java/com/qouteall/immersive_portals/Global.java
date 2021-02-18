@@ -79,7 +79,8 @@ public class Global {
     
     public static int scaleLimit = 30;
     
-    public static boolean easePermission = true;
+    public static boolean easeCreativePermission = true;
+    public static boolean easeCommandStickPermission = true;
     
     public static enum RenderMode {
         normal,
