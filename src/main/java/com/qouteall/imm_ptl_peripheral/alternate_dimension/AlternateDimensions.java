@@ -32,10 +32,13 @@ import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AlternateDimensions {
+    public static final HashSet<RegistryKey<World>> notStoredDimensions = new HashSet<>();
+    
     public static final RegistryKey<DimensionOptions> alternate1Option = RegistryKey.of(
         Registry.DIMENSION_OPTIONS,
         new Identifier("immersive_portals:alternate1")
@@ -80,7 +83,7 @@ public class AlternateDimensions {
         Registry.DIMENSION,
         new Identifier("immersive_portals:alternate5")
     );
-    public static DimensionType surfaceTypeObject;
+//    public static DimensionType surfaceTypeObject;
     
     public static boolean isAlternateDimension(World world) {
         final RegistryKey<World> key = world.getRegistryKey();
@@ -190,6 +193,15 @@ public class AlternateDimensions {
         if (!Global.enableAlternateDimensions) {
             return;
         }
+        
+        DimensionType surfaceTypeObject = rm.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+        
+        if (surfaceTypeObject == null) {
+            Helper.err("Missing dimension type immersive_portals:surface_type");
+            return;
+        }
+        
+//        AlternateDimensions.surfaceTypeObject = surfaceTypeObject;
         
         addDimension(
             seed,

@@ -1,14 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.alternate_dimension;
 
-import com.mojang.serialization.Lifecycle;
-import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
-import net.minecraft.tag.BlockTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.MutableRegistry;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.source.BiomeAccessType;
-import net.minecraft.world.biome.source.HorizontalVoronoiBiomeAccessType;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -41,22 +35,22 @@ public class MixinDimensionType {
         DynamicRegistryManager.Impl registryManager,
         CallbackInfoReturnable<DynamicRegistryManager.Impl> cir
     ) {
-        MutableRegistry<DimensionType> mutableRegistry = registryManager.get(Registry.DIMENSION_TYPE_KEY);
-        mutableRegistry.add(
-            AlternateDimensions.surfaceType,
-            AlternateDimensions.surfaceTypeObject,
-            Lifecycle.stable()
-        );
+//        MutableRegistry<DimensionType> mutableRegistry = registryManager.get(Registry.DIMENSION_TYPE_KEY);
+//        mutableRegistry.add(
+//            AlternateDimensions.surfaceType,
+//            AlternateDimensions.surfaceTypeObject,
+//            Lifecycle.stable()
+//        );
     }
     
     static {
-        AlternateDimensions.surfaceTypeObject = constructor(
-            OptionalLong.empty(), true, false,
-            false, true, 1.0D, false,
-            false, true, false, true,
-            256, HorizontalVoronoiBiomeAccessType.INSTANCE,
-            BlockTags.INFINIBURN_OVERWORLD.getId(),
-            DimensionType.OVERWORLD_ID, 0.0F
-        );
+//        AlternateDimensions.surfaceTypeObject = constructor(
+//            OptionalLong.empty(), true, false,
+//            false, true, 1.0D, false,
+//            false, true, false, true,
+//            256, HorizontalVoronoiBiomeAccessType.INSTANCE,
+//            BlockTags.INFINIBURN_OVERWORLD.getId(),
+//            DimensionType.OVERWORLD_ID, 0.0F
+//        );
     }
 }
