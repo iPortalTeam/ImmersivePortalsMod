@@ -2,11 +2,11 @@ package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import com.qouteall.immersive_portals.ducks.IEWorld;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -21,6 +21,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.VanillaLayeredBiomeSource;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.FlatChunkGenerator;
@@ -34,7 +35,6 @@ import net.minecraft.world.gen.feature.StructureFeature;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class AlternateDimensions {
     public static final HashSet<RegistryKey<World>> notStoredDimensions = new HashSet<>();
@@ -95,6 +95,8 @@ public class AlternateDimensions {
     }
     
     public static void init() {
+        IPDimensionAPI.onServerWorldInit.connect(AlternateDimensions::addAlternateDimensions);
+        
         ModMain.postServerTickSignal.connect(() -> {
             if (!Global.enableAlternateDimensions) {
                 return;
@@ -167,135 +169,74 @@ public class AlternateDimensions {
         return new FlatChunkGenerator(flatChunkGeneratorConfig);
     }
     
-    public static void addDimension(
-        long argSeed,
-        SimpleRegistry<DimensionOptions> registry,
-        RegistryKey<DimensionOptions> key,
-        Supplier<DimensionType> dimensionTypeSupplier,
-        ChunkGenerator chunkGenerator
+    private static void addAlternateDimensions(
+        GeneratorOptions generatorOptions, DynamicRegistryManager registryManager
     ) {
-        if (!registry.getIds().contains(key.getValue())) {
-            registry.add(
-                key,
-                new DimensionOptions(
-                    dimensionTypeSupplier,
-                    chunkGenerator
-                ),
-                Lifecycle.experimental()
-            );
-        }
-    }
-    
-    public static void addAlternateDimensions(
-        SimpleRegistry<DimensionOptions> registry, DynamicRegistryManager rm,
-        long seed
-    ) {
+        SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
+        long seed = generatorOptions.getSeed();
         if (!Global.enableAlternateDimensions) {
             return;
         }
         
-        DimensionType surfaceTypeObject = rm.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+        DimensionType surfaceTypeObject = registryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
         
         if (surfaceTypeObject == null) {
             Helper.err("Missing dimension type immersive_portals:surface_type");
             return;
         }
-        
+
 //        AlternateDimensions.surfaceTypeObject = surfaceTypeObject;
         
-        addDimension(
+        //different seed
+        IPDimensionAPI.addDimension(
             seed,
             registry,
-            alternate1Option,
+            alternate1Option.getValue(),
             () -> surfaceTypeObject,
-            createSkylandGenerator(seed + 1, rm)//different seed
+            createSkylandGenerator(seed + 1, registryManager)
         );
+        IPDimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
         
-        addDimension(
+        IPDimensionAPI.addDimension(
             seed,
             registry,
-            alternate2Option,
+            alternate2Option.getValue(),
             () -> surfaceTypeObject,
-            createSkylandGenerator(seed, rm)
+            createSkylandGenerator(seed, registryManager)
         );
+        IPDimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
         
-        addDimension(
+        //different seed
+        IPDimensionAPI.addDimension(
             seed,
             registry,
-            alternate3Option,
+            alternate3Option.getValue(),
             () -> surfaceTypeObject,
-            createErrorTerrainGenerator(seed + 1, rm)//different seed
+            createErrorTerrainGenerator(seed + 1, registryManager)
         );
+        IPDimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
         
-        addDimension(
+        IPDimensionAPI.addDimension(
             seed,
             registry,
-            alternate4Option,
+            alternate4Option.getValue(),
             () -> surfaceTypeObject,
-            createErrorTerrainGenerator(seed, rm)
+            createErrorTerrainGenerator(seed, registryManager)
         );
+        IPDimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
         
-        addDimension(
+        IPDimensionAPI.addDimension(
             seed,
             registry,
-            alternate5Option,
+            alternate5Option.getValue(),
             () -> surfaceTypeObject,
-            createVoidGenerator(rm)
+            createVoidGenerator(registryManager)
         );
-    }
-    
-    // don't store dimension info into level.dat
-    // avoid weird dfu error
-    public static SimpleRegistry<DimensionOptions> getAlternateDimensionsRemoved(
-        SimpleRegistry<DimensionOptions> registry
-    ) {
-        return McHelper.filterAndCopyRegistry(
-            registry,
-            (key, obj) -> !(key == alternate1Option ||
-                key == alternate2Option ||
-                key == alternate3Option ||
-                key == alternate4Option ||
-                key == alternate5Option)
-        );
+        IPDimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
     }
     
     // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
     // then the nether and the end will be swallowed
     // it's not IP's issue. but I add the fix code because many people encounter the issue
-    public static void addMissingVanillaDimensions(
-        SimpleRegistry<DimensionOptions> registry, DynamicRegistryManager rm,
-        long seed
-    ) {
-        if (!registry.getIds().contains(DimensionOptions.NETHER.getValue())) {
-            Helper.err("Missing the nether. This may be caused by DFU. Trying to fix");
-            
-            addDimension(
-                seed,
-                registry,
-                DimensionOptions.NETHER,
-                () -> DimensionType.THE_NETHER,
-                DimensionType.createNetherGenerator(
-                    rm.get(Registry.BIOME_KEY),
-                    rm.get(Registry.NOISE_SETTINGS_WORLDGEN),
-                    seed
-                )
-            );
-        }
-        
-        if (!registry.getIds().contains(DimensionOptions.END.getValue())) {
-            Helper.err("Missing the end. This may be caused by DFU. Trying to fix");
-            addDimension(
-                seed,
-                registry,
-                DimensionOptions.END,
-                () -> DimensionType.THE_END,
-                DimensionType.createEndGenerator(
-                    rm.get(Registry.BIOME_KEY),
-                    rm.get(Registry.NOISE_SETTINGS_WORLDGEN),
-                    seed
-                )
-            );
-        }
-    }
     
 }

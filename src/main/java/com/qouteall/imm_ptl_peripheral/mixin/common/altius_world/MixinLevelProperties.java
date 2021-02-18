@@ -3,9 +3,9 @@ package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
-import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import com.qouteall.immersive_portals.ducks.IEGeneratorOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -95,7 +95,7 @@ public class MixinLevelProperties {
         CompoundTag compoundTag2, CallbackInfo ci
     ) {
         ((IEGeneratorOptions) generatorOptions).setDimOptionRegistry(
-            AlternateDimensions.getAlternateDimensionsRemoved(
+            IPDimensionAPI.getAdditionalDimensionsRemoved(
                 generatorOptions.getDimensions()
             )
         );

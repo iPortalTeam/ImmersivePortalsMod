@@ -169,9 +169,13 @@ dependencies {
     include "io.github.prospector:modmenu:${modmenu_version}"
 
     //make the game launch faster in dev
-    modRuntime("com.github.SuperCoder7979:databreaker:master-SNAPSHOT") {
-        exclude module: "fabric-loader"
-    }
+//    modRuntime("com.github.SuperCoder7979:databreaker:master-SNAPSHOT") {
+//        exclude module: "fabric-loader"
+//    }
+
+//    modImplementation('com.github.LTHeaven:InnerDimensionMod:main-SNAPSHOT'){
+//        exclude module: "imm_ptl_core"
+//    }
 
     // OptiFine
 //    modImplementation 'com.github.qouteall:OptiFabric:llama-SNAPSHOT'

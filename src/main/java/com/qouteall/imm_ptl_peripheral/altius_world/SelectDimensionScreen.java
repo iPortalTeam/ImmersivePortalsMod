@@ -2,17 +2,21 @@ package com.qouteall.imm_ptl_peripheral.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
 
 import java.util.ArrayList;
@@ -46,11 +50,57 @@ public class SelectDimensionScreen extends Screen {
         
         // Alternate dimensions are added in a special way
         if (Global.enableAlternateDimensions) {
-            AlternateDimensions.addAlternateDimensions(
-                dimensionMap,
-                dynamicRegistryManager,
-                generatorOptions.getSeed()
-            );
+            long seed = generatorOptions.getSeed();
+            if (Global.enableAlternateDimensions) {
+                DimensionType surfaceTypeObject = dynamicRegistryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+                if (surfaceTypeObject == null) {
+                    Helper.err("Missing dimension type immersive_portals:surface_type");
+                }
+                else {//        AlternateDimensions.surfaceTypeObject = surfaceTypeObject;
+                    //different seed
+                    IPDimensionAPI.addDimension(
+                        seed,
+                        dimensionMap,
+                        AlternateDimensions.alternate1Option.getValue(),
+                        () -> surfaceTypeObject,
+                        AlternateDimensions.createSkylandGenerator(seed + 1, dynamicRegistryManager)
+                    );
+                    IPDimensionAPI.markDimensionNonPersistent(AlternateDimensions.alternate1Option.getValue());
+                    IPDimensionAPI.addDimension(
+                        seed,
+                        dimensionMap,
+                        AlternateDimensions.alternate2Option.getValue(),
+                        () -> surfaceTypeObject,
+                        AlternateDimensions.createSkylandGenerator(seed, dynamicRegistryManager)
+                    );
+                    IPDimensionAPI.markDimensionNonPersistent(AlternateDimensions.alternate2Option.getValue());//different seed
+                    IPDimensionAPI.addDimension(
+                        seed,
+                        dimensionMap,
+                        AlternateDimensions.alternate3Option.getValue(),
+                        () -> surfaceTypeObject,
+                        AlternateDimensions.createErrorTerrainGenerator(seed + 1, dynamicRegistryManager)
+                    );
+                    IPDimensionAPI.markDimensionNonPersistent(AlternateDimensions.alternate3Option.getValue());
+                    IPDimensionAPI.addDimension(
+                        seed,
+                        dimensionMap,
+                        AlternateDimensions.alternate4Option.getValue(),
+                        () -> surfaceTypeObject,
+                        AlternateDimensions.createErrorTerrainGenerator(seed, dynamicRegistryManager)
+                    );
+                    IPDimensionAPI.markDimensionNonPersistent(AlternateDimensions.alternate4Option.getValue());
+                    IPDimensionAPI.addDimension(
+                        seed,
+                        dimensionMap,
+                        AlternateDimensions.alternate5Option.getValue(),
+                        () -> surfaceTypeObject,
+                        AlternateDimensions.createVoidGenerator(dynamicRegistryManager)
+                    );
+                    IPDimensionAPI.markDimensionNonPersistent(AlternateDimensions.alternate5Option.getValue());
+                }
+            }
+    
         }
         
         ArrayList<RegistryKey<World>> dimList = new ArrayList<>();

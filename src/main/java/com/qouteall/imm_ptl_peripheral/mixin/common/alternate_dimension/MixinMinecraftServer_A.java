@@ -1,13 +1,11 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.alternate_dimension;
 
-import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
-import com.qouteall.immersive_portals.Global;
+import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.SaveProperties;
-import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.world.gen.GeneratorOptions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,17 +26,13 @@ public abstract class MixinMinecraftServer_A {
     private void onBeforeCreateWorlds(
         WorldGenerationProgressListener worldGenerationProgressListener, CallbackInfo ci
     ) {
-        SimpleRegistry<DimensionOptions> registry = saveProperties.getGeneratorOptions().getDimensions();
+        GeneratorOptions generatorOptions = saveProperties.getGeneratorOptions();
         
-        DynamicRegistryManager rm = getRegistryManager();
+        DynamicRegistryManager registryManager = getRegistryManager();
         
-        long seed = saveProperties.getGeneratorOptions().getSeed();
+        IPDimensionAPI.onServerWorldInit.emit(generatorOptions, registryManager);
         
-        if (Global.enableAlternateDimensions) {
-            AlternateDimensions.addAlternateDimensions(registry, rm, seed);
-        }
         
-        AlternateDimensions.addMissingVanillaDimensions(registry, rm, seed);
     }
     
 }
