@@ -1,4 +1,4 @@
-package com.qouteall.imm_ptl_peripheral.mixin.common.alternate_dimension;
+package com.qouteall.immersive_portals.mixin.common.dimension;
 
 import com.qouteall.immersive_portals.ducks.IEGeneratorOptions;
 import net.minecraft.util.registry.SimpleRegistry;

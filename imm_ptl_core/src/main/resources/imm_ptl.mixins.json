@@ -26,6 +26,7 @@
     "common.collision.MixinLivingEntity_C",
     "common.collision.MixinProjectileEntity",
     "common.collision.MixinSnowballEntity",
+    "common.dimension.MixinGeneratorOptions",
     "common.dimension.MixinLevelProperties_D",
     "common.dimension.MixinMinecraftServer_D",
     "common.entity_sync.MixinEntityTracker",
