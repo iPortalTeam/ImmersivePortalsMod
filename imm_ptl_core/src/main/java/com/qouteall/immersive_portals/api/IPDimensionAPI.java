@@ -50,10 +50,10 @@ public class IPDimensionAPI {
         nonPersistentDimensions.add(dimensionId);
     }
     
+    // This is not API
     // When DFU does not recognize a mod dimension (in level.dat) it will throw an error
-    // then the nether and the end will be swallowed
-    // it's not IP's issue. but I add the fix code because many people encounter the issue
-    //https://github.com/TelepathicGrunt/Bumblezone-Fabric/issues/20
+    // then the nether and the end will be swallowed (https://github.com/TelepathicGrunt/Bumblezone-Fabric/issues/20)
+    // to fix that, don't store the custom dimensions into level.dat
     public static SimpleRegistry<DimensionOptions> getAdditionalDimensionsRemoved(
         SimpleRegistry<DimensionOptions> registry
     ) {
@@ -70,6 +70,7 @@ public class IPDimensionAPI {
         );
     }
     
+    // fix nether and end swallowed by DFU error
     private static void addMissingVanillaDimensions(GeneratorOptions generatorOptions, DynamicRegistryManager registryManager) {
         SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
         long seed = generatorOptions.getSeed();
