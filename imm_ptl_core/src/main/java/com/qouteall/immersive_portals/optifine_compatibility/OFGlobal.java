@@ -17,7 +17,6 @@ public class OFGlobal {
     public static Consumer<PerDimensionContext> copyContextToObject;
     public static Consumer<PerDimensionContext> copyContextFromObject;
     public static Supplier<Integer> getDfb;
-    public static Runnable bindGbuffersTextures;
     public static Supplier<ShaderUniforms> getShaderUniforms;
     public static Supplier<World> getCurrentWorld;
     public static Supplier<IShaderPack> getCurrentShaderpack;

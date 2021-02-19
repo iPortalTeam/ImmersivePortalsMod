@@ -1,18 +1,23 @@
 package com.qouteall.immersive_portals.optifine_compatibility;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.client.world.ClientWorld;
-import net.optifine.shaders.FlipTextures;
+import net.optifine.expr.IExpressionBool;
+import net.optifine.shaders.DrawBuffers;
 import net.optifine.shaders.ICustomTexture;
 import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.ProgramStack;
 import net.optifine.shaders.Programs;
+import net.optifine.shaders.RenderStage;
+import net.optifine.shaders.ShadersFramebuffer;
 import net.optifine.shaders.config.PropertyDefaultFastFancyOff;
 import net.optifine.shaders.config.PropertyDefaultTrueFalse;
+import net.optifine.shaders.config.ScreenShaderOptions;
 import net.optifine.shaders.config.ShaderOption;
 import net.optifine.shaders.config.ShaderProfile;
 import net.optifine.shaders.uniform.CustomUniforms;
@@ -27,6 +32,7 @@ import net.optifine.shaders.uniform.ShaderUniforms;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GLCapabilities;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -39,6 +45,7 @@ import java.util.regex.Pattern;
 
 //do not forget to update it when optifine changes Shaders class
 public class PerDimensionContext {
+    
     public MinecraftClient mc;
     public GameRenderer entityRenderer;
     public boolean isInitializedOnce;
@@ -77,9 +84,7 @@ public class PerDimensionContext {
     public float[] sunPosModelView;
     public float[] moonPosModelView;
     public float[] tempMat;
-    public float clearColorR;
-    public float clearColorG;
-    public float clearColorB;
+    public Vector4f clearColor;
     public float skyColorR;
     public float skyColorG;
     public float skyColorB;
@@ -117,6 +122,7 @@ public class PerDimensionContext {
     public float blindness;
     public boolean lightmapEnabled;
     public boolean fogEnabled;
+    public RenderStage renderStage;
     public int baseAttribId;
     public int entityAttrib;
     public int midTexCoordAttrib;
@@ -168,6 +174,22 @@ public class PerDimensionContext {
     public ShaderUniform1i uniform_colortex7;
     public ShaderUniform1i uniform_gdepthtex;
     public ShaderUniform1i uniform_depthtex2;
+    public ShaderUniform1i uniform_colortex8;
+    public ShaderUniform1i uniform_colortex9;
+    public ShaderUniform1i uniform_colortex10;
+    public ShaderUniform1i uniform_colortex11;
+    public ShaderUniform1i uniform_colortex12;
+    public ShaderUniform1i uniform_colortex13;
+    public ShaderUniform1i uniform_colortex14;
+    public ShaderUniform1i uniform_colortex15;
+    public ShaderUniform1i uniform_colorimg0;
+    public ShaderUniform1i uniform_colorimg1;
+    public ShaderUniform1i uniform_colorimg2;
+    public ShaderUniform1i uniform_colorimg3;
+    public ShaderUniform1i uniform_colorimg4;
+    public ShaderUniform1i uniform_colorimg5;
+    public ShaderUniform1i uniform_shadowcolorimg0;
+    public ShaderUniform1i uniform_shadowcolorimg1;
     public ShaderUniform1i uniform_tex;
     public ShaderUniform1i uniform_heldItemId;
     public ShaderUniform1i uniform_heldBlockLightValue;
@@ -220,8 +242,11 @@ public class PerDimensionContext {
     public ShaderUniform1i uniform_hideGUI;
     public ShaderUniform1f uniform_centerDepthSmooth;
     public ShaderUniform2i uniform_atlasSize;
+    public ShaderUniform4f uniform_spriteBounds;
     public ShaderUniform4i uniform_blendFunc;
     public ShaderUniform1i uniform_instanceId;
+    public ShaderUniform1f uniform_playerMood;
+    public ShaderUniform1i uniform_renderStage;
     public double previousCameraPositionX;
     public double previousCameraPositionY;
     public double previousCameraPositionZ;
@@ -230,7 +255,7 @@ public class PerDimensionContext {
     public double cameraPositionZ;
     public int cameraOffsetX;
     public int cameraOffsetZ;
-    public int shadowPassInterval;
+    public boolean hasShadowMap;
     public boolean needResizeShadow;
     public int shadowMapWidth;
     public int shadowMapHeight;
@@ -240,25 +265,37 @@ public class PerDimensionContext {
     public float shadowMapHalfPlane;
     public boolean shadowMapIsOrtho;
     public float shadowDistanceRenderMul;
-    public int shadowPassCounter;
     public boolean shouldSkipDefaultShadow;
     public boolean waterShadowEnabled;
+    public int MaxDrawBuffers;
+    public int MaxColorBuffers;
+    public int MaxDepthBuffers;
+    public int MaxShadowColorBuffers;
+    public int MaxShadowDepthBuffers;
     public int usedColorBuffers;
     public int usedDepthBuffers;
     public int usedShadowColorBuffers;
     public int usedShadowDepthBuffers;
     public int usedColorAttachs;
     public int usedDrawBuffers;
-    public int dfb;
-    public int sfb;
+    public boolean bindImageTextures;
+    public ShadersFramebuffer dfb;
+    public ShadersFramebuffer sfb;
     public int[] gbuffersFormat;
     public boolean[] gbuffersClear;
     public Vector4f[] gbuffersClearColor;
+    public Vector4f CLEAR_COLOR_0;
+    public Vector4f CLEAR_COLOR_1;
+    public int[] shadowBuffersFormat;
+    public boolean[] shadowBuffersClear;
+    public Vector4f[] shadowBuffersClearColor;
     public Programs programs;
     public Program ProgramNone;
     public Program ProgramShadow;
     public Program ProgramShadowSolid;
     public Program ProgramShadowCutout;
+    public Program[] ProgramsShadowcomp;
+    public Program[] ProgramsPrepare;
     public Program ProgramBasic;
     public Program ProgramTextured;
     public Program ProgramTexturedLit;
@@ -294,8 +331,8 @@ public class PerDimensionContext {
     public int activeProgramID;
     public ProgramStack programStack;
     public boolean hasDeferredPrograms;
-    public IntBuffer activeDrawBuffers;
-    public int activeCompositeMipmapSetting;
+    public boolean hasShadowcompPrograms;
+    public boolean hasPreparePrograms;
     public Properties loadedShaders;
     public Properties shadersConfig;
     public AbstractTexture defaultTexture;
@@ -321,6 +358,8 @@ public class PerDimensionContext {
     public PropertyDefaultTrueFalse configOldLighting;
     public PropertyDefaultTrueFalse configOldHandLight;
     public int configAntialiasingLevel;
+    public int texMinFilRange;
+    public int texMagFilRange;
     public String[] texMinFilDesc;
     public String[] texMagFilDesc;
     public int[] texMinFilValue;
@@ -328,13 +367,17 @@ public class PerDimensionContext {
     public IShaderPack shaderPack;
     public boolean shaderPackLoaded;
     public String currentShaderName;
+    public String SHADER_PACK_NAME_NONE;
+    public String SHADER_PACK_NAME_DEFAULT;
+    public String SHADER_PACKS_DIR_NAME;
+    public String OPTIONS_FILE_NAME;
     public File shaderPacksDir;
     public File configFile;
     public ShaderOption[] shaderPackOptions;
-    public Set shaderPackOptionSliders;
+    public Set<String> shaderPackOptionSliders;
     public ShaderProfile[] shaderPackProfiles;
-    public Map shaderPackGuiScreens;
-    public Map shaderPackProgramConditions;
+    public Map<String, ScreenShaderOptions> shaderPackGuiScreens;
+    public Map<String, IExpressionBool> shaderPackProgramConditions;
     public String PATH_SHADERS_PROPERTIES;
     public PropertyDefaultFastFancyOff shaderPackClouds;
     public PropertyDefaultTrueFalse shaderPackOldLighting;
@@ -353,16 +396,17 @@ public class PerDimensionContext {
     public PropertyDefaultTrueFalse shaderPackBeaconBeamDepth;
     public PropertyDefaultTrueFalse shaderPackSeparateAo;
     public PropertyDefaultTrueFalse shaderPackFrustumCulling;
-    public Map shaderPackResources;
+    public Map<String, String> shaderPackResources;
     public ClientWorld currentWorld;
-    public List shaderPackDimensions;
+    public List<Integer> shaderPackDimensions;
     public ICustomTexture[] customTexturesGbuffers;
     public ICustomTexture[] customTexturesComposite;
     public ICustomTexture[] customTexturesDeferred;
+    public ICustomTexture[] customTexturesShadowcomp;
+    public ICustomTexture[] customTexturesPrepare;
     public String noiseTexturePath;
+    public Dimension[] colorBufferSizes;
     public CustomUniforms customUniforms;
-    public boolean enableShadersOption;
-    public boolean enableShadersDebug;
     public boolean saveFinalShaders;
     public float blockLightLevel05;
     public float blockLightLevel06;
@@ -382,6 +426,11 @@ public class PerDimensionContext {
     public boolean noiseTextureEnabled;
     public int noiseTextureResolution;
     public int[] colorTextureImageUnit;
+    public int[] depthTextureImageUnit;
+    public int[] shadowColorTextureImageUnit;
+    public int[] shadowDepthTextureImageUnit;
+    public int[] colorImageUnit;
+    public int[] shadowColorImageUnit;
     public int bigBufferSize;
     public ByteBuffer bigBuffer;
     public float[] faProjection;
@@ -404,16 +453,13 @@ public class PerDimensionContext {
     public FloatBuffer previousModelView;
     public FloatBuffer tempMatrixDirectBuffer;
     public FloatBuffer tempDirectFloatBuffer;
-    public IntBuffer dfbColorTextures;
-    public IntBuffer dfbDepthTextures;
-    public IntBuffer sfbColorTextures;
-    public IntBuffer sfbDepthTextures;
-    public IntBuffer dfbDrawBuffers;
-    public IntBuffer sfbDrawBuffers;
-    public IntBuffer drawBuffersNone;
-    public IntBuffer drawBuffersColorAtt0;
-    public FlipTextures dfbColorTexturesFlip;
-    public Map mapBlockToEntityData;
+    public DrawBuffers dfbDrawBuffers;
+    public DrawBuffers sfbDrawBuffers;
+    public DrawBuffers drawBuffersNone;
+    public DrawBuffers[] drawBuffersColorAtt;
+    public boolean glDebugGroups;
+    public boolean glDebugGroupProgram;
+    public Map<Block, Integer> mapBlockToEntityData;
     public String[] formatNames;
     public int[] formatIds;
     public Pattern patternLoadEntityDataMap;
@@ -453,7 +499,7 @@ public class PerDimensionContext {
     //do not reset the fields that was initialized by loadShaderPack()
     public void doSpecialInit() {
 //        shaderPackLoaded = true;
-        
+
 //        sunPosition = new float[4];
 //        moonPosition = new float[4];
 //        shadowLightPosition = new float[4];
@@ -572,8 +618,7 @@ public class PerDimensionContext {
         usedShadowDepthBuffers = 0;
         usedColorAttachs = 0;
         usedDrawBuffers = 0;
-        dfb = 0;
-        sfb = 0;
+        
         gbuffersFormat = new int[8];
         gbuffersClear = new boolean[8];
         gbuffersClearColor = new Vector4f[8];
@@ -618,12 +663,7 @@ public class PerDimensionContext {
         activeProgram = ProgramNone;
         activeProgramID = 0;
         programStack = new ProgramStack();
-//        hasDeferredPrograms = false;
-        activeDrawBuffers = null;
-//        activeCompositeMipmapSetting = 0;
-//        loadedShaders = null;
-//        shadersConfig = null;
-//        defaultTexture = null;
+        
         shadowHardwareFilteringEnabled = new boolean[2];
         shadowMipmapEnabled = new boolean[2];
         shadowFilterNearest = new boolean[2];
@@ -725,18 +765,11 @@ public class PerDimensionContext {
         previousModelView = nextFloatBuffer(16);
         tempMatrixDirectBuffer = nextFloatBuffer(16);
         tempDirectFloatBuffer = nextFloatBuffer(16);
-        dfbColorTextures = nextIntBuffer(16);
-        dfbDepthTextures = nextIntBuffer(3);
-        sfbColorTextures = nextIntBuffer(8);
-        sfbDepthTextures = nextIntBuffer(2);
-        dfbDrawBuffers = nextIntBuffer(8);
-        sfbDrawBuffers = nextIntBuffer(8);
-        drawBuffersNone = (IntBuffer) nextIntBuffer(8).limit(0);
-        drawBuffersColorAtt0 = (IntBuffer) nextIntBuffer(8).put(36064).position(0).limit(1);
-        dfbColorTexturesFlip = new FlipTextures(dfbColorTextures, 8);
-//        formatNames = new String[]{"R8", "RG8", "RGB8", "RGBA8", "R8_SNORM", "RG8_SNORM", "RGB8_SNORM", "RGBA8_SNORM", "R16", "RG16", "RGB16", "RGBA16", "R16_SNORM", "RG16_SNORM", "RGB16_SNORM", "RGBA16_SNORM", "R16F", "RG16F", "RGB16F", "RGBA16F", "R32F", "RG32F", "RGB32F", "RGBA32F", "R32I", "RG32I", "RGB32I", "RGBA32I", "R32UI", "RG32UI", "RGB32UI", "RGBA32UI", "R3_G3_B2", "RGB5_A1", "RGB10_A2", "R11F_G11F_B10F", "RGB9_E5"};
-//        formatIds = new int[]{33321, 33323, 32849, 32856, 36756, 36757, 36758, 36759, 33322, 33324, 32852, 32859, 36760, 36761, 36762, 36763, 33325, 33327, 34843, 34842, 33326, 33328, 34837, 34836, 33333, 33339, 36227, 36226, 33334, 33340, 36209, 36208, 10768, 32855, 32857, 35898, 35901};
-//        patternLoadEntityDataMap = Pattern.compile("\\s*([\\w:]+)\\s*=\\s*([-]?\\d+)\\s*");
+        
+        dfbDrawBuffers = new DrawBuffers("dfbDrawBuffers", 16, 8);
+        sfbDrawBuffers = new DrawBuffers("sfbDrawBuffers", 16, 8);
+        drawBuffersNone = (new DrawBuffers("drawBuffersNone", 16, 8)).limit(0);
+        
         entityData = new int[32];
         entityDataIndex = 0;
     }

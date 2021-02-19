@@ -1,21 +1,24 @@
 package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.client.world.ClientWorld;
-import net.optifine.shaders.FlipTextures;
+import net.optifine.expr.IExpressionBool;
+import net.optifine.shaders.DrawBuffers;
 import net.optifine.shaders.ICustomTexture;
 import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.Program;
 import net.optifine.shaders.ProgramStack;
 import net.optifine.shaders.Programs;
-import net.optifine.shaders.Shaders;
+import net.optifine.shaders.RenderStage;
+import net.optifine.shaders.ShadersFramebuffer;
 import net.optifine.shaders.config.PropertyDefaultFastFancyOff;
 import net.optifine.shaders.config.PropertyDefaultTrueFalse;
+import net.optifine.shaders.config.ScreenShaderOptions;
 import net.optifine.shaders.config.ShaderOption;
 import net.optifine.shaders.config.ShaderProfile;
 import net.optifine.shaders.uniform.CustomUniforms;
@@ -27,17 +30,16 @@ import net.optifine.shaders.uniform.ShaderUniform4f;
 import net.optifine.shaders.uniform.ShaderUniform4i;
 import net.optifine.shaders.uniform.ShaderUniformM4;
 import net.optifine.shaders.uniform.ShaderUniforms;
-import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GLCapabilities;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -45,7 +47,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 // ugly hack. don't look at it
-@Mixin(value = Shaders.class, remap = false)
+@Mixin(targets = "net.optifine.shaders.Shaders", remap = false)
 public abstract class MixinShaders_Swap {
     
     @Shadow
@@ -125,11 +127,7 @@ public abstract class MixinShaders_Swap {
     @Shadow
     private static float[] tempMat;
     @Shadow
-    static float clearColorR;
-    @Shadow
-    static float clearColorG;
-    @Shadow
-    static float clearColorB;
+    static Vector4f clearColor;
     @Shadow
     static float skyColorR;
     @Shadow
@@ -204,6 +202,8 @@ public abstract class MixinShaders_Swap {
     static boolean lightmapEnabled;
     @Shadow
     static boolean fogEnabled;
+    @Shadow
+    static RenderStage renderStage;
     @Shadow
     private static int baseAttribId;
     @Shadow
@@ -306,6 +306,38 @@ public abstract class MixinShaders_Swap {
     public static ShaderUniform1i uniform_gdepthtex;
     @Shadow
     public static ShaderUniform1i uniform_depthtex2;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex8;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex9;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex10;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex11;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex12;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex13;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex14;
+    @Shadow
+    public static ShaderUniform1i uniform_colortex15;
+    @Shadow
+    public static ShaderUniform1i uniform_colorimg0;
+    @Shadow
+    public static ShaderUniform1i uniform_colorimg1;
+    @Shadow
+    public static ShaderUniform1i uniform_colorimg2;
+    @Shadow
+    public static ShaderUniform1i uniform_colorimg3;
+    @Shadow
+    public static ShaderUniform1i uniform_colorimg4;
+    @Shadow
+    public static ShaderUniform1i uniform_colorimg5;
+    @Shadow
+    public static ShaderUniform1i uniform_shadowcolorimg0;
+    @Shadow
+    public static ShaderUniform1i uniform_shadowcolorimg1;
     @Shadow
     public static ShaderUniform1i uniform_tex;
     @Shadow
@@ -411,9 +443,15 @@ public abstract class MixinShaders_Swap {
     @Shadow
     public static ShaderUniform2i uniform_atlasSize;
     @Shadow
+    public static ShaderUniform4f uniform_spriteBounds;
+    @Shadow
     public static ShaderUniform4i uniform_blendFunc;
     @Shadow
     public static ShaderUniform1i uniform_instanceId;
+    @Shadow
+    public static ShaderUniform1f uniform_playerMood;
+    @Shadow
+    public static ShaderUniform1i uniform_renderStage;
     @Shadow
     static double previousCameraPositionX;
     @Shadow
@@ -431,7 +469,7 @@ public abstract class MixinShaders_Swap {
     @Shadow
     static int cameraOffsetZ;
     @Shadow
-    static int shadowPassInterval;
+    static boolean hasShadowMap;
     @Shadow
     public static boolean needResizeShadow;
     @Shadow
@@ -451,11 +489,24 @@ public abstract class MixinShaders_Swap {
     @Shadow
     static float shadowDistanceRenderMul;
     @Shadow
-    static int shadowPassCounter;
-    @Shadow
     public static boolean shouldSkipDefaultShadow;
     @Shadow
     static boolean waterShadowEnabled;
+    @Shadow
+    public static @Final @Mutable
+    int MaxDrawBuffers;
+    @Shadow
+    public static @Final @Mutable
+    int MaxColorBuffers;
+    @Shadow
+    public static @Final @Mutable
+    int MaxDepthBuffers;
+    @Shadow
+    public static @Final @Mutable
+    int MaxShadowColorBuffers;
+    @Shadow
+    public static @Final @Mutable
+    int MaxShadowDepthBuffers;
     @Shadow
     static int usedColorBuffers;
     @Shadow
@@ -469,9 +520,11 @@ public abstract class MixinShaders_Swap {
     @Shadow
     static int usedDrawBuffers;
     @Shadow
-    static int dfb;
+    static boolean bindImageTextures;
     @Shadow
-    static int sfb;
+    static ShadersFramebuffer dfb;
+    @Shadow
+    static ShadersFramebuffer sfb;
     @Shadow
     private static int[] gbuffersFormat;
     @Shadow
@@ -479,146 +532,129 @@ public abstract class MixinShaders_Swap {
     @Shadow
     public static Vector4f[] gbuffersClearColor;
     @Shadow
+    private static @Final @Mutable
+    Vector4f CLEAR_COLOR_0;
+    @Shadow
+    private static @Final @Mutable
+    Vector4f CLEAR_COLOR_1;
+    @Shadow
+    private static int[] shadowBuffersFormat;
+    @Shadow
+    public static boolean[] shadowBuffersClear;
+    @Shadow
+    public static Vector4f[] shadowBuffersClearColor;
+    @Shadow
     private static Programs programs;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramNone;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramShadow;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramShadowSolid;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramShadowCutout;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
+    Program[] ProgramsShadowcomp;
+    @Shadow
+    public static @Final @Mutable
+    Program[] ProgramsPrepare;
+    @Shadow
+    public static @Final @Mutable
     Program ProgramBasic;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramTextured;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramTexturedLit;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramSkyBasic;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramSkyTextured;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramClouds;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramTerrain;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramTerrainSolid;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramTerrainCutoutMip;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramTerrainCutout;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramDamagedBlock;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramBlock;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramBeaconBeam;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramItem;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramEntities;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramEntitiesGlowing;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramArmorGlint;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramSpiderEyes;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramHand;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramWeather;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramDeferredPre;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program[] ProgramsDeferred;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramDeferred;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramWater;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramHandWater;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramCompositePre;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program[] ProgramsComposite;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramComposite;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program ProgramFinal;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     int ProgramCount;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     Program[] ProgramsAll;
     @Shadow
     public static Program activeProgram;
@@ -629,9 +665,9 @@ public abstract class MixinShaders_Swap {
     @Shadow
     private static boolean hasDeferredPrograms;
     @Shadow
-    static IntBuffer activeDrawBuffers;
+    public static boolean hasShadowcompPrograms;
     @Shadow
-    private static int activeCompositeMipmapSetting;
+    public static boolean hasPreparePrograms;
     @Shadow
     public static Properties loadedShaders;
     @Shadow
@@ -683,20 +719,22 @@ public abstract class MixinShaders_Swap {
     @Shadow
     public static int configAntialiasingLevel;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
+    int texMinFilRange;
+    @Shadow
+    public static @Final @Mutable
+    int texMagFilRange;
+    @Shadow
+    public static @Final @Mutable
     String[] texMinFilDesc;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     String[] texMagFilDesc;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     int[] texMinFilValue;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     int[] texMagFilValue;
     @Shadow
     private static IShaderPack shaderPack;
@@ -705,24 +743,34 @@ public abstract class MixinShaders_Swap {
     @Shadow
     public static String currentShaderName;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
+    String SHADER_PACK_NAME_NONE;
+    @Shadow
+    public static @Final @Mutable
+    String SHADER_PACK_NAME_DEFAULT;
+    @Shadow
+    public static @Final @Mutable
+    String SHADER_PACKS_DIR_NAME;
+    @Shadow
+    public static @Final @Mutable
+    String OPTIONS_FILE_NAME;
+    @Shadow
+    public static @Final @Mutable
     File shaderPacksDir;
     @Shadow
     static File configFile;
     @Shadow
     private static ShaderOption[] shaderPackOptions;
     @Shadow
-    private static Set shaderPackOptionSliders;
+    private static Set<String> shaderPackOptionSliders;
     @Shadow
     static ShaderProfile[] shaderPackProfiles;
     @Shadow
-    static Map shaderPackGuiScreens;
+    static Map<String, ScreenShaderOptions> shaderPackGuiScreens;
     @Shadow
-    static Map shaderPackProgramConditions;
+    static Map<String, IExpressionBool> shaderPackProgramConditions;
     @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     String PATH_SHADERS_PROPERTIES;
     @Shadow
     public static PropertyDefaultFastFancyOff shaderPackClouds;
@@ -759,11 +807,11 @@ public abstract class MixinShaders_Swap {
     @Shadow
     public static PropertyDefaultTrueFalse shaderPackFrustumCulling;
     @Shadow
-    private static Map shaderPackResources;
+    private static Map<String, String> shaderPackResources;
     @Shadow
     private static ClientWorld currentWorld;
     @Shadow
-    private static List shaderPackDimensions;
+    private static List<Integer> shaderPackDimensions;
     @Shadow
     private static ICustomTexture[] customTexturesGbuffers;
     @Shadow
@@ -771,20 +819,17 @@ public abstract class MixinShaders_Swap {
     @Shadow
     private static ICustomTexture[] customTexturesDeferred;
     @Shadow
+    private static ICustomTexture[] customTexturesShadowcomp;
+    @Shadow
+    private static ICustomTexture[] customTexturesPrepare;
+    @Shadow
     private static String noiseTexturePath;
+    @Shadow
+    private static Dimension[] colorBufferSizes;
     @Shadow
     private static CustomUniforms customUniforms;
     @Shadow
-    public static @Final
-    @Mutable
-    boolean enableShadersOption;
-    @Shadow
-    private static @Final
-    @Mutable
-    boolean enableShadersDebug;
-    @Shadow
-    public static @Final
-    @Mutable
+    public static @Final @Mutable
     boolean saveFinalShaders;
     @Shadow
     public static float blockLightLevel05;
@@ -821,161 +866,121 @@ public abstract class MixinShaders_Swap {
     @Shadow
     private static int noiseTextureResolution;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     int[] colorTextureImageUnit;
     @Shadow
-    private static @Final
-    @Mutable
+    static @Final @Mutable
+    int[] depthTextureImageUnit;
+    @Shadow
+    static @Final @Mutable
+    int[] shadowColorTextureImageUnit;
+    @Shadow
+    static @Final @Mutable
+    int[] shadowDepthTextureImageUnit;
+    @Shadow
+    static @Final @Mutable
+    int[] colorImageUnit;
+    @Shadow
+    static @Final @Mutable
+    int[] shadowColorImageUnit;
+    @Shadow
+    private static @Final @Mutable
     int bigBufferSize;
     @Shadow
-    private static @Final
-    @Mutable
+    private static @Final @Mutable
     ByteBuffer bigBuffer;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faProjection;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faProjectionInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faModelView;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faModelViewInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faShadowProjection;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faShadowProjectionInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faShadowModelView;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     float[] faShadowModelViewInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer projection;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer projectionInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer modelView;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer modelViewInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer shadowProjection;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer shadowProjectionInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer shadowModelView;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer shadowModelViewInverse;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer previousProjection;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer previousModelView;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer tempMatrixDirectBuffer;
     @Shadow
-    static @Final
-    @Mutable
+    static @Final @Mutable
     FloatBuffer tempDirectFloatBuffer;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer dfbColorTextures;
+    static @Final @Mutable
+    DrawBuffers dfbDrawBuffers;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer dfbDepthTextures;
+    static @Final @Mutable
+    DrawBuffers sfbDrawBuffers;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer sfbColorTextures;
+    static @Final @Mutable
+    DrawBuffers drawBuffersNone;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer sfbDepthTextures;
+    static @Final @Mutable
+    DrawBuffers[] drawBuffersColorAtt;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer dfbDrawBuffers;
+    static boolean glDebugGroups;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer sfbDrawBuffers;
+    static boolean glDebugGroupProgram;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer drawBuffersNone;
+    static Map<Block, Integer> mapBlockToEntityData;
     @Shadow
-    static @Final
-    @Mutable
-    IntBuffer drawBuffersColorAtt0;
-    @Shadow
-    static @Final
-    @Mutable
-    FlipTextures dfbColorTexturesFlip;
-    @Shadow
-    static Map mapBlockToEntityData;
-    @Shadow
-    private static @Final
-    @Mutable
+    private static @Final @Mutable
     String[] formatNames;
     @Shadow
-    private static @Final
-    @Mutable
+    private static @Final @Mutable
     int[] formatIds;
     @Shadow
-    private static @Final
-    @Mutable
+    private static @Final @Mutable
     Pattern patternLoadEntityDataMap;
     @Shadow
     public static int[] entityData;
     @Shadow
     public static int entityDataIndex;
     
-    
-    @Shadow
-    private static void bindGbuffersTextures() {
-    }
-    
-    @Shadow
-    protected static boolean checkBufferFlip(Program program) {
-        return false;
-    }
     
     @Shadow
     public static void init() {
@@ -1023,9 +1028,7 @@ public abstract class MixinShaders_Swap {
             sunPosModelView = context.sunPosModelView;
             moonPosModelView = context.moonPosModelView;
             tempMat = context.tempMat;
-            clearColorR = context.clearColorR;
-            clearColorG = context.clearColorG;
-            clearColorB = context.clearColorB;
+            clearColor = context.clearColor;
             skyColorR = context.skyColorR;
             skyColorG = context.skyColorG;
             skyColorB = context.skyColorB;
@@ -1063,6 +1066,7 @@ public abstract class MixinShaders_Swap {
             blindness = context.blindness;
             lightmapEnabled = context.lightmapEnabled;
             fogEnabled = context.fogEnabled;
+            renderStage = context.renderStage;
             baseAttribId = context.baseAttribId;
             entityAttrib = context.entityAttrib;
             midTexCoordAttrib = context.midTexCoordAttrib;
@@ -1114,6 +1118,22 @@ public abstract class MixinShaders_Swap {
             uniform_colortex7 = context.uniform_colortex7;
             uniform_gdepthtex = context.uniform_gdepthtex;
             uniform_depthtex2 = context.uniform_depthtex2;
+            uniform_colortex8 = context.uniform_colortex8;
+            uniform_colortex9 = context.uniform_colortex9;
+            uniform_colortex10 = context.uniform_colortex10;
+            uniform_colortex11 = context.uniform_colortex11;
+            uniform_colortex12 = context.uniform_colortex12;
+            uniform_colortex13 = context.uniform_colortex13;
+            uniform_colortex14 = context.uniform_colortex14;
+            uniform_colortex15 = context.uniform_colortex15;
+            uniform_colorimg0 = context.uniform_colorimg0;
+            uniform_colorimg1 = context.uniform_colorimg1;
+            uniform_colorimg2 = context.uniform_colorimg2;
+            uniform_colorimg3 = context.uniform_colorimg3;
+            uniform_colorimg4 = context.uniform_colorimg4;
+            uniform_colorimg5 = context.uniform_colorimg5;
+            uniform_shadowcolorimg0 = context.uniform_shadowcolorimg0;
+            uniform_shadowcolorimg1 = context.uniform_shadowcolorimg1;
             uniform_tex = context.uniform_tex;
             uniform_heldItemId = context.uniform_heldItemId;
             uniform_heldBlockLightValue = context.uniform_heldBlockLightValue;
@@ -1166,8 +1186,11 @@ public abstract class MixinShaders_Swap {
             uniform_hideGUI = context.uniform_hideGUI;
             uniform_centerDepthSmooth = context.uniform_centerDepthSmooth;
             uniform_atlasSize = context.uniform_atlasSize;
+            uniform_spriteBounds = context.uniform_spriteBounds;
             uniform_blendFunc = context.uniform_blendFunc;
             uniform_instanceId = context.uniform_instanceId;
+            uniform_playerMood = context.uniform_playerMood;
+            uniform_renderStage = context.uniform_renderStage;
             previousCameraPositionX = context.previousCameraPositionX;
             previousCameraPositionY = context.previousCameraPositionY;
             previousCameraPositionZ = context.previousCameraPositionZ;
@@ -1176,7 +1199,7 @@ public abstract class MixinShaders_Swap {
             cameraPositionZ = context.cameraPositionZ;
             cameraOffsetX = context.cameraOffsetX;
             cameraOffsetZ = context.cameraOffsetZ;
-            shadowPassInterval = context.shadowPassInterval;
+            hasShadowMap = context.hasShadowMap;
             needResizeShadow = context.needResizeShadow;
             shadowMapWidth = context.shadowMapWidth;
             shadowMapHeight = context.shadowMapHeight;
@@ -1186,25 +1209,37 @@ public abstract class MixinShaders_Swap {
             shadowMapHalfPlane = context.shadowMapHalfPlane;
             shadowMapIsOrtho = context.shadowMapIsOrtho;
             shadowDistanceRenderMul = context.shadowDistanceRenderMul;
-            shadowPassCounter = context.shadowPassCounter;
             shouldSkipDefaultShadow = context.shouldSkipDefaultShadow;
             waterShadowEnabled = context.waterShadowEnabled;
+            MaxDrawBuffers = context.MaxDrawBuffers;
+            MaxColorBuffers = context.MaxColorBuffers;
+            MaxDepthBuffers = context.MaxDepthBuffers;
+            MaxShadowColorBuffers = context.MaxShadowColorBuffers;
+            MaxShadowDepthBuffers = context.MaxShadowDepthBuffers;
             usedColorBuffers = context.usedColorBuffers;
             usedDepthBuffers = context.usedDepthBuffers;
             usedShadowColorBuffers = context.usedShadowColorBuffers;
             usedShadowDepthBuffers = context.usedShadowDepthBuffers;
             usedColorAttachs = context.usedColorAttachs;
             usedDrawBuffers = context.usedDrawBuffers;
+            bindImageTextures = context.bindImageTextures;
             dfb = context.dfb;
             sfb = context.sfb;
             gbuffersFormat = context.gbuffersFormat;
             gbuffersClear = context.gbuffersClear;
             gbuffersClearColor = context.gbuffersClearColor;
+            CLEAR_COLOR_0 = context.CLEAR_COLOR_0;
+            CLEAR_COLOR_1 = context.CLEAR_COLOR_1;
+            shadowBuffersFormat = context.shadowBuffersFormat;
+            shadowBuffersClear = context.shadowBuffersClear;
+            shadowBuffersClearColor = context.shadowBuffersClearColor;
             programs = context.programs;
             ProgramNone = context.ProgramNone;
             ProgramShadow = context.ProgramShadow;
             ProgramShadowSolid = context.ProgramShadowSolid;
             ProgramShadowCutout = context.ProgramShadowCutout;
+            ProgramsShadowcomp = context.ProgramsShadowcomp;
+            ProgramsPrepare = context.ProgramsPrepare;
             ProgramBasic = context.ProgramBasic;
             ProgramTextured = context.ProgramTextured;
             ProgramTexturedLit = context.ProgramTexturedLit;
@@ -1233,15 +1268,15 @@ public abstract class MixinShaders_Swap {
             ProgramCompositePre = context.ProgramCompositePre;
             ProgramsComposite = context.ProgramsComposite;
             ProgramComposite = context.ProgramComposite;
-            ProgramFinal = context.ProgramFinal;
+            ProgramFinal=context.ProgramFinal ;
             ProgramCount = context.ProgramCount;
             ProgramsAll = context.ProgramsAll;
             activeProgram = context.activeProgram;
             activeProgramID = context.activeProgramID;
             programStack = context.programStack;
             hasDeferredPrograms = context.hasDeferredPrograms;
-            activeDrawBuffers = context.activeDrawBuffers;
-            activeCompositeMipmapSetting = context.activeCompositeMipmapSetting;
+            hasShadowcompPrograms = context.hasShadowcompPrograms;
+            hasPreparePrograms = context.hasPreparePrograms;
             loadedShaders = context.loadedShaders;
             shadersConfig = context.shadersConfig;
             defaultTexture = context.defaultTexture;
@@ -1267,6 +1302,8 @@ public abstract class MixinShaders_Swap {
             configOldLighting = context.configOldLighting;
             configOldHandLight = context.configOldHandLight;
             configAntialiasingLevel = context.configAntialiasingLevel;
+            texMinFilRange = context.texMinFilRange;
+            texMagFilRange = context.texMagFilRange;
             texMinFilDesc = context.texMinFilDesc;
             texMagFilDesc = context.texMagFilDesc;
             texMinFilValue = context.texMinFilValue;
@@ -1274,6 +1311,10 @@ public abstract class MixinShaders_Swap {
             shaderPack = context.shaderPack;
             shaderPackLoaded = context.shaderPackLoaded;
             currentShaderName = context.currentShaderName;
+            SHADER_PACK_NAME_NONE = context.SHADER_PACK_NAME_NONE;
+            SHADER_PACK_NAME_DEFAULT = context.SHADER_PACK_NAME_DEFAULT;
+            SHADER_PACKS_DIR_NAME = context.SHADER_PACKS_DIR_NAME;
+            OPTIONS_FILE_NAME = context.OPTIONS_FILE_NAME;
             shaderPacksDir = context.shaderPacksDir;
             configFile = context.configFile;
             shaderPackOptions = context.shaderPackOptions;
@@ -1305,10 +1346,11 @@ public abstract class MixinShaders_Swap {
             customTexturesGbuffers = context.customTexturesGbuffers;
             customTexturesComposite = context.customTexturesComposite;
             customTexturesDeferred = context.customTexturesDeferred;
+            customTexturesShadowcomp = context.customTexturesShadowcomp;
+            customTexturesPrepare = context.customTexturesPrepare;
             noiseTexturePath = context.noiseTexturePath;
+            colorBufferSizes = context.colorBufferSizes;
             customUniforms = context.customUniforms;
-            enableShadersOption = context.enableShadersOption;
-            enableShadersDebug = context.enableShadersDebug;
             saveFinalShaders = context.saveFinalShaders;
             blockLightLevel05 = context.blockLightLevel05;
             blockLightLevel06 = context.blockLightLevel06;
@@ -1328,6 +1370,11 @@ public abstract class MixinShaders_Swap {
             noiseTextureEnabled = context.noiseTextureEnabled;
             noiseTextureResolution = context.noiseTextureResolution;
             colorTextureImageUnit = context.colorTextureImageUnit;
+            depthTextureImageUnit = context.depthTextureImageUnit;
+            shadowColorTextureImageUnit = context.shadowColorTextureImageUnit;
+            shadowDepthTextureImageUnit = context.shadowDepthTextureImageUnit;
+            colorImageUnit = context.colorImageUnit;
+            shadowColorImageUnit = context.shadowColorImageUnit;
             bigBufferSize = context.bigBufferSize;
             bigBuffer = context.bigBuffer;
             faProjection = context.faProjection;
@@ -1350,15 +1397,12 @@ public abstract class MixinShaders_Swap {
             previousModelView = context.previousModelView;
             tempMatrixDirectBuffer = context.tempMatrixDirectBuffer;
             tempDirectFloatBuffer = context.tempDirectFloatBuffer;
-            dfbColorTextures = context.dfbColorTextures;
-            dfbDepthTextures = context.dfbDepthTextures;
-            sfbColorTextures = context.sfbColorTextures;
-            sfbDepthTextures = context.sfbDepthTextures;
             dfbDrawBuffers = context.dfbDrawBuffers;
             sfbDrawBuffers = context.sfbDrawBuffers;
             drawBuffersNone = context.drawBuffersNone;
-            drawBuffersColorAtt0 = context.drawBuffersColorAtt0;
-            dfbColorTexturesFlip = context.dfbColorTexturesFlip;
+            drawBuffersColorAtt = context.drawBuffersColorAtt;
+            glDebugGroups = context.glDebugGroups;
+            glDebugGroupProgram = context.glDebugGroupProgram;
             mapBlockToEntityData = context.mapBlockToEntityData;
             formatNames = context.formatNames;
             formatIds = context.formatIds;
@@ -1408,9 +1452,7 @@ public abstract class MixinShaders_Swap {
             context.sunPosModelView = sunPosModelView;
             context.moonPosModelView = moonPosModelView;
             context.tempMat = tempMat;
-            context.clearColorR = clearColorR;
-            context.clearColorG = clearColorG;
-            context.clearColorB = clearColorB;
+            context.clearColor = clearColor;
             context.skyColorR = skyColorR;
             context.skyColorG = skyColorG;
             context.skyColorB = skyColorB;
@@ -1448,6 +1490,7 @@ public abstract class MixinShaders_Swap {
             context.blindness = blindness;
             context.lightmapEnabled = lightmapEnabled;
             context.fogEnabled = fogEnabled;
+            context.renderStage = renderStage;
             context.baseAttribId = baseAttribId;
             context.entityAttrib = entityAttrib;
             context.midTexCoordAttrib = midTexCoordAttrib;
@@ -1499,6 +1542,22 @@ public abstract class MixinShaders_Swap {
             context.uniform_colortex7 = uniform_colortex7;
             context.uniform_gdepthtex = uniform_gdepthtex;
             context.uniform_depthtex2 = uniform_depthtex2;
+            context.uniform_colortex8 = uniform_colortex8;
+            context.uniform_colortex9 = uniform_colortex9;
+            context.uniform_colortex10 = uniform_colortex10;
+            context.uniform_colortex11 = uniform_colortex11;
+            context.uniform_colortex12 = uniform_colortex12;
+            context.uniform_colortex13 = uniform_colortex13;
+            context.uniform_colortex14 = uniform_colortex14;
+            context.uniform_colortex15 = uniform_colortex15;
+            context.uniform_colorimg0 = uniform_colorimg0;
+            context.uniform_colorimg1 = uniform_colorimg1;
+            context.uniform_colorimg2 = uniform_colorimg2;
+            context.uniform_colorimg3 = uniform_colorimg3;
+            context.uniform_colorimg4 = uniform_colorimg4;
+            context.uniform_colorimg5 = uniform_colorimg5;
+            context.uniform_shadowcolorimg0 = uniform_shadowcolorimg0;
+            context.uniform_shadowcolorimg1 = uniform_shadowcolorimg1;
             context.uniform_tex = uniform_tex;
             context.uniform_heldItemId = uniform_heldItemId;
             context.uniform_heldBlockLightValue = uniform_heldBlockLightValue;
@@ -1551,8 +1610,11 @@ public abstract class MixinShaders_Swap {
             context.uniform_hideGUI = uniform_hideGUI;
             context.uniform_centerDepthSmooth = uniform_centerDepthSmooth;
             context.uniform_atlasSize = uniform_atlasSize;
+            context.uniform_spriteBounds = uniform_spriteBounds;
             context.uniform_blendFunc = uniform_blendFunc;
             context.uniform_instanceId = uniform_instanceId;
+            context.uniform_playerMood = uniform_playerMood;
+            context.uniform_renderStage = uniform_renderStage;
             context.previousCameraPositionX = previousCameraPositionX;
             context.previousCameraPositionY = previousCameraPositionY;
             context.previousCameraPositionZ = previousCameraPositionZ;
@@ -1561,7 +1623,7 @@ public abstract class MixinShaders_Swap {
             context.cameraPositionZ = cameraPositionZ;
             context.cameraOffsetX = cameraOffsetX;
             context.cameraOffsetZ = cameraOffsetZ;
-            context.shadowPassInterval = shadowPassInterval;
+            context.hasShadowMap = hasShadowMap;
             context.needResizeShadow = needResizeShadow;
             context.shadowMapWidth = shadowMapWidth;
             context.shadowMapHeight = shadowMapHeight;
@@ -1571,25 +1633,37 @@ public abstract class MixinShaders_Swap {
             context.shadowMapHalfPlane = shadowMapHalfPlane;
             context.shadowMapIsOrtho = shadowMapIsOrtho;
             context.shadowDistanceRenderMul = shadowDistanceRenderMul;
-            context.shadowPassCounter = shadowPassCounter;
             context.shouldSkipDefaultShadow = shouldSkipDefaultShadow;
             context.waterShadowEnabled = waterShadowEnabled;
+            context.MaxDrawBuffers = MaxDrawBuffers;
+            context.MaxColorBuffers = MaxColorBuffers;
+            context.MaxDepthBuffers = MaxDepthBuffers;
+            context.MaxShadowColorBuffers = MaxShadowColorBuffers;
+            context.MaxShadowDepthBuffers = MaxShadowDepthBuffers;
             context.usedColorBuffers = usedColorBuffers;
             context.usedDepthBuffers = usedDepthBuffers;
             context.usedShadowColorBuffers = usedShadowColorBuffers;
             context.usedShadowDepthBuffers = usedShadowDepthBuffers;
             context.usedColorAttachs = usedColorAttachs;
             context.usedDrawBuffers = usedDrawBuffers;
+            context.bindImageTextures = bindImageTextures;
             context.dfb = dfb;
             context.sfb = sfb;
             context.gbuffersFormat = gbuffersFormat;
             context.gbuffersClear = gbuffersClear;
             context.gbuffersClearColor = gbuffersClearColor;
+            context.CLEAR_COLOR_0 = CLEAR_COLOR_0;
+            context.CLEAR_COLOR_1 = CLEAR_COLOR_1;
+            context.shadowBuffersFormat = shadowBuffersFormat;
+            context.shadowBuffersClear = shadowBuffersClear;
+            context.shadowBuffersClearColor = shadowBuffersClearColor;
             context.programs = programs;
             context.ProgramNone = ProgramNone;
             context.ProgramShadow = ProgramShadow;
             context.ProgramShadowSolid = ProgramShadowSolid;
             context.ProgramShadowCutout = ProgramShadowCutout;
+            context.ProgramsShadowcomp = ProgramsShadowcomp;
+            context.ProgramsPrepare = ProgramsPrepare;
             context.ProgramBasic = ProgramBasic;
             context.ProgramTextured = ProgramTextured;
             context.ProgramTexturedLit = ProgramTexturedLit;
@@ -1618,15 +1692,15 @@ public abstract class MixinShaders_Swap {
             context.ProgramCompositePre = ProgramCompositePre;
             context.ProgramsComposite = ProgramsComposite;
             context.ProgramComposite = ProgramComposite;
-            context.ProgramFinal = ProgramFinal;
+            context.ProgramFinal=ProgramFinal ;
             context.ProgramCount = ProgramCount;
             context.ProgramsAll = ProgramsAll;
             context.activeProgram = activeProgram;
             context.activeProgramID = activeProgramID;
             context.programStack = programStack;
             context.hasDeferredPrograms = hasDeferredPrograms;
-            context.activeDrawBuffers = activeDrawBuffers;
-            context.activeCompositeMipmapSetting = activeCompositeMipmapSetting;
+            context.hasShadowcompPrograms = hasShadowcompPrograms;
+            context.hasPreparePrograms = hasPreparePrograms;
             context.loadedShaders = loadedShaders;
             context.shadersConfig = shadersConfig;
             context.defaultTexture = defaultTexture;
@@ -1652,6 +1726,8 @@ public abstract class MixinShaders_Swap {
             context.configOldLighting = configOldLighting;
             context.configOldHandLight = configOldHandLight;
             context.configAntialiasingLevel = configAntialiasingLevel;
+            context.texMinFilRange = texMinFilRange;
+            context.texMagFilRange = texMagFilRange;
             context.texMinFilDesc = texMinFilDesc;
             context.texMagFilDesc = texMagFilDesc;
             context.texMinFilValue = texMinFilValue;
@@ -1659,6 +1735,10 @@ public abstract class MixinShaders_Swap {
             context.shaderPack = shaderPack;
             context.shaderPackLoaded = shaderPackLoaded;
             context.currentShaderName = currentShaderName;
+            context.SHADER_PACK_NAME_NONE = SHADER_PACK_NAME_NONE;
+            context.SHADER_PACK_NAME_DEFAULT = SHADER_PACK_NAME_DEFAULT;
+            context.SHADER_PACKS_DIR_NAME = SHADER_PACKS_DIR_NAME;
+            context.OPTIONS_FILE_NAME = OPTIONS_FILE_NAME;
             context.shaderPacksDir = shaderPacksDir;
             context.configFile = configFile;
             context.shaderPackOptions = shaderPackOptions;
@@ -1690,10 +1770,11 @@ public abstract class MixinShaders_Swap {
             context.customTexturesGbuffers = customTexturesGbuffers;
             context.customTexturesComposite = customTexturesComposite;
             context.customTexturesDeferred = customTexturesDeferred;
+            context.customTexturesShadowcomp = customTexturesShadowcomp;
+            context.customTexturesPrepare = customTexturesPrepare;
             context.noiseTexturePath = noiseTexturePath;
+            context.colorBufferSizes = colorBufferSizes;
             context.customUniforms = customUniforms;
-            context.enableShadersOption = enableShadersOption;
-            context.enableShadersDebug = enableShadersDebug;
             context.saveFinalShaders = saveFinalShaders;
             context.blockLightLevel05 = blockLightLevel05;
             context.blockLightLevel06 = blockLightLevel06;
@@ -1706,13 +1787,18 @@ public abstract class MixinShaders_Swap {
             context.fogColorR = fogColorR;
             context.fogColorG = fogColorG;
             context.fogColorB = fogColorB;
-            context.shadowIntervalSize = shadowIntervalSize;
+            context.shadowIntervalSize = shadowIntervalSize; ;
             context.terrainIconSize = terrainIconSize;
             context.terrainTextureSize = terrainTextureSize;
             context.noiseTexture = noiseTexture;
             context.noiseTextureEnabled = noiseTextureEnabled;
             context.noiseTextureResolution = noiseTextureResolution;
             context.colorTextureImageUnit = colorTextureImageUnit;
+            context.depthTextureImageUnit = depthTextureImageUnit;
+            context.shadowColorTextureImageUnit = shadowColorTextureImageUnit;
+            context.shadowDepthTextureImageUnit = shadowDepthTextureImageUnit;
+            context.colorImageUnit = colorImageUnit;
+            context.shadowColorImageUnit = shadowColorImageUnit;
             context.bigBufferSize = bigBufferSize;
             context.bigBuffer = bigBuffer;
             context.faProjection = faProjection;
@@ -1735,15 +1821,12 @@ public abstract class MixinShaders_Swap {
             context.previousModelView = previousModelView;
             context.tempMatrixDirectBuffer = tempMatrixDirectBuffer;
             context.tempDirectFloatBuffer = tempDirectFloatBuffer;
-            context.dfbColorTextures = dfbColorTextures;
-            context.dfbDepthTextures = dfbDepthTextures;
-            context.sfbColorTextures = sfbColorTextures;
-            context.sfbDepthTextures = sfbDepthTextures;
             context.dfbDrawBuffers = dfbDrawBuffers;
             context.sfbDrawBuffers = sfbDrawBuffers;
             context.drawBuffersNone = drawBuffersNone;
-            context.drawBuffersColorAtt0 = drawBuffersColorAtt0;
-            context.dfbColorTexturesFlip = dfbColorTexturesFlip;
+            context.drawBuffersColorAtt = drawBuffersColorAtt;
+            context.glDebugGroups = glDebugGroups;
+            context.glDebugGroupProgram = glDebugGroupProgram;
             context.mapBlockToEntityData = mapBlockToEntityData;
             context.formatNames = formatNames;
             context.formatIds = formatIds;
@@ -1753,17 +1836,19 @@ public abstract class MixinShaders_Swap {
             
             
         };
-        
-        OFGlobal.getDfb = () -> dfb;
-        OFGlobal.bindGbuffersTextures = () -> bindGbuffersTextures();
+
+        OFGlobal.getDfb = () -> dfb.getGlFramebuffer();
         
         OFGlobal.getShaderUniforms = () -> shaderUniforms;
         
         OFGlobal.getCurrentWorld = () -> currentWorld;
         
         OFGlobal.bindToShaderFrameBuffer = () -> {
-            EXTFramebufferObject.glBindFramebufferEXT(36160, OFGlobal.getDfb.get());
-            GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
+            if (dfb == null) {
+                return;
+            }
+            dfb.bindFramebuffer();
+//            GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
         };
         
         OFGlobal.getCurrentShaderpack = () -> shaderPack;

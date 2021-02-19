@@ -141,6 +141,8 @@ public class RendererMixed extends PortalRenderer {
                 deferredFbs[i] = new SecondaryFrameBuffer();
             }
         }
+    
+        CHelper.checkGlError();
         
         for (SecondaryFrameBuffer deferredFb : deferredFbs) {
             deferredFb.prepare();
@@ -152,6 +154,7 @@ public class RendererMixed extends PortalRenderer {
             GlStateManager.clearStencil(0);
             GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             
+            CHelper.checkGlError();
         }
         
         OFGlobal.bindToShaderFrameBuffer.run();
