@@ -11,6 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -193,12 +194,18 @@ public class ChunkVisibility {
                 portal -> {
                     Vec3d transformedPlayerPos = portal.transformPoint(player.getPos());
                     
+                    World destinationWorld = portal.getDestinationWorld();
+                    
+                    if (destinationWorld == null) {
+                        return Stream.empty();
+                    }
+                    
                     return Stream.concat(
                         Stream.of(getGeneralDirectPortalLoader(player, portal)),
                         isShrinkLoading() ?
                             Stream.empty() :
                             getNearbyPortals(
-                                ((ServerWorld) portal.getDestinationWorld()),
+                                ((ServerWorld) destinationWorld),
                                 transformedPlayerPos,
                                 p -> p.canBeSpectated(player),
                                 false
