@@ -465,9 +465,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
             RenderLayer.getBlockLayers().get(0).endDrawing();
-    
+            
             if (PortalRendering.getRenderingPortal().isFuseView()) {
-                ci.cancel();
+                if (!OFInterface.isShaders.getAsBoolean()) {
+                    ci.cancel();
+                }
             }
             
             //fix sky abnormal with optifine and fog disabled
