@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.optifine_compatibility.mixin_optifine;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
@@ -1845,6 +1846,7 @@ public abstract class MixinShaders_Swap {
         
         OFGlobal.bindToShaderFrameBuffer = () -> {
             if (dfb == null) {
+                GlStateManager.bindFramebuffer(36160, 0);
                 return;
             }
             dfb.bindFramebuffer();

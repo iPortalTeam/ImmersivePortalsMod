@@ -89,12 +89,12 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
             GlStateManager.texImage2D(
                 target,
                 level,
-                ARBFramebufferObject.GL_DEPTH24_STENCIL8,
+                ARBFramebufferObject.GL_DEPTH24_STENCIL8,//GL_DEPTH32F_STENCIL8
                 width,
                 height,
                 border,
                 ARBFramebufferObject.GL_DEPTH_STENCIL,
-                GL30.GL_UNSIGNED_INT_24_8,
+                GL30.GL_UNSIGNED_INT_24_8,//GL_FLOAT_32_UNSIGNED_INT_24_8_REV
                 pixels
             );
         }
