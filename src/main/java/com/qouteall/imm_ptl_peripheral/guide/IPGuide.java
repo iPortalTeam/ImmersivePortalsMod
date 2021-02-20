@@ -8,6 +8,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.MessageType;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 
@@ -96,7 +98,7 @@ public class IPGuide {
         }
     }
     
-    private static void informWithURL(String link, TranslatableText text) {
+    private static void informWithURL(String link, MutableText text) {
         MinecraftClient.getInstance().inGameHud.addChatMessage(
             MessageType.SYSTEM,
             text.append(
@@ -111,7 +113,7 @@ public class IPGuide {
         public static void showWiki() {
             informWithURL(
                 "https://qouteall.fun/immptl/wiki/Commands-Reference",
-                new TranslatableText("imm_ptl.press_t")
+                new LiteralText("")
             );
         }
     }
