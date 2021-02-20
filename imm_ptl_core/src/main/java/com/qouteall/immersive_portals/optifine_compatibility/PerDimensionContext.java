@@ -498,120 +498,7 @@ public class PerDimensionContext {
     //reset the fields that will be changed by init()
     //do not reset the fields that was initialized by loadShaderPack()
     public void doSpecialInit() {
-//        shaderPackLoaded = true;
-
-//        sunPosition = new float[4];
-//        moonPosition = new float[4];
-//        shadowLightPosition = new float[4];
-        //upPosition = new float[4]; //Fix Sildurs shader black entities in nether
-//        shadowLightPositionVector = new float[4];
-//        upPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
-//        sunPosModelView = new float[]{0.0F, 100.0F, 0.0F, 0.0F};
-//        moonPosModelView = new float[]{0.0F, -100.0F, 0.0F, 0.0F};
-//        tempMat = new float[16];
-//        shaderUniforms = new ShaderUniforms();
-
-//        uniform_entityColor = shaderUniforms.make4f("entityColor");
-//        uniform_entityId = shaderUniforms.make1i("entityId");
-//        uniform_blockEntityId = shaderUniforms.make1i("blockEntityId");
-//        uniform_texture = shaderUniforms.make1i("texture");
-//        uniform_lightmap = shaderUniforms.make1i("lightmap");
-//        uniform_normals = shaderUniforms.make1i("normals");
-//        uniform_specular = shaderUniforms.make1i("specular");
-//        uniform_shadow = shaderUniforms.make1i("shadow");
-//        uniform_watershadow = shaderUniforms.make1i("watershadow");
-//        uniform_shadowtex0 = shaderUniforms.make1i("shadowtex0");
-//        uniform_shadowtex1 = shaderUniforms.make1i("shadowtex1");
-//        uniform_depthtex0 = shaderUniforms.make1i("depthtex0");
-//        uniform_depthtex1 = shaderUniforms.make1i("depthtex1");
-//        uniform_shadowcolor = shaderUniforms.make1i("shadowcolor");
-//        uniform_shadowcolor0 = shaderUniforms.make1i("shadowcolor0");
-//        uniform_shadowcolor1 = shaderUniforms.make1i("shadowcolor1");
-//        uniform_noisetex = shaderUniforms.make1i("noisetex");
-//        uniform_gcolor = shaderUniforms.make1i("gcolor");
-//        uniform_gdepth = shaderUniforms.make1i("gdepth");
-//        uniform_gnormal = shaderUniforms.make1i("gnormal");
-//        uniform_composite = shaderUniforms.make1i("composite");
-//        uniform_gaux1 = shaderUniforms.make1i("gaux1");
-//        uniform_gaux2 = shaderUniforms.make1i("gaux2");
-//        uniform_gaux3 = shaderUniforms.make1i("gaux3");
-//        uniform_gaux4 = shaderUniforms.make1i("gaux4");
-//        uniform_colortex0 = shaderUniforms.make1i("colortex0");
-//        uniform_colortex1 = shaderUniforms.make1i("colortex1");
-//        uniform_colortex2 = shaderUniforms.make1i("colortex2");
-//        uniform_colortex3 = shaderUniforms.make1i("colortex3");
-//        uniform_colortex4 = shaderUniforms.make1i("colortex4");
-//        uniform_colortex5 = shaderUniforms.make1i("colortex5");
-//        uniform_colortex6 = shaderUniforms.make1i("colortex6");
-//        uniform_colortex7 = shaderUniforms.make1i("colortex7");
-//        uniform_gdepthtex = shaderUniforms.make1i("gdepthtex");
-//        uniform_depthtex2 = shaderUniforms.make1i("depthtex2");
-//        uniform_tex = shaderUniforms.make1i("tex");
-//        uniform_heldItemId = shaderUniforms.make1i("heldItemId");
-//        uniform_heldBlockLightValue = shaderUniforms.make1i("heldBlockLightValue");
-//        uniform_heldItemId2 = shaderUniforms.make1i("heldItemId2");
-//        uniform_heldBlockLightValue2 = shaderUniforms.make1i("heldBlockLightValue2");
-//        uniform_fogMode = shaderUniforms.make1i("fogMode");
-//        uniform_fogDensity = shaderUniforms.make1f("fogDensity");
-//        uniform_fogColor = shaderUniforms.make3f("fogColor");
-//        uniform_skyColor = shaderUniforms.make3f("skyColor");
-//        uniform_worldTime = shaderUniforms.make1i("worldTime");
-//        uniform_worldDay = shaderUniforms.make1i("worldDay");
-//        uniform_moonPhase = shaderUniforms.make1i("moonPhase");
-//        uniform_frameCounter = shaderUniforms.make1i("frameCounter");
-//        uniform_frameTime = shaderUniforms.make1f("frameTime");
-//        uniform_frameTimeCounter = shaderUniforms.make1f("frameTimeCounter");
-//        uniform_sunAngle = shaderUniforms.make1f("sunAngle");
-//        uniform_shadowAngle = shaderUniforms.make1f("shadowAngle");
-//        uniform_rainStrength = shaderUniforms.make1f("rainStrength");
-//        uniform_aspectRatio = shaderUniforms.make1f("aspectRatio");
-//        uniform_viewWidth = shaderUniforms.make1f("viewWidth");
-//        uniform_viewHeight = shaderUniforms.make1f("viewHeight");
-//        uniform_near = shaderUniforms.make1f("near");
-//        uniform_far = shaderUniforms.make1f("far");
-//        uniform_sunPosition = shaderUniforms.make3f("sunPosition");
-//        uniform_moonPosition = shaderUniforms.make3f("moonPosition");
-//        uniform_shadowLightPosition = shaderUniforms.make3f("shadowLightPosition");
-//        uniform_upPosition = shaderUniforms.make3f("upPosition");
-//        uniform_previousCameraPosition = shaderUniforms.make3f("previousCameraPosition");
-//        uniform_cameraPosition = shaderUniforms.make3f("cameraPosition");
-//        uniform_gbufferModelView = shaderUniforms.makeM4("gbufferModelView");
-//        uniform_gbufferModelViewInverse = shaderUniforms.makeM4("gbufferModelViewInverse");
-//        uniform_gbufferPreviousProjection = shaderUniforms.makeM4("gbufferPreviousProjection");
-//        uniform_gbufferProjection = shaderUniforms.makeM4("gbufferProjection");
-//        uniform_gbufferProjectionInverse = shaderUniforms.makeM4("gbufferProjectionInverse");
-//        uniform_gbufferPreviousModelView = shaderUniforms.makeM4("gbufferPreviousModelView");
-//        uniform_shadowProjection = shaderUniforms.makeM4("shadowProjection");
-//        uniform_shadowProjectionInverse = shaderUniforms.makeM4("shadowProjectionInverse");
-//        uniform_shadowModelView = shaderUniforms.makeM4("shadowModelView");
-//        uniform_shadowModelViewInverse = shaderUniforms.makeM4("shadowModelViewInverse");
-//        uniform_wetness = shaderUniforms.make1f("wetness");
-//        uniform_eyeAltitude = shaderUniforms.make1f("eyeAltitude");
-//        uniform_eyeBrightness = shaderUniforms.make2i("eyeBrightness");
-//        uniform_eyeBrightnessSmooth = shaderUniforms.make2i("eyeBrightnessSmooth");
-//        uniform_terrainTextureSize = shaderUniforms.make2i("terrainTextureSize");
-//        uniform_terrainIconSize = shaderUniforms.make1i("terrainIconSize");
-//        uniform_isEyeInWater = shaderUniforms.make1i("isEyeInWater");
-//        uniform_nightVision = shaderUniforms.make1f("nightVision");
-//        uniform_blindness = shaderUniforms.make1f("blindness");
-//        uniform_screenBrightness = shaderUniforms.make1f("screenBrightness");
-//        uniform_hideGUI = shaderUniforms.make1i("hideGUI");
-//        uniform_centerDepthSmooth = shaderUniforms.make1f("centerDepthSmooth");
-//        uniform_atlasSize = shaderUniforms.make2i("atlasSize");
-//        uniform_blendFunc = shaderUniforms.make4i("blendFunc");
-//        shadowPassInterval = 0;
-//        needResizeShadow = false;
-//        shadowMapWidth = 1024;
-//        shadowMapHeight = 1024;
-//        spShadowMapWidth = 1024;
-//        spShadowMapHeight = 1024;
-//        shadowMapFOV = 90.0F;
-//        shadowMapHalfPlane = 160.0F;
-//        shadowMapIsOrtho = true;
-//        shadowDistanceRenderMul = -1.0F;
-//        shadowPassCounter = 0;
-//        shouldSkipDefaultShadow = false;
-//        waterShadowEnabled = false;
+        
         usedColorBuffers = 0;
         usedDepthBuffers = 0;
         usedShadowColorBuffers = 0;
@@ -772,6 +659,9 @@ public class PerDimensionContext {
         
         entityData = new int[32];
         entityDataIndex = 0;
+    
+        dfb = null;
+        sfb = null;
     }
     
 }

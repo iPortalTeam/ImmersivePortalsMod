@@ -17,6 +17,7 @@ import net.optifine.shaders.Program;
 import net.optifine.shaders.Shaders;
 import net.optifine.shaders.uniform.CustomUniforms;
 import net.optifine.shaders.uniform.ShaderUniforms;
+import net.optifine.util.LineBuffer;
 import org.lwjgl.BufferUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -123,7 +124,7 @@ public abstract class MixinShaders {
         }
     }
     
-    @Inject(method = "loadShaderPack", at = @At("TAIL"))
+    @Inject(method = "loadShaderPack", at = @At("RETURN"))
     private static void onShaderPackLoaded(CallbackInfo ci) {
         OFGlobal.shaderContextManager.updateTemplateContext();
     }
@@ -167,19 +168,25 @@ public abstract class MixinShaders {
         shouldModifyShaderCode = ShaderClippingManager.shouldModifyShaderCode(program);
     }
     
-//    @ModifyVariable(
-//        method = "createFragShader",
-//        at = @At(
-//            value = "FIELD",
-//            target = "Lnet/optifine/shaders/Shaders;saveFinalShaders:Z"
-//        )
-//    )
-//    private static StringBuilder modifyFragShaderCode(StringBuilder shaderCode) {
-//        if (!shouldModifyShaderCode) {
-//            return shaderCode;
-//        }
-//        return ShaderClippingManager.modifyFragShaderCode(shaderCode);
-//    }
+    @Redirect(
+        method = "createFragShader",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/optifine/util/LineBuffer;toString()Ljava/lang/String;"
+        )
+    )
+    private static String modifyFragShaderCode(LineBuffer lineBuffer) {
+        String result = lineBuffer.toString();
+        if (!shouldModifyShaderCode) {
+            return result;
+        }
+        
+        StringBuilder stringBuilder = new StringBuilder(result);
+        
+        StringBuilder modified = ShaderClippingManager.modifyFragShaderCode(stringBuilder);
+        
+        return modified.toString();
+    }
     
     @Inject(
         method = "useProgram",

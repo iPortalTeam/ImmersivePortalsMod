@@ -172,8 +172,6 @@ public class RendererMixed extends PortalRenderer {
             
             deferredFb.fb.endWrite();
         }
-        
-        OFGlobal.bindToShaderFrameBuffer.run();
     }
     
     private void updateNeedsPortalRendering() {
@@ -221,7 +219,7 @@ public class RendererMixed extends PortalRenderer {
         
         PortalRendering.pushPortalLayer(portal);
         
-        OFGlobal.bindToShaderFrameBuffer.run();
+//        OFGlobal.bindToShaderFrameBuffer.run();
         renderPortalContent(portal);
         
         int innerLayer = PortalRendering.getPortalLayer();
@@ -283,7 +281,7 @@ public class RendererMixed extends PortalRenderer {
             worldRenderInfo,
             runnable -> {
                 OFGlobal.shaderContextManager.switchContextAndRun(() -> {
-                    OFGlobal.bindToShaderFrameBuffer.run();
+//                    OFGlobal.bindToShaderFrameBuffer.run();
                     runnable.run();
                 });
             }
