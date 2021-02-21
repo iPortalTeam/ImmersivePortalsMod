@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -20,11 +19,6 @@ public class OFInterface {
     public static BooleanSupplier isShaders = returnFalse;
     
     public static BooleanSupplier isShadowPass = returnFalse;
-    
-    public static FloatConsumer beforeRenderCenter = f -> {
-    };
-    
-    public static Runnable afterRenderCenter = invokeNothing;
     
     public static Runnable resetViewport = invokeNothing;
     

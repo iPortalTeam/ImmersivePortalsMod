@@ -25,16 +25,6 @@ public class OFInterfaceInitializer {
         OFInterface.isShaders = Config::isShaders;
         OFInterface.isShadowPass = () -> Config.isShaders() && Shaders.isShadowPass;
         
-        OFInterface.beforeRenderCenter = (tickDelta) -> {
-            if (Config.isShaders()) {
-                MinecraftClient client = MinecraftClient.getInstance();
-                
-                Shaders.activeProgram = Shaders.ProgramNone;
-                Shaders.beginRender(client, client.gameRenderer.getCamera(), tickDelta, 0);
-            }
-            
-        };
-        OFInterface.afterRenderCenter = () -> Shaders.activeProgram = Shaders.ProgramNone;
         OFInterface.resetViewport = () -> {
             if (OFInterface.isShaders.getAsBoolean()) {
                 GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
