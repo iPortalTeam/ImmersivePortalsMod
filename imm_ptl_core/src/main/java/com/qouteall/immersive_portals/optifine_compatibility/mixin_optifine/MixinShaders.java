@@ -21,6 +21,7 @@ import net.optifine.util.LineBuffer;
 import org.lwjgl.BufferUtils;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -31,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+@Pseudo
 @Mixin(value = Shaders.class, remap = false)
 public abstract class MixinShaders {
     @Shadow

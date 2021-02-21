@@ -35,6 +35,7 @@ import org.lwjgl.opengl.GLCapabilities;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.awt.*;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 // ugly hack. don't look at it
+@Pseudo
 @Mixin(targets = "net.optifine.shaders.Shaders", remap = false)
 public abstract class MixinShaders_Swap {
     

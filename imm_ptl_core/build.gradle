@@ -6,5 +6,5 @@ minecraft {
 }
 
 dependencies {
-    compileOnly files('ofpre10.jar')
+    compileOnly files('ofdep.jar')
 }

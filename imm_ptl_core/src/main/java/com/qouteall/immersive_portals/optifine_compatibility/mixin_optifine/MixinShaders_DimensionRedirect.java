@@ -11,12 +11,14 @@ import net.optifine.shaders.IShaderPack;
 import net.optifine.shaders.ShaderPackDefault;
 import net.optifine.shaders.Shaders;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Pseudo
 @Mixin(value = Shaders.class)
 public class MixinShaders_DimensionRedirect {
     
