@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.miscellaneous.FPSMonitor;
+import com.qouteall.immersive_portals.mixin.client.particle.IEParticle;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.QueryManager;
@@ -217,6 +218,9 @@ public class RenderStates {
     }
     
     public static boolean shouldRenderParticle(Particle particle) {
+        if (((IEParticle) particle).portal_getWorld() != MinecraftClient.getInstance().world) {
+            return false;
+        }
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Vec3d particlePos = particle.getBoundingBox().getCenter();

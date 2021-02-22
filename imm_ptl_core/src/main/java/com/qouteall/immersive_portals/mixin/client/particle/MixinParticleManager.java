@@ -50,10 +50,8 @@ public class MixinParticleManager implements IEParticleManager {
         require = 0
     )
     private void redirectBuildGeometry(Particle particle, VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
-        if (((IEParticle) particle).portal_getWorld() == MinecraftClient.getInstance().world) {
-            if (RenderStates.shouldRenderParticle(particle)) {
-                particle.buildGeometry(vertexConsumer, camera, tickDelta);
-            }
+        if (RenderStates.shouldRenderParticle(particle)) {
+            particle.buildGeometry(vertexConsumer, camera, tickDelta);
         }
     }
     
