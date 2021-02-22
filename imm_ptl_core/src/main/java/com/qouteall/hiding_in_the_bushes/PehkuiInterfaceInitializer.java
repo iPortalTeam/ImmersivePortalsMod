@@ -69,6 +69,14 @@ public class PehkuiInterfaceInitializer {
     }
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
+        doScalingForEntity(entity, portal);
+        
+        if (entity.getVehicle() != null) {
+            doScalingForEntity(entity.getVehicle(), portal);
+        }
+    }
+    
+    private static void doScalingForEntity(Entity entity, Portal portal) {
         if (portal.hasScaling()) {
             if (!portal.teleportChangesScale) {
                 return;
