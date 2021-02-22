@@ -42,7 +42,7 @@ public class MixinParticleManager implements IEParticleManager {
     }
     
     @Redirect(
-        method = "renderParticles",
+        method = "*",//for optifine
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/particle/Particle;buildGeometry(Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/client/render/Camera;F)V"
