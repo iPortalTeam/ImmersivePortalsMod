@@ -88,7 +88,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         builtChunkBuffer.destroyAll();
         
         OFBuiltChunkStorageFix.onBuiltChunkStorageCleanup(this);
-    
+        
         isAlive = false;
     }
     
