@@ -140,6 +140,10 @@ public class OFBuiltChunkStorageFix {
     }
     
     public static void onBuiltChunkStorageCleanup(BuiltChunkStorage builtChunkStorage) {
+        if (!OFInterface.isOptifinePresent) {
+            return;
+        }
+        
         Helper.noError(() -> {
             BuiltChunkStorage_deleteVboRegions.invoke(builtChunkStorage);
             return null;

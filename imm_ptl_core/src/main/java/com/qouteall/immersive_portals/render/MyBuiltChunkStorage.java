@@ -46,6 +46,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private boolean shouldUpdateMainPresetNeighbor = true;
     private final ObjectBuffer<ChunkBuilder.BuiltChunk> builtChunkBuffer;
     
+    private boolean isAlive = true;
+    
     public MyBuiltChunkStorage(
         ChunkBuilder chunkBuilder,
         World world,
@@ -69,12 +71,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             () -> factory.new BuiltChunk(),
             ChunkBuilder.BuiltChunk::delete
         );
-        
-        ModMain.preGameRenderSignal.connectWithWeakRef(this, (this_) -> {
-            MinecraftClient.getInstance().getProfiler().push("reserve");
-            this_.builtChunkBuffer.reserveObjects(sizeX * sizeY * sizeZ / 100);
-            MinecraftClient.getInstance().getProfiler().pop();
-        });
     }
     
     @Override
@@ -90,6 +86,10 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         builtChunkMap.clear();
         presets.clear();
         builtChunkBuffer.destroyAll();
+        
+        OFBuiltChunkStorageFix.onBuiltChunkStorageCleanup(this);
+    
+        isAlive = false;
     }
     
     @Override
