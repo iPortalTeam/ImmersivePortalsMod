@@ -88,20 +88,24 @@ public class PortalAPI {
     public static void addGlobalPortal(
         ServerWorld world, Portal portal
     ) {
+        McHelper.validateOnServerThread();
         GlobalPortalStorage.get(world).addPortal(portal);
     }
     
     public static void removeGlobalPortal(
         ServerWorld world, Portal portal
     ) {
+        McHelper.validateOnServerThread();
         GlobalPortalStorage.get(world).removePortal(portal);
     }
     
     public static void addChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
+        McHelper.validateOnServerThread();
         NewChunkTrackingGraph.addPerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
     
     public static void removeChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
+        McHelper.validateOnServerThread();
         NewChunkTrackingGraph.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
     }
 }
