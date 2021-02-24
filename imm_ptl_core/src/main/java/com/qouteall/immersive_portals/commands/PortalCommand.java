@@ -185,14 +185,23 @@ public class PortalCommand {
             })
         );
         
-        builder.then(CommandManager
-            .literal("set_profiler_logging_threshold")
-            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-            .then(CommandManager.argument("ms", IntegerArgumentType.integer())
+        builder.then(CommandManager.literal("profile")
+            .then(CommandManager
+                .literal("set_lag_logging_threshold")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .then(CommandManager.argument("ms", IntegerArgumentType.integer())
+                    .executes(context -> {
+                        int ms = IntegerArgumentType.getInteger(context, "ms");
+                        ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
+                        
+                        return 0;
+                    })
+                )
+            ).then(CommandManager
+                .literal("gc")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .executes(context -> {
-                    int ms = IntegerArgumentType.getInteger(context, "ms");
-                    ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
-                    
+                    System.gc();
                     return 0;
                 })
             )

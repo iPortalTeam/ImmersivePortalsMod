@@ -66,7 +66,6 @@ import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import java.lang.ref.Reference;
-import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -451,31 +450,35 @@ public class ClientDebugCommand {
             })
         );
         builder.then(CommandManager
-            .literal("is_altius")
+            .literal("test")
             .executes(context -> {
-                
-                Object obj = Helper.noError(
-                    () -> {
-                        Class<?> cls = Class.forName("com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo");
-                        Method method = cls.getDeclaredMethod("isAltius");
-                        return method.invoke(null);
-                    }
-                );
-                
-                boolean altius = ((Boolean) obj);
-                
-                if (altius) {
-                    context.getSource().sendFeedback(
-                        new LiteralText("yes"),
-                        false
-                    );
-                }
-                else {
-                    context.getSource().sendFeedback(
-                        new LiteralText("no"),
-                        false
-                    );
-                }
+//                ServerWorld serverWorld = context.getSource().getWorld();
+//                Portal portal = Portal.entityType.create(serverWorld);
+//
+//                portal.setOriginPos(new Vec3d(0, 70, 0));
+//                portal.setDestinationDimension(World.NETHER);
+//                portal.setDestination(new Vec3d(100, 70, 100));
+//                portal.setOrientationAndSize(
+//                    new Vec3d(1, 0, 0),
+//                    new Vec3d(0, 1, 0),
+//                    4,
+//                    4
+//                );
+//
+//                portal.world.spawnEntity(portal);
+//
+//                ServerPlayerEntity serverPlayerEntity = context.getSource().getPlayer();
+//
+//                PortalAPI.addChunkLoaderForPlayer(
+//                    serverPlayerEntity, new ChunkLoader(
+//                        new DimensionalChunkPos(
+//                            World.OVERWORLD,
+//                            100,//x
+//                            100//z
+//                        ),
+//                        3//radius
+//                    )
+//                );
                 
                 return 0;
             })
