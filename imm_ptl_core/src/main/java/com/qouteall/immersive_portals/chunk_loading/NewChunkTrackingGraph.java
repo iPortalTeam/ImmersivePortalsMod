@@ -454,7 +454,7 @@ public class NewChunkTrackingGraph {
         ServerPlayerEntity player,
         ChunkLoader chunkLoader
     ) {
-        getPlayerInfo(player).additionalChunkLoaders.removeIf(w -> w == chunkLoader);
+        getPlayerInfo(player).additionalChunkLoaders.remove(chunkLoader);
     }
     
     public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {
