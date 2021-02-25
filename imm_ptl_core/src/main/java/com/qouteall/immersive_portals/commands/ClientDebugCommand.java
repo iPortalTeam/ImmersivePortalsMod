@@ -452,33 +452,25 @@ public class ClientDebugCommand {
         builder.then(CommandManager
             .literal("test")
             .executes(context -> {
-//                ServerWorld serverWorld = context.getSource().getWorld();
-//                Portal portal = Portal.entityType.create(serverWorld);
+//                IPDimensionAPI.onServerWorldInit.connect((generatorOptions, registryManager) -> {
+//                    SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
+//                    long seed = generatorOptions.getSeed();
 //
-//                portal.setOriginPos(new Vec3d(0, 70, 0));
-//                portal.setDestinationDimension(World.NETHER);
-//                portal.setDestination(new Vec3d(100, 70, 100));
-//                portal.setOrientationAndSize(
-//                    new Vec3d(1, 0, 0),
-//                    new Vec3d(0, 1, 0),
-//                    4,
-//                    4
-//                );
+//                    DimensionType dimensionType = registryManager.get(Registry.DIMENSION_TYPE_KEY)
+//                        .get(new Identifier("namespace:dimension_type_id"));
 //
-//                portal.world.spawnEntity(portal);
+//                    Validate.notNull(dimensionType);
 //
-//                ServerPlayerEntity serverPlayerEntity = context.getSource().getPlayer();
+//                    MutableRegistry<Biome> biomeRegistry = registryManager.get(Registry.BIOME_KEY);
+//                    BiomeSource biomeSource = new CustomBiomeSource(seed, biomeRegistry);
 //
-//                PortalAPI.addChunkLoaderForPlayer(
-//                    serverPlayerEntity, new ChunkLoader(
-//                        new DimensionalChunkPos(
-//                            World.OVERWORLD,
-//                            100,//x
-//                            100//z
-//                        ),
-//                        3//radius
-//                    )
-//                );
+//                    Identifier dimensionId = new Identifier("namespace:dimension_id");
+//                    IPDimensionAPI.addDimension(
+//                        seed, registry, dimensionId, () -> dimensionType,
+//                        new CustomChunkGenerator(seed,biomeSource)
+//                    );
+//                    IPDimensionAPI.markDimensionNonPersistent(dimensionId);
+//                });
                 
                 return 0;
             })

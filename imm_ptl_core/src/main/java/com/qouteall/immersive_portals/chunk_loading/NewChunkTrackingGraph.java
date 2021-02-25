@@ -122,7 +122,7 @@ public class NewChunkTrackingGraph {
     
     public static class PlayerInfo {
         public final Set<RegistryKey<World>> visibleDimensions = new HashSet<>();
-        public final ArrayList<WeakReference<ChunkLoader>> additionalChunkLoaders
+        public final ArrayList<ChunkLoader> additionalChunkLoaders
             = new ArrayList<>();
         
         public PlayerInfo() {
@@ -153,9 +153,8 @@ public class NewChunkTrackingGraph {
         ChunkVisibility.getBaseChunkLoaders(player)
             .forEach(chunkLoader -> updatePlayerForChunkLoader(player, gameTime, chunkLoader));
         
-        playerInfo.additionalChunkLoaders.removeIf(w -> w.get() == null);
         playerInfo.additionalChunkLoaders.forEach(l -> {
-            ChunkLoader chunkLoader = l.get();
+            ChunkLoader chunkLoader = l;
             assert chunkLoader != null;
             updatePlayerForChunkLoader(player, gameTime, chunkLoader);
         });
@@ -448,14 +447,14 @@ public class NewChunkTrackingGraph {
         ServerPlayerEntity player,
         ChunkLoader chunkLoader
     ) {
-        getPlayerInfo(player).additionalChunkLoaders.add(new WeakReference<>(chunkLoader));
+        getPlayerInfo(player).additionalChunkLoaders.add(chunkLoader);
     }
     
     public static void removePerPlayerAdditionalChunkLoader(
         ServerPlayerEntity player,
         ChunkLoader chunkLoader
     ) {
-        getPlayerInfo(player).additionalChunkLoaders.removeIf(w -> w.get() == chunkLoader);
+        getPlayerInfo(player).additionalChunkLoaders.removeIf(w -> w == chunkLoader);
     }
     
     public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {
