@@ -88,7 +88,7 @@ public class MyConfig {
                 }
                 return result;
             }
-            catch (IOException e) {
+            catch (Throwable e) {
                 e.printStackTrace();
                 return new MyConfig();
             }
