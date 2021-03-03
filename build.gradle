@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.5-SNAPSHOT'
+    id 'fabric-loom' version '0.6-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -68,7 +68,7 @@ allprojects {
         modCompileOnly "me.shedaniel.cloth:config-${cloth_config_version}"
         modCompileOnly "io.github.prospector:modmenu:${modmenu_version}"
 
-        modImplementation 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
+        modCompileOnly 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
 //        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
