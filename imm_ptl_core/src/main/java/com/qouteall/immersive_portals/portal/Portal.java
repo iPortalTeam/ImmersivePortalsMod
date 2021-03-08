@@ -251,10 +251,11 @@ public class Portal extends Entity implements PortalLike {
     
     /**
      * Update the portal's cache and send the entity spawn packet to client again
+     * Call this when you changed the portal after spawning the portal
      */
     public void reloadAndSyncToClient() {
         Validate.isTrue(!isGlobalPortal);
-        Validate.isTrue(!world.isClient());
+        Validate.isTrue(!world.isClient(), "must be used on server side");
         updateCache();
         McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
     }

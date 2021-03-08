@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MyConfig {
+    // json does not allow comments...
+    public String check_the_wiki_for_more_information = "https://qouteall.fun/immptl/wiki/Config-Options";
     
     public int maxPortalLayer = 5;
     public boolean lagAttackProof = true;

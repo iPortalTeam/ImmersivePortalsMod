@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.WorldChunk;
+import org.apache.commons.lang3.Validate;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -112,6 +113,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
     @Override
     public void resendSpawnPacketToTrackers(Entity entity) {
         Object tracker = entityTrackers.get(entity.getEntityId());
+        Validate.notNull(tracker, "entity not yet tracked");
         ((IEEntityTracker) tracker).resendSpawnPacketToTrackers();
     }
     

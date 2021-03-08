@@ -68,7 +68,9 @@ allprojects {
         modCompileOnly "me.shedaniel.cloth:config-${cloth_config_version}"
         modCompileOnly "io.github.prospector:modmenu:${modmenu_version}"
 
-        modCompileOnly 'com.github.Virtuoel:Pehkui:1.17-SNAPSHOT'
+        modImplementation ('com.github.Virtuoel:Pehkui:1.17-SNAPSHOT') {
+            transitive = false
+        }
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
 //        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
@@ -157,10 +159,6 @@ publishing {
     }
 }
 
-repositories {
-
-}
-
 dependencies {
     modImplementation "me.shedaniel.cloth:config-${cloth_config_version}"
     modImplementation "io.github.prospector:modmenu:${modmenu_version}"
@@ -185,12 +183,6 @@ dependencies {
 //        transitive = false
 //    }
 
-    afterEvaluate {
-        subprojects.each {
-            compile project(path: ":${it.name}")
-            include project("${it.name}:")
-        }
-    }
 
 //    fileTree(dir: 'deps', include: '*.jar').each {
 //        String baseName = it.name.replace(".jar", "")
@@ -210,6 +202,15 @@ dependencies {
 ////        modCompileOnly name
 ////        modRuntime name
 //    }
+}
+
+dependencies {
+    afterEvaluate {
+        subprojects.each {
+            compile project(path: ":${it.name}")
+            include project("${it.name}:")
+        }
+    }
 }
 
 task printClasspath {
