@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.client.sound;
 
-import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.teleportation.CrossPortalSound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.EntityTrackingSoundInstance;
@@ -40,7 +40,7 @@ public class MixinClientWorld_Sound {
         
         if (!portal_isPosNearPlayer(soundPos)) {
             Vec3d transformedSoundPosition =
-                ClientWorldLoader.getTransformedSoundPosition(this_, soundPos);
+                CrossPortalSound.getTransformedSoundPosition(this_, soundPos);
             if (transformedSoundPosition != null) {
                 portal_playSound(
                     transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z,
@@ -64,7 +64,7 @@ public class MixinClientWorld_Sound {
         
         if (!portal_isPosNearPlayer(entity.getPos())) {
             Vec3d entityPos = entity.getPos();
-            Vec3d transformedSoundPosition = ClientWorldLoader.getTransformedSoundPosition(
+            Vec3d transformedSoundPosition = CrossPortalSound.getTransformedSoundPosition(
                 this_, entityPos
             );
             
