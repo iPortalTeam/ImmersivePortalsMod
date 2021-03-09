@@ -22,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
 
@@ -32,6 +33,7 @@ public class CollisionHelper {
     //cut a box with a plane
     //the facing that normal points to will be remained
     //return null for empty box
+    @Nullable
     private static Box clipBox(Box box, Vec3d planePos, Vec3d planeNormal) {
         
         boolean xForward = planeNormal.x > 0;
@@ -243,10 +245,10 @@ public class CollisionHelper {
     ) {
         //cut the collision box a little bit more for horizontal portals
         //because the box will be stretched by attemptedMove when calculating collision
-        Vec3d cullingPos = portal.getOriginPos().subtract(attemptedMove);
+        Vec3d clippingPos = portal.getOriginPos().subtract(attemptedMove);
         return clipBox(
             originalBox,
-            cullingPos,
+            clippingPos,
             portal.getNormal()
         );
     }
