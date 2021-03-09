@@ -307,6 +307,11 @@ public class PortalRenderingGroup implements PortalLike {
     }
     
     @Override
+    public boolean getDoRenderPlayer() {
+        return portals.get(0).getDoRenderPlayer();
+    }
+    
+    @Override
     public String toString() {
         return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
     }

@@ -86,6 +86,8 @@ public interface PortalLike {
     
     boolean isFuseView();
     
+    boolean getDoRenderPlayer();
+    
     default boolean hasScaling() {
         return getScale() != 1.0;
     }

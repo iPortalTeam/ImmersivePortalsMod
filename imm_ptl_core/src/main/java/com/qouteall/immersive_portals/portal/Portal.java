@@ -177,6 +177,11 @@ public class Portal extends Entity implements PortalLike {
      */
     public boolean hasCrossPortalCollision = true;
     
+    /**
+     * Whether to render player inside this portal
+     */
+    public boolean doRenderPlayer = true;
+    
     @Nullable
     public List<String> commandsOnTeleported;
     
@@ -426,6 +431,11 @@ public class Portal extends Entity implements PortalLike {
         return rotation;
     }
     
+    @Override
+    public boolean getDoRenderPlayer() {
+        return doRenderPlayer;
+    }
+    
     public void setOrientationAndSize(
         Vec3d newAxisW, Vec3d newAxisH,
         double newWidth, double newHeight
@@ -543,6 +553,10 @@ public class Portal extends Entity implements PortalLike {
             commandsOnTeleported = null;
         }
         
+        if (compoundTag.contains("doRenderPlayer")) {
+            doRenderPlayer = compoundTag.getBoolean("doRenderPlayer");
+        }
+        
         readPortalDataSignal.emit(this, compoundTag);
         
         updateCache();
@@ -595,6 +609,8 @@ public class Portal extends Entity implements PortalLike {
         compoundTag.putBoolean("renderingMergable", renderingMergable);
         
         compoundTag.putBoolean("hasCrossPortalCollision", hasCrossPortalCollision);
+        
+        compoundTag.putBoolean("doRenderPlayer", doRenderPlayer);
         
         if (commandsOnTeleported != null) {
             ListTag list = new ListTag();

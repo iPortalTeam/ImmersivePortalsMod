@@ -24,6 +24,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -232,6 +233,10 @@ public class CrossPortalEntityRenderer {
                 return;
             }
             
+            if (!transformingPortal.getDoRenderPlayer()) {
+                return;
+            }
+            
             if (client.options.getPerspective().isFirstPerson()) {
                 //avoid rendering player too near and block view
                 double dis = newEyePos.distanceTo(cameraPos);
@@ -329,6 +334,10 @@ public class CrossPortalEntityRenderer {
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();
+            
+            if (entity instanceof PlayerEntity && !renderingPortal.getDoRenderPlayer()) {
+                return false;
+            }
             
             // client colliding portal update is not immediate
             if (collidingPortal != null && !(entity instanceof ClientPlayerEntity)) {
