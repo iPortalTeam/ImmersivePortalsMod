@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Iterator;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 //NOTE if the task returns true, it will be deleted
 //if the task returns false, it will be invoked again at next time
@@ -196,5 +198,13 @@ public class MyTaskList {
             
             return !peekingIterator.hasNext();
         };
+    }
+    
+    public static MyTask repeat(int number, Supplier<MyTask> taskConstructor) {
+        return chainTasks(
+            Stream.generate(taskConstructor)
+                .limit(number)
+                .iterator()
+        );
     }
 }

@@ -14,8 +14,11 @@ import com.mojang.datafixers.util.Pair;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.api.PortalAPI;
 import com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering;
 import com.qouteall.immersive_portals.my_util.IntBox;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.network.McRemoteProcedureCall;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
@@ -26,7 +29,12 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
 import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
+import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ColumnPosArgumentType;
@@ -52,17 +60,22 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.ProfilerSystem;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1367,6 +1380,35 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager
+            .literal("create_connected_rooms")
+            .then(CommandManager
+                .argument("areaPos1", BlockPosArgumentType.blockPos())
+                .then(CommandManager
+                    .argument("areaPos2", BlockPosArgumentType.blockPos())
+                    .then(CommandManager
+                        .literal("roomNumber")
+                        .then(CommandManager
+                            .argument("roomNumber", IntegerArgumentType.integer(1, 500))
+                            .executes(context -> {
+                                BlockPos p1 = BlockPosArgumentType.getBlockPos(context, "areaPos1");
+                                BlockPos p2 = BlockPosArgumentType.getBlockPos(context, "areaPos2");
+                                int roomNumber = IntegerArgumentType.getInteger(context, "roomNumber");
+                                
+                                createConnectedRooms(
+                                    context.getSource().getWorld(),
+                                    p1, p2, roomNumber,
+                                    text -> context.getSource().sendFeedback(text, false)
+                                );
+                                
+                                return 0;
+                            })
+                        )
+                    )
+                )
+            )
+        );
+        
+        builder.then(CommandManager
             .literal("wiki")
             .executes(context -> {
                 McRemoteProcedureCall.tellClientToInvoke(
@@ -1376,6 +1418,115 @@ public class PortalCommand {
                 return 0;
             })
         );
+    }
+    
+    private static void createConnectedRooms(
+        ServerWorld world,
+        BlockPos p1, BlockPos p2, int roomNumber,
+        Consumer<Text> feedbackSender
+    ) {
+        IntBox firstRoom = new IntBox(p1, p2);
+        IntBox firstRoomArea = firstRoom.getAdjusted(-1, -1, -1, 1, 1, 1);
+        BlockPos roomAreaSize = firstRoomArea.getSize();
+        
+        fillRoomFrame(world, firstRoomArea, getRandomBlock());
+        
+        List<IntBox> roomAreaList = new ArrayList<>();
+        roomAreaList.add(firstRoomArea);
+        
+        Helper.SimpleBox<BlockPos> currentSearchingCenter =
+            new Helper.SimpleBox<>(firstRoom.getCenter());
+        
+        ModMain.serverTaskList.addTask(MyTaskList.chainTask(
+            MyTaskList.repeat(
+                roomNumber - 1,
+                () -> MyTaskList.withDelay(20, MyTaskList.oneShotTask(() -> {
+                    
+                    currentSearchingCenter.obj = currentSearchingCenter.obj.add(getRandomShift(20));
+                    
+                    IntBox airCube = NetherPortalMatcher.findCubeAirAreaAtAnywhere(
+                        roomAreaSize.add(6, 6, 6),
+                        world,
+                        currentSearchingCenter.obj,
+                        128
+                    );
+                    if (airCube == null) {
+                        feedbackSender.accept(new LiteralText("Cannot find space for placing room"));
+                        return;
+                    }
+                    airCube = airCube.getSubBoxInCenter(roomAreaSize);
+                    
+                    fillRoomFrame(world, airCube, getRandomBlock());
+                    roomAreaList.add(airCube);
+                }))
+            ),
+            MyTaskList.oneShotTask(() -> {
+                Stream<IntBox> roomsStream = Stream.concat(
+                    roomAreaList.stream(),
+                    Stream.of(firstRoomArea)
+                );
+                Helper.wrapAdjacentAndMap(
+                    roomsStream, Pair::new
+                ).forEach(pair -> {
+                    BlockPos roomSpaceSize = firstRoom.getSize();
+                    
+                    IntBox room1Area = pair.getFirst();
+                    IntBox room2Area = pair.getSecond();
+                    IntBox room1 = room1Area.getAdjusted(1, 1, 1, -1, -1, -1);
+                    IntBox room2 = room2Area.getAdjusted(1, 1, 1, -1, -1, -1);
+                    
+                    Portal portal = Portal.entityType.create(world);
+                    Validate.notNull(portal);
+                    portal.setOriginPos(room1.getCenterVec().add(
+                        roomSpaceSize.getX() / 4.0, 0, 0
+                    ));
+                    portal.setDestinationDimension(world.getRegistryKey());
+                    portal.setDestination(room2.getCenterVec().add(
+                        roomSpaceSize.getX() / 4.0, 0, 0
+                    ));
+                    portal.setOrientationAndSize(
+                        new Vec3d(1, 0, 0),
+                        new Vec3d(0, 1, 0),
+                        roomSpaceSize.getX() / 2.0,
+                        roomSpaceSize.getY()
+                    );
+                    portal.portalTag = "imm_ptl:room_connection";
+                    
+                    McHelper.spawnServerEntity(portal);
+                    
+                    Portal reversePortal = PortalAPI.createReversePortal(portal);
+                    McHelper.spawnServerEntity(reversePortal);
+                });
+                
+                feedbackSender.accept(new LiteralText("finished"));
+            })
+        ));
+    }
+    
+    private static BlockState getRandomBlock() {
+        Random random = new Random();
+        
+        for (; ; ) {
+            Block block = Registry.BLOCK.getRandom(random);
+            BlockState state = block.getDefaultState();
+            Material material = state.getMaterial();
+            if (material.blocksMovement() && material.getPistonBehavior() == PistonBehavior.NORMAL
+                && !material.isLiquid()
+            ) {
+                return state;
+            }
+        }
+    }
+    
+    private static void fillRoomFrame(
+        ServerWorld world, IntBox roomArea, BlockState blockState
+    ) {
+        for (Direction direction : Direction.values()) {
+            IntBox surface = roomArea.getSurfaceLayer(direction);
+            surface.fastStream().forEach(blockPos -> {
+                world.setBlockState(blockPos, blockState);
+            });
+        }
     }
     
     
@@ -1741,6 +1892,15 @@ public class PortalCommand {
         }
         
         return numTeleported;
+    }
+    
+    public static BlockPos getRandomShift(int len) {
+        Random rand = new Random();
+        return new BlockPos(
+            (rand.nextDouble() * 2 - 1) * len,
+            (rand.nextDouble() * 2 - 1) * len,
+            (rand.nextDouble() * 2 - 1) * len
+        );
     }
     
     public static interface PortalConsumerThrowsCommandSyntaxException {

@@ -10,7 +10,6 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class IntrinsicPortalGeneration {
     public static final IntrinsicNetherPortalForm intrinsicNetherPortalForm =
@@ -47,7 +46,6 @@ public class IntrinsicPortalGeneration {
         false, portalHelperForm,
         null, new ArrayList<>()
     );
-    public final static int randomShiftFactor = 20;
     
     public static void init() {
         intrinsicToNether.identifier = new Identifier("imm_ptl:intrinsic_nether_portal");
@@ -81,15 +79,6 @@ public class IntrinsicPortalGeneration {
         }
         
         return false;
-    }
-    
-    public static BlockPos getRandomShift() {
-        Random rand = new Random();
-        return new BlockPos(
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor,
-            (rand.nextDouble() * 2 - 1) * randomShiftFactor
-        );
     }
     
     public static boolean activatePortalHelper(

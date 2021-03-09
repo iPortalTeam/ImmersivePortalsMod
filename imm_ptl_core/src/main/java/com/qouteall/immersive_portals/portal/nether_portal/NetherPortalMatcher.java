@@ -46,7 +46,7 @@ public class NetherPortalMatcher {
         }
         
         if (airCube == null) {
-            Helper.log("Cannot Find Portal Placement on Non Solid Surface");
+            Helper.log("Cannot Find Portal Placement on Solid Surface");
             return null;
         }
         
@@ -176,14 +176,15 @@ public class NetherPortalMatcher {
             isGroundBlock(world.getBlockState(blockPos.add(0, -1, 0)));
     }
     
-    static IntBox findCubeAirAreaAtAnywhere(
+    public static IntBox findCubeAirAreaAtAnywhere(
         BlockPos areaSize,
         WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius
     ) {
         return BlockTraverse.searchColumned(
-            searchingCenter.getX(), searchingCenter.getZ(),
+            searchingCenter.getX() - (areaSize.getX() / 2),
+            searchingCenter.getZ() - (areaSize.getZ() / 2),
             findingRadius,
             5, world.getDimensionHeight() - 5,
             mutable -> {
