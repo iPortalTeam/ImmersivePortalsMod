@@ -381,8 +381,11 @@ public class CollisionHelper {
         );
     }
     
-    private static Box getStretchedBoundingBox(Entity entity) {
-        return entity.getBoundingBox().stretch(entity.getVelocity());
+    public static Box getStretchedBoundingBox(Entity entity) {
+        // the velocity updates later after updating colliding portal
+        // expand the velocity to avoid not collide with portal in time
+        Vec3d expand = entity.getVelocity().multiply(1.3);
+        return entity.getBoundingBox().stretch(expand);
     }
     
     @Environment(EnvType.CLIENT)

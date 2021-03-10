@@ -205,7 +205,8 @@ public abstract class MixinEntity implements IEEntity {
                 collidingPortal = null;
             }
             else {
-                if (!getBoundingBox().expand(0.5).intersects(collidingPortal.getBoundingBox())) {
+                Box stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
+                if (!stretchedBoundingBox.intersects(collidingPortal.getBoundingBox())) {
                     collidingPortal = null;
                 }
             }
