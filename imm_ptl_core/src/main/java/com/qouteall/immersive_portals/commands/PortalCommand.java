@@ -31,10 +31,14 @@ import com.qouteall.immersive_portals.portal.global_portals.WorldWrappingPortal;
 import com.qouteall.immersive_portals.portal.nether_portal.BreakablePortalEntity;
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalMatcher;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ColumnPosArgumentType;
@@ -228,6 +232,22 @@ public class PortalCommand {
                     createCommandStickCommandSignal.emit(
                         context.getSource().getPlayer(),
                         StringArgumentType.getString(context, "command")
+                    );
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("accelerate")
+            .then(CommandManager
+                .argument("v", DoubleArgumentType.doubleArg())
+                .executes(context -> {
+                    double v = DoubleArgumentType.getDouble(context, "v");
+                    McRemoteProcedureCall.tellClientToInvoke(
+                        context.getSource().getPlayer(),
+                        "com.qouteall.immersive_portals.commands.PortalCommand.RemoteCallables.clientAccelerate",
+                        v
                     );
                     return 0;
                 })
@@ -2016,5 +2036,18 @@ public class PortalCommand {
         return new Vec3d(
             Math.sin(radians), 0, Math.cos(radians)
         );
+    }
+    
+    public static class RemoteCallables {
+        @Environment(EnvType.CLIENT)
+        public static void clientAccelerate(double v) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            
+            ClientPlayerEntity player = client.player;
+            
+            player.setVelocity(
+                player.getRotationVec(1).multiply(v / 20)
+            );
+        }
     }
 }
