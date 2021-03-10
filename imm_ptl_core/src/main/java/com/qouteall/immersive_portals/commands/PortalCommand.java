@@ -1382,21 +1382,23 @@ public class PortalCommand {
         builder.then(CommandManager
             .literal("create_connected_rooms")
             .then(CommandManager
-                .argument("areaPos1", BlockPosArgumentType.blockPos())
+                .literal("roomSize")
                 .then(CommandManager
-                    .argument("areaPos2", BlockPosArgumentType.blockPos())
+                    .argument("roomSize", BlockPosArgumentType.blockPos())
                     .then(CommandManager
                         .literal("roomNumber")
                         .then(CommandManager
-                            .argument("roomNumber", IntegerArgumentType.integer(1, 500))
+                            .argument("roomNumber", IntegerArgumentType.integer(2, 500))
                             .executes(context -> {
-                                BlockPos p1 = BlockPosArgumentType.getBlockPos(context, "areaPos1");
-                                BlockPos p2 = BlockPosArgumentType.getBlockPos(context, "areaPos2");
+                                BlockPos roomSize =
+                                    BlockPosArgumentType.getBlockPos(context, "roomSize");
                                 int roomNumber = IntegerArgumentType.getInteger(context, "roomNumber");
                                 
                                 createConnectedRooms(
                                     context.getSource().getWorld(),
-                                    p1, p2, roomNumber,
+                                    new BlockPos(context.getSource().getPosition()),
+                                    roomSize,
+                                    roomNumber,
                                     text -> context.getSource().sendFeedback(text, false)
                                 );
                                 
@@ -1421,25 +1423,20 @@ public class PortalCommand {
     }
     
     private static void createConnectedRooms(
-        ServerWorld world,
-        BlockPos p1, BlockPos p2, int roomNumber,
+        ServerWorld world, BlockPos startingPos,
+        BlockPos roomSize, int roomNumber,
         Consumer<Text> feedbackSender
     ) {
-        IntBox firstRoom = new IntBox(p1, p2);
-        IntBox firstRoomArea = firstRoom.getAdjusted(-1, -1, -1, 1, 1, 1);
-        BlockPos roomAreaSize = firstRoomArea.getSize();
-        
-        fillRoomFrame(world, firstRoomArea, getRandomBlock());
+        BlockPos roomAreaSize = roomSize.add(2, 2, 2);
         
         List<IntBox> roomAreaList = new ArrayList<>();
-        roomAreaList.add(firstRoomArea);
         
         Helper.SimpleBox<BlockPos> currentSearchingCenter =
-            new Helper.SimpleBox<>(firstRoom.getCenter());
+            new Helper.SimpleBox<>(startingPos);
         
         ModMain.serverTaskList.addTask(MyTaskList.chainTask(
             MyTaskList.repeat(
-                roomNumber - 1,
+                roomNumber,
                 () -> MyTaskList.withDelay(20, MyTaskList.oneShotTask(() -> {
                     
                     currentSearchingCenter.obj = currentSearchingCenter.obj.add(getRandomShift(20));
@@ -1463,12 +1460,11 @@ public class PortalCommand {
             MyTaskList.oneShotTask(() -> {
                 Stream<IntBox> roomsStream = Stream.concat(
                     roomAreaList.stream(),
-                    Stream.of(firstRoomArea)
+                    Stream.of(roomAreaList.get(0))
                 );
                 Helper.wrapAdjacentAndMap(
                     roomsStream, Pair::new
                 ).forEach(pair -> {
-                    BlockPos roomSpaceSize = firstRoom.getSize();
                     
                     IntBox room1Area = pair.getFirst();
                     IntBox room2Area = pair.getSecond();
@@ -1478,17 +1474,17 @@ public class PortalCommand {
                     Portal portal = Portal.entityType.create(world);
                     Validate.notNull(portal);
                     portal.setOriginPos(room1.getCenterVec().add(
-                        roomSpaceSize.getX() / 4.0, 0, 0
+                        roomSize.getX() / 4.0, 0, 0
                     ));
                     portal.setDestinationDimension(world.getRegistryKey());
                     portal.setDestination(room2.getCenterVec().add(
-                        roomSpaceSize.getX() / 4.0, 0, 0
+                        roomSize.getX() / 4.0, 0, 0
                     ));
                     portal.setOrientationAndSize(
                         new Vec3d(1, 0, 0),
                         new Vec3d(0, 1, 0),
-                        roomSpaceSize.getX() / 2.0,
-                        roomSpaceSize.getY()
+                        roomSize.getX() / 2.0,
+                        roomSize.getY()
                     );
                     portal.portalTag = "imm_ptl:room_connection";
                     
