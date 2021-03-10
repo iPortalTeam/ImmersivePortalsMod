@@ -320,7 +320,7 @@ public class CollisionHelper {
                 for (Portal globalPortal : globalPortals) {
                     Box globalPortalBoundingBox = globalPortal.getBoundingBox();
                     if (entityBoundingBoxStretched.intersects(globalPortalBoundingBox)) {
-                        if (canCollideWithPortal(entity, globalPortal, 1)) {
+                        if (canCollideWithPortal(entity, globalPortal, 0)) {
                             ((IEEntity) entity).notifyCollidingWithPortal(globalPortal);
                         }
                     }
