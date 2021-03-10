@@ -139,9 +139,12 @@ public abstract class PortalRenderer {
         }
         
         if (CGlobal.earlyFrustumCullingPortal) {
-            Frustum frustum = frustumSupplier.get();
-            if (!frustum.isVisible(portal.getExactAreaBox())) {
-                return true;
+            // frustum culling does not work when portal is very close
+            if (portal.getDistanceToNearestPointInPortal(cameraPos) > 0.03) {
+                Frustum frustum = frustumSupplier.get();
+                if (!frustum.isVisible(portal.getExactAreaBox())) {
+                    return true;
+                }
             }
         }
         return false;

@@ -108,6 +108,7 @@ public class RenderStates {
         updateIsLaggy();
         
         debugText = "";
+//        debugText = originalCamera.getPos().toString();
         
         QueryManager.queryStallCounter = 0;
         
