@@ -124,7 +124,7 @@ public class OFBuiltChunkStorageFix {
                 for (ChunkBuilder.BuiltChunk renderChunk : chunks) {
                     BlockPos neighborPos = renderChunk.getNeighborPosition(facing);
                     ChunkBuilder.BuiltChunk neighbour =
-                        storage.myGetRenderChunkRaw(neighborPos, chunks);
+                        storage.getSectionFromRawArray(neighborPos, chunks);
                     
                     ((IEOFBuiltChunk) renderChunk).ip_setRenderChunkNeighbour(
                         facing, neighbour

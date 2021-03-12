@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.ObjectBuffer;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkStorageFix;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.WorldRenderer;
@@ -20,31 +21,40 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 public class MyBuiltChunkStorage extends BuiltChunkStorage {
-    
+    public static class Column {
+        public long mark = 0;
+        public ChunkBuilder.BuiltChunk[] chunks;
+        
+        public Column(ChunkBuilder.BuiltChunk[] chunks) {
+            this.chunks = chunks;
+        }
+    }
     
     public static class Preset {
-        public ChunkBuilder.BuiltChunk[] data;
-        public long lastActiveTime;
+        public final ChunkBuilder.BuiltChunk[] data;
+        public long lastActiveTime = 0;
         public boolean isNeighborUpdated;
         
-        public Preset(ChunkBuilder.BuiltChunk[] data, boolean isNeighborUpdated) {
+        public Preset(
+            ChunkBuilder.BuiltChunk[] data, boolean isNeighborUpdated
+        ) {
             this.data = data;
             this.isNeighborUpdated = isNeighborUpdated;
         }
     }
     
     private final ChunkBuilder factory;
-    private final Map<BlockPos, ChunkBuilder.BuiltChunk> builtChunkMap = new HashMap<>();
-    private final Map<ChunkPos, Preset> presets = new HashMap<>();
+    private final Long2ObjectOpenHashMap<Column> columnMap = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectOpenHashMap<Preset> presets = new Long2ObjectOpenHashMap<>();
     private boolean shouldUpdateMainPresetNeighbor = true;
     private final ObjectBuffer<ChunkBuilder.BuiltChunk> builtChunkBuffer;
+    private Preset currentPreset = null;
     
     private boolean isAlive = true;
     
@@ -83,7 +93,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         getAllActiveBuiltChunks().forEach(
             ChunkBuilder.BuiltChunk::delete
         );
-        builtChunkMap.clear();
+        columnMap.clear();
         presets.clear();
         builtChunkBuffer.destroyAll();
         
@@ -96,18 +106,25 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     public void updateCameraPosition(double playerX, double playerZ) {
         MinecraftClient.getInstance().getProfiler().push("built_chunk_storage");
         
+        int cameraBlockX = MathHelper.floor(playerX);
+        int cameraBlockZ = MathHelper.floor(playerZ);
+        
+        int cameraChunkX = cameraBlockX >> 4;
+        int cameraChunkZ = cameraBlockZ >> 4;
         ChunkPos cameraChunkPos = new ChunkPos(
-            MathHelper.floorDiv((int) playerX, 16),
-            MathHelper.floorDiv((int) playerZ, 16)
+            cameraChunkX, cameraChunkZ
         );
         
         Preset preset = presets.computeIfAbsent(
-            cameraChunkPos,
-            whatever -> myCreatePreset(playerX, playerZ)
+            cameraChunkPos.toLong(),
+            whatever -> {
+                return createPresetByChunkPos(cameraChunkX, cameraChunkZ);
+            }
         );
         preset.lastActiveTime = System.nanoTime();
         
         this.chunks = preset.data;
+        this.currentPreset = preset;
         
         MinecraftClient.getInstance().getProfiler().push("neighbor");
         manageNeighbor(preset);
@@ -138,45 +155,82 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     @Override
     public void scheduleRebuild(int cx, int cy, int cz, boolean isImportant) {
         //TODO change it
-        ChunkBuilder.BuiltChunk builtChunk = provideBuiltChunk(
-            new BlockPos(cx * 16, cy * 16, cz * 16)
-        );
+        ChunkBuilder.BuiltChunk builtChunk = provideBuiltChunkByChunkPos(cx, cy, cz);
         builtChunk.scheduleRebuild(isImportant);
     }
     
-    private Preset myCreatePreset(double playerXCoord, double playerZCoord) {
-        ChunkBuilder.BuiltChunk[] chunks =
+    // TODO update in 1.17
+    public ChunkBuilder.BuiltChunk provideBuiltChunkByChunkPos(int cx, int cy, int cz) {
+        Column column = provideColumn(ChunkPos.toLong(cx, cz));
+        int chunkY = MathHelper.clamp(cy, 0, 15);
+        return column.chunks[chunkY];
+    }
+    
+    /**
+     * {@link BuiltChunkStorage#updateCameraPosition(double, double)}
+     */
+    // TODO update in 1.17
+    private Preset createPresetByChunkPos(int chunkX, int chunkZ) {
+        ChunkBuilder.BuiltChunk[] chunks1 =
             new ChunkBuilder.BuiltChunk[this.sizeX * this.sizeY * this.sizeZ];
         
-        int int_1 = MathHelper.floor(playerXCoord);
-        int int_2 = MathHelper.floor(playerZCoord);
-        
         for (int cx = 0; cx < this.sizeX; ++cx) {
-            int int_4 = this.sizeX * 16;
-            int int_5 = int_1 - 8 - int_4 / 2;
-            int px = int_5 + Math.floorMod(cx * 16 - int_5, int_4);
+            int xBlockSize = this.sizeX * 16;
+            int xStart = (chunkX << 4) - xBlockSize / 2;
+            int px = xStart + Math.floorMod(cx * 16 - xStart, xBlockSize);
             
             for (int cz = 0; cz < this.sizeZ; ++cz) {
-                int int_8 = this.sizeZ * 16;
-                int int_9 = int_2 - 8 - int_8 / 2;
-                int pz = int_9 + Math.floorMod(cz * 16 - int_9, int_8);
+                int zBlockSize = this.sizeZ * 16;
+                int zStart = (chunkZ << 4) - zBlockSize / 2;
+                int pz = zStart + Math.floorMod(cz * 16 - zStart, zBlockSize);
+                
+                Validate.isTrue(px % 16 == 0);
+                Validate.isTrue(pz % 16 == 0);
+                
+                Column column = provideColumn(ChunkPos.toLong(px >> 4, pz >> 4));
                 
                 for (int cy = 0; cy < this.sizeY; ++cy) {
-                    int py = cy * 16;
-                    
                     int index = this.getChunkIndex(cx, cy, cz);
-                    Validate.isTrue(px % 16 == 0);
-                    Validate.isTrue(py % 16 == 0);
-                    Validate.isTrue(pz % 16 == 0);
-                    chunks[index] = provideBuiltChunk(
-                        new BlockPos(px, py, pz)
-                    );
+                    chunks1[index] = column.chunks[cy];
                 }
             }
         }
         
-        return new Preset(chunks, false);
+        return new Preset(chunks1, false);
     }
+    
+    /**
+     * {@link BuiltChunkStorage#updateCameraPosition(double, double)}
+     */
+    // TODO update in 1.17
+    private void foreachPresetCoveredChunkPoses(
+        int centerChunkX, int centerChunkZ,
+        LongConsumer func
+    ) {
+        ChunkBuilder.BuiltChunk[] chunks1 =
+            new ChunkBuilder.BuiltChunk[this.sizeX * this.sizeY * this.sizeZ];
+        
+        for (int cx = 0; cx < this.sizeX; ++cx) {
+            int xBlockSize = this.sizeX * 16;
+            int xStart = (centerChunkX << 4) - xBlockSize / 2;
+            int px = xStart + Math.floorMod(cx * 16 - xStart, xBlockSize);
+            
+            for (int cz = 0; cz < this.sizeZ; ++cz) {
+                int zBlockSize = this.sizeZ * 16;
+                int zStart = (centerChunkZ << 4) - zBlockSize / 2;
+                int pz = zStart + Math.floorMod(cz * 16 - zStart, zBlockSize);
+                
+                Validate.isTrue(px % 16 == 0);
+                Validate.isTrue(pz % 16 == 0);
+                
+                long chunkPos = ChunkPos.toLong(px >> 4, pz >> 4);
+                
+                func.accept(chunkPos);
+            }
+        }
+    }
+    
+    // TODO update in 1.17
     
     //copy because private
     private int getChunkIndex(int x, int y, int z) {
@@ -191,37 +245,39 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
     }
     
-    public ChunkBuilder.BuiltChunk provideBuiltChunk(BlockPos blockPos) {
-        return provideBuiltChunkWithAlignedPos(getBasePos(blockPos));
+    public Column provideColumn(long chunkPos) {
+        return columnMap.computeIfAbsent(chunkPos, this::createColumn);
     }
     
-    private ChunkBuilder.BuiltChunk provideBuiltChunkWithAlignedPos(BlockPos basePos) {
-        assert basePos.getX() % 16 == 0;
-        assert basePos.getY() % 16 == 0;
-        assert basePos.getZ() % 16 == 0;
-        if (basePos.getY() < 0 || basePos.getY() >= 256) {
-            return null;
+    // NOTE update on 1.17
+    private Column createColumn(long chunkPos) {
+        ChunkBuilder.BuiltChunk[] array = new ChunkBuilder.BuiltChunk[sizeY];
+        
+        int chunkX = ChunkPos.getPackedX(chunkPos);
+        int chunkZ = ChunkPos.getPackedZ(chunkPos);
+        
+        for (int chunkY = 0; chunkY < sizeY; chunkY++) {
+            ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
+            
+            builtChunk.setOrigin(
+                chunkX << 4, chunkY << 4, chunkZ << 4
+            );
+            
+            OFBuiltChunkStorageFix.onBuiltChunkCreated(
+                this, builtChunk
+            );
+            
+            array[chunkY] = builtChunk;
         }
         
-        return builtChunkMap.computeIfAbsent(
-            basePos.toImmutable(),
-            whatever -> {
-                ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
-                
-                builtChunk.setOrigin(
-                    basePos.getX(), basePos.getY(), basePos.getZ()
-                );
-                
-                OFBuiltChunkStorageFix.onBuiltChunkCreated(
-                    this, builtChunk
-                );
-                
-                return builtChunk;
-            }
-        );
+        return new Column(array);
     }
     
     private void tick() {
+        if (!isAlive) {
+            return;
+        }
+        
         ClientWorld worldClient = MinecraftClient.getInstance().world;
         if (worldClient != null) {
             if (GcMonitor.isMemoryNotEnough()) {
@@ -243,32 +299,51 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         long dropTime = Helper.secondToNano(GcMonitor.isMemoryNotEnough() ? 3 : 20);
         
         long currentTime = System.nanoTime();
-        presets.entrySet().removeIf(entry -> {
+        
+        presets.long2ObjectEntrySet().removeIf(entry -> {
             Preset preset = entry.getValue();
-            if (preset.data == this.chunks) {
-                return false;
+            
+            long centerChunkPos = entry.getLongKey();
+            
+            boolean shouldDropPreset = shouldDropPreset(dropTime, currentTime, preset);
+            
+            if (!shouldDropPreset) {
+                foreachPresetCoveredChunkPoses(
+                    ChunkPos.getPackedX(centerChunkPos),
+                    ChunkPos.getPackedZ(centerChunkPos),
+                    columnChunkPos -> {
+                        Column column = columnMap.get(columnChunkPos);
+                        column.mark = currentTime;
+                    }
+                );
             }
-            return currentTime - preset.lastActiveTime > dropTime;
+            
+            return shouldDropPreset;
         });
         
-        foreachActiveBuiltChunks(builtChunk -> {
-            ((IEBuiltChunk) builtChunk).setMark(currentTime);
-        });
-        
-        builtChunkMap.entrySet().removeIf(entry -> {
-            ChunkBuilder.BuiltChunk chunk = entry.getValue();
-            if (((IEBuiltChunk) chunk).getMark() != currentTime) {
-                builtChunkBuffer.returnObject(chunk);
-                return true;
+        columnMap.long2ObjectEntrySet().removeIf(entry -> {
+            Column column = entry.getValue();
+            boolean shouldRemove = column.mark != currentTime;
+            
+            if (shouldRemove) {
+                for (ChunkBuilder.BuiltChunk chunk : column.chunks) {
+                    builtChunkBuffer.returnObject(chunk);
+                }
             }
-            else {
-                return false;
-            }
+            
+            return shouldRemove;
         });
         
         OFBuiltChunkStorageFix.purgeRenderRegions(this);
         
         MinecraftClient.getInstance().getProfiler().pop();
+    }
+    
+    private boolean shouldDropPreset(long dropTime, long currentTime, Preset preset) {
+        if (preset.data == this.chunks) {
+            return false;
+        }
+        return currentTime - preset.lastActiveTime > dropTime;
     }
     
     private Set<ChunkBuilder.BuiltChunk> getAllActiveBuiltChunks() {
@@ -300,33 +375,13 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     public int getManagedChunkNum() {
-        return builtChunkMap.size();
-    }
-    
-    public ChunkBuilder.BuiltChunk myGetRenderChunkRaw(
-        BlockPos pos, ChunkBuilder.BuiltChunk[] chunks
-    ) {
-        int i = MathHelper.floorDiv(pos.getX(), 16);
-        int j = MathHelper.floorDiv(pos.getY(), 16);
-        int k = MathHelper.floorDiv(pos.getZ(), 16);
-        if (j >= 0 && j < this.sizeY) {
-            i = MathHelper.floorMod(i, this.sizeX);
-            k = MathHelper.floorMod(k, this.sizeZ);
-            return chunks[this.getChunkIndex(i, j, k)];
-        }
-        else {
-            return null;
-        }
+        return columnMap.size() * sizeY;
     }
     
     public String getDebugString() {
         return String.format(
-            "All:%s Needs Rebuild:%s",
-            builtChunkMap.size(),
-            builtChunkMap.values().stream()
-                .filter(
-                    builtChunk -> builtChunk.needsRebuild()
-                ).count()
+            "Built Chunk Storage Columns:%s",
+            columnMap.size()
         );
     }
     
@@ -337,12 +392,38 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     public boolean isRegionActive(int cxStart, int czStart, int cxEnd, int czEnd) {
         for (int cx = cxStart; cx <= cxEnd; cx++) {
             for (int cz = czStart; cz <= czEnd; cz++) {
-                if (builtChunkMap.containsKey(new BlockPos(cx * 16, 0, cz * 16))) {
+                if (columnMap.containsKey(ChunkPos.toLong(cx, cz))) {
                     return true;
                 }
             }
         }
         
         return false;
+    }
+    
+    public void onChunkUnload(int chunkX, int chunkZ) {
+        long chunkPos = ChunkPos.toLong(chunkX, chunkZ);
+        Column column = columnMap.get(chunkPos);
+        if (column != null) {
+            for (ChunkBuilder.BuiltChunk builtChunk : column.chunks) {
+                ((IEBuiltChunk) builtChunk).fullyReset();
+            }
+        }
+    }
+    
+    public ChunkBuilder.BuiltChunk getSectionFromRawArray(
+        BlockPos sectionOrigin, ChunkBuilder.BuiltChunk[] chunks
+    ) {
+        int i = MathHelper.floorDiv(sectionOrigin.getX(), 16);
+        int j = MathHelper.floorDiv(sectionOrigin.getY(), 16);
+        int k = MathHelper.floorDiv(sectionOrigin.getZ(), 16);
+        if (j >= 0 && j < this.sizeY) {
+            i = MathHelper.floorMod(i, this.sizeX);
+            k = MathHelper.floorMod(k, this.sizeZ);
+            return chunks[this.getChunkIndex(i, j, k)];
+        }
+        else {
+            return null;
+        }
     }
 }
