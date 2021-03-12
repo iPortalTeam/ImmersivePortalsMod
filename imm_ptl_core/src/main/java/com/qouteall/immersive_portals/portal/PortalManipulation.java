@@ -409,14 +409,17 @@ public class PortalManipulation {
     public static DQuaternion getPortalOrientationQuaternion(
         Vec3d axisW, Vec3d axisH
     ) {
-        DQuaternion r1 = DQuaternion.getRotationBetween(
-            new Vec3d(1, 0, 0), axisW
-        );
+        Vec3d normal = axisW.crossProduct(axisH);
         
-        DQuaternion r2 = DQuaternion.getRotationBetween(
-            r1.rotate(new Vec3d(0, 1, 0)), axisH
+        return DQuaternion.matrixToQuaternion(axisW, axisH, normal);
+    }
+    
+    public static void setPortalOrientationQuaternion(
+        Portal portal, DQuaternion quaternion
+    ) {
+        portal.setOrientation(
+            quaternion.rotate(new Vec3d(1, 0, 0)),
+            quaternion.rotate(new Vec3d(0, 1, 0))
         );
-        
-        return r1.hamiltonProduct(r2);
     }
 }

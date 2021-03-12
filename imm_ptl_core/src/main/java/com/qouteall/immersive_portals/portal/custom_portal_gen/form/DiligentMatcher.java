@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -114,55 +115,61 @@ public class DiligentMatcher {
         }
         
         public Quaternion toQuaternion() {
-            //http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
-            
-            double m00 = x.getX();
-            double m11 = y.getY();
-            double m22 = z.getZ();
-            
-            double m12 = z.getY();
-            double m21 = y.getZ();
-            
-            double m20 = x.getZ();
-            double m02 = z.getX();
-            
-            double m01 = y.getX();
-            double m10 = x.getY();
-            
-            double tr = m00 + m11 + m22;
-            
-            double qx, qy, qz, qw;
-            
-            if (tr > 0) {
-                double S = Math.sqrt(tr + 1.0) * 2; // S=4*qw
-                qw = 0.25 * S;
-                qx = (m21 - m12) / S;
-                qy = (m02 - m20) / S;
-                qz = (m10 - m01) / S;
-            }
-            else if ((m00 > m11) && (m00 > m22)) {
-                double S = Math.sqrt(1.0 + m00 - m11 - m22) * 2; // S=4*qx
-                qw = (m21 - m12) / S;
-                qx = 0.25 * S;
-                qy = (m01 + m10) / S;
-                qz = (m02 + m20) / S;
-            }
-            else if (m11 > m22) {
-                double S = Math.sqrt(1.0 + m11 - m00 - m22) * 2; // S=4*qy
-                qw = (m02 - m20) / S;
-                qx = (m01 + m10) / S;
-                qy = 0.25 * S;
-                qz = (m12 + m21) / S;
-            }
-            else {
-                double S = Math.sqrt(1.0 + m22 - m00 - m11) * 2; // S=4*qz
-                qw = (m10 - m01) / S;
-                qx = (m02 + m20) / S;
-                qy = (m12 + m21) / S;
-                qz = 0.25 * S;
-            }
-            
-            return new Quaternion((float) qx, (float) qy, (float) qz, (float) qw);
+            return DQuaternion.matrixToQuaternion(
+                Vec3d.of(x),
+                Vec3d.of(y),
+                Vec3d.of(z)
+            ).toMcQuaternion();
+
+//            //http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+//
+//            double m00 = x.getX();
+//            double m11 = y.getY();
+//            double m22 = z.getZ();
+//
+//            double m12 = z.getY();
+//            double m21 = y.getZ();
+//
+//            double m20 = x.getZ();
+//            double m02 = z.getX();
+//
+//            double m01 = y.getX();
+//            double m10 = x.getY();
+//
+//            double tr = m00 + m11 + m22;
+//
+//            double qx, qy, qz, qw;
+//
+//            if (tr > 0) {
+//                double S = Math.sqrt(tr + 1.0) * 2; // S=4*qw
+//                qw = 0.25 * S;
+//                qx = (m21 - m12) / S;
+//                qy = (m02 - m20) / S;
+//                qz = (m10 - m01) / S;
+//            }
+//            else if ((m00 > m11) && (m00 > m22)) {
+//                double S = Math.sqrt(1.0 + m00 - m11 - m22) * 2; // S=4*qx
+//                qw = (m21 - m12) / S;
+//                qx = 0.25 * S;
+//                qy = (m01 + m10) / S;
+//                qz = (m02 + m20) / S;
+//            }
+//            else if (m11 > m22) {
+//                double S = Math.sqrt(1.0 + m11 - m00 - m22) * 2; // S=4*qy
+//                qw = (m02 - m20) / S;
+//                qx = (m01 + m10) / S;
+//                qy = 0.25 * S;
+//                qz = (m12 + m21) / S;
+//            }
+//            else {
+//                double S = Math.sqrt(1.0 + m22 - m00 - m11) * 2; // S=4*qz
+//                qw = (m10 - m01) / S;
+//                qx = (m02 + m20) / S;
+//                qy = (m12 + m21) / S;
+//                qz = 0.25 * S;
+//            }
+//
+//            return new Quaternion((float) qx, (float) qy, (float) qz, (float) qw);
         }
     }
     

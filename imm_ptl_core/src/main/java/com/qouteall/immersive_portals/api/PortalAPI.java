@@ -65,6 +65,14 @@ public class PortalAPI {
         portal.setScaleTransformation(scale);
     }
     
+    public static DQuaternion getPortalOrientationQuaternion(Portal portal) {
+        return PortalManipulation.getPortalOrientationQuaternion(portal.axisW, portal.axisH);
+    }
+    
+    public static void setPortalOrientationQuaternion(Portal portal, DQuaternion quaternion) {
+        PortalManipulation.setPortalOrientationQuaternion(portal, quaternion);
+    }
+    
     public static void spawnServerEntity(Entity entity) {
         McHelper.spawnServerEntity(entity);
     }

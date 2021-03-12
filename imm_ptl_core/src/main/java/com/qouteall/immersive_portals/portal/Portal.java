@@ -40,7 +40,6 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -440,11 +439,16 @@ public class Portal extends Entity implements PortalLike {
         Vec3d newAxisW, Vec3d newAxisH,
         double newWidth, double newHeight
     ) {
-        axisW = newAxisW;
-        axisH = newAxisH;
+        setOrientation(newAxisW, newAxisH);
         width = newWidth;
         height = newHeight;
         
+        updateCache();
+    }
+    
+    public void setOrientation(Vec3d newAxisW, Vec3d newAxisH) {
+        axisW = newAxisW;
+        axisH = newAxisH;
         updateCache();
     }
     
@@ -1120,34 +1124,6 @@ public class Portal extends Entity implements PortalLike {
     @Override
     public double getDestAreaRadiusEstimation() {
         return Math.max(this.width, this.height) * this.scaling;
-    }
-    
-    public Matrix3f getOuterOrientationMatrix() {
-        //transformation: x*axisW+y*axisH+z*normal
-        final Matrix3f matrix3f = new Matrix3f();
-        matrix3f.set(0, 0, (float) axisW.getX());
-        matrix3f.set(0, 1, (float) axisW.getZ());
-        matrix3f.set(0, 2, (float) axisW.getY());
-        matrix3f.set(1, 0, (float) axisH.getX());
-        matrix3f.set(1, 1, (float) axisH.getY());
-        matrix3f.set(1, 2, (float) axisH.getZ());
-        matrix3f.set(2, 0, (float) getNormal().getX());
-        matrix3f.set(2, 1, (float) getNormal().getY());
-        matrix3f.set(2, 2, (float) getNormal().getZ());
-        return matrix3f;
-    }
-    
-    public Matrix3f getInnerOrientationMatrix() {
-        Matrix3f matrix3f;
-        if (rotation != null) {
-            matrix3f = new Matrix3f(rotation);
-        }
-        else {
-            matrix3f = new Matrix3f();
-            matrix3f.loadIdentity();
-        }
-        matrix3f.multiply((float) scaling);
-        return matrix3f;
     }
     
     @Override

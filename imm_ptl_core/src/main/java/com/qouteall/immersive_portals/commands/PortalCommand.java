@@ -17,6 +17,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.api.PortalAPI;
 import com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering;
+import com.qouteall.immersive_portals.my_util.DQuaternion;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
@@ -252,6 +253,24 @@ public class PortalCommand {
                     return 0;
                 })
             )
+        );
+        
+        builder.then(CommandManager
+            .literal("test")
+            .executes(context -> processPortalTargetedCommand(
+                context, portal -> {
+                    DQuaternion quaternion = DQuaternion.rotationByDegrees(
+                        new Vec3d(0, 1, 0), 30
+                    );
+                    PortalAPI.setPortalOrientationQuaternion(
+                        portal, quaternion
+                    );
+                    
+                    DQuaternion nq = PortalAPI.getPortalOrientationQuaternion(portal);
+                    
+                    portal.reloadAndSyncToClient();
+                }
+            ))
         );
     }
     
