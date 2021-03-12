@@ -43,6 +43,7 @@ allprojects {
             name = 'JitPack'
             url = 'https://jitpack.io'
         }
+        maven { url "https://maven.shedaniel.me/" }
 
         jcenter()
     }
@@ -65,8 +66,10 @@ allprojects {
         //For Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-        modCompileOnly "me.shedaniel.cloth:config-${cloth_config_version}"
-        modCompileOnly "io.github.prospector:modmenu:${modmenu_version}"
+        modCompileOnly ("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"){
+            exclude(group: "net.fabricmc.fabric-api")
+        }
+        modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
         modImplementation ('com.github.Virtuoel:Pehkui:1.17-SNAPSHOT') {
             transitive = false
@@ -160,10 +163,10 @@ publishing {
 }
 
 dependencies {
-    modImplementation "me.shedaniel.cloth:config-${cloth_config_version}"
+    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
     modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
-    include "me.shedaniel.cloth:config-${cloth_config_version}"
+    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
     include "io.github.prospector:modmenu:${modmenu_version}"
 
     //make the game launch faster in dev
