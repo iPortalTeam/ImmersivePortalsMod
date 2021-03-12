@@ -532,6 +532,7 @@ public class McHelper {
         return result;
     }
     
+    // the range is inclusive on both ends
     public static <T extends Entity> void foreachEntities(
         Class<T> entityClass, ChunkAccessor chunkAccessor,
         int chunkXStart, int chunkXEnd,
@@ -542,8 +543,6 @@ public class McHelper {
         Validate.isTrue(chunkXEnd >= chunkXStart);
         Validate.isTrue(chunkYEnd >= chunkYStart);
         Validate.isTrue(chunkZEnd >= chunkZStart);
-        Validate.isTrue(chunkYStart >= 0);
-        Validate.isTrue(chunkYEnd < 16);
         Validate.isTrue(chunkXEnd - chunkXStart < 1000, "too big");
         Validate.isTrue(chunkZEnd - chunkZStart < 1000, "too big");
         
@@ -583,7 +582,7 @@ public class McHelper {
             getChunkAccessor(world),
             chunkPos.x - radiusChunks,
             chunkPos.x + radiusChunks,
-            0, 15,
+            McHelper.getMinChunkY(world), McHelper.getMaxChunkYExclusive(world) - 1,
             chunkPos.z - radiusChunks,
             chunkPos.z + radiusChunks,
             predicate
@@ -626,11 +625,14 @@ public class McHelper {
         int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
         int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
         
+        int minChunkY = McHelper.getMinChunkY(world);
+        int maxChunkYExclusive = McHelper.getMaxChunkYExclusive(world);
+        
         foreachEntities(
             entityClass, getChunkAccessor(world),
             xMin >> 4, xMax >> 4,
-            MathHelper.clamp(yMin >> 4, 0, 15),
-            MathHelper.clamp(yMax >> 4, 0, 15),
+            MathHelper.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
+            MathHelper.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),
             zMin >> 4, zMax >> 4,
             consumer
         );
