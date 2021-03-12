@@ -47,6 +47,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.Validate;
@@ -861,6 +862,26 @@ public class McHelper {
             mutableText.append("}");
             return mutableText;
         }
+    }
+    
+    public static int getMinY(WorldAccess world) {
+        return 0;
+    }
+    
+    public static int getMaxYExclusive(WorldAccess world) {
+        return 256;
+    }
+    
+    public static int getMaxContentYExclusive(WorldAccess world) {
+        return world.getDimensionHeight();
+    }
+    
+    public static int getMinChunkY(WorldAccess world) {
+        return 0;
+    }
+    
+    public static int getMaxChunkYExclusive(WorldAccess world) {
+        return 16;
     }
     
 }

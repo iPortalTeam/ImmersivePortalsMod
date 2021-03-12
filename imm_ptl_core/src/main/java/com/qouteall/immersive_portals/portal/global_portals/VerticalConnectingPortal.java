@@ -100,12 +100,12 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         
         switch (connectorType) {
             case floor:
-                verticalConnectingPortal.updatePosition(0, 0, 0);
+                verticalConnectingPortal.updatePosition(0, McHelper.getMinY(fromWorld), 0);
                 verticalConnectingPortal.axisW = new Vec3d(0, 0, 1);
                 verticalConnectingPortal.axisH = new Vec3d(1, 0, 0);
                 break;
             case ceil:
-                verticalConnectingPortal.updatePosition(0, fromWorld.getDimensionHeight(), 0);
+                verticalConnectingPortal.updatePosition(0, McHelper.getMaxContentYExclusive(fromWorld), 0);
                 verticalConnectingPortal.axisW = new Vec3d(1, 0, 0);
                 verticalConnectingPortal.axisH = new Vec3d(0, 0, 1);
                 break;
@@ -114,20 +114,20 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         if (!inverted) {
             switch (connectorType) {
                 case floor:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorld.getDimensionHeight(), 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMaxContentYExclusive(toWorld), 0));
                     break;
                 case ceil:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, 0, 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMinY(toWorld), 0));
                     break;
             }
         }
         else {
             switch (connectorType) {
                 case floor:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, 0, 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMinY(toWorld), 0));
                     break;
                 case ceil:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorld.getDimensionHeight(), 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMaxContentYExclusive(toWorld), 0));
                     break;
             }
         }
@@ -176,7 +176,4 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
             .findFirst().orElse(null);
     }
     
-    public static int getHeight(RegistryKey<World> dim) {
-        return McHelper.getServer().getWorld(dim).getDimensionHeight();
-    }
 }

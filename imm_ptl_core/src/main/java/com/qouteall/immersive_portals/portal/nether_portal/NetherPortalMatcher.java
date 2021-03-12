@@ -1,12 +1,12 @@
 package com.qouteall.immersive_portals.portal.nether_portal;
 
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 import java.util.Arrays;
@@ -86,7 +86,7 @@ public class NetherPortalMatcher {
         
         return BlockTraverse.searchColumned(
             searchingCenter.getX(), searchingCenter.getZ(), findingRadius,
-            5, world.getDimensionHeight() - 5,
+            McHelper.getMinY(world) + 5, McHelper.getMaxContentYExclusive(world) - 5,
             mutable -> {
                 if (isAirOnGroundPredicate.test(mutable)) {
                     IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
@@ -186,7 +186,7 @@ public class NetherPortalMatcher {
             searchingCenter.getX() - (areaSize.getX() / 2),
             searchingCenter.getZ() - (areaSize.getZ() / 2),
             findingRadius,
-            5, world.getDimensionHeight() - 5,
+            5+McHelper.getMinY(world), McHelper.getMaxChunkYExclusive(world) - 5,
             mutable -> {
                 IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
                 if (isAirCubeMediumPlace(world, box)) {
@@ -201,10 +201,10 @@ public class NetherPortalMatcher {
     
     public static boolean isAirCubeMediumPlace(WorldAccess world, IntBox box) {
         //the box out of height limit is not accepted
-        if (box.h.getY() + 5 >= ((World) world).getDimensionHeight()) {
+        if (box.h.getY() + 5 >= McHelper.getMaxContentYExclusive(world)) {
             return false;
         }
-        if (box.l.getY() - 5 <= 0) {
+        if (box.l.getY() - 5 <= McHelper.getMinY(world)) {
             return false;
         }
         
