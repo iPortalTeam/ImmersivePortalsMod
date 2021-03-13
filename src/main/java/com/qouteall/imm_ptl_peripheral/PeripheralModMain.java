@@ -36,7 +36,7 @@ public class PeripheralModMain {
     public static void registerCommandStickTypes() {
         registerPortalSubCommandStick("delete_portal");
         registerPortalSubCommandStick("remove_connected_portals");
-        registerPortalSubCommandStick("eradicate_portal_clutter");
+        registerPortalSubCommandStick("eradicate_portal_cluster");
         registerPortalSubCommandStick("complete_bi_way_bi_faced_portal");
         registerPortalSubCommandStick("complete_bi_way_portal");
         registerPortalSubCommandStick("move_portal_front", "move_portal 0.5");

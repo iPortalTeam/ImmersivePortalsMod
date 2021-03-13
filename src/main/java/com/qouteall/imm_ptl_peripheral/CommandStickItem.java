@@ -19,6 +19,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
@@ -36,7 +37,8 @@ import java.util.stream.Collectors;
 
 public class CommandStickItem extends Item {
     
-    private static RegistryKey<Registry<Data>> registryRegistryKey = RegistryKey.ofRegistry(new Identifier("immersive_portals:command_stick_type"));
+    private static final RegistryKey<Registry<Data>> registryRegistryKey =
+        RegistryKey.ofRegistry(new Identifier("immersive_portals:command_stick_type"));
     
     public static class Data {
         public final String command;
@@ -91,7 +93,9 @@ public class CommandStickItem extends Item {
         );
     }
     
-    public static final CommandStickItem instance = new CommandStickItem(new Item.Settings());
+    public static final CommandStickItem instance = new CommandStickItem(
+        new Item.Settings().group(ItemGroup.MISC)
+    );
     
     public CommandStickItem(Settings settings) {
         super(settings);
@@ -142,18 +146,18 @@ public class CommandStickItem extends Item {
         
         Data data = Data.deserialize(stack.getOrCreateTag());
         
-        tooltip.add(new LiteralText(data.command));
+        tooltip.add(new LiteralText(data.command).formatted(Formatting.GOLD));
         
         for (String descriptionTranslationKey : data.descriptionTranslationKeys) {
-            tooltip.add(new TranslatableText(descriptionTranslationKey));
+            tooltip.add(new TranslatableText(descriptionTranslationKey).formatted(Formatting.AQUA));
         }
         
-        tooltip.add(new TranslatableText("imm_ptl.command_stick"));
+        tooltip.add(new TranslatableText("imm_ptl.command_stick").formatted(Formatting.GRAY));
     }
     
     @Override
     public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (group == ItemGroup.MISC) {
+        if (isIn(group)) {
             commandStickTypeRegistry.stream().forEach(data -> {
                 ItemStack stack = new ItemStack(instance);
                 data.serialize(stack.getOrCreateTag());
