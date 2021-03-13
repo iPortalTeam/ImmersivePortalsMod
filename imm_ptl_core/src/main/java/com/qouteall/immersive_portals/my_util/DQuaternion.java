@@ -37,7 +37,15 @@ public class DQuaternion {
      * @return the axis that the rotation is being performed along
      */
     public Vec3d getRotatingAxis() {
-        return new Vec3d(x, y, z);
+        return new Vec3d(x, y, z).normalize();
+    }
+    
+    public double getRotatingAngleRadians() {
+        return Math.acos(w) * 2;
+    }
+    
+    public double getRotatingAngleDegrees() {
+        return Math.toDegrees(getRotatingAngleRadians());
     }
     
     /**
@@ -52,7 +60,7 @@ public class DQuaternion {
     /**
      * Create a new quaternion.
      *
-     * @param rotatingAxis the axis that it rotates along
+     * @param rotatingAxis the axis that it rotates along, must be normalized
      * @param degrees      the rotating angle in degrees
      * @return the result
      */
@@ -68,7 +76,7 @@ public class DQuaternion {
     /**
      * Create a new quaternion.
      *
-     * @param axis          the axis that it rotates along
+     * @param axis          the axis that it rotates along, must be normalized
      * @param rotationAngle the rotating angle in radians
      * @return the result
      */
@@ -236,7 +244,10 @@ public class DQuaternion {
     
     @Override
     public String toString() {
-        return String.format("DQuaternion{x=%s, y=%s, z=%s, w=%s}", x, y, z, w);
+        Vec3d rotatingAxis = getRotatingAxis();
+        return String.format("Rotates %.3f degrees along (%.3f %.3f %.3f) Quaternion:(%.3f %.3f %.3f %.3f)",
+            getRotatingAngleDegrees(), rotatingAxis.x, rotatingAxis.y, rotatingAxis.z, x, y, z, w
+        );
     }
     
     /**
@@ -314,6 +325,15 @@ public class DQuaternion {
         
         double m01 = y.getX();
         double m10 = x.getY();
+
+//        double m12 = y.getZ();
+//        double m21 = z.getY();
+//
+//        double m20 = z.getX();
+//        double m02 = x.getZ();
+//
+//        double m01 = x.getY();
+//        double m10 = y.getX();
         
         double tr = m00 + m11 + m22;
         

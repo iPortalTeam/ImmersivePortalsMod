@@ -220,6 +220,19 @@ public class PortalCommand {
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .executes(context -> {
                     System.gc();
+                    
+                    long l = Runtime.getRuntime().maxMemory();
+                    long m = Runtime.getRuntime().totalMemory();
+                    long n = Runtime.getRuntime().freeMemory();
+                    long o = m - n;
+                    
+                    context.getSource().sendFeedback(
+                        new LiteralText(
+                            String.format("Memory: % 2d%% %03d/%03dMB", o * 100L / l, toMiB(o), toMiB(l))
+                        ),
+                        false
+                    );
+                    
                     return 0;
                 })
             )
@@ -255,23 +268,53 @@ public class PortalCommand {
             )
         );
         
+        
         builder.then(CommandManager
             .literal("test")
-            .executes(context -> processPortalTargetedCommand(
-                context, portal -> {
-                    DQuaternion quaternion = DQuaternion.rotationByDegrees(
-                        new Vec3d(0, 1, 0), 30
-                    );
-                    PortalAPI.setPortalOrientationQuaternion(
-                        portal, quaternion
-                    );
-                    
-                    DQuaternion nq = PortalAPI.getPortalOrientationQuaternion(portal);
-                    
-                    portal.reloadAndSyncToClient();
-                }
-            ))
+            .executes(context -> {
+                ServerWorld world = context.getSource().getWorld();
+                Vec3d pos = context.getSource().getPosition();
+                
+                Portal from = McHelper.findEntitiesRough(
+                    Portal.class,
+                    world, pos,
+                    2,
+                    p -> Objects.equals(p.portalTag, "from")
+                ).get(0);
+                
+                Portal to = McHelper.findEntitiesRough(
+                    Portal.class,
+                    world, pos,
+                    2,
+                    p -> Objects.equals(p.portalTag, "to")
+                ).get(0);
+                
+                PortalManipulation.adjustRotationToConnect(from, to);
+                
+                from.reloadAndSyncToClient();
+                to.reloadAndSyncToClient();
+                
+                return 0;
+            })
         );
+
+//        builder.then(CommandManager
+//            .literal("test")
+//            .executes(context -> processPortalTargetedCommand(
+//                context, portal -> {
+//                    DQuaternion quaternion = DQuaternion.rotationByDegrees(
+//                        new Vec3d(1, 1, 1).normalize(), 40
+//                    );
+//                    PortalAPI.setPortalOrientationQuaternion(
+//                        portal, quaternion
+//                    );
+//
+//                    DQuaternion nq = PortalAPI.getPortalOrientationQuaternion(portal);
+//
+//                    portal.reloadAndSyncToClient();
+//                }
+//            ))
+//        );
     }
     
     public static void registerClientDebugCommand(
@@ -693,6 +736,19 @@ public class PortalCommand {
             ))
         );
         
+        builder.then(CommandManager.literal("eradicate_portal_cluster")
+            .executes(context -> processPortalTargetedCommand(
+                context,
+                portal -> {
+                    PortalManipulation.removeConnectedPortals(
+                        portal,
+                        p -> sendMessage(context, "Removed " + p)
+                    );
+                    portal.remove();
+                    sendMessage(context, "Deleted " + portal);
+                }
+            ))
+        );
         
         builder.then(CommandManager.literal("move_portal")
             .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
@@ -852,6 +908,16 @@ public class PortalCommand {
                     }))
                 )
             )
+        );
+        
+        builder.then(CommandManager.literal("reset_portal_orientation")
+            .executes(context -> processPortalTargetedCommand(
+                context, portal -> {
+                    portal.axisW = new Vec3d(1, 0, 0);
+                    portal.axisH = new Vec3d(0, 1, 0);
+                    portal.reloadAndSyncToClient();
+                }
+            ))
         );
     }
     
@@ -1835,8 +1901,20 @@ public class PortalCommand {
         
         sendMessage(
             context,
-            portal.toString() + "\n"
+            portal.toString()
         );
+        
+        sendMessage(context,
+            String.format("Orientation: %s", PortalAPI.getPortalOrientationQuaternion(portal))
+        );
+        
+        if (portal.getRotation() != null) {
+            sendMessage(context,
+                String.format("Rotating Transformation: %s",
+                    DQuaternion.fromMcQuaternion(portal.getRotation())
+                )
+            );
+        }
     }
     
     public static void sendMessage(CommandContext<ServerCommandSource> context, String message) {
@@ -2068,5 +2146,9 @@ public class PortalCommand {
                 player.getRotationVec(1).multiply(v / 20)
             );
         }
+    }
+    
+    private static long toMiB(long bytes) {
+        return bytes / 1024L / 1024L;
     }
 }

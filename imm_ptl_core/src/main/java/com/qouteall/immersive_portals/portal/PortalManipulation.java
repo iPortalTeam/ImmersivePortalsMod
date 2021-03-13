@@ -422,4 +422,20 @@ public class PortalManipulation {
             quaternion.rotate(new Vec3d(0, 1, 0))
         );
     }
+    
+    public static void adjustRotationToConnect(Portal portalA, Portal portalB) {
+        DQuaternion a = PortalAPI.getPortalOrientationQuaternion(portalA);
+        DQuaternion b = PortalAPI.getPortalOrientationQuaternion(portalB);
+        
+        DQuaternion delta = b.hamiltonProduct(a.getConjugated());
+        
+        DQuaternion flip = DQuaternion.rotationByDegrees(
+            portalB.axisH, 180
+        );
+        DQuaternion aRot = flip.hamiltonProduct(delta);
+        
+        portalA.setRotationTransformation(aRot.toMcQuaternion());
+        portalB.setRotationTransformation(aRot.getConjugated().toMcQuaternion());
+        
+    }
 }
