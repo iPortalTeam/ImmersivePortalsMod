@@ -120,9 +120,8 @@ public class DQuaternion {
     }
     
     /**
-     * @param other
      * @return the hamilton product of "this" and "other".
-     * Equivalent to firstly do "this" rotation and then do "other" rotation
+     * Equivalent to firstly do "other" rotation and then do "this" rotation
      */
     public DQuaternion hamiltonProduct(DQuaternion other) {
         double x1 = this.getX();
@@ -139,6 +138,11 @@ public class DQuaternion {
             w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
             w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
         );
+    }
+    
+    // firstly apply "this" and then "other"
+    public DQuaternion combine(DQuaternion other) {
+        return other.hamiltonProduct(this);
     }
     
     /**

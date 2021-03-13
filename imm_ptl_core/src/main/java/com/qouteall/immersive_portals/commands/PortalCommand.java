@@ -272,49 +272,31 @@ public class PortalCommand {
         builder.then(CommandManager
             .literal("test")
             .executes(context -> {
-                ServerWorld world = context.getSource().getWorld();
-                Vec3d pos = context.getSource().getPosition();
-                
-                Portal from = McHelper.findEntitiesRough(
-                    Portal.class,
-                    world, pos,
-                    2,
-                    p -> Objects.equals(p.portalTag, "from")
-                ).get(0);
-                
-                Portal to = McHelper.findEntitiesRough(
-                    Portal.class,
-                    world, pos,
-                    2,
-                    p -> Objects.equals(p.portalTag, "to")
-                ).get(0);
-                
-                PortalManipulation.adjustRotationToConnect(from, to);
-                
-                from.reloadAndSyncToClient();
-                to.reloadAndSyncToClient();
+//                ServerWorld world = context.getSource().getWorld();
+//                Vec3d pos = context.getSource().getPosition();
+//
+//                Portal from = McHelper.findEntitiesRough(
+//                    Portal.class,
+//                    world, pos,
+//                    2,
+//                    p -> Objects.equals(p.portalTag, "from")
+//                ).get(0);
+//
+//                Portal to = McHelper.findEntitiesRough(
+//                    Portal.class,
+//                    world, pos,
+//                    2,
+//                    p -> Objects.equals(p.portalTag, "to")
+//                ).get(0);
+//
+//                PortalManipulation.adjustRotationToConnect(from, to);
+//
+//                from.reloadAndSyncToClient();
+//                to.reloadAndSyncToClient();
                 
                 return 0;
             })
         );
-
-//        builder.then(CommandManager
-//            .literal("test")
-//            .executes(context -> processPortalTargetedCommand(
-//                context, portal -> {
-//                    DQuaternion quaternion = DQuaternion.rotationByDegrees(
-//                        new Vec3d(1, 1, 1).normalize(), 40
-//                    );
-//                    PortalAPI.setPortalOrientationQuaternion(
-//                        portal, quaternion
-//                    );
-//
-//                    DQuaternion nq = PortalAPI.getPortalOrientationQuaternion(portal);
-//
-//                    portal.reloadAndSyncToClient();
-//                }
-//            ))
-//        );
     }
     
     public static void registerClientDebugCommand(
