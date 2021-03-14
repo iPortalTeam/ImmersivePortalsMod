@@ -186,7 +186,7 @@ public class NetherPortalMatcher {
             searchingCenter.getX() - (areaSize.getX() / 2),
             searchingCenter.getZ() - (areaSize.getZ() / 2),
             findingRadius,
-            5+McHelper.getMinY(world), McHelper.getMaxChunkYExclusive(world) - 5,
+            5 + McHelper.getMinY(world), McHelper.getMaxYExclusive(world) - 5,
             mutable -> {
                 IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
                 if (isAirCubeMediumPlace(world, box)) {
