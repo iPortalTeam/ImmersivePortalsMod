@@ -84,24 +84,32 @@ public class PortalPlaceholderBlock extends Block {
         BlockState thisState,
         Direction direction,
         BlockState neighborState,
-        WorldAccess world,
+        WorldAccess worldAccess,
         BlockPos blockPos,
         BlockPos neighborPos
     ) {
-        if (!world.isClient()) {
-            Direction.Axis axis = thisState.get(AXIS);
-            if (direction.getAxis() != axis) {
-                McHelper.findEntitiesRough(
-                    BreakablePortalEntity.class,
-                    ((World) world),
-                    Vec3d.of(blockPos),
-                    2,
-                    e -> true
-                ).forEach(
-                    portal -> {
-                        ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
-                    }
-                );
+        if (!worldAccess.isClient()) {
+            if (worldAccess instanceof World) {
+                World world = (World) worldAccess;
+                
+                world.getProfiler().push("portal_placeholder");
+                
+                Direction.Axis axis = thisState.get(AXIS);
+                if (direction.getAxis() != axis) {
+                    McHelper.findEntitiesRough(
+                        BreakablePortalEntity.class,
+                        world,
+                        Vec3d.of(blockPos),
+                        2,
+                        e -> true
+                    ).forEach(
+                        portal -> {
+                            ((BreakablePortalEntity) portal).notifyPlaceholderUpdate();
+                        }
+                    );
+                }
+                
+                world.getProfiler().pop();
             }
         }
         
@@ -109,7 +117,7 @@ public class PortalPlaceholderBlock extends Block {
             thisState,
             direction,
             neighborState,
-            world,
+            worldAccess,
             blockPos,
             neighborPos
         );
