@@ -77,8 +77,16 @@ public class OneWayForm extends PortalGenForm {
         GeneralBreakablePortal portal = GeneralBreakablePortal.entityType.create(fromWorld);
         Validate.notNull(portal);
         fromShape.initPortalPosAxisShape(portal, true);
-        portal.setDestinationDimension(fromWorld.getRegistryKey());
-        portal.setDestination(portal.getOriginPos().add(0, 10, 0));
+        
+        if (triggeringEntity == null) {
+            portal.setDestination(portal.getOriginPos().add(0, 10, 0));
+            portal.setDestinationDimension(fromWorld.getRegistryKey());
+        }
+        else {
+            portal.setDestination(triggeringEntity.getCameraPosVec(1));
+            portal.setDestinationDimension(triggeringEntity.world.getRegistryKey());
+        }
+        
         portal.blockPortalShape = fromShape;
         portal.markOneWay();
         McHelper.spawnServerEntity(portal);
