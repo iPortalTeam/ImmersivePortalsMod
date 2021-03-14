@@ -405,6 +405,9 @@ public class Portal extends Entity implements PortalLike {
         if (!teleportable) {
             return false;
         }
+        if (entity instanceof Portal) {
+            return false;
+        }
         if (entity instanceof ServerPlayerEntity) {
             if (specificPlayerId != null) {
                 if (!entity.getUuid().equals(specificPlayerId)) {

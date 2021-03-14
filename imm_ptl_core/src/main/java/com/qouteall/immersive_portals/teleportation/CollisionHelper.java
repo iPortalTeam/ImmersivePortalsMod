@@ -87,6 +87,8 @@ public class CollisionHelper {
         Portal collidingPortal,
         Function<Vec3d, Vec3d> handleCollisionFunc
     ) {
+        entity.world.getProfiler().push("cross_portal_collision");
+        
         Box originalBoundingBox = entity.getBoundingBox();
         
         Vec3d thisSideMove = getThisSideMove(
@@ -105,6 +107,8 @@ public class CollisionHelper {
             entity, thisSideMove, collidingPortal,
             handleCollisionFunc, originalBoundingBox
         );
+        
+        entity.world.getProfiler().pop();
         
         return new Vec3d(
             correctXZCoordinate(attemptedMove.x, otherSideMove.x),
@@ -256,12 +260,19 @@ public class CollisionHelper {
     private static Box getCollisionBoxOtherSide(
         Portal portal,
         Box originalBox,
-        Vec3d attemptedMove
+        Vec3d transformedAttemptedMove
     ) {
         Box otherSideBox = transformBox(portal, originalBox);
+    
+        if (transformedAttemptedMove.lengthSquared() > 3) {
+            // a weird way to avoid colliding with blocks behind the portal destination
+            // when fast
+            otherSideBox = otherSideBox.offset(transformedAttemptedMove);
+        }
+        
         return clipBox(
             otherSideBox,
-            portal.getDestPos().subtract(attemptedMove),
+            portal.getDestPos().subtract(transformedAttemptedMove),
             portal.getContentDirection()
         );
     }
@@ -371,7 +382,7 @@ public class CollisionHelper {
                 if (!entityBoxStretched.intersects(portalBoundingBox)) {
                     return;
                 }
-                final boolean canCollideWithPortal = canCollideWithPortal(entity, portal, 1);
+                boolean canCollideWithPortal = canCollideWithPortal(entity, portal, 0);
                 if (!canCollideWithPortal) {
                     return;
                 }
@@ -381,10 +392,38 @@ public class CollisionHelper {
         );
     }
     
+    // the normal way of updating colliding portal delays one tick and does not work in high speed
+    // to save performance, only do this on high speed
+    public static void updateCollidingPortalNow(Entity entity) {
+        if (entity instanceof Portal) {
+            return;
+        }
+        
+        entity.world.getProfiler().push("update_colliding_portal_now");
+        
+        Box boundingBox = getStretchedBoundingBox(entity);
+        McHelper.foreachEntitiesByBoxApproximateRegions(
+            Portal.class,
+            entity.world,
+            boundingBox,
+            10,
+            portal -> {
+                if (boundingBox.intersects(portal.getBoundingBox())) {
+                    if (canCollideWithPortal(entity, portal, 0)) {
+                        ((IEEntity) entity).notifyCollidingWithPortal(portal);
+                    }
+                }
+            }
+        );
+        
+        entity.world.getProfiler().pop();
+    }
+    
     public static Box getStretchedBoundingBox(Entity entity) {
+        // normal colliding portal update lags 1 tick before collision calculation
         // the velocity updates later after updating colliding portal
         // expand the velocity to avoid not collide with portal in time
-        Vec3d expand = entity.getVelocity().multiply(1.3);
+        Vec3d expand = entity.getVelocity().multiply(1.2);
         return entity.getBoundingBox().stretch(expand);
     }
     

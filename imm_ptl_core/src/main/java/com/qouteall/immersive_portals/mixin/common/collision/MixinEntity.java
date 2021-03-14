@@ -11,6 +11,7 @@ import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import com.qouteall.immersive_portals.teleportation.ServerTeleportationManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -67,6 +68,8 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     public int age;
     
+    @Shadow public abstract Vec3d getVelocity();
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
@@ -97,6 +100,10 @@ public abstract class MixinEntity implements IEEntity {
             else {
                 return attemptedMove;
             }
+        }
+    
+        if (getVelocity().lengthSquared() > 2) {
+            CollisionHelper.updateCollidingPortalNow(entity);
         }
         
         if (collidingPortal == null ||
@@ -178,7 +185,7 @@ public abstract class MixinEntity implements IEEntity {
     private void onSetPose(EntityPose pose, CallbackInfo ci) {
         Entity this_ = (Entity) (Object) this;
         
-        if (this_ instanceof ServerPlayerEntity) {
+        if (this_ instanceof PlayerEntity) {
             if (this_.getPose() == EntityPose.STANDING) {
                 if (pose == EntityPose.CROUCHING || pose == EntityPose.SWIMMING) {
                     if (isRecentlyCollidingWithPortal() ||
@@ -206,7 +213,7 @@ public abstract class MixinEntity implements IEEntity {
             }
             else {
                 Box stretchedBoundingBox = CollisionHelper.getStretchedBoundingBox(this_);
-                if (!stretchedBoundingBox.intersects(collidingPortal.getBoundingBox())) {
+                if (!stretchedBoundingBox.expand(0.5).intersects(collidingPortal.getBoundingBox())) {
                     collidingPortal = null;
                 }
             }
