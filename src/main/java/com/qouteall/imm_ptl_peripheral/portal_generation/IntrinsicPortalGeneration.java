@@ -24,7 +24,7 @@ public class IntrinsicPortalGeneration {
         8, 1,
         true,
         intrinsicNetherPortalForm,
-        null, new ArrayList<>()
+        null, new ArrayList<>(), new ArrayList<>()
     );
     
     public static final CustomPortalGeneration intrinsicFromNether = intrinsicToNether.getReverse();
@@ -34,7 +34,7 @@ public class IntrinsicPortalGeneration {
         8, 1,
         true,
         diligentNetherPortalForm,
-        null, new ArrayList<>()
+        null, new ArrayList<>(), new ArrayList<>()
     );
     
     public static final CustomPortalGeneration diligentFromNether = diligentToNether.getReverse();
@@ -44,7 +44,7 @@ public class IntrinsicPortalGeneration {
         CustomPortalGeneration.theSameDimension,
         1, 1,
         false, portalHelperForm,
-        null, new ArrayList<>()
+        null, new ArrayList<>(), new ArrayList<>()
     );
     
     public static void init() {

@@ -128,10 +128,8 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         NetherPortalGeneration.fillInPlaceHolderBlocks(toWorld, toShape);
         
         GeneralBreakablePortal[] portals = createPortals(fromWorld, toWorld, fromShape, toShape);
-        
-        for (GeneralBreakablePortal portal : portals) {
-            cpg.onPortalGenerated(portal);
-        }
+    
+        cpg.onPortalsGenerated(portals);
         
         return true;
     }

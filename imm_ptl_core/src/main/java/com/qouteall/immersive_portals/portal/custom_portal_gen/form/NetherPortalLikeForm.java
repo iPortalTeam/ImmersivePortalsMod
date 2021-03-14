@@ -82,9 +82,8 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             info -> {
                 //generate portal entity
                 Portal[] result = generatePortalEntitiesAndPlaceholder(info);
-                for (Portal portal : result) {
-                    cpg.onPortalGenerated(portal);
-                }
+    
+                cpg.onPortalsGenerated(result);
             },
             () -> {
                 //place frame

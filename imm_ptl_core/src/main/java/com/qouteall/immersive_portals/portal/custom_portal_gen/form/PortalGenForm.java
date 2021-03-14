@@ -43,6 +43,9 @@ public abstract class PortalGenForm {
         Registry.register(
             registry, new Identifier("imm_ptl:convert_conventional_portal"), ConvertConventionalPortalForm.codec
         );
+        Registry.register(
+            registry, new Identifier("imm_ptl:one_way"), OneWayForm.codec
+        );
         
         return registry;
     });

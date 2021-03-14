@@ -27,6 +27,8 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
@@ -492,6 +494,15 @@ public class McHelper {
     
     public static void validateOnServerThread() {
         Validate.isTrue(Thread.currentThread() == getServer().getThread(), "must be on server thread");
+    }
+    
+    public static void invokeCommandAs(Entity commandSender, List<String> commandList) {
+        ServerCommandSource commandSource = commandSender.getCommandSource().withLevel(2).withSilent();
+        CommandManager commandManager = getServer().getCommandManager();
+        
+        for (String command : commandList) {
+            commandManager.execute(commandSource, command);
+        }
     }
     
     public static interface ChunkAccessor {

@@ -32,8 +32,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Packet;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
@@ -243,13 +241,15 @@ public class Portal extends Entity implements PortalLike {
      */
     public void onEntityTeleportedOnServer(Entity entity) {
         if (commandsOnTeleported != null) {
-            ServerCommandSource commandSource =
-                entity.getCommandSource().withLevel(2).withSilent();
-            
-            CommandManager commandManager = McHelper.getServer().getCommandManager();
-            for (String command : commandsOnTeleported) {
-                commandManager.execute(commandSource, command);
-            }
+            McHelper.invokeCommandAs(entity, commandsOnTeleported);
+
+//            ServerCommandSource commandSource =
+//                entity.getCommandSource().withLevel(2).withSilent();
+//
+//            CommandManager commandManager = McHelper.getServer().getCommandManager();
+//            for (String command : commandsOnTeleported) {
+//                commandManager.execute(commandSource, command);
+//            }
         }
     }
     

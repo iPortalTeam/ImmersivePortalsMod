@@ -171,6 +171,10 @@ public abstract class BreakablePortalEntity extends Portal {
     
     public boolean isPortalPaired() {
         Validate.isTrue(!world.isClient());
+    
+        if (isOneWay()) {
+            return true;
+        }
         
         if (!isOtherSideChunkLoaded()) {
             return true;

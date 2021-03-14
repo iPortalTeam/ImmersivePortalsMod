@@ -11,8 +11,6 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.form.PortalGenForm;
 import net.minecraft.entity.Entity;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -42,6 +40,8 @@ public class CustomPortalGeneration {
         new ListCodec<>(World.CODEC);
     public static final Codec<List<String>> stringListCodec =
         new ListCodec<>(Codec.STRING);
+    public static final Codec<List<List<String>>> stringListListCodec =
+        new ListCodec<>(stringListCodec);
     
     public static RegistryKey<Registry<Codec<CustomPortalGeneration>>> schemaRegistryKey = RegistryKey.ofRegistry(
         new Identifier("imm_ptl:custom_portal_gen_schema")
@@ -60,7 +60,9 @@ public class CustomPortalGeneration {
             PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
             PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
             stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
-                .forGetter(o -> o.postInvokeCommands)
+                .forGetter(o -> o.postInvokeCommands),
+            stringListListCodec.optionalFieldOf("commands_on_generated", Collections.emptyList())
+                .forGetter(o -> o.commandsOnGenerated)
         ).apply(instance, instance.stable(CustomPortalGeneration::new));
     });
     
@@ -78,7 +80,6 @@ public class CustomPortalGeneration {
         "schema_version", e -> codecV1, Function.identity()
     );
     
-    
     public final List<RegistryKey<World>> fromDimensions;
     public final RegistryKey<World> toDimension;
     public final int spaceRatioFrom;
@@ -87,6 +88,7 @@ public class CustomPortalGeneration {
     public final PortalGenForm form;
     public final PortalGenTrigger trigger;
     public final List<String> postInvokeCommands;
+    public final List<List<String>> commandsOnGenerated;
     
     public Identifier identifier = null;
     
@@ -94,7 +96,8 @@ public class CustomPortalGeneration {
         List<RegistryKey<World>> fromDimensions, RegistryKey<World> toDimension,
         int spaceRatioFrom, int spaceRatioTo, boolean reversible,
         PortalGenForm form, PortalGenTrigger trigger,
-        List<String> postInvokeCommands
+        List<String> postInvokeCommands,
+        List<List<String>> commandsOnGenerated
     ) {
         this.fromDimensions = fromDimensions;
         this.toDimension = toDimension;
@@ -104,6 +107,7 @@ public class CustomPortalGeneration {
         this.form = form;
         this.trigger = trigger;
         this.postInvokeCommands = postInvokeCommands;
+        this.commandsOnGenerated = commandsOnGenerated;
     }
     
     @Nullable
@@ -117,7 +121,8 @@ public class CustomPortalGeneration {
                 false,
                 form.getReverse(),
                 trigger,
-                postInvokeCommands
+                postInvokeCommands,
+                commandsOnGenerated
             );
         }
         
@@ -130,7 +135,8 @@ public class CustomPortalGeneration {
                 false,
                 form.getReverse(),
                 trigger,
-                postInvokeCommands
+                postInvokeCommands,
+                commandsOnGenerated
             );
         }
         
@@ -206,20 +212,23 @@ public class CustomPortalGeneration {
         return result;
     }
     
-    public void onPortalGenerated(Portal portal) {
-        if (identifier != null) {
-            portal.portalTag = identifier.toString();
+    public void onPortalsGenerated(Portal[] portals) {
+        for (int i = 0; i < portals.length; i++) {
+            Portal portal = portals[i];
+            if (identifier != null) {
+                portal.portalTag = identifier.toString();
+            }
+            
+            if (!postInvokeCommands.isEmpty()) {
+                McHelper.invokeCommandAs(portal, postInvokeCommands);
+            }
+            
+            if (i < commandsOnGenerated.size()) {
+                List<String> commandsForThisPortal = commandsOnGenerated.get(i);
+                McHelper.invokeCommandAs(portal, commandsForThisPortal);
+            }
         }
         
-        if (postInvokeCommands.isEmpty()) {
-            return;
-        }
         
-        ServerCommandSource commandSource = portal.getCommandSource().withLevel(4).withSilent();
-        CommandManager commandManager = McHelper.getServer().getCommandManager();
-        
-        for (String command : postInvokeCommands) {
-            commandManager.execute(commandSource, command);
-        }
     }
 }

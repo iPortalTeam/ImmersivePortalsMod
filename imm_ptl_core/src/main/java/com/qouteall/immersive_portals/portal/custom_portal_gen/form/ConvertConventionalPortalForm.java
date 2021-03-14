@@ -150,20 +150,17 @@ public class ConvertConventionalPortalForm extends PortalGenForm {
                 fromWorld, toWorld,
                 portalGenInfo.fromShape, portalGenInfo.toShape
             );
+    
+            cpg.onPortalsGenerated(portals);
             
-            for (GeneralBreakablePortal portal : portals) {
-                cpg.onPortalGenerated(portal);
-            }
             
             Helper.log("Created flipping floor portal");
         }
         else {
             BreakablePortalEntity[] portals =
                 portalGenInfo.generateBiWayBiFacedPortal(GeneralBreakablePortal.entityType);
-            
-            for (BreakablePortalEntity portal : portals) {
-                cpg.onPortalGenerated(portal);
-            }
+    
+            cpg.onPortalsGenerated(portals);
             
             Helper.log("Created normal bi-way bi-faced portal");
             
