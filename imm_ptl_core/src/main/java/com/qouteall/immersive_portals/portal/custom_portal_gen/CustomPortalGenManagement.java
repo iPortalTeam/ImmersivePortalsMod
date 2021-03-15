@@ -148,7 +148,7 @@ public class CustomPortalGenManagement {
                         if (gen.trigger instanceof PortalGenTrigger.UseItemTrigger) {
                             PortalGenTrigger.UseItemTrigger trigger =
                                 (PortalGenTrigger.UseItemTrigger) gen.trigger;
-                            if (trigger.consume) {
+                            if (trigger.shouldConsume(context)) {
                                 context.getStack().decrement(1);
                             }
                         }

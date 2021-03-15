@@ -3,7 +3,9 @@ package com.qouteall.immersive_portals.portal.custom_portal_gen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -26,6 +28,21 @@ public abstract class PortalGenTrigger {
         public UseItemTrigger(Item item, boolean consume) {
             this.item = item;
             this.consume = consume;
+        }
+        
+        public boolean shouldConsume(ItemUsageContext context) {
+            if (!consume) {
+                return false;
+            }
+            
+            PlayerEntity player = context.getPlayer();
+            if (player != null) {
+                if (player.isCreative()) {
+                    return false;
+                }
+            }
+            
+            return true;
         }
         
         @Override
