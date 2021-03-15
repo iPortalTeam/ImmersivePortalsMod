@@ -29,6 +29,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -827,6 +828,11 @@ public class Portal extends Entity implements PortalLike {
         if (entity.getVelocity().length() > maxVelocity) {
             // cannot be too fast
             entity.setVelocity(entity.getVelocity().normalize().multiply(maxVelocity));
+        }
+        
+        // avoid cannot push minecart out of nether portal
+        if (entity instanceof AbstractMinecartEntity && entity.getVelocity().lengthSquared() < 0.5) {
+            entity.setVelocity(entity.getVelocity().multiply(2));
         }
     }
     
