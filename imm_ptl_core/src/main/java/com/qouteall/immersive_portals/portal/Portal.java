@@ -822,11 +822,12 @@ public class Portal extends Entity implements PortalLike {
             entity.setVelocity(transformLocalVec(entity.getVelocity()));
         }
         
-        final int maxVelocity = 15;
-        if (entity.getVelocity().length() > maxVelocity) {
-            // cannot be too fast
-            entity.setVelocity(entity.getVelocity().normalize().multiply(maxVelocity));
-        }
+       if(entity.getVelocity().length()<1.5){
+           double velocityavg = entity.getVelocity().multiply(1.64835432639D,0,1.64835432639D).length();
+            entity.setVelocity(entity.getVelocity().normalize().multiply(velocityavg));
+       }else{
+           entity.setVelocity((entity.getVelocity().normalize().multiply(1)));
+       }
     }
     
     /**
