@@ -60,7 +60,13 @@ public abstract class BreakablePortalEntity extends Portal {
         if (compoundTag.contains("netherPortalShape")) {
             blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
+        
         reversePortalId = Helper.getUuid(compoundTag, "reversePortalId");
+        if (reversePortalId == null) {
+            Helper.err("missing reverse portal id " + compoundTag);
+            reversePortalId = Util.NIL_UUID;
+        }
+        
         unbreakable = compoundTag.getBoolean("unbreakable");
         
         if (compoundTag.contains("overlayBlockState")) {
@@ -171,7 +177,7 @@ public abstract class BreakablePortalEntity extends Portal {
     
     public boolean isPortalPaired() {
         Validate.isTrue(!world.isClient());
-    
+        
         if (isOneWay()) {
             return true;
         }

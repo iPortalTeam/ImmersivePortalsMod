@@ -471,10 +471,8 @@ public class Portal extends Entity implements PortalLike {
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
         axisH = Helper.getVec3d(compoundTag, "axisH").normalize();
         dimensionTo = DimId.getWorldId(compoundTag, "dimensionTo", world.isClient);
-        setDestination(Helper.getVec3d(compoundTag, "destination"));
-        if (compoundTag.contains("specificPlayer")) {
-            specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
-        }
+        destination = (Helper.getVec3d(compoundTag, "destination"));
+        specificPlayerId = Helper.getUuid(compoundTag, "specificPlayer");
         if (compoundTag.contains("specialShape")) {
             specialShape = new GeometryPortalShape(
                 compoundTag.getList("specialShape", 6)

@@ -611,8 +611,15 @@ public class Helper {
         tag.putLong(key + "Least", uuid.getLeastSignificantBits());
     }
     
+    @Nullable
     public static UUID getUuid(CompoundTag tag, String key) {
-        return new UUID(tag.getLong(key + "Most"), tag.getLong(key + "Least"));
+        String key1 = key + "Most";
+        
+        if (!tag.contains(key1)) {
+            return null;
+        }
+        
+        return new UUID(tag.getLong(key1), tag.getLong(key + "Least"));
     }
     
     public static Vec3d getFlippedVec(Vec3d vec, Vec3d flippingAxis) {
