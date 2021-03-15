@@ -28,6 +28,7 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -408,7 +409,7 @@ public class Portal extends Entity implements PortalLike {
         if (entity instanceof Portal) {
             return false;
         }
-        if (entity instanceof ServerPlayerEntity) {
+        if (entity instanceof PlayerEntity) {
             if (specificPlayerId != null) {
                 if (!entity.getUuid().equals(specificPlayerId)) {
                     return false;
