@@ -897,4 +897,11 @@ public class McHelper {
         return 16;
     }
     
+    public static Box getBoundingBoxWithMovedPosition(
+        Entity entity, Vec3d newPos
+    ) {
+        return entity.getBoundingBox().offset(
+            newPos.subtract(entity.getPos())
+        );
+    }
 }

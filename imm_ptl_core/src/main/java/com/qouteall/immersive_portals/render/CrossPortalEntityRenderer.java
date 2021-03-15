@@ -31,6 +31,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
+import java.util.Arrays;
 import java.util.WeakHashMap;
 
 @Environment(EnvType.CLIENT)
@@ -169,7 +170,9 @@ public class CrossPortalEntityRenderer {
             //use some rough check to work around
             
             if (renderingPortal instanceof Portal) {
-                if (!Portal.isFlippedPortal(((Portal) renderingPortal), collidingPortal)) {
+                if (!Portal.isFlippedPortal(((Portal) renderingPortal), collidingPortal)
+                    && !Portal.isReversePortal(((Portal) renderingPortal), collidingPortal)
+                ) {
                     Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
                     
                     boolean isHidden = cameraPos.subtract(collidingPortal.getDestPos())
@@ -223,7 +226,14 @@ public class CrossPortalEntityRenderer {
         
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            if (!renderingPortal.isInside(newEyePos, 0)) {
+            
+            Vec3d transformedEntityPos = newEyePos.subtract(0, entity.getStandingEyeHeight(), 0);
+            Box transformedBoundingBox = McHelper.getBoundingBoxWithMovedPosition(entity, transformedEntityPos);
+            
+            boolean intersects = Arrays.stream(Helper.eightVerticesOf(transformedBoundingBox))
+                .anyMatch(p -> renderingPortal.isInside(p, 0));
+            
+            if (!intersects) {
                 return;
             }
         }
