@@ -220,13 +220,13 @@ public class CrossPortalEntityRenderer {
         World oldWorld = entity.world;
         
         Vec3d newEyePos = transformingPortal.transformPoint(oldEyePos);
-
-//        if (PortalRendering.isRendering()) {
-//            Portal renderingPortal = PortalRendering.getRenderingPortal();
-//            if (!renderingPortal.isInside(newEyePos, -3)) {
-//                return;
-//            }
-//        }
+        
+        if (PortalRendering.isRendering()) {
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+            if (!renderingPortal.isInside(newEyePos, 0)) {
+                return;
+            }
+        }
         
         if (entity instanceof ClientPlayerEntity) {
             if (!Global.renderYourselfInPortal) {
