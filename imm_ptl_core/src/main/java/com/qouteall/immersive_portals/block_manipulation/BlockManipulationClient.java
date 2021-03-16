@@ -46,7 +46,7 @@ public class BlockManipulationClient {
     }
     
     public static void updatePointedBlock(float tickDelta) {
-        if (client.interactionManager == null || client.world == null) {
+        if (client.interactionManager == null || client.world == null || client.player == null) {
             return;
         }
         
