@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.ShaderClippingManag
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
+import com.qouteall.immersive_portals.portal.PortalManipulation;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
@@ -31,7 +32,6 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
-import java.util.Arrays;
 import java.util.WeakHashMap;
 
 @Environment(EnvType.CLIENT)
@@ -229,10 +229,9 @@ public class CrossPortalEntityRenderer {
             
             Vec3d transformedEntityPos = newEyePos.subtract(0, entity.getStandingEyeHeight(), 0);
             Box transformedBoundingBox = McHelper.getBoundingBoxWithMovedPosition(entity, transformedEntityPos);
-            
-            boolean intersects = Arrays.stream(Helper.eightVerticesOf(transformedBoundingBox))
-                .anyMatch(p -> renderingPortal.isInside(p, 0));
-            
+    
+            boolean intersects = PortalManipulation.isOtherSideBoxInside(transformedBoundingBox, renderingPortal);
+    
             if (!intersects) {
                 return;
             }

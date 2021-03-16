@@ -263,18 +263,31 @@ public class CollisionHelper {
         Vec3d transformedAttemptedMove
     ) {
         Box otherSideBox = transformBox(portal, originalBox);
-    
-        if (transformedAttemptedMove.lengthSquared() > 3) {
-            // a weird way to avoid colliding with blocks behind the portal destination
-            // when fast
-            otherSideBox = otherSideBox.offset(transformedAttemptedMove);
-        }
         
-        return clipBox(
+        Vec3d clippingPos = portal.getDestPos().subtract(transformedAttemptedMove);
+        
+        Box box = clipBox(
             otherSideBox,
-            portal.getDestPos().subtract(transformedAttemptedMove),
+            clippingPos,
             portal.getContentDirection()
         );
+        
+        if (box != null) {
+            Vec3d contentDirection = portal.getContentDirection();
+            boolean movingIntoPortal =
+                contentDirection.dotProduct(transformedAttemptedMove) > 0;
+            if (movingIntoPortal && transformedAttemptedMove.lengthSquared() > 1) {
+                // the box is not clipped
+                if (box.getCenter().subtract(otherSideBox.getCenter()).lengthSquared() < 0.2) {
+                    // avoid colliding with blocks behind the portal destination
+                    box = box.offset(
+                        contentDirection.multiply(transformedAttemptedMove.dotProduct(contentDirection))
+                    );
+                }
+            }
+        }
+        
+        return box;
     }
     
     private static Box transformBox(Portal portal, Box originalBox) {

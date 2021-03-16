@@ -19,6 +19,7 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -438,5 +439,11 @@ public class PortalManipulation {
         portalA.setRotationTransformation(aRot.toMcQuaternion());
         portalB.setRotationTransformation(aRot.getConjugated().toMcQuaternion());
         
+    }
+    
+    public static boolean isOtherSideBoxInside(Box transformedBoundingBox, PortalLike renderingPortal) {
+        boolean intersects = Arrays.stream(Helper.eightVerticesOf(transformedBoundingBox))
+            .anyMatch(p -> renderingPortal.isInside(p, 0));
+        return intersects;
     }
 }
