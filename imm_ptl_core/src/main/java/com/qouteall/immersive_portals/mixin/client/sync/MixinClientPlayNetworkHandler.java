@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
@@ -227,6 +228,22 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             });
             ci.cancel();
         }
+    }
+    
+    // for debug
+    @Redirect(
+        method = "onEntityTrackerUpdate",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/world/ClientWorld;getEntityById(I)Lnet/minecraft/entity/Entity;"
+        )
+    )
+    private Entity redirectGetEntityById(ClientWorld clientWorld, int id) {
+        Entity entity = clientWorld.getEntityById(id);
+        if (entity == null) {
+            Helper.err("missing entity for data tracking " + clientWorld + id);
+        }
+        return entity;
     }
     
     @Override

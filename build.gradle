@@ -45,7 +45,8 @@ allprojects {
         }
         maven { url "https://maven.shedaniel.me/" }
 
-        jcenter()
+//        maven { url 'https://repo.repsy.io/mvn/gandiber/geckolib' }
+
     }
 
     // ensure that the encoding is set to UTF-8, no matter what the system default is
