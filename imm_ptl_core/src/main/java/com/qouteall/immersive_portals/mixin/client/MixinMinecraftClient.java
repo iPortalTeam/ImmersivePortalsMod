@@ -4,7 +4,6 @@ import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.miscellaneous.FPSMonitor;
-import com.qouteall.immersive_portals.network.CommonNetwork;
 import com.qouteall.immersive_portals.network.CommonNetworkClient;
 import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;
@@ -14,6 +13,7 @@ import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.thread.ReentrantThreadExecutor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import javax.annotation.Nullable;
 
 @Mixin(MinecraftClient.class)
-public abstract class MixinMinecraftClient implements IEMinecraftClient {
+public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runnable> implements IEMinecraftClient {
     @Final
     @Shadow
     @Mutable
@@ -54,6 +54,11 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     @Shadow
     @Final
     private BufferBuilderStorage bufferBuilders;
+    
+    public MixinMinecraftClient(String string) {
+        super(string);
+        throw new RuntimeException();
+    }
     
     @Inject(
         method = "tick",
@@ -108,7 +113,7 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
     private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
         MinecraftClient this_ = (MinecraftClient) (Object) this;
         if (this_.isOnThread()) {
-            if (CommonNetwork.getIsProcessingRedirectedMessage()) {
+            if (CommonNetworkClient.getIsProcessingRedirectedMessage()) {
                 ClientWorld currWorld = this_.world;
                 Runnable newRunnable = () -> {
                     CommonNetworkClient.withSwitchedWorld(currWorld, runnable);
@@ -117,20 +122,22 @@ public abstract class MixinMinecraftClient implements IEMinecraftClient {
             }
         }
     }
-
-//    @Inject(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/MinecraftClient;runTasks()V",
-//            shift = At.Shift.AFTER
-//        )
-//    )
-//    private void onRunTasks(boolean tick, CallbackInfo ci) {
-//        getProfiler().push("portal_networking");
-//        ClientNetworkingTaskList.processClientNetworkingTasks();
-//        getProfiler().pop();
-//    }
+    
+    /**
+     * Make sure that the redirected packet handling won't be delayed
+     */
+    @Override
+    protected boolean shouldExecuteAsync() {
+        boolean onThread = isOnThread();
+        
+        if (onThread) {
+            if (CommonNetworkClient.isProcessingRedirectedMessage) {
+                return false;
+            }
+        }
+        
+        return this.hasRunningTasks() || !onThread;
+    }
     
     @Override
     public void setFrameBuffer(Framebuffer buffer) {

@@ -33,7 +33,8 @@ public class CommonNetworkClient {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
-    static boolean isProcessingRedirectedMessage = false;
+    
+    public static boolean isProcessingRedirectedMessage = false;
     
     
     public static void processRedirectedPacket(RegistryKey<World> dimension, Packet packet) {
@@ -148,5 +149,9 @@ public class CommonNetworkClient {
             
             client.getProfiler().pop();
         });
+    }
+    
+    public static boolean getIsProcessingRedirectedMessage() {
+        return isProcessingRedirectedMessage;
     }
 }

@@ -16,10 +16,6 @@ public class CommonNetwork {
     @Nullable
     public static RegistryKey<World> forceRedirect = null;
     
-    public static boolean getIsProcessingRedirectedMessage() {
-        return CommonNetworkClient.isProcessingRedirectedMessage;
-    }
-    
     public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
         Validate.isTrue(
             McHelper.getServer().getThread() == Thread.currentThread(),
