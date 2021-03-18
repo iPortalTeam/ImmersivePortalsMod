@@ -22,7 +22,7 @@ public class OneWayForm extends PortalGenForm {
             SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock),
             SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
             Codec.BOOL.fieldOf("bi_faced").forGetter(o -> o.biFaced),
-            Codec.BOOL.fieldOf("breakable").forGetter(o -> o.breakable)
+            Codec.BOOL.optionalFieldOf("breakable", true).forGetter(o -> o.breakable)
         ).apply(instance, instance.stable(OneWayForm::new));
     });
     
