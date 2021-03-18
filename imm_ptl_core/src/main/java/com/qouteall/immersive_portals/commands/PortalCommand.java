@@ -270,8 +270,8 @@ public class PortalCommand {
         
         
         builder.then(CommandManager
-            .literal("test")
-            .executes(context -> {
+                .literal("test")
+                .executes(context -> {
 //                ServerWorld world = context.getSource().getWorld();
 //                Vec3d pos = context.getSource().getPosition();
 //
@@ -293,9 +293,9 @@ public class PortalCommand {
 //
 //                from.reloadAndSyncToClient();
 //                to.reloadAndSyncToClient();
-                
-                return 0;
-            })
+                    
+                    return 0;
+                })
         );
     }
     
@@ -931,6 +931,8 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            
+                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -957,6 +959,8 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            
+                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -981,6 +985,8 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            
+                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -1005,6 +1011,8 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            
+                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -1693,6 +1701,12 @@ public class PortalCommand {
         
         sendMessage(context, portal.toString());
         
+        sendEditBreakableWarning(context, portal);
+    }
+    
+    private static void sendEditBreakableWarning(
+        CommandContext<ServerCommandSource> context, Portal portal
+    ) {
         if (portal instanceof BreakablePortalEntity) {
             if (!((BreakablePortalEntity) portal).unbreakable) {
                 sendMessage(context, "You are editing a breakable portal." +
