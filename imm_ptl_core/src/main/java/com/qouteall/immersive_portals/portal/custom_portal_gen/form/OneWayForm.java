@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.api.PortalAPI;
-import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.SimpleBlockPredicate;
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
@@ -22,20 +21,24 @@ public class OneWayForm extends PortalGenForm {
         return instance.group(
             SimpleBlockPredicate.codec.fieldOf("frame_block").forGetter(o -> o.frameBlock),
             SimpleBlockPredicate.codec.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Codec.BOOL.fieldOf("bi_faced").forGetter(o -> o.biFaced)
+            Codec.BOOL.fieldOf("bi_faced").forGetter(o -> o.biFaced),
+            Codec.BOOL.fieldOf("breakable").forGetter(o -> o.breakable)
         ).apply(instance, instance.stable(OneWayForm::new));
     });
     
     public final SimpleBlockPredicate frameBlock;
     public final SimpleBlockPredicate areaBlock;
     public final boolean biFaced;
+    public final boolean breakable;
     
     public OneWayForm(
-        SimpleBlockPredicate frameBlock, SimpleBlockPredicate areaBlock, boolean biFaced
+        SimpleBlockPredicate frameBlock, SimpleBlockPredicate areaBlock,
+        boolean biFaced, boolean breakable
     ) {
         this.frameBlock = frameBlock;
         this.areaBlock = areaBlock;
         this.biFaced = biFaced;
+        this.breakable = breakable;
     }
     
     @Override
@@ -72,7 +75,9 @@ public class OneWayForm extends PortalGenForm {
             fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
         }
         
-        NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, fromShape);
+        if (!breakable) {
+            NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, fromShape);
+        }
         
         GeneralBreakablePortal portal = GeneralBreakablePortal.entityType.create(fromWorld);
         Validate.notNull(portal);
@@ -91,17 +96,27 @@ public class OneWayForm extends PortalGenForm {
         portal.markOneWay();
         McHelper.spawnServerEntity(portal);
         
+        GeneralBreakablePortal[] resultPortals = null;
+        
         if (biFaced) {
             GeneralBreakablePortal flippedPortal = PortalAPI.createFlippedPortal(portal);
             flippedPortal.blockPortalShape = fromShape;
             flippedPortal.markOneWay();
             McHelper.spawnServerEntity(flippedPortal);
             
-            cpg.onPortalsGenerated(new Portal[]{portal, flippedPortal});
+            resultPortals = new GeneralBreakablePortal[]{portal, flippedPortal};
         }
         else {
-            cpg.onPortalsGenerated(new Portal[]{portal});
+            resultPortals = new GeneralBreakablePortal[]{portal};
         }
+        
+        if (!breakable) {
+            for (GeneralBreakablePortal p : resultPortals) {
+                p.unbreakable = true;
+            }
+        }
+        
+        cpg.onPortalsGenerated(resultPortals);
         
         return true;
     }
