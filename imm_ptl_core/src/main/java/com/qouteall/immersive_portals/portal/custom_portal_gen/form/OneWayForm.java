@@ -75,7 +75,7 @@ public class OneWayForm extends PortalGenForm {
             fromWorld.setBlockState(areaPos, Blocks.AIR.getDefaultState());
         }
         
-        if (!breakable) {
+        if (breakable) {
             NetherPortalGeneration.fillInPlaceHolderBlocks(fromWorld, fromShape);
         }
         
