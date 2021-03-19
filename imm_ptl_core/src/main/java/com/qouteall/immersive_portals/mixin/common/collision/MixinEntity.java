@@ -68,7 +68,8 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     public int age;
     
-    @Shadow public abstract Vec3d getVelocity();
+    @Shadow
+    public abstract Vec3d getVelocity();
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
@@ -87,9 +88,9 @@ public abstract class MixinEntity implements IEEntity {
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
         if (attemptedMove.lengthSquared() > 60 * 60) {
-           limitedLogger.invoke(() -> {
-               Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
-               new Throwable().printStackTrace();
+            limitedLogger.invoke(() -> {
+                Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
+                new Throwable().printStackTrace();
             });
             
             if (entity instanceof ServerPlayerEntity) {
@@ -101,7 +102,7 @@ public abstract class MixinEntity implements IEEntity {
                 return attemptedMove;
             }
         }
-    
+        
         if (getVelocity().lengthSquared() > 2) {
             CollisionHelper.updateCollidingPortalNow(entity);
         }
@@ -188,9 +189,7 @@ public abstract class MixinEntity implements IEEntity {
         if (this_ instanceof PlayerEntity) {
             if (this_.getPose() == EntityPose.STANDING) {
                 if (pose == EntityPose.CROUCHING || pose == EntityPose.SWIMMING) {
-                    if (isRecentlyCollidingWithPortal() ||
-                        Global.serverTeleportationManager.isJustTeleported(this_, 20)
-                    ) {
+                    if (isRecentlyCollidingWithPortal()) {
                         ci.cancel();
                     }
                 }
