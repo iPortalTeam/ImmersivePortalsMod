@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin.client;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.ducks.IEClientWorld;
+import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -11,6 +12,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -21,6 +23,7 @@ import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -118,6 +121,39 @@ public abstract class MixinClientWorld implements IEClientWorld {
             cir.setReturnValue(false);
 //            Helper.log("chunk not loaded");
 //            new Throwable().printStackTrace();
+        }
+    }
+    
+    private static final LimitedLogger limitedLogger = new LimitedLogger(100);
+    
+    /**
+     * @author qouteall
+     * @reason vanilla logic may be wrong
+     */
+    @Overwrite
+    private void checkEntityChunkPos(Entity entity) {
+        ClientWorld this_ = (ClientWorld) (Object) this;
+        if (entity.isChunkPosUpdateRequested()) {
+            this_.getProfiler().push("chunkCheck");
+            int newCX = MathHelper.floor(entity.getX() / 16.0D);
+            int newCY = MathHelper.floor(entity.getY() / 16.0D);
+            int newCZ = MathHelper.floor(entity.getZ() / 16.0D);
+            if (!entity.updateNeeded || entity.chunkX != newCX || entity.chunkY != newCY || entity.chunkZ != newCZ) {
+                if (entity.updateNeeded && this_.isChunkLoaded(entity.chunkX, entity.chunkZ)) {
+                    this_.getChunk(entity.chunkX, entity.chunkZ).remove(entity, entity.chunkY);
+                }
+                
+                if (!entity.teleportRequested() && !this_.isChunkLoaded(newCX, newCZ)) {
+                    if (entity.updateNeeded) {
+                        limitedLogger.log("Entity left loaded chunk area " + entity);
+                    }
+                }
+                else {
+                    this_.getChunk(newCX, newCZ).addEntity(entity);
+                }
+            }
+            
+            this_.getProfiler().pop();
         }
     }
     

@@ -15,7 +15,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
 import net.minecraft.world.biome.source.BiomeArray;
@@ -210,10 +209,11 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public boolean shouldTickEntity(Entity entity) {
-        return this.isChunkLoaded(
-            MathHelper.floor(entity.getX()) >> 4,
-            MathHelper.floor(entity.getZ()) >> 4
-        );
+        return true;// always tick
+        // if one living entity teleports from 1 loaded region to another loaded region
+        // its position interpolates
+        // but if it interpolates into unloaded region
+        // does not stop it from ticking
     }
     
     protected static boolean positionEquals(WorldChunk worldChunk, int x, int z) {
