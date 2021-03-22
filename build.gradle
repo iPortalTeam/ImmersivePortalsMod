@@ -77,8 +77,7 @@ allprojects {
         }
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
-//        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
-//        modImplementation("me.jellysquid.mods:sodium:0.1.1-SNAPSHOT")
+//        modImplementation("me.jellysquid.mods:sodium:0.1.202103212-SNAPSHOT")
 
 
     }
