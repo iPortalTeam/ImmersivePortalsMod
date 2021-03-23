@@ -37,6 +37,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -780,9 +781,15 @@ public class Portal extends Entity implements PortalLike {
                     Helper.err("Missing Dimension " + dimensionTo.getValue());
                     return false;
                 }
+                boolean inWorldBorder = destWorld.getWorldBorder().contains(new BlockPos(getDestPos()));
+                if (!inWorldBorder) {
+                    Helper.err("Destination out of world border " + this);
+                    return false;
+                }
             }
+            return true;
         }
-        return valid;
+        return false;
     }
     
     /**
