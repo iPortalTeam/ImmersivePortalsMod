@@ -18,6 +18,7 @@
     "common.block_manipulation.MixinStatusEffect",
     "common.chunk_sync.MixinChunkHolder",
     "common.chunk_sync.MixinChunkTicketManager",
+    "common.chunk_sync.MixinCustomPayloadS2CPacket",
     "common.chunk_sync.MixinServerPlayerEntity",
     "common.chunk_sync.MixinThreadedAnvilChunkStorage_C",
     "common.collision.MixinAbstractDecorationEntity",

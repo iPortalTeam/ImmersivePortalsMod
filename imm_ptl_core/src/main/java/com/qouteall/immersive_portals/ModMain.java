@@ -61,7 +61,6 @@ public class ModMain {
         GcMonitor.initCommon();
     
         IPDimensionAPI.init();
-        
     }
     
 }
