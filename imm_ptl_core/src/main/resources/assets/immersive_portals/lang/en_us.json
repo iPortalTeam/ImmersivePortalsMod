@@ -118,5 +118,6 @@
   "imm_ptl.command.goback": "Go back",
   "imm_ptl.command_desc.goback": "Return to the last entered portal",
   "imm_ptl.command.show_wiki": "Check Immersive Portals Wiki",
-  "imm_ptl.command_desc.show_wiki": "Discover cool features"
+  "imm_ptl.command_desc.show_wiki": "Discover cool features",
+  "imm_ptl.about_lag": "[Immersive Portals] Portals abruptly load many chunks and may cause lag spikes. The lag will probably disappear after playing for 1 or 2 minutes."
 }

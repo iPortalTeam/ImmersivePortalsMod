@@ -2,6 +2,8 @@ package com.qouteall.imm_ptl_peripheral.guide;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.network.CommonNetworkClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -23,6 +25,7 @@ public class IPGuide {
     public static class GuideInfo {
         public boolean wikiInformed = false;
         public boolean portalHelperInformed = false;
+        public boolean lagInformed = false;
         
         public GuideInfo() {}
     }
@@ -81,6 +84,22 @@ public class IPGuide {
                         "https://qouteall.fun/immptl/wiki/Portal-Customization",
                         new TranslatableText("imm_ptl.inform_wiki")
                     );
+                }
+            }
+            
+            if (!guideInfo.lagInformed) {
+                if (player != null) {
+                    guideInfo.lagInformed = true;
+                    writeToFile(guideInfo);
+                    
+                    ModMain.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
+                        MinecraftClient.getInstance().inGameHud.addChatMessage(
+                            MessageType.SYSTEM,
+                            new TranslatableText("imm_ptl.about_lag"),
+                            Util.NIL_UUID
+                        );
+                        return true;
+                    }));
                 }
             }
         });
