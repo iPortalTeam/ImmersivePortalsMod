@@ -23,7 +23,7 @@ public class MixinCustomPayloadS2CPacket {
         int writerIndex = packetByteBuf.writerIndex();
         if (writerIndex > 1048576) {
             limitedLogger.invoke(() -> {
-                Helper.err("Sending very big packet");
+                Helper.err("Sending very big packet " + writerIndex);
                 new Throwable().printStackTrace();
             });
         }

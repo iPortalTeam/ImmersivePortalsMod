@@ -112,6 +112,8 @@ public class ClientTeleportationManager {
                 return;
             }
             
+            client.getProfiler().push("ip_teleport");
+            
             if (moveStartPoint != null) {
                 for (int i = 0; i < teleportLimit; i++) {
                     boolean teleported = tryTeleport(tickDelta);
@@ -127,6 +129,8 @@ public class ClientTeleportationManager {
             }
             
             moveStartPoint = getPlayerHeadPos(tickDelta);
+            
+            client.getProfiler().pop();
         }
     }
     
@@ -183,6 +187,7 @@ public class ClientTeleportationManager {
     
     private void teleportPlayer(Portal portal) {
         if (tickTimeForTeleportation <= teleportTickTimeLimit) {
+            Helper.log("Client player teleportation rejected");
             return;
         }
         

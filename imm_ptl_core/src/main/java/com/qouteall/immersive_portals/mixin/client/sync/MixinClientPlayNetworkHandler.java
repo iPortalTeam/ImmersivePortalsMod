@@ -137,7 +137,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             }
         }
         
-        CGlobal.clientTeleportationManager.disableTeleportFor(20);
+        CGlobal.clientTeleportationManager.disableTeleportFor(5);
         
     }
     
