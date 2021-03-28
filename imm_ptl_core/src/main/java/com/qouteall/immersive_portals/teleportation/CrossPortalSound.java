@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.teleportation;
 
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.MathHelper;
@@ -9,7 +11,12 @@ import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
 
+@Environment(EnvType.CLIENT)
 public class CrossPortalSound {
+    public static boolean isPlayerWorld(ClientWorld world) {
+        return world.getRegistryKey() == RenderStates.originalPlayerDimension;
+    }
+    
     @Nullable
     public static Vec3d getTransformedSoundPosition(
         ClientWorld soundWorld,

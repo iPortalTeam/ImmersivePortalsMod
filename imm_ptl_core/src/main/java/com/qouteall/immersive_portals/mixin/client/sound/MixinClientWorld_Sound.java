@@ -46,8 +46,18 @@ public class MixinClientWorld_Sound {
                     transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z,
                     sound, category, volume, pitch, bl
                 );
+                ci.cancel();
             }
-            ci.cancel();
+            else {
+                if (CrossPortalSound.isPlayerWorld(this_)) {
+                    // play normally
+                }
+                else {
+                    // do not play remote sound when no portal can transfer the sound
+                    ci.cancel();
+                }
+            }
+            
         }
     }
     
@@ -72,9 +82,17 @@ public class MixinClientWorld_Sound {
                 entity.setPos(transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z);
                 client.getSoundManager().play(new EntityTrackingSoundInstance(sound, category, entity));
                 entity.setPos(entityPos.x, entityPos.y, entityPos.z);
+                ci.cancel();
             }
-            
-            ci.cancel();
+            else {
+                if (CrossPortalSound.isPlayerWorld(this_)) {
+                    // play normally
+                }
+                else {
+                    // do not play remote sound when no portal can transfer the sound
+                    ci.cancel();
+                }
+            }
         }
     }
     
@@ -102,7 +120,7 @@ public class MixinClientWorld_Sound {
             return false;
         }
         
-        return pos.squaredDistanceTo(player.getPos()) < 30 * 30;
+        return pos.squaredDistanceTo(player.getPos()) < 64 * 64;
     }
     
 }
