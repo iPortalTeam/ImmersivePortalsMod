@@ -31,7 +31,7 @@ public class ModEntry implements ModInitializer {
         }
         
         PehkuiInterface.isPehkuiPresent =
-            FabricLoader.getInstance().isModLoaded("pehkui");
+            O_O.getIsPehkuiPresent();
         if (PehkuiInterface.isPehkuiPresent) {
             PehkuiInterfaceInitializer.init();
             Helper.log("Pehkui is present");

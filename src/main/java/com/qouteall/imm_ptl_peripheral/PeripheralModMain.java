@@ -1,6 +1,7 @@
 package com.qouteall.imm_ptl_peripheral;
 
 import com.google.common.collect.Lists;
+import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.FormulaGenerator;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
@@ -68,11 +69,19 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "disable_isometric", "debug isometric_disable"
         );
-        CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
-            "/scale set pehkui:base 1",
-            "imm_ptl.command.reset_scale",
-            Lists.newArrayList("imm_ptl.command_desc.reset_scale")
-        ));
+        if (O_O.getIsPehkuiPresent()) {
+            //PehkuiInterface.isPehkuiPresent may not be initialized in time
+            CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
+                "/scale set pehkui:base 1",
+                "imm_ptl.command.reset_scale",
+                Lists.newArrayList("imm_ptl.command_desc.reset_scale")
+            ));
+            CommandStickItem.registerType("imm_ptl:long_reach", new CommandStickItem.Data(
+                "/scale set pehkui:reach 5",
+                "imm_ptl.command.long_reach",
+                Lists.newArrayList("imm_ptl.command_desc.long_reach")
+            ));
+        }
         registerPortalSubCommandStick(
             "goback"
         );

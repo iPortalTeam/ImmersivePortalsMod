@@ -126,5 +126,7 @@ public class O_O {
         return SodiumInterface.createClientChunkManager.apply(world, loadDistance);
     }
     
-    
+    public static boolean getIsPehkuiPresent() {
+        return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("pehkui");
+    }
 }
