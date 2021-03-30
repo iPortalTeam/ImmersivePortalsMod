@@ -751,7 +751,7 @@ public class PortalCommand {
                                 portal.getY() + offset.y,
                                 portal.getZ() + offset.z
                             );
-                            portal.reloadAndSyncToClient();
+//                            portal.reloadAndSyncToClient();
                         }
                         catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");

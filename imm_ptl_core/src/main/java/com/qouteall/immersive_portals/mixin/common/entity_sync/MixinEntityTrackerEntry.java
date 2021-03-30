@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
+import com.qouteall.immersive_portals.ducks.IEEntityTrackerEntry;
 import com.qouteall.immersive_portals.network.CommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
@@ -18,13 +19,16 @@ import java.util.function.Consumer;
 
 //NOTE must redirect all packets about entities
 @Mixin(EntityTrackerEntry.class)
-public abstract class MixinEntityTrackerEntry {
+public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     @Shadow
     @Final
     private Entity entity;
     
     @Shadow
     public abstract void sendPackets(Consumer<Packet<?>> consumer_1);
+    
+    @Shadow
+    protected abstract void storeEncodedCoordinates();
     
     @Redirect(
         method = "tick",
@@ -77,5 +81,10 @@ public abstract class MixinEntityTrackerEntry {
         Packet<?> packet_1
     ) {
         CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+    }
+    
+    @Override
+    public void ip_updateTrackedEntityPosition() {
+        storeEncodedCoordinates();
     }
 }

@@ -4,6 +4,7 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
+import com.qouteall.immersive_portals.ducks.IEEntityTrackerEntry;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import com.qouteall.immersive_portals.network.CommonNetwork;
 import net.minecraft.entity.Entity;
@@ -165,6 +166,9 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     @Override
     public void resendSpawnPacketToTrackers() {
+        // avoid sending wrong position delta update packet
+        ((IEEntityTrackerEntry) entry).ip_updateTrackedEntityPosition();
+        
         Packet<?> spawnPacket = entity.createSpawnPacket();
         Packet redirected = MyNetwork.createRedirectedMessage(entity.world.getRegistryKey(), spawnPacket);
         playersTracking.forEach(player -> {
