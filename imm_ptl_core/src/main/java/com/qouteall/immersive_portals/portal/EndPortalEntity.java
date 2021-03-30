@@ -38,7 +38,7 @@ public class EndPortalEntity extends Portal {
         World world_1
     ) {
         super(entityType_1, world_1);
-    
+        
         renderingMergable = true;
         hasCrossPortalCollision = false;
     }
@@ -147,33 +147,6 @@ public class EndPortalEntity extends Portal {
                 }
             }
             fuseView = true;
-//            if (player.world == this.world && player.getPos().squaredDistanceTo(getOriginPos()) < 10 * 10) {
-//                if (clientFakedReversePortal == null) {
-//                    // client only faked portal
-//                    clientFakedReversePortal =
-//                        PortalManipulation.createReversePortal(this, EndPortalEntity.entityType);
-//
-//                    int newEntityId = -getEntityId();
-//                    clientFakedReversePortal.setEntityId(newEntityId);
-//
-//                    clientFakedReversePortal.teleportable = false;
-//
-//                    clientFakedReversePortal.portalTag = "view_box_faked_reverse";
-//
-//                    clientFakedReversePortal.clientFakedReversePortal = this;
-//
-//                    ((ClientWorld) getDestinationWorld()).addEntity(
-//                        clientFakedReversePortal.getEntityId(),
-//                        clientFakedReversePortal
-//                    );
-//                }
-//            }
-//            else {
-//                if (clientFakedReversePortal != null) {
-//                    clientFakedReversePortal.remove();
-//                    clientFakedReversePortal = null;
-//                }
-//            }
         }
         else if (Objects.equals(portalTag, "view_box_faked_reverse")) {
             if (clientFakedReversePortal.removed) {
@@ -202,9 +175,8 @@ public class EndPortalEntity extends Portal {
                 )
             );
         }
-        if (entity instanceof ServerPlayerEntity) {
-            generateObsidianPlatform();
-        }
+        
+        generateObsidianPlatform();
     }
     
     @Override
