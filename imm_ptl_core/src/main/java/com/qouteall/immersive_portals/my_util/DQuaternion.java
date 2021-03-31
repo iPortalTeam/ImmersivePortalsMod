@@ -329,15 +329,6 @@ public class DQuaternion {
         
         double m01 = y.getX();
         double m10 = x.getY();
-
-//        double m12 = y.getZ();
-//        double m21 = z.getY();
-//
-//        double m20 = z.getX();
-//        double m02 = x.getZ();
-//
-//        double m01 = x.getY();
-//        double m10 = y.getX();
         
         double tr = m00 + m11 + m22;
         
