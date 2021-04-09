@@ -79,7 +79,7 @@ public class ServerTeleportationManager {
         if (entity instanceof Portal) {
             return;
         }
-        if (entity.getVehicle() != null || doesEntityClutterContainPlayer(entity)) {
+        if (entity.getVehicle() != null || doesEntityClusterContainPlayer(entity)) {
             return;
         }
         if (entity.removed) {
@@ -416,7 +416,7 @@ public class ServerTeleportationManager {
         }
         this.lastTeleportGameTime.put(entity, currGameTime);
         
-        if (entity.hasVehicle() || doesEntityClutterContainPlayer(entity)) {
+        if (entity.hasVehicle() || doesEntityClusterContainPlayer(entity)) {
             return;
         }
         
@@ -523,7 +523,7 @@ public class ServerTeleportationManager {
         
     }
     
-    private boolean doesEntityClutterContainPlayer(Entity entity) {
+    private boolean doesEntityClusterContainPlayer(Entity entity) {
         if (entity instanceof PlayerEntity) {
             return true;
         }
@@ -531,7 +531,7 @@ public class ServerTeleportationManager {
         if (passengerList.isEmpty()) {
             return false;
         }
-        return passengerList.stream().anyMatch(this::doesEntityClutterContainPlayer);
+        return passengerList.stream().anyMatch(this::doesEntityClusterContainPlayer);
     }
     
     public boolean isJustTeleported(Entity entity, long valveTickTime) {
