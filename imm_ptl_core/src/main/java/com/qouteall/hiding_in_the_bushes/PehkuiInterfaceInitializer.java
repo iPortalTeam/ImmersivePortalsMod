@@ -27,7 +27,7 @@ public class PehkuiInterfaceInitializer {
         
         PehkuiInterface.onServerEntityTeleported = PehkuiInterfaceInitializer::onEntityTeleportedServer;
         
-        PehkuiInterface.getScale = e -> ScaleData.of(e).getScale();
+        PehkuiInterface.getScale = e -> ScaleType.BASE.getScaleData(e).getScale();
     }
     
     @Environment(EnvType.CLIENT)
