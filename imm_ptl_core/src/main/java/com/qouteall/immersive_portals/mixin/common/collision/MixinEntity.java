@@ -242,4 +242,32 @@ public abstract class MixinEntity implements IEEntity {
     public void portal_requestUpdateChunkPos() {
         chunkPosUpdateRequested = true;
     }
+    
+//    //debug
+//    @Inject(
+//        method = "setVelocity(Lnet/minecraft/util/math/Vec3d;)V",
+//        at = @At("HEAD")
+//    )
+//    private void onDebugSetVelocity(Vec3d velocity, CallbackInfo ci) {
+//        Entity this_ = (Entity) (Object) this;
+//
+//        if (this_ instanceof BoatEntity) {
+//            if (velocity.length() == 0 && this_.getVelocity().length() > 0.1) {
+//                Helper.err("" + world.isClient() + getVelocity() + velocity);
+//                new Throwable().printStackTrace();
+//            }
+//        }
+//    }
+
+//    @Redirect(
+//        method = "move",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/block/Block;onEntityLand(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;)V"
+//        )
+//    )
+//    private void redirectOnEntityLand(Block block, BlockView world, Entity entity) {
+//        McHelper.onOnLand(entity);
+//        block.onEntityLand(world, entity);
+//    }
 }

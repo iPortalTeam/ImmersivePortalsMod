@@ -904,4 +904,12 @@ public class McHelper {
             newPos.subtract(entity.getPos())
         );
     }
+    
+//    public static void onOnLand(Entity entity) {
+//        if (entity instanceof BoatEntity && entity.world.isClient() == false) {
+//            if (entity.getVelocity().y > 0.1) {
+//                Helper.log("what");
+//            }
+//        }
+//    }
 }

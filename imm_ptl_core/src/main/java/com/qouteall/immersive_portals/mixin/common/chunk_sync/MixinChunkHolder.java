@@ -30,6 +30,7 @@ public class MixinChunkHolder implements IEChunkHolder {
     
     /**
      * @author qouteall
+     * @reason overwriting is clearer
      */
     @Overwrite
     private void sendPacketToPlayersWatching(Packet<?> packet_1, boolean onlyOnRenderDistanceEdge) {

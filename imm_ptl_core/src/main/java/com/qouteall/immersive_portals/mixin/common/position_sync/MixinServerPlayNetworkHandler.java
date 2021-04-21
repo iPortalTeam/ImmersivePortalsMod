@@ -9,18 +9,23 @@ import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import com.qouteall.immersive_portals.ducks.IEPlayerPositionLookS2CPacket;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -61,6 +66,41 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     
     @Shadow
     protected abstract boolean isPlayerNotCollidingWithBlocks(WorldView worldView, Box box);
+    
+    @Shadow
+    protected static boolean validateVehicleMove(VehicleMoveC2SPacket packet) {
+        throw new RuntimeException();
+    }
+    
+    @Shadow
+    public abstract void disconnect(Text reason);
+    
+    @Shadow
+    private double lastTickRiddenX;
+    
+    @Shadow
+    private double lastTickRiddenY;
+    
+    @Shadow
+    private double lastTickRiddenZ;
+    
+    @Shadow
+    @Final
+    private static Logger LOGGER;
+    
+    @Shadow
+    @Final
+    public ClientConnection connection;
+    
+    @Shadow
+    @Final
+    private MinecraftServer server;
+    
+    @Shadow
+    protected abstract boolean method_29780(Entity entity);
+    
+    @Shadow
+    private Entity topmostRiddenEntity;
     
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
@@ -252,38 +292,148 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         cancellable = true
     )
     private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
+//        if (validateVehicleMove(packet)) {
+//            this.disconnect(new TranslatableText("multiplayer.disconnect.invalid_vehicle_movement"));
+//        }
+//        else {
+//            Entity entity = this.player.getRootVehicle();
+//            if (entity != this.player && entity.getPrimaryPassenger() == this.player &&
+//                entity == this.topmostRiddenEntity
+//            ) {
+//
+//                boolean justTeleported = Global.serverTeleportationManager.isJustTeleported(
+//                    player, 40
+//                );
+//
+//                ServerWorld serverWorld = this.player.getServerWorld();
+//                double currX = entity.getX();
+//                double currY = entity.getY();
+//                double currZ = entity.getZ();
+//                double newX = packet.getX();
+//                double newY = packet.getY();
+//                double newZ = packet.getZ();
+//                float yaw = packet.getYaw();
+//                float pitch = packet.getPitch();
+//                double dx = newX - this.lastTickRiddenX;
+//                double dy = newY - this.lastTickRiddenY;
+//                double dz = newZ - this.lastTickRiddenZ;
+//                double velocityLenSq = entity.getVelocity().lengthSquared();
+//                double p = dx * dx + dy * dy + dz * dz;
+//
+//                if (justTeleported) {
+//                    if (p > 16 * 16) {
+//                        ci.cancel();
+//                        return;
+//                    }
+//                }
+//
+//                if (p - velocityLenSq > 100.0D && !this.isHost()) {
+//                    LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName().getString(), this.player.getName().getString(), dx, dy, dz);
+//                    this.connection.send(new VehicleMoveS2CPacket(entity));
+//                    ci.cancel();
+//                    return;
+//                }
+//
+//                boolean emptyBefore = serverWorld.isSpaceEmpty(entity, entity.getBoundingBox().contract(0.0625D));
+//                dx = newX - this.updatedRiddenX;
+//                dy = newY - this.updatedRiddenY - 1.0E-6D;
+//                dz = newZ - this.updatedRiddenZ;
+//
+//                // change: preserve velocity
+//                Vec3d oldVelocity = entity.getVelocity();
+//                entity.move(MovementType.PLAYER, new Vec3d(dx, dy, dz));
+//                entity.setVelocity(oldVelocity);
+//
+//                double q = dy;
+//                dx = newX - entity.getX();
+//                dy = newY - entity.getY();
+//                if (dy > -0.5D || dy < 0.5D) {
+//                    dy = 0.0D;
+//                }
+//
+//                dz = newZ - entity.getZ();
+//                p = dx * dx + dy * dy + dz * dz;
+//                boolean bl2 = false;
+//                if (p > 0.0625D) {
+//                    bl2 = true;
+//                    LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", entity.getName().getString(), this.player.getName().getString(), Math.sqrt(p));
+//                }
+//
+//                entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
+//                boolean emptyAfter = serverWorld.isSpaceEmpty(
+//                    entity, entity.getBoundingBox().contract(0.0625D)
+//                );
+//                if (emptyBefore && (bl2 || !emptyAfter)) {
+//                    entity.updatePositionAndAngles(currX, currY, currZ, yaw, pitch);
+//                    this.connection.send(new VehicleMoveS2CPacket(entity));
+//
+//                    ci.cancel();
+//
+//                    return;
+//                }
+//
+//                this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
+//                this.player.increaseTravelMotionStats(this.player.getX() - currX, this.player.getY() - currY, this.player.getZ() - currZ);
+//                this.ridingEntity = q >= -0.03125D && !this.server.isFlightEnabled() && this.method_29780(entity);
+//                this.updatedRiddenX = entity.getX();
+//                this.updatedRiddenY = entity.getY();
+//                this.updatedRiddenZ = entity.getZ();
+//            }
+//
+//        }
+//
+//        ci.cancel();
+
         if (Global.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
-            
+
             if (entity != player) {
                 double currX = entity.getX();
                 double currY = entity.getY();
                 double currZ = entity.getZ();
-                
+
                 double newX = packet.getX();
                 double newY = packet.getY();
                 double newZ = packet.getZ();
-                
+
                 if (entity.getPos().squaredDistanceTo(
                     newX, newY, newZ
                 ) < 256) {
                     float yaw = packet.getYaw();
                     float pitch = packet.getPitch();
-                    
+
                     entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
-                    
+
                     this.player.getServerWorld().getChunkManager().updateCameraPosition(this.player);
-                    
+
                     ridingEntity = true;
                     updatedRiddenX = entity.getX();
                     updatedRiddenY = entity.getY();
                     updatedRiddenZ = entity.getZ();
                 }
             }
-            
+
             ci.cancel();
         }
     }
+
+//    @Redirect(
+//        method = "onVehicleMove",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/entity/Entity;move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V"
+//        )
+//    )
+//    private void redirectMoveOnOnVehicleMove(Entity entity, MovementType type, Vec3d movement) {
+////        Vec3d oldVelocity = entity.getVelocity();
+////        double oldVeloY = oldVelocity.y;
+////        entity.move(type, movement);
+////        double newVeloY = entity.getVelocity().y;
+////        if (oldVeloY != 0 && newVeloY == 0) {
+////            Helper.log("ouch");
+////            entity.setVelocity(oldVelocity);
+////        }
+//    }
     
     private static boolean shouldAcceptDubiousMovement(ServerPlayerEntity player) {
         if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {

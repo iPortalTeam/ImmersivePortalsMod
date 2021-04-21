@@ -112,6 +112,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     
     /**
      * @author qouteall
+     * @reason make mod incompatibility fail fast
      */
     @Overwrite
     public void sendChunkDataPackets(

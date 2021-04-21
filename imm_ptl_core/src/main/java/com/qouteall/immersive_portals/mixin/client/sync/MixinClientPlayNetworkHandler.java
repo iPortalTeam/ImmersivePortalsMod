@@ -246,6 +246,22 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         return entity;
     }
     
+    @Redirect(
+        method = "onVelocityUpdate",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/Entity;setVelocityClient(DDD)V"
+        )
+    )
+    private void redirectSetVelocityOnOnVelocityUpdate(Entity entity, double x, double y, double z) {
+        if (!entity.isLogicalSideForUpdatingMovement()) {
+            entity.setVelocityClient(x, y, z);
+        }
+        else {
+            Helper.err("wrong velocity update packet " + entity);
+        }
+    }
+    
     @Override
     public void portal_setRegistryManager(DynamicRegistryManager arg) {
         registryManager = arg;
