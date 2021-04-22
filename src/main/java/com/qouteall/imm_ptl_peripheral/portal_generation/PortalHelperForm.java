@@ -11,8 +11,11 @@ import com.qouteall.immersive_portals.portal.custom_portal_gen.form.PortalGenFor
 import com.qouteall.immersive_portals.portal.nether_portal.BlockPortalShape;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 
 import java.util.function.Predicate;
 
@@ -26,6 +29,20 @@ public class PortalHelperForm extends AbstractDiligentForm {
         for (BlockPos blockPos : toShape.frameAreaWithoutCorner) {
             toWorld.setBlockState(blockPos, PeripheralModMain.portalHelperBlock.getDefaultState());
         }
+        McHelper.findEntitiesByBox(
+            ServerPlayerEntity.class,
+            fromWorld,
+            new Box(fromShape.anchor).expand(10),
+            2,
+            e -> true
+        ).forEach(player -> {
+            player.sendMessage(
+                new LiteralText(
+                    "No matchable portal helper frame found, a new frame will be generated"
+                ),
+                false
+            );
+        });
     }
     
     @Override

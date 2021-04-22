@@ -64,10 +64,16 @@ public class PeripheralModMain {
             "make_fuse_view", "set_portal_nbt {fuseView:true}"
         );
         registerPortalSubCommandStick(
-            "enable_isometric", "debug isometric_enable 100"
+            "disable_rendering_yourself", "set_portal_nbt {doRenderPlayer:false}"
+        );
+        registerPortalSubCommandStick(
+            "enable_isometric", "debug isometric_enable 50"
         );
         registerPortalSubCommandStick(
             "disable_isometric", "debug isometric_disable"
+        );
+        registerPortalSubCommandStick(
+            "create_5_connected_rooms", "create_connected_rooms roomSize 6 4 6 roomNumber 5"
         );
         if (O_O.getIsPehkuiPresent()) {
             //PehkuiInterface.isPehkuiPresent may not be initialized in time
