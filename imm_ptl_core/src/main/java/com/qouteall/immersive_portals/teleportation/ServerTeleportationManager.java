@@ -130,7 +130,8 @@ public class ServerTeleportationManager {
         Portal portal = findPortal(dimensionBefore, portalId);
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
-        if (canPlayerTeleport(player, dimensionBefore, oldEyePos, portal)) {
+        Vec3d oldFeetPos = oldEyePos.subtract(0, player.getStandingEyeHeight(), 0);
+        if (canPlayerTeleport(player, dimensionBefore, oldFeetPos, portal)) {
             if (isTeleporting(player)) {
                 Helper.log(player.toString() + "is teleporting frequently");
             }
