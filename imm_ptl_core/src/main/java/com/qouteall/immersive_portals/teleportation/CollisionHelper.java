@@ -378,7 +378,7 @@ public class CollisionHelper {
     }
     
     public static void notifyCollidingPortals(Portal portal) {
-        if (!portal.isInteractable()) {
+        if (!portal.teleportable) {
             return;
         }
         
