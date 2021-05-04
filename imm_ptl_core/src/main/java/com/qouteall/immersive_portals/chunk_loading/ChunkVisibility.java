@@ -13,12 +13,13 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class ChunkVisibility {
-    private static final LimitedLogger limitedLogger = new LimitedLogger(10);
+    private static final LimitedLogger limitedLogger = new LimitedLogger(50);
     
     private static final int portalLoadingRange = 48;
     public static final int secondaryPortalLoadingRange = 16;
@@ -86,9 +87,10 @@ public class ChunkVisibility {
             }
         }
         
-        if (result.size() > 30) {
-            limitedLogger.log("too many portal nearby " + world + pos);
-            result = result.subList(0, 30);
+        if (result.size() > 50) {
+            limitedLogger.err("too many portal nearby " + world + pos);
+            result.sort(Comparator.comparingDouble(p -> p.getDistanceToNearestPointInPortal(pos)));
+            result = result.subList(0, 50);
         }
         
         return result;

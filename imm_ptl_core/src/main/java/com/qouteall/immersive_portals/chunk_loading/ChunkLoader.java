@@ -1,6 +1,8 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ModMain;
+import com.qouteall.immersive_portals.my_util.MyTaskList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -56,6 +58,18 @@ public class ChunkLoader {
         ServerWorld world = McHelper.getServer().getWorld(center.dimension);
         
         return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
+    }
+    
+    public void loadChunksAndDo(Runnable runnable) {
+        NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(this);
+        
+        ModMain.serverTaskList.addTask(MyTaskList.withDelayCondition(
+            () -> getLoadedChunkNum() < getChunkNum(),
+            MyTaskList.oneShotTask(() -> {
+                NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(this);
+                runnable.run();
+            })
+        ));
     }
     
     @Override
