@@ -50,7 +50,7 @@ public class ChunkVisibility {
         int cap = Global.indirectLoadingRadiusCap;
         
         // load more for scaling portal
-        if (portal.scaling > 2) {
+        if (portal.getScale() > 2) {
             cap *= 2;
         }
         
