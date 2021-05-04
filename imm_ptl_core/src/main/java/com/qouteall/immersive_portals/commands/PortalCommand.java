@@ -733,32 +733,32 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("move_portal")
-            .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
-                .executes(context -> processPortalTargetedCommand(
-                    context, portal -> {
-                        try {
-                            double distance =
-                                DoubleArgumentType.getDouble(context, "distance");
-                            
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            Vec3d viewVector = player.getRotationVector();
-                            Direction facing = Direction.getFacing(
-                                viewVector.x, viewVector.y, viewVector.z
-                            );
-                            Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
-                            portal.updatePosition(
-                                portal.getX() + offset.x,
-                                portal.getY() + offset.y,
-                                portal.getZ() + offset.z
-                            );
+                .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
+                        .executes(context -> processPortalTargetedCommand(
+                            context, portal -> {
+                                try {
+                                    double distance =
+                                        DoubleArgumentType.getDouble(context, "distance");
+                                    
+                                    ServerPlayerEntity player = context.getSource().getPlayer();
+                                    Vec3d viewVector = player.getRotationVector();
+                                    Direction facing = Direction.getFacing(
+                                        viewVector.x, viewVector.y, viewVector.z
+                                    );
+                                    Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
+                                    portal.updatePosition(
+                                        portal.getX() + offset.x,
+                                        portal.getY() + offset.y,
+                                        portal.getZ() + offset.z
+                                    );
 //                            portal.reloadAndSyncToClient();
-                        }
-                        catch (CommandSyntaxException e) {
-                            sendMessage(context, "This command can only be invoked by player");
-                        }
-                    }
-                ))
-            )
+                                }
+                                catch (CommandSyntaxException e) {
+                                    sendMessage(context, "This command can only be invoked by player");
+                                }
+                            }
+                        ))
+                )
         );
         
         builder.then(CommandManager.literal("move_portal_destination")
@@ -901,6 +901,41 @@ public class PortalCommand {
                     portal.reloadAndSyncToClient();
                 }
             ))
+        );
+        
+        builder.then(CommandManager.literal("relatively_move_portal")
+            .then(CommandManager.argument("offset", Vec3ArgumentType.vec3(false))
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    Vec3d offset = Vec3ArgumentType.getVec3(context, "offset");
+                    portal.setOriginPos(
+                        portal.getOriginPos().add(
+                            portal.axisW.multiply(offset.x)
+                        ).add(
+                            portal.axisH.multiply(offset.y)
+                        ).add(
+                            portal.getNormal().multiply(offset.z)
+                        )
+                    );
+                }))
+            )
+        );
+        
+        builder.then(CommandManager.literal("relatively_move_portal_destination")
+            .then(CommandManager.argument("offset", Vec3ArgumentType.vec3(false))
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    Vec3d offset = Vec3ArgumentType.getVec3(context, "offset");
+                    portal.setDestination(
+                        portal.getDestPos().add(
+                            portal.transformLocalVec(portal.axisW).multiply(offset.x)
+                        ).add(
+                            portal.transformLocalVec(portal.axisH).multiply(offset.y)
+                        ).add(
+                            portal.transformLocalVec(portal.getNormal()).multiply(offset.z)
+                        )
+                    );
+                    portal.reloadAndSyncToClient();
+                }))
+            )
         );
     }
     
