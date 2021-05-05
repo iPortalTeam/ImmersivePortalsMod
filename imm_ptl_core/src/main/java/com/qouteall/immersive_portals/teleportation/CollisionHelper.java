@@ -132,7 +132,7 @@ public class CollisionHelper {
             return attemptedMove;
         }
         
-        Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
+        Vec3d transformedAttemptedMove = collidingPortal.transformCollisionMovement(attemptedMove);
         
         Box boxOtherSide = getCollisionBoxOtherSide(
             collidingPortal,
@@ -156,9 +156,13 @@ public class CollisionHelper {
         World oldWorld = entity.world;
         Vec3d oldPos = entity.getPos();
         Vec3d oldLastTickPos = McHelper.lastTickPosOf(entity);
+        float oldStepHeight = entity.stepHeight;
         
         entity.world = destinationWorld;
         entity.setBoundingBox(boxOtherSide);
+        if (collidingPortal.scaling > 1) {
+            entity.stepHeight = (float) (oldStepHeight * collidingPortal.scaling * 2);
+        }
         
         Vec3d collided = handleCollisionFunc.apply(transformedAttemptedMove);
         
@@ -168,11 +172,12 @@ public class CollisionHelper {
             correctXZCoordinate(transformedAttemptedMove.z, collided.z)
         );
         
-        Vec3d result = collidingPortal.inverseTransformLocalVec(collided);
+        Vec3d result = collidingPortal.inverseTransformCollisionMovement(collided);
         
         entity.world = oldWorld;
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);
         entity.setBoundingBox(originalBoundingBox);
+        entity.stepHeight = oldStepHeight;
         
         return result;
     }
@@ -295,7 +300,20 @@ public class CollisionHelper {
             return originalBox.offset(portal.getDestPos().subtract(portal.getOriginPos()));
         }
         else {
+//            if (portal.teleportChangesScale) {
             return Helper.transformBox(originalBox, portal::transformPoint);
+//            }
+//            else {
+//                Vec3d boxSize = Helper.getBoxSize(originalBox);
+//                Vec3d centerToAnchor =
+//                    portal.getNormal().multiply(boxSize.dotProduct(portal.getNormal()) * -0.5);
+//                Vec3d boxCenter = originalBox.getCenter();
+//                Vec3d boxAnchor = boxCenter.add(centerToAnchor);
+//                Box boxMovedToOrigin = originalBox.offset(boxAnchor.multiply(-1));
+//                Box rotatedBox = Helper.transformBox(boxMovedToOrigin, portal::transformLocalVecNonScale);
+//                Vec3d transformedBoxCenter = portal.transformPoint(boxAnchor);
+//                return rotatedBox.offset(transformedBoxCenter);
+//            }
         }
     }
     

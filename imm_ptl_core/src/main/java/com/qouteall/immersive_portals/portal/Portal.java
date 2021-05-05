@@ -207,7 +207,6 @@ public class Portal extends Entity implements PortalLike {
         Vec3d localPos = pos.subtract(getOriginPos());
         
         return transformLocalVec(localPos).add(getDestPos());
-        
     }
     
     /**
@@ -1359,4 +1358,25 @@ public class Portal extends Entity implements PortalLike {
     public boolean allowOverlappedTeleport() {
         return false;
     }
+    
+    public Vec3d transformCollisionMovement(Vec3d movement) {
+        return transformLocalVec(movement);
+//        if (teleportChangesScale) {
+//            return transformLocalVec(movement);
+//        }
+//        else {
+//            return transformLocalVecNonScale(movement);
+//        }
+    }
+    
+    public Vec3d inverseTransformCollisionMovement(Vec3d movement) {
+        return inverseTransformLocalVec(movement);
+//        if (teleportChangesScale) {
+//            return inverseTransformLocalVec(movement);
+//        }
+//        else {
+//            return inverseTransformLocalVecNonScale(movement);
+//        }
+    }
+    
 }

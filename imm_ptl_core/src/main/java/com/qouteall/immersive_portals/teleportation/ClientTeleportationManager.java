@@ -16,7 +16,6 @@ import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEGameRenderer;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
-import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalExtension;
 import com.qouteall.immersive_portals.render.TransformationManager;
@@ -43,7 +42,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
@@ -375,14 +373,10 @@ public class ClientTeleportationManager {
     
     private void changePlayerMotionIfCollidingWithPortal() {
         ClientPlayerEntity player = client.player;
-        List<Portal> portals = player.world.getEntitiesByClass(
-            Portal.class,
-            player.getBoundingBox().expand(0.5),
-            e -> !(e instanceof Mirror)
-        );
         
-        if (!portals.isEmpty()) {
-            Portal portal = portals.get(0);
+        Portal portal = ((IEEntity) player).getCollidingPortal();
+        
+        if (portal != null) {
             if (PortalExtension.get(portal).motionAffinity > 0) {
                 changeMotion(player, portal);
             }
