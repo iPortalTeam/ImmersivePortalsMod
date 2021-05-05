@@ -1354,4 +1354,9 @@ public class Portal extends Entity implements PortalLike {
         
         return !viewBlockingPortals.isEmpty();
     }
+    
+    // only for one-faced portal
+    public boolean allowOverlappedTeleport() {
+        return false;
+    }
 }

@@ -170,8 +170,11 @@ public class ClientTeleportationManager {
             teleportPlayer(portal);
             client.getProfiler().pop();
             
+            boolean allowOverlappedTeleport = portal.allowOverlappedTeleport();
+            double adjustment = allowOverlappedTeleport ? -0.001 : 0.001;
+            
             moveStartPoint = portal.transformPoint(collidingPos)
-                .add(portal.getContentDirection().multiply(0.001));
+                .add(portal.getContentDirection().multiply(adjustment));
             //avoid teleporting through parallel portal due to floating point inaccuracy
             
             return true;
@@ -431,6 +434,10 @@ public class ClientTeleportationManager {
     }
     
     private static void adjustPlayerPosition(ClientPlayerEntity player) {
+        if (player.isSpectator()) {
+            return;
+        }
+        
         Box boundingBox = player.getBoundingBox();
         Box bottomHalfBox = boundingBox.shrink(0, boundingBox.getYLength() / 2, 0);
         Stream<VoxelShape> collisions = player.world.getBlockCollisions(
