@@ -131,8 +131,8 @@ public class CollisionHelper {
         if (!collidingPortal.hasCrossPortalCollision) {
             return attemptedMove;
         }
-        
-        Vec3d transformedAttemptedMove = collidingPortal.transformCollisionMovement(attemptedMove);
+    
+        Vec3d transformedAttemptedMove = collidingPortal.transformLocalVec(attemptedMove);
         
         Box boxOtherSide = getCollisionBoxOtherSide(
             collidingPortal,
@@ -171,8 +171,8 @@ public class CollisionHelper {
             correctYCoordinate(transformedAttemptedMove.y, collided.y),
             correctXZCoordinate(transformedAttemptedMove.z, collided.z)
         );
-        
-        Vec3d result = collidingPortal.inverseTransformCollisionMovement(collided);
+    
+        Vec3d result = collidingPortal.inverseTransformLocalVec(collided);
         
         entity.world = oldWorld;
         McHelper.setPosAndLastTickPos(entity, oldPos, oldLastTickPos);

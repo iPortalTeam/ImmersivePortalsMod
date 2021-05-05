@@ -1359,24 +1359,9 @@ public class Portal extends Entity implements PortalLike {
         return false;
     }
     
-    public Vec3d transformCollisionMovement(Vec3d movement) {
-        return transformLocalVec(movement);
-//        if (teleportChangesScale) {
-//            return transformLocalVec(movement);
-//        }
-//        else {
-//            return transformLocalVecNonScale(movement);
-//        }
-    }
+    // can be overridden
+    public void onCollidingWithEntity(Entity entity) {
     
-    public Vec3d inverseTransformCollisionMovement(Vec3d movement) {
-        return inverseTransformLocalVec(movement);
-//        if (teleportChangesScale) {
-//            return inverseTransformLocalVec(movement);
-//        }
-//        else {
-//            return inverseTransformLocalVecNonScale(movement);
-//        }
     }
     
 }
