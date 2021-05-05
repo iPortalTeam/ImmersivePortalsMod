@@ -240,7 +240,7 @@ public class PortalRenderingGroup implements PortalLike {
             }
         }
         
-        return portals.stream().anyMatch(p -> p.cannotRenderInMe(portal));
+        return portals.stream().filter(p -> p.cannotRenderInMe(portal)).count() >= 2;
     }
     
     @Environment(EnvType.CLIENT)
