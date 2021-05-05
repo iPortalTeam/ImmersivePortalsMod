@@ -122,8 +122,8 @@
   "imm_ptl.command.show_wiki": "Посмотрите Immersive Portals Wiki",
   "imm_ptl.command_desc.show_wiki": "Откройте для себя интересные функции",
   "imm_ptl.about_lag": "[Immersive Portals] Порталы резко прогружают много блоков и могут вызвать всплески лагов. Лаги, вероятно, исчезнут после игры в течение 1 или 2 минут. ",
-  "imm_ptl.command.disable_rendering_yourself": "Make the portal to not render yourself",
+  "imm_ptl.command.disable_rendering_yourself": "Делает, чтобы вас не отображало в портале",
   "imm_ptl.command_desc.disable_rendering_yourself": "",
-  "imm_ptl.command.create_5_connected_rooms": "Create 5 connected rooms around you",
+  "imm_ptl.command.create_5_connected_rooms": "Создаёт 5 соединённых комнат вокруг вас",
   "imm_ptl.command_desc.create_5_connected_rooms": ""
 }
