@@ -6,7 +6,7 @@ import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
-import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientChunkManager;
@@ -83,7 +83,7 @@ public class O_O {
     }
     
     public static boolean detectOptiFine() {
-        boolean isOptiFabricPresent = FabricLoader.INSTANCE.isModLoaded("optifabric");
+        boolean isOptiFabricPresent = FabricLoader.getInstance().isModLoaded("optifabric");
         
         if (!isOptiFabricPresent) {
             return false;
@@ -114,7 +114,7 @@ public class O_O {
     }
     
     public static boolean isDedicatedServer() {
-        return net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
     }
     
     public static void postPortalSpawnEventForge(PortalGenInfo info) {
@@ -127,6 +127,6 @@ public class O_O {
     }
     
     public static boolean getIsPehkuiPresent() {
-        return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("pehkui");
+        return FabricLoader.getInstance().isModLoaded("pehkui");
     }
 }
