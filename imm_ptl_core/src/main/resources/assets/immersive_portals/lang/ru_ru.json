@@ -125,5 +125,6 @@
   "imm_ptl.command.disable_rendering_yourself": "Make the portal to not render yourself",
   "imm_ptl.command_desc.disable_rendering_yourself": "",
   "imm_ptl.command.create_5_connected_rooms": "Create 5 connected rooms around you",
-  "imm_ptl.command_desc.create_5_connected_rooms": ""
+  "imm_ptl.command_desc.create_5_connected_rooms": "",
+  "imm_ptl.portal_helper_not_linked": "No compatible portal helper frame can be found nearby. A new frame has been generated. It can only link to a compatible frame. 1x3 can link to 2x6, but 1x2 cannot link to 2x5."
 }

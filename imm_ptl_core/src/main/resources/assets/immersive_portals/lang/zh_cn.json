@@ -125,5 +125,6 @@
   "imm_ptl.command_desc.create_5_connected_rooms": "",
   "imm_ptl.command.long_reach": "Extend your reach distance",
   "imm_ptl.command_desc.long_reach": "Requires Pehkui mod",
-  "imm_ptl.about_lag": "[Immersive Portals] Portals abruptly load many chunks and may cause lag spikes. The lag will probably disappear after playing for 1 or 2 minutes."
+  "imm_ptl.about_lag": "[Immersive Portals] Portals abruptly load many chunks and may cause lag spikes. The lag will probably disappear after playing for 1 or 2 minutes.",
+  "imm_ptl.portal_helper_not_linked": "No compatible portal helper frame can be found nearby. A new frame has been generated. It can only link to a compatible frame. 1x3 can link to 2x6, but 1x2 cannot link to 2x5."
 }

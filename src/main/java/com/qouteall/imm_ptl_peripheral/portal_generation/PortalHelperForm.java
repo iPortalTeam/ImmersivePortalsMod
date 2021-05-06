@@ -13,7 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
@@ -37,9 +37,7 @@ public class PortalHelperForm extends AbstractDiligentForm {
             e -> true
         ).forEach(player -> {
             player.sendMessage(
-                new LiteralText(
-                    "No matchable portal helper frame found, a new frame will be generated"
-                ),
+                new TranslatableText("imm_ptl.portal_helper_not_linked"),
                 false
             );
         });
