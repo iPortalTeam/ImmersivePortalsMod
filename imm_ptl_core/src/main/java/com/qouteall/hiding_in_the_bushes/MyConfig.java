@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class MyConfig {
     public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
     
     private static File getGameDir() {
-        if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             return MinecraftClient.getInstance().runDirectory;
         }
         else {
@@ -151,7 +151,7 @@ public class MyConfig {
         Global.scaleLimit = scaleLimit;
         Global.easeCreativePermission = easeCreativePermission;
         
-        if (FabricLoader.INSTANCE.getEnvironmentType() == EnvType.CLIENT) {
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
         }
         
