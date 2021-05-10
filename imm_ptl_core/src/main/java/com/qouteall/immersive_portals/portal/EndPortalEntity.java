@@ -224,4 +224,17 @@ public class EndPortalEntity extends Portal {
         
         ServerWorld.createEndSpawnPlatform(endWorld);
     }
+    
+    @Override
+    public void onCollidingWithEntity(Entity entity) {
+        // fix https://github.com/qouteall/ImmersivePortalsMod/issues/698
+        // maybe allows easier farming of obsidian
+        if (!world.isClient()) {
+            if (entity instanceof ServerPlayerEntity) {
+                if (Global.endPortalMode == Global.EndPortalMode.toObsidianPlatform) {
+                    generateObsidianPlatform();
+                }
+            }
+        }
+    }
 }
