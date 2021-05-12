@@ -13,8 +13,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(CustomPayloadS2CPacket.class)
 public class MixinCustomPayloadS2CPacket {
-    @Shadow private Identifier channel;
-    @Shadow private PacketByteBuf data;
+    @Shadow
+    private Identifier channel;
+    @Shadow
+    private PacketByteBuf data;
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
     
     @Redirect(
@@ -34,16 +36,16 @@ public class MixinCustomPayloadS2CPacket {
         }
         return 0;
     }
-
+    
     /**
      * @author cozyGalvinism
      * @reason Allow for bigger packets to be sent
      */
-    @Overwrite()
+    @Overwrite
     public void read(PacketByteBuf packetByteBuf) {
         this.channel = packetByteBuf.readIdentifier();
         int i = packetByteBuf.readableBytes();
-        if(i < 0 || i > 1048576) {
+        if (i < 0 || i > 1048576) {
             limitedLogger.invoke(() -> {
                 Helper.err("Received very big packet " + i);
                 new Throwable().printStackTrace();
