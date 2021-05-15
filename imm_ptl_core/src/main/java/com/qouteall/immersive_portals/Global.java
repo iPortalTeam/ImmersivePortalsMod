@@ -35,8 +35,6 @@ public class Global {
     
     public static boolean multiThreadedNetherPortalSearching = true;
     
-    public static boolean edgelessSky = false;
-    
     public static boolean disableTeleportation = false;
     
     public static boolean looseVisibleChunkIteration = true;

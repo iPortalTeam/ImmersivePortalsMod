@@ -33,7 +33,6 @@ public class MyConfig {
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
     public boolean multiThreadedNetherPortalSearching = true;
-    public boolean edgelessSky = false;
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
     public boolean enableAlternateDimensions = true;
@@ -135,7 +134,6 @@ public class MyConfig {
         Global.teleportationDebugEnabled = teleportationDebug;
         Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
-        Global.edgelessSky = edgelessSky;
         Global.looseMovementCheck = looseMovementCheck;
         Global.pureMirror = pureMirror;
         Global.enableAlternateDimensions = enableAlternateDimensions;
