@@ -420,7 +420,7 @@ public class ClientTeleportationManager {
             portal -> true
         ).forEach(CollisionHelper::notifyCollidingPortals);
         
-        CollisionHelper.updateClientGlobalPortalCollidingPortal();
+        CollisionHelper.tickClient();
         
         player.tick();
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);

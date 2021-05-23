@@ -15,6 +15,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -383,11 +384,18 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        ModMain.postClientTickSignal.connect(CollisionHelper::updateClientGlobalPortalCollidingPortal);
+        ModMain.postClientTickSignal.connect(CollisionHelper::tickClient);
     }
     
     @Environment(EnvType.CLIENT)
-    public static void updateClientGlobalPortalCollidingPortal() {
+    public static void tickClient() {
+        updateGlobalPortalCollidingStatus();
+        
+        updateClientStagnateStatus();
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void updateGlobalPortalCollidingStatus() {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
                 updateGlobalPortalCollidingPortalForWorld(world);
@@ -458,11 +466,31 @@ public class CollisionHelper {
         return entity.getBoundingBox().stretch(expand);
     }
     
+    private static boolean thisTickStagnate = false;
+    private static boolean lastTickStagnate = false;
+    
     @Environment(EnvType.CLIENT)
     private static void informClientStagnant() {
-        MinecraftClient.getInstance().inGameHud.setOverlayMessage(
-            new TranslatableText("imm_ptl.stagnate_movement"),
-            true
-        );
+        thisTickStagnate = true;
+        limitedLogger.log("client movement stagnated");
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static void updateClientStagnateStatus() {
+        if (thisTickStagnate && lastTickStagnate) {
+            MinecraftClient.getInstance().inGameHud.setOverlayMessage(
+                new TranslatableText("imm_ptl.stagnate_movement"),
+                false
+            );
+        }
+        else if (!thisTickStagnate && lastTickStagnate) {
+            MinecraftClient.getInstance().inGameHud.setOverlayMessage(
+                new LiteralText(""),
+                false
+            );
+        }
+        
+        lastTickStagnate = thisTickStagnate;
+        thisTickStagnate = false;
     }
 }
