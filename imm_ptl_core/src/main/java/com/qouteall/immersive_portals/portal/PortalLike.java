@@ -38,6 +38,10 @@ public interface PortalLike {
     
     Vec3d transformLocalVec(Vec3d localVec);
     
+    Vec3d inverseTransformLocalVec(Vec3d localVec);
+    
+    Vec3d inverseTransformPoint(Vec3d point);
+    
     // TODO remove this and use the area box
     double getDistanceToNearestPointInPortal(
         Vec3d point
@@ -87,6 +91,8 @@ public interface PortalLike {
     boolean isFuseView();
     
     boolean getDoRenderPlayer();
+    
+    boolean getHasCrossPortalCollision();
     
     default boolean hasScaling() {
         return getScale() != 1.0;

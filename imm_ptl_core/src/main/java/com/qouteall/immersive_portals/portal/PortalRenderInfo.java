@@ -1,11 +1,12 @@
-package com.qouteall.immersive_portals.render;
+package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.PortalLike;
+import com.qouteall.immersive_portals.render.GlQueryObject;
+import com.qouteall.immersive_portals.render.PortalRenderingGroup;
+import com.qouteall.immersive_portals.render.QueryManager;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
@@ -21,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 // A portal's rendering related things
+// to access the package private field of Portal, this class is not in "render" package
 @Environment(EnvType.CLIENT)
 public class PortalRenderInfo {
     
@@ -79,9 +80,6 @@ public class PortalRenderInfo {
     @Nullable
     private PortalRenderingGroup renderingGroup;
     
-    private static final WeakHashMap<Portal, PortalRenderInfo> objectMap =
-        new WeakHashMap<>();
-    
     public static void init() {
         Portal.clientPortalTickSignal.connect(portal -> {
             PortalRenderInfo presentation = getOptional(portal);
@@ -92,20 +90,19 @@ public class PortalRenderInfo {
         
         Portal.portalCacheUpdateSignal.connect(portal -> {
             if (portal.world.isClient()) {
-                PortalRenderInfo presentation = getOptional(portal);
-                if (presentation != null) {
-                    presentation.onPortalCacheUpdate(portal);
+                PortalRenderInfo renderInfo = getOptional(portal);
+                if (renderInfo != null) {
+                    renderInfo.onPortalCacheUpdate(portal);
                 }
             }
         });
         
         Portal.portalDisposeSignal.connect(portal -> {
             if (portal.world.isClient()) {
-                PortalRenderInfo presentation = getOptional(portal);
-                if (presentation != null) {
-                    presentation.dispose();
-                    presentation.setGroup(portal, null);
-                    objectMap.remove(portal);
+                PortalRenderInfo renderInfo = getOptional(portal);
+                if (renderInfo != null) {
+                    renderInfo.dispose();
+                    renderInfo.setGroup(portal, null);
                 }
             }
         });
@@ -115,13 +112,16 @@ public class PortalRenderInfo {
     public static PortalRenderInfo getOptional(Portal portal) {
         Validate.isTrue(portal.world.isClient());
         
-        return objectMap.get(portal);
+        return portal.portalRenderInfo;
     }
     
     public static PortalRenderInfo get(Portal portal) {
         Validate.isTrue(portal.world.isClient());
         
-        return objectMap.computeIfAbsent(portal, k -> new PortalRenderInfo());
+        if (portal.portalRenderInfo == null) {
+            portal.portalRenderInfo = new PortalRenderInfo();
+        }
+        return portal.portalRenderInfo;
     }
     
     public PortalRenderInfo() {
@@ -351,7 +351,13 @@ public class PortalRenderInfo {
     public static PortalRenderingGroup getGroupOf(Portal portal) {
         Validate.isTrue(!portal.getIsGlobal());
         
-        return get(portal).renderingGroup;
+        PortalRenderInfo portalRenderInfo = getOptional(portal);
+        
+        if (portalRenderInfo == null) {
+            return null;
+        }
+        
+        return portalRenderInfo.renderingGroup;
     }
     
     private static void mergeGroup(PortalRenderingGroup g1, PortalRenderingGroup g2) {

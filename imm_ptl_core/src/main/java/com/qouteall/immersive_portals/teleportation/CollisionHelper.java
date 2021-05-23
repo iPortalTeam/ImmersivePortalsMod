@@ -8,6 +8,8 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.portal.Portal;
+import com.qouteall.immersive_portals.portal.PortalLike;
+import com.qouteall.immersive_portals.render.PortalRenderingGroup;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -74,9 +76,15 @@ public class CollisionHelper {
     public static boolean canCollideWithPortal(Entity entity, Portal portal, float tickDelta) {
         if (portal.canTeleportEntity(entity)) {
             Vec3d cameraPosVec = entity.getCameraPosVec(tickDelta);
-            if (portal.isInFrontOfPortal(cameraPosVec) &&
-                portal.isPointInPortalProjection(cameraPosVec)) {
-                return true;
+            if (portal.isInFrontOfPortal(cameraPosVec)) {
+                PortalLike collisionHandlingUnit = getCollisionHandlingUnit(portal);
+                boolean isInGroup = collisionHandlingUnit != portal;
+                if (isInGroup) {
+                    return true;
+                }
+                if (portal.isPointInPortalProjection(cameraPosVec)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -105,7 +113,7 @@ public class CollisionHelper {
         }
         
         Vec3d otherSideMove = getOtherSideMove(
-            entity, thisSideMove, collidingPortal,
+            entity, thisSideMove, getCollisionHandlingUnit(collidingPortal),
             handleCollisionFunc, originalBoundingBox
         );
         
@@ -125,11 +133,11 @@ public class CollisionHelper {
     private static Vec3d getOtherSideMove(
         Entity entity,
         Vec3d attemptedMove,
-        Portal collidingPortal,
+        PortalLike collidingPortal,
         Function<Vec3d, Vec3d> handleCollisionFunc,
         Box originalBoundingBox
     ) {
-        if (!collidingPortal.hasCrossPortalCollision) {
+        if (!collidingPortal.getHasCrossPortalCollision()) {
             return attemptedMove;
         }
         
@@ -144,7 +152,7 @@ public class CollisionHelper {
             return attemptedMove;
         }
         
-        World destinationWorld = collidingPortal.getDestinationWorld();
+        World destinationWorld = collidingPortal.getDestWorld();
         
         if (!destinationWorld.isChunkLoaded(new BlockPos(boxOtherSide.getCenter()))) {
             if (entity instanceof PlayerEntity && entity.world.isClient()) {
@@ -161,8 +169,8 @@ public class CollisionHelper {
         
         entity.world = destinationWorld;
         entity.setBoundingBox(boxOtherSide);
-        if (collidingPortal.scaling > 1) {
-            entity.stepHeight = (float) (oldStepHeight * collidingPortal.scaling * 2);
+        if (collidingPortal.getScale() > 1) {
+            entity.stepHeight = (float) (oldStepHeight * collidingPortal.getScale() * 2);
         }
         
         Vec3d collided = handleCollisionFunc.apply(transformedAttemptedMove);
@@ -264,36 +272,46 @@ public class CollisionHelper {
     }
     
     private static Box getCollisionBoxOtherSide(
-        Portal portal,
+        PortalLike portalLike,
         Box originalBox,
         Vec3d transformedAttemptedMove
     ) {
-        Box otherSideBox = transformBox(portal, originalBox);
-        
-        Vec3d clippingPos = portal.getDestPos().subtract(transformedAttemptedMove);
-        
-        Box box = clipBox(
-            otherSideBox,
-            clippingPos,
-            portal.getContentDirection()
-        );
-        
-        if (box != null) {
-            Vec3d contentDirection = portal.getContentDirection();
-            boolean movingIntoPortal =
-                contentDirection.dotProduct(transformedAttemptedMove) > 0;
-            if (movingIntoPortal && transformedAttemptedMove.lengthSquared() > 1) {
-                // the box is not clipped
-                if (box.getCenter().subtract(otherSideBox.getCenter()).lengthSquared() < 0.2) {
-                    // avoid colliding with blocks behind the portal destination
-                    box = box.offset(
-                        contentDirection.multiply(transformedAttemptedMove.dotProduct(contentDirection))
-                    );
+        if (portalLike instanceof Portal) {
+            Portal portal = (Portal) portalLike;
+            
+            Box otherSideBox = transformBox(portal, originalBox);
+            
+            Vec3d clippingPos = portal.getDestPos().subtract(transformedAttemptedMove);
+            
+            Box box = clipBox(
+                otherSideBox,
+                clippingPos,
+                portal.getContentDirection()
+            );
+            
+            if (box != null) {
+                // special handling in high speed (not perfect)
+                Vec3d contentDirection = portal.getContentDirection();
+                boolean movingIntoPortal =
+                    contentDirection.dotProduct(transformedAttemptedMove) > 0;
+                
+                if (movingIntoPortal && transformedAttemptedMove.lengthSquared() > 1) {
+                    // the box is not clipped
+                    if (box.getCenter().subtract(otherSideBox.getCenter()).lengthSquared() < 0.2) {
+                        // avoid colliding with blocks behind the portal destination
+                        box = box.offset(
+                            contentDirection.multiply(transformedAttemptedMove.dotProduct(contentDirection))
+                        );
+                    }
                 }
             }
+            
+            return box;
         }
-        
-        return box;
+        else {
+            PortalRenderingGroup portalRenderingGroup = (PortalRenderingGroup) portalLike;
+            return transformBox(portalRenderingGroup.getFirstPortal(), originalBox);
+        }
     }
     
     private static Box transformBox(Portal portal, Box originalBox) {
@@ -492,5 +510,22 @@ public class CollisionHelper {
         
         lastTickStagnate = thisTickStagnate;
         thisTickStagnate = false;
+    }
+    
+    public static PortalLike getCollisionHandlingUnit(Portal portal) {
+        if (portal.getIsGlobal()) {
+            return portal;
+        }
+        if (portal.world.isClient()) {
+            return getCollisionHandlingUnitClient(portal);
+        }
+        else {
+            return portal;
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private static PortalLike getCollisionHandlingUnitClient(Portal portal) {
+        return PortalRenderingGroup.getPortalUnit(portal);
     }
 }

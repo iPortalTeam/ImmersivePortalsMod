@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
+import com.qouteall.immersive_portals.portal.PortalRenderInfo;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+// TODO rename to PortalGroup
 @Environment(EnvType.CLIENT)
 public class PortalRenderingGroup implements PortalLike {
     
@@ -83,7 +85,7 @@ public class PortalRenderingGroup implements PortalLike {
         if (destAreaBoxCache == null) {
             destAreaBoxCache = (
                 Helper.transformBox(getExactAreaBox(), pos -> {
-                    return portals.get(0).transformPoint(pos);
+                    return getFirstPortal().transformPoint(pos);
                 })
             );
         }
@@ -108,12 +110,22 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Override
     public Vec3d transformPoint(Vec3d pos) {
-        return portals.get(0).transformPoint(pos);
+        return getFirstPortal().transformPoint(pos);
     }
     
     @Override
     public Vec3d transformLocalVec(Vec3d localVec) {
-        return portals.get(0).transformLocalVec(localVec);
+        return getFirstPortal().transformLocalVec(localVec);
+    }
+    
+    @Override
+    public Vec3d inverseTransformLocalVec(Vec3d localVec) {
+        return getFirstPortal().inverseTransformLocalVec(localVec);
+    }
+    
+    @Override
+    public Vec3d inverseTransformPoint(Vec3d point) {
+        return getFirstPortal().inverseTransformPoint(point);
     }
     
     @Override
@@ -148,17 +160,17 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Override
     public World getOriginWorld() {
-        return portals.get(0).world;
+        return getFirstPortal().world;
     }
     
     @Override
     public World getDestWorld() {
-        return portals.get(0).getDestWorld();
+        return getFirstPortal().getDestWorld();
     }
     
     @Override
     public RegistryKey<World> getDestDim() {
-        return portals.get(0).getDestDim();
+        return getFirstPortal().getDestDim();
     }
     
     @Override
@@ -217,7 +229,7 @@ public class PortalRenderingGroup implements PortalLike {
     @Nullable
     @Override
     public Matrix4f getAdditionalCameraTransformation() {
-        return portals.get(0).getAdditionalCameraTransformation();
+        return getFirstPortal().getAdditionalCameraTransformation();
     }
     
     @Nullable
@@ -249,7 +261,7 @@ public class PortalRenderingGroup implements PortalLike {
         double innerCameraX, double innerCameraY, double innerCameraZ
     ) {
         Vec3d innerCameraPos = new Vec3d(innerCameraX, innerCameraY, innerCameraZ);
-        Vec3d outerCameraPos = portals.get(0).inverseTransformPoint(innerCameraPos);
+        Vec3d outerCameraPos = getFirstPortal().inverseTransformPoint(innerCameraPos);
         
         List<BoxPredicate> funcs = portals.stream().filter(
             portal1 -> portal1.isInFrontOfPortal(outerCameraPos)
@@ -303,17 +315,22 @@ public class PortalRenderingGroup implements PortalLike {
     
     @Override
     public boolean isFuseView() {
-        return portals.get(0).isFuseView();
+        return getFirstPortal().isFuseView();
     }
     
     @Override
     public boolean getDoRenderPlayer() {
-        return portals.get(0).getDoRenderPlayer();
+        return getFirstPortal().getDoRenderPlayer();
+    }
+    
+    @Override
+    public boolean getHasCrossPortalCollision() {
+        return getFirstPortal().getHasCrossPortalCollision();
     }
     
     @Override
     public String toString() {
-        return String.format("PortalRenderingGroup(%s)%s", portals.size(), portals.get(0).portalTag);
+        return String.format("PortalRenderingGroup(%s)%s", portals.size(), getFirstPortal().portalTag);
     }
     
     public boolean isEnclosed() {
@@ -324,5 +341,20 @@ public class PortalRenderingGroup implements PortalLike {
         }
         
         return isEnclosedCache;
+    }
+    
+    public Portal getFirstPortal() {
+        return portals.get(0);
+    }
+    
+    // if the portal is in group, return the group, otherwise itself
+    public static PortalLike getPortalUnit(Portal portal) {
+        PortalRenderingGroup group = PortalRenderInfo.getGroupOf(portal);
+        if (group != null) {
+            return group;
+        }
+        else {
+            return portal;
+        }
     }
 }

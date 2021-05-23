@@ -14,7 +14,6 @@ import com.qouteall.immersive_portals.my_util.RotationHelper;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.render.FrustumCuller;
-import com.qouteall.immersive_portals.render.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.PortalRenderingGroup;
 import com.qouteall.immersive_portals.render.ViewAreaRenderer;
@@ -175,7 +174,7 @@ public class Portal extends Entity implements PortalLike {
     /**
      * If false, the cross portal collision will be ignored
      */
-    public boolean hasCrossPortalCollision = true;
+    public boolean hasCrossPortalCollision = true;// TODO make protected
     
     /**
      * Whether to render player inside this portal
@@ -184,6 +183,9 @@ public class Portal extends Entity implements PortalLike {
     
     @Nullable
     public List<String> commandsOnTeleported;
+    
+    @Environment(EnvType.CLIENT)
+    PortalRenderInfo portalRenderInfo;
     
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
@@ -973,10 +975,12 @@ public class Portal extends Entity implements PortalLike {
         return new Vec3d(temp);
     }
     
+    @Override
     public Vec3d inverseTransformLocalVec(Vec3d localVec) {
         return inverseTransformLocalVecNonScale(localVec).multiply(1.0 / scaling);
     }
     
+    @Override
     public Vec3d inverseTransformPoint(Vec3d point) {
         return getOriginPos().add(inverseTransformLocalVec(point.subtract(getDestPos())));
     }
@@ -1364,4 +1368,8 @@ public class Portal extends Entity implements PortalLike {
     
     }
     
+    @Override
+    public boolean getHasCrossPortalCollision() {
+        return hasCrossPortalCollision;
+    }
 }
