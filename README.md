@@ -1,7 +1,7 @@
 # Immersive Portals Mod
 
 It's a minecraft mod that provides see-through portals and seamless teleportation.
-It allows creating "Uneuclidean" space effect.
+It allows creating "non-Euclidean" space effect.
 
 https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
 
