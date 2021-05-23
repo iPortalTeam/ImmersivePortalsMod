@@ -16,13 +16,12 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
 
 public class ViewAreaRenderer {
     private static void buildPortalViewAreaTrianglesBuffer(
@@ -274,13 +273,13 @@ public class ViewAreaRenderer {
         }
         
         MinecraftClient.getInstance().getProfiler().push("draw");
-        glEnable(GL32.GL_DEPTH_CLAMP);
+        GL11.glEnable(GL32.GL_DEPTH_CLAMP);
         CHelper.checkGlError();
         McHelper.runWithTransformation(
             matrixStack,
             tessellator::draw
         );
-        glDisable(GL32.GL_DEPTH_CLAMP);
+        GL11.glDisable(GL32.GL_DEPTH_CLAMP);
         MinecraftClient.getInstance().getProfiler().pop();
         
         if (shouldReverseCull) {

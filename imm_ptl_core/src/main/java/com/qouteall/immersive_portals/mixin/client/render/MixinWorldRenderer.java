@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.mixin.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.ClientWorldLoader;
+import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
@@ -35,6 +36,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL32;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -212,6 +214,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             
             if (PortalRendering.isRenderingOddNumberOfMirrors()) {
                 MyRenderHelper.applyMirrorFaceCulling();
+            }
+            
+            if (Global.enableDepthClampForPortalRendering) {
+                GL11.glEnable(GL32.GL_DEPTH_CLAMP);
             }
         }
     }

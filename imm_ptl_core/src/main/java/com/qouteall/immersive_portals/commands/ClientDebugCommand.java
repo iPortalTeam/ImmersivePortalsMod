@@ -662,6 +662,11 @@ public class ClientDebugCommand {
             "disable_fog",
             cond -> Global.debugDisableFog = cond
         );
+        registerSwitchCommand(
+            builder,
+            "depth_clamp_for_portal_rendering",
+            cond -> Global.enableDepthClampForPortalRendering = cond
+        );
         
         builder.then(CommandManager
             .literal("print_class_path")

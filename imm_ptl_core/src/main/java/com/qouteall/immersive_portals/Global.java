@@ -80,6 +80,8 @@ public class Global {
     public static boolean easeCreativePermission = true;
     public static boolean easeCommandStickPermission = true;
     
+    public static boolean enableDepthClampForPortalRendering = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,
