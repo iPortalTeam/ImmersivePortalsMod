@@ -144,7 +144,7 @@ public class NewChunkTrackingGraph {
     
     public static void updateForPlayer(ServerPlayerEntity player) {
         ((IEEntity) player).portal_requestUpdateChunkPos();
-        ((ServerWorld) player.world).checkEntityChunkPos(player);
+//        ((ServerWorld) player.world).checkEntityChunkPos(player);
         
         PlayerInfo playerInfo = getPlayerInfo(player);
         playerInfo.visibleDimensions.clear();
@@ -203,7 +203,7 @@ public class NewChunkTrackingGraph {
                         return shouldUnload(currTime, record);
                     },
                     player -> {
-                        if (player.removed) return;
+                        if (player.isRemoved()) return;
                         endWatchChunkSignal.emit(
                             player,
                             new DimensionalChunkPos(
@@ -261,11 +261,11 @@ public class NewChunkTrackingGraph {
             });
         });
         
-        playerInfoMap.entrySet().removeIf(e -> e.getKey().removed);
+        playerInfoMap.entrySet().removeIf(e -> e.getKey().isRemoved());
     }
     
     private static boolean shouldUnload(long currTime, PlayerWatchRecord record) {
-        if (record.player.removed) {
+        if (record.player.isRemoved()) {
             return true;
         }
         long unloadDelay = Global.chunkUnloadDelayTicks;
@@ -380,8 +380,11 @@ public class NewChunkTrackingGraph {
         int x, int z
     ) {
         return getPlayersViewingChunk(dimension, x, z)
-            .filter(player -> player.world.getRegistryKey() != dimension ||
-                Helper.getChebyshevDistance(x, z, player.chunkX, player.chunkZ) > 4);
+            .filter(player -> {
+                ChunkPos chunkPos = player.getChunkPos();
+                return player.world.getRegistryKey() != dimension ||
+                    Helper.getChebyshevDistance(x, z, chunkPos.x, chunkPos.z) > 4;
+            });
     }
     
     public static void forceRemovePlayer(ServerPlayerEntity player) {

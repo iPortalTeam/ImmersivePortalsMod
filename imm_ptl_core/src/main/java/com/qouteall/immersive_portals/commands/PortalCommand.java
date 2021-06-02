@@ -533,8 +533,8 @@ public class PortalCommand {
         
         builder.then(CommandManager.literal("delete_global_portal")
             .executes(context -> {
-                final ServerPlayerEntity player = context.getSource().getPlayer();
-                final Portal portal = getPlayerPointingPortal(player, true);
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                Portal portal = getPlayerPointingPortal(player, true);
                 
                 if (portal == null) {
                     context.getSource().sendFeedback(
@@ -590,7 +590,7 @@ public class PortalCommand {
                 context,
                 portal -> {
                     sendMessage(context, "deleted " + portal);
-                    portal.remove();
+                    portal.remove(Entity.RemovalReason.KILLED);
                 }
             ))
         );
@@ -712,7 +712,7 @@ public class PortalCommand {
                         portal,
                         p -> sendMessage(context, "Removed " + p)
                     );
-                    portal.remove();
+                    portal.remove(Entity.RemovalReason.KILLED);
                     sendMessage(context, "Deleted " + portal);
                 }
             ))
@@ -726,7 +726,7 @@ public class PortalCommand {
                         portal,
                         p -> sendMessage(context, "Removed " + p)
                     );
-                    portal.remove();
+                    portal.remove(Entity.RemovalReason.KILLED);
                     sendMessage(context, "Deleted " + portal);
                 }
             ))
@@ -1873,7 +1873,7 @@ public class PortalCommand {
                     (p) -> sendMessage(context, "removed " + p.toString())
                 );
                 sendMessage(context, "removed " + portal.toString());
-                portal.remove();
+                portal.remove(Entity.RemovalReason.KILLED);
             }
         );
     }
@@ -2159,7 +2159,7 @@ public class PortalCommand {
      * {@link Entity#getRotationVector()}
      */
     private static Vec3d getRightVec(Entity entity) {
-        float yaw = entity.yaw + 90;
+        float yaw = entity.getYaw() + 90;
         float radians = -yaw * 0.017453292F;
         
         return new Vec3d(

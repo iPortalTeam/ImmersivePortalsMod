@@ -341,7 +341,7 @@ public class ClientDebugCommand {
                         
                         ServerLightingProvider lightingProvider = (ServerLightingProvider) player.world.getLightingProvider();
                         lightingProvider.light(
-                            player.world.getChunk(player.chunkX, player.chunkZ),
+                            player.world.getChunk(player.getBlockPos()),
                             false
                         );
 //                    lightingProvider.light(
@@ -526,7 +526,7 @@ public class ClientDebugCommand {
                 MinecraftClient.getInstance().execute(() -> {
                     ClientPlayerEntity player = MinecraftClient.getInstance().player;
                     ChunkNibbleArray lightSection = player.world.getLightingProvider().get(LightType.BLOCK).getLightSection(
-                        ChunkSectionPos.from(player.chunkX, player.chunkY, player.chunkZ)
+                        ChunkSectionPos.from(player.getBlockPos())
                     );
                     if (lightSection != null) {
                         boolean uninitialized = lightSection.isUninitialized();
@@ -857,26 +857,24 @@ public class ClientDebugCommand {
         McHelper.serverLog(
             playerMP,
             String.format(
-                "On Server %s %s removed:%s added:%s age:%s chunk:%s %s",
+                "On Server %s %s removed:%s added:%s age:%s",
                 playerMP.world.getRegistryKey().getValue(),
                 playerMP.getPos(),
-                playerMP.removed,
+                playerMP.isRemoved(),
                 playerMP.world.getEntityById(playerMP.getId()) != null,
-                playerMP.age,
-                playerMP.chunkX, playerMP.chunkZ
+                playerMP.age
             )
         );
         
         McHelper.serverLog(
             playerMP,
             String.format(
-                "On Client %s %s removed:%s added:%s age:%s chunk:%s %s",
+                "On Client %s %s removed:%s added:%s age:%s",
                 playerSP.world.getRegistryKey().getValue(),
                 playerSP.getPos(),
-                playerSP.removed,
+                playerSP.isRemoved(),
                 playerSP.world.getEntityById(playerSP.getId()) != null,
-                playerSP.age,
-                playerSP.chunkX, playerSP.chunkZ
+                playerSP.age
             )
         );
         return 0;

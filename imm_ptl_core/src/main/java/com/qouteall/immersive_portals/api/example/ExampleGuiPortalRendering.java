@@ -14,6 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -105,7 +106,7 @@ public class ExampleGuiPortalRendering {
             Vec3d position
         ) {
             if (frameBuffer == null) {
-                frameBuffer = new Framebuffer(1000, 1000, true, true);
+                frameBuffer = new SimpleFramebuffer(100, 100, true, true);
             }
             
             MinecraftClient.getInstance().openScreen(new GuiPortalScreen(dimension, position));

@@ -125,6 +125,7 @@ public class BlockManipulationClient {
         ClientWorld world = ClientWorldLoader.getWorld(portal.dimensionTo);
         
         remoteHitResult = BlockView.raycast(
+            from, to,
             context,
             (rayTraceContext, blockPos) -> {
                 BlockState blockState = world.getBlockState(blockPos);

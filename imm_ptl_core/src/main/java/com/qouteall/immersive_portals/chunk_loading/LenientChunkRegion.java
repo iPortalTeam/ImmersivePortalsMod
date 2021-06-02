@@ -15,7 +15,7 @@ import java.util.List;
 public class LenientChunkRegion extends ChunkRegion {
     
     public LenientChunkRegion(ServerWorld world, List<Chunk> chunks) {
-        super(world, chunks);
+        super(world, chunks, null, 99999);
     }
     
     static LenientChunkRegion createLenientChunkRegion(

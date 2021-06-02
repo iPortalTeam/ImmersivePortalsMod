@@ -28,7 +28,7 @@ public class ChunkVisibility {
         return new ChunkLoader(
             new DimensionalChunkPos(
                 player.world.getRegistryKey(),
-                player.chunkX, player.chunkZ
+                player.getChunkPos()
             ),
             McHelper.getRenderDistanceOnServer(),
             true

@@ -116,7 +116,7 @@ public class PortalExtension {
             if (playerLoadStatus == null) {
                 playerLoadStatus = new WeakHashMap<>();
             }
-            playerLoadStatus.entrySet().removeIf(e -> e.getKey().removed);
+            playerLoadStatus.entrySet().removeIf(e -> e.getKey().isRemoved());
             
             if (portal.world.getTime() % 20 == 1) {
                 for (PlayerPortalVisibility value : playerLoadStatus.values()) {

@@ -108,7 +108,7 @@ public abstract class BreakablePortalEntity extends Portal {
                 }
             }
         );
-        this.remove();
+        this.remove(RemovalReason.KILLED);
         
         Helper.log("Broke " + this);
     }
@@ -154,7 +154,7 @@ public abstract class BreakablePortalEntity extends Portal {
         Validate.isTrue(!world.isClient);
         
         if (!isPortalValid()) {
-            remove();
+            remove(RemovalReason.KILLED);
             return;
         }
         

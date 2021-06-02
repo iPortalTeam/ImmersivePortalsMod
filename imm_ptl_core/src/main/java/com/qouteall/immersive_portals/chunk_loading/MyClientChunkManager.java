@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 // allow storing chunks that are far away from the player
@@ -95,24 +96,20 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public WorldChunk loadChunkFromPacket(
-        int x,
-        int z,
-        BiomeArray biomeArray,
-        PacketByteBuf packetByteBuf,
-        NbtCompound compoundTag,
-        int mask,
-        boolean forceCreate
+        int x, int z, BiomeArray biomes,
+        PacketByteBuf buf, NbtCompound nbt, BitSet bitSet
     ) {
         long chunkPosLong = ChunkPos.toLong(x, z);
         
         WorldChunk worldChunk;
+        ChunkPos chunkPos = new ChunkPos(x, z);
         synchronized (chunkMap) {
             worldChunk = (WorldChunk) this.chunkMap.get(chunkPosLong);
-            if (!forceCreate && positionEquals(worldChunk, x, z)) {
-                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, mask);
+            if (positionEquals(worldChunk, x, z)) {
+                worldChunk.loadFromPacket(biomes, buf, nbt, bitSet);
             }
             else {
-                if (biomeArray == null) {
+                if (biomes == null) {
                     LOGGER.error(
                         "Missing Biome Array: {} {} {} Client Biome May be Incorrect",
                         world.getRegistryKey().getValue(), x, z
@@ -120,25 +117,25 @@ public class MyClientChunkManager extends ClientChunkManager {
                     throw new RuntimeException("Null biome array");
                 }
                 
-                worldChunk = new WorldChunk(this.world, new ChunkPos(x, z), biomeArray);
-                worldChunk.loadFromPacket(biomeArray, packetByteBuf, compoundTag, mask);
+                worldChunk = new WorldChunk(this.world, chunkPos, biomes);
+                worldChunk.loadFromPacket(biomes, buf, nbt, bitSet);
                 chunkMap.put(chunkPosLong, worldChunk);
             }
         }
         
         ChunkSection[] chunkSections = worldChunk.getSectionArray();
         LightingProvider lightingProvider = this.getLightingProvider();
-        lightingProvider.setColumnEnabled(new ChunkPos(x, z), true);
+        lightingProvider.setColumnEnabled(chunkPos, true);
         
-        for (int cy = 0; cy < chunkSections.length; ++cy) {
-            ChunkSection chunkSection = chunkSections[cy];
+        for (int yIndex = 0; yIndex < chunkSections.length; ++yIndex) {
+            ChunkSection chunkSection = chunkSections[yIndex];
             lightingProvider.setSectionStatus(
-                ChunkSectionPos.from(x, cy, z),
+                ChunkSectionPos.from(x, worldChunk.sectionIndexToCoord(yIndex), z),
                 ChunkSection.isEmpty(chunkSection)
             );
         }
         
-        this.world.resetChunkColor(x, z);
+        this.world.resetChunkColor(chunkPos);
         
         O_O.postClientChunkLoadEvent(worldChunk);
         clientChunkLoadSignal.emit(worldChunk);
@@ -195,25 +192,6 @@ public class MyClientChunkManager extends ClientChunkManager {
             chunkSectionPos.getSectionY(),
             chunkSectionPos.getSectionZ()
         );
-    }
-    
-    @Override
-    public boolean shouldTickBlock(BlockPos blockPos) {
-        return this.isChunkLoaded(blockPos.getX() >> 4, blockPos.getZ() >> 4);
-    }
-    
-    @Override
-    public boolean shouldTickChunk(ChunkPos chunkPos) {
-        return this.isChunkLoaded(chunkPos.x, chunkPos.z);
-    }
-    
-    @Override
-    public boolean shouldTickEntity(Entity entity) {
-        return true;// always tick
-        // if one living entity teleports from 1 loaded region to another loaded region
-        // its position interpolates
-        // but if it interpolates into unloaded region
-        // does not stop it from ticking
     }
     
     protected static boolean positionEquals(WorldChunk worldChunk, int x, int z) {
