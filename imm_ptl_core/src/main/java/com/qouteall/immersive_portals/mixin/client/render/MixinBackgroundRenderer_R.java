@@ -36,9 +36,11 @@ public class MixinBackgroundRenderer_R {
     private static float multiplyByPortalScale(float value) {
         if (PortalRendering.isRendering()) {
             double scaling = PortalRendering.getRenderingPortal().getScale();
+            float result = (float) (value / scaling);
             if (scaling > 10) {
-                return ((float) (value * scaling));
+                result *= 10;
             }
+            return result;
         }
         return value;
     }

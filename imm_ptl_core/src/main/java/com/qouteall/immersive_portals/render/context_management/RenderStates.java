@@ -151,11 +151,11 @@ public class RenderStates {
             }
         }
         
-        if (renderedScalingPortal) {
-            setViewBobFactor(0);
-            renderedScalingPortal = false;
-            return;
-        }
+//        if (renderedScalingPortal) {
+//            setViewBobFactor(0);
+//            renderedScalingPortal = false;
+//            return;
+//        }
         
         Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
         double minPortalDistance = CHelper.getClientNearbyPortals(16)
