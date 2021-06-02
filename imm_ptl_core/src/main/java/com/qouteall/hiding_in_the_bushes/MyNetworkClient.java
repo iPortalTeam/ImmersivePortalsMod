@@ -119,13 +119,7 @@ public class MyNetworkClient {
     ) {
         RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         int messageType = buf.readInt();
-        Packet packet = createEmptyPacketByType(messageType);
-        try {
-            packet.read(buf);
-        }
-        catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
+        Packet packet = createPacketByType(messageType,buf);
         
         CommonNetworkClient.processRedirectedPacket(dimension, packet);
     }
@@ -159,13 +153,7 @@ public class MyNetworkClient {
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimension, true);
-        try {
-            packet.write(buf);
-        }
-        
-        catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        packet.write(buf);
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsPlayerAction, buf);
     }
     
@@ -175,13 +163,7 @@ public class MyNetworkClient {
     ) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimension, true);
-        try {
-            packet.write(buf);
-        }
-        
-        catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        packet.write(buf);
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsRightClick, buf);
     }
     
@@ -199,9 +181,9 @@ public class MyNetworkClient {
         return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
     }
     
-    private static Packet createEmptyPacketByType(
-        int messageType
+    private static Packet createPacketByType(
+        int messageType, PacketByteBuf buf
     ) {
-        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType);
+        return NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, messageType, buf);
     }
 }

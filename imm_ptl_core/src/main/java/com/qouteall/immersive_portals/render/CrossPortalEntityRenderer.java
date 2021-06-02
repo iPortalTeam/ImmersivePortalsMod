@@ -9,7 +9,7 @@ import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
-import com.qouteall.immersive_portals.optifine_compatibility.ShaderClippingManager;
+import com.qouteall.immersive_portals.optifine_compatibility.OFShaderClippingManager;
 import com.qouteall.immersive_portals.portal.Mirror;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
@@ -109,7 +109,7 @@ public class CrossPortalEntityRenderer {
                 
                 FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
                 if (OFInterface.isShaders.getAsBoolean()) {
-                    ShaderClippingManager.update();
+                    OFShaderClippingManager.update();
                 }
             }
         }

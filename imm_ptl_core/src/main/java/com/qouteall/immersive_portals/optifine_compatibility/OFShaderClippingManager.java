@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 // glClipPlane is not compatible with shaders
 // This is a very hacky shader code editing
 // -Dshaders.debug.save=true
-public class ShaderClippingManager {
+public class OFShaderClippingManager {
     
     private static final Pattern pattern = Pattern.compile(
         "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{");
@@ -26,7 +26,7 @@ public class ShaderClippingManager {
     private static String toReplace;
     
     private static final Identifier transformation = new Identifier(
-        "immersive_portals:shaders/shader_code_transformation.txt"
+        "immersive_portals:shaders/old_optifine_shader_code_transformation.txt"
     );
     
     public static ShaderUniform3f uniform_equationXYZ;

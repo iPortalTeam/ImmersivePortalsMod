@@ -66,6 +66,8 @@
     "client.multiworld_awareness.MixinBiomeEffectSoundPlayer",
     "client.particle.IEParticle",
     "client.particle.MixinParticleManager",
+    "client.render.shader_trans.MixinProgram",
+    "client.render.shader_trans.MixinShader",
     "client.render.MixinBackgroundRenderer_R",
     "client.render.MixinBlockEntityRenderDispatcher",
     "client.render.MixinBuiltChunk",

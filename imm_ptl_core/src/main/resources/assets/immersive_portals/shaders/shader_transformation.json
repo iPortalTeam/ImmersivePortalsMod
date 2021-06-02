@@ -1,0 +1,13 @@
+[
+  {
+    "type": "vs",
+    "affectedShaders": ["rendertype_solid"],
+    "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+    "replacement": [
+      "uniform vec4 imm_ptl_ClippingEquation;",
+      "void main() {",
+      "    gl_ClipDistance[0] = dot(Position.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+    ],
+    "debugOutput": true
+  }
+]

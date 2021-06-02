@@ -11,6 +11,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.source.BiomeArray;
 import net.minecraft.world.chunk.WorldChunk;
 
+import java.util.BitSet;
+
 public class ClientChunkManagerWithSodium extends MyClientChunkManager implements ChunkStatusListenerManager {
     private ChunkStatusListener listener;
     
@@ -24,8 +26,11 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     }
     
     @Override
-    public WorldChunk loadChunkFromPacket(int x, int z, BiomeArray biomeArray, PacketByteBuf packetByteBuf, NbtCompound compoundTag, int k, boolean forceCreate) {
-        WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomeArray, packetByteBuf, compoundTag, k, forceCreate);
+    public WorldChunk loadChunkFromPacket(
+        int x, int z, BiomeArray biomes,
+        PacketByteBuf buf, NbtCompound nbt, BitSet bitSet
+    ) {
+        WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomes, buf, nbt, bitSet);
         
         if (listener != null) {
             listener.onChunkAdded(worldChunk.getPos().x, worldChunk.getPos().z);

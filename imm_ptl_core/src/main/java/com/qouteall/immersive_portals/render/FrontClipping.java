@@ -23,7 +23,7 @@ public class FrontClipping {
         isClippingEnabled = false;
     }
     
-    private static void startClassicalClipping() {
+    private static void enableClipping() {
         GL11.glEnable(GL11.GL_CLIP_PLANE0);
         isClippingEnabled = true;
     }
@@ -42,7 +42,7 @@ public class FrontClipping {
             activeClipPlaneEquation = getClipEquationInner(doCompensate, clipping.pos, clipping.normal);
             
             loadClippingPlaneClassical(matrixStack);
-            startClassicalClipping();
+            enableClipping();
         }
         else {
             activeClipPlaneEquation = null;
@@ -106,7 +106,7 @@ public class FrontClipping {
             if (!isShaderClipping()) {
                 loadClippingPlaneClassical(matrixStack);
             }
-            startClassicalClipping();
+            enableClipping();
         }
         else {
             disableClipping();

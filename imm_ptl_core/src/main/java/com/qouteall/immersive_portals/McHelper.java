@@ -18,6 +18,7 @@ import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtByte;
@@ -52,11 +53,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -297,18 +302,6 @@ public class McHelper {
         transformationPush(matrixStack);
         renderingFunc.run();
         transformationPop();
-    }
-    
-    public static void transformationPop() {
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-        RenderSystem.popMatrix();
-    }
-    
-    public static void transformationPush(MatrixStack matrixStack) {
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-        RenderSystem.pushMatrix();
-        RenderSystem.loadIdentity();
-        RenderSystem.multMatrix(matrixStack.peek().getModel());
     }
     
     @Nonnull
@@ -905,11 +898,19 @@ public class McHelper {
         );
     }
     
-//    public static void onOnLand(Entity entity) {
-//        if (entity instanceof BoatEntity && entity.world.isClient() == false) {
-//            if (entity.getVelocity().y > 0.1) {
-//                Helper.log("what");
-//            }
-//        }
-//    }
+    public static String readTextResource(Identifier identifier) {
+        String result = null;
+        try {
+            InputStream inputStream =
+                MinecraftClient.getInstance().getResourceManager().getResource(
+                    identifier
+                ).getInputStream();
+            
+            result = IOUtils.toString(inputStream, Charset.defaultCharset());
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Error loading " + identifier, e);
+        }
+        return result;
+    }
 }
