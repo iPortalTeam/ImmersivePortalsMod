@@ -169,6 +169,8 @@ dependencies {
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
     include "io.github.prospector:modmenu:${modmenu_version}"
 
+
+
 //    modImplementation ('com.github.qouteall:MiniScaledMod:v0.01-1.16'){
 //        exclude module: 'imm_ptl_core'
 //    }
@@ -216,7 +218,7 @@ dependencies {
 dependencies {
     afterEvaluate {
         subprojects.each {
-            compile project(path: ":${it.name}")
+            compileOnly project(":${it.name}")
             include project("${it.name}:")
         }
     }
