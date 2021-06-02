@@ -24,6 +24,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -37,6 +38,9 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class ClientWorldLoader {
+    // sent to client by login and respawn packets
+    public static boolean isFlatWorld = false;
+    
     private static final Map<RegistryKey<World>, ClientWorld> clientWorldMap = new HashMap<>();
     public static final Map<RegistryKey<World>, WorldRenderer> worldRendererMap = new HashMap<>();
     public static final Map<RegistryKey<World>, DimensionRenderHelper> renderHelperMap = new HashMap<>();
@@ -267,12 +271,12 @@ public class ClientWorldLoader {
             ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setRegistryManager(
                 dimensionTracker);
             DimensionType dimensionType = dimensionTracker
-                .getDimensionTypes().get(dimensionTypeKey);
+                .get(Registry.DIMENSION_TYPE_KEY).get(dimensionTypeKey);
             
             ClientWorld.Properties properties = new ClientWorld.Properties(
                 currentProperty.getDifficulty(),
                 currentProperty.isHardcore(),
-                currentProperty.getSkyDarknessHeight() < 1.0
+                isFlatWorld
             );
             newWorld = new ClientWorld(
                 newNetworkHandler,

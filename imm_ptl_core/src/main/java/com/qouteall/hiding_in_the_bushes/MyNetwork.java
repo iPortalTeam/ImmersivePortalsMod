@@ -104,14 +104,9 @@ public class MyNetwork {
         DimId.writeWorldId(buf, dimension, false);
         
         buf.writeInt(messageType);
-        
-        try {
-            packet.write(buf);
-        }
-        catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
-        
+    
+        packet.write(buf);
+    
         return new CustomPayloadS2CPacket(id_stcRedirected, buf);
     }
     
@@ -199,13 +194,7 @@ public class MyNetwork {
     
     private static void processCtsPlayerAction(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
-        PlayerActionC2SPacket packet = new PlayerActionC2SPacket();
-        try {
-            packet.read(buf);
-        }
-        catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        PlayerActionC2SPacket packet = new PlayerActionC2SPacket(buf);
         ModMain.serverTaskList.addTask(() -> {
             BlockManipulationServer.processBreakBlock(
                 dim, packet,
@@ -217,13 +206,7 @@ public class MyNetwork {
     
     private static void processCtsRightClick(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
-        PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket();
-        try {
-            packet.read(buf);
-        }
-        catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(buf);
         ModMain.serverTaskList.addTask(() -> {
             BlockManipulationServer.processRightClickBlock(
                 dim, packet,

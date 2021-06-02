@@ -14,4 +14,6 @@ public interface IEServerPlayerEntity {
     void stopRidingWithoutTeleportRequest();
     
     void startRidingWithoutTeleportRequest(Entity newVehicle);
+    
+    void portal_worldChanged(ServerWorld fromWorld);
 }

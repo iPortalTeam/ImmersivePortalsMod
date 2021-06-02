@@ -135,4 +135,9 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
     public void startRidingWithoutTeleportRequest(Entity newVehicle) {
         super.startRiding(newVehicle, true);
     }
+    
+    @Override
+    public void portal_worldChanged(ServerWorld fromWorld) {
+        worldChanged(fromWorld);
+    }
 }

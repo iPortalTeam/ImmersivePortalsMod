@@ -35,6 +35,7 @@
     "common.entity_sync.MixinServerPlayerEntity",
     "common.entity_sync.MixinServerPlayNetworkHandler_E",
     "common.entity_sync.MixinThreadedAnvilChunkStorage_E",
+    "common.mc_util.MixinEntity_U",
     "common.portal_generation.MixinItemEntity_P",
     "common.portal_generation.MixinItemStack",
     "common.portal_generation.MixinMinecraftServer_P",

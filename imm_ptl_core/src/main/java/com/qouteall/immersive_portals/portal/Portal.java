@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.dimension_sync.DimId;
+import com.qouteall.immersive_portals.mc_utils.IPEntityEventListenableEntity;
 import com.qouteall.immersive_portals.my_util.BoxPredicate;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.my_util.RotationHelper;
@@ -57,7 +58,7 @@ import java.util.stream.Collectors;
 /**
  * Portal entity. Global portals are also entities but not added into world.
  */
-public class Portal extends Entity implements PortalLike {
+public class Portal extends Entity implements PortalLike, IPEntityEventListenableEntity {
     public static EntityType<Portal> entityType;
     
     public static final UUID nullUUID = Util.NIL_UUID;
@@ -199,20 +200,16 @@ public class Portal extends Entity implements PortalLike {
         EntityType<?> entityType, World world
     ) {
         super(entityType, world);
-        
-        Portal thisPortal = this;
-        
-        setListener(new EntityChangeListener() {
-            @Override
-            public void updateEntityPosition() {
-                thisPortal.updateCache();
-            }
-            
-            @Override
-            public void remove(RemovalReason reason) {
-                portalDisposeSignal.emit(thisPortal);
-            }
-        });
+    }
+    
+    @Override
+    public void ip_onEntityPositionUpdated() {
+        updateCache();
+    }
+    
+    @Override
+    public void ip_onRemoved(RemovalReason reason) {
+        portalDisposeSignal.emit(this);
     }
     
     /**

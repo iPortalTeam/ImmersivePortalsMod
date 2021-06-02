@@ -95,6 +95,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     
     @Inject(method = "onGameJoin", at = @At("RETURN"))
     private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
+        ClientWorldLoader.isFlatWorld = packet.isFlatWorld();
         DimensionTypeSync.onGameJoinPacketReceived(packet.getRegistryManager());
     }
     
@@ -126,7 +127,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         
         if (world != null) {
             if (world.getRegistryKey() != playerDimension) {
-                if (!MinecraftClient.getInstance().player.removed) {
+                if (!MinecraftClient.getInstance().player.isRemoved()) {
                     Helper.log(String.format(
                         "denied position packet %s %s %s %s",
                         ((IEPlayerPositionLookS2CPacket) packet).getPlayerDimension(),

@@ -33,30 +33,30 @@ public class O_O {
         RequiemCompat.onPlayerTeleportedClient();
     }
     
-    @Environment(EnvType.CLIENT)
-    public static void segregateClientEntity(
-        ClientWorld fromWorld,
-        Entity entity
-    ) {
-        ((IEClientWorld_MA) fromWorld).segregateEntity(entity);
-        entity.removed = false;
-    }
-    
-    public static void segregateServerEntity(
-        ServerWorld fromWorld,
-        Entity entity
-    ) {
-        fromWorld.removeEntity(entity);
-        entity.removed = false;
-    }
-    
-    public static void segregateServerPlayer(
-        ServerWorld fromWorld,
-        ServerPlayerEntity player
-    ) {
-        fromWorld.removePlayer(player);
-        player.removed = false;
-    }
+//    @Environment(EnvType.CLIENT)
+//    public static void segregateClientEntity(
+//        ClientWorld fromWorld,
+//        Entity entity
+//    ) {
+//        ((IEClientWorld_MA) fromWorld).segregateEntity(entity);
+//        entity.removed = false;
+//    }
+//
+//    public static void segregateServerEntity(
+//        ServerWorld fromWorld,
+//        Entity entity
+//    ) {
+//        fromWorld.removeEntity(entity);
+//        entity.removed = false;
+//    }
+//
+//    public static void segregateServerPlayer(
+//        ServerWorld fromWorld,
+//        ServerPlayerEntity player
+//    ) {
+//        fromWorld.removePlayer(player);
+//        player.removed = false;
+//    }
     
     public static void onPlayerTravelOnServer(
         ServerPlayerEntity player,

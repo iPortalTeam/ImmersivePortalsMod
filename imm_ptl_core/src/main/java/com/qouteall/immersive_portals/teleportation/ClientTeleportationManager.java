@@ -299,7 +299,7 @@ public class ClientTeleportationManager {
         ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
         ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
         
-        O_O.segregateClientEntity(fromWorld, player);
+        fromWorld.removeEntity(player.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
         
         player.world = toWorld;
         
@@ -321,7 +321,7 @@ public class ClientTeleportationManager {
             ((IEParticleManager) client.particleManager).mySetWorld(toWorld);
         }
         
-        BlockEntityRenderDispatcher.INSTANCE.setWorld(toWorld);
+        client.getBlockEntityRenderDispatcher().setWorld(toWorld);
         
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(ClientWorldLoader
@@ -355,21 +355,22 @@ public class ClientTeleportationManager {
         O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);
     }
     
+    // TODO remove
     private void amendChunkEntityStatus(Entity entity) {
-        WorldChunk worldChunk1 = entity.world.getWorldChunk(new BlockPos(entity.getPos()));
-        Chunk chunk2 = entity.world.getChunk(entity.chunkX, entity.chunkZ);
-        removeEntityFromChunk(entity, worldChunk1);
-        if (chunk2 instanceof WorldChunk) {
-            removeEntityFromChunk(entity, ((WorldChunk) chunk2));
-        }
-        worldChunk1.addEntity(entity);
+//        WorldChunk worldChunk1 = entity.world.getWorldChunk(new BlockPos(entity.getPos()));
+//        Chunk chunk2 = entity.world.getChunk(entity.chunkX, entity.chunkZ);
+//        removeEntityFromChunk(entity, worldChunk1);
+//        if (chunk2 instanceof WorldChunk) {
+//            removeEntityFromChunk(entity, ((WorldChunk) chunk2));
+//        }
+//        worldChunk1.addEntity(entity);
     }
     
-    private void removeEntityFromChunk(Entity entity, WorldChunk worldChunk) {
-        for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
-            section.remove(entity);
-        }
-    }
+//    private void removeEntityFromChunk(Entity entity, WorldChunk worldChunk) {
+//        for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
+//            section.remove(entity);
+//        }
+//    }
     
     private void changePlayerMotionIfCollidingWithPortal() {
         ClientPlayerEntity player = client.player;
@@ -400,7 +401,7 @@ public class ClientTeleportationManager {
         Vec3d newPos
     ) {
         ClientWorld oldWorld = (ClientWorld) entity.world;
-        O_O.segregateClientEntity(oldWorld, entity);
+        oldWorld.removeEntity(entity.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
         entity.world = newWorld;
         entity.setPosition(newPos.x, newPos.y, newPos.z);
         newWorld.addEntity(entity.getId(), entity);
@@ -452,7 +453,7 @@ public class ClientTeleportationManager {
         
         int[] counter = {0};
         ModMain.clientTaskList.addTask(() -> {
-            if (player.removed) {
+            if (player.isRemoved()) {
                 return true;
             }
             if (player.getY() < originalY - 1 || player.getY() > maxCollisionY + 1) {

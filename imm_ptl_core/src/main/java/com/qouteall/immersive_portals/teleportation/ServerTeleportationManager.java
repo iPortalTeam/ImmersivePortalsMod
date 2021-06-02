@@ -287,17 +287,15 @@ public class ServerTeleportationManager {
         
         Vec3d oldPos = player.getPos();
         
-        O_O.segregateServerPlayer(fromWorld, player);
+        fromWorld.removePlayer(player, Entity.RemovalReason.CHANGED_DIMENSION);
         
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
         
-        player.world = toWorld;
+        player.setWorld(toWorld);
+        
+        // adds the player
         toWorld.onPlayerChangeDimension(player);
-        
-        toWorld.checkEntityChunkPos(player);
-        
-        player.interactionManager.setWorld(toWorld);
         
         if (vehicle != null) {
             Vec3d vehiclePos = new Vec3d(
@@ -331,12 +329,7 @@ public class ServerTeleportationManager {
         );
         
         //update advancements
-        if (toWorld.getRegistryKey() == World.NETHER) {
-            ((IEServerPlayerEntity) player).setEnteredNetherPos(player.getPos());
-        }
-        ((IEServerPlayerEntity) player).updateDimensionTravelAdvancements(fromWorld);
-        
-        
+        ((IEServerPlayerEntity) player).portal_worldChanged(fromWorld);
     }
     
     public static void sendPositionConfirmMessage(ServerPlayerEntity player) {
@@ -382,7 +375,7 @@ public class ServerTeleportationManager {
     private void updateForPlayer(long tickTimeNow, ServerPlayerEntity player) {
         // teleporting means dimension change
         // inTeleportationState means syncing position to client
-        if (player.notInAnyWorld || player.teleporting) {
+        if (player.notInAnyWorld || player.isInTeleportationState()) {
             lastTeleportGameTime.put(player, tickTimeNow);
             return;
         }
@@ -442,7 +435,7 @@ public class ServerTeleportationManager {
         McHelper.setEyePos(entity, newEyePos, newEyePos);
         McHelper.updateBoundingBox(entity);
         
-        ((ServerWorld) entity.world).checkEntityChunkPos(entity);
+//        ((ServerWorld) entity.world).checkEntityChunkPos(entity);
         
         portal.transformVelocity(entity);
         
@@ -501,15 +494,15 @@ public class ServerTeleportationManager {
             McHelper.updateBoundingBox(newEntity);
             newEntity.setHeadYaw(oldEntity.getHeadYaw());
             
-            // calling remove() will make chest minecart item duplicate
-            oldEntity.removed = true;
+            // TODO check minecart item duplication
+            oldEntity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
             
             toWorld.onDimensionChanged(newEntity);
             
             return newEntity;
         }
         else {
-            O_O.segregateServerEntity(fromWorld, entity);
+            entity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
             
             McHelper.setEyePos(entity, newEyePos, newEyePos);
             McHelper.updateBoundingBox(entity);
@@ -581,10 +574,10 @@ public class ServerTeleportationManager {
                     targetPos.x,
                     targetPos.y,
                     targetPos.z,
-                    entity.yaw,
-                    entity.pitch
+                    entity.getYaw(),
+                    entity.getPitch()
                 );
-                entity.setHeadYaw(entity.yaw);
+                entity.setHeadYaw(entity.getYaw());
             }
             else {
                 Global.serverTeleportationManager.changeEntityDimension(
@@ -630,7 +623,7 @@ public class ServerTeleportationManager {
         ModMain.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
             140,
             () -> {
-                if (chaser.removed) {
+                if (chaser.isRemoved()) {
                     // the chaser teleported
                     Entity newChaser = destWorld.getEntity(chaserId);
                     if (newChaser instanceof MobEntity) {
