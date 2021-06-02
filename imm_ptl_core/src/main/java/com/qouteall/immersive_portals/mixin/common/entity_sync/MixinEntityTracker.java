@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEEntityTrackerEntry;
@@ -13,6 +14,7 @@ import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -39,11 +41,6 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final
     private int maxDistance;
-    @Shadow
-    private ChunkSectionPos lastCameraPosition;
-    @Shadow
-    @Final
-    private Set<ServerPlayerEntity> playersTracking;
     
     @Shadow
     public abstract void stopTracking();
@@ -51,18 +48,28 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     protected abstract int getMaxTrackDistance();
     
+    @Shadow
+    @Final
+    private Set<EntityTrackingListener> listeners;
+    
+    @Shadow private ChunkSectionPos trackedSection;
+    
     @Redirect(
         method = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker;sendToOtherNearbyPlayers(Lnet/minecraft/network/Packet;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
+            target = "Lnet/minecraft/server/world/EntityTrackingListener;sendPacket(Lnet/minecraft/network/Packet;)V"
         )
     )
     private void onSendToOtherNearbyPlayers(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
-        Packet<?> packet_1
+        EntityTrackingListener entityTrackingListener, Packet<?> packet
     ) {
-        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        CommonNetwork.withForceRedirect(
+            entity.world.getRegistryKey(),
+            () -> {
+                entityTrackingListener.sendPacket(packet);
+            }
+        );
     }
     
     @Redirect(
@@ -83,7 +90,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
      * @author qouteall
      */
     @Overwrite
-    public void updateCameraPosition(ServerPlayerEntity player) {
+    public void updateTrackedStatus(ServerPlayerEntity player) {
         updateEntityTrackingStatus(player);
     }
     
@@ -91,7 +98,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
      * @author qouteall
      */
     @Overwrite
-    public void updateCameraPosition(List<ServerPlayerEntity> list) {
+    public void updateTrackedStatus(List<ServerPlayerEntity> list) {
         for (ServerPlayerEntity player : McHelper.getRawPlayerList()) {
             updateEntityTrackingStatus(player);
         }
@@ -118,25 +125,18 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             this.getMaxTrackDistance(),
             (storage.getWatchDistance() - 1) * 16
         );
+        ChunkPos chunkPos = entity.getChunkPos();
         boolean isWatchedNow =
             NewChunkTrackingGraph.isPlayerWatchingChunkWithinRaidus(
                 player,
                 this.entity.world.getRegistryKey(),
-                this.entity.chunkX,
-                this.entity.chunkZ,
+                chunkPos.x,
+                chunkPos.z,
                 maxWatchDistance
             ) && this.entity.canBeSpectated(player);
         if (isWatchedNow) {
-            boolean shouldTrack = this.entity.teleporting;
-            if (!shouldTrack) {
-                ChunkPos chunkPos_1 = new ChunkPos(this.entity.chunkX, this.entity.chunkZ);
-                ChunkHolder chunkHolder_1 = storage.getChunkHolder_(chunkPos_1.toLong());
-                if (chunkHolder_1 != null && chunkHolder_1.getWorldChunk() != null) {
-                    shouldTrack = true;
-                }
-            }
             
-            if (shouldTrack && this.playersTracking.add(player)) {
+            if (listeners.add(player.networkHandler)) {
                 CommonNetwork.withForceRedirect(
                     entity.world.getRegistryKey(),
                     () -> {
@@ -145,7 +145,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
                 );
             }
         }
-        else if (this.playersTracking.remove(player)) {
+        else if (listeners.remove(player.networkHandler)) {
             CommonNetwork.withForceRedirect(
                 entity.world.getRegistryKey(),
                 () -> {
@@ -160,7 +160,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     @Override
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        playersTracking.remove(oldPlayer);
+        listeners.remove(oldPlayer.networkHandler);
         entry.stopTracking(oldPlayer);
     }
     
@@ -171,8 +171,8 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         
         Packet<?> spawnPacket = entity.createSpawnPacket();
         Packet redirected = MyNetwork.createRedirectedMessage(entity.world.getRegistryKey(), spawnPacket);
-        playersTracking.forEach(player -> {
-            player.networkHandler.sendPacket(redirected);
+        listeners.forEach(handler -> {
+            handler.sendPacket(redirected);
         });
     }
     
@@ -188,11 +188,11 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     @Override
     public ChunkSectionPos getLastCameraPosition() {
-        return lastCameraPosition;
+        return trackedSection;
     }
     
     @Override
     public void setLastCameraPosition(ChunkSectionPos arg) {
-        lastCameraPosition = arg;
+        trackedSection = arg;
     }
 }

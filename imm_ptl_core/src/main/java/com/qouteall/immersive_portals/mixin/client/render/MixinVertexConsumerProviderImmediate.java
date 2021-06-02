@@ -19,7 +19,7 @@ public class MixinVertexConsumerProviderImmediate {
     private void onBeginDraw(RenderLayer layer, CallbackInfo ci) {
         if (PortalRendering.isRenderingOddNumberOfMirrors()) {
             RenderStates.shouldForceDisableCull = true;
-            GlStateManager.disableCull();
+            GlStateManager._disableCull();
         }
     }
     
@@ -29,6 +29,6 @@ public class MixinVertexConsumerProviderImmediate {
     )
     private void onEndDraw(RenderLayer layer, CallbackInfo ci) {
         RenderStates.shouldForceDisableCull = false;
-        GlStateManager.enableCull();
+        GlStateManager._enableCull();
     }
 }

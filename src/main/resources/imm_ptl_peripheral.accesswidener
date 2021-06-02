@@ -23,8 +23,5 @@ Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator
 Accessible method net/minecraft/world/GameRules register (Ljava/lang/String;Lnet/minecraft/world/GameRules$Category;Lnet/minecraft/world/GameRules$Type;)Lnet/minecraft/world/GameRules$Key;
 Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minecraft/world/GameRules$Type;
 
-
-accessible method net/minecraft/util/dynamic/RegistryOps <init> (Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/util/dynamic/RegistryOps$EntryLoader;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Ljava/util/IdentityHashMap;)V
-
 accessible class net/minecraft/client/gl/Program$Type
 accessible method net/minecraft/client/gl/Program$Type getGlType ()I

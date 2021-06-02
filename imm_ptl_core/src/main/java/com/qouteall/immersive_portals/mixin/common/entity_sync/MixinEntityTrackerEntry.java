@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
 
-//NOTE must redirect all packets about entities
 @Mixin(EntityTrackerEntry.class)
 public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     @Shadow
@@ -30,43 +29,28 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     @Shadow
     protected abstract void storeEncodedCoordinates();
     
-    @Redirect(
+    // make sure that the packet is being redirected
+    @Inject(
         method = "tick",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
-        )
+        at = @At("HEAD")
     )
-    private void onSendPositionSyncPacket(
-        ServerPlayNetworkHandler serverPlayNetworkHandler,
-        Packet<?> packet_1
-    ) {
-        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+    private void onTick(CallbackInfo ci) {
+        CommonNetwork.validateForceRedirecting();
     }
     
     @Inject(
         method = "startTracking",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(Ljava/util/function/Consumer;)V"
-        )
+        at = @At("HEAD")
     )
-    private void injectSendpacketsOnStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
-        this.sendPackets(packet -> CommonNetwork.sendRedirectedPacket(player.networkHandler, packet, entity.world.getRegistryKey()));
+    private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
+        CommonNetwork.validateForceRedirecting();
     }
     
-    @Redirect(
-        method = "startTracking",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(Ljava/util/function/Consumer;)V"
-        )
+    @Inject(
+        method = "stopTracking", at = @At("HEAD")
     )
-    private void redirectSendPacketsOnStartTracking(
-        EntityTrackerEntry entityTrackerEntry,
-        Consumer<Packet<?>> sender
-    ) {
-        //nothing
+    private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
+        CommonNetwork.validateForceRedirecting();
     }
     
     @Redirect(

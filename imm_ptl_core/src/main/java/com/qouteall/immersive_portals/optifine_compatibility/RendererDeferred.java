@@ -93,7 +93,7 @@ public class RendererDeferred extends PortalRenderer {
         
         RenderSystem.enableDepthTest();
     
-        GlStateManager.activeTexture(GL13.GL_TEXTURE0);
+        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
     
         client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
     
@@ -137,23 +137,23 @@ public class RendererDeferred extends PortalRenderer {
         
         deferredBuffer.fb.beginWrite(true);
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            GlStateManager.enableDepthTest();
+            GlStateManager._enableDepthTest();
             
-            GlStateManager.disableTexture();
-            GlStateManager.colorMask(false, false, false, false);
+            GlStateManager._disableTexture();
+            GlStateManager._colorMask(false, false, false, false);
             
-            GlStateManager.depthMask(false);
+            GlStateManager._depthMask(false);
             GL20.glUseProgram(0);
             
-            GlStateManager.disableTexture();
+            GlStateManager._disableTexture();
             
             ViewAreaRenderer.drawPortalViewTriangle(
                 portal, matrixStack, true, true
             );
             
-            GlStateManager.enableTexture();
-            GlStateManager.colorMask(true, true, true, true);
-            GlStateManager.depthMask(true);
+            GlStateManager._enableTexture();
+            GlStateManager._colorMask(true, true, true, true);
+            GlStateManager._depthMask(true);
         });
     }
     

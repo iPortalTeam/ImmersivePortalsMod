@@ -149,8 +149,8 @@ public class EndPortalEntity extends Portal {
             fuseView = true;
         }
         else if (Objects.equals(portalTag, "view_box_faked_reverse")) {
-            if (clientFakedReversePortal.removed) {
-                remove();
+            if (clientFakedReversePortal.isRemoved()) {
+                remove(RemovalReason.KILLED);
             }
         }
     }

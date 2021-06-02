@@ -56,7 +56,7 @@ public class LoadingIndicatorEntity extends Entity {
         else {
             // remove after quitting server and restarting
             if (!isValid) {
-                remove();
+                remove(RemovalReason.KILLED);
             }
         }
     }

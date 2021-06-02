@@ -99,7 +99,7 @@ public abstract class MixinClientWorld implements IEClientWorld {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientWorld world : ClientWorldLoader.getClientWorlds()) {
                 if (world != (Object) this) {
-                    world.removeEntity(entityId);
+                    world.removeEntity(entityId, Entity.RemovalReason.DISCARDED);
                 }
             }
         }
@@ -125,37 +125,6 @@ public abstract class MixinClientWorld implements IEClientWorld {
     }
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
-    
-    /**
-     * @author qouteall
-     * @reason vanilla logic may be wrong
-     */
-    @Overwrite
-    private void checkEntityChunkPos(Entity entity) {
-        ClientWorld this_ = (ClientWorld) (Object) this;
-        if (entity.isChunkPosUpdateRequested()) {
-            this_.getProfiler().push("chunkCheck");
-            int newCX = MathHelper.floor(entity.getX() / 16.0D);
-            int newCY = MathHelper.floor(entity.getY() / 16.0D);
-            int newCZ = MathHelper.floor(entity.getZ() / 16.0D);
-            if (!entity.updateNeeded || entity.chunkX != newCX || entity.chunkY != newCY || entity.chunkZ != newCZ) {
-                if (entity.updateNeeded && this_.isChunkLoaded(entity.chunkX, entity.chunkZ)) {
-                    this_.getChunk(entity.chunkX, entity.chunkZ).remove(entity, entity.chunkY);
-                }
-                
-                if (!entity.teleportRequested() && !this_.isChunkLoaded(newCX, newCZ)) {
-                    if (entity.updateNeeded) {
-                        limitedLogger.log("Entity left loaded chunk area " + entity);
-                    }
-                }
-                else {
-                    this_.getChunk(newCX, newCZ).addEntity(entity);
-                }
-            }
-            
-            this_.getProfiler().pop();
-        }
-    }
     
     // for debug
     @Inject(method = "toString", at = @At("HEAD"), cancellable = true)

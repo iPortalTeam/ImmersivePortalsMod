@@ -80,7 +80,10 @@ public class MixinClientWorld_Sound {
             
             if (transformedSoundPosition != null) {
                 entity.setPos(transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z);
-                client.getSoundManager().play(new EntityTrackingSoundInstance(sound, category, entity));
+                EntityTrackingSoundInstance sound1 = new EntityTrackingSoundInstance(
+                    sound, category, volume, pitch, entity
+                );
+                client.getSoundManager().play(sound1);
                 entity.setPos(entityPos.x, entityPos.y, entityPos.z);
                 ci.cancel();
             }

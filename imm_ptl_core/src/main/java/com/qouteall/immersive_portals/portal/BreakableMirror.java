@@ -85,7 +85,7 @@ public class BreakableMirror extends Mirror {
                 isGlass(world, blockPos)
         );
         if (!wallValid) {
-            remove();
+            remove(RemovalReason.KILLED);
         }
     }
     
@@ -175,7 +175,7 @@ public class BreakableMirror extends Mirror {
         ).filter(
             mirror -> mirror != newMirror
         ).forEach(
-            Entity::remove
+            e->e.remove(RemovalReason.KILLED)
         );
     }
     

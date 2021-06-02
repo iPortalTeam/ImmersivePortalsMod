@@ -1848,7 +1848,7 @@ public abstract class MixinShaders_Swap {
         
         OFGlobal.bindToShaderFrameBuffer = () -> {
             if (dfb == null) {
-                GlStateManager.bindFramebuffer(36160, 0);
+                GlStateManager._glBindFramebuffer(36160, 0);
                 return;
             }
             dfb.bindFramebuffer();

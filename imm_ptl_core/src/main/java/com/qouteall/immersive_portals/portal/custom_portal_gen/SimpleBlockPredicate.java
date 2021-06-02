@@ -62,7 +62,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         
         TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
         Identifier id = new Identifier(string);
-        Tag<Block> blockTag = tagManager.getBlocks().getTag(id);
+        Tag<Block> blockTag = tagManager.getOrCreateTagGroup(Registry.BLOCK_KEY).getTag(id);
         
         if (blockTag != null) {
             return DataResult.success(new SimpleBlockPredicate(blockTag), Lifecycle.stable());
@@ -93,7 +93,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         
         TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
         
-        Identifier id = tagManager.getBlocks().getTagId(tag);
+        Identifier id = tagManager.getOrCreateTagGroup(Registry.BLOCK_KEY).getId(((Tag.Identified) tag));
         
         if (id == null) {
             throw new RuntimeException(

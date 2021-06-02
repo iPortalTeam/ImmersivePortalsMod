@@ -20,7 +20,7 @@ public abstract class MixinItemEntity_P {
     )
     private void onItemTickEnded(CallbackInfo ci) {
         ItemEntity this_ = (ItemEntity) (Object) this;
-        if (this_.removed) {
+        if (this_.isRemoved()) {
             return;
         }
         

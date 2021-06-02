@@ -96,7 +96,7 @@ public class RendererMixed extends PortalRenderer {
         if (portalLayer == 0) {
             deferredFbs[portalLayer].fb.beginWrite(true);
             deferredFbs[portalLayer].fb.checkFramebufferStatus();
-            GlStateManager.clearStencil(0);
+            GlStateManager._clearStencil(0);
             GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         }
         else {
@@ -163,9 +163,9 @@ public class RendererMixed extends PortalRenderer {
             ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
             
             deferredFb.fb.beginWrite(true);
-            GlStateManager.clearColor(1, 0, 1, 0);
-            GlStateManager.clearDepth(1);
-            GlStateManager.clearStencil(0);
+            GlStateManager._clearColor(1, 0, 1, 0);
+            GlStateManager._clearDepth(1);
+            GlStateManager._clearStencil(0);
             GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             
             CHelper.checkGlError();
@@ -181,7 +181,7 @@ public class RendererMixed extends PortalRenderer {
     
     @Override
     public void finishRendering() {
-        GlStateManager.colorMask(true, true, true, true);
+        GlStateManager._colorMask(true, true, true, true);
         Shaders.useProgram(Shaders.ProgramNone);
         
         if (RenderStates.getRenderedPortalNum() == 0) {
@@ -258,7 +258,7 @@ public class RendererMixed extends PortalRenderer {
         GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
         
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
         
         boolean result = QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.drawPortalViewTriangle(

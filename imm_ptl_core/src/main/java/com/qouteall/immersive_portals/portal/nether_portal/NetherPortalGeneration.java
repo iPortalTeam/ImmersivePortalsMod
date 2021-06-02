@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
@@ -166,7 +167,7 @@ public class NetherPortalGeneration {
         NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(chunkLoader);
         
         Runnable finalizer = () -> {
-            indicatorEntity.remove();
+            indicatorEntity.remove(Entity.RemovalReason.KILLED);
             NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(chunkLoader);
         };
         

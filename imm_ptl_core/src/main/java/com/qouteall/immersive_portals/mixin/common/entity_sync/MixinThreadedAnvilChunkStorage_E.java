@@ -58,8 +58,8 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
     }
     
     // Managed by EntitySync
-    @Inject(method = "tickPlayerMovement", at = @At("HEAD"), cancellable = true)
-    private void onTickPlayerMovement(CallbackInfo ci) {
+    @Inject(method = "tickEntityMovement", at = @At("HEAD"), cancellable = true)
+    private void onTickEntityMovement(CallbackInfo ci) {
         ci.cancel();
     }
     
@@ -71,7 +71,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
     }
     
     /**
-     * {@link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)}
+     * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
     @Override
     public void updateEntityTrackersAfterSendingChunkPacket(
@@ -82,7 +82,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         
         for (Object entityTracker : this.entityTrackers.values()) {
             Entity entity = ((IEEntityTracker) entityTracker).getEntity_();
-            if (entity != player && entity.chunkX == chunk.getPos().x && entity.chunkZ == chunk.getPos().z) {
+            if (entity != player && entity.getChunkPos().equals(chunk.getPos())) {
                 ((IEEntityTracker) entityTracker).updateEntityTrackingStatus(player);
                 if (entity instanceof MobEntity && ((MobEntity) entity).getHoldingEntity() != null) {
                     attachedEntityList.add(entity);

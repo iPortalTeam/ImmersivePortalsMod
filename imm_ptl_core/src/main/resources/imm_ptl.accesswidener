@@ -27,8 +27,6 @@ Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minec
 accessible    field    net/minecraft/world/chunk/ChunkSection    container    Lnet/minecraft/world/chunk/PalettedContainer;
 accessible    field    net/minecraft/world/chunk/PalettedContainer    palette    Lnet/minecraft/world/chunk/Palette;
 
-accessible method net/minecraft/util/dynamic/RegistryOps <init> (Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/util/dynamic/RegistryOps$EntryLoader;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Ljava/util/IdentityHashMap;)V
-
 accessible class net/minecraft/client/gl/Program$Type
 accessible method net/minecraft/client/gl/Program$Type getGlType ()I
 

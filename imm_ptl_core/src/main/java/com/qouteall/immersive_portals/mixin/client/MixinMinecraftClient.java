@@ -127,7 +127,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
      * Make sure that the redirected packet handling won't be delayed
      */
     @Override
-    protected boolean shouldExecuteAsync() {
+    public boolean shouldExecuteAsync() {
         boolean onThread = isOnThread();
         
         if (onThread) {

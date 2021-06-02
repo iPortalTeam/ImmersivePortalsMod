@@ -27,7 +27,7 @@ public class OFInterfaceInitializer {
         
         OFInterface.resetViewport = () -> {
             if (OFInterface.isShaders.getAsBoolean()) {
-                GlStateManager.viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
+                GlStateManager._viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
             }
         };
         OFInterface.onPlayerTraveled = (fromDimension1, toDimension1) -> {

@@ -74,7 +74,7 @@ public class RendererDebugWithShader extends PortalRenderer {
         
         deferredBuffer.fb.beginWrite(true);
         
-        GlStateManager.activeTexture(GL13.GL_TEXTURE0);
+        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
         client.getFramebuffer().draw(
             deferredBuffer.fb.viewportWidth,
             deferredBuffer.fb.viewportHeight
@@ -107,11 +107,12 @@ public class RendererDebugWithShader extends PortalRenderer {
         if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
-        
-        GlStateManager.enableAlphaTest();
-        Framebuffer mainFrameBuffer = client.getFramebuffer();
-        mainFrameBuffer.beginWrite(true);
-        
-        deferredBuffer.fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
+    
+        throw new RuntimeException();
+//        GlStateManager.enableAlphaTest();
+//        Framebuffer mainFrameBuffer = client.getFramebuffer();
+//        mainFrameBuffer.beginWrite(true);
+//
+//        deferredBuffer.fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
     }
 }

@@ -51,12 +51,11 @@ public class CustomPortalGenManagement {
             ((DynamicRegistryManager.Impl) server.getRegistryManager());
         
         ResourceManager resourceManager = server.serverResourceManager.getResourceManager();
-        
-        RegistryOps<JsonElement> registryOps = new RegistryOps<>(
+    
+        RegistryOps<JsonElement> registryOps = RegistryOps.of(
             JsonOps.INSTANCE,
             RegistryOps.EntryLoader.resourceBacked(resourceManager),
-            registryTracker,
-            Maps.newIdentityHashMap()
+            registryTracker
         );
         
         SimpleRegistry<CustomPortalGeneration> emptyRegistry = new SimpleRegistry<>(

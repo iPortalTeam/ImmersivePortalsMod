@@ -24,7 +24,8 @@ public class EntitySync {
     }
     
     /**
-     * Replace ThreadedAnvilChunkStorage#tickPlayerMovement()
+     * Replace ThreadedAnvilChunkStorage#tickEntityMovement()
+     * regarding to the players in all dimensions
      */
     private static void tick() {
         MinecraftServer server = McHelper.getServer();

@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 public class CommonNetwork {
     
     @Nullable
-    public static RegistryKey<World> forceRedirect = null;
+    private static RegistryKey<World> forceRedirect = null;
     
     public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
         Validate.isTrue(
@@ -58,5 +58,9 @@ public class CommonNetwork {
                 )
             );
         }
+    }
+    
+    public static void validateForceRedirecting() {
+        Validate.isTrue(getForceRedirectDimension() != null);
     }
 }

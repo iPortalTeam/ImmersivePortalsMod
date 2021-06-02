@@ -250,7 +250,7 @@ public class PortalManipulation {
         Consumer<Portal> informer
     ) {
         getPortalClutter(world, pos, normal, predicate).forEach(e -> {
-            e.remove();
+            e.remove(Entity.RemovalReason.KILLED);
             informer.accept(e);
         });
     }

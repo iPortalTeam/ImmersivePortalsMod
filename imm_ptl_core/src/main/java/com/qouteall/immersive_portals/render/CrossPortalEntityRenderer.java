@@ -55,7 +55,7 @@ public class CrossPortalEntityRenderer {
     
     private static void onClientTick() {
         collidedEntities.entrySet().removeIf(entry ->
-            entry.getKey().removed ||
+            entry.getKey().isRemoved() ||
                 ((IEEntity) entry.getKey()).getCollidingPortal() == null
         );
     }

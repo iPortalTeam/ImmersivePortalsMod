@@ -114,8 +114,8 @@ public class FrameSearching {
         ArrayList<Chunk> chunks = new ArrayList<>();
         
         int searchedRadius = regionRadius - 1;
-        int centerX = region.getCenterChunkX();
-        int centerZ = region.getCenterChunkZ();
+        int centerX = region.getCenterPos().x;
+        int centerZ = region.getCenterPos().z;
         for (int x = centerX - searchedRadius; x <= centerX + searchedRadius; x++) {
             for (int z = centerZ - searchedRadius; z <= centerZ + searchedRadius; z++) {
                 chunks.add(region.getChunk(x, z));

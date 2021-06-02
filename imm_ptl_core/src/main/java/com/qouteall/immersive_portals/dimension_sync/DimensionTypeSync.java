@@ -62,7 +62,7 @@ public class DimensionTypeSync {
     
     public static NbtCompound createTagFromServerWorldInfo() {
         DynamicRegistryManager registryManager = McHelper.getServer().getRegistryManager();
-        Registry<DimensionType> dimensionTypes = registryManager.getDimensionTypes();
+        Registry<DimensionType> dimensionTypes = registryManager.get(Registry.DIMENSION_TYPE_KEY);
         return typeMapToTag(
             Streams.stream(McHelper.getServer().getWorlds()).collect(
                 Collectors.toMap(
@@ -121,7 +121,7 @@ public class DimensionTypeSync {
     
     @Environment(EnvType.CLIENT)
     public static DimensionType getDimensionType(RegistryKey<DimensionType> registryKey) {
-        return currentDimensionTypeTracker.getDimensionTypes().get(registryKey);
+        return currentDimensionTypeTracker.get(Registry.DIMENSION_TYPE_KEY).get(registryKey);
     }
     
 }
