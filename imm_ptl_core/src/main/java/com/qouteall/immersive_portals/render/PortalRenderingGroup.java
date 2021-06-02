@@ -240,7 +240,7 @@ public class PortalRenderingGroup implements PortalLike {
     
     public void purge() {
         portals.removeIf(portal -> {
-            return portal.removed;
+            return portal.isRemoved();
         });
     }
     

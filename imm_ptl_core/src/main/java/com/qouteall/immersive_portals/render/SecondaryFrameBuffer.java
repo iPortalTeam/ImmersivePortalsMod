@@ -3,10 +3,11 @@ package com.qouteall.immersive_portals.render;
 import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.SimpleFramebuffer;
 
 //it will always be the same size as the main frame buffer
 public class SecondaryFrameBuffer {
-    public Framebuffer fb;
+    public SimpleFramebuffer fb;
     
     public void prepare() {
         Framebuffer mainFrameBuffer = MinecraftClient.getInstance().getFramebuffer();
@@ -17,7 +18,7 @@ public class SecondaryFrameBuffer {
     
     public void prepare(int width, int height) {
         if (fb == null) {
-            fb = new Framebuffer(
+            fb = new SimpleFramebuffer(
                 width, height,
                 true,//has depth attachment
                 MinecraftClient.IS_SYSTEM_MAC

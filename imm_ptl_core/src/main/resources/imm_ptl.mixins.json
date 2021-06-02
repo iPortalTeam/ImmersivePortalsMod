@@ -78,6 +78,7 @@
     "client.render.MixinGlStateManager",
     "client.render.MixinInGameOverlayRenderer",
     "client.render.MixinVertexConsumerProviderImmediate",
+    "client.render.MixinWindowFramebuffer",
     "client.render.MixinWorldRenderer",
     "client.render.MixinWorldRenderer_Clouds",
     "client.render.MixinWorldRenderer_Optional",

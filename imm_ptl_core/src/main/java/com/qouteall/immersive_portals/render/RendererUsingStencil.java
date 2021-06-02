@@ -76,7 +76,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
         GL11.glEnable(GL_STENCIL_TEST);
         
         IEFrameBuffer ieFrameBuffer = (IEFrameBuffer) client.getFramebuffer();
@@ -99,7 +99,7 @@ public class RendererUsingStencil extends PortalRenderer {
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         GL11.glDisable(GL_STENCIL_TEST);
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
     }
     
     @Override
@@ -180,32 +180,32 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GL11.glStencilMask(0xFF);
         
-        GlStateManager.disableBlend();
+        GlStateManager._disableBlend();
         
         GL20.glUseProgram(0);
         
         
         if (portal.isFuseView()) {
-            GlStateManager.colorMask(false, false, false, false);
+            GlStateManager._colorMask(false, false, false, false);
             
             RenderSystem.disableDepthTest();
         }
         else {
             RenderSystem.enableDepthTest();
-            GlStateManager.depthMask(true);
+            GlStateManager._depthMask(true);
         }
         
-        GlStateManager.disableTexture();
+        GlStateManager._disableTexture();
         
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
         
         if (portal.isFuseView()) {
-            GlStateManager.colorMask(true, true, true, true);
+            GlStateManager._colorMask(true, true, true, true);
         }
         
-        GlStateManager.enableTexture();
+        GlStateManager._enableTexture();
         
-        GlStateManager.enableBlend();
+        GlStateManager._enableBlend();
         
         CHelper.checkGlError();
     }
@@ -213,7 +213,7 @@ public class RendererUsingStencil extends PortalRenderer {
     private void clearDepthOfThePortalViewArea(
         PortalLike portal
     ) {
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
         
         setStencilStateForWorldRendering();
         
@@ -254,13 +254,13 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GL11.glDepthFunc(GL_ALWAYS);
         
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
         
-        GlStateManager.disableTexture();
+        GlStateManager._disableTexture();
         
         ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
         
-        GlStateManager.enableTexture();
+        GlStateManager._enableTexture();
         
         GL11.glColorMask(true, true, true, true);
         
@@ -285,7 +285,7 @@ public class RendererUsingStencil extends PortalRenderer {
         //do not manipulate the color packetBuffer
         GL11.glColorMask(false, false, false, false);
         
-        GlStateManager.disableDepthTest();
+        GlStateManager._disableDepthTest();
         
         MyRenderHelper.renderScreenTriangle();
         
@@ -293,7 +293,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GL11.glColorMask(true, true, true, true);
         
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
     }
     
     private void setStencilStateForWorldRendering() {

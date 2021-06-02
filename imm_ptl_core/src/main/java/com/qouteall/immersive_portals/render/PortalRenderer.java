@@ -202,8 +202,8 @@ public abstract class PortalRenderer {
         
         PortalRendering.onEndPortalWorldRendering();
         
-        GlStateManager.enableDepthTest();
-        GlStateManager.disableBlend();
+        GlStateManager._enableDepthTest();
+        GlStateManager._disableBlend();
         
         MyRenderHelper.restoreViewPort();
         

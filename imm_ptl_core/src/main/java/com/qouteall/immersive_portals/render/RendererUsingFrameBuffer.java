@@ -39,7 +39,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     public void prepareRendering() {
         secondaryFrameBuffer.prepare();
     
-        GlStateManager.enableDepthTest();
+        GlStateManager._enableDepthTest();
     
         GL11.glDisable(GL11.GL_STENCIL_TEST);
     
@@ -69,9 +69,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         ((IEMinecraftClient) client).setFrameBuffer(secondaryFrameBuffer.fb);
         secondaryFrameBuffer.fb.beginWrite(true);
         
-        GlStateManager.clearColor(1, 0, 1, 1);
-        GlStateManager.clearDepth(1);
-        GlStateManager.clear(
+        GlStateManager._clearColor(1, 0, 1, 1);
+        GlStateManager._clearDepth(1);
+        GlStateManager._clear(
             GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
             MinecraftClient.IS_SYSTEM_MAC
         );
@@ -102,11 +102,11 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         MatrixStack matrixStack
     ) {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            GlStateManager.enableDepthTest();
-            GlStateManager.depthMask(false);
+            GlStateManager._enableDepthTest();
+            GlStateManager._depthMask(false);
             GL20.glUseProgram(0);
             ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
-            GlStateManager.depthMask(true);
+            GlStateManager._depthMask(true);
         });
     }
     
