@@ -42,7 +42,7 @@ public class EntitySync {
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
             
             ThreadedAnvilChunkStorage.EntityTracker playerItselfTracker =
-                entityTrackerMap.get(player.getEntityId());
+                entityTrackerMap.get(player.getId());
             if (playerItselfTracker != null) {
                 if (isDirty(playerItselfTracker)) {
                     dirtyPlayers.add(player);

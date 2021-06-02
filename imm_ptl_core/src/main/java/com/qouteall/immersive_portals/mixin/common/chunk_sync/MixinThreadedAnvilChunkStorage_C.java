@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -67,7 +67,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     private File saveDir;
     
     @Shadow
-    protected abstract CompoundTag getUpdatedChunkTag(ChunkPos pos) throws IOException;
+    protected abstract NbtCompound getUpdatedChunkTag(ChunkPos pos) throws IOException;
     
     @Override
     public int getWatchDistance() {
@@ -101,7 +101,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
         }
         
         try {
-            CompoundTag tag = getUpdatedChunkTag(chunkPos);
+            NbtCompound tag = getUpdatedChunkTag(chunkPos);
             return tag != null;
         }
         catch (IOException e) {

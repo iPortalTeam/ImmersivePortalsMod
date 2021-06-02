@@ -6,7 +6,7 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityDestroyS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -52,9 +52,9 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
                 networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         dimension,
-                        new EntitiesDestroyS2CPacket(
+                        new EntityDestroyS2CPacket(
                             list.stream().mapToInt(
-                                Entity::getEntityId
+                                Entity::getId
                             ).toArray()
                         )
                     )
@@ -86,7 +86,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IE
             this.networkHandler.sendPacket(
                 MyNetwork.createRedirectedMessage(
                     entity_1.world.getRegistryKey(),
-                    new EntitiesDestroyS2CPacket(entity_1.getEntityId())
+                    new EntityDestroyS2CPacket(entity_1.getId())
                 )
             );
         }

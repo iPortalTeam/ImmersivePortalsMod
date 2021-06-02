@@ -44,7 +44,7 @@ public class PortalAPI {
         
         Box boxSurface = Helper.getBoxSurface(portalArea, facing);
         Vec3d center = boxSurface.getCenter();
-        portal.updatePosition(center.x, center.y, center.z);
+        portal.setPosition(center.x, center.y, center.z);
         
         portal.axisW = Vec3d.of(directions.getLeft().getVector());
         portal.axisH = Vec3d.of(directions.getRight().getVector());

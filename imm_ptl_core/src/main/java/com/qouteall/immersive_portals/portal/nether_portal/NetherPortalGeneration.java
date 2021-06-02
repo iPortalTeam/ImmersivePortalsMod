@@ -123,7 +123,7 @@ public class NetherPortalGeneration {
             LoadingIndicatorEntity.entityType.create(fromWorld);
         indicatorEntity.isValid = true;
         indicatorEntity.portalShape = fromShape;
-        indicatorEntity.updatePosition(
+        indicatorEntity.setPosition(
             indicatorPos.x, indicatorPos.y, indicatorPos.z
         );
         fromWorld.spawnEntity(indicatorEntity);

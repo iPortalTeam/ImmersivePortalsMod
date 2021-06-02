@@ -15,7 +15,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
@@ -92,7 +92,7 @@ public class MyNetworkClient {
         
         RegistryKey<World> dim = DimId.readWorldId(buf, true);
         
-        CompoundTag compoundTag = buf.readCompoundTag();
+        NbtCompound compoundTag = buf.readNbt();
         
         CommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
@@ -133,11 +133,11 @@ public class MyNetworkClient {
     public static void processDimSync(
         PacketByteBuf buf
     ) {
-        CompoundTag idMap = buf.readCompoundTag();
+        NbtCompound idMap = buf.readNbt();
         
         DimensionIdRecord.clientRecord = DimensionIdRecord.tagToRecord(idMap);
         
-        CompoundTag typeMap = buf.readCompoundTag();
+        NbtCompound typeMap = buf.readNbt();
         
         DimensionTypeSync.acceptTypeMapData(typeMap);
         
@@ -147,7 +147,7 @@ public class MyNetworkClient {
     
     private static void processGlobalPortalUpdate(PacketByteBuf buf) {
         RegistryKey<World> dimension = DimId.readWorldId(buf, true);
-        CompoundTag compoundTag = buf.readCompoundTag();
+        NbtCompound compoundTag = buf.readNbt();
         CHelper.executeOnRenderThread(() -> {
             GlobalPortalStorage.receiveGlobalPortalSync(dimension, compoundTag);
         });

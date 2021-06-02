@@ -248,7 +248,7 @@ public class ServerTeleportationManager {
         ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
         
         if (player.world.getRegistryKey() == dimensionTo) {
-            player.updatePosition(newPos.x, newPos.y, newPos.z);
+            player.setPosition(newPos.x, newPos.y, newPos.z);
         }
         else {
             changePlayerDimension(player, fromWorld, toWorld, newPos);

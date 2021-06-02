@@ -117,7 +117,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             }
         }
         
-        client.method_29607(worldName, levelInfo, registryTracker, generatorOptions);
+        client.createWorld(worldName, levelInfo, registryTracker, generatorOptions);
     }
     
     private void openAltiusScreen() {

@@ -108,23 +108,23 @@ public class AlternateDimensions {
     
     
     public static final RegistryKey<DimensionOptions> alternate1Option = RegistryKey.of(
-        Registry.DIMENSION_OPTIONS,
+        Registry.DIMENSION_KEY,
         new Identifier("immersive_portals:alternate1")
     );
     public static final RegistryKey<DimensionOptions> alternate2Option = RegistryKey.of(
-        Registry.DIMENSION_OPTIONS,
+        Registry.DIMENSION_KEY,
         new Identifier("immersive_portals:alternate2")
     );
     public static final RegistryKey<DimensionOptions> alternate3Option = RegistryKey.of(
-        Registry.DIMENSION_OPTIONS,
+        Registry.DIMENSION_KEY,
         new Identifier("immersive_portals:alternate3")
     );
     public static final RegistryKey<DimensionOptions> alternate4Option = RegistryKey.of(
-        Registry.DIMENSION_OPTIONS,
+        Registry.DIMENSION_KEY,
         new Identifier("immersive_portals:alternate4")
     );
     public static final RegistryKey<DimensionOptions> alternate5Option = RegistryKey.of(
-        Registry.DIMENSION_OPTIONS,
+        Registry.DIMENSION_KEY,
         new Identifier("immersive_portals:alternate5")
     );
     public static final RegistryKey<DimensionType> surfaceType = RegistryKey.of(
@@ -132,23 +132,23 @@ public class AlternateDimensions {
         new Identifier("immersive_portals:surface_type")
     );
     public static final RegistryKey<World> alternate1 = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("immersive_portals:alternate1")
     );
     public static final RegistryKey<World> alternate2 = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("immersive_portals:alternate2")
     );
     public static final RegistryKey<World> alternate3 = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("immersive_portals:alternate3")
     );
     public static final RegistryKey<World> alternate4 = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("immersive_portals:alternate4")
     );
     public static final RegistryKey<World> alternate5 = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("immersive_portals:alternate5")
     );
 //    public static DimensionType surfaceTypeObject;
@@ -176,7 +176,7 @@ public class AlternateDimensions {
             seed, false, false, biomeRegistry
         );
         
-        MutableRegistry<ChunkGeneratorSettings> settingsRegistry = rm.get(Registry.NOISE_SETTINGS_WORLDGEN);
+        MutableRegistry<ChunkGeneratorSettings> settingsRegistry = rm.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY);
         
         HashMap<StructureFeature<?>, StructureConfig> structureMap = new HashMap<>();
         structureMap.putAll(StructuresConfig.DEFAULT_STRUCTURES);

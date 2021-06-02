@@ -30,7 +30,7 @@ public class MixinAbstractFireBlock {
         }
         
         if (Global.netherPortalMode == Global.NetherPortalMode.vanilla) {
-            return AreaHelper.method_30485(worldAccess, blockPos, axis);
+            return AreaHelper.getNewPortal(worldAccess, blockPos, axis);
         }
         
         if (isNearObsidian(worldAccess, blockPos)) {

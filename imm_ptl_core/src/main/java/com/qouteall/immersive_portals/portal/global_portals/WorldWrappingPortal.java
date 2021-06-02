@@ -4,7 +4,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -36,8 +36,8 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     }
     
     @Override
-    protected void readCustomDataFromTag(CompoundTag compoundTag) {
-        super.readCustomDataFromTag(compoundTag);
+    protected void readCustomDataFromNbt(NbtCompound compoundTag) {
+        super.readCustomDataFromNbt(compoundTag);
         
         if (compoundTag.contains("isInward")) {
             isInward = compoundTag.getBoolean("isInward");
@@ -48,8 +48,8 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
     }
     
     @Override
-    protected void writeCustomDataToTag(CompoundTag compoundTag) {
-        super.writeCustomDataToTag(compoundTag);
+    protected void writeCustomDataToNbt(NbtCompound compoundTag) {
+        super.writeCustomDataToNbt(compoundTag);
         
         compoundTag.putBoolean("isInward", isInward);
         compoundTag.putInt("zoneId", zoneId);
@@ -87,7 +87,7 @@ public class WorldWrappingPortal extends GlobalTrackedPortal {
         Vec3d center = boxSurface.getCenter();
         Box oppositeSurface = Helper.getBoxSurfaceInversed(area, direction.getOpposite());
         Vec3d destination = oppositeSurface.getCenter();
-        portal.updatePosition(center.x, center.y, center.z);
+        portal.setPosition(center.x, center.y, center.z);
         portal.setDestination(destination);
         
         portal.axisW = Vec3d.of(axises.getLeft().getVector());

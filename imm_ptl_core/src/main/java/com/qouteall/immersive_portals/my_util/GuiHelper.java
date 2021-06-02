@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.my_util;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public class GuiHelper {
     // mc does not expose the height
-    public static LayoutFunc layoutButtonHorizontally(AbstractButtonWidget widget) {
+    public static LayoutFunc layoutButtonHorizontally(ClickableWidget widget) {
         return (a, b) -> {
             widget.x = a;
             widget.setWidth(b - a);
@@ -25,7 +25,7 @@ public class GuiHelper {
         };
     }
     
-    public static LayoutFunc layoutButtonVertically(AbstractButtonWidget widget) {
+    public static LayoutFunc layoutButtonVertically(ClickableWidget widget) {
         return (a, b) -> {
             widget.y = a;
         };

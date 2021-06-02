@@ -18,7 +18,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -121,7 +121,7 @@ public class CommonNetworkClient {
         }
     }
     
-    public static void processEntitySpawn(String entityTypeString, int entityId, RegistryKey<World> dim, CompoundTag compoundTag) {
+    public static void processEntitySpawn(String entityTypeString, int entityId, RegistryKey<World> dim, NbtCompound compoundTag) {
         Optional<EntityType<?>> entityType = EntityType.get(entityTypeString);
         if (!entityType.isPresent()) {
             Helper.err("unknown entity type " + entityTypeString);
@@ -136,7 +136,7 @@ public class CommonNetworkClient {
             Entity entity = entityType.get().create(
                 world
             );
-            entity.fromTag(compoundTag);
+            entity.readNbt(compoundTag);
             entity.setEntityId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);

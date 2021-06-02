@@ -13,7 +13,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.MessageType;
 import net.minecraft.network.Packet;
 import net.minecraft.particle.ParticleTypes;
@@ -105,14 +105,14 @@ public class LoadingIndicatorEntity extends Entity {
     }
     
     @Override
-    protected void readCustomDataFromTag(CompoundTag tag) {
+    protected void readCustomDataFromNbt(NbtCompound tag) {
         if (tag.contains("shape")) {
             portalShape = new BlockPortalShape(tag.getCompound("shape"));
         }
     }
     
     @Override
-    protected void writeCustomDataToTag(CompoundTag tag) {
+    protected void writeCustomDataToNbt(NbtCompound tag) {
         if (portalShape != null) {
             tag.put("shape", portalShape.toTag());
         }

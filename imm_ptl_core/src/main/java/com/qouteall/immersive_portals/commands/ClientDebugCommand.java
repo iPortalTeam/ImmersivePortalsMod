@@ -37,8 +37,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -861,7 +861,7 @@ public class ClientDebugCommand {
                 playerMP.world.getRegistryKey().getValue(),
                 playerMP.getPos(),
                 playerMP.removed,
-                playerMP.world.getEntityById(playerMP.getEntityId()) != null,
+                playerMP.world.getEntityById(playerMP.getId()) != null,
                 playerMP.age,
                 playerMP.chunkX, playerMP.chunkZ
             )
@@ -874,7 +874,7 @@ public class ClientDebugCommand {
                 playerSP.world.getRegistryKey().getValue(),
                 playerSP.getPos(),
                 playerSP.removed,
-                playerSP.world.getEntityById(playerSP.getEntityId()) != null,
+                playerSP.world.getEntityById(playerSP.getId()) != null,
                 playerSP.age,
                 playerSP.chunkX, playerSP.chunkZ
             )
@@ -896,7 +896,7 @@ public class ClientDebugCommand {
             UUID uuid,
             Block block, BlockState blockState,
             Item item, ItemStack itemStack,
-            CompoundTag compoundTag, Text text, int[] intArray
+            NbtCompound compoundTag, Text text, int[] intArray
         ) {
             Helper.log(
                 player.getName().asString() + uuid + block + blockState + item + itemStack
@@ -907,8 +907,8 @@ public class ClientDebugCommand {
     
     private static void testRemoteProcedureCall(ServerPlayerEntity player) {
         MinecraftClient.getInstance().execute(() -> {
-            CompoundTag compoundTag = new CompoundTag();
-            compoundTag.put("test", IntTag.of(7));
+            NbtCompound compoundTag = new NbtCompound();
+            compoundTag.put("test", NbtInt.of(7));
             McRemoteProcedureCall.tellServerToInvoke(
                 "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.clientToServer",
                 new UUID(3, 3),

@@ -9,9 +9,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -53,26 +53,26 @@ public class CommandStickItem extends Item {
             this.descriptionTranslationKeys = descriptionTranslationKeys;
         }
         
-        public void serialize(CompoundTag tag) {
+        public void serialize(NbtCompound tag) {
             tag.putString("command", command);
             tag.putString("nameTranslationKey", nameTranslationKey);
-            ListTag listTag = new ListTag();
+            NbtList listTag = new NbtList();
             for (String descriptionTK : descriptionTranslationKeys) {
-                listTag.add(StringTag.of(descriptionTK));
+                listTag.add(NbtString.of(descriptionTK));
             }
             tag.put("descriptionTranslationKeys", listTag);
         }
         
-        public static Data deserialize(CompoundTag tag) {
+        public static Data deserialize(NbtCompound tag) {
             return new Data(
                 tag.getString("command"),
                 tag.getString("nameTranslationKey"),
                 tag.getList(
                     "descriptionTranslationKeys",
-                    StringTag.of("").getType()
+                    NbtString.of("").getType()
                 )
                     .stream()
-                    .map(tag1 -> ((StringTag) tag1).asString())
+                    .map(tag1 -> ((NbtString) tag1).asString())
                     .collect(Collectors.toList())
             );
         }

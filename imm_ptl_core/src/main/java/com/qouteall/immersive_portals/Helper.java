@@ -12,7 +12,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -416,13 +416,13 @@ public class Helper {
         };
     }
     
-    public static void putVec3d(CompoundTag compoundTag, String name, Vec3d vec3d) {
+    public static void putVec3d(NbtCompound compoundTag, String name, Vec3d vec3d) {
         compoundTag.putDouble(name + "X", vec3d.x);
         compoundTag.putDouble(name + "Y", vec3d.y);
         compoundTag.putDouble(name + "Z", vec3d.z);
     }
     
-    public static Vec3d getVec3d(CompoundTag compoundTag, String name) {
+    public static Vec3d getVec3d(NbtCompound compoundTag, String name) {
         return new Vec3d(
             compoundTag.getDouble(name + "X"),
             compoundTag.getDouble(name + "Y"),
@@ -430,13 +430,13 @@ public class Helper {
         );
     }
     
-    public static void putVec3i(CompoundTag compoundTag, String name, Vec3i vec3i) {
+    public static void putVec3i(NbtCompound compoundTag, String name, Vec3i vec3i) {
         compoundTag.putInt(name + "X", vec3i.getX());
         compoundTag.putInt(name + "Y", vec3i.getY());
         compoundTag.putInt(name + "Z", vec3i.getZ());
     }
     
-    public static BlockPos getVec3i(CompoundTag compoundTag, String name) {
+    public static BlockPos getVec3i(NbtCompound compoundTag, String name) {
         return new BlockPos(
             compoundTag.getInt(name + "X"),
             compoundTag.getInt(name + "Y"),
@@ -606,13 +606,13 @@ public class Helper {
         return t;
     }
     
-    public static void putUuid(CompoundTag tag, String key, UUID uuid) {
+    public static void putUuid(NbtCompound tag, String key, UUID uuid) {
         tag.putLong(key + "Most", uuid.getMostSignificantBits());
         tag.putLong(key + "Least", uuid.getLeastSignificantBits());
     }
     
     @Nullable
-    public static UUID getUuid(CompoundTag tag, String key) {
+    public static UUID getUuid(NbtCompound tag, String key) {
         String key1 = key + "Most";
         
         if (!tag.contains(key1)) {

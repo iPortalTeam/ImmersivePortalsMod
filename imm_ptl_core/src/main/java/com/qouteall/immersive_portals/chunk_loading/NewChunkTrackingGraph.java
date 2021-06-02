@@ -287,7 +287,7 @@ public class NewChunkTrackingGraph {
         
         long gameTime = McHelper.getOverWorldOnServer().getTime();
         McHelper.getCopiedPlayerList().forEach(player -> {
-            if (player.getEntityId() % updateInterval == gameTime % updateInterval) {
+            if (player.getId() % updateInterval == gameTime % updateInterval) {
                 updateForPlayer(player);
             }
         });

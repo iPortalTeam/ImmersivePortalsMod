@@ -68,7 +68,7 @@ public class EndPortalEntity extends Portal {
     private static void generateClassicalEndPortal(ServerWorld world, Vec3d destination, Vec3d portalCenter) {
         Portal portal = new EndPortalEntity(entityType, world);
         
-        portal.updatePosition(portalCenter.x, portalCenter.y, portalCenter.z);
+        portal.setPosition(portalCenter.x, portalCenter.y, portalCenter.z);
         
         portal.setDestination(destination);
         

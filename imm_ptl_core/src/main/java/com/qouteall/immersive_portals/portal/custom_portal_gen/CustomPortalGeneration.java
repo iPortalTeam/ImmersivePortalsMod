@@ -27,12 +27,12 @@ import java.util.function.Function;
 
 public class CustomPortalGeneration {
     public static final RegistryKey<World> theSameDimension = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("imm_ptl:the_same_dimension")
     );
     
     public static final RegistryKey<World> anyDimension = RegistryKey.of(
-        Registry.DIMENSION,
+        Registry.WORLD_KEY,
         new Identifier("imm_ptl:any_dimension")
     );
     

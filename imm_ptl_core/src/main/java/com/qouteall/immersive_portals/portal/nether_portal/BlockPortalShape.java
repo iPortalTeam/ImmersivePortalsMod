@@ -4,9 +4,9 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
 import com.qouteall.immersive_portals.portal.Portal;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtInt;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -49,7 +49,7 @@ public class BlockPortalShape {
     }
     
     public BlockPortalShape(
-        CompoundTag tag
+        NbtCompound tag
     ) {
         this(
             readArea(tag.getList("poses", 3)),
@@ -57,7 +57,7 @@ public class BlockPortalShape {
         );
     }
     
-    private static Set<BlockPos> readArea(ListTag list) {
+    private static Set<BlockPos> readArea(NbtList list) {
         int size = list.size();
         
         Validate.isTrue(size % 3 == 0);
@@ -75,14 +75,14 @@ public class BlockPortalShape {
     }
     
     
-    public CompoundTag toTag() {
-        CompoundTag data = new CompoundTag();
-        ListTag list = new ListTag();
+    public NbtCompound toTag() {
+        NbtCompound data = new NbtCompound();
+        NbtList list = new NbtList();
         
         area.forEach(blockPos -> {
-            list.add(list.size(), IntTag.of(blockPos.getX()));
-            list.add(list.size(), IntTag.of(blockPos.getY()));
-            list.add(list.size(), IntTag.of(blockPos.getZ()));
+            list.add(list.size(), NbtInt.of(blockPos.getX()));
+            list.add(list.size(), NbtInt.of(blockPos.getY()));
+            list.add(list.size(), NbtInt.of(blockPos.getZ()));
         });
         
         data.put("poses", list);
@@ -362,7 +362,7 @@ public class BlockPortalShape {
     
     public void initPortalPosAxisShape(Portal portal, boolean doInvert) {
         Vec3d center = innerAreaBox.getCenterVec();
-        portal.updatePosition(center.x, center.y, center.z);
+        portal.setPosition(center.x, center.y, center.z);
         
         IntBox rectanglePart = Helper.expandRectangle(
             anchor,

@@ -80,7 +80,7 @@ public class PortalManipulation {
         
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.world.getRegistryKey();
-        newPortal.updatePosition(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
+        newPortal.setPosition(portal.getDestPos().x, portal.getDestPos().y, portal.getDestPos().z);
         newPortal.setDestination(portal.getOriginPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
@@ -132,7 +132,7 @@ public class PortalManipulation {
         World world = portal.world;
         T newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
-        newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
+        newPortal.setPosition(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         
@@ -167,7 +167,7 @@ public class PortalManipulation {
         World world = portal.world;
         Portal newPortal = entityType.create(world);
         newPortal.dimensionTo = portal.dimensionTo;
-        newPortal.updatePosition(portal.getX(), portal.getY(), portal.getZ());
+        newPortal.setPosition(portal.getX(), portal.getY(), portal.getZ());
         newPortal.setDestination(portal.getDestPos());
         newPortal.specificPlayerId = portal.specificPlayerId;
         

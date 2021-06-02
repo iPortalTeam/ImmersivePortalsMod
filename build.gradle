@@ -169,9 +169,9 @@ dependencies {
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
     include "io.github.prospector:modmenu:${modmenu_version}"
 
-    modImplementation ('com.github.qouteall:MiniScaledMod:v0.01-1.16'){
-        exclude module: 'imm_ptl_core'
-    }
+//    modImplementation ('com.github.qouteall:MiniScaledMod:v0.01-1.16'){
+//        exclude module: 'imm_ptl_core'
+//    }
 
 //    modImplementation 'com.github.CaffeineMC:phosphor-fabric:mc1.16.2-v0.7.1'
 

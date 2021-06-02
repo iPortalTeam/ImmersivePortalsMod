@@ -2,8 +2,8 @@ package com.qouteall.immersive_portals.dimension_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
@@ -50,8 +50,8 @@ public class DimensionIdRecord {
         ).collect(Collectors.joining("\n"));
     }
     
-    public static DimensionIdRecord tagToRecord(CompoundTag tag) {
-        CompoundTag intids = tag.getCompound("intids");
+    public static DimensionIdRecord tagToRecord(NbtCompound tag) {
+        NbtCompound intids = tag.getCompound("intids");
         
         if (intids == null) {
             return null;
@@ -69,13 +69,13 @@ public class DimensionIdRecord {
         return new DimensionIdRecord(bimap);
     }
     
-    public static CompoundTag recordToTag(DimensionIdRecord record) {
-        CompoundTag intids = new CompoundTag();
+    public static NbtCompound recordToTag(DimensionIdRecord record) {
+        NbtCompound intids = new NbtCompound();
         record.idMap.forEach((key, intid) -> {
-            intids.put(key.getValue().toString(), IntTag.of(intid));
+            intids.put(key.getValue().toString(), NbtInt.of(intid));
         });
         
-        CompoundTag result = new CompoundTag();
+        NbtCompound result = new NbtCompound();
         result.put("intids", intids);
         return result;
     }

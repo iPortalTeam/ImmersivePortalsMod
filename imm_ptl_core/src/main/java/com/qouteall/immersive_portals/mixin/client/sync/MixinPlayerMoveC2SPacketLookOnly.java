@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(PlayerMoveC2SPacket.LookOnly.class)
+@Mixin(PlayerMoveC2SPacket.LookAndOnGround.class)
 public class MixinPlayerMoveC2SPacketLookOnly {
     @Environment(EnvType.CLIENT)
     @Inject(

@@ -10,7 +10,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -99,7 +99,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         int z,
         BiomeArray biomeArray,
         PacketByteBuf packetByteBuf,
-        CompoundTag compoundTag,
+        NbtCompound compoundTag,
         int mask,
         boolean forceCreate
     ) {

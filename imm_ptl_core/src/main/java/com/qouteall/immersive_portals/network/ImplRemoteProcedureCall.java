@@ -16,7 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -70,7 +70,7 @@ public class ImplRemoteProcedureCall {
             .put(Item.class, (buf, o) -> serializeByCodec(buf, Registry.ITEM, o))
             .put(BlockState.class, (buf, o) -> serializeByCodec(buf, BlockState.CODEC, o))
             .put(ItemStack.class, (buf, o) -> serializeByCodec(buf, ItemStack.CODEC, o))
-            .put(CompoundTag.class, (buf, o) -> buf.writeCompoundTag(((CompoundTag) o)))
+            .put(NbtCompound.class, (buf, o) -> buf.writeNbt(((NbtCompound) o)))
             .put(Text.class, (buf, o) -> buf.writeText(((Text) o)))
             .build();
         
@@ -79,7 +79,7 @@ public class ImplRemoteProcedureCall {
             .put(
                 new TypeToken<RegistryKey<World>>() {}.getType(),
                 buf -> RegistryKey.of(
-                    Registry.DIMENSION, buf.readIdentifier()
+                    Registry.WORLD_KEY, buf.readIdentifier()
                 )
             )
             .put(
@@ -97,7 +97,7 @@ public class ImplRemoteProcedureCall {
             .put(Item.class, buf -> deserializeByCodec(buf, Registry.ITEM))
             .put(BlockState.class, buf -> deserializeByCodec(buf, BlockState.CODEC))
             .put(ItemStack.class, buf -> deserializeByCodec(buf, ItemStack.CODEC))
-            .put(CompoundTag.class, buf -> buf.readCompoundTag())
+            .put(NbtCompound.class, buf -> buf.readNbt())
             .put(Text.class, buf -> buf.readText())
             .build();
     }

@@ -12,11 +12,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 
 @Environment(EnvType.CLIENT)
 public class TransformationManager {
@@ -226,7 +226,7 @@ public class TransformationManager {
         }
         
         Quaternion rotation = camera.getRotation();
-        Vector3f vec = new Vector3f(0, 0, client.options.viewDistance * -10);
+        Vec3f vec = new Vec3f(0, 0, client.options.viewDistance * -10);
         vec.rotate(rotation);
         
         return cameraPos.add(vec.getX(), vec.getY(), vec.getZ());

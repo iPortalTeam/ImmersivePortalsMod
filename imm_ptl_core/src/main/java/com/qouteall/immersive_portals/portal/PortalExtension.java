@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.portal;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.WeakHashMap;
@@ -86,7 +86,7 @@ public class PortalExtension {
     
     }
     
-    private void readFromNbt(CompoundTag compoundTag) {
+    private void readFromNbt(NbtCompound compoundTag) {
         if (compoundTag.contains("motionAffinity")) {
             motionAffinity = compoundTag.getDouble("motionAffinity");
         }
@@ -101,7 +101,7 @@ public class PortalExtension {
         }
     }
     
-    private void writeToNbt(CompoundTag compoundTag) {
+    private void writeToNbt(NbtCompound compoundTag) {
         if (motionAffinity != 0) {
             compoundTag.putDouble("motionAffinity", motionAffinity);
         }

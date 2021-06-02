@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin.common.dimension;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import com.qouteall.immersive_portals.ducks.IEGeneratorOptions;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelProperties;
@@ -51,8 +51,8 @@ public class MixinLevelProperties_D {
         at = @At("HEAD")
     )
     private void onUpdateProperties(
-        DynamicRegistryManager dynamicRegistryManager, CompoundTag compoundTag,
-        CompoundTag compoundTag2, CallbackInfo ci
+        DynamicRegistryManager dynamicRegistryManager, NbtCompound compoundTag,
+        NbtCompound compoundTag2, CallbackInfo ci
     ) {
         ((IEGeneratorOptions) generatorOptions).setDimOptionRegistry(
             IPDimensionAPI.getAdditionalDimensionsRemoved(

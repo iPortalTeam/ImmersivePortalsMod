@@ -295,7 +295,7 @@ public class ClientWorldLoader {
         
         worldRenderer.setWorld(newWorld);
         
-        worldRenderer.apply(client.getResourceManager());
+        worldRenderer.reload(client.getResourceManager());
         
         ((IEClientPlayNetworkHandler) ((IEClientWorld) newWorld).getNetHandler())
             .setWorld(newWorld);

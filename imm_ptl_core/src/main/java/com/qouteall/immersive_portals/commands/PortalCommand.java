@@ -40,17 +40,16 @@ import net.minecraft.block.Material;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.ColumnPosArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.NbtCompoundTagArgumentType;
+import net.minecraft.command.argument.NbtCompoundArgumentType;
 import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -64,6 +63,7 @@ import net.minecraft.util.math.ColumnPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -596,11 +596,11 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("set_portal_nbt")
-            .then(CommandManager.argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+            .then(CommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound())
                 .executes(context -> processPortalTargetedCommand(
                     context,
                     portal -> {
-                        CompoundTag newNbt = NbtCompoundTagArgumentType.getCompoundTag(
+                        NbtCompound newNbt = NbtCompoundArgumentType.getNbtCompound(
                             context, "nbt"
                         );
                         
@@ -746,7 +746,7 @@ public class PortalCommand {
                                         viewVector.x, viewVector.y, viewVector.z
                                     );
                                     Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
-                                    portal.updatePosition(
+                                    portal.setPosition(
                                         portal.getX() + offset.x,
                                         portal.getY() + offset.y,
                                         portal.getZ() + offset.z
@@ -959,7 +959,7 @@ public class PortalCommand {
                             );
                             
                             Quaternion rot = angleDegrees != 0 ? new Quaternion(
-                                new Vector3f(rotatingAxis),
+                                new Vec3f(rotatingAxis),
                                 (float) angleDegrees,
                                 true
                             ) : null;
@@ -981,7 +981,7 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            Vector3f axis = new Vector3f(1, 0, 0);
+                            Vec3f axis = new Vec3f(1, 0, 0);
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
@@ -1006,7 +1006,7 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            Vector3f axis = new Vector3f(0, 1, 0);
+                            Vec3f axis = new Vec3f(0, 1, 0);
                             
                             
                             double angleDegrees =
@@ -1032,7 +1032,7 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            Vector3f axis = new Vector3f(0, 0, 1);
+                            Vec3f axis = new Vec3f(0, 0, 1);
                             
                             
                             double angleDegrees =
@@ -1056,7 +1056,7 @@ public class PortalCommand {
         );
     }
     
-    private static void setPortalRotation(Portal portal, Vector3f axis, double angleDegrees) {
+    private static void setPortalRotation(Portal portal, Vec3f axis, double angleDegrees) {
         if (angleDegrees != 0) {
             portal.rotation = new Quaternion(
                 axis, (float) angleDegrees, true
@@ -1069,15 +1069,15 @@ public class PortalCommand {
         portal.reloadAndSyncToClient();
     }
     
-    private static void setPortalNbt(Portal portal, CompoundTag newNbt) {
-        CompoundTag portalNbt = portal.toTag(new CompoundTag());
+    private static void setPortalNbt(Portal portal, NbtCompound newNbt) {
+        NbtCompound portalNbt = portal.writeNbt(new NbtCompound());
         
         newNbt.getKeys().forEach(
             key -> portalNbt.put(key, newNbt.get(key))
         );
         
         UUID uuid = portal.getUuid();
-        portal.fromTag(portalNbt);
+        portal.readNbt(portalNbt);
         portal.setUuid(uuid);
         
         portal.reloadAndSyncToClient();
@@ -1187,7 +1187,7 @@ public class PortalCommand {
                                 
                                 Portal portal = Portal.entityType.create(fromEntity.world);
                                 
-                                portal.updatePosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
+                                portal.setPosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
                                 
                                 portal.dimensionTo = toEntity.world.getRegistryKey();
                                 portal.setDestination(toEntity.getPos());
@@ -1213,7 +1213,7 @@ public class PortalCommand {
         );
         builder.then(CommandManager.literal("cb_set_portal_nbt")
             .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .then(CommandManager.argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+                .then(CommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound())
                     .executes(context -> processPortalArgumentedCBCommand(
                         context,
                         (portal) -> invokeSetPortalNBT(context, portal)
@@ -1845,7 +1845,7 @@ public class PortalCommand {
     
     private static void invokeSetPortalNBT(CommandContext<ServerCommandSource> context, Portal portal) throws CommandSyntaxException {
         
-        CompoundTag newNbt = NbtCompoundTagArgumentType.getCompoundTag(
+        NbtCompound newNbt = NbtCompoundArgumentType.getNbtCompound(
             context, "nbt"
         );
         
@@ -1924,7 +1924,7 @@ public class PortalCommand {
     public static void sendPortalInfo(CommandContext<ServerCommandSource> context, Portal portal) {
         context.getSource().sendFeedback(
             McHelper.compoundTagToTextSorted(
-                portal.toTag(new CompoundTag()),
+                portal.writeNbt(new NbtCompound()),
                 " ",
                 0
             ),

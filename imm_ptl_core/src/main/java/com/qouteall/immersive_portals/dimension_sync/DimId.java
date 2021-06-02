@@ -1,10 +1,10 @@
 package com.qouteall.immersive_portals.dimension_sync;
 
 import com.qouteall.hiding_in_the_bushes.O_O;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtInt;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -49,28 +49,28 @@ public class DimId {
     }
     
     public static RegistryKey<World> idToKey(Identifier identifier) {
-        return RegistryKey.of(Registry.DIMENSION, identifier);
+        return RegistryKey.of(Registry.WORLD_KEY, identifier);
     }
     
     public static RegistryKey<World> idToKey(String str) {
         return idToKey(new Identifier(str));
     }
     
-    public static void putWorldId(CompoundTag tag, String tagName, RegistryKey<World> dim) {
+    public static void putWorldId(NbtCompound tag, String tagName, RegistryKey<World> dim) {
         tag.putString(tagName, dim.getValue().toString());
     }
     
-    public static RegistryKey<World> getWorldId(CompoundTag tag, String tagName, boolean isClient) {
-        Tag term = tag.get(tagName);
-        if (term instanceof IntTag) {
-            int intId = ((IntTag) term).getInt();
+    public static RegistryKey<World> getWorldId(NbtCompound tag, String tagName, boolean isClient) {
+        NbtElement term = tag.get(tagName);
+        if (term instanceof NbtInt) {
+            int intId = ((NbtInt) term).intValue();
             DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
             return record.getDim(intId);
         }
         
-        if (term instanceof StringTag) {
-            String id = ((StringTag) term).asString();
+        if (term instanceof NbtString) {
+            String id = ((NbtString) term).asString();
             return idToKey(id);
         }
         

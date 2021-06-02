@@ -5,10 +5,10 @@ import com.google.common.collect.HashBiMap;
 import com.qouteall.hiding_in_the_bushes.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -64,7 +64,7 @@ public class DimensionIdManagement {
             
             FileOutputStream fileInputStream = new FileOutputStream(file);
             
-            CompoundTag tag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
+            NbtCompound tag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
             
             NbtIo.writeCompressed(tag, fileInputStream);
             
@@ -88,7 +88,7 @@ public class DimensionIdManagement {
         
         try {
             FileInputStream fileInputStream = new FileInputStream(dataFile);
-            CompoundTag tag = NbtIo.readCompressed(fileInputStream);
+            NbtCompound tag = NbtIo.readCompressed(fileInputStream);
             fileInputStream.close();
             
             return DimensionIdRecord.tagToRecord(tag);
@@ -163,7 +163,7 @@ public class DimensionIdManagement {
             
             LevelStorage.Session session = McHelper.getServer().session;
             
-            CompoundTag tag = (CompoundTag) fabric_activeTag_field.get(session);
+            NbtCompound tag = (NbtCompound) fabric_activeTag_field.get(session);
             
             if (tag == null) {
                 return null;
@@ -181,8 +181,8 @@ public class DimensionIdManagement {
     /**
      * RegistrySyncManager#apply(CompoundTag, RemappableRegistry.RemapMode)
      */
-    private static DimensionIdRecord readIdsFromFabricRegistryRecord(CompoundTag fabricRegistryRecord) {
-        CompoundTag dimensionTypeTag = fabricRegistryRecord.getCompound("minecraft:dimension_type");
+    private static DimensionIdRecord readIdsFromFabricRegistryRecord(NbtCompound fabricRegistryRecord) {
+        NbtCompound dimensionTypeTag = fabricRegistryRecord.getCompound("minecraft:dimension_type");
         
         if (dimensionTypeTag.isEmpty()) {
             Helper.err("Missing 'minecraft:dimension_type' " + fabricRegistryRecord);
@@ -192,9 +192,9 @@ public class DimensionIdManagement {
         HashBiMap<RegistryKey<World>, Integer> bimap = HashBiMap.create();
         
         dimensionTypeTag.getKeys().forEach(dim -> {
-            Tag t = dimensionTypeTag.get(dim);
-            if (t instanceof IntTag) {
-                int data = ((IntTag) t).getInt();
+            NbtElement t = dimensionTypeTag.get(dim);
+            if (t instanceof NbtInt) {
+                int data = ((NbtInt) t).intValue();
                 bimap.put(DimId.idToKey(dim), data - 1);
             }
             else {

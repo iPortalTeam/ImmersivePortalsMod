@@ -1,10 +1,10 @@
 package com.qouteall.immersive_portals.my_util;
 
 import com.qouteall.immersive_portals.Helper;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 
 public class RotationHelper {
     //NOTE this will mutate a and return a
@@ -94,7 +94,7 @@ public class RotationHelper {
     }
     
     public static Vec3d getRotated(Quaternion rotation, Vec3d vec) {
-        Vector3f vector3f = new Vector3f(vec);
+        Vec3f vector3f = new Vec3f(vec);
         vector3f.rotate(rotation);
         return new Vec3d(vector3f);
     }

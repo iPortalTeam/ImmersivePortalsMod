@@ -48,7 +48,7 @@ public class SelectDimensionScreen extends Screen {
         ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
         
         for (Map.Entry<RegistryKey<DimensionOptions>, DimensionOptions> entry : dimensionMap.getEntries()) {
-            dimList.add(RegistryKey.of(Registry.DIMENSION, entry.getKey().getValue()));
+            dimList.add(RegistryKey.of(Registry.WORLD_KEY, entry.getKey().getValue()));
         }
         
         return dimList;
@@ -69,7 +69,7 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
         
-        for (RegistryKey<World> dim : getDimensionList(this.generatorOptionsSupplier, this.parent.parent.moreOptionsDialog.method_29700())) {
+        for (RegistryKey<World> dim : getDimensionList(this.generatorOptionsSupplier, this.parent.parent.moreOptionsDialog.getRegistryManager())) {
             dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));
         }
         
@@ -104,7 +104,7 @@ public class SelectDimensionScreen extends Screen {
         
         super.render(matrixStack, mouseX, mouseY, delta);
         
-        this.drawCenteredString(
+        this.drawCenteredText(
             matrixStack, this.textRenderer, this.title.asString(), this.width / 2, 20, -1
         );
     }

@@ -70,7 +70,7 @@ public class WorldCreationDimensionHelper {
                 });
         
         GeneratorOptions result = (GeneratorOptions) dataResult.resultOrPartial(
-            Util.method_29188(
+            Util.addPrefix(
                 "Error reading worldgen settings after loading data packs: ",
                 Helper::log
             )
@@ -89,7 +89,7 @@ public class WorldCreationDimensionHelper {
         );
         
         final DynamicRegistryManager.Impl registryTracker =
-            createWorldScreen.moreOptionsDialog.method_29700();
+            createWorldScreen.moreOptionsDialog.getRegistryManager();
         GeneratorOptions populatedGeneratorOptions = getPopulatedGeneratorOptions(
             registryTracker, resourceManager, rawGeneratorOptions
         );

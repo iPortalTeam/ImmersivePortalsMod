@@ -96,9 +96,9 @@ public class AltiusEditScreen extends Screen {
     
     @Override
     protected void init() {
-        addChild(scaleField);
+        addSelectableChild(scaleField);
         addButton(flipButton);
-        addChild(horizontalRotationField);
+        addSelectableChild(horizontalRotationField);
         addButton(backButton);
         addButton(helpButton);
         

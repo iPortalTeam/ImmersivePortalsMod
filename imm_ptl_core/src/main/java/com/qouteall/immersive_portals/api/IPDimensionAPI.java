@@ -36,7 +36,7 @@ public class IPDimensionAPI {
     ) {
         if (!dimensionOptionsRegistry.getIds().contains(dimensionId)) {
             dimensionOptionsRegistry.add(
-                RegistryKey.of(Registry.DIMENSION_OPTIONS, dimensionId),
+                RegistryKey.of(Registry.DIMENSION_KEY, dimensionId),
                 new DimensionOptions(
                     dimensionTypeSupplier,
                     chunkGenerator
@@ -84,7 +84,7 @@ public class IPDimensionAPI {
                 () -> DimensionType.THE_NETHER,
                 DimensionType.createNetherGenerator(
                     registryManager.get(Registry.BIOME_KEY),
-                    registryManager.get(Registry.NOISE_SETTINGS_WORLDGEN),
+                    registryManager.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY),
                     seed
                 )
             );
@@ -99,7 +99,7 @@ public class IPDimensionAPI {
                 () -> DimensionType.THE_END,
                 DimensionType.createEndGenerator(
                     registryManager.get(Registry.BIOME_KEY),
-                    registryManager.get(Registry.NOISE_SETTINGS_WORLDGEN),
+                    registryManager.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY),
                     seed
                 )
             );

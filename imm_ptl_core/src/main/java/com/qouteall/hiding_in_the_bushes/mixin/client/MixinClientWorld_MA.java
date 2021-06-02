@@ -14,6 +14,6 @@ public abstract class MixinClientWorld_MA implements IEClientWorld_MA {
     
     @Override
     public void segregateEntity(Entity entity) {
-        removeEntity(entity.getEntityId());
+        removeEntity(entity.getId());
     }
 }

@@ -73,8 +73,8 @@ public class ClippedBlockView implements BlockView {
     }
     
     @Override
-    public Stream<BlockState> method_29546(Box box) {
-        return delegate.method_29546(box);
+    public Stream<BlockState> getStatesInBox(Box box) {
+        return delegate.getStatesInBox(box);
     }
     
     @Override

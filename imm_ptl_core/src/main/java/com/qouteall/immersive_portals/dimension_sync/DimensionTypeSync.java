@@ -5,8 +5,8 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
@@ -32,7 +32,7 @@ public class DimensionTypeSync {
     }
     
     @Environment(EnvType.CLIENT)
-    private static Map<RegistryKey<World>, RegistryKey<DimensionType>> typeMapFromTag(CompoundTag tag) {
+    private static Map<RegistryKey<World>, RegistryKey<DimensionType>> typeMapFromTag(NbtCompound tag) {
         Map<RegistryKey<World>, RegistryKey<DimensionType>> result = new HashMap<>();
         tag.getKeys().forEach(key -> {
             RegistryKey<World> worldKey = DimId.idToKey(key);
@@ -49,7 +49,7 @@ public class DimensionTypeSync {
     }
     
     @Environment(EnvType.CLIENT)
-    public static void acceptTypeMapData(CompoundTag tag) {
+    public static void acceptTypeMapData(NbtCompound tag) {
         clientTypeMap = typeMapFromTag(tag);
         
         Helper.log("Received Dimension Type Sync");
@@ -60,7 +60,7 @@ public class DimensionTypeSync {
         ));
     }
     
-    public static CompoundTag createTagFromServerWorldInfo() {
+    public static NbtCompound createTagFromServerWorldInfo() {
         DynamicRegistryManager registryManager = McHelper.getServer().getRegistryManager();
         Registry<DimensionType> dimensionTypes = registryManager.getDimensionTypes();
         return typeMapToTag(
@@ -87,10 +87,10 @@ public class DimensionTypeSync {
         return RegistryKey.of(Registry.DIMENSION_TYPE_KEY, id);
     }
     
-    private static CompoundTag typeMapToTag(Map<RegistryKey<World>, RegistryKey<DimensionType>> data) {
-        CompoundTag tag = new CompoundTag();
+    private static NbtCompound typeMapToTag(Map<RegistryKey<World>, RegistryKey<DimensionType>> data) {
+        NbtCompound tag = new NbtCompound();
         data.forEach((worldKey, typeKey) -> {
-            tag.put(worldKey.getValue().toString(), StringTag.of(typeKey.getValue().toString()));
+            tag.put(worldKey.getValue().toString(), NbtString.of(typeKey.getValue().toString()));
         });
         return tag;
     }

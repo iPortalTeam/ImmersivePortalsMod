@@ -3,7 +3,7 @@ package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.resource.DataPackSettings;
 import net.minecraft.world.level.LevelInfo;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +27,7 @@ public class MixinLevelInfo {
         DataResult<?> altiusElement = dynamic.getElement("altius");
         Object obj = altiusElement.get().left().orElse(null);
         if (obj != null) {
-            if (obj instanceof CompoundTag) {
+            if (obj instanceof NbtCompound) {
                 AltiusGameRule.upgradeOldDimensionStack();
             }
         }

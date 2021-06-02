@@ -13,8 +13,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -137,7 +137,7 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Override
-    public void fromTag(CompoundTag tag) {
+    public void fromNbt(NbtCompound tag) {
         
         ServerWorld currWorld = world.get();
         Validate.notNull(currWorld);
@@ -153,16 +153,16 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     private static List<Portal> getPortalsFromTag(
-        CompoundTag tag,
+        NbtCompound tag,
         World currWorld
     ) {
         /**{@link CompoundTag#getType()}*/
-        ListTag listTag = tag.getList("data", 10);
+        NbtList listTag = tag.getList("data", 10);
         
         List<Portal> newData = new ArrayList<>();
         
         for (int i = 0; i < listTag.size(); i++) {
-            CompoundTag compoundTag = listTag.getCompound(i);
+            NbtCompound compoundTag = listTag.getCompound(i);
             Portal e = readPortalFromTag(currWorld, compoundTag);
             if (e != null) {
                 newData.add(e);
@@ -174,12 +174,12 @@ public class GlobalPortalStorage extends PersistentState {
         return newData;
     }
     
-    private static Portal readPortalFromTag(World currWorld, CompoundTag compoundTag) {
+    private static Portal readPortalFromTag(World currWorld, NbtCompound compoundTag) {
         Identifier entityId = new Identifier(compoundTag.getString("entity_type"));
         EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
         
         Entity e = entityType.create(currWorld);
-        e.fromTag(compoundTag);
+        e.readNbt(compoundTag);
         
         ((Portal) e).isGlobalPortal = true;
         
@@ -187,19 +187,19 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
+    public NbtCompound writeNbt(NbtCompound tag) {
         if (data == null) {
             return tag;
         }
         
-        ListTag listTag = new ListTag();
+        NbtList listTag = new NbtList();
         ServerWorld currWorld = world.get();
         Validate.notNull(currWorld);
         
         for (Portal portal : data) {
             Validate.isTrue(portal.world == currWorld);
-            CompoundTag portalTag = new CompoundTag();
-            portal.toTag(portalTag);
+            NbtCompound portalTag = new NbtCompound();
+            portal.writeNbt(portalTag);
             portalTag.putString(
                 "entity_type",
                 EntityType.getId(portal.getType()).toString()
@@ -252,7 +252,7 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     @Environment(EnvType.CLIENT)
-    public static void receiveGlobalPortalSync(RegistryKey<World> dimension, CompoundTag compoundTag) {
+    public static void receiveGlobalPortalSync(RegistryKey<World> dimension, NbtCompound compoundTag) {
         ClientWorld world = ClientWorldLoader.getWorld(dimension);
         
         List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();

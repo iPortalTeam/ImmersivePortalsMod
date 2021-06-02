@@ -9,7 +9,7 @@ import net.minecraft.block.PaneBlock;
 import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
@@ -30,8 +30,8 @@ public class BreakableMirror extends Mirror {
     }
     
     @Override
-    protected void readCustomDataFromTag(CompoundTag tag) {
-        super.readCustomDataFromTag(tag);
+    protected void readCustomDataFromNbt(NbtCompound tag) {
+        super.readCustomDataFromNbt(tag);
         wallArea = new IntBox(
             new BlockPos(
                 tag.getInt("boxXL"),
@@ -50,8 +50,8 @@ public class BreakableMirror extends Mirror {
     }
     
     @Override
-    protected void writeCustomDataToTag(CompoundTag tag) {
-        super.writeCustomDataToTag(tag);
+    protected void writeCustomDataToNbt(NbtCompound tag) {
+        super.writeCustomDataToNbt(tag);
         tag.putInt("boxXL", wallArea.l.getX());
         tag.putInt("boxYL", wallArea.l.getY());
         tag.putInt("boxZL", wallArea.l.getZ());
@@ -67,7 +67,7 @@ public class BreakableMirror extends Mirror {
         super.tick();
         if (!world.isClient) {
             if (!unbreakable) {
-                if (world.getTime() % 10 == getEntityId() % 10) {
+                if (world.getTime() % 10 == getId() % 10) {
                     checkWallIntegrity();
                 }
             }
@@ -136,7 +136,7 @@ public class BreakableMirror extends Mirror {
                 facing.getAxis()
             )
         );
-        breakableMirror.updatePosition(pos.x, pos.y, pos.z);
+        breakableMirror.setPosition(pos.x, pos.y, pos.z);
         breakableMirror.setDestination(pos);
         breakableMirror.dimensionTo = world.getRegistryKey();
         

@@ -20,12 +20,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtByte;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtDouble;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtInt;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -393,7 +393,7 @@ public class McHelper {
             return;
         }
         
-        vehicle.updatePosition(
+        vehicle.setPosition(
             entity.getX(),
             getVehicleY(vehicle, entity),
             entity.getZ()
@@ -439,11 +439,11 @@ public class McHelper {
     }
     
     public static void updateBoundingBox(Entity player) {
-        player.updatePosition(player.getX(), player.getY(), player.getZ());
+        player.setPosition(player.getX(), player.getY(), player.getZ());
     }
     
     public static void updatePosition(Entity entity, Vec3d pos) {
-        entity.updatePosition(pos.x, pos.y, pos.z);
+        entity.setPosition(pos.x, pos.y, pos.z);
     }
     
     public static <T extends Entity> List<T> getEntitiesRegardingLargeEntities(
@@ -473,7 +473,7 @@ public class McHelper {
         
         Validate.notNull(newPortal);
         
-        newPortal.fromTag(portal.toTag(new CompoundTag()));
+        newPortal.readNbt(portal.writeNbt(new NbtCompound()));
         return newPortal;
     }
     
@@ -809,20 +809,20 @@ public class McHelper {
         return (new LiteralText(key)).formatted(Formatting.AQUA);
     }
     
-    public static Text tagToTextSorted(Tag tag, String indent, int depth) {
-        if (tag instanceof CompoundTag) {
-            return compoundTagToTextSorted(((CompoundTag) tag), indent, depth);
+    public static Text tagToTextSorted(NbtElement tag, String indent, int depth) {
+        if (tag instanceof NbtCompound) {
+            return compoundTagToTextSorted(((NbtCompound) tag), indent, depth);
         }
-        if (tag instanceof ListTag) {
-            if (!((ListTag) tag).isEmpty()) {
-                Tag firstElement = ((ListTag) tag).get(0);
-                if (firstElement instanceof IntTag || firstElement instanceof DoubleTag) {
+        if (tag instanceof NbtList) {
+            if (!((NbtList) tag).isEmpty()) {
+                NbtElement firstElement = ((NbtList) tag).get(0);
+                if (firstElement instanceof NbtInt || firstElement instanceof NbtDouble) {
                     return tag.toText("", depth);
                 }
             }
         }
-        if (tag instanceof ByteTag) {
-            byte value = ((ByteTag) tag).getByte();
+        if (tag instanceof NbtByte) {
+            byte value = ((NbtByte) tag).byteValue();
             if (value == 1) {
                 return new LiteralText("true").formatted(Formatting.GOLD);
             }
@@ -834,9 +834,9 @@ public class McHelper {
     }
     
     /**
-     * {@link CompoundTag#toText(String, int)}
+     * {@link NbtCompound#toText(String, int)}
      */
-    public static Text compoundTagToTextSorted(CompoundTag tag, String indent, int depth) {
+    public static Text compoundTagToTextSorted(NbtCompound tag, String indent, int depth) {
         if (tag.isEmpty()) {
             return new LiteralText("{}");
         }

@@ -13,7 +13,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
@@ -120,11 +120,11 @@ public class MyNetwork {
         
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         
-        CompoundTag idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
-        buf.writeCompoundTag(idMapTag);
+        NbtCompound idMapTag = DimensionIdRecord.recordToTag(DimensionIdRecord.serverRecord);
+        buf.writeNbt(idMapTag);
         
-        CompoundTag typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
-        buf.writeCompoundTag(typeMapTag);
+        NbtCompound typeMapTag = DimensionTypeSync.createTagFromServerWorldInfo();
+        buf.writeNbt(typeMapTag);
         
         return new CustomPayloadS2CPacket(id_stcDimSync, buf);
     }
@@ -156,14 +156,14 @@ public class MyNetwork {
         EntityType entityType = entity.getType();
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeString(EntityType.getId(entityType).toString());
-        buf.writeInt(entity.getEntityId());
+        buf.writeInt(entity.getId());
         DimId.writeWorldId(
             buf, entity.world.getRegistryKey(),
             entity.world.isClient
         );
-        CompoundTag tag = new CompoundTag();
-        entity.toTag(tag);
-        buf.writeCompoundTag(tag);
+        NbtCompound tag = new NbtCompound();
+        entity.writeNbt(tag);
+        buf.writeNbt(tag);
         return new CustomPayloadS2CPacket(id_stcSpawnEntity, buf);
     }
     
@@ -173,7 +173,7 @@ public class MyNetwork {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         
         DimId.writeWorldId(buf, storage.world.get().getRegistryKey(), false);
-        buf.writeCompoundTag(storage.toTag(new CompoundTag()));
+        buf.writeNbt(storage.writeNbt(new NbtCompound()));
         
         return new CustomPayloadS2CPacket(id_stcUpdateGlobalPortal, buf);
     }

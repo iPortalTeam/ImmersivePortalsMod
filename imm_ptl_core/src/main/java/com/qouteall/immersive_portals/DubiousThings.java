@@ -43,7 +43,7 @@ public class DubiousThings {
             Helper.err("Player world abnormal");
             //don't know how to fix it
         }
-        Entity playerInWorld = client.world.getEntityById(client.player.getEntityId());
+        Entity playerInWorld = client.world.getEntityById(client.player.getId());
         if (playerInWorld != client.player) {
             Helper.err("Client Player Mismatch");
             if (playerInWorld instanceof ClientPlayerEntity) {

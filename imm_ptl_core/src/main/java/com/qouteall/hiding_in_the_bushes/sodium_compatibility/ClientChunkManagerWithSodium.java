@@ -5,7 +5,7 @@ import com.qouteall.immersive_portals.chunk_loading.MyClientChunkManager;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListenerManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.biome.source.BiomeArray;
@@ -24,7 +24,7 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     }
     
     @Override
-    public WorldChunk loadChunkFromPacket(int x, int z, BiomeArray biomeArray, PacketByteBuf packetByteBuf, CompoundTag compoundTag, int k, boolean forceCreate) {
+    public WorldChunk loadChunkFromPacket(int x, int z, BiomeArray biomeArray, PacketByteBuf packetByteBuf, NbtCompound compoundTag, int k, boolean forceCreate) {
         WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomeArray, packetByteBuf, compoundTag, k, forceCreate);
         
         if (listener != null) {

@@ -15,12 +15,12 @@ import com.qouteall.immersive_portals.portal.nether_portal.GeneralBreakablePorta
 import com.qouteall.immersive_portals.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.registry.Registry;
 
 import javax.annotation.Nullable;
@@ -190,7 +190,7 @@ public class FlippingFloorSquareForm extends PortalGenForm {
         pa.setDestination(toShape.innerAreaBox.getCenterVec());
         pa.dimensionTo = toWorld.getRegistryKey();
         pa.rotation = new Quaternion(
-            new Vector3f(1, 0, 0),
+            new Vec3f(1, 0, 0),
             180,
             true
         );

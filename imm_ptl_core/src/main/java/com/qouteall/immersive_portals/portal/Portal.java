@@ -20,7 +20,6 @@ import com.qouteall.immersive_portals.render.ViewAreaRenderer;
 import com.qouteall.immersive_portals.teleportation.CollisionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -29,9 +28,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -43,6 +42,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
@@ -191,8 +191,8 @@ public class Portal extends Entity implements PortalLike {
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalDisposeSignal = new SignalArged<>();
-    public static final SignalBiArged<Portal, CompoundTag> readPortalDataSignal = new SignalBiArged<>();
-    public static final SignalBiArged<Portal, CompoundTag> writePortalDataSignal = new SignalBiArged<>();
+    public static final SignalBiArged<Portal, NbtCompound> readPortalDataSignal = new SignalBiArged<>();
+    public static final SignalBiArged<Portal, NbtCompound> writePortalDataSignal = new SignalBiArged<>();
     
     public Portal(
         EntityType<?> entityType, World world
@@ -308,7 +308,7 @@ public class Portal extends Entity implements PortalLike {
      * Set the portal's center position
      */
     public void setOriginPos(Vec3d pos) {
-        updatePosition(pos.x, pos.y, pos.z);
+        setPosition(pos.x, pos.y, pos.z);
         // it will call setPos and update the cache
     }
     
@@ -469,7 +469,7 @@ public class Portal extends Entity implements PortalLike {
     }
     
     @Override
-    protected void readCustomDataFromTag(CompoundTag compoundTag) {
+    protected void readCustomDataFromNbt(NbtCompound compoundTag) {
         width = compoundTag.getDouble("width");
         height = compoundTag.getDouble("height");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
@@ -554,9 +554,9 @@ public class Portal extends Entity implements PortalLike {
         }
         
         if (compoundTag.contains("commandsOnTeleported")) {
-            ListTag list = compoundTag.getList("commandsOnTeleported", 8);
+            NbtList list = compoundTag.getList("commandsOnTeleported", 8);
             commandsOnTeleported = list.stream()
-                .map(t -> ((StringTag) t).asString()).collect(Collectors.toList());
+                .map(t -> ((NbtString) t).asString()).collect(Collectors.toList());
         }
         else {
             commandsOnTeleported = null;
@@ -572,7 +572,7 @@ public class Portal extends Entity implements PortalLike {
     }
     
     @Override
-    protected void writeCustomDataToTag(CompoundTag compoundTag) {
+    protected void writeCustomDataToNbt(NbtCompound compoundTag) {
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
         Helper.putVec3d(compoundTag, "axisW", axisW);
@@ -622,9 +622,9 @@ public class Portal extends Entity implements PortalLike {
         compoundTag.putBoolean("doRenderPlayer", doRenderPlayer);
         
         if (commandsOnTeleported != null) {
-            ListTag list = new ListTag();
+            NbtList list = new NbtList();
             for (String command : commandsOnTeleported) {
-                list.add(StringTag.of(command));
+                list.add(NbtString.of(command));
             }
             compoundTag.put(
                 "commandsOnTeleported",
@@ -807,7 +807,7 @@ public class Portal extends Entity implements PortalLike {
         return String.format(
             "%s{%s,%s,(%s %s %s %s)->(%s %s %s %s)%s%s%s}",
             getClass().getSimpleName(),
-            getEntityId(),
+            getId(),
             Direction.getFacing(
                 getNormal().x, getNormal().y, getNormal().z
             ),
@@ -957,7 +957,7 @@ public class Portal extends Entity implements PortalLike {
             return localVec;
         }
         
-        Vector3f temp = new Vector3f(localVec);
+        Vec3f temp = new Vec3f(localVec);
         temp.rotate(rotation);
         
         return new Vec3d(temp);
@@ -968,7 +968,7 @@ public class Portal extends Entity implements PortalLike {
             return localVec;
         }
         
-        Vector3f temp = new Vector3f(localVec);
+        Vec3f temp = new Vec3f(localVec);
         Quaternion r = new Quaternion(rotation);//copy() is client only
         r.conjugate();
         temp.rotate(r);

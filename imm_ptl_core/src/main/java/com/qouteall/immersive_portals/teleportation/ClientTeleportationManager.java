@@ -264,7 +264,7 @@ public class ClientTeleportationManager {
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         ClientPlayerEntity player = client.player;
         if (fromDimension == toDimension) {
-            player.updatePosition(
+            player.setPosition(
                 destination.x,
                 destination.y,
                 destination.z
@@ -306,7 +306,7 @@ public class ClientTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
         
-        toWorld.addPlayer(player.getEntityId(), player);
+        toWorld.addPlayer(player.getId(), player);
         
         client.world = toWorld;
         ((IEMinecraftClient) client).setWorldRenderer(
@@ -402,8 +402,8 @@ public class ClientTeleportationManager {
         ClientWorld oldWorld = (ClientWorld) entity.world;
         O_O.segregateClientEntity(oldWorld, entity);
         entity.world = newWorld;
-        entity.updatePosition(newPos.x, newPos.y, newPos.z);
-        newWorld.addEntity(entity.getEntityId(), entity);
+        entity.setPosition(newPos.x, newPos.y, newPos.z);
+        newWorld.addEntity(entity.getId(), entity);
     }
     
     public void disableTeleportFor(int ticks) {

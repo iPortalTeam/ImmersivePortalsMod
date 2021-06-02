@@ -4,8 +4,8 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
@@ -32,10 +32,10 @@ public class MixinLevelProperties {
         cancellable = true
     )
     private static void onReadDataFromTag(
-        Dynamic<Tag> dynamic,
+        Dynamic<NbtElement> dynamic,
         DataFixer dataFixer,
         int i,
-        CompoundTag playerTag,
+        NbtCompound playerTag,
         LevelInfo levelInfo,
         SaveVersionInfo saveVersionInfo,
         GeneratorOptions generatorOptions,
@@ -46,7 +46,7 @@ public class MixinLevelProperties {
         
         MixinLevelProperties this_ = (MixinLevelProperties) (Object) levelProperties;
         
-        Tag altiusTag = dynamic.getElement("altius", null);
+        NbtElement altiusTag = dynamic.getElement("altius", null);
         if (altiusTag != null) {
             AltiusGameRule.upgradeOldDimensionStack();
         }

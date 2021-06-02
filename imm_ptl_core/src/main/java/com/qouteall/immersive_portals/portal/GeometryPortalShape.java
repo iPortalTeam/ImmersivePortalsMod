@@ -1,11 +1,10 @@
 package com.qouteall.immersive_portals.portal;
 
 import com.qouteall.immersive_portals.Helper;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.ListTag;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.nbt.NbtDouble;
+import net.minecraft.nbt.NbtList;
 
 public class GeometryPortalShape {
     public static class TriangleInPlane {
@@ -85,7 +84,7 @@ public class GeometryPortalShape {
         triangles = new ArrayList<>();
     }
     
-    public GeometryPortalShape(ListTag tag) {
+    public GeometryPortalShape(NbtList tag) {
         triangles = new ArrayList<>();
         
         int size = tag.size();
@@ -108,16 +107,16 @@ public class GeometryPortalShape {
         }
     }
     
-    public ListTag writeToTag() {
-        ListTag tag = new ListTag();
+    public NbtList writeToTag() {
+        NbtList tag = new NbtList();
         
         for (TriangleInPlane triangle : triangles) {
-            tag.add(DoubleTag.of(triangle.x1));
-            tag.add(DoubleTag.of(triangle.y1));
-            tag.add(DoubleTag.of(triangle.x2));
-            tag.add(DoubleTag.of(triangle.y2));
-            tag.add(DoubleTag.of(triangle.x3));
-            tag.add(DoubleTag.of(triangle.y3));
+            tag.add(NbtDouble.of(triangle.x1));
+            tag.add(NbtDouble.of(triangle.y1));
+            tag.add(NbtDouble.of(triangle.x2));
+            tag.add(NbtDouble.of(triangle.y2));
+            tag.add(NbtDouble.of(triangle.x3));
+            tag.add(NbtDouble.of(triangle.y3));
         }
         
         return tag;

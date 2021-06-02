@@ -12,7 +12,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
@@ -55,8 +55,8 @@ public abstract class BreakablePortalEntity extends Portal {
     }
     
     @Override
-    protected void readCustomDataFromTag(CompoundTag compoundTag) {
-        super.readCustomDataFromTag(compoundTag);
+    protected void readCustomDataFromNbt(NbtCompound compoundTag) {
+        super.readCustomDataFromNbt(compoundTag);
         if (compoundTag.contains("netherPortalShape")) {
             blockPortalShape = new BlockPortalShape(compoundTag.getCompound("netherPortalShape"));
         }
@@ -83,8 +83,8 @@ public abstract class BreakablePortalEntity extends Portal {
     }
     
     @Override
-    protected void writeCustomDataToTag(CompoundTag compoundTag) {
-        super.writeCustomDataToTag(compoundTag);
+    protected void writeCustomDataToNbt(NbtCompound compoundTag) {
+        super.writeCustomDataToNbt(compoundTag);
         if (blockPortalShape != null) {
             compoundTag.put("netherPortalShape", blockPortalShape.toTag());
         }
@@ -138,7 +138,7 @@ public abstract class BreakablePortalEntity extends Portal {
         }
         else {
             if (!unbreakable) {
-                if (isNotified || world.getTime() % 233 == getEntityId() % 233) {
+                if (isNotified || world.getTime() % 233 == getId() % 233) {
                     isNotified = false;
                     checkPortalIntegrity();
                 }
