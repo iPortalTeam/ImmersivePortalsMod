@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -55,7 +54,6 @@ import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -586,7 +584,7 @@ public class McHelper {
             getChunkAccessor(world),
             chunkPos.x - radiusChunks,
             chunkPos.x + radiusChunks,
-            McHelper.getMinChunkY(world), McHelper.getMaxChunkYExclusive(world) - 1,
+            McHelper.getMinSectionY(world), McHelper.getMaxSectionYExclusive(world) - 1,
             chunkPos.z - radiusChunks,
             chunkPos.z + radiusChunks,
             predicate
@@ -629,8 +627,8 @@ public class McHelper {
         int yMax = (int) Math.ceil(box.maxY + maxEntityRadius);
         int zMax = (int) Math.ceil(box.maxZ + maxEntityRadius);
         
-        int minChunkY = McHelper.getMinChunkY(world);
-        int maxChunkYExclusive = McHelper.getMaxChunkYExclusive(world);
+        int minChunkY = McHelper.getMinSectionY(world);
+        int maxChunkYExclusive = McHelper.getMaxSectionYExclusive(world);
         
         foreachEntities(
             entityClass, getChunkAccessor(world),
@@ -871,23 +869,27 @@ public class McHelper {
     }
     
     public static int getMinY(WorldAccess world) {
-        return 0;
+        return world.getBottomY();
     }
     
     public static int getMaxYExclusive(WorldAccess world) {
-        return 256;
+        return world.getTopY();
     }
     
     public static int getMaxContentYExclusive(WorldAccess world) {
-        return world.getDimensionHeight();
+        return world.getDimension().getLogicalHeight() + getMinY(world);
     }
     
-    public static int getMinChunkY(WorldAccess world) {
-        return 0;
+    public static int getMinSectionY(WorldAccess world) {
+        return world.getBottomSectionCoord();
     }
     
-    public static int getMaxChunkYExclusive(WorldAccess world) {
-        return 16;
+    public static int getMaxSectionYExclusive(WorldAccess world) {
+        return world.getTopSectionCoord();
+    }
+    
+    public static int getYSectionNumber(WorldAccess world) {
+        return getMaxSectionYExclusive(world) - getMinSectionY(world);
     }
     
     public static Box getBoundingBoxWithMovedPosition(

@@ -1,5 +1,6 @@
 package com.qouteall.immersive_portals.ducks;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.render.BufferBuilderStorage;
@@ -15,9 +16,9 @@ public interface IEWorldRenderer {
     
     BuiltChunkStorage getBuiltChunkStorage();
     
-    ObjectList getVisibleChunks();
+    ObjectArrayList getVisibleChunks();
     
-    void setVisibleChunks(ObjectList l);
+    void setVisibleChunks(ObjectArrayList l);
     
     ChunkBuilder getChunkBuilder();
     

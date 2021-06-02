@@ -16,6 +16,7 @@ import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.TransformationManager;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
@@ -96,6 +97,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     @Final
     private BufferBuilderStorage bufferBuilders;
+    
+    @Shadow
+    @Final
+    @Mutable
+    private ObjectArrayList visibleChunks;
+    
+    @Shadow private int viewDistance;
     
     // important rendering hooks
     @Inject(
@@ -271,7 +279,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Redirect(
-        method = "reload",
+        method = "reload()V",
         at = @At(
             value = "NEW",
             target = "net/minecraft/client/render/BuiltChunkStorage"
@@ -409,7 +417,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private static boolean isReloadingOtherWorldRenderers = false;
     
     // sometimes we change renderDistance but we don't want to reload it
-    @Inject(method = "reload", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "reload()V", at = @At("HEAD"), cancellable = true)
     private void onReloadStarted(CallbackInfo ci) {
         if (WorldRenderInfo.isRendering()) {
             ci.cancel();
@@ -417,7 +425,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     //reload other world renderers when the main world renderer is reloaded
-    @Inject(method = "reload", at = @At("TAIL"))
+    @Inject(method = "reload()V", at = @At("TAIL"))
     private void onReloadFinished(CallbackInfo ci) {
         WorldRenderer this_ = (WorldRenderer) (Object) this;
         
@@ -449,7 +457,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-    private void onRenderSkyBegin(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
+    private void onRenderSkyBegin(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
             //reset gl states
             RenderLayer.getBlockLayers().get(0).startDrawing();
@@ -480,22 +488,14 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             target = "Lnet/minecraft/client/render/WorldRenderer;SUN:Lnet/minecraft/util/Identifier;"
         )
     )
-    private void onStartRenderingSun(MatrixStack matrixStack, float f, CallbackInfo ci) {
+    private void onStartRenderingSun(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         if (OFInterface.isFogDisabled.getAsBoolean()) {
             GL11.glDisable(GL11.GL_FOG);
         }
     }
     
     @Inject(method = "renderSky", at = @At("RETURN"))
-    private void onRenderSkyEnd(MatrixStack matrixStack_1, float float_1, CallbackInfo ci) {
-        
-        if (PortalRendering.isRendering()) {
-            //fix sky abnormal with optifine and fog disabled
-            GL11.glDisable(GL11.GL_FOG);
-            RenderSystem.enableFog();
-            RenderSystem.disableFog();
-        }
-        
+    private void onRenderSkyEnd(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         MyRenderHelper.recoverFaceCulling();
     }
     
@@ -531,29 +531,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //fix cloud fog abnormal with OptiFine and fog disabled
-    @Inject(
-        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableFog()V",
-            shift = At.Shift.AFTER
-        )
-    )
-    private void onEnableFogInRenderClouds(
-        MatrixStack matrices,
-        float tickDelta,
-        double cameraX,
-        double cameraY,
-        double cameraZ,
-        CallbackInfo ci
-    ) {
-        if (OFInterface.isFogDisabled.getAsBoolean()) {
-            MyGameRenderer.forceResetFogState();
-            GL11.glEnable(GL11.GL_FOG);
-        }
-    }
-    
     @Override
     public EntityRenderDispatcher getEntityRenderDispatcher() {
         return entityRenderDispatcher;
@@ -565,12 +542,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public ObjectList getVisibleChunks() {
+    public ObjectArrayList getVisibleChunks() {
         return visibleChunks;
     }
     
     @Override
-    public void setVisibleChunks(ObjectList l) {
+    public void setVisibleChunks(ObjectArrayList l) {
         visibleChunks = l;
     }
     
@@ -646,12 +623,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Override
     public int portal_getRenderDistance() {
-        return renderDistance;
+        return viewDistance;
     }
     
     @Override
     public void portal_setRenderDistance(int arg) {
-        renderDistance = arg;
+        viewDistance = arg;
         
         ModMain.preGameRenderTaskList.addTask(() -> {
             portal_increaseRenderDistance(arg);

@@ -3,7 +3,9 @@ package com.qouteall.immersive_portals.mixin.client.render;
 import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import net.minecraft.client.render.chunk.ChunkBuilder;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,6 +30,11 @@ public abstract class MixinBuiltChunk implements IEBuiltChunk {
     @Shadow
     protected abstract void clear();
     
+    @Shadow
+    @Final
+    @Mutable
+    public int index;
+    
     @Override
     public void fullyReset() {
         clear();
@@ -41,5 +48,10 @@ public abstract class MixinBuiltChunk implements IEBuiltChunk {
     @Override
     public void setMark(long arg) {
         portal_mark = arg;
+    }
+    
+    @Override
+    public void setIndex(int arg) {
+        index = arg;
     }
 }

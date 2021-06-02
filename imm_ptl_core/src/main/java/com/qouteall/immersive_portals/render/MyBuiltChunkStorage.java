@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.render;
 
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
+import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.ducks.IEBuiltChunk;
 import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
@@ -20,11 +21,11 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
 public class MyBuiltChunkStorage extends BuiltChunkStorage {
@@ -79,7 +80,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         
         builtChunkBuffer = new ObjectBuffer<>(
             cacheSize,
-            () -> factory.new BuiltChunk(),
+            () -> factory.new BuiltChunk(0),
             ChunkBuilder.BuiltChunk::delete
         );
     }
@@ -163,14 +164,15 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     // TODO update in 1.17
     public ChunkBuilder.BuiltChunk provideBuiltChunkByChunkPos(int cx, int cy, int cz) {
         Column column = provideColumn(ChunkPos.toLong(cx, cz));
-        int chunkY = MathHelper.clamp(cy, 0, 15);
-        return column.chunks[chunkY];
+        int offsetChunkY = MathHelper.clamp(
+            cy - McHelper.getMinSectionY(world), 0, McHelper.getYSectionNumber(world) - 1
+        );
+        return column.chunks[offsetChunkY];
     }
     
     /**
      * {@link BuiltChunkStorage#updateCameraPosition(double, double)}
      */
-    // TODO update in 1.17
     private Preset createPresetByChunkPos(int chunkX, int chunkZ) {
         ChunkBuilder.BuiltChunk[] chunks1 =
             new ChunkBuilder.BuiltChunk[this.sizeX * this.sizeY * this.sizeZ];
@@ -190,9 +192,9 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 
                 Column column = provideColumn(ChunkPos.toLong(px >> 4, pz >> 4));
                 
-                for (int cy = 0; cy < this.sizeY; ++cy) {
-                    int index = this.getChunkIndex(cx, cy, cz);
-                    chunks1[index] = column.chunks[cy];
+                for (int offsetCy = 0; offsetCy < this.sizeY; ++offsetCy) {
+                    int index = this.getChunkIndex(cx, offsetCy, cz);
+                    chunks1[index] = column.chunks[offsetCy];
                 }
             }
         }
@@ -203,7 +205,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     /**
      * {@link BuiltChunkStorage#updateCameraPosition(double, double)}
      */
-    // TODO update in 1.17
     private void foreachPresetCoveredChunkPoses(
         int centerChunkX, int centerChunkZ,
         LongConsumer func
@@ -231,44 +232,35 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         }
     }
     
-    // TODO update in 1.17
-    
     //copy because private
     private int getChunkIndex(int x, int y, int z) {
         return (z * this.sizeY + y) * this.sizeX + x;
-    }
-    
-    private static BlockPos getBasePos(BlockPos blockPos) {
-        return new BlockPos(
-            MathHelper.floorDiv(blockPos.getX(), 16) * 16,
-            MathHelper.floorDiv(MathHelper.clamp(blockPos.getY(), 0, 255), 16) * 16,
-            MathHelper.floorDiv(blockPos.getZ(), 16) * 16
-        );
     }
     
     public Column provideColumn(long chunkPos) {
         return columnMap.computeIfAbsent(chunkPos, this::createColumn);
     }
     
-    // NOTE update on 1.17
     private Column createColumn(long chunkPos) {
         ChunkBuilder.BuiltChunk[] array = new ChunkBuilder.BuiltChunk[sizeY];
         
         int chunkX = ChunkPos.getPackedX(chunkPos);
         int chunkZ = ChunkPos.getPackedZ(chunkPos);
         
-        for (int chunkY = 0; chunkY < sizeY; chunkY++) {
+        int minY = McHelper.getMinY(world);
+        
+        for (int offsetCY = 0; offsetCY < sizeY; offsetCY++) {
             ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
             
             builtChunk.setOrigin(
-                chunkX << 4, chunkY << 4, chunkZ << 4
+                chunkX << 4, (offsetCY << 4) + minY, chunkZ << 4
             );
             
             OFBuiltChunkStorageFix.onBuiltChunkCreated(
                 this, builtChunk
             );
             
-            array[chunkY] = builtChunk;
+            array[offsetCY] = builtChunk;
         }
         
         return new Column(array);
@@ -361,20 +353,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         return result;
     }
     
-    private void foreachActiveBuiltChunks(Consumer<ChunkBuilder.BuiltChunk> func) {
-        if (chunks != null) {
-            for (ChunkBuilder.BuiltChunk chunk : chunks) {
-                func.accept(chunk);
-            }
-        }
-        
-        for (Preset value : presets.values()) {
-            for (ChunkBuilder.BuiltChunk chunk : value.data) {
-                func.accept(chunk);
-            }
-        }
-    }
-    
     public int getManagedChunkNum() {
         return columnMap.size() * sizeY;
     }
@@ -416,12 +394,31 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         BlockPos sectionOrigin, ChunkBuilder.BuiltChunk[] chunks
     ) {
         int i = MathHelper.floorDiv(sectionOrigin.getX(), 16);
-        int j = MathHelper.floorDiv(sectionOrigin.getY(), 16);
+        int j = MathHelper.floorDiv(sectionOrigin.getY() - McHelper.getMinY(world), 16);
         int k = MathHelper.floorDiv(sectionOrigin.getZ(), 16);
         if (j >= 0 && j < this.sizeY) {
             i = MathHelper.floorMod(i, this.sizeX);
             k = MathHelper.floorMod(k, this.sizeZ);
             return chunks[this.getChunkIndex(i, j, k)];
+        }
+        else {
+            return null;
+        }
+    }
+    
+    @Nullable
+    @Override
+    protected BuiltChunk getRenderedChunk(BlockPos pos) {
+        int i = MathHelper.floorDiv(pos.getX(), 16);
+        int j = MathHelper.floorDiv(pos.getY() - McHelper.getMinY(world), 16);
+        int k = MathHelper.floorDiv(pos.getZ(), 16);
+        if (j >= 0 && j < this.sizeY) {
+            i = MathHelper.floorMod(i, this.sizeX);
+            k = MathHelper.floorMod(k, this.sizeZ);
+            int chunkIndex = this.getChunkIndex(i, j, k);
+            BuiltChunk result = this.chunks[chunkIndex];
+            ((IEBuiltChunk) result).setIndex(chunkIndex);
+            return result;
         }
         else {
             return null;

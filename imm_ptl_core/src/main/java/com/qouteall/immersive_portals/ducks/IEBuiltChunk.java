@@ -6,4 +6,6 @@ public interface IEBuiltChunk {
     long getMark();
     
     void setMark(long arg);
+    
+    void setIndex(int arg);
 }
