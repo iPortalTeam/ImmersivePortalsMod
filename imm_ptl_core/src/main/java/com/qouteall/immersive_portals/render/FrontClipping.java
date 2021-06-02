@@ -1,14 +1,18 @@
 package com.qouteall.immersive_portals.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.ducks.IEShader;
 import com.qouteall.immersive_portals.my_util.Plane;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.GlUniform;
+import net.minecraft.client.render.Shader;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
@@ -47,13 +51,6 @@ public class FrontClipping {
             activeClipPlaneEquation = null;
             disableClipping();
         }
-    }
-    
-    public static boolean isShaderClipping() {
-        return OFInterface.isShaders.getAsBoolean() &&
-            !RenderDimensionRedirect.isNoShader(
-                MinecraftClient.getInstance().world.getRegistryKey()
-            );
     }
     
     private static double[] getClipEquationInner(boolean doCompensate, Vec3d clippingPoint, Vec3d clippingDirection) {
@@ -119,5 +116,24 @@ public class FrontClipping {
     
     public static double[] getActiveClipPlaneEquation() {
         return activeClipPlaneEquation;
+    }
+    
+    public static void updateClippingEquationUniform() {
+        Shader shader = RenderSystem.getShader();
+        GlUniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
+        if (clippingEquationUniform != null) {
+            if (isClippingEnabled) {
+                double[] equation = getActiveClipPlaneEquation();
+                clippingEquationUniform.set(
+                    (float) equation[0],
+                    (float) equation[1],
+                    (float) equation[2],
+                    (float) equation[3]
+                );
+            }
+            else {
+                clippingEquationUniform.set(0f, 0f, 0f, 1f);
+            }
+        }
     }
 }

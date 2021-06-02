@@ -6,5 +6,5 @@ import javax.annotation.Nullable;
 
 public interface IEShader {
     @Nullable
-    GlUniform ip_getClippingEquation();
+    GlUniform ip_getClippingEquationUniform();
 }

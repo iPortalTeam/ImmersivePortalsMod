@@ -67,15 +67,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private BuiltChunkStorage chunks;
     
     @Shadow
-    protected abstract void renderLayer(
-        RenderLayer renderLayer_1,
-        MatrixStack matrixStack_1,
-        double double_1,
-        double double_2,
-        double double_3
-    );
-    
-    @Shadow
     protected abstract void renderEntity(
         Entity entity_1,
         double double_1,
@@ -85,14 +76,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         MatrixStack matrixStack_1,
         VertexConsumerProvider vertexConsumerProvider_1
     );
-    
-    @Mutable
-    @Shadow
-    @Final
-    private ObjectList<?> visibleChunks;
-    
-    @Shadow
-    private int renderDistance;
     
     @Shadow
     private boolean needsTerrainUpdate;
@@ -181,22 +164,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/options/GameOptions;getCloudRenderMode()Lnet/minecraft/client/options/CloudRenderMode;"
-        )
-    )
-    private void onBeginRenderClouds(
-        MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline,
-        Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
-        Matrix4f matrix4f, CallbackInfo ci
-    ) {
-        
-    }
-    
-    @Inject(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V"
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLnet/minecraft/util/math/Matrix4f;)V"
         )
     )
     private void onBeforeRenderingLayer(
@@ -226,7 +194,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDD)V",
+            target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLnet/minecraft/util/math/Matrix4f;)V",
             shift = At.Shift.AFTER
         )
     )
@@ -239,7 +207,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
+            FrontClipping.updateClippingEquationUniform();
         }
+    }
+    
+    @Inject(
+        method = "renderLayer",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;getShader()Lnet/minecraft/client/render/Shader;"
+        )
+    )
+    private void onGetShaderInRenderingLayer(
+        RenderLayer renderLayer, MatrixStack matrices,
+        double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
+    ) {
+        FrontClipping.updateClippingEquationUniform();
     }
     
     @Inject(

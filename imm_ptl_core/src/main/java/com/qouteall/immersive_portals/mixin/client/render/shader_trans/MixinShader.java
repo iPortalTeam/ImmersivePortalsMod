@@ -62,7 +62,7 @@ public abstract class MixinShader implements IEShader {
     
     @Nullable
     @Override
-    public GlUniform ip_getClippingEquation() {
+    public GlUniform ip_getClippingEquationUniform() {
         return ip_clippingEquation;
     }
 }
