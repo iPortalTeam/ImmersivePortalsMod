@@ -1,12 +1,12 @@
 package com.qouteall.immersive_portals.mixin.client.render;
 
-import com.mojang.blaze3d.platform.FramebufferInfo;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qouteall.immersive_portals.ducks.IEFrameBuffer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL30C;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -63,10 +63,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(
-        int int_1,
-        int int_2,
-        boolean boolean_1,
-        boolean boolean_2,
+        boolean useDepth,
         CallbackInfo ci
     ) {
         isStencilBufferEnabled = false;
@@ -76,7 +73,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         method = "initFbo",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/platform/GlStateManager;texImage2D(IIIIIIIILjava/nio/IntBuffer;)V"
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V"
         )
     )
     private void redirectTexImage2d(
@@ -86,7 +83,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         IntBuffer pixels
     ) {
         if (internalFormat == 6402 && isStencilBufferEnabled) {
-            GlStateManager.texImage2D(
+            GlStateManager._texImage2D(
                 target,
                 level,
                 ARBFramebufferObject.GL_DEPTH24_STENCIL8,//GL_DEPTH32F_STENCIL8
@@ -99,7 +96,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
             );
         }
         else {
-            GlStateManager.texImage2D(
+            GlStateManager._texImage2D(
                 target, level, internalFormat, width, height,
                 border, format, type, pixels
             );
@@ -110,19 +107,20 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         method = "initFbo",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/platform/GlStateManager;framebufferTexture2D(IIIII)V"
+            target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V"
         )
     )
     private void redirectFrameBufferTexture2d(
         int target, int attachment, int textureTarget, int texture, int level
     ) {
-        if (attachment == FramebufferInfo.DEPTH_ATTACHMENT && isStencilBufferEnabled) {
-            GlStateManager.framebufferTexture2D(
+        
+        if (attachment == GL30C.GL_DEPTH_ATTACHMENT && isStencilBufferEnabled) {
+            GlStateManager._glFramebufferTexture2D(
                 target, GL30.GL_DEPTH_STENCIL_ATTACHMENT, textureTarget, texture, level
             );
         }
         else {
-            GlStateManager.framebufferTexture2D(target, attachment, textureTarget, texture, level);
+            GlStateManager._glFramebufferTexture2D(target, attachment, textureTarget, texture, level);
         }
     }
     

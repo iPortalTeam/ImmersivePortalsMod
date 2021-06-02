@@ -65,14 +65,13 @@ public class GlobalPortalStorage extends PersistentState {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
                 for (Portal globalPortal : McHelper.getGlobalPortals(clientWorld)) {
-                    globalPortal.remove();
+                    globalPortal.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
                 }
             }
         }
     }
     
-    public GlobalPortalStorage(String string_1, ServerWorld world_) {
-        super(string_1);
+    public GlobalPortalStorage(ServerWorld world_) {
         world = new WeakReference<>(world_);
         data = new ArrayList<>();
     }
@@ -103,7 +102,7 @@ public class GlobalPortalStorage extends PersistentState {
     
     public void removePortal(Portal portal) {
         data.remove(portal);
-        portal.remove();
+        portal.remove(Entity.RemovalReason.KILLED);
         onDataChanged();
     }
     
@@ -113,7 +112,7 @@ public class GlobalPortalStorage extends PersistentState {
         Validate.isTrue(portal.isPortalValid());
         
         portal.isGlobalPortal = true;
-        portal.removed = false;
+        portal.myUnsetRemoved();
         data.add(portal);
         onDataChanged();
     }
@@ -122,7 +121,7 @@ public class GlobalPortalStorage extends PersistentState {
         data.removeIf(portal -> {
             final boolean shouldRemove = predicate.test(portal);
             if (shouldRemove) {
-                portal.remove();
+                portal.remove(Entity.RemovalReason.KILLED);
             }
             return shouldRemove;
         });
@@ -136,7 +135,6 @@ public class GlobalPortalStorage extends PersistentState {
         );
     }
     
-    @Override
     public void fromNbt(NbtCompound tag) {
         
         ServerWorld currWorld = world.get();
@@ -218,7 +216,15 @@ public class GlobalPortalStorage extends PersistentState {
         ServerWorld world
     ) {
         return world.getPersistentStateManager().getOrCreate(
-            () -> new GlobalPortalStorage("global_portal", world),
+            (nbt) -> {
+                GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
+                globalPortalStorage.fromNbt(nbt);
+                return globalPortalStorage;
+            },
+            () -> {
+                Helper.log("Global portal storage initialized " + world.getRegistryKey().getValue());
+                return new GlobalPortalStorage(world);
+            },
             "global_portal"
         );
     }
@@ -258,13 +264,13 @@ public class GlobalPortalStorage extends PersistentState {
         List<Portal> oldGlobalPortals = ((IEClientWorld) world).getGlobalPortals();
         if (oldGlobalPortals != null) {
             for (Portal p : oldGlobalPortals) {
-                p.remove();
+                p.remove(Entity.RemovalReason.KILLED);
             }
         }
         
         List<Portal> newPortals = getPortalsFromTag(compoundTag, world);
         for (Portal p : newPortals) {
-            p.removed = false;
+            p.myUnsetRemoved();
             p.isGlobalPortal = true;
             
             Validate.isTrue(p.isPortalValid());
@@ -284,7 +290,7 @@ public class GlobalPortalStorage extends PersistentState {
         //global portal can only be square
         portal.specialShape = null;
         
-        portal.remove();
+        portal.remove(Entity.RemovalReason.KILLED);
         
         Portal newPortal = McHelper.copyEntity(portal);
         
@@ -304,7 +310,7 @@ public class GlobalPortalStorage extends PersistentState {
     
     private void onServerClose() {
         for (Portal portal : data) {
-            portal.remove();
+            portal.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
         }
     }
 }

@@ -35,7 +35,7 @@ public class ChunkDataSyncManager {
     }
     
     /**
-     * {@link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)}
+     * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
     private void onBeginWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
         McHelper.getServer().getProfiler().push("begin_watch");
@@ -61,13 +61,14 @@ public class ChunkDataSyncManager {
                 player.networkHandler.sendPacket(
                     MyNetwork.createRedirectedMessage(
                         chunkPos.dimension,
-                        new ChunkDataS2CPacket(((WorldChunk) chunk), 65535)
+                        new ChunkDataS2CPacket(((WorldChunk) chunk))
                     )
                 );
                 
                 LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(
                     chunkPos.getChunkPos(),
                     ieStorage.getLightingProvider(),
+                    null, null,
                     true
                 );
                 player.networkHandler.sendPacket(
@@ -96,7 +97,7 @@ public class ChunkDataSyncManager {
     }
     
     /**
-     * {@link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)}r
+     * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
     public void onChunkProvidedDeferred(WorldChunk chunk) {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
@@ -107,13 +108,17 @@ public class ChunkDataSyncManager {
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
             () -> MyNetwork.createRedirectedMessage(
                 dimension,
-                new ChunkDataS2CPacket(((WorldChunk) chunk), 65535)
+                new ChunkDataS2CPacket(((WorldChunk) chunk))
             )
         );
         
         Supplier<Packet> lightPacketRedirected = Helper.cached(
             () -> {
-                LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(chunk.getPos(), ieStorage.getLightingProvider(), true);
+                LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(
+                    chunk.getPos(), ieStorage.getLightingProvider(),
+                    null,null,
+                    true
+                );
                 if (Global.lightLogging) {
                     Helper.log(String.format(
                         "light sent deferred %s %d %d %d %d",

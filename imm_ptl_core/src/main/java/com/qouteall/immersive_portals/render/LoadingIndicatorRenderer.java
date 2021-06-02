@@ -4,12 +4,13 @@ import com.qouteall.immersive_portals.portal.LoadingIndicatorEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEntity> {
-    public LoadingIndicatorRenderer(EntityRenderDispatcher entityRenderDispatcher_1) {
-        super(entityRenderDispatcher_1);
+    public LoadingIndicatorRenderer(EntityRendererFactory.Context context) {
+        super(context);
     }
     
     @Override

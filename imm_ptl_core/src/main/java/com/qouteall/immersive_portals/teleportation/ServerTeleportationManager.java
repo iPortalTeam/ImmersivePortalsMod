@@ -82,7 +82,7 @@ public class ServerTeleportationManager {
         if (entity.getVehicle() != null || doesEntityClusterContainPlayer(entity)) {
             return;
         }
-        if (entity.removed) {
+        if (entity.isRemoved()) {
             return;
         }
         if (!entity.canUsePortals()) {
@@ -259,8 +259,8 @@ public class ServerTeleportationManager {
             newPos.x,
             newPos.y,
             newPos.z,
-            player.yaw,
-            player.pitch
+            player.getYaw(),
+            player.getPitch()
         );
         player.networkHandler.syncWithPlayerPosition();
         ((IEServerPlayNetworkHandler) player.networkHandler).cancelTeleportRequest();

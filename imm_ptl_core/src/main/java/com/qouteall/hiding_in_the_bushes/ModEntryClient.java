@@ -22,6 +22,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.text.LiteralText;
 import org.apache.commons.lang3.Validate;
@@ -47,13 +48,13 @@ public class ModEntryClient implements ClientModInitializer {
         ).forEach(
             entityType -> EntityRendererRegistry.INSTANCE.register(
                 entityType,
-                (entityRenderDispatcher, context) -> new PortalEntityRenderer(entityRenderDispatcher)
+                (EntityRendererFactory) PortalEntityRenderer::new
             )
         );
         
         EntityRendererRegistry.INSTANCE.register(
             LoadingIndicatorEntity.entityType,
-            (entityRenderDispatcher, context) -> new LoadingIndicatorRenderer(entityRenderDispatcher)
+            LoadingIndicatorRenderer::new
         );
         
     }

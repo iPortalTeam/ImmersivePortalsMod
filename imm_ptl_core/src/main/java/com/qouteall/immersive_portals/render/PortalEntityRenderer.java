@@ -7,14 +7,15 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class PortalEntityRenderer extends EntityRenderer<Portal> {
     
-    public PortalEntityRenderer(EntityRenderDispatcher entityRenderDispatcher_1) {
-        super(entityRenderDispatcher_1);
+    public PortalEntityRenderer(EntityRendererFactory.Context context) {
+        super(context);
     }
     
     @Override

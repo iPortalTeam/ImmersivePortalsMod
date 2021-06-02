@@ -45,6 +45,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityChangeListener;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
@@ -198,6 +199,20 @@ public class Portal extends Entity implements PortalLike {
         EntityType<?> entityType, World world
     ) {
         super(entityType, world);
+        
+        Portal thisPortal = this;
+        
+        setListener(new EntityChangeListener() {
+            @Override
+            public void updateEntityPosition() {
+                thisPortal.updateCache();
+            }
+            
+            @Override
+            public void remove(RemovalReason reason) {
+                portalDisposeSignal.emit(thisPortal);
+            }
+        });
     }
     
     /**
@@ -636,18 +651,6 @@ public class Portal extends Entity implements PortalLike {
         
     }
     
-    @Override
-    public void setPos(double x, double y, double z) {
-        boolean shouldUpdate = getX() != x || getY() != y || getZ() != z;
-        
-        super.setPos(x, y, z);
-        
-        if (shouldUpdate) {
-            updateCache();
-        }
-    }
-    
-    
     private void initDefaultCullableRange() {
         cullableXStart = -(width / 2);
         cullableXEnd = (width / 2);
@@ -688,7 +691,7 @@ public class Portal extends Entity implements PortalLike {
         else {
             if (!isPortalValid()) {
                 Helper.log("removed invalid portal" + this);
-                remove();
+                remove(RemovalReason.KILLED);
                 return;
             }
             serverPortalTickSignal.emit(this);
@@ -698,7 +701,7 @@ public class Portal extends Entity implements PortalLike {
     }
     
     @Override
-    public Box getBoundingBox() {
+    protected Box calculateBoundingBox() {
         if (axisW == null) {
             //avoid npe with pehkui
             //pehkui will invoke this when axisW is not initialized
@@ -713,7 +716,7 @@ public class Portal extends Entity implements PortalLike {
                 w = Math.min(this.width, 64.0);
                 h = Math.min(this.height, 64.0);
             }
-            
+        
             boundingBoxCache = new Box(
                 getPointInPlane(w / 2, h / 2)
                     .add(getNormal().multiply(0.2)),
@@ -750,11 +753,6 @@ public class Portal extends Entity implements PortalLike {
         }
         
         return exactBoundingBoxCache;
-    }
-    
-    @Override
-    public void setBoundingBox(Box boundingBox) {
-        boundingBoxCache = null;
     }
     
     @Override
@@ -1275,10 +1273,8 @@ public class Portal extends Entity implements PortalLike {
         return isParallelOrientedPortal(portal, this);
     }
     
-    @Override
-    public void remove() {
-        super.remove();
-        portalDisposeSignal.emit(this);
+    public void myUnsetRemoved() {
+        unsetRemoved();
     }
     
     @Environment(EnvType.CLIENT)
