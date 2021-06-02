@@ -41,7 +41,6 @@ public class FrontClipping {
         if (clipping != null) {
             activeClipPlaneEquation = getClipEquationInner(doCompensate, clipping.pos, clipping.normal);
             
-            loadClippingPlaneClassical(matrixStack);
             enableClipping();
         }
         else {
@@ -55,15 +54,6 @@ public class FrontClipping {
             !RenderDimensionRedirect.isNoShader(
                 MinecraftClient.getInstance().world.getRegistryKey()
             );
-    }
-    
-    private static void loadClippingPlaneClassical(MatrixStack matrixStack) {
-        McHelper.runWithTransformation(
-            matrixStack,
-            () -> {
-                GL11.glClipPlane(GL11.GL_CLIP_PLANE0, activeClipPlaneEquation);
-            }
-        );
     }
     
     private static double[] getClipEquationInner(boolean doCompensate, Vec3d clippingPoint, Vec3d clippingDirection) {
@@ -103,12 +93,10 @@ public class FrontClipping {
         
         if (portalLike instanceof Portal) {
             activeClipPlaneEquation = getClipEquationOuter(((Portal) portalLike));
-            if (!isShaderClipping()) {
-                loadClippingPlaneClassical(matrixStack);
-            }
             enableClipping();
         }
         else {
+            activeClipPlaneEquation = null;
             disableClipping();
         }
     }

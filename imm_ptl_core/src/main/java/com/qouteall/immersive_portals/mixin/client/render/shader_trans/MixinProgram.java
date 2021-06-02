@@ -33,8 +33,6 @@ public class MixinProgram {
         String transformedShaderCode =
             ShaderCodeTransformation.transform(type, name, shaderCode);
         
-        Helper.log("Shader code transformed:\n" + transformedShaderCode);
-        
         int shaderId = GlStateManager.glCreateShader(type.getGlType());
         
         GlStateManager.glShaderSource(shaderId, loader.readSource(transformedShaderCode));
