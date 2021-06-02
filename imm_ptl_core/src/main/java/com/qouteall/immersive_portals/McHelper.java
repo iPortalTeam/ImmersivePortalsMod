@@ -24,6 +24,7 @@ import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtDouble;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
@@ -291,15 +292,6 @@ public class McHelper {
             entityClass,
             range
         );
-    }
-    
-    public static void runWithTransformation(
-        MatrixStack matrixStack,
-        Runnable renderingFunc
-    ) {
-        transformationPush(matrixStack);
-        renderingFunc.run();
-        transformationPop();
     }
     
     @Nonnull
@@ -745,15 +737,11 @@ public class McHelper {
     public static void spawnServerEntity(Entity entity) {
         Validate.isTrue(!entity.world.isClient());
         
-        entity.teleporting = true;
-        
         boolean spawned = entity.world.spawnEntity(entity);
         
         if (!spawned) {
             Helper.err("Failed to spawn " + entity + entity.world);
         }
-        
-        entity.teleporting = false;
     }
     
     public static void executeOnServerThread(Runnable runnable) {
@@ -795,77 +783,76 @@ public class McHelper {
         }
         return world;
     }
+
+//    private static Text prettyPrintTagKey(String key) {
+//        return (new LiteralText(key)).formatted(Formatting.AQUA);
+//    }
+//
+//    public static Text tagToTextSorted(NbtElement tag, String indent, int depth) {
+//        if (tag instanceof NbtCompound) {
+//            return compoundTagToTextSorted(((NbtCompound) tag), indent, depth);
+//        }
+//        if (tag instanceof NbtList) {
+//            if (!((NbtList) tag).isEmpty()) {
+//                NbtElement firstElement = ((NbtList) tag).get(0);
+//                if (firstElement instanceof NbtInt || firstElement instanceof NbtDouble) {
+//                    return tag.toText("", depth);
+//                }
+//            }
+//        }
+//        if (tag instanceof NbtByte) {
+//            byte value = ((NbtByte) tag).byteValue();
+//            if (value == 1) {
+//                return new LiteralText("true").formatted(Formatting.GOLD);
+//            }
+//            else if (value == 0) {
+//                return new LiteralText("false").formatted(Formatting.GOLD);
+//            }
+//        }
+//        return tag.toText(indent, depth);
+//    }
     
-    private static Text prettyPrintTagKey(String key) {
-        return (new LiteralText(key)).formatted(Formatting.AQUA);
-    }
-    
-    public static Text tagToTextSorted(NbtElement tag, String indent, int depth) {
-        if (tag instanceof NbtCompound) {
-            return compoundTagToTextSorted(((NbtCompound) tag), indent, depth);
-        }
-        if (tag instanceof NbtList) {
-            if (!((NbtList) tag).isEmpty()) {
-                NbtElement firstElement = ((NbtList) tag).get(0);
-                if (firstElement instanceof NbtInt || firstElement instanceof NbtDouble) {
-                    return tag.toText("", depth);
-                }
-            }
-        }
-        if (tag instanceof NbtByte) {
-            byte value = ((NbtByte) tag).byteValue();
-            if (value == 1) {
-                return new LiteralText("true").formatted(Formatting.GOLD);
-            }
-            else if (value == 0) {
-                return new LiteralText("false").formatted(Formatting.GOLD);
-            }
-        }
-        return tag.toText(indent, depth);
-    }
-    
-    /**
-     * {@link NbtCompound#toText(String, int)}
-     */
+    // TODO rewrite
     public static Text compoundTagToTextSorted(NbtCompound tag, String indent, int depth) {
-        if (tag.isEmpty()) {
-            return new LiteralText("{}");
-        }
-        else {
-            MutableText mutableText = new LiteralText("{");
-            Collection<String> collection = tag.getKeys();
-            
-            List<String> list = Lists.newArrayList(collection);
-            Collections.sort(list);
-            collection = list;
-            
-            
-            if (!indent.isEmpty()) {
-                mutableText.append("\n");
-            }
-            
-            MutableText mutableText2;
-            for (Iterator iterator = ((Collection) collection).iterator(); iterator.hasNext(); mutableText.append((Text) mutableText2)) {
-                String keyName = (String) iterator.next();
-                mutableText2 = (new LiteralText(Strings.repeat(indent, depth + 1)))
-                    .append(prettyPrintTagKey(keyName))
-                    .append(String.valueOf(':'))
-                    .append(" ")
-                    .append(
-                        tagToTextSorted(tag.get(keyName), indent, depth)
-                    );
-                if (iterator.hasNext()) {
-                    mutableText2.append(String.valueOf(',')).append(indent.isEmpty() ? " " : "\n");
-                }
-            }
-            
-            if (!indent.isEmpty()) {
-                mutableText.append("\n").append(Strings.repeat(indent, depth));
-            }
-            
-            mutableText.append("}");
-            return mutableText;
-        }
+        return NbtHelper.toPrettyPrintedText(tag);
+//        if (tag.isEmpty()) {
+//            return new LiteralText("{}");
+//        }
+//        else {
+//            MutableText mutableText = new LiteralText("{");
+//            Collection<String> collection = tag.getKeys();
+//
+//            List<String> list = Lists.newArrayList(collection);
+//            Collections.sort(list);
+//            collection = list;
+//
+//
+//            if (!indent.isEmpty()) {
+//                mutableText.append("\n");
+//            }
+//
+//            MutableText mutableText2;
+//            for (Iterator iterator = ((Collection) collection).iterator(); iterator.hasNext(); mutableText.append((Text) mutableText2)) {
+//                String keyName = (String) iterator.next();
+//                mutableText2 = (new LiteralText(Strings.repeat(indent, depth + 1)))
+//                    .append(prettyPrintTagKey(keyName))
+//                    .append(String.valueOf(':'))
+//                    .append(" ")
+//                    .append(
+//                        tagToTextSorted(tag.get(keyName), indent, depth)
+//                    );
+//                if (iterator.hasNext()) {
+//                    mutableText2.append(String.valueOf(',')).append(indent.isEmpty() ? " " : "\n");
+//                }
+//            }
+//
+//            if (!indent.isEmpty()) {
+//                mutableText.append("\n").append(Strings.repeat(indent, depth));
+//            }
+//
+//            mutableText.append("}");
+//            return mutableText;
+//        }
     }
     
     public static int getMinY(WorldAccess world) {
