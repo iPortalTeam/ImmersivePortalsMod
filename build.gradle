@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.5-SNAPSHOT'
+    id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -27,18 +27,18 @@ allprojects {
         shareCaches = true
     }
 
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
 
     version = rootProject.mod_version
 
     repositories {
         mavenCentral()
         mavenLocal()
-        maven {
-            url 'http://maven.fabricmc.net/'
-            name 'Fabric'
-        }
+//        maven {
+//            url 'http://maven.fabricmc.net/'
+//            name 'Fabric'
+//        }
         maven {
             name = 'JitPack'
             url = 'https://jitpack.io'
