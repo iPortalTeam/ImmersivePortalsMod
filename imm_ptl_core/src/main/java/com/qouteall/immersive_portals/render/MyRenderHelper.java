@@ -38,42 +38,44 @@ public class MyRenderHelper {
         Framebuffer textureProvider,
         MatrixStack matrixStack
     ) {
-        ShaderManager shaderManager = CGlobal.shaderManager;
+        throw new RuntimeException();
         
-        CHelper.checkGlError();
-        McHelper.runWithTransformation(
-            matrixStack,
-            () -> {
-                shaderManager.loadContentShaderAndShaderVars(0);
-                
-                if (OFInterface.isShaders.getAsBoolean()) {
-                    GlStateManager.viewport(
-                        0,
-                        0,
-                        PortalRenderer.client.getFramebuffer().viewportWidth,
-                        PortalRenderer.client.getFramebuffer().viewportHeight
-                    );
-                }
-                
-                GlStateManager.enableTexture();
-                GlStateManager.activeTexture(GL13.GL_TEXTURE0);
-                
-                textureProvider.beginRead();
-                GlStateManager.texParameter(3553, 10241, 9729);
-                GlStateManager.texParameter(3553, 10240, 9729);
-                GlStateManager.texParameter(3553, 10242, 10496);
-                GlStateManager.texParameter(3553, 10243, 10496);
-                
-                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
-                
-                shaderManager.unloadShader();
-                
-                textureProvider.endRead();
-                
-                OFInterface.resetViewport.run();
-            }
-        );
-        CHelper.checkGlError();
+//        ShaderManager shaderManager = CGlobal.shaderManager;
+//
+//        CHelper.checkGlError();
+//        McHelper.runWithTransformation(
+//            matrixStack,
+//            () -> {
+//                shaderManager.loadContentShaderAndShaderVars(0);
+//
+//                if (OFInterface.isShaders.getAsBoolean()) {
+//                    GlStateManager.viewport(
+//                        0,
+//                        0,
+//                        PortalRenderer.client.getFramebuffer().viewportWidth,
+//                        PortalRenderer.client.getFramebuffer().viewportHeight
+//                    );
+//                }
+//
+//                GlStateManager.enableTexture();
+//                GlStateManager.activeTexture(GL13.GL_TEXTURE0);
+//
+//                textureProvider.beginRead();
+//                GlStateManager.texParameter(3553, 10241, 9729);
+//                GlStateManager.texParameter(3553, 10240, 9729);
+//                GlStateManager.texParameter(3553, 10242, 10496);
+//                GlStateManager.texParameter(3553, 10243, 10496);
+//
+//                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
+//
+//                shaderManager.unloadShader();
+//
+//                textureProvider.endRead();
+//
+//                OFInterface.resetViewport.run();
+//            }
+//        );
+//        CHelper.checkGlError();
     }
     
     public static void renderScreenTriangle() {

@@ -135,7 +135,7 @@ public class MyGameRenderer {
         boolean oldNoClip = client.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(worldRenderer);
-        ObjectList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
+        ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
         HitResult oldCrosshairTarget = client.crosshairTarget;
         Camera oldCamera = client.gameRenderer.getCamera();
         ShaderEffect oldTransparencyShader =
@@ -154,12 +154,11 @@ public class MyGameRenderer {
         client.world = newWorld;
         ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
         
-        BlockEntityRenderDispatcher.INSTANCE.world = newWorld;
+        client.getBlockEntityRenderDispatcher().world = newWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         client.player.noClip = true;
         ieGameRenderer.setDoRenderHand(false);
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.pushMatrix();
+        
         FogRendererContext.swappingManager.pushSwapping(
             RenderDimensionRedirect.getRedirectedDimension(newDimension)
         );
@@ -212,12 +211,11 @@ public class MyGameRenderer {
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         client.world = oldEntityWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
-        BlockEntityRenderDispatcher.INSTANCE.world = oldEntityWorld;
+        client.getBlockEntityRenderDispatcher().world = oldEntityWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
         client.player.noClip = oldNoClip;
         ieGameRenderer.setDoRenderHand(oldDoRenderHand);
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.popMatrix();
+        
         ((IEParticleManager) client.particleManager).mySetWorld(oldEntityWorld);
         client.crosshairTarget = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
@@ -259,10 +257,10 @@ public class MyGameRenderer {
      * {@link net.minecraft.client.render.RenderPhase.Cull}
      */
     public static void resetGlStates() {
-        GlStateManager.disableAlphaTest();
-        GlStateManager.enableCull();
-        GlStateManager.disableBlend();
-        net.minecraft.client.render.DiffuseLighting.disable();
+//        GlStateManager.disableAlphaTest();
+        GlStateManager._enableCull();
+        GlStateManager._disableBlend();
+        net.minecraft.client.render.DiffuseLighting.disableGuiDepthLighting();
         MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
         client.gameRenderer.getOverlayTexture().teardownOverlayColor();
     }

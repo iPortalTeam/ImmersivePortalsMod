@@ -22,20 +22,19 @@ public class DubiousThings {
             return;
         }
         if (world.getTime() % 233 == 34) {
-            doUpdateLight(player);
+//            doUpdateLight(player);
             checkClientPlayerState();
         }
     }
     
-    // TODO test is it necessary
-    @Deprecated
-    private static void doUpdateLight(ClientPlayerEntity player) {
-        MinecraftClient.getInstance().getProfiler().push("my_light_update");
-        MyClientChunkManager.updateLightStatus(player.world.getChunk(
-            player.chunkX, player.chunkZ
-        ));
-        MinecraftClient.getInstance().getProfiler().pop();
-    }
+//    @Deprecated
+//    private static void doUpdateLight(ClientPlayerEntity player) {
+//        MinecraftClient.getInstance().getProfiler().push("my_light_update");
+//        MyClientChunkManager.updateLightStatus(player.world.getChunk(
+//            player.chunkX, player.chunkZ
+//        ));
+//        MinecraftClient.getInstance().getProfiler().pop();
+//    }
     
     private static void checkClientPlayerState() {
         MinecraftClient client = MinecraftClient.getInstance();
