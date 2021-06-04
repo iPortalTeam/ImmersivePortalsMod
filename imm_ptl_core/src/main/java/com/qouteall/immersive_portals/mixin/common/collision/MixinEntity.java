@@ -68,6 +68,8 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     public abstract Vec3d getVelocity();
     
+    @Shadow protected abstract void unsetRemoved();
+    
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTicking(CallbackInfo ci) {
@@ -238,4 +240,8 @@ public abstract class MixinEntity implements IEEntity {
         return (age - collidingPortalActiveTickTime) < 20;
     }
     
+    @Override
+    public void portal_unsetRemoved() {
+        unsetRemoved();
+    }
 }

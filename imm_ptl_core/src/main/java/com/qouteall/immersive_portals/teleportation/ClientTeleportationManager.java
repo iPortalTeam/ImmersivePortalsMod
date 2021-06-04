@@ -306,6 +306,8 @@ public class ClientTeleportationManager {
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
         
+        ((IEEntity) player).portal_unsetRemoved();
+        
         toWorld.addPlayer(player.getId(), player);
         
         client.world = toWorld;
@@ -365,7 +367,7 @@ public class ClientTeleportationManager {
 //        }
 //        worldChunk1.addEntity(entity);
     }
-    
+
 //    private void removeEntityFromChunk(Entity entity, WorldChunk worldChunk) {
 //        for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
 //            section.remove(entity);
