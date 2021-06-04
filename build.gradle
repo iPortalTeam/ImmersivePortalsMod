@@ -1,16 +1,16 @@
 plugins {
-    id 'fabric-loom' version '0.8-SNAPSHOT'
+    id 'fabric-loom' version '0.8-SNAPSHOT' apply false
     id 'maven-publish'
+}
+
+allprojects {
+    apply plugin: 'fabric-loom'
+    apply plugin: 'maven-publish'
 }
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
-
-subprojects {
-    apply plugin: 'fabric-loom'
-    apply plugin: 'maven-publish'
-}
 
 minecraft {
     accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
@@ -166,8 +166,8 @@ dependencies {
 //    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
-    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-    include "io.github.prospector:modmenu:${modmenu_version}"
+//    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+//    include "io.github.prospector:modmenu:${modmenu_version}"
 
 
 
@@ -219,6 +219,7 @@ dependencies {
     afterEvaluate {
         subprojects.each {
             compileOnly project(":${it.name}")
+            runtimeOnly project(":${it.name}")
             include project("${it.name}:")
         }
     }
