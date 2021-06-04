@@ -6,7 +6,7 @@
     "replacement": [
       "uniform vec4 imm_ptl_ClippingEquation;",
       "void main() {",
-      "    gl_ClipDistance[0] = dot(Position.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+      "    gl_ClipDistance[0] = dot(Position.xyz + ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
     ],
     "debugOutput": true
   }
