@@ -1,8 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.portal_generation;
 
-import com.qouteall.imm_ptl.platform_specific.O_O;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import com.qouteall.imm_ptl_peripheral.portal_generation.IntrinsicPortalGeneration;
-import com.qouteall.immersive_portals.Global;
+import qouteall.imm_ptl.core.Global;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;

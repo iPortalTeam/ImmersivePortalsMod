@@ -1,8 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.portal_generation;
 
-import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.portal.EndPortalEntity;
-import com.qouteall.immersive_portals.portal.PortalPlaceholderBlock;
+import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.portal.EndPortalEntity;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

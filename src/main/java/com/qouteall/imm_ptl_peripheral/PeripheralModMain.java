@@ -1,7 +1,7 @@
 package com.qouteall.imm_ptl_peripheral;
 
 import com.google.common.collect.Lists;
-import com.qouteall.imm_ptl.platform_specific.O_O;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.FormulaGenerator;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;

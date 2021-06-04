@@ -1,10 +1,10 @@
 package com.qouteall.imm_ptl_peripheral.guide;
 
-import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.my_util.MyTaskList;
-import com.qouteall.immersive_portals.network.CommonNetworkClient;
+import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.my_util.MyTaskList;
+import qouteall.imm_ptl.core.network.CommonNetworkClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

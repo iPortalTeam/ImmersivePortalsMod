@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 
-import com.qouteall.immersive_portals.Helper;
+import qouteall.imm_ptl.core.Helper;
 import net.minecraft.util.Pair;
 
 import java.util.ArrayList;

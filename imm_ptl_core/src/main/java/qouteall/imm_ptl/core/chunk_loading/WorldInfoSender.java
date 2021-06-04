@@ -1,0 +1,100 @@
+package qouteall.imm_ptl.core.chunk_loading;
+
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
+import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+
+import java.util.Set;
+
+public class WorldInfoSender {
+    public static void init() {
+        ModMain.postServerTickSignal.connect(() -> {
+            McHelper.getServer().getProfiler().push("portal_send_world_info");
+            if (McHelper.getServerGameTime() % 100 == 42) {
+                for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
+                    Set<RegistryKey<World>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
+                    
+                    if (player.world.getRegistryKey() != World.OVERWORLD) {
+                        sendWorldInfo(
+                            player,
+                            McHelper.getServer().getWorld(World.OVERWORLD)
+                        );
+                    }
+                    
+                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
+                        if (isNonOverworldSurfaceDimension(thisWorld)) {
+                            if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
+                                sendWorldInfo(
+                                    player,
+                                    thisWorld
+                                );
+                            }
+                        }
+                    });
+                    
+                }
+            }
+            McHelper.getServer().getProfiler().pop();
+        });
+    }
+    
+    //send the daytime and weather info to player when player is in nether
+    public static void sendWorldInfo(ServerPlayerEntity player, ServerWorld world) {
+        RegistryKey<World> remoteDimension = world.getRegistryKey();
+        
+        player.networkHandler.sendPacket(
+            MyNetwork.createRedirectedMessage(
+                remoteDimension,
+                new WorldTimeUpdateS2CPacket(
+                    world.getTime(),
+                    world.getTimeOfDay(),
+                    world.getGameRules().getBoolean(
+                        GameRules.DO_DAYLIGHT_CYCLE
+                    )
+                )
+            )
+        );
+        
+        /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
+        
+        if (world.isRaining()) {
+            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+                world.getRegistryKey(),
+                new GameStateChangeS2CPacket(
+                    GameStateChangeS2CPacket.RAIN_STARTED,
+                    0.0F
+                )
+            ));
+        }
+        else {
+            //if the weather is already not raining when the player logs in then no need to sync
+            //if the weather turned to not raining then elsewhere syncs it
+        }
+        
+        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+            world.getRegistryKey(),
+            new GameStateChangeS2CPacket(
+                GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
+                world.getRainGradient(1.0F)
+            )
+        ));
+        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+            world.getRegistryKey(),
+            new GameStateChangeS2CPacket(
+                GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
+                world.getThunderGradient(1.0F)
+            )
+        ));
+    }
+    
+    public static boolean isNonOverworldSurfaceDimension(World world) {
+        return world.getDimension().hasSkyLight() && world.getRegistryKey() != World.OVERWORLD;
+    }
+}

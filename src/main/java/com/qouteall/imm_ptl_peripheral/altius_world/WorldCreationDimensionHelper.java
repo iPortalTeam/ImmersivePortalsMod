@@ -5,7 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import com.qouteall.imm_ptl_peripheral.ducks.IECreateWorldScreen;
-import com.qouteall.immersive_portals.Helper;
+import qouteall.imm_ptl.core.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.resource.DataPackSettings;

@@ -1,7 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.mixin.common.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusGameRule;
-import com.qouteall.immersive_portals.McHelper;
+import qouteall.imm_ptl.core.McHelper;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;

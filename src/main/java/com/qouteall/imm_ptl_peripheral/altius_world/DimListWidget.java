@@ -1,7 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.my_util.GuiHelper;
+import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.my_util.GuiHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;

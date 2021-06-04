@@ -6,7 +6,7 @@ import com.qouteall.imm_ptl_peripheral.altius_world.AltiusInfo;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusManagement;
 import com.qouteall.imm_ptl_peripheral.altius_world.AltiusScreen;
 import com.qouteall.imm_ptl_peripheral.ducks.IECreateWorldScreen;
-import com.qouteall.immersive_portals.Helper;
+import qouteall.imm_ptl.core.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;

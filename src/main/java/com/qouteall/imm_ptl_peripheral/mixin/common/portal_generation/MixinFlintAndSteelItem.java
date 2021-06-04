@@ -2,7 +2,7 @@ package com.qouteall.imm_ptl_peripheral.mixin.common.portal_generation;
 
 import com.qouteall.imm_ptl_peripheral.PeripheralModMain;
 import com.qouteall.imm_ptl_peripheral.portal_generation.IntrinsicPortalGeneration;
-import com.qouteall.immersive_portals.portal.BreakableMirror;
+import qouteall.imm_ptl.core.portal.BreakableMirror;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.FlintAndSteelItem;

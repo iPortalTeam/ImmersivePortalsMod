@@ -1,7 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.Helper;
+import qouteall.imm_ptl.core.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;

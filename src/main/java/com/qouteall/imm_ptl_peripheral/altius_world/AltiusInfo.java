@@ -1,10 +1,10 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.api.PortalAPI;
-import com.qouteall.immersive_portals.portal.Portal;
-import com.qouteall.immersive_portals.portal.global_portals.VerticalConnectingPortal;
+import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;

@@ -1,8 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.ModMain;
+import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ModMain;
 import net.minecraft.world.GameRules;
 
 public class AltiusGameRule {

@@ -1,8 +1,8 @@
 package com.qouteall.imm_ptl_peripheral.portal_generation;
 
 import com.google.common.collect.Lists;
-import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.portal.custom_portal_gen.CustomPortalGeneration;
+import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;

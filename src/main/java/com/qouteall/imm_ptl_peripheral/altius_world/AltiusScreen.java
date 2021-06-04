@@ -1,12 +1,12 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
 import com.qouteall.imm_ptl_peripheral.alternate_dimension.AlternateDimensions;
-import com.qouteall.immersive_portals.CHelper;
-import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.Helper;
-import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.my_util.GuiHelper;
-import com.qouteall.immersive_portals.my_util.MyTaskList;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.my_util.GuiHelper;
+import qouteall.imm_ptl.core.my_util.MyTaskList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

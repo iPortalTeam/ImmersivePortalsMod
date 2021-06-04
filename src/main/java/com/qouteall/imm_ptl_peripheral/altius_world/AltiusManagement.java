@@ -1,6 +1,6 @@
 package com.qouteall.imm_ptl_peripheral.altius_world;
 
-import com.qouteall.immersive_portals.ModMain;
+import qouteall.imm_ptl.core.ModMain;
 
 public class AltiusManagement {
     // Dimension stack world can only be created in client

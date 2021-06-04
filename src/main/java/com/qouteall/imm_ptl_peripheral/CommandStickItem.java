@@ -1,9 +1,9 @@
 package com.qouteall.imm_ptl_peripheral;
 
 import com.mojang.serialization.Lifecycle;
-import com.qouteall.immersive_portals.Global;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.commands.PortalCommand;
+import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.commands.PortalCommand;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
