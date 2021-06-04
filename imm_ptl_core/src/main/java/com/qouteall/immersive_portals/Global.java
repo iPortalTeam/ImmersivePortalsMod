@@ -21,7 +21,7 @@ public class Global {
     
     public static RenderMode renderMode = RenderMode.normal;
     
-    public static boolean doCheckGlError = false;
+    public static boolean doCheckGlError = true;
     
     public static boolean renderYourselfInPortal = true;
     

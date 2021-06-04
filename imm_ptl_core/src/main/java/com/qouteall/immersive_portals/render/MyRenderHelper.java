@@ -53,7 +53,7 @@ public class MyRenderHelper {
                 throw new RuntimeException(e);
             }
         });
-    
+        
         loadShaderSignal.connect((resourceManager, resultConsumer) -> {
             try {
                 DrawFbInAreaShader shader = new DrawFbInAreaShader(
@@ -286,80 +286,56 @@ public class MyRenderHelper {
         float left, double right, float bottom, double up,
         int viewportWidth, int viewportHeight
     ) {
-    
-    
-//        throw new RuntimeException("not yet implemented");
-//        CHelper.checkGlError();
-//
-//        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-//        if (doEnableModifyAlpha) {
-//            GlStateManager.colorMask(true, true, true, true);
-//        }
-//        else {
-//            GlStateManager.colorMask(true, true, true, false);
-//        }
-//        GlStateManager.disableDepthTest();
-//        GlStateManager.depthMask(false);
-//        GlStateManager.matrixMode(GL_PROJECTION);
-//        GlStateManager.pushMatrix();
-//        GlStateManager.loadIdentity();
-//        GlStateManager.ortho(0.0D, (double) viewportWidth, (double) viewportHeight, 0.0D, 1000.0D, 3000.0D);
-//        GlStateManager.matrixMode(GL_MODELVIEW);
-//        GlStateManager.pushMatrix();
-//        GlStateManager.loadIdentity();
-//        GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
-//        GlStateManager.viewport(0, 0, viewportWidth, viewportHeight);
-//        GlStateManager.enableTexture();
-//        GlStateManager.disableLighting();
-//        GlStateManager.disableFog();
-//        if (doEnableAlphaTest) {
-//            RenderSystem.enableAlphaTest();
-//        }
-//        else {
-//            GlStateManager.disableAlphaTest();
-//        }
-//        GlStateManager.disableBlend();
-//        GlStateManager.disableColorMaterial();
-//
-//
-//        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-//        textureProvider.beginRead();
-//
-//        float textureXScale = (float) textureProvider.viewportWidth / (float) textureProvider.textureWidth;
-//        float textureYScale = (float) textureProvider.viewportHeight / (float) textureProvider.textureHeight;
-//        Tessellator tessellator = RenderSystem.renderThreadTesselator();
-//        BufferBuilder bufferBuilder = tessellator.getBuffer();
-//        bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-//
-//        bufferBuilder.vertex(left, up, 0.0D)
-//            .texture(0.0F, 0.0F)
-//            .color(255, 255, 255, 255).next();
-//
-//        bufferBuilder.vertex(right, up, 0.0D)
-//            .texture(textureXScale, 0.0F)
-//            .color(255, 255, 255, 255).next();
-//
-//        bufferBuilder.vertex(right, bottom, 0.0D)
-//            .texture(textureXScale, textureYScale)
-//            .color(255, 255, 255, 255).next();
-//
-//        bufferBuilder.vertex(left, bottom, 0.0D)
-//            .texture(0.0F, textureYScale)
-//            .color(255, 255, 255, 255).next();
-//
-//        tessellator.draw();
-//        textureProvider.endRead();
-//        GlStateManager.depthMask(true);
-//        GlStateManager.colorMask(true, true, true, true);
-//
-//        GlStateManager.matrixMode(GL_PROJECTION);
-//        GlStateManager.popMatrix();
-//        GlStateManager.matrixMode(GL_MODELVIEW);
-//        GlStateManager.popMatrix();
-//
-//        MyRenderHelper.restoreViewPort();
-//
-//        CHelper.checkGlError();
+        
+        GlStateManager._colorMask(true, true, true, false);
+        GlStateManager._disableDepthTest();
+        GlStateManager._depthMask(false);
+        GlStateManager._viewport(0, 0, viewportWidth, viewportHeight);
+        
+        Shader shader = doUseAlphaBlend ? client.gameRenderer.blitScreenShader : blitScreenNoBlendShader;
+        
+        shader.addSampler("DiffuseSampler", textureProvider.getColorAttachment());
+        
+        Matrix4f projectionMatrix = Matrix4f.projectionMatrix(
+            (float) viewportWidth, (float) (-viewportHeight), 1000.0F, 3000.0F);
+        
+        shader.modelViewMat.set(Matrix4f.translate(0.0F, 0.0F, -2000.0F));
+        
+        shader.projectionMat.set(projectionMatrix);
+        
+        shader.upload();
+        
+        float textureXScale = (float) viewportWidth / (float) textureProvider.textureWidth;
+        float textureYScale = (float) viewportHeight / (float) textureProvider.textureHeight;
+        
+        Tessellator tessellator = RenderSystem.renderThreadTesselator();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        
+        bufferBuilder.vertex(left, up, 0.0D)
+            .texture(0.0F, 0.0F)
+            .color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(right, up, 0.0D)
+            .texture(textureXScale, 0.0F)
+            .color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(right, bottom, 0.0D)
+            .texture(textureXScale, textureYScale)
+            .color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(left, bottom, 0.0D)
+            .texture(0.0F, textureYScale)
+            .color(255, 255, 255, 255).next();
+        
+        bufferBuilder.end();
+        BufferRenderer.postDraw(bufferBuilder);
+        
+        // unbind
+        shader.bind();
+        
+        GlStateManager._depthMask(true);
+        GlStateManager._colorMask(true, true, true, true);
+        
+        CHelper.checkGlError();
     }
     
     // it will remove the light sections that are marked to be removed

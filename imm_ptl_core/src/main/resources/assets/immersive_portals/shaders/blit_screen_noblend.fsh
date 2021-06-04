@@ -2,6 +2,8 @@
 
 uniform sampler2D DiffuseSampler;
 
+uniform vec4 ColorModulator;
+
 in vec2 texCoord;
 in vec4 vertexColor;
 
@@ -12,5 +14,5 @@ void main() {
 
     color = vec4(color.xyz, 1.0f);
 
-    fragColor = color;
+    fragColor = color * ColorModulator;
 }
