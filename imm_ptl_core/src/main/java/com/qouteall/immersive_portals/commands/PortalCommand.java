@@ -2115,7 +2115,7 @@ public class PortalCommand {
             from,
             Portal.class,
             from.distanceTo(to)
-        );
+        ).stream();
         if (includeGlobalPortal) {
             List<Portal> globalPortals = McHelper.getGlobalPortals(world);
             portalStream = Streams.concat(

@@ -7,7 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.GlassBlock;
 import net.minecraft.block.PaneBlock;
 import net.minecraft.block.StainedGlassBlock;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
@@ -166,7 +165,7 @@ public class BreakableMirror extends Mirror {
             newMirror,
             BreakableMirror.class,
             20
-        ).filter(
+        ).stream().filter(
             mirror1 -> mirror1.getNormal().dotProduct(newMirror.getNormal()) > 0.5
         ).filter(
             mirror1 -> IntBox.getIntersect(

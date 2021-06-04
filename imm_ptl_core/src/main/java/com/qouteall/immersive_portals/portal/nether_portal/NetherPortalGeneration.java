@@ -228,7 +228,7 @@ public class NetherPortalGeneration {
         
         boolean isOtherGenerationRunning = McHelper.getEntitiesNearby(
             fromWorld, indicatorPos, LoadingIndicatorEntity.class, 1
-        ).findAny().isPresent();
+        ).stream().findAny().isPresent();
         if (isOtherGenerationRunning) {
             Helper.log(
                 "Aborted Portal Generation Because Another Generation is Running Nearby"

@@ -11,6 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.List;
@@ -93,7 +94,7 @@ public class AltiusInfo {
         );
     }
     
-    public static void replaceBedrock(ServerWorld world, Chunk chunk) {
+    public static void replaceBedrock(ChunkRegion world, Chunk chunk) {
         if (AltiusGameRule.getIsDimensionStack()) {
             BlockPos.Mutable mutable = new BlockPos.Mutable();
             for (int x = 0; x < 16; x++) {

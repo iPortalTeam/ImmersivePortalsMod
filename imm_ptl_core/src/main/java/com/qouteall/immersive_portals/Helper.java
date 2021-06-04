@@ -3,7 +3,6 @@ package com.qouteall.immersive_portals;
 import com.google.common.collect.Streams;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IERayTraceContext;
-import com.qouteall.immersive_portals.ducks.IEWorldChunk;
 import com.qouteall.immersive_portals.my_util.IntBox;
 import com.qouteall.immersive_portals.portal.Portal;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -11,11 +10,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
-import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -632,56 +629,6 @@ public class Helper {
     }
     
     /**
-     * Searches nearby chunks to look for a certain sub/class of entity. In the specified {@code world}, the chunk that
-     * {@code pos} is in will be used as the center of search. That chunk will be expanded by {@code chunkRadius} chunks
-     * in all directions to define the search area. Then, on all Y levels, those chunks will be searched for entities of
-     * class {@code entityClass}. Then all entities found will be returned.
-     * <p>
-     * If you define a {@code chunkRadius} of 1, 9 chunks will be searched. If you define one of 2, then 25 chunks will
-     * be searched. This can be an extreme performance bottleneck, so yse it sparingly such as a response to user input.
-     *
-     * @param world       The world in which to search for entities.
-     * @param pos         The chunk that this position is located in will be used as the center of search.
-     * @param chunkRadius Integer number of chunks to expand the square search area by.
-     * @param entityClass The entity class to search for.
-     * @param <T>         The entity class that will be returned in the list.
-     * @return All entities in the nearby chunks with type T.
-     * @author LoganDark
-     */
-    @SuppressWarnings("WeakerAccess")
-    public static <T extends Entity> List<T> getNearbyEntities(
-        World world,
-        Vec3d pos,
-        int chunkRadius,
-        Class<T> entityClass
-    ) {
-        ArrayList<T> entities = new ArrayList<>();
-        int chunkX = (int) pos.x / 16;
-        int chunkZ = (int) pos.z / 16;
-        
-        for (int z = -chunkRadius + 1; z < chunkRadius; z++) {
-            for (int x = -chunkRadius + 1; x < chunkRadius; x++) {
-                int aX = chunkX + x;
-                int aZ = chunkZ + z;
-                
-                // WorldChunk contains a private variable called entitySections that groups all entities in the chunk by
-                // their Y level. Here we are using a Mixin duck typing interface thing to get that private variable and
-                // then manually search it. This is faster than using the built-in WorldChunk methods that do not do
-                // what we want.
-                TypeFilterableList<Entity>[] entitySections = ((IEWorldChunk) world.getChunk(
-                    aX,
-                    aZ
-                )).portal_getEntitySections();
-                for (TypeFilterableList<Entity> entitySection : entitySections) {
-                    entities.addAll(entitySection.getAllOfType(entityClass));
-                }
-            }
-        }
-        
-        return entities;
-    }
-    
-    /**
      * Returns all portals intersecting the line from start->end.
      *
      * @param world                The world in which to ray trace for portals.
@@ -709,7 +656,7 @@ public class Helper {
         // This could result in searching more chunks than necessary, but it always expands to completely cover any
         // chunks the line from start->end passes through.
         int chunkRadius = (int) Math.ceil(Math.abs(start.distanceTo(end) / 2) / 16);
-        List<Portal> nearby = getNearbyEntities(world, middle, chunkRadius, Portal.class);
+        List<Portal> nearby = McHelper.getEntitiesNearby(world, middle, Portal.class, chunkRadius*16);
         
         if (includeGlobalPortals) {
             nearby.addAll(McHelper.getGlobalPortals(world));

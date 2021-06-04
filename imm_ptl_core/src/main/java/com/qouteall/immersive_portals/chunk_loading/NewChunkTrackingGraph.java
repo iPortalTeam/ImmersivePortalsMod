@@ -143,7 +143,7 @@ public class NewChunkTrackingGraph {
     }
     
     public static void updateForPlayer(ServerPlayerEntity player) {
-        ((IEEntity) player).portal_requestUpdateChunkPos();
+//        ((IEEntity) player).portal_requestUpdateChunkPos();
 //        ((ServerWorld) player.world).checkEntityChunkPos(player);
         
         PlayerInfo playerInfo = getPlayerInfo(player);

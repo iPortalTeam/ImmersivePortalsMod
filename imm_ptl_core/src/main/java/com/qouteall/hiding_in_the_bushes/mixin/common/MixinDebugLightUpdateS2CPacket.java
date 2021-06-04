@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(LightUpdateS2CPacket.class)
 public class MixinDebugLightUpdateS2CPacket {
-    @Shadow
-    private int filledBlockLightMask;
-    
-    @Shadow private int blockLightMask;
+//    @Shadow
+//    private int filledBlockLightMask;
+//
+//    @Shadow private int blockLightMask;
     
 //    //debug
 //    @Inject(

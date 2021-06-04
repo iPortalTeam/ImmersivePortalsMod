@@ -10,12 +10,4 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(WorldChunk.class)
 public abstract class MixinWorldChunk implements IEWorldChunk {
-    @Final
-    @Shadow
-    private TypeFilterableList<Entity>[] entitySections;
-
-    @Override
-    public TypeFilterableList<Entity>[] portal_getEntitySections() {
-        return entitySections;
-    }
 }

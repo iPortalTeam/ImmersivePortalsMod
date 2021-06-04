@@ -1,7 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,23 +8,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import com.qouteall.immersive_portals.ducks.IESectionedEntityCache;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;
-import com.qouteall.immersive_portals.ducks.IEWorldChunk;
+import com.qouteall.immersive_portals.ducks.IEWorld;
+import com.qouteall.immersive_portals.mixin.common.mc_util.IESimpleEntityLookup;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.global_portals.GlobalPortalStorage;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -38,10 +32,9 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.Util;
-import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
@@ -51,8 +44,9 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.entity.EntityLookup;
+import net.minecraft.world.entity.SectionedEntityCache;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -62,7 +56,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -270,18 +263,22 @@ public class McHelper {
         });
     }
     
-    // TODO remove this
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
+    public static <ENTITY extends Entity> List<ENTITY> getEntitiesNearby(
         World world,
         Vec3d center,
         Class<ENTITY> entityClass,
         double range
     ) {
-        Box box = new Box(center, center).expand(range);
-        return (Stream) world.getEntitiesByClass(entityClass, box, e -> true).stream();
+        return findEntitiesRough(
+            entityClass,
+            world,
+            center,
+            (int) (range / 16 + 1),
+            e -> true
+        );
     }
     
-    public static <ENTITY extends Entity> Stream<ENTITY> getEntitiesNearby(
+    public static <ENTITY extends Entity> List<ENTITY> getEntitiesNearby(
         Entity center,
         Class<ENTITY> entityClass,
         double range
@@ -503,7 +500,7 @@ public class McHelper {
     
     public static <T extends Entity> List<T> findEntities(
         Class<T> entityClass,
-        ChunkAccessor chunkAccessor,
+        EntityLookup<Entity> entityLookup,
         int chunkXStart,
         int chunkXEnd,
         int chunkYStart,
@@ -515,7 +512,7 @@ public class McHelper {
         ArrayList<T> result = new ArrayList<>();
         
         foreachEntities(
-            entityClass, chunkAccessor,
+            entityClass, entityLookup,
             chunkXStart, chunkXEnd, chunkYStart, chunkYEnd, chunkZStart, chunkZEnd,
             entity -> {
                 if (predicate.test(entity)) {
@@ -526,9 +523,13 @@ public class McHelper {
         return result;
     }
     
-    // the range is inclusive on both ends
+    /**
+     * the range is inclusive on both ends
+     * similar to {@link SectionedEntityCache#forEachInBox(Box, Consumer)}
+     * but without hardcoding the max entity radius
+     */
     public static <T extends Entity> void foreachEntities(
-        Class<T> entityClass, ChunkAccessor chunkAccessor,
+        Class<T> entityClass, EntityLookup<Entity> entityLookup,
         int chunkXStart, int chunkXEnd,
         int chunkYStart, int chunkYEnd,
         int chunkZStart, int chunkZEnd,
@@ -540,21 +541,23 @@ public class McHelper {
         Validate.isTrue(chunkXEnd - chunkXStart < 1000, "too big");
         Validate.isTrue(chunkZEnd - chunkZStart < 1000, "too big");
         
-        for (int x = chunkXStart; x <= chunkXEnd; x++) {
-            for (int z = chunkZStart; z <= chunkZEnd; z++) {
-                WorldChunk chunk = chunkAccessor.getChunk(x, z);
-                if (chunk != null && !(chunk instanceof EmptyChunk)) {
-                    TypeFilterableList<Entity>[] entitySections =
-                        ((IEWorldChunk) chunk).portal_getEntitySections();
-                    for (int i = chunkYStart; i <= chunkYEnd; i++) {
-                        TypeFilterableList<Entity> entitySection = entitySections[i];
-                        for (T entity : entitySection.getAllOfType(entityClass)) {
-                            consumer.accept(entity);
-                        }
-                    }
-                }
+        TypeFilter<T, T> typeFilter = TypeFilter.instanceOf(entityClass);
+        
+        SectionedEntityCache<Entity> cache =
+            (SectionedEntityCache<Entity>) ((IESimpleEntityLookup) entityLookup).getCache();
+        
+        ((IESectionedEntityCache) cache).forEachSectionInBox(
+            chunkXStart, chunkXEnd,
+            chunkYStart, chunkYEnd,
+            chunkZStart, chunkZEnd,
+            entityTrackingSection -> {
+                entityTrackingSection.forEach(
+                    typeFilter,
+                    e -> true,
+                    consumer
+                );
             }
-        }
+        );
     }
     
     //faster
@@ -573,7 +576,7 @@ public class McHelper {
         ChunkPos chunkPos = new ChunkPos(new BlockPos(center));
         return findEntities(
             entityClass,
-            getChunkAccessor(world),
+            ((IEWorld) world).portal_getEntityLookup(),
             chunkPos.x - radiusChunks,
             chunkPos.x + radiusChunks,
             McHelper.getMinSectionY(world), McHelper.getMaxSectionYExclusive(world) - 1,
@@ -623,7 +626,7 @@ public class McHelper {
         int maxChunkYExclusive = McHelper.getMaxSectionYExclusive(world);
         
         foreachEntities(
-            entityClass, getChunkAccessor(world),
+            entityClass, ((IEWorld) world).portal_getEntityLookup(),
             xMin >> 4, xMax >> 4,
             MathHelper.clamp(yMin >> 4, minChunkY, maxChunkYExclusive - 1),
             MathHelper.clamp(yMax >> 4, minChunkY, maxChunkYExclusive - 1),

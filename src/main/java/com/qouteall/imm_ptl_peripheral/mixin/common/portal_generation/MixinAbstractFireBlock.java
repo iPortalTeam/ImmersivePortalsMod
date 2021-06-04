@@ -21,7 +21,7 @@ public class MixinAbstractFireBlock {
         method = "onBlockAdded",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/dimension/AreaHelper;method_30485(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction$Axis;)Ljava/util/Optional;"
+            target = "Lnet/minecraft/world/dimension/AreaHelper;getNewPortal(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction$Axis;)Ljava/util/Optional;"
         )
     )
     Optional<AreaHelper> redirectCreateAreaHelper(WorldAccess worldAccess, BlockPos blockPos, Direction.Axis axis) {
@@ -55,7 +55,7 @@ public class MixinAbstractFireBlock {
     // allow lighting fire on the side of obsidian
     // for lighting horizontal portals
     @Redirect(
-        method = "method_30033",
+        method = "shouldLightPortalAt",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/Optional;isPresent()Z"

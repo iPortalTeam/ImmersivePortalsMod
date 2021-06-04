@@ -8,12 +8,5 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ClientWorld.class)
 public abstract class MixinClientWorld_MA implements IEClientWorld_MA {
-    
-    @Shadow
-    public abstract void removeEntity(int i);
-    
-    @Override
-    public void segregateEntity(Entity entity) {
-        removeEntity(entity.getId());
-    }
+
 }
