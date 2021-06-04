@@ -346,10 +346,11 @@ public class NewChunkTrackingGraph {
         int x, int z,
         int radiusBlocks
     ) {
-        return isPlayerWatchingChunk(
+        boolean result = isPlayerWatchingChunk(
             player, dimension, x, z,
             r -> r.distanceToSource * 16 <= radiusBlocks
         );
+        return result;
     }
     
     private static void cleanup() {

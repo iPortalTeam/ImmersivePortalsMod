@@ -137,21 +137,11 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         if (isWatchedNow) {
             
             if (listeners.add(player.networkHandler)) {
-                CommonNetwork.withForceRedirect(
-                    entity.world.getRegistryKey(),
-                    () -> {
-                        this.entry.startTracking(player);
-                    }
-                );
+                this.entry.startTracking(player);
             }
         }
         else if (listeners.remove(player.networkHandler)) {
-            CommonNetwork.withForceRedirect(
-                entity.world.getRegistryKey(),
-                () -> {
-                    this.entry.stopTracking(player);
-                }
-            );
+            this.entry.stopTracking(player);
         }
         
         profiler.pop();

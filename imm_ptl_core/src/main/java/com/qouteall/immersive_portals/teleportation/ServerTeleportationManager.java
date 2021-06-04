@@ -8,6 +8,7 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
+import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.ducks.IEServerPlayNetworkHandler;
 import com.qouteall.immersive_portals.ducks.IEServerPlayerEntity;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
@@ -288,6 +289,7 @@ public class ServerTeleportationManager {
         Vec3d oldPos = player.getPos();
         
         fromWorld.removePlayer(player, Entity.RemovalReason.CHANGED_DIMENSION);
+        ((IEEntity) player).portal_unsetRemoved();
         
         McHelper.setEyePos(player, newEyePos, newEyePos);
         McHelper.updateBoundingBox(player);
@@ -434,7 +436,7 @@ public class ServerTeleportationManager {
         
         McHelper.setEyePos(entity, newEyePos, newEyePos);
         McHelper.updateBoundingBox(entity);
-        
+
 //        ((ServerWorld) entity.world).checkEntityChunkPos(entity);
         
         portal.transformVelocity(entity);
@@ -496,6 +498,7 @@ public class ServerTeleportationManager {
             
             // TODO check minecart item duplication
             oldEntity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
+            ((IEEntity) oldEntity).portal_unsetRemoved();
             
             toWorld.onDimensionChanged(newEntity);
             
@@ -503,6 +506,7 @@ public class ServerTeleportationManager {
         }
         else {
             entity.remove(Entity.RemovalReason.CHANGED_DIMENSION);
+            ((IEEntity) entity).portal_unsetRemoved();
             
             McHelper.setEyePos(entity, newEyePos, newEyePos);
             McHelper.updateBoundingBox(entity);
