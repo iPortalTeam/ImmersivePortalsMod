@@ -87,7 +87,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     @Override
     protected void createChunks(ChunkBuilder chunkBuilder_1) {
-        //nothing
+        // WorldRenderer#reload() reads its size
+        chunks = new BuiltChunk[sizeX * sizeY * sizeZ];
     }
     
     @Override
