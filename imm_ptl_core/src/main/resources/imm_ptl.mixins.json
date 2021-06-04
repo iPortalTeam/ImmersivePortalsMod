@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.qouteall.immersive_portals.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "mixins": [
     "common.MixinCommandManager",
     "common.MixinLivingEntity",
