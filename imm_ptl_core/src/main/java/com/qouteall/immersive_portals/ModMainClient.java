@@ -14,7 +14,6 @@ import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
 import com.qouteall.immersive_portals.render.ShaderCodeTransformation;
-import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.render.context_management.CloudContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.lag_spike_fix.GlBufferCache;
@@ -93,17 +92,15 @@ public class ModMainClient {
         ClientWorldLoader.init();
         
         MinecraftClient.getInstance().execute(() -> {
+            ShaderCodeTransformation.init();
+            
+            MyRenderHelper.init();
+            
             CGlobal.rendererUsingStencil = new RendererUsingStencil();
             CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
             
             CGlobal.renderer = CGlobal.rendererUsingStencil;
             CGlobal.clientTeleportationManager = new ClientTeleportationManager();
-            
-            if (CGlobal.shaderManager == null) {
-                CGlobal.shaderManager = new ShaderManager();
-            }
-            
-            ShaderCodeTransformation.init();
         });
         
         O_O.loadConfigFabric();
@@ -128,8 +125,6 @@ public class ModMainClient {
         }
         
         GcMonitor.initClient();
-        
-        MyRenderHelper.init();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

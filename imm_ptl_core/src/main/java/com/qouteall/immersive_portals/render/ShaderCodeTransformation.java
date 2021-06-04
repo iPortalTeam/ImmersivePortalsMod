@@ -60,7 +60,10 @@ public class ShaderCodeTransformation {
     }
     
     public static String transform(Program.Type type, String shaderId, String inputCode) {
-        Validate.notNull(configs);
+        if (configs == null) {
+            Helper.log("Shader Transform Skipping " + shaderId);
+            return inputCode;
+        }
         
         Config selected = getConfig(type, shaderId);
         
@@ -87,6 +90,11 @@ public class ShaderCodeTransformation {
     }
     
     public static boolean shouldAddUniform(String shaderName) {
+        if (configs == null) {
+            Helper.log("Shader Transform Skipping " + shaderName);
+            return false;
+        }
+        
         return configs.stream().anyMatch(config -> config.affectedShaders.contains(shaderName));
     }
 }

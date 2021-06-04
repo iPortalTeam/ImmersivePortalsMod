@@ -16,9 +16,10 @@ import java.io.InputStream;
 public class MixinProgram {
     /**
      * @author qouteall
+     * @reason make the logic clear
      */
     @Overwrite
-    protected static int loadProgram(
+    public static int loadProgram(
         Program.Type type, String name, InputStream stream,
         String domain, GLImportProcessor loader
     ) throws IOException {

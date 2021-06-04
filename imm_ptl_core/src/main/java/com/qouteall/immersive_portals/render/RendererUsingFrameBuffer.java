@@ -44,10 +44,6 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         GlStateManager._enableDepthTest();
         
         GL11.glDisable(GL11.GL_STENCIL_TEST);
-        
-        if (CGlobal.shaderManager == null) {
-            CGlobal.shaderManager = new ShaderManager();
-        }
     }
     
     @Override

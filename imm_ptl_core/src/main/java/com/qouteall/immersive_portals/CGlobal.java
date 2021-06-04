@@ -5,7 +5,6 @@ import com.qouteall.immersive_portals.render.RendererDebug;
 import com.qouteall.immersive_portals.render.RendererDummy;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
-import com.qouteall.immersive_portals.render.ShaderManager;
 import com.qouteall.immersive_portals.teleportation.ClientTeleportationManager;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -21,7 +20,6 @@ public class CGlobal {
     public static RendererDebug rendererDebug = new RendererDebug();
     
     public static ClientTeleportationManager clientTeleportationManager;
-    public static ShaderManager shaderManager;
     
     public static int maxIdleChunkRendererNum = 500;
     
