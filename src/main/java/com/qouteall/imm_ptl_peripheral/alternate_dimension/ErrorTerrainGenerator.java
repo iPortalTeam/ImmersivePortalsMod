@@ -10,11 +10,13 @@ import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.WorldAccess;
@@ -26,6 +28,7 @@ import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.EndCityFeature;
@@ -35,6 +38,9 @@ import net.minecraft.world.gen.feature.StrongholdFeature;
 import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.WoodlandMansionFeature;
 
+import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -107,18 +113,14 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     
     @Override
     public void populateEntities(ChunkRegion region) {
-        int i = region.getCenterChunkX();
-        int j = region.getCenterChunkZ();
-        Biome biome = region.getBiome((new ChunkPos(i, j)).getStartPos());
+        ChunkPos chunkPos = region.getCenterPos();
+        Biome biome = region.getBiome(chunkPos.getStartPos());
         ChunkRandom chunkRandom = new ChunkRandom();
-        chunkRandom.setPopulationSeed(region.getSeed(), i << 4, j << 4);
-        SpawnHelper.populateEntities(region, biome, i, j, chunkRandom);
+        chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+        SpawnHelper.populateEntities(region, biome, chunkPos, chunkRandom);
     }
     
-    @Override
-    public void populateNoise(
-        WorldAccess world, StructureAccessor accessor, Chunk chunk
-    ) {
+    public void doPopulateNoise(Chunk chunk) {
         ProtoChunk protoChunk = (ProtoChunk) chunk;
         ChunkPos pos = chunk.getPos();
         Heightmap oceanFloorHeightMap = protoChunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
@@ -160,14 +162,30 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         
     }
     
-    @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmapType) {
-        return 64;
-    }
     
     @Override
     public int getWorldHeight() {
-        return 128;
+        return 256;
+    }
+    
+    @Override
+    public CompletableFuture<Chunk> populateNoise(Executor executor, StructureAccessor accessor, Chunk chunk) {
+        ChunkSection[] sectionArray = chunk.getSectionArray();
+        for (ChunkSection chunkSection : sectionArray) {
+            chunkSection.lock();
+        }
+        
+        return CompletableFuture.supplyAsync(() -> {
+            doPopulateNoise(chunk);
+            return chunk;
+        }, executor).thenApplyAsync((chunkx) -> {
+            for (ChunkSection chunkSection : chunkx.getSectionArray()) {
+                chunkSection.unlock();
+            }
+            
+            return chunkx;
+        }, executor);
+        
     }
     
     //if it's not 0, the sea biome will cause huge lag spike because of light updates
@@ -177,9 +195,13 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
         return 63;
     }
     
-    //may be incorrect
     @Override
-    public BlockView getColumnSample(int x, int z) {
+    public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world) {
+        return 64;
+    }
+    
+    @Override
+    public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world) {
         return verticalBlockSample;
     }
     
@@ -216,20 +238,17 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
                     int p = l + n;
                     int q = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE_WG, m, n) + 1;
                     double e = this.surfaceDepthNoise.sample(
-                        (double) o * 0.0625D, (double) p * 0.0625D,
-                        0.0625D, (double) m * 0.0625D
+                        (double) o * 0.0625D, (double) p * 0.0625D, 0.0625D,
+                        (double) m * 0.0625D
                     ) * 15.0D;
+                    int minSurfaceLevel = 10;
                     region.getBiome(mutable.set(k + m, q, l + n)).buildSurface(
                         chunkRandom, chunk, o, p, q, e,
-                        this.defaultBlock,
-                        this.defaultFluid,
-                        this.getSeaLevel(),
-                        region.getSeed()
+                        this.defaultBlock, this.defaultFluid, this.getSeaLevel(),
+                        minSurfaceLevel, region.getSeed()
                     );
                 }
             }
-            
-            avoidSandLag(region);
         }
         catch (Throwable e) {
             limitedLogger.invoke(e::printStackTrace);
@@ -237,29 +256,29 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     }
     
     //TODO carve more
-    
-    private static void avoidSandLag(ChunkRegion region) {
-        Chunk centerChunk = region.getChunk(region.getCenterChunkX(), region.getCenterChunkZ());
-        BlockPos.Mutable temp = new BlockPos.Mutable();
-        for (int z = 0; z < 16; z++) {
-            for (int x = 0; x < 16; x++) {
-                boolean isLastAir = true;
-                for (int y = 0; y < 100; y++) {
-                    temp.set(x, y, z);
-                    BlockState blockState = centerChunk.getBlockState(temp);
-                    Block block = blockState.getBlock();
-                    if (block == Blocks.SAND || block == Blocks.GRAVEL) {
-                        if (isLastAir) {
-                            centerChunk.setBlockState(
-                                temp,
-                                Blocks.SANDSTONE.getDefaultState(),
-                                true
-                            );
-                        }
-                    }
-                    isLastAir = blockState.isAir();
-                }
-            }
-        }
-    }
+
+//    private static void avoidSandLag(ChunkRegion region) {
+//        Chunk centerChunk = region.getChunk(region.getCenterChunkX(), region.getCenterChunkZ());
+//        BlockPos.Mutable temp = new BlockPos.Mutable();
+//        for (int z = 0; z < 16; z++) {
+//            for (int x = 0; x < 16; x++) {
+//                boolean isLastAir = true;
+//                for (int y = 0; y < 100; y++) {
+//                    temp.set(x, y, z);
+//                    BlockState blockState = centerChunk.getBlockState(temp);
+//                    Block block = blockState.getBlock();
+//                    if (block == Blocks.SAND || block == Blocks.GRAVEL) {
+//                        if (isLastAir) {
+//                            centerChunk.setBlockState(
+//                                temp,
+//                                Blocks.SANDSTONE.getDefaultState(),
+//                                true
+//                            );
+//                        }
+//                    }
+//                    isLastAir = blockState.isAir();
+//                }
+//            }
+//        }
+//    }
 }

@@ -1,6 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
+import net.minecraft.world.gen.ChunkRandom;
 
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -10,7 +11,7 @@ public class CompositeSimplexNoiseSampler {
     
     public CompositeSimplexNoiseSampler(int samplerNum, long seed) {
         samplers = IntStream.range(0, samplerNum)
-            .mapToObj(i -> new SimplexNoiseSampler(new Random(seed + i)))
+            .mapToObj(i -> new SimplexNoiseSampler(new ChunkRandom(seed + i)))
             .toArray(SimplexNoiseSampler[]::new);
     }
     
