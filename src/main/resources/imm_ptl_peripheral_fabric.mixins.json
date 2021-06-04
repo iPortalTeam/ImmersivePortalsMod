@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.qouteall.imm_ptl_peripheral.platform_specific.mixin",
+  "package": "qouteall.imm_ptl.peripheral.platform_specific.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "alternate_dimension.MixinMobSpawnerLogic",

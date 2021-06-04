@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.qouteall.imm_ptl_peripheral.mixin",
+  "package": "qouteall.imm_ptl.peripheral.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "common.alternate_dimension.IEChunkGeneratorSettings",

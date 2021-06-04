@@ -17,13 +17,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.qouteall.imm_ptl_peripheral.platform_specific.PeripheralModEntry"
+      "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntry"
     ],
     "client": [
-      "com.qouteall.imm_ptl_peripheral.platform_specific.PeripheralModEntryClient"
+      "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntryClient"
     ],
     "modmenu": [
-      "com.qouteall.imm_ptl.platform_specific.ModMenuConfigEntry"
+      "qouteall.imm_ptl.core.platform_specific.ModMenuConfigEntry"
     ]
   },
   "mixins": [

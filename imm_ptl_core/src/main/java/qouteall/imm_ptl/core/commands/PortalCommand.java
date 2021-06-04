@@ -1546,7 +1546,7 @@ public class PortalCommand {
             .executes(context -> {
                 McRemoteProcedureCall.tellClientToInvoke(
                     context.getSource().getPlayer(),
-                    "com.qouteall.imm_ptl_peripheral.guide.IPGuide.RemoteCallables.showWiki"
+                    "qouteall.imm_ptl.peripheral.guide.IPGuide.RemoteCallables.showWiki"
                 );
                 return 0;
             })
