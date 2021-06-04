@@ -18,8 +18,10 @@ import net.minecraft.client.render.Shader;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceFactory;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
@@ -40,10 +42,11 @@ public class MyRenderHelper {
         new SignalBiArged<>();
     
     public static void init() {
+        
         loadShaderSignal.connect((resourceManager, resultConsumer) -> {
             try {
                 DrawFbInAreaShader shader = new DrawFbInAreaShader(
-                    resourceManager,
+                    getResourceFactory(resourceManager),
                     "portal_draw_fb_in_area",
                     VertexFormats.POSITION_COLOR
                 );
@@ -57,8 +60,8 @@ public class MyRenderHelper {
         
         loadShaderSignal.connect((resourceManager, resultConsumer) -> {
             try {
-                DrawFbInAreaShader shader = new DrawFbInAreaShader(
-                    resourceManager,
+                Shader shader = new Shader(
+                    getResourceFactory(resourceManager),
                     "portal_area",
                     VertexFormats.POSITION_COLOR
                 );
@@ -72,8 +75,8 @@ public class MyRenderHelper {
         
         loadShaderSignal.connect((resourceManager, resultConsumer) -> {
             try {
-                DrawFbInAreaShader shader = new DrawFbInAreaShader(
-                    resourceManager,
+                Shader shader = new Shader(
+                    getResourceFactory(resourceManager),
                     "blit_screen_noblend",
                     VertexFormats.POSITION_TEXTURE_COLOR
                 );
@@ -84,6 +87,17 @@ public class MyRenderHelper {
                 throw new RuntimeException(e);
             }
         });
+    }
+    
+    private static ResourceFactory getResourceFactory(ResourceManager resourceManager) {
+        ResourceFactory resourceFactory = new ResourceFactory() {
+            @Override
+            public Resource getResource(Identifier id) throws IOException {
+                Identifier corrected = new Identifier("immersive_portals", id.getPath());
+                return resourceManager.getResource(corrected);
+            }
+        };
+        return resourceFactory;
     }
     
     public static class DrawFbInAreaShader extends Shader {
