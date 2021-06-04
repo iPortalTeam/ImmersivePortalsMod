@@ -56,6 +56,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     public static final int maxY = 128;
     
     private static final VerticalBlockSample verticalBlockSample = new VerticalBlockSample(
+        0,
         Stream.concat(
             Stream.generate(Blocks.STONE::getDefaultState).limit(64),
             Stream.generate(Blocks.AIR::getDefaultState).limit(128 + 64)

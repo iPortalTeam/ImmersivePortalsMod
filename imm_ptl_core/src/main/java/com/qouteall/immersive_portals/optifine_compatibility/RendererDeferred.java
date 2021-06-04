@@ -73,42 +73,44 @@ public class RendererDeferred extends PortalRenderer {
     
     @Override
     protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
-        if (PortalRendering.isRendering()) {
-            //currently only support one-layer portal
-            return;
-        }
+        throw new RuntimeException();
         
-        
-        if (!testShouldRenderPortal(portal, matrixStack)) {
-            return;
-        }
-        
-        OFGlobal.bindToShaderFrameBuffer.run();
-        
-        PortalRendering.pushPortalLayer(portal);
-        
-        renderPortalContent(portal);
-        
-        PortalRendering.popPortalLayer();
-        
-        RenderSystem.enableDepthTest();
-    
-        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
-    
-        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
-    
-        OFInterface.resetViewport.run();
-    
-        deferredBuffer.fb.beginWrite(true);
-        MyRenderHelper.drawFrameBufferUp(
-            portal,
-            client.getFramebuffer(),
-            matrixStack
-        );
-        
-        RenderSystem.colorMask(true, true, true, true);
-        
-        OFGlobal.bindToShaderFrameBuffer.run();
+//        if (PortalRendering.isRendering()) {
+//            //currently only support one-layer portal
+//            return;
+//        }
+//
+//
+//        if (!testShouldRenderPortal(portal, matrixStack)) {
+//            return;
+//        }
+//
+//        OFGlobal.bindToShaderFrameBuffer.run();
+//
+//        PortalRendering.pushPortalLayer(portal);
+//
+//        renderPortalContent(portal);
+//
+//        PortalRendering.popPortalLayer();
+//
+//        RenderSystem.enableDepthTest();
+//
+//        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
+//
+//        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
+//
+//        OFInterface.resetViewport.run();
+//
+//        deferredBuffer.fb.beginWrite(true);
+//        MyRenderHelper.drawFrameBufferUp(
+//            portal,
+//            client.getFramebuffer(),
+//            matrixStack
+//        );
+//
+//        RenderSystem.colorMask(true, true, true, true);
+//
+//        OFGlobal.bindToShaderFrameBuffer.run();
     }
     
     @Override
@@ -132,29 +134,30 @@ public class RendererDeferred extends PortalRenderer {
     }
     
     private boolean testShouldRenderPortal(PortalLike portal, MatrixStack matrixStack) {
-        //reset projection matrix
-        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
-        
-        deferredBuffer.fb.beginWrite(true);
-        return QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            GlStateManager._enableDepthTest();
-            
-            GlStateManager._disableTexture();
-            GlStateManager._colorMask(false, false, false, false);
-            
-            GlStateManager._depthMask(false);
-            GL20.glUseProgram(0);
-            
-            GlStateManager._disableTexture();
-            
-            ViewAreaRenderer.drawPortalViewTriangle(
-                portal, matrixStack, true, true
-            );
-            
-            GlStateManager._enableTexture();
-            GlStateManager._colorMask(true, true, true, true);
-            GlStateManager._depthMask(true);
-        });
+        throw new RuntimeException();
+//        //reset projection matrix
+//        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
+//
+//        deferredBuffer.fb.beginWrite(true);
+//        return QueryManager.renderAndGetDoesAnySamplePass(() -> {
+//            GlStateManager._enableDepthTest();
+//
+//            GlStateManager._disableTexture();
+//            GlStateManager._colorMask(false, false, false, false);
+//
+//            GlStateManager._depthMask(false);
+//            GL20.glUseProgram(0);
+//
+//            GlStateManager._disableTexture();
+//
+//            ViewAreaRenderer.drawPortalViewTriangle(
+//                portal, matrixStack, true, true
+//            );
+//
+//            GlStateManager._enableTexture();
+//            GlStateManager._colorMask(true, true, true, true);
+//            GlStateManager._depthMask(true);
+//        });
     }
     
     @Override

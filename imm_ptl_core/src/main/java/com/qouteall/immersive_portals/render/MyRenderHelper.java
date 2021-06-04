@@ -2,12 +2,8 @@ package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.qouteall.immersive_portals.CGlobal;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
-import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.OFInterface;
-import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
@@ -21,29 +17,18 @@ import net.minecraft.client.render.Shader;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceFactory;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
 import org.apache.commons.lang3.Validate;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
 
 import java.io.IOException;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_SMOOTH;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glCullFace;
 
 public class MyRenderHelper {
@@ -63,6 +48,21 @@ public class MyRenderHelper {
                 );
                 resultConsumer.accept(shader);
                 drawFbInAreaShader = shader;
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    
+        loadShaderSignal.connect((resourceManager, resultConsumer) -> {
+            try {
+                DrawFbInAreaShader shader = new DrawFbInAreaShader(
+                    resourceManager,
+                    "portal_area",
+                    VertexFormats.POSITION_COLOR
+                );
+                resultConsumer.accept(shader);
+                portalAreaShader = shader;
             }
             catch (IOException e) {
                 throw new RuntimeException(e);
@@ -91,6 +91,7 @@ public class MyRenderHelper {
     }
     
     public static DrawFbInAreaShader drawFbInAreaShader;
+    public static Shader portalAreaShader;
     
     public static void drawFrameBufferUp(
         PortalLike portal,
@@ -275,77 +276,78 @@ public class MyRenderHelper {
         float left, double right, float bottom, double up,
         int viewportWidth, int viewportHeight
     ) {
-        CHelper.checkGlError();
-        
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        if (doEnableModifyAlpha) {
-            GlStateManager.colorMask(true, true, true, true);
-        }
-        else {
-            GlStateManager.colorMask(true, true, true, false);
-        }
-        GlStateManager.disableDepthTest();
-        GlStateManager.depthMask(false);
-        GlStateManager.matrixMode(GL_PROJECTION);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
-        GlStateManager.ortho(0.0D, (double) viewportWidth, (double) viewportHeight, 0.0D, 1000.0D, 3000.0D);
-        GlStateManager.matrixMode(GL_MODELVIEW);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
-        GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
-        GlStateManager.viewport(0, 0, viewportWidth, viewportHeight);
-        GlStateManager.enableTexture();
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
-        if (doEnableAlphaTest) {
-            RenderSystem.enableAlphaTest();
-        }
-        else {
-            GlStateManager.disableAlphaTest();
-        }
-        GlStateManager.disableBlend();
-        GlStateManager.disableColorMaterial();
-        
-        
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        textureProvider.beginRead();
-        
-        float textureXScale = (float) textureProvider.viewportWidth / (float) textureProvider.textureWidth;
-        float textureYScale = (float) textureProvider.viewportHeight / (float) textureProvider.textureHeight;
-        Tessellator tessellator = RenderSystem.renderThreadTesselator();
-        BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-        
-        bufferBuilder.vertex(left, up, 0.0D)
-            .texture(0.0F, 0.0F)
-            .color(255, 255, 255, 255).next();
-        
-        bufferBuilder.vertex(right, up, 0.0D)
-            .texture(textureXScale, 0.0F)
-            .color(255, 255, 255, 255).next();
-        
-        bufferBuilder.vertex(right, bottom, 0.0D)
-            .texture(textureXScale, textureYScale)
-            .color(255, 255, 255, 255).next();
-        
-        bufferBuilder.vertex(left, bottom, 0.0D)
-            .texture(0.0F, textureYScale)
-            .color(255, 255, 255, 255).next();
-        
-        tessellator.draw();
-        textureProvider.endRead();
-        GlStateManager.depthMask(true);
-        GlStateManager.colorMask(true, true, true, true);
-        
-        GlStateManager.matrixMode(GL_PROJECTION);
-        GlStateManager.popMatrix();
-        GlStateManager.matrixMode(GL_MODELVIEW);
-        GlStateManager.popMatrix();
-        
-        MyRenderHelper.restoreViewPort();
-        
-        CHelper.checkGlError();
+        throw new RuntimeException("not yet implemented");
+//        CHelper.checkGlError();
+//
+//        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+//        if (doEnableModifyAlpha) {
+//            GlStateManager.colorMask(true, true, true, true);
+//        }
+//        else {
+//            GlStateManager.colorMask(true, true, true, false);
+//        }
+//        GlStateManager.disableDepthTest();
+//        GlStateManager.depthMask(false);
+//        GlStateManager.matrixMode(GL_PROJECTION);
+//        GlStateManager.pushMatrix();
+//        GlStateManager.loadIdentity();
+//        GlStateManager.ortho(0.0D, (double) viewportWidth, (double) viewportHeight, 0.0D, 1000.0D, 3000.0D);
+//        GlStateManager.matrixMode(GL_MODELVIEW);
+//        GlStateManager.pushMatrix();
+//        GlStateManager.loadIdentity();
+//        GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
+//        GlStateManager.viewport(0, 0, viewportWidth, viewportHeight);
+//        GlStateManager.enableTexture();
+//        GlStateManager.disableLighting();
+//        GlStateManager.disableFog();
+//        if (doEnableAlphaTest) {
+//            RenderSystem.enableAlphaTest();
+//        }
+//        else {
+//            GlStateManager.disableAlphaTest();
+//        }
+//        GlStateManager.disableBlend();
+//        GlStateManager.disableColorMaterial();
+//
+//
+//        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//        textureProvider.beginRead();
+//
+//        float textureXScale = (float) textureProvider.viewportWidth / (float) textureProvider.textureWidth;
+//        float textureYScale = (float) textureProvider.viewportHeight / (float) textureProvider.textureHeight;
+//        Tessellator tessellator = RenderSystem.renderThreadTesselator();
+//        BufferBuilder bufferBuilder = tessellator.getBuffer();
+//        bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
+//
+//        bufferBuilder.vertex(left, up, 0.0D)
+//            .texture(0.0F, 0.0F)
+//            .color(255, 255, 255, 255).next();
+//
+//        bufferBuilder.vertex(right, up, 0.0D)
+//            .texture(textureXScale, 0.0F)
+//            .color(255, 255, 255, 255).next();
+//
+//        bufferBuilder.vertex(right, bottom, 0.0D)
+//            .texture(textureXScale, textureYScale)
+//            .color(255, 255, 255, 255).next();
+//
+//        bufferBuilder.vertex(left, bottom, 0.0D)
+//            .texture(0.0F, textureYScale)
+//            .color(255, 255, 255, 255).next();
+//
+//        tessellator.draw();
+//        textureProvider.endRead();
+//        GlStateManager.depthMask(true);
+//        GlStateManager.colorMask(true, true, true, true);
+//
+//        GlStateManager.matrixMode(GL_PROJECTION);
+//        GlStateManager.popMatrix();
+//        GlStateManager.matrixMode(GL_MODELVIEW);
+//        GlStateManager.popMatrix();
+//
+//        MyRenderHelper.restoreViewPort();
+//
+//        CHelper.checkGlError();
     }
     
     // it will remove the light sections that are marked to be removed

@@ -3,7 +3,7 @@
   "package": "com.qouteall.imm_ptl_peripheral.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-
+    "common.alternate_dimension.IEChunkGeneratorSettings",
     "common.alternate_dimension.MixinAvoidSunlightGoal",
     "common.alternate_dimension.MixinBedBlock",
     "common.alternate_dimension.MixinDimensionType",

@@ -1,6 +1,7 @@
 package com.qouteall.immersive_portals.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.portal.GeometryPortalShape;
@@ -11,11 +12,15 @@ import com.qouteall.immersive_portals.render.context_management.FogRendererConte
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.Shader;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
@@ -25,6 +30,72 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class ViewAreaRenderer {
+    
+    public static void renderPortalArea(
+        PortalLike portal, Vec3d fogColor,
+        Matrix4f modelViewMatrix, Matrix4f projectionMatrix,
+        boolean doFaceCulling, boolean doModifyColor
+    ) {
+        if (doFaceCulling) {
+            GlStateManager._enableCull();
+        }
+        else {
+            GlStateManager._disableCull();
+        }
+        
+        if (portal.isFuseView()) {
+            GlStateManager._colorMask(false, false, false, false);
+            GlStateManager._depthMask(false);
+        }
+        else {
+            GlStateManager._colorMask(true, true, true, true);
+            GlStateManager._depthMask(true);
+        }
+        
+        if (!doModifyColor) {
+            GlStateManager._colorMask(false, false, false, false);
+        }
+        
+        GlStateManager._enableDepthTest();
+        
+        GlStateManager._disableBlend();
+        GlStateManager._disableTexture();
+        
+        Shader shader = MyRenderHelper.portalAreaShader;
+        
+        shader.modelViewMat.set(modelViewMatrix);
+        shader.projectionMat.set(projectionMatrix);
+        
+        FrontClipping.updateClippingEquationUniform();
+        
+        shader.upload();
+        
+        Tessellator tessellator = RenderSystem.renderThreadTesselator();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        
+        ViewAreaRenderer.buildPortalViewAreaTrianglesBuffer(
+            fogColor,
+            portal,
+            bufferBuilder,
+            CHelper.getCurrentCameraPos(),
+            RenderStates.tickDelta
+        );
+        
+        BufferRenderer.postDraw(bufferBuilder);
+        
+        // wrong name. unbind
+        shader.bind();
+        
+        GlStateManager._enableBlend();
+        GlStateManager._enableTexture();
+        GlStateManager._enableCull();
+        
+        GlStateManager._colorMask(true, true, true, true);
+        GlStateManager._depthMask(true);
+        
+        CHelper.checkGlError();
+    }
+    
     public static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, PortalLike portal, BufferBuilder bufferbuilder,
         Vec3d cameraPos, float tickDelta
@@ -229,7 +300,8 @@ public class ViewAreaRenderer {
         vertexOutput.accept(b);
         
     }
-    
+
+
 //    public static void drawPortalViewTriangle(
 //        PortalLike portal,
 //        MatrixStack matrixStack,

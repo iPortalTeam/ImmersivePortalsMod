@@ -36,11 +36,9 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     public abstract void removed();
     
     @Shadow
-    protected DataPackSettings field_25479;
+    protected DataPackSettings dataPackSettings;
     
-    @Shadow
-    @Nullable
-    protected abstract Pair<File, ResourcePackManager> method_30296();
+    @Shadow @org.jetbrains.annotations.Nullable protected abstract Pair<File, ResourcePackManager> getScannedPack();
     
     private ButtonWidget altiusButton;
     
@@ -69,7 +67,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     )
     private void onInitEnded(CallbackInfo ci) {
         
-        altiusButton = (ButtonWidget) this.addButton(new ButtonWidget(
+        altiusButton = (ButtonWidget) this.addDrawableChild(new ButtonWidget(
             width / 2 + 5, 151, 150, 20,
             new TranslatableText("imm_ptl.altius_screen_button"),
             (buttonWidget) -> {
@@ -97,7 +95,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         method = "createLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/MinecraftClient;method_29607(Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Lnet/minecraft/world/gen/GeneratorOptions;)V"
+            target = "Lnet/minecraft/client/MinecraftClient;createWorld(Ljava/lang/String;Lnet/minecraft/world/level/LevelInfo;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Lnet/minecraft/world/gen/GeneratorOptions;)V"
         )
     )
     private void redirectOnCreateLevel(
@@ -130,11 +128,11 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     @Override
     public ResourcePackManager portal_getResourcePackManager() {
-        return method_30296().getSecond();
+        return getScannedPack().getSecond();
     }
     
     @Override
     public DataPackSettings portal_getDataPackSettings() {
-        return field_25479;
+        return dataPackSettings;
     }
 }

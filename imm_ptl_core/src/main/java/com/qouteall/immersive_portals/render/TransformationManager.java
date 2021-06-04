@@ -94,7 +94,9 @@ public class TransformationManager {
         if (portal.rotation != null) {
             ClientPlayerEntity player = client.player;
             
-            DQuaternion currentCameraRotation = DQuaternion.getCameraRotation(player.pitch, player.yaw);
+            DQuaternion currentCameraRotation = DQuaternion.getCameraRotation(
+                player.getPitch(RenderStates.tickDelta), player.getYaw(RenderStates.tickDelta)
+            );
             DQuaternion currentCameraRotationInterpolated = getFinalRotation(currentCameraRotation);
             
             DQuaternion rotationThroughPortal =
@@ -107,24 +109,27 @@ public class TransformationManager {
             
             Pair<Double, Double> pitchYaw = DQuaternion.getPitchYawFromRotation(rotationThroughPortal);
             
-            player.yaw = (float) (double) (pitchYaw.getRight());
-            player.pitch = (float) (double) (pitchYaw.getLeft());
+            float finalYaw = (float) (double) (pitchYaw.getRight());
+            float finalPitch = (float) (double) (pitchYaw.getLeft());
             
-            if (player.pitch > 90) {
-                player.pitch = 90 - (player.pitch - 90);
+            if (finalPitch > 90) {
+                finalPitch = 90 - (finalPitch - 90);
             }
-            else if (player.pitch < -90) {
-                player.pitch = -90 + (-90 - player.pitch);
+            else if (finalPitch < -90) {
+                finalPitch = -90 + (-90 - finalPitch);
             }
             
-            player.prevYaw = player.yaw;
-            player.prevPitch = player.pitch;
-            player.renderYaw = player.yaw;
-            player.renderPitch = player.pitch;
+            player.setYaw(finalYaw);
+            player.setPitch(finalPitch);
+            
+            player.prevYaw = finalYaw;
+            player.prevPitch = finalPitch;
+            player.renderYaw = finalYaw;
+            player.renderPitch = finalPitch;
             player.lastRenderYaw = player.renderYaw;
             player.lastRenderPitch = player.renderPitch;
             
-            DQuaternion newCameraRotation = DQuaternion.getCameraRotation(player.pitch, player.yaw);
+            DQuaternion newCameraRotation = DQuaternion.getCameraRotation(finalPitch, finalYaw);
             
             if (!DQuaternion.isClose(newCameraRotation, rotationThroughPortal, 0.001f)) {
                 interpolationStart = rotationThroughPortal;

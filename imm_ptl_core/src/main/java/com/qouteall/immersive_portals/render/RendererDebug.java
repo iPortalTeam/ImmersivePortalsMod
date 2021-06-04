@@ -7,6 +7,7 @@ import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 public class RendererDebug extends PortalRenderer {
@@ -75,11 +76,12 @@ public class RendererDebug extends PortalRenderer {
         MatrixStack matrixStack
     ) {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            GlStateManager._enableDepthTest();
-            GlStateManager._depthMask(false);
-            //GL20.glUseProgram(0);
-            ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, true);
-            GlStateManager._depthMask(true);
+            ViewAreaRenderer.renderPortalArea(
+                portal, Vec3d.ZERO,
+                matrixStack.peek().getModel(),
+                RenderStates.projectionMatrix,
+                true, true
+            );
         });
     }
 }

@@ -65,7 +65,7 @@ public class SelectDimensionScreen extends Screen {
             this,
             DimListWidget.Type.addDimensionList
         );
-        children.add(dimListWidget);
+        addSelectableChild(dimListWidget);
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
         
@@ -75,7 +75,7 @@ public class SelectDimensionScreen extends Screen {
         
         dimListWidget.update();
         
-        confirmButton = (ButtonWidget) this.addButton(new ButtonWidget(
+        confirmButton = (ButtonWidget) addDrawableChild(new ButtonWidget(
             this.width / 2 - 75, this.height - 28, 150, 20,
             new TranslatableText("imm_ptl.confirm_select_dimension"),
             (buttonWidget) -> {

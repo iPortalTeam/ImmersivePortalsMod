@@ -245,32 +245,33 @@ public class RendererMixed extends PortalRenderer {
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
         PortalLike portal, MatrixStack matrixStack
     ) {
-        int portalLayer = PortalRendering.getPortalLayer();
-        
-        initStencilForLayer(portalLayer);
-        
-        deferredFbs[portalLayer].fb.beginWrite(true);
-        deferredFbs[portalLayer].fb.checkFramebufferStatus();
-        
-        GL20.glUseProgram(0);
-        
-        GL11.glEnable(GL_STENCIL_TEST);
-        GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
-        GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-        
-        GlStateManager._enableDepthTest();
-        
-        boolean result = QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            ViewAreaRenderer.drawPortalViewTriangle(
-                portal, matrixStack, true, true
-            );
-        });
-        
-        GL11.glDisable(GL_STENCIL_TEST);
-        
-        OFGlobal.bindToShaderFrameBuffer.run();
-        
-        return result;
+        throw new RuntimeException();
+//        int portalLayer = PortalRendering.getPortalLayer();
+//
+//        initStencilForLayer(portalLayer);
+//
+//        deferredFbs[portalLayer].fb.beginWrite(true);
+//        deferredFbs[portalLayer].fb.checkFramebufferStatus();
+//
+//        GL20.glUseProgram(0);
+//
+//        GL11.glEnable(GL_STENCIL_TEST);
+//        GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
+//        GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+//
+//        GlStateManager._enableDepthTest();
+//
+//        boolean result = QueryManager.renderAndGetDoesAnySamplePass(() -> {
+//            ViewAreaRenderer.drawPortalViewTriangle(
+//                portal, matrixStack, true, true
+//            );
+//        });
+//
+//        GL11.glDisable(GL_STENCIL_TEST);
+//
+//        OFGlobal.bindToShaderFrameBuffer.run();
+//
+//        return result;
     }
     
     @Override

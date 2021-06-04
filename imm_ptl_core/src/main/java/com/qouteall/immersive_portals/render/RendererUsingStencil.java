@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.portal.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.context_management.FogRendererContext;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -180,34 +181,12 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GL11.glStencilMask(0xFF);
         
-        GlStateManager._disableBlend();
-        
-        GL20.glUseProgram(0);
-        
-        
-        if (portal.isFuseView()) {
-            GlStateManager._colorMask(false, false, false, false);
-            
-            RenderSystem.disableDepthTest();
-        }
-        else {
-            RenderSystem.enableDepthTest();
-            GlStateManager._depthMask(true);
-        }
-        
-        GlStateManager._disableTexture();
-        
-        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
-        
-        if (portal.isFuseView()) {
-            GlStateManager._colorMask(true, true, true, true);
-        }
-        
-        GlStateManager._enableTexture();
-        
-        GlStateManager._enableBlend();
-        
-        CHelper.checkGlError();
+        ViewAreaRenderer.renderPortalArea(
+            portal, Vec3d.ZERO,
+            matrixStack.peek().getModel(),
+            RenderStates.projectionMatrix,
+            true, true
+        );
     }
     
     private void clearDepthOfThePortalViewArea(
@@ -242,27 +221,16 @@ public class RendererUsingStencil extends PortalRenderer {
     ) {
         setStencilStateForWorldRendering();
         
-        //do not manipulate color buffer
-        GL11.glColorMask(false, false, false, false);
-        
-        //do manipulate the depth buffer
-        GL11.glDepthMask(true);
-        
-        GL20.glUseProgram(0);
-        
         int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
         
         GL11.glDepthFunc(GL_ALWAYS);
         
-        GlStateManager._enableDepthTest();
-        
-        GlStateManager._disableTexture();
-        
-        ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
-        
-        GlStateManager._enableTexture();
-        
-        GL11.glColorMask(true, true, true, true);
+        ViewAreaRenderer.renderPortalArea(
+            portal, Vec3d.ZERO,
+            matrixStack.peek().getModel(),
+            RenderStates.projectionMatrix,
+            true, false
+        );
         
         GL11.glDepthFunc(originalDepthFunc);
     }

@@ -150,18 +150,18 @@ public class AltiusScreen extends Screen {
     @Override
     protected void init() {
         
-        addButton(toggleButton);
-        addButton(backButton);
-        addButton(addDimensionButton);
-        addButton(removeDimensionButton);
+        addDrawableChild(toggleButton);
+        addDrawableChild(backButton);
+        addDrawableChild(addDimensionButton);
+        addDrawableChild(removeDimensionButton);
         
-        addButton(editButton);
+        addDrawableChild(editButton);
         
-        addButton(helpButton);
+        addDrawableChild(helpButton);
         
         setEnabled(isEnabled);
         
-        children.add(dimListWidget);
+        addSelectableChild(dimListWidget);
         
         dimListWidget.update();
         

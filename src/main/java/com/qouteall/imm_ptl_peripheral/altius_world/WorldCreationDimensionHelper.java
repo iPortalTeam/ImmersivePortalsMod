@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class WorldCreationDimensionHelper {
+    // TODO is it still necessary?
     public static ResourceManager fetchResourceManager(
         ResourcePackManager resourcePackManager,
         DataPackSettings dataPackSettings
@@ -35,9 +36,11 @@ public class WorldCreationDimensionHelper {
         DataPackSettings dataPackSettings2 = MinecraftServer.loadDataPacks(
             resourcePackManager, dataPackSettings, true
         );
+        DynamicRegistryManager.Impl dynamicRegistryManager = DynamicRegistryManager.create();
         CompletableFuture<ServerResourceManager> completableFuture =
             ServerResourceManager.reload(
                 resourcePackManager.createResourcePacks(),
+                dynamicRegistryManager,
                 CommandManager.RegistrationEnvironment.INTEGRATED,
                 2, Util.getMainWorkerExecutor(), client
             );

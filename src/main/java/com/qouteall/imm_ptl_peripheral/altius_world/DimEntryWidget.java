@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -34,6 +35,11 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     public final AltiusEntry entry;
     
     public final static int widgetHeight = 50;
+    
+    @Override
+    public List<? extends Selectable> method_37025() {
+        return List.of();
+    }
     
     public static enum Type {
         simple, withAdvancedOptions
@@ -101,7 +107,6 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         
         if (dimensionIconPresent) {
             client.getTextureManager().bindTexture(dimIconPath);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             
             DrawableHelper.drawTexture(
                 matrixStack,

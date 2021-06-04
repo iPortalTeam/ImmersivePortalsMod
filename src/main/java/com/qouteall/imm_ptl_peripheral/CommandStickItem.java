@@ -185,7 +185,7 @@ public class CommandStickItem extends Item {
             );
             data.serialize(itemStack.getOrCreateTag());
             
-            player.inventory.insertStack(itemStack);
+            player.getInventory().insertStack(itemStack);
             player.playerScreenHandler.sendContentUpdates();
         });
     }

@@ -4,16 +4,13 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "portal_draw_fb_in_area",
-  "fragment": "portal_draw_fb_in_area",
+  "vertex": "portal_area",
+  "fragment": "portal_area",
   "attributes": [
     "Position",
     "Color"
   ],
   "samplers": [
-    {
-      "name": "DiffuseSampler"
-    }
   ],
   "uniforms": [
     {
@@ -61,18 +58,6 @@
         0.0,
         1.0
       ]
-    },
-    {
-      "name": "w",
-      "type": "float",
-      "count": 1,
-      "values": [100]
-    },
-    {
-      "name": "h",
-      "type": "float",
-      "count": 1,
-      "values": [100]
     }
   ]
 }

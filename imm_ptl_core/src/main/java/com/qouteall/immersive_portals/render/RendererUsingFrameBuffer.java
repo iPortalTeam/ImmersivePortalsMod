@@ -6,9 +6,11 @@ import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.portal.Portal;
 import com.qouteall.immersive_portals.portal.PortalLike;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -38,11 +40,11 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
     @Override
     public void prepareRendering() {
         secondaryFrameBuffer.prepare();
-    
+        
         GlStateManager._enableDepthTest();
-    
+        
         GL11.glDisable(GL11.GL_STENCIL_TEST);
-    
+        
         if (CGlobal.shaderManager == null) {
             CGlobal.shaderManager = new ShaderManager();
         }
@@ -57,15 +59,15 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             //only support one-layer portal
             return;
         }
-    
+        
         if (!testShouldRenderPortal(portal, matrixStack)) {
             return;
         }
-    
+        
         PortalRendering.pushPortalLayer(portal);
-    
+        
         Framebuffer oldFrameBuffer = client.getFramebuffer();
-    
+        
         ((IEMinecraftClient) client).setFrameBuffer(secondaryFrameBuffer.fb);
         secondaryFrameBuffer.fb.beginWrite(true);
         
@@ -76,14 +78,14 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             MinecraftClient.IS_SYSTEM_MAC
         );
         GL11.glDisable(GL11.GL_STENCIL_TEST);
-    
+        
         renderPortalContent(portal);
         
         ((IEMinecraftClient) client).setFrameBuffer(oldFrameBuffer);
         oldFrameBuffer.beginWrite(true);
-    
+        
         PortalRendering.popPortalLayer();
-    
+        
         renderSecondBufferIntoMainBuffer(portal, matrixStack);
     }
     
@@ -102,11 +104,12 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         MatrixStack matrixStack
     ) {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
-            GlStateManager._enableDepthTest();
-            GlStateManager._depthMask(false);
-            GL20.glUseProgram(0);
-            ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, true, true);
-            GlStateManager._depthMask(true);
+            ViewAreaRenderer.renderPortalArea(
+                portal, Vec3d.ZERO,
+                matrixStack.peek().getModel(),
+                RenderStates.projectionMatrix,
+                true,true
+            );
         });
     }
     
@@ -114,7 +117,8 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         MyRenderHelper.drawFrameBufferUp(
             portal,
             secondaryFrameBuffer.fb,
-            matrixStack
+            matrixStack.peek().getModel(),
+            RenderStates.projectionMatrix
         );
     }
     

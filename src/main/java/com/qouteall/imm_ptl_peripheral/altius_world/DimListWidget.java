@@ -4,6 +4,7 @@ import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.my_util.GuiHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -18,6 +19,11 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     private final Type type;
     
     private ButtonWidget extraLoopButton;
+    
+    @Override
+    public void appendNarrations(NarrationMessageBuilder builder) {
+    
+    }
     
     public static enum Type {
         mainDimensionList, addDimensionList

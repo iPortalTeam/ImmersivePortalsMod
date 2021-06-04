@@ -2,6 +2,7 @@ package com.qouteall.imm_ptl_peripheral.alternate_dimension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.qouteall.imm_ptl_peripheral.mixin.common.alternate_dimension.IEChunkGeneratorSettings;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -171,12 +172,12 @@ public class AlternateDimensions {
     
     public static ChunkGenerator createSkylandGenerator(long seed, DynamicRegistryManager rm) {
         
-        MutableRegistry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
         VanillaLayeredBiomeSource biomeSource = new VanillaLayeredBiomeSource(
             seed, false, false, biomeRegistry
         );
         
-        MutableRegistry<ChunkGeneratorSettings> settingsRegistry = rm.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY);
+        Registry<ChunkGeneratorSettings> settingsRegistry = rm.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY);
         
         HashMap<StructureFeature<?>, StructureConfig> structureMap = new HashMap<>();
         structureMap.putAll(StructuresConfig.DEFAULT_STRUCTURES);
@@ -186,10 +187,9 @@ public class AlternateDimensions {
         StructuresConfig structuresConfig = new StructuresConfig(
             Optional.empty(), structureMap
         );
-        ChunkGeneratorSettings skylandSetting = ChunkGeneratorSettings.createIslandSettings(
+        ChunkGeneratorSettings skylandSetting = IEChunkGeneratorSettings.ip_createIslandSettings(
             structuresConfig, Blocks.STONE.getDefaultState(),
-            Blocks.WATER.getDefaultState(), new Identifier("imm_ptl:skyland_gen_id"),
-            false, false
+            Blocks.WATER.getDefaultState(), false, false
         );
         
         return new NoiseChunkGenerator(
@@ -198,14 +198,14 @@ public class AlternateDimensions {
     }
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, DynamicRegistryManager rm) {
-        MutableRegistry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
         
         ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(seed, biomeRegistry);
         return new ErrorTerrainGenerator(seed, chaosBiomeSource);
     }
     
     public static ChunkGenerator createVoidGenerator(DynamicRegistryManager rm) {
-        MutableRegistry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
         
         StructuresConfig structuresConfig = new StructuresConfig(
             Optional.of(StructuresConfig.DEFAULT_STRONGHOLD),
