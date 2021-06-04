@@ -58,7 +58,6 @@ public class ViewAreaRenderer {
         
         GlStateManager._enableDepthTest();
         
-        GlStateManager._disableBlend();
         GlStateManager._disableTexture();
         
         Shader shader = MyRenderHelper.portalAreaShader;
@@ -86,7 +85,6 @@ public class ViewAreaRenderer {
         // wrong name. unbind
         shader.bind();
         
-        GlStateManager._enableBlend();
         GlStateManager._enableTexture();
         GlStateManager._enableCull();
         

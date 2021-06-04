@@ -68,6 +68,21 @@ public class MyRenderHelper {
                 throw new RuntimeException(e);
             }
         });
+        
+        loadShaderSignal.connect((resourceManager, resultConsumer) -> {
+            try {
+                DrawFbInAreaShader shader = new DrawFbInAreaShader(
+                    resourceManager,
+                    "blit_screen_noblend",
+                    VertexFormats.POSITION_TEXTURE_COLOR
+                );
+                resultConsumer.accept(shader);
+                blitScreenNoBlendShader = shader;
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
     
     public static class DrawFbInAreaShader extends Shader {
@@ -92,6 +107,7 @@ public class MyRenderHelper {
     
     public static DrawFbInAreaShader drawFbInAreaShader;
     public static Shader portalAreaShader;
+    public static Shader blitScreenNoBlendShader;
     
     public static void drawFrameBufferUp(
         PortalLike portal,
@@ -104,8 +120,6 @@ public class MyRenderHelper {
         GlStateManager._enableDepthTest();
         GlStateManager._depthMask(true);
         GlStateManager._viewport(0, 0, textureProvider.textureWidth, textureProvider.textureHeight);
-        
-        GlStateManager._disableBlend();
         
         DrawFbInAreaShader shader = drawFbInAreaShader;
         shader.addSampler("DiffuseSampler", textureProvider.getColorAttachment());
@@ -136,8 +150,6 @@ public class MyRenderHelper {
         
         // wrong name. unbind
         shader.bind();
-        
-        GlStateManager._enableBlend();
 
 
 //        ShaderManager shaderManager = CGlobal.shaderManager;
@@ -204,7 +216,6 @@ public class MyRenderHelper {
         shader.upload();
         
         RenderSystem.disableTexture();
-        RenderSystem.disableBlend();
         
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -232,7 +243,6 @@ public class MyRenderHelper {
         shader.bind();
         
         RenderSystem.enableTexture();
-        RenderSystem.enableBlend();
     }
     
     /**
@@ -272,11 +282,13 @@ public class MyRenderHelper {
     }
     
     public static void drawFramebufferWithViewport(
-        Framebuffer textureProvider, boolean doEnableAlphaTest, boolean doEnableModifyAlpha,
+        Framebuffer textureProvider, boolean doUseAlphaBlend, boolean doEnableModifyAlpha,
         float left, double right, float bottom, double up,
         int viewportWidth, int viewportHeight
     ) {
-        throw new RuntimeException("not yet implemented");
+    
+    
+//        throw new RuntimeException("not yet implemented");
 //        CHelper.checkGlError();
 //
 //        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
