@@ -7,17 +7,34 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.OFInterface;
+import com.qouteall.immersive_portals.my_util.SignalArged;
+import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.PortalLike;
+import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Shader;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.resource.ResourceFactory;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
+import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+
+import java.io.IOException;
+import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
@@ -33,13 +50,95 @@ public class MyRenderHelper {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
+    public static final SignalBiArged<ResourceManager, Consumer<Shader>> loadShaderSignal =
+        new SignalBiArged<>();
+    
+    public static void init() {
+        loadShaderSignal.connect((resourceManager, resultConsumer) -> {
+            try {
+                DrawFbInAreaShader shader = new DrawFbInAreaShader(
+                    resourceManager,
+                    "portal_draw_fb_in_area",
+                    VertexFormats.POSITION_COLOR
+                );
+                resultConsumer.accept(shader);
+                drawFbInAreaShader = shader;
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+    
+    public static class DrawFbInAreaShader extends Shader {
+        
+        public final GlUniform uniformW;
+        public final GlUniform uniformH;
+        
+        public DrawFbInAreaShader(
+            ResourceFactory factory, String name, VertexFormat format
+        ) throws IOException {
+            super(factory, name, format);
+            
+            uniformW = getUniform("w");
+            uniformH = getUniform("h");
+        }
+        
+        void loadWidthHeight(int w, int h) {
+            uniformW.set((float) w);
+            uniformH.set((float) h);
+        }
+    }
+    
+    public static DrawFbInAreaShader drawFbInAreaShader;
+    
     public static void drawFrameBufferUp(
         PortalLike portal,
         Framebuffer textureProvider,
-        MatrixStack matrixStack
+        Matrix4f modelViewMatrix,
+        Matrix4f projectionMatrix
     ) {
-        throw new RuntimeException();
         
+        GlStateManager._colorMask(true, true, true, true);
+        GlStateManager._enableDepthTest();
+        GlStateManager._depthMask(true);
+        GlStateManager._viewport(0, 0, textureProvider.textureWidth, textureProvider.textureHeight);
+        
+        GlStateManager._disableBlend();
+        
+        DrawFbInAreaShader shader = drawFbInAreaShader;
+        shader.addSampler("DiffuseSampler", textureProvider.getColorAttachment());
+        shader.loadWidthHeight(textureProvider.textureWidth, textureProvider.textureHeight);
+        
+        if (shader.modelViewMat != null) {
+            shader.modelViewMat.set(modelViewMatrix);
+        }
+        
+        if (shader.projectionMat != null) {
+            shader.projectionMat.set(projectionMatrix);
+        }
+        
+        shader.upload();
+        
+        Tessellator tessellator = RenderSystem.renderThreadTesselator();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        
+        ViewAreaRenderer.buildPortalViewAreaTrianglesBuffer(
+            Vec3d.ZERO,//fog
+            portal,
+            bufferBuilder,
+            CHelper.getCurrentCameraPos(),
+            RenderStates.tickDelta
+        );
+        
+        BufferRenderer.postDraw(bufferBuilder);
+        
+        // wrong name. unbind
+        shader.bind();
+        
+        GlStateManager._enableBlend();
+
+
 //        ShaderManager shaderManager = CGlobal.shaderManager;
 //
 //        CHelper.checkGlError();
@@ -92,50 +191,47 @@ public class MyRenderHelper {
     }
     
     public static void renderScreenTriangle(int r, int g, int b, int a) {
-        GlStateManager.matrixMode(GL_MODELVIEW);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
+        Shader shader = GameRenderer.getPositionColorShader();
+        Validate.notNull(shader);
         
-        GlStateManager.matrixMode(GL_PROJECTION);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
+        Matrix4f identityMatrix = new Matrix4f();
+        identityMatrix.loadIdentity();
         
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableTexture();
+        shader.modelViewMat.set(identityMatrix);
+        shader.projectionMat.set(identityMatrix);
         
-        GlStateManager.shadeModel(GL_SMOOTH);
+        shader.upload();
         
-        GL20.glUseProgram(0);
-        GL11.glDisable(GL_CLIP_PLANE0);
+        RenderSystem.disableTexture();
+        RenderSystem.disableBlend();
         
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
         
-        bufferbuilder.vertex(1, -1, 0).color(r, g, b, a)
+        bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
             .next();
-        bufferbuilder.vertex(1, 1, 0).color(r, g, b, a)
+        bufferBuilder.vertex(1, 1, 0).color(r, g, b, a)
             .next();
-        bufferbuilder.vertex(-1, 1, 0).color(r, g, b, a)
-            .next();
-        
-        bufferbuilder.vertex(-1, 1, 0).color(r, g, b, a)
-            .next();
-        bufferbuilder.vertex(-1, -1, 0).color(r, g, b, a)
-            .next();
-        bufferbuilder.vertex(1, -1, 0).color(r, g, b, a)
+        bufferBuilder.vertex(-1, 1, 0).color(r, g, b, a)
             .next();
         
-        tessellator.draw();
+        bufferBuilder.vertex(-1, 1, 0).color(r, g, b, a)
+            .next();
+        bufferBuilder.vertex(-1, -1, 0).color(r, g, b, a)
+            .next();
+        bufferBuilder.vertex(1, -1, 0).color(r, g, b, a)
+            .next();
         
-        GlStateManager.matrixMode(GL_MODELVIEW);
-        GlStateManager.popMatrix();
+        bufferBuilder.end();
         
-        GlStateManager.matrixMode(GL_PROJECTION);
-        GlStateManager.popMatrix();
+        BufferRenderer.postDraw(bufferBuilder);
         
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableTexture();
+        // wrong name. unbind
+        shader.bind();
+        
+        RenderSystem.enableTexture();
+        RenderSystem.enableBlend();
     }
     
     /**
@@ -259,7 +355,7 @@ public class MyRenderHelper {
         if (!ClientWorldLoader.getIsInitialized()) {
             return;
         }
-
+        
         ClientWorldLoader.getClientWorlds().forEach(world -> {
             if (world != MinecraftClient.getInstance().world) {
                 int updateNum = world.getChunkManager().getLightingProvider().doLightUpdates(
@@ -287,7 +383,7 @@ public class MyRenderHelper {
     
     public static void restoreViewPort() {
         MinecraftClient client = MinecraftClient.getInstance();
-        GlStateManager.viewport(
+        GlStateManager._viewport(
             0,
             0,
             client.getWindow().getFramebufferWidth(),

@@ -1,16 +1,13 @@
-package com.qouteall.immersive_portals.mixin.client.render.shader_trans;
+package com.qouteall.immersive_portals.mixin.client.render.shader;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
-import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.render.ShaderCodeTransformation;
 import net.minecraft.client.gl.GLImportProcessor;
 import net.minecraft.client.gl.Program;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.io.IOException;
 import java.io.InputStream;

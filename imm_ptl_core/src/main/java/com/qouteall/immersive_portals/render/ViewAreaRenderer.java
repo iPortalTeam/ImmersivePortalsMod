@@ -13,6 +13,7 @@ import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -24,11 +25,11 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
 public class ViewAreaRenderer {
-    private static void buildPortalViewAreaTrianglesBuffer(
+    public static void buildPortalViewAreaTrianglesBuffer(
         Vec3d fogColor, PortalLike portal, BufferBuilder bufferbuilder,
-        Vec3d cameraPos, float tickDelta, float layerWidth
+        Vec3d cameraPos, float tickDelta
     ) {
-        bufferbuilder.begin(GL_TRIANGLES, VertexFormats.POSITION_COLOR);
+        bufferbuilder.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
         
         Vec3d posInPlayerCoordinate = portal.getOriginPos().subtract(cameraPos);
         
@@ -38,6 +39,7 @@ public class ViewAreaRenderer {
         
         portal.renderViewAreaMesh(posInPlayerCoordinate, vertexOutput);
         
+        bufferbuilder.end();
     }
     
     public static void generateViewAreaTriangles(Portal portal, Vec3d posInPlayerCoordinate, Consumer<Vec3d> vertexOutput) {
@@ -228,73 +230,73 @@ public class ViewAreaRenderer {
         
     }
     
-    public static void drawPortalViewTriangle(
-        PortalLike portal,
-        MatrixStack matrixStack,
-        boolean doFrontCulling,
-        boolean doFaceCulling
-    ) {
-        
-        MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
-        
-        Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
-        
-        if (doFaceCulling) {
-            GlStateManager.enableCull();
-        }
-        else {
-            GlStateManager.disableCull();
-        }
-        
-        //should not affect shader pipeline
-        FrontClipping.disableClipping();
-        
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        buildPortalViewAreaTrianglesBuffer(
-            fogColor,
-            portal,
-            bufferbuilder,
-            PortalRenderer.client.gameRenderer.getCamera().getPos(),
-            RenderStates.tickDelta,
-            portal instanceof Mirror ? 0 : 0.45F
-        );
-        
-        boolean shouldReverseCull = PortalRendering.isRenderingOddNumberOfMirrors();
-        if (shouldReverseCull) {
-            MyRenderHelper.applyMirrorFaceCulling();
-        }
-        if (doFrontCulling) {
-            if (PortalRendering.isRendering()) {
-                FrontClipping.setupInnerClipping(
-                    matrixStack, PortalRendering.getRenderingPortal(), false
-                );
-            }
-        }
-        
-        MinecraftClient.getInstance().getProfiler().push("draw");
-        GL11.glEnable(GL32.GL_DEPTH_CLAMP);
-        CHelper.checkGlError();
-        McHelper.runWithTransformation(
-            matrixStack,
-            tessellator::draw
-        );
-        GL11.glDisable(GL32.GL_DEPTH_CLAMP);
-        MinecraftClient.getInstance().getProfiler().pop();
-        
-        if (shouldReverseCull) {
-            MyRenderHelper.recoverFaceCulling();
-        }
-        if (doFrontCulling) {
-            if (PortalRendering.isRendering()) {
-                FrontClipping.disableClipping();
-            }
-        }
-        
-        //this is important
-        GlStateManager.enableCull();
-        
-        MinecraftClient.getInstance().getProfiler().pop();
-    }
+//    public static void drawPortalViewTriangle(
+//        PortalLike portal,
+//        MatrixStack matrixStack,
+//        boolean doFrontCulling,
+//        boolean doFaceCulling
+//    ) {
+//
+//        MinecraftClient.getInstance().getProfiler().push("render_view_triangle");
+//
+//        Vec3d fogColor = FogRendererContext.getCurrentFogColor.get();
+//
+//        if (doFaceCulling) {
+//            GlStateManager.enableCull();
+//        }
+//        else {
+//            GlStateManager.disableCull();
+//        }
+//
+//        //should not affect shader pipeline
+//        FrontClipping.disableClipping();
+//
+//        Tessellator tessellator = Tessellator.getInstance();
+//        BufferBuilder bufferbuilder = tessellator.getBuffer();
+//        buildPortalViewAreaTrianglesBuffer(
+//            fogColor,
+//            portal,
+//            bufferbuilder,
+//            PortalRenderer.client.gameRenderer.getCamera().getPos(),
+//            RenderStates.tickDelta,
+//            portal instanceof Mirror ? 0 : 0.45F
+//        );
+//
+//        boolean shouldReverseCull = PortalRendering.isRenderingOddNumberOfMirrors();
+//        if (shouldReverseCull) {
+//            MyRenderHelper.applyMirrorFaceCulling();
+//        }
+//        if (doFrontCulling) {
+//            if (PortalRendering.isRendering()) {
+//                FrontClipping.setupInnerClipping(
+//                    matrixStack, PortalRendering.getRenderingPortal(), false
+//                );
+//            }
+//        }
+//
+//        MinecraftClient.getInstance().getProfiler().push("draw");
+//        GL11.glEnable(GL32.GL_DEPTH_CLAMP);
+//        CHelper.checkGlError();
+//        McHelper.runWithTransformation(
+//            matrixStack,
+//            tessellator::draw
+//        );
+//        GL11.glDisable(GL32.GL_DEPTH_CLAMP);
+//        MinecraftClient.getInstance().getProfiler().pop();
+//
+//        if (shouldReverseCull) {
+//            MyRenderHelper.recoverFaceCulling();
+//        }
+//        if (doFrontCulling) {
+//            if (PortalRendering.isRendering()) {
+//                FrontClipping.disableClipping();
+//            }
+//        }
+//
+//        //this is important
+//        GlStateManager.enableCull();
+//
+//        MinecraftClient.getInstance().getProfiler().pop();
+//    }
     
 }

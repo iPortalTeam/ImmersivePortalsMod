@@ -1,8 +1,7 @@
-package com.qouteall.immersive_portals.mixin.client.render.shader_trans;
+package com.qouteall.immersive_portals.mixin.client.render.shader;
 
 import com.qouteall.immersive_portals.ducks.IEShader;
 import com.qouteall.immersive_portals.render.ShaderCodeTransformation;
-import me.jellysquid.mods.sodium.client.gl.shader.GlProgram;
 import net.minecraft.client.gl.GlShader;
 import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.render.Shader;

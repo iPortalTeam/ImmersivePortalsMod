@@ -5,8 +5,6 @@ uniform sampler2D DiffuseSampler;
 uniform float w;
 uniform float h;
 
-in vec4 vertexColor;
-
 out vec4 fragColor;
 
 void main(){

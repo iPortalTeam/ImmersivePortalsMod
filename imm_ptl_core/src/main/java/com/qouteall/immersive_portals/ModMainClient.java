@@ -9,6 +9,7 @@ import com.qouteall.immersive_portals.optifine_compatibility.OFGlobal;
 import com.qouteall.immersive_portals.optifine_compatibility.OFInterfaceInitializer;
 import com.qouteall.immersive_portals.portal.PortalRenderInfo;
 import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
+import com.qouteall.immersive_portals.render.MyRenderHelper;
 import com.qouteall.immersive_portals.render.PortalRenderer;
 import com.qouteall.immersive_portals.render.RendererUsingFrameBuffer;
 import com.qouteall.immersive_portals.render.RendererUsingStencil;
@@ -101,7 +102,7 @@ public class ModMainClient {
             if (CGlobal.shaderManager == null) {
                 CGlobal.shaderManager = new ShaderManager();
             }
-    
+            
             ShaderCodeTransformation.init();
         });
         
@@ -127,6 +128,8 @@ public class ModMainClient {
         }
         
         GcMonitor.initClient();
+        
+        MyRenderHelper.init();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

@@ -92,6 +92,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     //36096 0x8D00 GL_DEPTH_ATTACHMENT
     
     
+    // https://github.com/Astrarre/Astrarre/blob/1.17/astrarre-rendering-v0/src/main/java/io/github/astrarre/rendering/internal/mixin/FramebufferMixin_EnableStencil.java
     
 //    /**
 //     * @author
