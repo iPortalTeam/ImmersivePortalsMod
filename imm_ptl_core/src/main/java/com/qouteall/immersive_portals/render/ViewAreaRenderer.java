@@ -57,8 +57,9 @@ public class ViewAreaRenderer {
         }
         
         GlStateManager._enableDepthTest();
-        
         GlStateManager._disableTexture();
+        
+        GL11.glEnable(GL32.GL_DEPTH_CLAMP);
         
         Shader shader = MyRenderHelper.portalAreaShader;
         
@@ -87,6 +88,7 @@ public class ViewAreaRenderer {
         
         GlStateManager._enableTexture();
         GlStateManager._enableCull();
+        GL11.glDisable(GL32.GL_DEPTH_CLAMP);
         
         GlStateManager._colorMask(true, true, true, true);
         GlStateManager._depthMask(true);

@@ -459,19 +459,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
     private void onRenderSkyBegin(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
-            //reset gl states
-            RenderLayer.getBlockLayers().get(0).startDrawing();
-            RenderLayer.getBlockLayers().get(0).endDrawing();
-            
             if (PortalRendering.getRenderingPortal().isFuseView()) {
                 if (!OFInterface.isShaders.getAsBoolean()) {
                     ci.cancel();
                 }
-            }
-            
-            //fix sky abnormal with optifine and fog disabled
-            if (OFInterface.isFogDisabled.getAsBoolean()) {
-                GL11.glEnable(GL11.GL_FOG);
             }
         }
         
