@@ -2,7 +2,7 @@ package com.qouteall.immersive_portals.dimension_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import net.minecraft.nbt.NbtCompound;

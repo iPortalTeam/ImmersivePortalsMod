@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.common.chunk_sync;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEChunkHolder;
 import com.qouteall.immersive_portals.ducks.IEThreadedAnvilChunkStorage;

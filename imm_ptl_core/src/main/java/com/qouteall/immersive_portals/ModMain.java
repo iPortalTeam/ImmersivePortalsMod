@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.EntitySync;

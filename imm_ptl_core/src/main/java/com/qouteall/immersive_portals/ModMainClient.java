@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.MyNetworkClient;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.MyTaskList;
 import com.qouteall.immersive_portals.optifine_compatibility.OFBuiltChunkStorageFix;

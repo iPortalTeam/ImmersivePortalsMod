@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

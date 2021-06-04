@@ -1,7 +1,7 @@
 package com.qouteall.immersive_portals.teleportation;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;

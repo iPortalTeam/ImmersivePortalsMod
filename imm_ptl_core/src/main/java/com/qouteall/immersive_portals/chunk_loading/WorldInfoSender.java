@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;

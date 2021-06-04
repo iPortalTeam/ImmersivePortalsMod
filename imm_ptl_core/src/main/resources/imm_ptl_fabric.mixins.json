@@ -3,15 +3,15 @@
   "package": "com.qouteall.hiding_in_the_bushes.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "common.MixinDebugClientPlayNetworkHandler",
-    "common.MixinDebugLightUpdateS2CPacket",
-    "common.MixinLanguage",
-    "common.MixinPlayerManager_MA",
-    "common.MixinServerPlayerEntity_MA"
+    "com.qouteall.imm_ptl.platform_specific.mixin.common.MixinDebugClientPlayNetworkHandler",
+    "com.qouteall.imm_ptl.platform_specific.mixin.common.MixinDebugLightUpdateS2CPacket",
+    "com.qouteall.imm_ptl.platform_specific.mixin.common.MixinLanguage",
+    "com.qouteall.imm_ptl.platform_specific.mixin.common.MixinPlayerManager_MA",
+    "com.qouteall.imm_ptl.platform_specific.mixin.common.MixinServerPlayerEntity_MA"
   ],
   "client": [
-    "client.MixinClientWorld_MA",
-    "client.MixinFabricClientPlayNetworkAddon"
+    "com.qouteall.imm_ptl.platform_specific.mixin.client.MixinClientWorld_MA",
+    "com.qouteall.imm_ptl.platform_specific.mixin.client.MixinFabricClientPlayNetworkAddon"
   ],
   "injectors": {
     "defaultRequire": 1

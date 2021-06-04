@@ -3,7 +3,7 @@ package com.qouteall.immersive_portals.mixin.common;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdManagement;

@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.render.context_management.RenderDimensionRedirect;
@@ -9,10 +9,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.BlockView;

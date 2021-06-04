@@ -1,7 +1,7 @@
 package com.qouteall.imm_ptl_peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.PortalGenInfo;
 import com.qouteall.immersive_portals.portal.custom_portal_gen.form.NetherPortalLikeForm;

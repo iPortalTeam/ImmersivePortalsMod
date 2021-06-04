@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.mixin.client.block_manipulation;
 
-import com.qouteall.hiding_in_the_bushes.MyNetworkClient;
+import com.qouteall.imm_ptl.platform_specific.MyNetworkClient;
 import com.qouteall.immersive_portals.block_manipulation.BlockManipulationClient;
 import com.qouteall.immersive_portals.ducks.IEClientPlayerInteractionManager;
 import net.minecraft.client.MinecraftClient;

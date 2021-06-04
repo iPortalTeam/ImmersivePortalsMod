@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals;
 
-import com.qouteall.hiding_in_the_bushes.O_O;
+import com.qouteall.imm_ptl.platform_specific.O_O;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

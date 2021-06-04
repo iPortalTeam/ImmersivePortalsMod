@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.qouteall.hiding_in_the_bushes.mixin",
+  "package": "com.qouteall.imm_ptl_peripheral.platform_specific.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "alternate_dimension.MixinMobSpawnerLogic",

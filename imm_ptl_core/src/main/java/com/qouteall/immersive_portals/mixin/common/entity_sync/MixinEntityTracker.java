@@ -1,8 +1,7 @@
 package com.qouteall.immersive_portals.mixin.common.entity_sync;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
-import com.qouteall.immersive_portals.chunk_loading.EntitySync;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.ducks.IEEntityTracker;
 import com.qouteall.immersive_portals.ducks.IEEntityTrackerEntry;
@@ -13,7 +12,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;

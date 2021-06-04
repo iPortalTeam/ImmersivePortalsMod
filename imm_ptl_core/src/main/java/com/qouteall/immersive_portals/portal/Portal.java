@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.portal;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
@@ -46,7 +46,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityChangeListener;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;

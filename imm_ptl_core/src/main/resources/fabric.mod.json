@@ -18,19 +18,19 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.qouteall.hiding_in_the_bushes.ModEntry"
+      "com.qouteall.imm_ptl.platform_specific.ModEntry"
     ],
     "client": [
-      "com.qouteall.hiding_in_the_bushes.ModEntryClient"
+      "com.qouteall.imm_ptl.platform_specific.ModEntryClient"
     ],
     "server": [
-      "com.qouteall.hiding_in_the_bushes.ModEntryDedicatedServer"
+      "com.qouteall.imm_ptl.platform_specific.ModEntryDedicatedServer"
     ],
     "modmenu": [
-      "com.qouteall.hiding_in_the_bushes.ModMenuConfigEntry"
+      "com.qouteall.imm_ptl.platform_specific.ModMenuConfigEntry"
     ],
     "mm:early_risers": [
-      "com.qouteall.hiding_in_the_bushes.LaunchMixinWithOptifineRunnable"
+      "com.qouteall.imm_ptl.platform_specific.LaunchMixinWithOptifineRunnable"
     ]
   },
   "mixins": [

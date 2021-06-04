@@ -1,6 +1,6 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
@@ -12,7 +12,6 @@ import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;

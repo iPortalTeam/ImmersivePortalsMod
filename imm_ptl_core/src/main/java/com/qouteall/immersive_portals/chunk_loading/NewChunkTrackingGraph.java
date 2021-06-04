@@ -1,11 +1,10 @@
 package com.qouteall.immersive_portals.chunk_loading;
 
-import com.qouteall.hiding_in_the_bushes.MyNetwork;
+import com.qouteall.imm_ptl.platform_specific.MyNetwork;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.ducks.IEEntity;
 import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
