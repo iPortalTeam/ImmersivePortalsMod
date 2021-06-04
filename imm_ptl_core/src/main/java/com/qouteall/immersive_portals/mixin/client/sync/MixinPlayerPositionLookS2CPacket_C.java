@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerPositionLookS2CPacket.class)
 public class MixinPlayerPositionLookS2CPacket_C {
-    @Inject(method = "read", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V", at = @At("RETURN"))
     private void onRead(PacketByteBuf buf, CallbackInfo ci) {
         if (buf.isReadable()) {
             RegistryKey<World> playerDimension = DimId.readWorldId(buf, true);
@@ -25,4 +25,5 @@ public class MixinPlayerPositionLookS2CPacket_C {
             NetworkAdapt.setServerHasIP(false);
         }
     }
+    
 }

@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(LivingEntity.class)
-public class MixinLivingEntity_C {
+@Mixin(Entity.class)
+public class MixinEntity_Collision {
     //fix climbing onto ladder cross portal
-    @Inject(method = "getBlockState", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getBlockStateAtPos", at = @At("HEAD"), cancellable = true)
     private void onGetBlockState(CallbackInfoReturnable<BlockState> cir) {
         Portal collidingPortal = ((IEEntity) this).getCollidingPortal();
         Entity this_ = (Entity) (Object) this;

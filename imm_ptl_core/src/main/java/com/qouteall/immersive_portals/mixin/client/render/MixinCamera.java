@@ -5,6 +5,7 @@ import com.qouteall.immersive_portals.render.CrossPortalEntityRenderer;
 import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.CameraSubmersionType;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
@@ -52,13 +53,13 @@ public abstract class MixinCamera implements IECamera {
     }
     
     @Inject(
-        method = "getSubmergedFluidState",
+        method = "getSubmersionType",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void getSubmergedFluidState(CallbackInfoReturnable<FluidState> cir) {
+    private void getSubmergedFluidState(CallbackInfoReturnable<CameraSubmersionType> cir) {
         if (PortalRendering.isRendering()) {
-            cir.setReturnValue(Fluids.EMPTY.getDefaultState());
+            cir.setReturnValue(CameraSubmersionType.NONE);
             cir.cancel();
         }
     }

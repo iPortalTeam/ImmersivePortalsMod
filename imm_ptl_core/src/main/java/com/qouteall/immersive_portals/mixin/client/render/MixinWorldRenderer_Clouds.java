@@ -8,6 +8,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,10 +47,13 @@ public abstract class MixinWorldRenderer_Clouds {
     private int ticks;
     
     @Inject(
-        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
+        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
         at = @At("HEAD")
     )
-    private void onBeginRenderClouds(MatrixStack matrices, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+    private void onBeginRenderClouds(
+        MatrixStack matrices, Matrix4f matrix4f,
+        float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci
+    ) {
         if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }
@@ -60,10 +64,10 @@ public abstract class MixinWorldRenderer_Clouds {
     }
     
     @Inject(
-        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V",
+        method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V",
         at = @At("RETURN")
     )
-    private void onEndRenderClouds(MatrixStack matrices, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+    private void onEndRenderClouds(MatrixStack matrices, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
         if (RenderStates.getRenderedPortalNum() == 0) {
             return;
         }

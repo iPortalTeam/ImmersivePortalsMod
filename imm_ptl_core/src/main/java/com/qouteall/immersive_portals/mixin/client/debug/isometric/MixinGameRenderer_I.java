@@ -17,7 +17,7 @@ public class MixinGameRenderer_I {
         cancellable = true
     )
     private void onGetBasicProjectionMatrix(
-        Camera camera, float tickDelta, boolean isWorldRendering,
+        double d,
         CallbackInfoReturnable<Matrix4f> cir
     ) {
         if (TransformationManager.isIsometricView) {

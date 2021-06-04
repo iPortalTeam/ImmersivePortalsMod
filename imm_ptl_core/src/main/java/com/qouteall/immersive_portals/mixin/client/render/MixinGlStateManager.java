@@ -13,25 +13,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GlStateManager.class)
 public abstract class MixinGlStateManager {
+    
     @Shadow
-    public static void disableCull() {
-        throw new IllegalStateException();
+    public static void _disableCull() {
+        throw new RuntimeException();
     }
     
     @Inject(
-        method = "enableCull",
+        method = "_enableCull",
         at = @At("HEAD"),
         cancellable = true
     )
     private static void onEnableCull(CallbackInfo ci) {
         if (RenderStates.shouldForceDisableCull) {
-            disableCull();
+            _disableCull();
             ci.cancel();
         }
     }
     
     @Inject(
-        method = "genBuffers",
+        method = "_glGenBuffers",
         at = @At("HEAD"),
         cancellable = true
     )
@@ -41,12 +42,4 @@ public abstract class MixinGlStateManager {
             cir.cancel();
         }
     }
-    
-    @Inject(method = "enableFog", at = @At("HEAD"), cancellable = true)
-    private static void onEnableFog(CallbackInfo ci) {
-        if (Global.debugDisableFog) {
-            ci.cancel();
-        }
-    }
-    
 }

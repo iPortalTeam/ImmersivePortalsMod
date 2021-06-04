@@ -15,6 +15,7 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.thread.MessageListener;
 import net.minecraft.world.chunk.WorldChunk;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -67,7 +68,8 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     private File saveDir;
     
     @Shadow
-    protected abstract NbtCompound getUpdatedChunkTag(ChunkPos pos) throws IOException;
+    @Nullable
+    protected abstract NbtCompound getUpdatedChunkNbt(ChunkPos pos) throws IOException;
     
     @Override
     public int getWatchDistance() {
@@ -101,7 +103,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
         }
         
         try {
-            NbtCompound tag = getUpdatedChunkTag(chunkPos);
+            NbtCompound tag = getUpdatedChunkNbt(chunkPos);
             return tag != null;
         }
         catch (IOException e) {

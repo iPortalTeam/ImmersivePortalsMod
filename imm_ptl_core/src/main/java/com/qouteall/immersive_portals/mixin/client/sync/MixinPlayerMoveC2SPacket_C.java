@@ -16,23 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerMoveC2SPacket.class)
 public class MixinPlayerMoveC2SPacket_C {
     @Inject(
-        method = "<init>(Z)V",
+        method = "<init>",
         at = @At("RETURN")
     )
-    private void onConstruct(boolean boolean_1, CallbackInfo ci) {
+    private void onConstruct(
+        double x, double y, double z, float yaw, float pitch, boolean onGround,
+        boolean changePosition, boolean changeLook, CallbackInfo ci
+    ) {
         RegistryKey<World> dimension = MinecraftClient.getInstance().player.world.getRegistryKey();
         ((IEPlayerMoveC2SPacket) this).setPlayerDimension(dimension);
-        assert dimension == MinecraftClient.getInstance().world.getRegistryKey();
-    }
-    
-    @Inject(
-        method = "write",
-        at = @At("HEAD")
-    )
-    private void onWrite(PacketByteBuf buf, CallbackInfo ci) {
-        if (NetworkAdapt.doesServerHasIP()) {
-            RegistryKey<World> playerDimension = ((IEPlayerMoveC2SPacket) this).getPlayerDimension();
-            DimId.writeWorldId(buf, playerDimension, true);
-        }
     }
 }

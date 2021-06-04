@@ -11,6 +11,4 @@ public interface IEEntity {
     void tickCollidingPortal(float tickDelta);
     
     boolean isRecentlyCollidingWithPortal();
-    
-    void portal_requestUpdateChunkPos();
 }

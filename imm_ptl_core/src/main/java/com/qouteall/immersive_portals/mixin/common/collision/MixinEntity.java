@@ -63,9 +63,6 @@ public abstract class MixinEntity implements IEEntity {
     public boolean inanimate;
     
     @Shadow
-    private boolean chunkPosUpdateRequested;
-    
-    @Shadow
     public int age;
     
     @Shadow
@@ -241,8 +238,4 @@ public abstract class MixinEntity implements IEEntity {
         return (age - collidingPortalActiveTickTime) < 20;
     }
     
-    @Override
-    public void portal_requestUpdateChunkPos() {
-        chunkPosUpdateRequested = true;
-    }
 }

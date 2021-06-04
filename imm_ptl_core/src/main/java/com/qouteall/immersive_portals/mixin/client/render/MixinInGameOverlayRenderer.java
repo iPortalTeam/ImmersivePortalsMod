@@ -22,9 +22,8 @@ public class MixinInGameOverlayRenderer {
         cancellable = true
     )
     private static void onRenderInWallOverlay(
-        MinecraftClient minecraftClient,
         Sprite sprite,
-        MatrixStack matrixStack,
+        MatrixStack matrices,
         CallbackInfo ci
     ) {
         if (PortalRendering.isRendering()) {

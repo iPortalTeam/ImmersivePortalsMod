@@ -6,6 +6,7 @@ import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.ClientWorldLoader;
 import com.qouteall.immersive_portals.my_util.SignalBiArged;
 import com.qouteall.immersive_portals.portal.PortalLike;
+import com.qouteall.immersive_portals.render.context_management.PortalRendering;
 import com.qouteall.immersive_portals.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -379,5 +380,17 @@ public class MyRenderHelper {
             client.getWindow().getFramebufferWidth(),
             client.getWindow().getFramebufferHeight()
         );
+    }
+    
+    public static float transformFogDistance(float value) {
+        if (PortalRendering.isRendering()) {
+            double scaling = PortalRendering.getRenderingPortal().getScale();
+            float result = (float) (value / scaling);
+            if (scaling > 10) {
+                result *= 10;
+            }
+            return result;
+        }
+        return value;
     }
 }

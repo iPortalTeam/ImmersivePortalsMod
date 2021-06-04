@@ -1,36 +1,28 @@
 package com.qouteall.immersive_portals.mixin.client.sync;
 
+import com.qouteall.immersive_portals.dimension_sync.DimId;
 import com.qouteall.immersive_portals.ducks.IEPlayerMoveC2SPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Validate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
 @Mixin(PlayerMoveC2SPacket.Full.class)
-public class MixinPlayerMoveC2SPacketBoth {
-    @Environment(EnvType.CLIENT)
-    @Inject(
-        method = "<init>(DDDFFZ)V",
-        at = @At("RETURN")
-    )
-    private void onConstruct2(
-        double double_1,
-        double double_2,
-        double double_3,
-        float float_1,
-        float float_2,
-        boolean boolean_1,
-        CallbackInfo ci
-    ) {
-        RegistryKey<World> dimension = MinecraftClient.getInstance().player.world.getRegistryKey();
-        ((IEPlayerMoveC2SPacket) this).setPlayerDimension(dimension);
-        assert dimension == MinecraftClient.getInstance().world.getRegistryKey();
+public class MixinPlayerMoveC2SPacketFull {
+    @Inject(method = "write", at = @At("RETURN"))
+    private void onWrite(PacketByteBuf buf, CallbackInfo ci) {
+        RegistryKey<World> playerDimension = ((IEPlayerMoveC2SPacket) this).getPlayerDimension();
+        Validate.notNull(playerDimension);
+        DimId.writeWorldId(buf, playerDimension, true);
     }
 }

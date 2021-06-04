@@ -26,7 +26,7 @@ public class MixinPlayerPositionLookS2CPacket implements IEPlayerPositionLookS2C
     }
     
     @Inject(method = "write", at = @At("RETURN"))
-    private void onWrite(PacketByteBuf packetByteBuf_1, CallbackInfo ci) {
-        DimId.writeWorldId(packetByteBuf_1, playerDimension, false);
+    private void onWrite(PacketByteBuf buf, CallbackInfo ci) {
+        DimId.writeWorldId(buf, playerDimension, false);
     }
 }
