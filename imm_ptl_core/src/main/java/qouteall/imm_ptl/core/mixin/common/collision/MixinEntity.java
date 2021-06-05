@@ -92,14 +92,12 @@ public abstract class MixinEntity implements IEEntity {
                 new Throwable().printStackTrace();
             });
             
-            if (entity instanceof ServerPlayerEntity) {
-                ServerTeleportationManager.sendPositionConfirmMessage(((ServerPlayerEntity) entity));
-                Helper.log("position confirm message sent " + entity);
-                return Vec3d.ZERO;
-            }
-            else {
-                return attemptedMove;
-            }
+//            if (entity instanceof ServerPlayerEntity) {
+//                ServerTeleportationManager.sendPositionConfirmMessage(((ServerPlayerEntity) entity));
+//                Helper.log("position confirm message sent " + entity);
+//            }
+            
+            return attemptedMove;
         }
         
         if (getVelocity().lengthSquared() > 2) {

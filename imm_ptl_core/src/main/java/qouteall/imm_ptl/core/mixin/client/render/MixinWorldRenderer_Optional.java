@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // avoid crashing with sodium
-// [Needs Confirmation] higher priority means apply earlier, so it won't fail with the overwrite
+// higher priority means apply earlier, so it won't fail with the overwrite
 @Mixin(value = WorldRenderer.class, priority = 1100)
 public class MixinWorldRenderer_Optional {
     @Shadow

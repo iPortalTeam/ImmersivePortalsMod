@@ -108,8 +108,8 @@ public class AltiusScreen extends Screen {
         generatorOptionsSupplier1 = Helper.cached(() -> {
             GeneratorOptions rawGeneratorOptions =
                 this.parent.moreOptionsDialog.getGeneratorOptions(false);
-            return WorldCreationDimensionHelper.getPopulatedGeneratorOptions(
-                this.parent, rawGeneratorOptions
+            return WorldCreationDimensionHelper.populateGeneratorOptions(
+                this.parent, rawGeneratorOptions, this.parent.moreOptionsDialog.getRegistryManager()
             );
         });
         

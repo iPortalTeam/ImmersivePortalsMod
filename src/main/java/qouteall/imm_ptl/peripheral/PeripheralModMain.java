@@ -75,6 +75,12 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "create_5_connected_rooms", "create_connected_rooms roomSize 6 4 6 roomNumber 5"
         );
+        registerPortalSubCommandStick(
+            "accelerate50", "debug accelerate 50"
+        );
+        registerPortalSubCommandStick(
+            "accelerate200", "debug accelerate 200"
+        );
         if (O_O.getIsPehkuiPresent()) {
             //PehkuiInterface.isPehkuiPresent may not be initialized in time
             CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(

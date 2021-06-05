@@ -136,9 +136,7 @@ public class MyGameRenderer {
         ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
         HitResult oldCrosshairTarget = client.crosshairTarget;
         Camera oldCamera = client.gameRenderer.getCamera();
-        ShaderEffect oldTransparencyShader =
-            ((IEWorldRenderer) oldWorldRenderer).portal_getTransparencyShader();
-        ShaderEffect newTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
+        ShaderEffect oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
         BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
@@ -174,7 +172,6 @@ public class MyGameRenderer {
         Object newSodiumContext = SodiumInterface.createNewRenderingContext.apply(worldRenderer);
         Object oldSodiumContext = SodiumInterface.switchRenderingContext.apply(worldRenderer, newSodiumContext);
         
-        ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
         
@@ -218,8 +215,7 @@ public class MyGameRenderer {
         client.crosshairTarget = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
         
-        ((IEWorldRenderer) oldWorldRenderer).portal_setTransparencyShader(oldTransparencyShader);
-        ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(newTransparencyShader);
+        ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(oldTransparencyShader);
         
         FogRendererContext.swappingManager.popSwapping();
         

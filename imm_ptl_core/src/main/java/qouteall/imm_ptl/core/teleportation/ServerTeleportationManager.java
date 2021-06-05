@@ -533,7 +533,7 @@ public class ServerTeleportationManager {
     
     public boolean isJustTeleported(Entity entity, long valveTickTime) {
         long currGameTime = McHelper.getServerGameTime();
-        Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, 0L);
+        Long lastTeleportGameTime = this.lastTeleportGameTime.getOrDefault(entity, -100000L);
         return currGameTime - lastTeleportGameTime < valveTickTime;
     }
     

@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -182,6 +183,14 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
         else {
             GlStateManager._glFramebufferTexture2D(target, attachment, textureTarget, texture, level);
         }
+    }
+    
+    @Inject(
+        method = "copyDepthFrom",
+        at = @At("RETURN")
+    )
+    private void onCopiedDepthFrom(Framebuffer framebuffer, CallbackInfo ci) {
+        CHelper.checkGlError();
     }
     
     @Override

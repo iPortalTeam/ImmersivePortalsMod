@@ -72,7 +72,6 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void prepareRendering() {
-        //NOTE calling glClearStencil will not clear it, it just assigns the value for clearing
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         
@@ -83,7 +82,7 @@ public class RendererUsingStencil extends PortalRenderer {
         if (!ieFrameBuffer.getIsStencilBufferEnabled()) {
             ieFrameBuffer.setIsStencilBufferEnabledAndReload(true);
             if (MinecraftClient.isFabulousGraphicsOrBetter()) {
-                client.worldRenderer.reload();
+//                client.worldRenderer.reload();
             }
         }
         

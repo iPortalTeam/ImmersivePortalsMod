@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gl.Framebuffer;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -101,7 +103,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Mutable
     private ObjectArrayList visibleChunks;
     
-    @Shadow private int viewDistance;
+    @Shadow
+    private int viewDistance;
+    
+    @Shadow
+    @Nullable
+    private Framebuffer translucentFramebuffer;
     
     // important rendering hooks
     @Inject(
@@ -517,6 +524,24 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
         else {
             updateChunks(limitTime);
+        }
+    }
+    
+    // vanilla clears translucentFramebuffer even when transparencyShader is null
+    // it makes the framebuffer to be wrongly bound in fabulous mode
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/render/WorldRenderer;translucentFramebuffer:Lnet/minecraft/client/gl/Framebuffer;"
+        )
+    )
+    private Framebuffer redirectTranslucentFramebuffer(WorldRenderer this_) {
+        if (PortalRendering.isRendering()) {
+            return null;
+        }
+        else {
+            return translucentFramebuffer;
         }
     }
     

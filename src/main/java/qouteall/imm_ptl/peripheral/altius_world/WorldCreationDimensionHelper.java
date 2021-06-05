@@ -24,10 +24,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class WorldCreationDimensionHelper {
-    // TODO is it still necessary?
+    
     public static ResourceManager fetchResourceManager(
         ResourcePackManager resourcePackManager,
-        DataPackSettings dataPackSettings
+        DataPackSettings dataPackSettings,
+        DynamicRegistryManager.Impl dynamicRegistryManager
     ) {
         final MinecraftClient client = MinecraftClient.getInstance();
         
@@ -36,7 +37,6 @@ public class WorldCreationDimensionHelper {
         DataPackSettings dataPackSettings2 = MinecraftServer.loadDataPacks(
             resourcePackManager, dataPackSettings, true
         );
-        DynamicRegistryManager.Impl dynamicRegistryManager = DynamicRegistryManager.create();
         CompletableFuture<ServerResourceManager> completableFuture =
             ServerResourceManager.reload(
                 resourcePackManager.createResourcePacks(),
@@ -65,6 +65,9 @@ public class WorldCreationDimensionHelper {
             RegistryReadingOps.of(JsonOps.INSTANCE, registryTracker);
         RegistryOps<JsonElement> registryOps =
             RegistryOps.of(JsonOps.INSTANCE, (ResourceManager) resourceManager, registryTracker);
+        
+        DynamicRegistryManager.load(registryTracker, registryOps);
+        
         DataResult<GeneratorOptions> dataResult =
             GeneratorOptions.CODEC.encodeStart(registryReadingOps, generatorOptions)
                 .setLifecycle(Lifecycle.stable())
@@ -83,18 +86,20 @@ public class WorldCreationDimensionHelper {
         
     }
     
-    public static GeneratorOptions getPopulatedGeneratorOptions(CreateWorldScreen createWorldScreen, GeneratorOptions rawGeneratorOptions) {
+    public static GeneratorOptions populateGeneratorOptions(
+        CreateWorldScreen createWorldScreen, GeneratorOptions rawGeneratorOptions,
+        DynamicRegistryManager.Impl registryManager
+    ) {
         IECreateWorldScreen ieCreateWorldScreen = (IECreateWorldScreen) createWorldScreen;
         
         ResourceManager resourceManager = fetchResourceManager(
             ieCreateWorldScreen.portal_getResourcePackManager(),
-            ieCreateWorldScreen.portal_getDataPackSettings()
+            ieCreateWorldScreen.portal_getDataPackSettings(),
+            registryManager
         );
         
-        final DynamicRegistryManager.Impl registryTracker =
-            createWorldScreen.moreOptionsDialog.getRegistryManager();
         GeneratorOptions populatedGeneratorOptions = getPopulatedGeneratorOptions(
-            registryTracker, resourceManager, rawGeneratorOptions
+            registryManager, resourceManager, rawGeneratorOptions
         );
         return populatedGeneratorOptions;
     }

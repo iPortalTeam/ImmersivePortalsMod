@@ -180,7 +180,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         }
         
         if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
-            Helper.log("Teleport request cancelled " + player.getName().asString());
+            Helper.err("Teleport request cancelled " + player.getName().asString());
             return;
         }
         
