@@ -25,7 +25,7 @@ public class DubiousThings {
             checkClientPlayerState();
         }
     }
-    
+
 //    @Deprecated
 //    private static void doUpdateLight(ClientPlayerEntity player) {
 //        MinecraftClient.getInstance().getProfiler().push("my_light_update");
@@ -41,15 +41,14 @@ public class DubiousThings {
             Helper.err("Player world abnormal");
             //don't know how to fix it
         }
-        Entity playerInWorld = client.world.getEntityById(client.player.getId());
-        if (playerInWorld != client.player) {
-            Helper.err("Client Player Mismatch");
-            if (playerInWorld instanceof ClientPlayerEntity) {
-                client.player = ((ClientPlayerEntity) playerInWorld);
-                Helper.log("Force corrected");
-            }
-            else {
-                Helper.err("Non-player entity in client has duplicate id");
+        if (!client.player.isRemoved()) {
+            Entity playerInWorld = client.world.getEntityById(client.player.getId());
+            if (playerInWorld != client.player) {
+                Helper.err("Client Player Mismatch");
+                if (playerInWorld instanceof ClientPlayerEntity) {
+                    client.player = ((ClientPlayerEntity) playerInWorld);
+                    Helper.log("Force corrected");
+                }
             }
         }
     }

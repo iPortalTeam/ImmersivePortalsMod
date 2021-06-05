@@ -20,7 +20,7 @@ public class MixinServerPlayerEntity_MA {
         CallbackInfoReturnable<Entity> cir
     ) {
         ServerPlayerEntity this_ = (ServerPlayerEntity) (Object) this;
-        onBeforeTravel(this_);
+        onBeforeDimensionTravel(this_);
     }
     
     // update chunk visibility data
@@ -37,11 +37,11 @@ public class MixinServerPlayerEntity_MA {
         ServerPlayerEntity this_ = (ServerPlayerEntity) (Object) this;
         
         if (this_.world != targetWorld) {
-            onBeforeTravel(this_);
+            onBeforeDimensionTravel(this_);
         }
     }
     
-    private static void onBeforeTravel(ServerPlayerEntity player) {
+    private static void onBeforeDimensionTravel(ServerPlayerEntity player) {
         CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
         Global.chunkDataSyncManager.onPlayerRespawn(player);
         

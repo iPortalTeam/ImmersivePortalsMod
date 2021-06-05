@@ -92,7 +92,8 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     @Shadow
     private Entity topmostRiddenEntity;
     
-    @Shadow private boolean vehicleFloating;
+    @Shadow
+    private boolean vehicleFloating;
     
     //do not process move packet when client dimension and server dimension are not synced
     @Inject(
@@ -168,7 +169,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
      */
     @Overwrite
     public void requestTeleport(double x, double y, double z, float yaw, float pitch, Set<PlayerPositionLookS2CPacket.Flag> flags, boolean shouldDismount) {
-        Validate.isTrue(!player.isRemoved());
+        // it may request teleport while this.player is marked removed during respawn
         
         double d = flags.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0D;
         double e = flags.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.getY() : 0.0D;
@@ -180,8 +181,9 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             this.requestedTeleportId = 0;
         }
         
-        if (!Global.serverTeleportationManager.isJustTeleported(player, 100)) {
-            this.requestedTeleportPos = new Vec3d(x, y, z);
+        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+            Helper.log("Teleport request cancelled " + player.getName().asString());
+            return;
         }
         
         this.teleportRequestTick = this.ticks;
