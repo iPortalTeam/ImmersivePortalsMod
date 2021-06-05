@@ -5,7 +5,7 @@ import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.render.GlQueryObject;
-import qouteall.imm_ptl.core.render.PortalRenderingGroup;
+import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.QueryManager;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
@@ -78,7 +78,7 @@ public class PortalRenderInfo {
     
     private boolean needsGroupingUpdate = true;
     @Nullable
-    private PortalRenderingGroup renderingGroup;
+    private PortalGroup renderingGroup;
     
     public static void init() {
         Portal.clientPortalTickSignal.connect(portal -> {
@@ -265,7 +265,7 @@ public class PortalRenderInfo {
         setGroup(portal, null);
     }
     
-    private void setGroup(Portal portal, @Nullable PortalRenderingGroup group) {
+    private void setGroup(Portal portal, @Nullable PortalGroup group) {
         if (renderingGroup != null) {
             renderingGroup.removePortal(portal);
         }
@@ -300,7 +300,7 @@ public class PortalRenderInfo {
         for (Portal that : nearbyPortals) {
             PortalRenderInfo nearbyPortalPresentation = get(that);
             
-            PortalRenderingGroup itsGroup = nearbyPortalPresentation.renderingGroup;
+            PortalGroup itsGroup = nearbyPortalPresentation.renderingGroup;
             if (itsGroup != null) {
                 //flipped portal pairs cannot be in the same group
                 if (itsGroup.portals.stream().noneMatch(p -> Portal.isFlippedPortal(p, portal))) {
@@ -322,7 +322,7 @@ public class PortalRenderInfo {
                 if (thisDesc.equals(itsDesc)) {
                     if (renderingGroup == null) {
                         // this and that are not in any group
-                        PortalRenderingGroup newGroup = new PortalRenderingGroup(thisDesc);
+                        PortalGroup newGroup = new PortalGroup(thisDesc);
                         setGroup(portal, newGroup);
                         get(that).setGroup(that, newGroup);
                     }
@@ -348,7 +348,7 @@ public class PortalRenderInfo {
     }
     
     @Nullable
-    public static PortalRenderingGroup getGroupOf(Portal portal) {
+    public static PortalGroup getGroupOf(Portal portal) {
         Validate.isTrue(!portal.getIsGlobal());
         
         PortalRenderInfo portalRenderInfo = getOptional(portal);
@@ -360,7 +360,7 @@ public class PortalRenderInfo {
         return portalRenderInfo.renderingGroup;
     }
     
-    private static void mergeGroup(PortalRenderingGroup g1, PortalRenderingGroup g2) {
+    private static void mergeGroup(PortalGroup g1, PortalGroup g2) {
         if (g1 == g2) {
             return;
         }

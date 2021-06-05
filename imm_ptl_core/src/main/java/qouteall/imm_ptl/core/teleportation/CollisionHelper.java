@@ -9,7 +9,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
-import qouteall.imm_ptl.core.render.PortalRenderingGroup;
+import qouteall.imm_ptl.core.render.PortalGroup;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -309,8 +309,8 @@ public class CollisionHelper {
             return box;
         }
         else {
-            PortalRenderingGroup portalRenderingGroup = (PortalRenderingGroup) portalLike;
-            return transformBox(portalRenderingGroup.getFirstPortal(), originalBox);
+            PortalGroup portalGroup = (PortalGroup) portalLike;
+            return transformBox(portalGroup.getFirstPortal(), originalBox);
         }
     }
     
@@ -526,6 +526,6 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     private static PortalLike getCollisionHandlingUnitClient(Portal portal) {
-        return PortalRenderingGroup.getPortalUnit(portal);
+        return PortalGroup.getPortalUnit(portal);
     }
 }

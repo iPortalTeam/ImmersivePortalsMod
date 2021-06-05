@@ -29,9 +29,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-// TODO rename to PortalGroup
+// currently only exists on client side
 @Environment(EnvType.CLIENT)
-public class PortalRenderingGroup implements PortalLike {
+public class PortalGroup implements PortalLike {
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(20);
     
@@ -50,7 +50,7 @@ public class PortalRenderingGroup implements PortalLike {
     
     private final UUID uuid = MathHelper.randomUuid();
     
-    public PortalRenderingGroup(Portal.TransformationDesc transformationDesc) {
+    public PortalGroup(Portal.TransformationDesc transformationDesc) {
         this.transformationDesc = transformationDesc;
     }
     
@@ -102,7 +102,7 @@ public class PortalRenderingGroup implements PortalLike {
     public Box getExactAreaBox() {
         if (exactBoundingBox == null) {
             exactBoundingBox = portals.stream().map(
-                Portal::getExactBoundingBox
+                Portal::getNarrowBoundingBox
             ).reduce(Box::union).get();
         }
         return exactBoundingBox;
@@ -349,7 +349,7 @@ public class PortalRenderingGroup implements PortalLike {
     
     // if the portal is in group, return the group, otherwise itself
     public static PortalLike getPortalUnit(Portal portal) {
-        PortalRenderingGroup group = PortalRenderInfo.getGroupOf(portal);
+        PortalGroup group = PortalRenderInfo.getGroupOf(portal);
         if (group != null) {
             return group;
         }

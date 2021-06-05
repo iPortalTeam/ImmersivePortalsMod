@@ -22,7 +22,7 @@ import qouteall.imm_ptl.core.optifine_compatibility.UniformReport;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
-import qouteall.imm_ptl.core.render.PortalRenderingGroup;
+import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -168,7 +168,7 @@ public class ClientDebugCommand {
             .literal("report_resource_consumption")
             .executes(context1 -> {
                 RemoteCallables.reportResourceConsumption();
-    
+                
                 return 0;
             })
         );
@@ -408,7 +408,7 @@ public class ClientDebugCommand {
             .literal("report_portal_groups")
             .executes(context -> {
                 for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
-                    Map<Optional<PortalRenderingGroup>, List<Portal>> result =
+                    Map<Optional<PortalGroup>, List<Portal>> result =
                         Streams.stream(clientWorld.getEntities())
                             .flatMap(
                                 entity -> entity instanceof Portal ?
@@ -660,7 +660,7 @@ public class ClientDebugCommand {
             
             CHelper.printChat(result.toString());
         }
-    
+        
         private static void reportResourceConsumption() {
             StringBuilder str = new StringBuilder();
             

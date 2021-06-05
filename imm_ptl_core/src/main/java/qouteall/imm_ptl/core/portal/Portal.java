@@ -16,7 +16,7 @@ import qouteall.imm_ptl.core.my_util.SignalArged;
 import qouteall.imm_ptl.core.my_util.SignalBiArged;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.PortalRenderer;
-import qouteall.imm_ptl.core.render.PortalRenderingGroup;
+import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import net.fabricmc.api.EnvType;
@@ -283,7 +283,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * The bounding box, normal vector, content direction vector is cached
      * If the portal attributes get changed, these cache should be updated
      */
-    // TODO rename
     public void updateCache() {
         boolean updates =
             boundingBoxCache != null || exactBoundingBoxCache != null ||
@@ -732,8 +731,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return !getIsGlobal();
     }
     
-    // TODO rename
-    public Box getExactBoundingBox() {
+    public Box getNarrowBoundingBox() {
         if (exactBoundingBoxCache == null) {
             exactBoundingBoxCache = new Box(
                 getPointInPlane(width / 2, height / 2)
@@ -1145,7 +1143,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     public Box getExactAreaBox() {
-        return getExactBoundingBox();
+        return getNarrowBoundingBox();
     }
     
     @Override
@@ -1276,7 +1274,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Environment(EnvType.CLIENT)
     public PortalLike getRenderingDelegate() {
         if (Global.enablePortalRenderingMerge) {
-            PortalRenderingGroup group = PortalRenderInfo.getGroupOf(this);
+            PortalGroup group = PortalRenderInfo.getGroupOf(this);
             if (group != null) {
                 return group;
             }
