@@ -290,7 +290,7 @@ public class ImplRemoteProcedureCall {
         Method method = Arrays.stream(aClass.getMethods()).filter(
             m -> m.getName().equals(methodName)
         ).findFirst().orElseThrow(() -> new RuntimeException(
-            "Cannot find method " + methodPath
+            "Cannot find method " + methodPath + " . If it's a private method, make it public."
         ));
         
         return method;

@@ -131,36 +131,36 @@ public class PortalExtension {
     
     }
     
-    public int refreshAndGetLoadDistanceCap(Portal portal, ServerPlayerEntity player, int currentCap) {
-        if (playerLoadStatus == null) {
-            playerLoadStatus = new WeakHashMap<>();
-        }
-        
-        PlayerPortalVisibility rec = playerLoadStatus.computeIfAbsent(
-            player, k -> new PlayerPortalVisibility()
-        );
-        
-        final int dropTimeout = NewChunkTrackingGraph.updateInterval * 2;
-        
-        long worldTime = portal.world.getTime();
-        
-        long timePassed = Math.abs(worldTime - rec.lastVisibleTime);
-        if (timePassed > dropTimeout) {
-            // not loaded for sometime and reload, reset all
-            rec.targetCap = currentCap;
-            rec.currentCap = 0;
-        }
-        else if (timePassed == 0) {
-            // being checked the second time in this turn
-            rec.targetCap = Math.max(rec.targetCap, currentCap);
-        }
-        else {
-            // being checked the first time in this turn
-            rec.targetCap = currentCap;
-        }
-        
-        rec.lastVisibleTime = portal.world.getTime();
-        
-        return (int) Math.round(rec.currentCap);
-    }
+//    public int refreshAndGetLoadDistanceCap(Portal portal, ServerPlayerEntity player, int currentCap) {
+//        if (playerLoadStatus == null) {
+//            playerLoadStatus = new WeakHashMap<>();
+//        }
+//
+//        PlayerPortalVisibility rec = playerLoadStatus.computeIfAbsent(
+//            player, k -> new PlayerPortalVisibility()
+//        );
+//
+//        final int dropTimeout = NewChunkTrackingGraph.updateInterval * 2;
+//
+//        long worldTime = portal.world.getTime();
+//
+//        long timePassed = Math.abs(worldTime - rec.lastVisibleTime);
+//        if (timePassed > dropTimeout) {
+//            // not loaded for sometime and reload, reset all
+//            rec.targetCap = currentCap;
+//            rec.currentCap = 0;
+//        }
+//        else if (timePassed == 0) {
+//            // being checked the second time in this turn
+//            rec.targetCap = Math.max(rec.targetCap, currentCap);
+//        }
+//        else {
+//            // being checked the first time in this turn
+//            rec.targetCap = currentCap;
+//        }
+//
+//        rec.lastVisibleTime = portal.world.getTime();
+//
+//        return (int) Math.round(rec.currentCap);
+//    }
 }

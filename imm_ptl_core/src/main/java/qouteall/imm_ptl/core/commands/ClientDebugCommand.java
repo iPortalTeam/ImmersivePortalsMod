@@ -661,7 +661,7 @@ public class ClientDebugCommand {
             CHelper.printChat(result.toString());
         }
         
-        private static void reportResourceConsumption() {
+        public static void reportResourceConsumption() {
             StringBuilder str = new StringBuilder();
             
             str.append("Client Chunk:\n");

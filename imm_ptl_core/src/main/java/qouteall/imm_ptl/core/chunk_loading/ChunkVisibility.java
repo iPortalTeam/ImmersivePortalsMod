@@ -5,7 +5,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalExtension;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -45,7 +44,7 @@ public class ChunkVisibility {
         return renderDistance / 3;
     }
     
-    private static int getSmoothedLoadingDistance(
+    private static int getCappedLoadingDistance(
         Portal portal, ServerPlayerEntity player, int targetLoadingDistance
     ) {
         int cap = IPGlobal.indirectLoadingRadiusCap;
@@ -61,10 +60,10 @@ public class ChunkVisibility {
             return cappedLoadingDistance;
         }
         
-        int maxLoadDistance = PortalExtension.get(portal).refreshAndGetLoadDistanceCap(
-            portal, player, cappedLoadingDistance
-        );
-        return Math.min(maxLoadDistance, cappedLoadingDistance);
+//        int maxLoadDistance = PortalExtension.get(portal).refreshAndGetLoadDistanceCap(
+//            portal, player, cappedLoadingDistance
+//        );
+        return cappedLoadingDistance;
     }
     
     public static List<Portal> getNearbyPortals(
@@ -134,7 +133,7 @@ public class ChunkVisibility {
                     portal.dimensionTo,
                     new ChunkPos(new BlockPos(portal.getDestPos()))
                 ),
-                getSmoothedLoadingDistance(
+                getCappedLoadingDistance(
                     portal, player,
                     getDirectLoadingDistance(renderDistance, distance)
                 )
@@ -168,7 +167,7 @@ public class ChunkVisibility {
                     portal.dimensionTo,
                     new ChunkPos(new BlockPos(portal.getDestPos()))
                 ),
-                getSmoothedLoadingDistance(
+                getCappedLoadingDistance(
                     portal, player, serverLoadingDistance / 4
                 )
             );
