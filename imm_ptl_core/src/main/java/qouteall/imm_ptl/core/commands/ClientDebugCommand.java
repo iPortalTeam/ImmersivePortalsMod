@@ -93,7 +93,10 @@ public class ClientDebugCommand {
             );
         builder = builder.then(ClientCommandManager
             .literal("list_portals")
-            .executes(context -> listPortals(context))
+            .executes(context -> {
+                RemoteCallables.doListPortals();
+                return 0;
+            })
         );
         builder = builder.then(ClientCommandManager
             .literal("is_client_chunk_loaded")
@@ -115,7 +118,7 @@ public class ClientDebugCommand {
         builder = builder.then(ClientCommandManager
             .literal("report_player_status")
             .executes(context -> {
-                reportClientPlayerStatus();
+                RemoteCallables.reportClientPlayerStatus();
                 return 0;
             })
         );
@@ -163,7 +166,11 @@ public class ClientDebugCommand {
         );
         builder = builder.then(ClientCommandManager
             .literal("report_resource_consumption")
-            .executes(ClientDebugCommand::reportResourceConsumption)
+            .executes(context1 -> {
+                RemoteCallables.reportResourceConsumption();
+    
+                return 0;
+            })
         );
         builder = builder.then(ClientCommandManager
             .literal("report_render_info_num")
@@ -607,64 +614,83 @@ public class ClientDebugCommand {
         );
     }
     
-    private static int reportResourceConsumption(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-        StringBuilder str = new StringBuilder();
-        
-        str.append("Client Chunk:\n");
-        ClientWorldLoader.getClientWorlds().forEach(world -> {
-            str.append(String.format(
-                "%s %s\n",
-                world.getRegistryKey().getValue(),
-                world.getChunkManager().getLoadedChunkCount()
-            ));
-        });
-        
-        
-        str.append("Chunk Mesh Sections:\n");
-        ClientWorldLoader.worldRendererMap.forEach(
-            (dimension, worldRenderer) -> {
-                str.append(String.format(
-                    "%s %s\n",
-                    dimension.getValue(),
-                    ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
-                        .getBuiltChunkStorage()
-                    ).getManagedSectionNum()
-                ));
-            }
-        );
-        
-        str.append("Server Chunks:\n");
-        McHelper.getServer().getWorlds().forEach(
-            world -> {
-                str.append(String.format(
-                    "%s %s\n",
-                    world.getRegistryKey().getValue(),
-                    NewChunkTrackingGraph.getLoadedChunkNum(world.getRegistryKey())
-                ));
-            }
-        );
-        
-        String result = str.toString();
-        
-        Helper.log(str);
-        
-        context.getSource().getPlayer().sendMessage(new LiteralText(result), false);
-        
-        return 0;
-    }
-    
     private static int isClientChunkLoaded(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
         int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
-        reportClientChunkLoadStatus(chunkX, chunkZ);
+        RemoteCallables.reportClientChunkLoadStatus(chunkX, chunkZ);
         return 0;
     }
     
-    public static void reportClientChunkLoadStatus(int chunkX, int chunkZ) {
-        Chunk chunk = MinecraftClient.getInstance().world.getChunk(
-            chunkX, chunkZ
-        );
-        CHelper.printChat(chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no");
+    public static class RemoteCallables {
+        public static void reportClientChunkLoadStatus(int chunkX, int chunkZ) {
+            Chunk chunk = MinecraftClient.getInstance().world.getChunk(
+                chunkX, chunkZ
+            );
+            CHelper.printChat(chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no");
+        }
+        
+        public static void reportClientPlayerStatus() {
+            ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
+            
+            CHelper.printChat(
+                String.format(
+                    "On Client %s %s removal:%s added:%s age:%s",
+                    playerSP.world.getRegistryKey().getValue(),
+                    playerSP.getBlockPos(),
+                    playerSP.getRemovalReason(),
+                    playerSP.world.getEntityById(playerSP.getId()) != null,
+                    playerSP.age
+                )
+            );
+        }
+        
+        public static void doListPortals() {
+            StringBuilder result = new StringBuilder();
+            
+            result.append("Client Portals\n");
+            ClientWorldLoader.getClientWorlds().forEach((world) -> {
+                result.append(world.getRegistryKey().getValue().toString() + "\n");
+                for (Entity e : world.getEntities()) {
+                    if (e instanceof Portal) {
+                        result.append(e.toString());
+                        result.append("\n");
+                    }
+                }
+            });
+            
+            CHelper.printChat(result.toString());
+        }
+    
+        private static void reportResourceConsumption() {
+            StringBuilder str = new StringBuilder();
+            
+            str.append("Client Chunk:\n");
+            ClientWorldLoader.getClientWorlds().forEach(world -> {
+                str.append(String.format(
+                    "%s %s\n",
+                    world.getRegistryKey().getValue(),
+                    world.getChunkManager().getLoadedChunkCount()
+                ));
+            });
+            
+            
+            str.append("Chunk Mesh Sections:\n");
+            ClientWorldLoader.worldRendererMap.forEach(
+                (dimension, worldRenderer) -> {
+                    str.append(String.format(
+                        "%s %s\n",
+                        dimension.getValue(),
+                        ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
+                            .getBuiltChunkStorage()
+                        ).getManagedSectionNum()
+                    ));
+                }
+            );
+            
+            String result = str.toString();
+            
+            CHelper.printChat(result);
+        }
     }
     
     private static int setMaxPortalLayer(int m) {
@@ -672,42 +698,6 @@ public class ClientDebugCommand {
         return 0;
     }
     
-    private static int listPortals(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
-        
-        ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
-        
-        StringBuilder result = new StringBuilder();
-        
-        result.append("Client Portals\n");
-        ClientWorldLoader.getClientWorlds().forEach((world) -> {
-            result.append(world.getRegistryKey().getValue().toString() + "\n");
-            for (Entity e : world.getEntities()) {
-                if (e instanceof Portal) {
-                    result.append(e.toString());
-                    result.append("\n");
-                }
-            }
-        });
-        
-        CHelper.printChat(result.toString());
-        
-        return 0;
-    }
-    
-    public static void reportClientPlayerStatus() {
-        ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
-        
-        CHelper.printChat(
-            String.format(
-                "On Client %s %s removed:%s added:%s age:%s",
-                playerSP.world.getRegistryKey().getValue(),
-                playerSP.getBlockPos(),
-                playerSP.getRemovalReason(),
-                playerSP.world.getEntityById(playerSP.getId()) != null,
-                playerSP.age
-            )
-        );
-    }
     
     public static class TestRemoteCallable {
         public static void serverToClient(

@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -28,8 +29,10 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.my_util.MyTaskList;
 import qouteall.imm_ptl.core.network.McRemoteProcedureCall;
+import qouteall.imm_ptl.core.portal.Portal;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -175,38 +178,15 @@ public class PortalDebugCommands {
         );
         
         
-        builder.then(CommandManager
-                .literal("test")
-                .executes(context -> {
-//                ServerWorld world = context.getSource().getWorld();
-//                Vec3d pos = context.getSource().getPosition();
-//
-//                Portal from = McHelper.findEntitiesRough(
-//                    Portal.class,
-//                    world, pos,
-//                    2,
-//                    p -> Objects.equals(p.portalTag, "from")
-//                ).get(0);
-//
-//                Portal to = McHelper.findEntitiesRough(
-//                    Portal.class,
-//                    world, pos,
-//                    2,
-//                    p -> Objects.equals(p.portalTag, "to")
-//                ).get(0);
-//
-//                PortalManipulation.adjustRotationToConnect(from, to);
-//
-//                from.reloadAndSyncToClient();
-//                to.reloadAndSyncToClient();
-                    
-                    return 0;
-                })
+        builder.then(CommandManager.literal("test")
+            .executes(context -> {
+                return 0;
+            })
         );
         
         builder.then(CommandManager
             .literal("erase_chunk")
-            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .then(CommandManager.argument("rChunks", IntegerArgumentType.integer())
                 .executes(context -> {
                     ServerPlayerEntity player = context.getSource().getPlayer();
@@ -259,6 +239,7 @@ public class PortalDebugCommands {
         
         builder.then(CommandManager
             .literal("report_server_entities")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 List<Entity> entities = player.world.getEntitiesByClass(
@@ -271,41 +252,32 @@ public class PortalDebugCommands {
             })
         );
         
-        builder.then(CommandManager
-            .literal("is_chunk_loaded")
-            .then(CommandManager
-                .argument(
-                    "chunkX", IntegerArgumentType.integer()
-                )
-                .then(CommandManager
-                    .argument(
-                        "chunkZ", IntegerArgumentType.integer()
-                    )
-                    .executes(
-                        context -> {
-                            int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
-                            int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            
-                            WorldChunk chunk = McHelper.getServerChunkIfPresent(
-                                context.getSource().getWorld(),
-                                chunkX, chunkZ
-                            );
-                            
-                            McHelper.serverLog(
-                                player,
-                                chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
-                            );
-                            
-                            McRemoteProcedureCall.tellClientToInvoke(
-                                player,
-                                "qouteall.imm_ptl.core.commands.ClientDebugCommand.reportClientChunkLoadStatus",
-                                chunkX, chunkZ
-                            );
-                            
-                            return 0;
-                        }
-                    )
+        builder.then(CommandManager.literal("is_chunk_loaded")
+            .then(CommandManager.argument("chunkX", IntegerArgumentType.integer())
+                .then(CommandManager.argument("chunkZ", IntegerArgumentType.integer())
+                    .executes(context -> {
+                        int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
+                        int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        
+                        WorldChunk chunk = McHelper.getServerChunkIfPresent(
+                            context.getSource().getWorld(),
+                            chunkX, chunkZ
+                        );
+                        
+                        McHelper.serverLog(
+                            player,
+                            chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
+                        );
+                        
+                        McRemoteProcedureCall.tellClientToInvoke(
+                            player,
+                            "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientChunkLoadStatus",
+                            chunkX, chunkZ
+                        );
+                        
+                        return 0;
+                    })
                 )
             )
         );
@@ -316,7 +288,7 @@ public class PortalDebugCommands {
                 
                 CHelper.printChat(
                     String.format(
-                        "On Server %s %s removed:%s added:%s age:%s",
+                        "On Server %s %s removal:%s added:%s age:%s",
                         player.world.getRegistryKey().getValue(),
                         player.getBlockPos(),
                         player.getRemovalReason(),
@@ -327,12 +299,69 @@ public class PortalDebugCommands {
                 
                 McRemoteProcedureCall.tellClientToInvoke(
                     player,
-                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.reportClientPlayerStatus"
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientPlayerStatus"
                 );
                 
                 return 0;
             })
         );
+        
+        builder.then(CommandManager.literal("list_portals")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                
+                StringBuilder result = new StringBuilder();
+                result.append("Server Portals\n");
+                
+                for (ServerWorld world : McHelper.getServer().getWorlds()) {
+                    for (Entity entity : world.iterateEntities()) {
+                        result.append(world.getRegistryKey().getValue().toString() + "\n");
+                        for (Entity e : world.iterateEntities()) {
+                            if (e instanceof Portal) {
+                                result.append(e.toString());
+                                result.append("\n");
+                            }
+                        }
+                    }
+                }
+                
+                McHelper.serverLog(player, result.toString());
+                
+                McRemoteProcedureCall.tellClientToInvoke(
+                    player,
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.doListPortals"
+                );
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager.literal("report_resource_consumption")
+            .executes(context -> {
+                StringBuilder str = new StringBuilder();
+                
+                str.append("Server Chunks:\n");
+                McHelper.getServer().getWorlds().forEach(
+                    world -> {
+                        str.append(String.format(
+                            "%s %s\n",
+                            world.getRegistryKey().getValue(),
+                            NewChunkTrackingGraph.getLoadedChunkNum(world.getRegistryKey())
+                        ));
+                    }
+                );
+                
+                McHelper.serverLog(context.getSource().getPlayer(), str.toString());
+                
+                McRemoteProcedureCall.tellClientToInvoke(
+                    context.getSource().getPlayer(),
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportResourceConsumption"
+                );
+                
+                return 0;
+            })
+        );
+        
+        
     }
     
     private static long toMiB(long bytes) {

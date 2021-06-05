@@ -78,6 +78,7 @@ public class CHelper {
     }
     
     public static void printChat(String str) {
+        Helper.log(str);
         printChat(new LiteralText(str));
     }
     
