@@ -1,13 +1,31 @@
 [
   {
     "type": "vs",
-    "affectedShaders": ["rendertype_solid"],
+    "affectedShaders": [
+      "rendertype_solid",
+      "rendertype_cutout",
+      "rendertype_cutout_mipped",
+      "rendertype_translucent"
+    ],
     "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
     "replacement": [
       "uniform vec4 imm_ptl_ClippingEquation;",
       "void main() {",
       "    gl_ClipDistance[0] = dot(Position.xyz + ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
     ],
-    "debugOutput": true
+    "debugOutput": false
+  },
+  {
+    "type": "vs",
+    "affectedShaders": [
+      "rendertype_entity_cutout"
+    ],
+    "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+    "replacement": [
+      "uniform vec4 imm_ptl_ClippingEquation;",
+      "void main() {",
+      "    gl_ClipDistance[0] = dot(Position.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+    ],
+    "debugOutput": false
   }
 ]
