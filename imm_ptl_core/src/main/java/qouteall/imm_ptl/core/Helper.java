@@ -953,4 +953,40 @@ public class Helper {
         }
         return combiner.apply(a, b);
     }
+    
+    // treat ArrayList as an integer to object map
+    // do computeIfAbsent
+    public static <T> T arrayListComputeIfAbsent(
+        ArrayList<T> arrayList,
+        int index,
+        Supplier<T> supplier
+    ) {
+        if (arrayList.size() <= index) {
+            while (arrayList.size() <= index) {
+                arrayList.add(null);
+            }
+        }
+        T value = arrayList.get(index);
+        if (value == null) {
+            value = supplier.get();
+            arrayList.set(index, value);
+        }
+        return value;
+    }
+    
+    public static interface IntObjectConsumer<T>{
+        void consume(int index, T object);
+    }
+    
+    public static <T> void arrayListKeyValueForeach(
+        ArrayList<T> arrayList,
+        IntObjectConsumer<T> func
+    ) {
+        for (int i = 0; i < arrayList.size(); i++) {
+            T value = arrayList.get(i);
+            if (value != null) {
+                func.consume(i, value);
+            }
+        }
+    }
 }
