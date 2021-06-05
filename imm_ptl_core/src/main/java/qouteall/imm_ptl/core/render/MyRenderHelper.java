@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.my_util.SignalBiArged;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -397,6 +398,10 @@ public class MyRenderHelper {
     }
     
     public static float transformFogDistance(float value) {
+        if (IPGlobal.debugDisableFog) {
+            return 233333;
+        }
+        
         if (PortalRendering.isRendering()) {
             double scaling = PortalRendering.getRenderingPortal().getScale();
             float result = (float) (value / scaling);
