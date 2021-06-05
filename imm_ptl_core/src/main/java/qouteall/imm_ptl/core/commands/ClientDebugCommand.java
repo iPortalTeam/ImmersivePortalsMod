@@ -6,17 +6,17 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.Global;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
-import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.my_util.MyTaskList;
 import qouteall.imm_ptl.core.network.McRemoteProcedureCall;
 import qouteall.imm_ptl.core.optifine_compatibility.UniformReport;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -39,16 +39,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtInt;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -59,7 +55,6 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkNibbleArray;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
@@ -67,9 +62,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 import java.lang.ref.Reference;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,14 +75,14 @@ import java.util.stream.Stream;
 public class ClientDebugCommand {
     
     public static void register(
-        CommandDispatcher<ServerCommandSource> dispatcher
+        CommandDispatcher<FabricClientCommandSource> dispatcher
     ) {
-        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager
-            .literal("immersive_portals_debug")
+        LiteralArgumentBuilder<FabricClientCommandSource> builder = ClientCommandManager
+            .literal("imm_ptl_client_debug")
             .requires(commandSource -> true)
-            .then(CommandManager
+            .then(ClientCommandManager
                 .literal("set_max_portal_layer")
-                .then(CommandManager
+                .then(ClientCommandManager
                     .argument(
                         "argMaxPortalLayer", IntegerArgumentType.integer()
                     )
@@ -98,17 +91,17 @@ public class ClientDebugCommand {
                     ))
                 )
             );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("list_portals")
             .executes(context -> listPortals(context))
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("is_client_chunk_loaded")
-            .then(CommandManager
+            .then(ClientCommandManager
                 .argument(
                     "chunkX", IntegerArgumentType.integer()
                 )
-                .then(CommandManager
+                .then(ClientCommandManager
                     .argument(
                         "chunkZ", IntegerArgumentType.integer()
                     )
@@ -118,101 +111,61 @@ public class ClientDebugCommand {
                 )
             )
         );
-        builder = builder.then(CommandManager
-            .literal("is_server_chunk_loaded")
-            .then(CommandManager
-                .argument(
-                    "chunkX", IntegerArgumentType.integer()
-                )
-                .then(CommandManager
-                    .argument(
-                        "chunkZ", IntegerArgumentType.integer()
-                    )
-                    .executes(
-                        context -> {
-                            int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
-                            int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            Chunk chunk = McHelper.getServer()
-                                .getWorld(player.world.getRegistryKey())
-                                .getChunk(
-                                    chunkX, chunkZ,
-                                    ChunkStatus.FULL, false
-                                );
-                            McHelper.serverLog(
-                                player,
-                                chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
-                            );
-                            return 0;
-                        }
-                    )
-                )
-            )
-        );
-        builder = builder.then(CommandManager
+        
+        builder = builder.then(ClientCommandManager
             .literal("report_player_status")
-            .executes(context -> reportPlayerStatus(context))
+            .executes(context -> {
+                reportClientPlayerStatus();
+                return 0;
+            })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("client_remote_ticking_enable")
             .executes(context -> {
                 CGlobal.isClientRemoteTickingEnabled = true;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("client_remote_ticking_disable")
             .executes(context -> {
                 CGlobal.isClientRemoteTickingEnabled = false;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("advanced_frustum_culling_enable")
             .executes(context -> {
                 CGlobal.doUseAdvancedFrustumCulling = true;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("advanced_frustum_culling_disable")
             .executes(context -> {
                 CGlobal.doUseAdvancedFrustumCulling = false;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("hacked_chunk_render_dispatcher_enable")
             .executes(context -> {
                 CGlobal.useHackedChunkRenderDispatcher = true;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("hacked_chunk_render_dispatcher_disable")
             .executes(context -> {
                 CGlobal.useHackedChunkRenderDispatcher = false;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
-            .literal("report_server_entities")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                List<Entity> entities = player.world.getEntitiesByClass(
-                    Entity.class,
-                    new Box(player.getPos(), player.getPos()).expand(32),
-                    e -> true
-                );
-                McHelper.serverLog(player, entities.toString());
-                return 0;
-            })
-        );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("report_resource_consumption")
             .executes(ClientDebugCommand::reportResourceConsumption)
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("report_render_info_num")
             .executes(context -> {
                 String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
@@ -220,19 +173,18 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("get_player_colliding_portal_client")
             .executes(context -> {
                 Portal collidingPortal =
                     ((IEEntity) MinecraftClient.getInstance().player).getCollidingPortal();
-                McHelper.serverLog(
-                    context.getSource().getPlayer(),
+                CHelper.printChat(
                     collidingPortal != null ? collidingPortal.toString() : "null"
                 );
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("report_rendering")
             .executes(context -> {
                 String str = RenderStates.lastPortalRenderInfos
@@ -244,67 +196,54 @@ public class ClientDebugCommand {
                     )
                     .collect(Collectors.toList())
                     .toString();
-                McHelper.serverLog(context.getSource().getPlayer(), str);
+                CHelper.printChat(str);
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("vanilla_chunk_culling_enable")
             .executes(context -> {
                 MinecraftClient.getInstance().chunkCullingEnabled = true;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("vanilla_chunk_culling_disable")
             .executes(context -> {
                 MinecraftClient.getInstance().chunkCullingEnabled = false;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("render_mode_normal")
             .executes(context -> {
                 Global.renderMode = Global.RenderMode.normal;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("render_mode_compatibility")
             .executes(context -> {
                 Global.renderMode = Global.RenderMode.compatibility;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("render_mode_debug")
             .executes(context -> {
                 Global.renderMode = Global.RenderMode.debug;
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("render_mode_none")
             .executes(context -> {
                 Global.renderMode = Global.RenderMode.none;
                 return 0;
             })
         );
-        builder.then(CommandManager
-            .literal("report_chunk_loaders")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                ChunkVisibility.getBaseChunkLoaders(
-                    player
-                ).forEach(
-                    loader -> McHelper.serverLog(
-                        player, loader.toString()
-                    )
-                );
-                return 0;
-            })
-        );
-        builder.then(CommandManager
+        
+        builder.then(ClientCommandManager
             .literal("check_client_light")
             .executes(context -> {
                 MinecraftClient client = MinecraftClient.getInstance();
@@ -317,7 +256,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder.then(CommandManager
+        builder.then(ClientCommandManager
             .literal("check_server_light")
             .executes(context -> {
                 McHelper.getServer().execute(() -> {
@@ -333,7 +272,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder.then(CommandManager
+        builder.then(ClientCommandManager
                 .literal("update_server_light")
                 .executes(context -> {
                     McHelper.getServer().execute(() -> {
@@ -352,7 +291,7 @@ public class ClientDebugCommand {
                     return 0;
                 })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("uniform_report_textured")
             .executes(context -> {
                 UniformReport.launchUniformReport(
@@ -360,13 +299,13 @@ public class ClientDebugCommand {
                         "gbuffers_textured", "gbuffers_textured_lit"
                     },
                     s -> context.getSource().sendFeedback(
-                        new LiteralText(s), true
+                        new LiteralText(s)
                     )
                 );
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("uniform_report_terrain")
             .executes(context -> {
                 UniformReport.launchUniformReport(
@@ -374,13 +313,13 @@ public class ClientDebugCommand {
                         "gbuffers_terrain", "gbuffers_terrain_solid"
                     },
                     s -> context.getSource().sendFeedback(
-                        new LiteralText(s), true
+                        new LiteralText(s)
                     )
                 );
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal("uniform_report_shadow")
             .executes(context -> {
                 UniformReport.launchUniformReport(
@@ -388,59 +327,22 @@ public class ClientDebugCommand {
                         "shadow_solid", "shadow"
                     },
                     s -> context.getSource().sendFeedback(
-                        new LiteralText(s), true
+                        new LiteralText(s)
                     )
                 );
                 return 0;
             })
         );
-        builder.then(CommandManager
-            .literal("erase_chunk")
-            .then(CommandManager.argument("rChunks", IntegerArgumentType.integer())
-                .executes(context -> {
-                    ServerPlayerEntity player = context.getSource().getPlayer();
-                    
-                    ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-                    
-                    invokeEraseChunk(
-                        player.world, center,
-                        IntegerArgumentType.getInteger(context, "rChunks"),
-                        0, 256
-                    );
-                    
-                    return 0;
-                })
-                .then(CommandManager.argument("downY", IntegerArgumentType.integer())
-                    .then(CommandManager.argument("upY", IntegerArgumentType.integer())
-                        .executes(context -> {
-                            
-                            ServerPlayerEntity player = context.getSource().getPlayer();
-                            
-                            ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
-                            
-                            invokeEraseChunk(
-                                player.world, center,
-                                IntegerArgumentType.getInteger(context, "rChunks"),
-                                IntegerArgumentType.getInteger(context, "downY"),
-                                IntegerArgumentType.getInteger(context, "upY")
-                            );
-                            return 0;
-                        })
-                    )
-                )
-            )
-        );
-        builder.then(CommandManager
+        
+        builder.then(ClientCommandManager
             .literal("report_rebuild_status")
             .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
                 MinecraftClient.getInstance().execute(() -> {
                     ClientWorldLoader.getClientWorlds().forEach((world) -> {
                         MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
                             ClientWorldLoader.getWorldRenderer(world.getRegistryKey()))
                             .getBuiltChunkStorage();
-                        McHelper.serverLog(
-                            player,
+                        CHelper.printChat(
                             world.getRegistryKey().getValue().toString() + builtChunkStorage.getDebugString()
                         );
                     });
@@ -449,9 +351,9 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder.then(CommandManager
-            .literal("test")
-            .executes(context -> {
+        builder.then(ClientCommandManager
+                .literal("test")
+                .executes(context -> {
 //                IPDimensionAPI.onServerWorldInit.connect((generatorOptions, registryManager) -> {
 //                    SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
 //                    long seed = generatorOptions.getSeed();
@@ -471,11 +373,11 @@ public class ClientDebugCommand {
 //                    );
 //                    IPDimensionAPI.markDimensionNonPersistent(dimensionId);
 //                });
-                
-                return 0;
-            })
+                    
+                    return 0;
+                })
         );
-        builder.then(CommandManager
+        builder.then(ClientCommandManager
             .literal("print_generator_config")
             .executes(context -> {
                 McHelper.getServer().getWorlds().forEach(world -> {
@@ -495,7 +397,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder.then(CommandManager
+        builder.then(ClientCommandManager
             .literal("report_portal_groups")
             .executes(context -> {
                 for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
@@ -508,11 +410,11 @@ public class ClientDebugCommand {
                             .collect(Collectors.groupingBy(
                                 p -> Optional.ofNullable(PortalRenderInfo.getGroupOf(p))
                             ));
-                    final ServerPlayerEntity player = context.getSource().getPlayer();
-                    McHelper.serverLog(player, "\n" + clientWorld.getRegistryKey().getValue().toString());
+                    
+                    CHelper.printChat("\n" + clientWorld.getRegistryKey().getValue().toString());
                     result.forEach((g, l) -> {
-                        McHelper.serverLog(player, "\n" + g.toString());
-                        McHelper.serverLog(player, l.stream()
+                        CHelper.printChat("\n" + g.toString());
+                        CHelper.printChat(l.stream()
                             .map(Portal::toString).collect(Collectors.joining("\n"))
                         );
                     });
@@ -520,7 +422,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder.then(CommandManager
+        builder.then(ClientCommandManager
             .literal("report_client_light_status")
             .executes(context -> {
                 MinecraftClient.getInstance().execute(() -> {
@@ -545,23 +447,15 @@ public class ClientDebugCommand {
                                 "has light section " +
                                     (allZero ? "all zero" : "not all zero") +
                                     (uninitialized ? " uninitialized" : " fine")
-                            ),
-                            false
+                            )
                         );
                     }
                     else {
                         context.getSource().sendFeedback(
-                            new LiteralText("does not have light section"), false
+                            new LiteralText("does not have light section")
                         );
                     }
                 });
-                return 0;
-            })
-        );
-        builder.then(CommandManager
-            .literal("remote_procedure_call_test")
-            .executes(context -> {
-                testRemoteProcedureCall(context.getSource().getPlayer());
                 return 0;
             })
         );
@@ -668,7 +562,7 @@ public class ClientDebugCommand {
             cond -> Global.enableDepthClampForPortalRendering = cond
         );
         
-        builder.then(CommandManager
+        builder.then(ClientCommandManager
             .literal("print_class_path")
             .executes(context -> {
                 printClassPath();
@@ -681,43 +575,6 @@ public class ClientDebugCommand {
         Helper.log("Successfully initialized command /immersive_portals_debug");
     }
     
-    public static void invokeEraseChunk(World world, ChunkPos center, int r, int downY, int upY) {
-        ArrayList<ChunkPos> poses = new ArrayList<>();
-        for (int x = -r; x <= r; x++) {
-            for (int z = -r; z <= r; z++) {
-                poses.add(new ChunkPos(x + center.x, z + center.z));
-            }
-        }
-        poses.sort(Comparator.comparingDouble(c ->
-            Vec3d.of(center.getStartPos()).distanceTo(Vec3d.of(c.getStartPos()))
-        ));
-        
-        ModMain.serverTaskList.addTask(MyTaskList.chainTasks(
-            poses.stream().map(chunkPos -> (MyTaskList.MyTask) () -> {
-                eraseChunk(
-                    chunkPos, world, downY, upY
-                );
-                return true;
-            }).iterator()
-        ));
-    }
-    
-    public static void eraseChunk(ChunkPos chunkPos, World world, int yStart, int yEnd) {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                for (int y = yStart; y < yEnd; y++) {
-                    world.setBlockState(
-                        new BlockPos(
-                            chunkPos.getStartX() + x,
-                            y,
-                            chunkPos.getStartZ() + z
-                        ),
-                        Blocks.AIR.getDefaultState()
-                    );
-                }
-            }
-        }
-    }
     
     private static void printClassPath() {
         System.out.println(
@@ -730,18 +587,18 @@ public class ClientDebugCommand {
     }
     
     private static void registerSwitchCommand(
-        LiteralArgumentBuilder<ServerCommandSource> builder,
+        LiteralArgumentBuilder<FabricClientCommandSource> builder,
         String name,
         Consumer<Boolean> setFunction
     ) {
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal(name + "_enable")
             .executes(context -> {
                 setFunction.accept(true);
                 return 0;
             })
         );
-        builder = builder.then(CommandManager
+        builder = builder.then(ClientCommandManager
             .literal(name + "_disable")
             .executes(context -> {
                 setFunction.accept(false);
@@ -750,7 +607,7 @@ public class ClientDebugCommand {
         );
     }
     
-    private static int reportResourceConsumption(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int reportResourceConsumption(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         StringBuilder str = new StringBuilder();
         
         str.append("Client Chunk:\n");
@@ -771,7 +628,7 @@ public class ClientDebugCommand {
                     dimension.getValue(),
                     ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
                         .getBuiltChunkStorage()
-                    ).getManagedChunkNum()
+                    ).getManagedSectionNum()
                 ));
             }
         );
@@ -796,17 +653,18 @@ public class ClientDebugCommand {
         return 0;
     }
     
-    private static int isClientChunkLoaded(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int isClientChunkLoaded(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
         int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+        reportClientChunkLoadStatus(chunkX, chunkZ);
+        return 0;
+    }
+    
+    public static void reportClientChunkLoadStatus(int chunkX, int chunkZ) {
         Chunk chunk = MinecraftClient.getInstance().world.getChunk(
             chunkX, chunkZ
         );
-        McHelper.serverLog(
-            context.getSource().getPlayer(),
-            chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
-        );
-        return 0;
+        CHelper.printChat(chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no");
     }
     
     private static int setMaxPortalLayer(int m) {
@@ -814,23 +672,11 @@ public class ClientDebugCommand {
         return 0;
     }
     
-    private static int listPortals(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity playerServer = context.getSource().getPlayer();
+    private static int listPortals(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
+        
         ClientPlayerEntity playerClient = MinecraftClient.getInstance().player;
         
         StringBuilder result = new StringBuilder();
-        
-        result.append("Server Portals\n");
-        
-        playerServer.getServer().getWorlds().forEach(world -> {
-            result.append(world.getRegistryKey().getValue().toString() + "\n");
-            for (Entity e : world.iterateEntities()) {
-                if (e instanceof Portal) {
-                    result.append(e.toString());
-                    result.append("\n");
-                }
-            }
-        });
         
         result.append("Client Portals\n");
         ClientWorldLoader.getClientWorlds().forEach((world) -> {
@@ -843,41 +689,24 @@ public class ClientDebugCommand {
             }
         });
         
-        McHelper.serverLog(playerServer, result.toString());
+        CHelper.printChat(result.toString());
         
         return 0;
     }
     
-    private static int reportPlayerStatus(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        //only invoked on single player
-        
-        ServerPlayerEntity playerMP = context.getSource().getPlayer();
+    public static void reportClientPlayerStatus() {
         ClientPlayerEntity playerSP = MinecraftClient.getInstance().player;
         
-        McHelper.serverLog(
-            playerMP,
-            String.format(
-                "On Server %s %s removed:%s added:%s age:%s",
-                playerMP.world.getRegistryKey().getValue(),
-                playerMP.getPos(),
-                playerMP.isRemoved(),
-                playerMP.world.getEntityById(playerMP.getId()) != null,
-                playerMP.age
-            )
-        );
-        
-        McHelper.serverLog(
-            playerMP,
+        CHelper.printChat(
             String.format(
                 "On Client %s %s removed:%s added:%s age:%s",
                 playerSP.world.getRegistryKey().getValue(),
-                playerSP.getPos(),
-                playerSP.isRemoved(),
+                playerSP.getBlockPos(),
+                playerSP.getRemovalReason(),
                 playerSP.world.getEntityById(playerSP.getId()) != null,
                 playerSP.age
             )
         );
-        return 0;
     }
     
     public static class TestRemoteCallable {
@@ -908,7 +737,7 @@ public class ClientDebugCommand {
             NbtCompound compoundTag = new NbtCompound();
             compoundTag.put("test", NbtInt.of(7));
             McRemoteProcedureCall.tellServerToInvoke(
-                "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.clientToServer",
+                "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.clientToServer",
                 new UUID(3, 3),
                 Blocks.ACACIA_PLANKS,
                 Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, Direction.Axis.Z),
@@ -923,7 +752,7 @@ public class ClientDebugCommand {
         McHelper.getServer().execute(() -> {
             McRemoteProcedureCall.tellClientToInvoke(
                 player,
-                "com.qouteall.immersive_portals.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",
+                "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",
                 "string", 2, 3.5, new Identifier("imm_ptl:oops"),
                 World.NETHER, BiomeKeys.JUNGLE,
                 new BlockPos(3, 5, 4),

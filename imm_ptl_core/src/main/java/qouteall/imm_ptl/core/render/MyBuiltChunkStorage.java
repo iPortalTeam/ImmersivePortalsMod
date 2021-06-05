@@ -354,13 +354,13 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         return result;
     }
     
-    public int getManagedChunkNum() {
+    public int getManagedSectionNum() {
         return columnMap.size() * sizeY;
     }
     
     public String getDebugString() {
         return String.format(
-            "Built Chunk Storage Columns:%s",
+            "Built Section Storage Columns:%s",
             columnMap.size()
         );
     }

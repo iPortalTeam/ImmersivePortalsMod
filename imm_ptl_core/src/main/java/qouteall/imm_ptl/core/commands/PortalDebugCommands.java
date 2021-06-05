@@ -1,0 +1,381 @@
+package qouteall.imm_ptl.core.commands;
+
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.block.Blocks;
+import net.minecraft.command.argument.DimensionArgumentType;
+import net.minecraft.command.argument.Vec3ArgumentType;
+import net.minecraft.entity.Entity;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.ProfilerSystem;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.chunk.WorldChunk;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
+import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
+import qouteall.imm_ptl.core.my_util.MyTaskList;
+import qouteall.imm_ptl.core.network.McRemoteProcedureCall;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class PortalDebugCommands {
+    static void registerDebugCommands(
+        LiteralArgumentBuilder<ServerCommandSource> builder
+    ) {
+        
+        builder.then(CommandManager
+            .literal("gui_portal")
+            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
+                    .executes(context -> {
+                        ExampleGuiPortalRendering.onCommandExecuted(
+                            context.getSource().getPlayer(),
+                            DimensionArgumentType.getDimensionArgument(context, "dim"),
+                            Vec3ArgumentType.getVec3(context, "pos")
+                        );
+                        return 0;
+                    })
+                )
+            ));
+        
+        builder.then(CommandManager
+            .literal("isometric_enable")
+            .then(CommandManager.argument("viewLength", FloatArgumentType.floatArg())
+                .executes(context -> {
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    
+                    float viewLength = FloatArgumentType.getFloat(context, "viewLength");
+                    
+                    McRemoteProcedureCall.tellClientToInvoke(
+                        player,
+                        "qouteall.imm_ptl.core.render.TransformationManager.RemoteCallables.enableIsometricView",
+                        viewLength
+                    );
+                    
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("isometric_disable")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                McRemoteProcedureCall.tellClientToInvoke(
+                    player,
+                    "qouteall.imm_ptl.core.render.TransformationManager.RemoteCallables.disableIsometricView"
+                );
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager
+            .literal("align")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                
+                Vec3d pos = player.getPos();
+                
+                Vec3d newPos = new Vec3d(
+                    Math.round(pos.x * 2) / 2.0,
+                    Math.round(pos.y * 2) / 2.0,
+                    Math.round(pos.z * 2) / 2.0
+                );
+                
+                player.networkHandler.requestTeleport(
+                    newPos.x, newPos.y, newPos.z,
+                    45, 30
+                );
+                
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager.literal("profile")
+            .then(CommandManager
+                .literal("set_lag_logging_threshold")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .then(CommandManager.argument("ms", IntegerArgumentType.integer())
+                    .executes(context -> {
+                        int ms = IntegerArgumentType.getInteger(context, "ms");
+                        ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
+                        
+                        return 0;
+                    })
+                )
+            ).then(CommandManager
+                .literal("gc")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .executes(context -> {
+                    System.gc();
+                    
+                    long l = Runtime.getRuntime().maxMemory();
+                    long m = Runtime.getRuntime().totalMemory();
+                    long n = Runtime.getRuntime().freeMemory();
+                    long o = m - n;
+                    
+                    context.getSource().sendFeedback(
+                        new LiteralText(
+                            String.format("Memory: % 2d%% %03d/%03dMB", o * 100L / l, toMiB(o), toMiB(l))
+                        ),
+                        false
+                    );
+                    
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("create_command_stick")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2))
+            .then(CommandManager.argument("command", StringArgumentType.string())
+                .executes(context -> {
+                    PortalCommand.createCommandStickCommandSignal.emit(
+                        context.getSource().getPlayer(),
+                        StringArgumentType.getString(context, "command")
+                    );
+                    return 0;
+                })
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("accelerate")
+            .then(CommandManager
+                .argument("v", DoubleArgumentType.doubleArg())
+                .executes(context -> {
+                    double v = DoubleArgumentType.getDouble(context, "v");
+                    McRemoteProcedureCall.tellClientToInvoke(
+                        context.getSource().getPlayer(),
+                        "qouteall.imm_ptl.core.commands.PortalCommand.RemoteCallables.clientAccelerate",
+                        v
+                    );
+                    return 0;
+                })
+            )
+        );
+        
+        
+        builder.then(CommandManager
+                .literal("test")
+                .executes(context -> {
+//                ServerWorld world = context.getSource().getWorld();
+//                Vec3d pos = context.getSource().getPosition();
+//
+//                Portal from = McHelper.findEntitiesRough(
+//                    Portal.class,
+//                    world, pos,
+//                    2,
+//                    p -> Objects.equals(p.portalTag, "from")
+//                ).get(0);
+//
+//                Portal to = McHelper.findEntitiesRough(
+//                    Portal.class,
+//                    world, pos,
+//                    2,
+//                    p -> Objects.equals(p.portalTag, "to")
+//                ).get(0);
+//
+//                PortalManipulation.adjustRotationToConnect(from, to);
+//
+//                from.reloadAndSyncToClient();
+//                to.reloadAndSyncToClient();
+                    
+                    return 0;
+                })
+        );
+        
+        builder.then(CommandManager
+            .literal("erase_chunk")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+            .then(CommandManager.argument("rChunks", IntegerArgumentType.integer())
+                .executes(context -> {
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    
+                    ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
+                    
+                    invokeEraseChunk(
+                        player.world, center,
+                        IntegerArgumentType.getInteger(context, "rChunks"),
+                        0, 256
+                    );
+                    
+                    return 0;
+                })
+                .then(CommandManager.argument("downY", IntegerArgumentType.integer())
+                    .then(CommandManager.argument("upY", IntegerArgumentType.integer())
+                        .executes(context -> {
+                            
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            
+                            ChunkPos center = new ChunkPos(new BlockPos(player.getPos()));
+                            
+                            invokeEraseChunk(
+                                player.world, center,
+                                IntegerArgumentType.getInteger(context, "rChunks"),
+                                IntegerArgumentType.getInteger(context, "downY"),
+                                IntegerArgumentType.getInteger(context, "upY")
+                            );
+                            return 0;
+                        })
+                    )
+                )
+            )
+        );
+        
+        builder.then(CommandManager
+            .literal("report_chunk_loaders")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                ChunkVisibility.getBaseChunkLoaders(
+                    player
+                ).forEach(
+                    loader -> McHelper.serverLog(
+                        player, loader.toString()
+                    )
+                );
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager
+            .literal("report_server_entities")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                List<Entity> entities = player.world.getEntitiesByClass(
+                    Entity.class,
+                    new Box(player.getPos(), player.getPos()).expand(32),
+                    e -> true
+                );
+                McHelper.serverLog(player, entities.toString());
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager
+            .literal("is_chunk_loaded")
+            .then(CommandManager
+                .argument(
+                    "chunkX", IntegerArgumentType.integer()
+                )
+                .then(CommandManager
+                    .argument(
+                        "chunkZ", IntegerArgumentType.integer()
+                    )
+                    .executes(
+                        context -> {
+                            int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
+                            int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            
+                            WorldChunk chunk = McHelper.getServerChunkIfPresent(
+                                context.getSource().getWorld(),
+                                chunkX, chunkZ
+                            );
+                            
+                            McHelper.serverLog(
+                                player,
+                                chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
+                            );
+                            
+                            McRemoteProcedureCall.tellClientToInvoke(
+                                player,
+                                "qouteall.imm_ptl.core.commands.ClientDebugCommand.reportClientChunkLoadStatus",
+                                chunkX, chunkZ
+                            );
+                            
+                            return 0;
+                        }
+                    )
+                )
+            )
+        );
+        
+        builder.then(CommandManager.literal("report_player_status")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                
+                CHelper.printChat(
+                    String.format(
+                        "On Server %s %s removed:%s added:%s age:%s",
+                        player.world.getRegistryKey().getValue(),
+                        player.getBlockPos(),
+                        player.getRemovalReason(),
+                        player.world.getEntityById(player.getId()) != null,
+                        player.age
+                    )
+                );
+                
+                McRemoteProcedureCall.tellClientToInvoke(
+                    player,
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.reportClientPlayerStatus"
+                );
+                
+                return 0;
+            })
+        );
+    }
+    
+    private static long toMiB(long bytes) {
+        return bytes / 1024L / 1024L;
+    }
+    
+    public static void invokeEraseChunk(World world, ChunkPos center, int r, int downY, int upY) {
+        ArrayList<ChunkPos> poses = new ArrayList<>();
+        for (int x = -r; x <= r; x++) {
+            for (int z = -r; z <= r; z++) {
+                poses.add(new ChunkPos(x + center.x, z + center.z));
+            }
+        }
+        poses.sort(Comparator.comparingDouble(c ->
+            Vec3d.of(center.getStartPos()).distanceTo(Vec3d.of(c.getStartPos()))
+        ));
+        
+        ModMain.serverTaskList.addTask(MyTaskList.chainTasks(
+            poses.stream().map(chunkPos -> (MyTaskList.MyTask) () -> {
+                eraseChunk(
+                    chunkPos, world, downY, upY
+                );
+                return true;
+            }).iterator()
+        ));
+    }
+    
+    public static void eraseChunk(ChunkPos chunkPos, World world, int yStart, int yEnd) {
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = yStart; y < yEnd; y++) {
+                    world.setBlockState(
+                        new BlockPos(
+                            chunkPos.getStartX() + x,
+                            y,
+                            chunkPos.getStartZ() + z
+                        ),
+                        Blocks.AIR.getDefaultState()
+                    );
+                }
+            }
+        }
+    }
+    
+    
+}

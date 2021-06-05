@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core;
 
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.platform_specific.MyNetworkClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
@@ -125,6 +127,8 @@ public class ModMainClient {
         }
         
         GcMonitor.initClient();
+    
+        ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

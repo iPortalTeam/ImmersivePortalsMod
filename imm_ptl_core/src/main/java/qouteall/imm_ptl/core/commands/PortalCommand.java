@@ -4,9 +4,7 @@ import com.google.common.collect.Streams;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -16,7 +14,6 @@ import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.my_util.DQuaternion;
 import qouteall.imm_ptl.core.my_util.IntBox;
 import qouteall.imm_ptl.core.my_util.MyTaskList;
@@ -64,13 +61,11 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -112,7 +107,7 @@ public class PortalCommand {
         
         LiteralArgumentBuilder<ServerCommandSource> debugBuilder = CommandManager.literal("debug")
             .requires(PortalCommand::canUsePortalCommand);
-        registerDebugCommands(debugBuilder);
+        PortalDebugCommands.registerDebugCommands(debugBuilder);
         builder.then(debugBuilder);
         
         dispatcher.register(builder);
@@ -129,180 +124,6 @@ public class PortalCommand {
         }
         
         return commandSource.hasPermissionLevel(2);
-    }
-    
-    private static void registerDebugCommands(
-        LiteralArgumentBuilder<ServerCommandSource> builder
-    ) {
-        
-        builder.then(CommandManager
-            .literal("gui_portal")
-            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
-                    .executes(context -> {
-                        ExampleGuiPortalRendering.onCommandExecuted(
-                            context.getSource().getPlayer(),
-                            DimensionArgumentType.getDimensionArgument(context, "dim"),
-                            Vec3ArgumentType.getVec3(context, "pos")
-                        );
-                        return 0;
-                    })
-                )
-            ));
-        
-        builder.then(CommandManager
-            .literal("isometric_enable")
-            .then(CommandManager.argument("viewLength", FloatArgumentType.floatArg())
-                .executes(context -> {
-                    ServerPlayerEntity player = context.getSource().getPlayer();
-                    
-                    float viewLength = FloatArgumentType.getFloat(context, "viewLength");
-                    
-                    McRemoteProcedureCall.tellClientToInvoke(
-                        player,
-                        "com.qouteall.immersive_portals.render.TransformationManager.RemoteCallables.enableIsometricView",
-                        viewLength
-                    );
-                    
-                    return 0;
-                })
-            )
-        );
-        
-        builder.then(CommandManager
-            .literal("isometric_disable")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                McRemoteProcedureCall.tellClientToInvoke(
-                    player,
-                    "com.qouteall.immersive_portals.render.TransformationManager.RemoteCallables.disableIsometricView"
-                );
-                return 0;
-            })
-        );
-        
-        builder.then(CommandManager
-            .literal("align")
-            .executes(context -> {
-                ServerPlayerEntity player = context.getSource().getPlayer();
-                
-                Vec3d pos = player.getPos();
-                
-                Vec3d newPos = new Vec3d(
-                    Math.round(pos.x * 2) / 2.0,
-                    Math.round(pos.y * 2) / 2.0,
-                    Math.round(pos.z * 2) / 2.0
-                );
-                
-                player.networkHandler.requestTeleport(
-                    newPos.x, newPos.y, newPos.z,
-                    45, 30
-                );
-                
-                return 0;
-            })
-        );
-        
-        builder.then(CommandManager.literal("profile")
-            .then(CommandManager
-                .literal("set_lag_logging_threshold")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .then(CommandManager.argument("ms", IntegerArgumentType.integer())
-                    .executes(context -> {
-                        int ms = IntegerArgumentType.getInteger(context, "ms");
-                        ProfilerSystem.TIMEOUT_NANOSECONDS = Duration.ofMillis(ms).toNanos();
-                        
-                        return 0;
-                    })
-                )
-            ).then(CommandManager
-                .literal("gc")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
-                .executes(context -> {
-                    System.gc();
-                    
-                    long l = Runtime.getRuntime().maxMemory();
-                    long m = Runtime.getRuntime().totalMemory();
-                    long n = Runtime.getRuntime().freeMemory();
-                    long o = m - n;
-                    
-                    context.getSource().sendFeedback(
-                        new LiteralText(
-                            String.format("Memory: % 2d%% %03d/%03dMB", o * 100L / l, toMiB(o), toMiB(l))
-                        ),
-                        false
-                    );
-                    
-                    return 0;
-                })
-            )
-        );
-        
-        builder.then(CommandManager
-            .literal("create_command_stick")
-            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2))
-            .then(CommandManager.argument("command", StringArgumentType.string())
-                .executes(context -> {
-                    createCommandStickCommandSignal.emit(
-                        context.getSource().getPlayer(),
-                        StringArgumentType.getString(context, "command")
-                    );
-                    return 0;
-                })
-            )
-        );
-        
-        builder.then(CommandManager
-            .literal("accelerate")
-            .then(CommandManager
-                .argument("v", DoubleArgumentType.doubleArg())
-                .executes(context -> {
-                    double v = DoubleArgumentType.getDouble(context, "v");
-                    McRemoteProcedureCall.tellClientToInvoke(
-                        context.getSource().getPlayer(),
-                        "com.qouteall.immersive_portals.commands.PortalCommand.RemoteCallables.clientAccelerate",
-                        v
-                    );
-                    return 0;
-                })
-            )
-        );
-        
-        
-        builder.then(CommandManager
-                .literal("test")
-                .executes(context -> {
-//                ServerWorld world = context.getSource().getWorld();
-//                Vec3d pos = context.getSource().getPosition();
-//
-//                Portal from = McHelper.findEntitiesRough(
-//                    Portal.class,
-//                    world, pos,
-//                    2,
-//                    p -> Objects.equals(p.portalTag, "from")
-//                ).get(0);
-//
-//                Portal to = McHelper.findEntitiesRough(
-//                    Portal.class,
-//                    world, pos,
-//                    2,
-//                    p -> Objects.equals(p.portalTag, "to")
-//                ).get(0);
-//
-//                PortalManipulation.adjustRotationToConnect(from, to);
-//
-//                from.reloadAndSyncToClient();
-//                to.reloadAndSyncToClient();
-                    
-                    return 0;
-                })
-        );
-    }
-    
-    public static void registerClientDebugCommand(
-        CommandDispatcher<ServerCommandSource> dispatcher
-    ) {
-        ClientDebugCommand.register(dispatcher);
     }
     
     private static void registerGlobalPortalCommands(
@@ -2180,7 +2001,4 @@ public class PortalCommand {
         }
     }
     
-    private static long toMiB(long bytes) {
-        return bytes / 1024L / 1024L;
-    }
 }

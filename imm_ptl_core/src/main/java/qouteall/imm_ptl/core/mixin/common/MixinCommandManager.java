@@ -22,9 +22,6 @@ public class MixinCommandManager {
         at = @At("RETURN")
     )
     private void initCommands(CommandManager.RegistrationEnvironment environment, CallbackInfo ci) {
-        if (environment == CommandManager.RegistrationEnvironment.INTEGRATED) {
-            PortalCommand.registerClientDebugCommand(dispatcher);
-        }
         PortalCommand.register(dispatcher);
     }
     

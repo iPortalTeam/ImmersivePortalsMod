@@ -136,7 +136,7 @@ public class ExampleGuiPortalRendering {
             
             // Tell the server to remove the additional chunk loader
             McRemoteProcedureCall.tellServerToInvoke(
-                "com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering.RemoteCallables.serverRemoveChunkLoader"
+                "qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering.RemoteCallables.serverRemoveChunkLoader"
             );
         }
         
