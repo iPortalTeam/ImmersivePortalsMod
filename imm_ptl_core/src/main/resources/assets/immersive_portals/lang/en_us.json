@@ -125,6 +125,10 @@
   "imm_ptl.command_desc.goback": "Return to the last entered portal",
   "imm_ptl.command.show_wiki": "Check Immersive Portals Wiki",
   "imm_ptl.command_desc.show_wiki": "Discover cool features",
+  "imm_ptl.command.accelerate50": "Accelerate 50",
+  "imm_ptl.command_desc.accelerate50": "Fly!",
+  "imm_ptl.command.accelerate200": "Accelerate 200",
+  "imm_ptl.command_desc.accelerate200": "Fly!",
   "imm_ptl.about_lag": "[Immersive Portals] Portals abruptly load many chunks and may cause lag spikes. The lag will probably disappear after playing for 1 or 2 minutes.",
   "imm_ptl.portal_helper_not_linked": "No compatible portal helper frame can be found nearby. A new frame has been generated. It can only link to a compatible frame. 1x3 can link to 2x6, but 1x2 cannot link to 2x5."
 }
