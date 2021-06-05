@@ -1,5 +1,8 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.screen.world.WorldListWidget;
+import net.minecraft.client.render.GameRenderer;
 import qouteall.imm_ptl.core.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -105,14 +108,16 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
         );
         
         if (dimensionIconPresent) {
-            client.getTextureManager().bindTexture(dimIconPath);
-            
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderTexture(0, dimIconPath);
+            RenderSystem.enableBlend();
             DrawableHelper.drawTexture(
-                matrixStack,
-                x, y, 0, (float) 0,
+                matrixStack, x, y, 0.0F, 0.0F,
                 widgetHeight - 4, widgetHeight - 4,
                 widgetHeight - 4, widgetHeight - 4
             );
+            RenderSystem.disableBlend();
         }
         
         if (type == Type.withAdvancedOptions) {
