@@ -56,9 +56,9 @@ public class ClientWorldLoader {
     public static final SignalArged<ClientWorld> clientWorldLoadSignal = new SignalArged<>();
     
     public static void init() {
-        ModMain.postClientTickSignal.connect(ClientWorldLoader::tick);
+        IPGlobal.postClientTickSignal.connect(ClientWorldLoader::tick);
         
-        ModMain.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
+        IPGlobal.clientCleanupSignal.connect(ClientWorldLoader::cleanUp);
     }
     
     public static boolean getIsInitialized() {
@@ -70,7 +70,7 @@ public class ClientWorldLoader {
     }
     
     private static void tick() {
-        if (CGlobal.isClientRemoteTickingEnabled) {
+        if (IPCGlobal.isClientRemoteTickingEnabled) {
             isClientRemoteTicking = true;
             clientWorldMap.values().forEach(world -> {
                 if (client.world != world) {

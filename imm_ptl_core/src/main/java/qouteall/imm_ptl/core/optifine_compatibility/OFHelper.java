@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.optifine_compatibility;
 
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import net.minecraft.client.gl.Framebuffer;
 import net.optifine.shaders.Shaders;
@@ -25,13 +25,13 @@ public class OFHelper {
         );
         
         int errorCode = GL11.glGetError();
-        if (errorCode != GL_NO_ERROR && Global.renderMode == Global.RenderMode.normal) {
+        if (errorCode != GL_NO_ERROR && IPGlobal.renderMode == IPGlobal.RenderMode.normal) {
             String message = "[Immersive Portals] Switch to Compatibility Portal Renderer";
             Helper.err("OpenGL Error" + errorCode);
             Helper.log(message);
             CHelper.printChat(message);
             
-            Global.renderMode = Global.RenderMode.compatibility;
+            IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
         }
         
         OFGlobal.bindToShaderFrameBuffer.run();

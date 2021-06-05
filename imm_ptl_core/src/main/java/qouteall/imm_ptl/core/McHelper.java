@@ -152,7 +152,7 @@ public class McHelper {
         int[] countStorage = new int[1];
         countStorage[0] = 0;
         Iterator<T> iterator = stream.iterator();
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             boolean shouldContinueRunning =
                 taskWatcher.test(countStorage[0]);
             if (!shouldContinueRunning) {
@@ -229,7 +229,7 @@ public class McHelper {
             },
             Util.getMainWorkerExecutor()
         );
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             if (future.isDone()) {
                 if (!isAborted.obj) {
                     finishBehavior.obj.run();
@@ -644,7 +644,7 @@ public class McHelper {
         Either<JsonElement, DataResult.PartialResult<JsonElement>> either = r.get();
         JsonElement result = either.left().orElse(null);
         if (result != null) {
-            return Global.gson.toJson(result);
+            return IPGlobal.gson.toJson(result);
         }
         
         return either.right().map(DataResult.PartialResult::toString).orElse("");
@@ -699,7 +699,7 @@ public class McHelper {
     
     public static void sendMessageToFirstLoggedPlayer(Text text) {
         Helper.log(text.asString());
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             MinecraftServer server = getServer();
             if (server == null) {
                 return false;

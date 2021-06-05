@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import qouteall.imm_ptl.core.CGlobal;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.miscellaneous.FPSMonitor;
-import qouteall.imm_ptl.core.network.CommonNetworkClient;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -70,10 +70,10 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     )
     private void onAfterClientTick(CallbackInfo ci) {
         getProfiler().push("imm_ptl_tick_signal");
-        ModMain.postClientTickSignal.emit();
+        IPGlobal.postClientTickSignal.emit();
         getProfiler().pop();
         
-        CGlobal.clientTeleportationManager.manageTeleportation(0);
+        IPCGlobal.clientTeleportationManager.manageTeleportation(0);
     }
     
     @Inject(
@@ -92,7 +92,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
         at = @At("HEAD")
     )
     private void onSetWorld(ClientWorld clientWorld_1, CallbackInfo ci) {
-        ModMain.clientCleanupSignal.emit();
+        IPGlobal.clientCleanupSignal.emit();
     }
     
     //avoid messing up rendering states in fabulous
@@ -113,10 +113,10 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     private void onCreateTask(Runnable runnable, CallbackInfoReturnable<Runnable> cir) {
         MinecraftClient this_ = (MinecraftClient) (Object) this;
         if (this_.isOnThread()) {
-            if (CommonNetworkClient.getIsProcessingRedirectedMessage()) {
+            if (IPCommonNetworkClient.getIsProcessingRedirectedMessage()) {
                 ClientWorld currWorld = this_.world;
                 Runnable newRunnable = () -> {
-                    CommonNetworkClient.withSwitchedWorld(currWorld, runnable);
+                    IPCommonNetworkClient.withSwitchedWorld(currWorld, runnable);
                 };
                 cir.setReturnValue(newRunnable);
             }
@@ -131,7 +131,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
         boolean onThread = isOnThread();
         
         if (onThread) {
-            if (CommonNetworkClient.isProcessingRedirectedMessage) {
+            if (IPCommonNetworkClient.isProcessingRedirectedMessage) {
                 return false;
             }
         }

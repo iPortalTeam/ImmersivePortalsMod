@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.render.context_management;
 
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -28,7 +28,7 @@ public class CloudContext {
     public static final ArrayList<CloudContext> contexts = new ArrayList<>();
     
     public static void init() {
-        ModMain.clientCleanupSignal.connect(CloudContext::cleanup);
+        IPGlobal.clientCleanupSignal.connect(CloudContext::cleanup);
     }
     
     public CloudContext() {

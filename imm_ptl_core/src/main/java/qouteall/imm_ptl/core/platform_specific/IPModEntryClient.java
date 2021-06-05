@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.SodiumInterfaceInitializer;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.ModMainClient;
 import qouteall.imm_ptl.core.SodiumInterface;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
@@ -29,7 +29,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
 
-public class ModEntryClient implements ClientModInitializer {
+public class IPModEntryClient implements ClientModInitializer {
     
     public static void initPortalRenderers() {
         
@@ -93,7 +93,7 @@ public class ModEntryClient implements ClientModInitializer {
     private static boolean checked = false;
     
     private static void initWarnings() {
-        ModMain.postClientTickSignal.connect(() -> {
+        IPGlobal.postClientTickSignal.connect(() -> {
             if (MinecraftClient.getInstance().world == null) {
                 return;
             }

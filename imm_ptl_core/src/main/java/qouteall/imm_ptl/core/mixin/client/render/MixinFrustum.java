@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ducks.IEFrustum;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import net.minecraft.client.render.Frustum;
@@ -42,7 +42,7 @@ public class MixinFrustum implements IEFrustum {
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (CGlobal.doUseAdvancedFrustumCulling) {
+        if (IPCGlobal.doUseAdvancedFrustumCulling) {
             boolean canDetermineInvisible = portal_frustumCuller.canDetermineInvisible(
                 minX - x, minY - y, minZ - z,
                 maxX - x, maxY - y, maxZ - z

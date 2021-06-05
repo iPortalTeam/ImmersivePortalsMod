@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import com.google.common.collect.Lists;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.network.CommonNetwork;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -47,7 +47,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         //when the player leave this dimension, do not stop tracking entities
         if (entity instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) entity;
-            if (Global.serverTeleportationManager.isTeleporting(player)) {
+            if (IPGlobal.serverTeleportationManager.isTeleporting(player)) {
                 Object tracker = entityTrackers.remove(entity.getId());
                 ((IEEntityTracker) tracker).stopTrackingToAllPlayers_();
                 handlePlayerAddedOrRemoved(player, false);
@@ -93,7 +93,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
             }
         }
         
-        CommonNetwork.withForceRedirect(
+        IPCommonNetwork.withForceRedirect(
             world.getRegistryKey(),
             () -> {
                 for (Entity entity : attachedEntityList) {

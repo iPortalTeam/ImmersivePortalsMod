@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.my_util.BoxPredicate;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -40,7 +40,7 @@ public class FrustumCuller {
         double cameraY,
         double cameraZ
     ) {
-        if (!CGlobal.doUseAdvancedFrustumCulling) {
+        if (!IPCGlobal.doUseAdvancedFrustumCulling) {
             return BoxPredicate.nonePredicate;
         }
         
@@ -48,7 +48,7 @@ public class FrustumCuller {
             return PortalRendering.getRenderingPortal().getInnerFrustumCullingFunc(cameraX, cameraY, cameraZ);
         }
         else {
-            if (!CGlobal.useSuperAdvancedFrustumCulling) {
+            if (!IPCGlobal.useSuperAdvancedFrustumCulling) {
                 return BoxPredicate.nonePredicate;
             }
             

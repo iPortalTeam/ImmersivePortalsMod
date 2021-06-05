@@ -1,11 +1,10 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
@@ -132,7 +131,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             client.getBufferBuilders().getEntityVertexConsumers().draw();
         }
         
-        CGlobal.renderer.onBeforeTranslucentRendering(matrices);
+        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
@@ -161,7 +160,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         
-        CGlobal.renderer.onAfterTranslucentRendering(matrices);
+        IPCGlobal.renderer.onAfterTranslucentRendering(matrices);
         
         //make hand rendering normal
         DiffuseLighting.disableForLevel(matrices.peek().getModel());
@@ -191,7 +190,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 MyRenderHelper.applyMirrorFaceCulling();
             }
             
-            if (Global.enableDepthClampForPortalRendering) {
+            if (IPGlobal.enableDepthClampForPortalRendering) {
                 GL11.glEnable(GL32.GL_DEPTH_CLAMP);
             }
         }
@@ -272,7 +271,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         )
     )
     private void redirectClearing(int int_1, boolean boolean_1) {
-        if (!CGlobal.renderer.replaceFrameBufferClearing()) {
+        if (!IPCGlobal.renderer.replaceFrameBufferClearing()) {
             RenderSystem.clear(int_1, boolean_1);
         }
     }
@@ -290,7 +289,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         int int_1,
         WorldRenderer worldRenderer_1
     ) {
-        if (CGlobal.useHackedChunkRenderDispatcher) {
+        if (IPCGlobal.useHackedChunkRenderDispatcher) {
             return new MyBuiltChunkStorage(
                 chunkBuilder_1, world_1, int_1, worldRenderer_1
             );
@@ -620,7 +619,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     public void portal_setRenderDistance(int arg) {
         viewDistance = arg;
         
-        ModMain.preGameRenderTaskList.addTask(() -> {
+        IPGlobal.preGameRenderTaskList.addTask(() -> {
             portal_increaseRenderDistance(arg);
             return true;
         });

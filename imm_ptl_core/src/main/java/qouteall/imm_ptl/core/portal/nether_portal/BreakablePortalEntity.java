@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
@@ -218,7 +218,7 @@ public abstract class BreakablePortalEntity extends Portal {
         }
         else {
             int[] counter = {30};
-            ModMain.serverTaskList.addTask(() -> {
+            IPGlobal.serverTaskList.addTask(() -> {
                 BreakablePortalEntity reversePortal1 = getReversePortal();
                 if (reversePortal1 != null) {
                     reversePortal1.shouldBreakPortal = true;

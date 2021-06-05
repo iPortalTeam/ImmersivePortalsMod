@@ -65,9 +65,9 @@ public class O_O {
     }
     
     public static void loadConfigFabric() {
-        MyConfig myConfig = MyConfig.readConfig();
-        myConfig.onConfigChanged();
-        myConfig.saveConfigFile();
+        IPConfig ipConfig = IPConfig.readConfig();
+        ipConfig.onConfigChanged();
+        ipConfig.saveConfigFile();
     }
     
     public static void onServerConstructed() {

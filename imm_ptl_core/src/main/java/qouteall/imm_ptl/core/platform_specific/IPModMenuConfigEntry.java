@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import io.github.prospector.modmenu.api.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -11,7 +11,7 @@ import me.shedaniel.clothconfig2.gui.entries.IntegerSliderEntry;
 import me.shedaniel.clothconfig2.gui.entries.StringListListEntry;
 import net.minecraft.text.TranslatableText;
 
-public class ModMenuConfigEntry implements ModMenuApi {
+public class IPModMenuConfigEntry implements ModMenuApi {
     
     
     @Override
@@ -22,7 +22,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> {
-            MyConfig currConfig = MyConfig.readConfig();
+            IPConfig currConfig = IPConfig.readConfig();
             
             ConfigBuilder builder = ConfigBuilder.create();
             ConfigCategory serverSide = builder.getOrCreateCategory(
@@ -120,26 +120,26 @@ public class ModMenuConfigEntry implements ModMenuApi {
                 currConfig.chunkUnloadDelayTicks,
                 0, 30 * 20
             ).setDefaultValue(15 * 20).build();
-            EnumListEntry<Global.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
+            EnumListEntry<IPGlobal.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.nether_portal_mode"),
-                    Global.NetherPortalMode.class,
+                    IPGlobal.NetherPortalMode.class,
                     currConfig.netherPortalMode
                 )
-                .setDefaultValue(Global.NetherPortalMode.normal)
+                .setDefaultValue(IPGlobal.NetherPortalMode.normal)
                 .build();
-            EnumListEntry<Global.EndPortalMode> entryEndPortalMode = builder.entryBuilder()
+            EnumListEntry<IPGlobal.EndPortalMode> entryEndPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.end_portal_mode"),
-                    Global.EndPortalMode.class,
+                    IPGlobal.EndPortalMode.class,
                     currConfig.endPortalMode
                 )
-                .setDefaultValue(Global.EndPortalMode.normal)
+                .setDefaultValue(IPGlobal.EndPortalMode.normal)
                 .build();
             StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
                 new TranslatableText("imm_ptl.render_redirect"),
-                MyConfig.mapToList(currConfig.dimensionRenderRedirect)
-            ).setDefaultValue(MyConfig.defaultRedirectMapList).setInsertInFront(true)
+                IPConfig.mapToList(currConfig.dimensionRenderRedirect)
+            ).setDefaultValue(IPConfig.defaultRedirectMapList).setInsertInFront(true)
                 .setExpanded(true).build();
             clientSide.addEntry(entryMaxPortalLayer);
             clientSide.addEntry(entryLagAttackProof);
@@ -170,7 +170,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
             return builder
                 .setParentScreen(parent)
                 .setSavingRunnable(() -> {
-                    MyConfig newConfig = new MyConfig();
+                    IPConfig newConfig = new IPConfig();
                     newConfig.maxPortalLayer = entryMaxPortalLayer.getValue();
                     newConfig.lagAttackProof = entryLagAttackProof.getValue();
                     newConfig.portalRenderLimit = entryPortalRenderLimit.getValue();
@@ -186,7 +186,7 @@ public class ModMenuConfigEntry implements ModMenuApi {
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
                     newConfig.reducedPortalRendering = entryReducedPortalRendering.getValue();
                     newConfig.indirectLoadingRadiusCap = entryIndirectLoadingRadiusCap.getValue();
-                    newConfig.dimensionRenderRedirect = MyConfig.listToMap(
+                    newConfig.dimensionRenderRedirect = IPConfig.listToMap(
                         entryDimensionRenderRedirect.getValue()
                     );
                     newConfig.netherPortalMode = entryNetherPortalMode.getValue();

@@ -3,9 +3,21 @@ package qouteall.imm_ptl.core;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
+import qouteall.imm_ptl.core.my_util.MyTaskList;
+import qouteall.imm_ptl.core.my_util.Signal;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
-public class Global {
+public class IPGlobal {
+    
+    public static final Signal postClientTickSignal = new Signal();
+    public static final Signal postServerTickSignal = new Signal();
+    public static final Signal preGameRenderSignal = new Signal();
+    public static final MyTaskList clientTaskList = new MyTaskList();
+    public static final MyTaskList serverTaskList = new MyTaskList();
+    public static final MyTaskList preGameRenderTaskList = new MyTaskList();
+    public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
+    public static final Signal clientCleanupSignal = new Signal();
+    public static final Signal serverCleanupSignal = new Signal();
     
     public static ChunkDataSyncManager chunkDataSyncManager;
     

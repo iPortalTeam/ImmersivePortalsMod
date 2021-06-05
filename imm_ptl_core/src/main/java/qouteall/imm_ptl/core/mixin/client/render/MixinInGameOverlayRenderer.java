@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import net.minecraft.client.MinecraftClient;
@@ -35,7 +35,7 @@ public class MixinInGameOverlayRenderer {
                 ci.cancel();
             }
         }
-        if (CGlobal.clientTeleportationManager.isTeleportingFrequently()) {
+        if (IPCGlobal.clientTeleportationManager.isTeleportingFrequently()) {
             ci.cancel();
         }
     }

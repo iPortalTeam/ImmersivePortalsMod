@@ -20,13 +20,11 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -379,7 +377,7 @@ public class PortalDebugCommands {
             Vec3d.of(center.getStartPos()).distanceTo(Vec3d.of(c.getStartPos()))
         ));
         
-        ModMain.serverTaskList.addTask(MyTaskList.chainTasks(
+        IPGlobal.serverTaskList.addTask(MyTaskList.chainTasks(
             poses.stream().map(chunkPos -> (MyTaskList.MyTask) () -> {
                 eraseChunk(
                     chunkPos, world, downY, upY

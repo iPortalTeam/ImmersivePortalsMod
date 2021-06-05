@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific.mixin.common;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +19,6 @@ public class MixinPlayerManager_MA {
         boolean bl,
         CallbackInfoReturnable<ServerPlayerEntity> cir
     ) {
-        Global.chunkDataSyncManager.onPlayerRespawn(player);
+        IPGlobal.chunkDataSyncManager.onPlayerRespawn(player);
     }
 }

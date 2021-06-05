@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -171,7 +171,7 @@ public class NetherPortalGeneration {
             NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(chunkLoader);
         };
         
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             
             boolean isPortalIntact = portalIntegrityChecker.getAsBoolean();
             

@@ -2,7 +2,7 @@ package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.form.AbstractDiligentForm;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.form.PortalGenForm;
@@ -34,7 +34,7 @@ public class DiligentNetherPortalForm extends AbstractDiligentForm {
         info.generatePlaceholderBlocks();
         BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.entityType);
      
-        if (Global.netherPortalOverlay) {
+        if (IPGlobal.netherPortalOverlay) {
             IntrinsicNetherPortalForm.initializeOverlay(portals[0], info.fromShape);
             IntrinsicNetherPortalForm.initializeOverlay(portals[1], info.fromShape);
             IntrinsicNetherPortalForm.initializeOverlay(portals[2], info.toShape);

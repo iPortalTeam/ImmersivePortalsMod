@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 
 public class AltiusManagement {
     // Dimension stack world can only be created in client
@@ -8,7 +8,7 @@ public class AltiusManagement {
     public static AltiusInfo dimensionStackPortalsToGenerate = null;
     
     public static void init() {
-        ModMain.postServerTickSignal.connect(AltiusManagement::serverTick);
+        IPGlobal.postServerTickSignal.connect(AltiusManagement::serverTick);
     }
     
     private static void serverTick() {

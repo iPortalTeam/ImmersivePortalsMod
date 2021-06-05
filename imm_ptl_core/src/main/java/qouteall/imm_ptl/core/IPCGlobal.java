@@ -11,7 +11,7 @@ import net.minecraft.world.dimension.DimensionType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CGlobal {
+public class IPCGlobal {
     
     public static PortalRenderer renderer;
     public static RendererUsingStencil rendererUsingStencil;

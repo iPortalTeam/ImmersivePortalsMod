@@ -27,7 +27,7 @@ import org.apache.commons.lang3.Validate;
 import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
-public class CommonNetworkClient {
+public class IPCommonNetworkClient {
     
     public static final SignalArged<Portal> clientPortalSpawnSignal = new SignalArged<>();
     

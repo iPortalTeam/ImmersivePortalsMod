@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
@@ -88,7 +88,7 @@ public class RequiemCompat {
         if (possessedEntity != null) {
             if (possessedEntity.world != player.world) {
                 Helper.log("Move Requiem Posessed Entity at Server");
-                Global.serverTeleportationManager.changeEntityDimension(
+                IPGlobal.serverTeleportationManager.changeEntityDimension(
                     possessedEntity,
                     player.world.getRegistryKey(),
                     McHelper.getEyePos(player),

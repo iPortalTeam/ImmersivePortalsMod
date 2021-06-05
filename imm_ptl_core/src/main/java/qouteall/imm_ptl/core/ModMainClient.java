@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core;
 
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
-import qouteall.imm_ptl.core.platform_specific.MyNetworkClient;
+import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.my_util.MyTaskList;
@@ -35,7 +35,7 @@ public class ModMainClient {
             return;
         }
         if (OFInterface.isShaders.getAsBoolean()) {
-            switch (Global.renderMode) {
+            switch (IPGlobal.renderMode) {
                 case normal:
                     switchRenderer(OFGlobal.rendererMixed);
                     break;
@@ -46,37 +46,37 @@ public class ModMainClient {
                     switchRenderer(OFGlobal.rendererDebugWithShader);
                     break;
                 case none:
-                    switchRenderer(CGlobal.rendererDummy);
+                    switchRenderer(IPCGlobal.rendererDummy);
                     break;
             }
         }
         else {
-            switch (Global.renderMode) {
+            switch (IPGlobal.renderMode) {
                 case normal:
-                    switchRenderer(CGlobal.rendererUsingStencil);
+                    switchRenderer(IPCGlobal.rendererUsingStencil);
                     break;
                 case compatibility:
-                    switchRenderer(CGlobal.rendererUsingFrameBuffer);
+                    switchRenderer(IPCGlobal.rendererUsingFrameBuffer);
                     break;
                 case debug:
-                    switchRenderer(CGlobal.rendererDebug);
+                    switchRenderer(IPCGlobal.rendererDebug);
                     break;
                 case none:
-                    switchRenderer(CGlobal.rendererDummy);
+                    switchRenderer(IPCGlobal.rendererDummy);
                     break;
             }
         }
     }
     
     private static void switchRenderer(PortalRenderer renderer) {
-        if (CGlobal.renderer != renderer) {
+        if (IPCGlobal.renderer != renderer) {
             Helper.log("switched to renderer " + renderer.getClass());
-            CGlobal.renderer = renderer;
+            IPCGlobal.renderer = renderer;
         }
     }
     
     private static void showOptiFineWarning() {
-        ModMain.clientTaskList.addTask(MyTaskList.withDelayCondition(
+        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> MinecraftClient.getInstance().world == null,
             MyTaskList.oneShotTask(() -> {
                 MinecraftClient.getInstance().inGameHud.addChatMessage(
@@ -89,7 +89,7 @@ public class ModMainClient {
     }
     
     public static void init() {
-        MyNetworkClient.init();
+        IPNetworkingClient.init();
         
         ClientWorldLoader.init();
         
@@ -98,11 +98,11 @@ public class ModMainClient {
             
             MyRenderHelper.init();
             
-            CGlobal.rendererUsingStencil = new RendererUsingStencil();
-            CGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
+            IPCGlobal.rendererUsingStencil = new RendererUsingStencil();
+            IPCGlobal.rendererUsingFrameBuffer = new RendererUsingFrameBuffer();
             
-            CGlobal.renderer = CGlobal.rendererUsingStencil;
-            CGlobal.clientTeleportationManager = new ClientTeleportationManager();
+            IPCGlobal.renderer = IPCGlobal.rendererUsingStencil;
+            IPCGlobal.clientTeleportationManager = new ClientTeleportationManager();
         });
         
         O_O.loadConfigFabric();

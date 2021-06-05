@@ -1,8 +1,7 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
@@ -30,7 +29,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.UUID;
 
-public class MyNetwork {
+public class IPNetworking {
     public static final Identifier id_stcRedirected =
         new Identifier("imm_ptl", "rd");
     public static final Identifier id_stcDimSync =
@@ -182,7 +181,7 @@ public class MyNetwork {
         UUID portalEntityId = buf.readUuid();
         
         McHelper.executeOnServerThread(() -> {
-            Global.serverTeleportationManager.onPlayerTeleportedInClient(
+            IPGlobal.serverTeleportationManager.onPlayerTeleportedInClient(
                 player,
                 dim,
                 posBefore,
@@ -194,7 +193,7 @@ public class MyNetwork {
     private static void processCtsPlayerAction(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
         PlayerActionC2SPacket packet = new PlayerActionC2SPacket(buf);
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             BlockManipulationServer.processBreakBlock(
                 dim, packet,
                 player
@@ -206,7 +205,7 @@ public class MyNetwork {
     private static void processCtsRightClick(ServerPlayerEntity player, PacketByteBuf buf) {
         RegistryKey<World> dim = DimId.readWorldId(buf, false);
         PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(buf);
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             BlockManipulationServer.processRightClickBlock(
                 dim, packet,
                 player

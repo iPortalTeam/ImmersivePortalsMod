@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.PehkuiInterface;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
 import qouteall.imm_ptl.core.my_util.BoxPredicate;
@@ -350,7 +350,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (this instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
             double mirrorOffset =
-                (OFInterface.isShaders.getAsBoolean() || Global.pureMirror) ? 0.01 : -0.01;
+                (OFInterface.isShaders.getAsBoolean() || IPGlobal.pureMirror) ? 0.01 : -0.01;
             portalPosRelativeToCamera = portalPosRelativeToCamera.add(
                 ((Mirror) this).getNormal().multiply(mirrorOffset));
         }
@@ -667,7 +667,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return MyNetwork.createStcSpawnEntity(this);
+        return IPNetworking.createStcSpawnEntity(this);
     }
     
     @Override
@@ -1273,7 +1273,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Environment(EnvType.CLIENT)
     public PortalLike getRenderingDelegate() {
-        if (Global.enablePortalRenderingMerge) {
+        if (IPGlobal.enablePortalRenderingMerge) {
             PortalGroup group = PortalRenderInfo.getGroupOf(this);
             if (group != null) {
                 return group;

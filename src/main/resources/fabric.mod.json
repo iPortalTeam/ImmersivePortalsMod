@@ -23,7 +23,7 @@
       "qouteall.imm_ptl.peripheral.platform_specific.PeripheralModEntryClient"
     ],
     "modmenu": [
-      "qouteall.imm_ptl.core.platform_specific.ModMenuConfigEntry"
+      "qouteall.imm_ptl.core.platform_specific.IPModMenuConfigEntry"
     ]
   },
   "mixins": [

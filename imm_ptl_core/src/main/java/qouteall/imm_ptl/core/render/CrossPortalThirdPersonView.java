@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.datafixers.util.Pair;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.commands.PortalCommand;
@@ -76,7 +76,7 @@ public class CrossPortalThirdPersonView {
             MinecraftClient.getInstance().options.viewDistance
         );
         
-        CGlobal.renderer.invokeWorldRendering(worldRenderInfo);
+        IPCGlobal.renderer.invokeWorldRendering(worldRenderInfo);
         
         return true;
     }

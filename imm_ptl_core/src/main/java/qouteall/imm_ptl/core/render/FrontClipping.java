@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEShader;
 import qouteall.imm_ptl.core.my_util.Plane;
@@ -33,7 +33,7 @@ public class FrontClipping {
     public static void setupInnerClipping(
         MatrixStack matrixStack, PortalLike portalLike, boolean doCompensate
     ) {
-        if (!CGlobal.useFrontClipping) {
+        if (!IPCGlobal.useFrontClipping) {
             return;
         }
         
@@ -81,7 +81,7 @@ public class FrontClipping {
     }
     
     public static void setupOuterClipping(MatrixStack matrixStack, PortalLike portalLike) {
-        if (!CGlobal.useFrontClipping) {
+        if (!IPCGlobal.useFrontClipping) {
             return;
         }
         

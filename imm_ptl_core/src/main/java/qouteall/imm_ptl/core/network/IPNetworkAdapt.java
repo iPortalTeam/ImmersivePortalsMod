@@ -8,7 +8,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
-public class NetworkAdapt {
+public class IPNetworkAdapt {
     private static boolean serverHasIP = true;
     
     public static void setServerHasIP(boolean cond) {

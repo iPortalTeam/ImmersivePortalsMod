@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.network;
 
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.registry.RegistryKey;
@@ -11,8 +11,7 @@ import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerPlayNetworkHand
 
 import javax.annotation.Nullable;
 
-// common between Fabric and Forge
-public class CommonNetwork {
+public class IPCommonNetwork {
     
     @Nullable
     private static RegistryKey<World> forceRedirect = null;
@@ -53,7 +52,7 @@ public class CommonNetwork {
         }
         else {
             serverPlayNetworkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
+                IPNetworking.createRedirectedMessage(
                     dimension,
                     packet
                 )

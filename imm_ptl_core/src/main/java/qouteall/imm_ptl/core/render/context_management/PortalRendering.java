@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.render.context_management;
 
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import net.fabricmc.api.EnvType;
@@ -62,7 +62,7 @@ public class PortalRendering {
         if (RenderStates.isLaggy) {
             return 1;
         }
-        return Global.maxPortalLayer;
+        return IPGlobal.maxPortalLayer;
     }
     
     public static PortalLike getRenderingPortal() {

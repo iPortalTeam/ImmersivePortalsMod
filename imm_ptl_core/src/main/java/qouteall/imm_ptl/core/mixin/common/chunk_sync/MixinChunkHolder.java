@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.chunk_sync;
 
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.ducks.IEChunkHolder;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
@@ -39,7 +39,7 @@ public class MixinChunkHolder implements IEChunkHolder {
         
         Consumer<ServerPlayerEntity> func = player ->
             player.networkHandler.sendPacket(
-                MyNetwork.createRedirectedMessage(
+                IPNetworking.createRedirectedMessage(
                     dimension, packet_1
                 )
             );

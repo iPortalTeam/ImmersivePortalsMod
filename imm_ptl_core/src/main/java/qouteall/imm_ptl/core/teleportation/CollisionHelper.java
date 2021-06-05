@@ -3,8 +3,8 @@ package qouteall.imm_ptl.core.teleportation;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -393,7 +393,7 @@ public class CollisionHelper {
     }
     
     public static void init() {
-        ModMain.postServerTickSignal.connect(() -> {
+        IPGlobal.postServerTickSignal.connect(() -> {
             for (ServerWorld world : McHelper.getServer().getWorlds()) {
                 updateGlobalPortalCollidingPortalForWorld(world);
             }
@@ -402,7 +402,7 @@ public class CollisionHelper {
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        ModMain.postClientTickSignal.connect(CollisionHelper::tickClient);
+        IPGlobal.postClientTickSignal.connect(CollisionHelper::tickClient);
     }
     
     @Environment(EnvType.CLIENT)

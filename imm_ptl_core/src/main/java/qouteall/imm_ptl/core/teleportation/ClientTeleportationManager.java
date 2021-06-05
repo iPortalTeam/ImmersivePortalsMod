@@ -2,13 +2,12 @@ package qouteall.imm_ptl.core.teleportation;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.PehkuiInterface;
-import qouteall.imm_ptl.core.platform_specific.MyNetworkClient;
+import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
@@ -54,11 +53,11 @@ public class ClientTeleportationManager {
     private static final int teleportLimit = 2;
     
     public ClientTeleportationManager() {
-        ModMain.postClientTickSignal.connectWithWeakRef(
+        IPGlobal.postClientTickSignal.connectWithWeakRef(
             this, ClientTeleportationManager::tick
         );
         
-        ModMain.clientCleanupSignal.connectWithWeakRef(this, (this_) -> {
+        IPGlobal.clientCleanupSignal.connectWithWeakRef(this, (this_) -> {
             this_.disableTeleportFor(40);
         });
     }
@@ -90,7 +89,7 @@ public class ClientTeleportationManager {
     }
     
     public void manageTeleportation(float tickDelta) {
-        if (Global.disableTeleportation) {
+        if (IPGlobal.disableTeleportation) {
             return;
         }
         
@@ -212,7 +211,7 @@ public class ClientTeleportationManager {
         
         PehkuiInterface.onClientPlayerTeleported.accept(portal);
         
-        player.networkHandler.sendPacket(MyNetworkClient.createCtsTeleport(
+        player.networkHandler.sendPacket(IPNetworkingClient.createCtsTeleport(
             fromDimension,
             oldEyePos,
             portal.getUuid()
@@ -449,7 +448,7 @@ public class ClientTeleportationManager {
         double originalY = player.getY();
         
         int[] counter = {0};
-        ModMain.clientTaskList.addTask(() -> {
+        IPGlobal.clientTaskList.addTask(() -> {
             if (player.isRemoved()) {
                 return true;
             }

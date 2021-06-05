@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.mixin.common;
 
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEServerWorld;
-import qouteall.imm_ptl.core.network.CommonNetwork;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.network.Packet;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerChunkManager;
@@ -58,7 +58,7 @@ public abstract class MixinServerWorld implements IEServerWorld {
     )
     private void redirectSendToAll(PlayerManager playerManager, Packet<?> packet) {
         final ServerWorld this_ = (ServerWorld) (Object) this;
-        CommonNetwork.withForceRedirect(
+        IPCommonNetwork.withForceRedirect(
             this_.getRegistryKey(),
             () -> {
                 playerManager.sendToAll(packet);

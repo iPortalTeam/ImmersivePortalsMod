@@ -3,10 +3,9 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunkGeneratorSettings;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.api.IPDimensionAPI;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import net.minecraft.block.Blocks;
@@ -39,7 +38,7 @@ public class AlternateDimensions {
     public static void init() {
         IPDimensionAPI.onServerWorldInit.connect(AlternateDimensions::initializeAlternateDimensions);
         
-        ModMain.postServerTickSignal.connect(AlternateDimensions::tick);
+        IPGlobal.postServerTickSignal.connect(AlternateDimensions::tick);
     }
     
     private static void initializeAlternateDimensions(
@@ -47,7 +46,7 @@ public class AlternateDimensions {
     ) {
         SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
         long seed = generatorOptions.getSeed();
-        if (!Global.enableAlternateDimensions) {
+        if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
         
@@ -220,7 +219,7 @@ public class AlternateDimensions {
     
     
     private static void tick() {
-        if (!Global.enableAlternateDimensions) {
+        if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
         

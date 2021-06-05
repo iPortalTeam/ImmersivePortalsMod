@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class WorldInfoSender {
     public static void init() {
-        ModMain.postServerTickSignal.connect(() -> {
+        IPGlobal.postServerTickSignal.connect(() -> {
             McHelper.getServer().getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
@@ -50,7 +50,7 @@ public class WorldInfoSender {
         RegistryKey<World> remoteDimension = world.getRegistryKey();
         
         player.networkHandler.sendPacket(
-            MyNetwork.createRedirectedMessage(
+            IPNetworking.createRedirectedMessage(
                 remoteDimension,
                 new WorldTimeUpdateS2CPacket(
                     world.getTime(),
@@ -65,7 +65,7 @@ public class WorldInfoSender {
         /**{@link net.minecraft.client.network.ClientPlayNetworkHandler#onGameStateChange(GameStateChangeS2CPacket)}*/
         
         if (world.isRaining()) {
-            player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+            player.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
                 world.getRegistryKey(),
                 new GameStateChangeS2CPacket(
                     GameStateChangeS2CPacket.RAIN_STARTED,
@@ -78,14 +78,14 @@ public class WorldInfoSender {
             //if the weather turned to not raining then elsewhere syncs it
         }
         
-        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+        player.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
             world.getRegistryKey(),
             new GameStateChangeS2CPacket(
                 GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
                 world.getRainGradient(1.0F)
             )
         ));
-        player.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+        player.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
             world.getRegistryKey(),
             new GameStateChangeS2CPacket(
                 GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,

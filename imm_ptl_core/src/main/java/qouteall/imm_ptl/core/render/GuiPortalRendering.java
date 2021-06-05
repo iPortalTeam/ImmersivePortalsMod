@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -58,11 +58,11 @@ public class GuiPortalRendering {
         
         framebuffer.beginWrite(true);
         
-        CGlobal.renderer.prepareRendering();
+        IPCGlobal.renderer.prepareRendering();
         
-        CGlobal.renderer.invokeWorldRendering(worldRenderInfo);
+        IPCGlobal.renderer.invokeWorldRendering(worldRenderInfo);
         
-        CGlobal.renderer.finishRendering();
+        IPCGlobal.renderer.finishRendering();
         
         ((IEMinecraftClient) MyGameRenderer.client).setFrameBuffer(mcFb);
         

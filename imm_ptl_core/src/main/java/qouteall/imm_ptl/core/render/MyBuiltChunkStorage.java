@@ -1,9 +1,8 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.my_util.ObjectBuffer;
@@ -69,12 +68,12 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         super(chunkBuilder, world, r, worldRenderer);
         factory = chunkBuilder;
         
-        ModMain.postClientTickSignal.connectWithWeakRef(
+        IPGlobal.postClientTickSignal.connectWithWeakRef(
             this, MyBuiltChunkStorage::tick
         );
         
         int cacheSize = sizeX * sizeY * sizeZ;
-        if (Global.cacheGlBuffer) {
+        if (IPGlobal.cacheGlBuffer) {
             cacheSize = cacheSize / 10;
         }
         

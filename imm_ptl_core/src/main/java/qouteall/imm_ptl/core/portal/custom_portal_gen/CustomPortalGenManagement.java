@@ -7,8 +7,8 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
@@ -135,7 +135,7 @@ public class CustomPortalGenManagement {
         
         Item item = context.getStack().getItem();
         if (useItemGen.containsKey(item)) {
-            ModMain.serverTaskList.addTask(() -> {
+            IPGlobal.serverTaskList.addTask(() -> {
                 for (CustomPortalGeneration gen : useItemGen.get(item)) {
                     boolean result = gen.perform(
                         ((ServerWorld) context.getWorld()),
@@ -169,7 +169,7 @@ public class CustomPortalGenManagement {
         if (entity.cannotPickup()) {
             Item item = entity.getStack().getItem();
             if (throwItemGen.containsKey(item)) {
-                ModMain.serverTaskList.addTask(() -> {
+                IPGlobal.serverTaskList.addTask(() -> {
                     for (CustomPortalGeneration gen : throwItemGen.get(item)) {
                         boolean result = gen.perform(
                             ((ServerWorld) entity.world),

@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.google.gson.reflect.TypeToken;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import net.minecraft.client.gl.Program;
@@ -48,7 +48,7 @@ public class ShaderCodeTransformation {
         String json = McHelper.readTextResource(new Identifier(
             "immersive_portals:shaders/shader_transformation.json"
         ));
-        configs = Global.gson.fromJson(
+        configs = IPGlobal.gson.fromJson(
             json,
             new TypeToken<List<Config>>() {}.getType()
         );

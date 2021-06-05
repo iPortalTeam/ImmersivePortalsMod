@@ -9,10 +9,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.my_util.DQuaternion;
 import qouteall.imm_ptl.core.my_util.IntBox;
@@ -116,7 +115,7 @@ public class PortalCommand {
     public static boolean canUsePortalCommand(ServerCommandSource commandSource) {
         Entity entity = commandSource.getEntity();
         if (entity instanceof ServerPlayerEntity) {
-            if (Global.easeCreativePermission) {
+            if (IPGlobal.easeCreativePermission) {
                 if (((ServerPlayerEntity) entity).isCreative()) {
                     return true;
                 }
@@ -1053,7 +1052,7 @@ public class PortalCommand {
                 .executes(context -> {
                     Entity entity = EntityArgumentType.getEntity(context, "target");
                     
-                    Global.serverTeleportationManager.invokeTpmeCommand(
+                    IPGlobal.serverTeleportationManager.invokeTpmeCommand(
                         context.getSource().getPlayer(),
                         entity.world.getRegistryKey(),
                         entity.getPos()
@@ -1075,7 +1074,7 @@ public class PortalCommand {
                     Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     
-                    Global.serverTeleportationManager.invokeTpmeCommand(
+                    IPGlobal.serverTeleportationManager.invokeTpmeCommand(
                         player,
                         player.world.getRegistryKey(),
                         dest
@@ -1101,7 +1100,7 @@ public class PortalCommand {
                         ).getRegistryKey();
                         Vec3d dest = Vec3ArgumentType.getVec3(context, "dest");
                         
-                        Global.serverTeleportationManager.invokeTpmeCommand(
+                        IPGlobal.serverTeleportationManager.invokeTpmeCommand(
                             context.getSource().getPlayer(),
                             dim,
                             dest
@@ -1228,12 +1227,12 @@ public class PortalCommand {
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 net.minecraft.util.Pair<RegistryKey<World>, Vec3d> lastPos =
-                    Global.serverTeleportationManager.lastPosition.get(player);
+                    IPGlobal.serverTeleportationManager.lastPosition.get(player);
                 if (lastPos == null) {
                     sendMessage(context, "You haven't teleported");
                 }
                 else {
-                    Global.serverTeleportationManager.invokeTpmeCommand(
+                    IPGlobal.serverTeleportationManager.invokeTpmeCommand(
                         player, lastPos.getLeft(), lastPos.getRight()
                     );
                 }
@@ -1386,7 +1385,7 @@ public class PortalCommand {
         Helper.SimpleBox<BlockPos> currentSearchingCenter =
             new Helper.SimpleBox<>(startingPos);
         
-        ModMain.serverTaskList.addTask(MyTaskList.chainTask(
+        IPGlobal.serverTaskList.addTask(MyTaskList.chainTask(
             MyTaskList.repeat(
                 roomNumber,
                 () -> MyTaskList.withDelay(20, MyTaskList.oneShotTask(() -> {

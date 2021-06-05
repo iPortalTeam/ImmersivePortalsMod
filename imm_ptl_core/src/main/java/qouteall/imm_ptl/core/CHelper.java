@@ -63,7 +63,7 @@ public class CHelper {
     }
     
     public static void checkGlError() {
-        if (!Global.doCheckGlError) {
+        if (!IPGlobal.doCheckGlError) {
             return;
         }
         if (reportedErrorNum > 100) {

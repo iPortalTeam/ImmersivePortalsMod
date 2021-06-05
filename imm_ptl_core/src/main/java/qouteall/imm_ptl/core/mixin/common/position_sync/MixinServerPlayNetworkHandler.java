@@ -1,9 +1,8 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
@@ -24,7 +23,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -110,7 +108,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         
         if (packetDimension == null) {
             Helper.err("Player move packet is missing dimension info. Maybe the player client doesn't have IP");
-            ModMain.serverTaskList.addTask(() -> {
+            IPGlobal.serverTaskList.addTask(() -> {
                 player.networkHandler.disconnect(new LiteralText(
                     "The client does not have Immersive Portals mod"
                 ));
@@ -119,13 +117,13 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             return;
         }
         
-        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             cancelTeleportRequest();
         }
         
         if (player.world.getRegistryKey() != packetDimension) {
-            ModMain.serverTaskList.addTask(() -> {
-                Global.serverTeleportationManager.acceptDubiousMovePacket(
+            IPGlobal.serverTaskList.addTask(() -> {
+                IPGlobal.serverTeleportationManager.acceptDubiousMovePacket(
                     player, packet, packetDimension
                 );
                 return true;
@@ -181,7 +179,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
             this.requestedTeleportId = 0;
         }
         
-        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             Helper.log("Teleport request cancelled " + player.getName().asString());
             return;
         }
@@ -210,7 +208,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         WorldView worldView,
         Box box
     ) {
-        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             return false;
         }
         if (((IEEntity) player).getCollidingPortal() != null) {
@@ -248,7 +246,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         cancellable = true
     )
     private void onOnVehicleMove(VehicleMoveC2SPacket packet, CallbackInfo ci) {
-        if (Global.serverTeleportationManager.isJustTeleported(player, 40)) {
+        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 40)) {
             Entity entity = this.player.getRootVehicle();
             
             if (entity != player) {
@@ -282,10 +280,10 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
     }
     
     private static boolean shouldAcceptDubiousMovement(ServerPlayerEntity player) {
-        if (Global.serverTeleportationManager.isJustTeleported(player, 100)) {
+        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
             return true;
         }
-        if (Global.looseMovementCheck) {
+        if (IPGlobal.looseMovementCheck) {
             return true;
         }
         if (((IEEntity) player).getCollidingPortal() != null) {

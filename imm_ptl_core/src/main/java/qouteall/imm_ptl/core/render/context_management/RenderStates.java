@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.render.context_management;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
@@ -120,7 +120,7 @@ public class RenderStates {
     
     //protect the player from mirror room lag attack
     private static void updateIsLaggy() {
-        if (!Global.lagAttackProof) {
+        if (!IPGlobal.lagAttackProof) {
             isLaggy = false;
             return;
         }

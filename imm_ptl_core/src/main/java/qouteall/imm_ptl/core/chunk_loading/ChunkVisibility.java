@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import com.google.common.collect.Streams;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -48,7 +48,7 @@ public class ChunkVisibility {
     private static int getSmoothedLoadingDistance(
         Portal portal, ServerPlayerEntity player, int targetLoadingDistance
     ) {
-        int cap = Global.indirectLoadingRadiusCap;
+        int cap = IPGlobal.indirectLoadingRadiusCap;
         
         // load more for scaling portal
         if (portal.getScale() > 2) {
@@ -57,7 +57,7 @@ public class ChunkVisibility {
         
         int cappedLoadingDistance = Math.min(targetLoadingDistance, cap);
         
-        if (!Global.serverSmoothLoading) {
+        if (!IPGlobal.serverSmoothLoading) {
             return cappedLoadingDistance;
         }
         
@@ -101,7 +101,7 @@ public class ChunkVisibility {
     ) {
         if (portal.getIsGlobal()) {
             int renderDistance = Math.min(
-                Global.indirectLoadingRadiusCap * 2,
+                IPGlobal.indirectLoadingRadiusCap * 2,
                 //load a little more to make dimension stack more complete
                 Math.max(
                     2,
@@ -151,7 +151,7 @@ public class ChunkVisibility {
         
         if (portal.getIsGlobal()) {
             int renderDistance = Math.min(
-                Global.indirectLoadingRadiusCap,
+                IPGlobal.indirectLoadingRadiusCap,
                 serverLoadingDistance / 3
             );
             return new ChunkLoader(
@@ -223,7 +223,7 @@ public class ChunkVisibility {
     }
     
     public static boolean isShrinkLoading() {
-        return Global.indirectLoadingRadiusCap < 4;
+        return IPGlobal.indirectLoadingRadiusCap < 4;
     }
     
 }

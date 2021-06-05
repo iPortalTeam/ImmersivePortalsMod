@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Mirror;
@@ -116,7 +116,7 @@ public abstract class PortalRenderer {
             return true;
         }
         
-        if (RenderStates.getRenderedPortalNum() >= Global.portalRenderLimit) {
+        if (RenderStates.getRenderedPortalNum() >= IPGlobal.portalRenderLimit) {
             return true;
         }
         
@@ -139,7 +139,7 @@ public abstract class PortalRenderer {
             return true;
         }
         
-        if (CGlobal.earlyFrustumCullingPortal) {
+        if (IPCGlobal.earlyFrustumCullingPortal) {
             // frustum culling does not work when portal is very close
             if (distance > 0.03) {
                 Frustum frustum = frustumSupplier.get();
@@ -153,7 +153,7 @@ public abstract class PortalRenderer {
     
     protected final double getRenderRange() {
         double range = client.options.viewDistance * 16;
-        if (RenderStates.isLaggy || Global.reducedPortalRendering) {
+        if (RenderStates.isLaggy || IPGlobal.reducedPortalRendering) {
             range = 16;
         }
         if (PortalRendering.getPortalLayer() > 1) {
@@ -217,7 +217,7 @@ public abstract class PortalRenderer {
             
             return Math.max((int) (radiusBlocks / 16), client.options.viewDistance);
         }
-        if (Global.reducedPortalRendering) {
+        if (IPGlobal.reducedPortalRendering) {
             return client.options.viewDistance / 3;
         }
         return client.options.viewDistance;

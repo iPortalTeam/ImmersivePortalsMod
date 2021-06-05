@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.minecraft.block.Block;
@@ -28,7 +28,7 @@ public class MixinEnderEyeItem {
         ItemUsageContext itemUsageContext_1,
         CallbackInfoReturnable<ActionResult> cir
     ) {
-        if (Global.endPortalMode != Global.EndPortalMode.vanilla) {
+        if (IPGlobal.endPortalMode != IPGlobal.EndPortalMode.vanilla) {
             cir.setReturnValue(myUseOnBlock(itemUsageContext_1));
             cir.cancel();
         }

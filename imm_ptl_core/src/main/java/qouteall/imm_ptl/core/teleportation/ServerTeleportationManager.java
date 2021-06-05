@@ -1,11 +1,10 @@
 package qouteall.imm_ptl.core.teleportation;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.PehkuiInterface;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -53,7 +52,7 @@ public class ServerTeleportationManager {
     private static final boolean useOldTeleport = false;
     
     public ServerTeleportationManager() {
-        ModMain.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
+        IPGlobal.postServerTickSignal.connectWithWeakRef(this, ServerTeleportationManager::tick);
         Portal.serverPortalTickSignal.connectWithWeakRef(
             this, (this_, portal) -> {
                 getEntitiesToTeleport(portal).forEach(entity -> {
@@ -97,7 +96,7 @@ public class ServerTeleportationManager {
         if (motion > 20) {
             return;
         }
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             try {
                 teleportRegularEntity(entity, portal);
             }
@@ -335,7 +334,7 @@ public class ServerTeleportationManager {
     }
     
     public static void sendPositionConfirmMessage(ServerPlayerEntity player) {
-        Packet packet = MyNetwork.createStcDimensionConfirm(
+        Packet packet = IPNetworking.createStcDimensionConfirm(
             player.world.getRegistryKey(),
             player.getPos()
         );
@@ -568,7 +567,7 @@ public class ServerTeleportationManager {
     
     public static void teleportEntityGeneral(Entity entity, Vec3d targetPos, ServerWorld targetWorld) {
         if (entity instanceof ServerPlayerEntity) {
-            Global.serverTeleportationManager.invokeTpmeCommand(
+            IPGlobal.serverTeleportationManager.invokeTpmeCommand(
                 (ServerPlayerEntity) entity, targetWorld.getRegistryKey(), targetPos
             );
         }
@@ -584,7 +583,7 @@ public class ServerTeleportationManager {
                 entity.setHeadYaw(entity.getYaw());
             }
             else {
-                Global.serverTeleportationManager.changeEntityDimension(
+                IPGlobal.serverTeleportationManager.changeEntityDimension(
                     entity,
                     targetWorld.getRegistryKey(),
                     targetPos.add(0, entity.getStandingEyeHeight(), 0),
@@ -624,7 +623,7 @@ public class ServerTeleportationManager {
         UUID chaserId = chaser.getUuid();
         ServerWorld destWorld = ((ServerWorld) portal.getDestinationWorld());
         
-        ModMain.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
+        IPGlobal.serverTaskList.addTask(MyTaskList.withRetryNumberLimit(
             140,
             () -> {
                 if (chaser.isRemoved()) {

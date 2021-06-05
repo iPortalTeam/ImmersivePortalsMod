@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.peripheral;
 
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import net.minecraft.client.item.TooltipContext;
@@ -132,7 +132,7 @@ public class CommandStickItem extends Item {
     }
     
     private static boolean canUseCommand(PlayerEntity player) {
-        if (Global.easeCommandStickPermission) {
+        if (IPGlobal.easeCommandStickPermission) {
             return true;// any player regardless of gamemode can use
         }
         else {

@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
-import qouteall.imm_ptl.core.network.CommonNetwork;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -20,7 +20,7 @@ public class EntitySync {
     private static final LimitedLogger limitedLogger = new LimitedLogger(100);
     
     public static void init() {
-        ModMain.postServerTickSignal.connect(EntitySync::tick);
+        IPGlobal.postServerTickSignal.connect(EntitySync::tick);
     }
     
     /**
@@ -61,7 +61,7 @@ public class EntitySync {
             Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
             
-            CommonNetwork.withForceRedirect(world.getRegistryKey(), () -> {
+            IPCommonNetwork.withForceRedirect(world.getRegistryKey(), () -> {
                 for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
                     ((IEEntityTracker) tracker).tickEntry();
                     

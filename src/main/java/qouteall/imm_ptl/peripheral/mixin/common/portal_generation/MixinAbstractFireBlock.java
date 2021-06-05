@@ -2,7 +2,7 @@ package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -25,11 +25,11 @@ public class MixinAbstractFireBlock {
         )
     )
     Optional<AreaHelper> redirectCreateAreaHelper(WorldAccess worldAccess, BlockPos blockPos, Direction.Axis axis) {
-        if (Global.netherPortalMode == Global.NetherPortalMode.disabled) {
+        if (IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.disabled) {
             return Optional.empty();
         }
         
-        if (Global.netherPortalMode == Global.NetherPortalMode.vanilla) {
+        if (IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.vanilla) {
             return AreaHelper.getNewPortal(worldAccess, blockPos, axis);
         }
         
@@ -62,7 +62,7 @@ public class MixinAbstractFireBlock {
         )
     )
     private static boolean redirectIsPresent(Optional optional) {
-        if (Global.netherPortalMode != Global.NetherPortalMode.vanilla) {
+        if (IPGlobal.netherPortalMode != IPGlobal.NetherPortalMode.vanilla) {
             return true;
         }
         else {

@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.chunk_sync;
 
 import com.mojang.datafixers.util.Either;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.nbt.NbtCompound;
@@ -157,7 +157,7 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
             either.mapLeft((worldChunk) -> {
                 this.totalChunksLoadedCount.getAndIncrement();
                 
-                Global.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
+                IPGlobal.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
                 
                 return Either.left(worldChunk);
             });

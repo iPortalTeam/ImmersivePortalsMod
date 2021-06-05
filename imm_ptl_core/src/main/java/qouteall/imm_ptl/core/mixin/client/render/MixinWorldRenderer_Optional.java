@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -70,7 +70,7 @@ public class MixinWorldRenderer_Optional {
         boolean boolean_2,
         CallbackInfo ci
     ) {
-        if (CGlobal.useHackedChunkRenderDispatcher) {
+        if (IPCGlobal.useHackedChunkRenderDispatcher) {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
         

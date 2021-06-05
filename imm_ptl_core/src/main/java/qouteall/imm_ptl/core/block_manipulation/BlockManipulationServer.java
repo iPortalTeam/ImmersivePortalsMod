@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.block_manipulation;
 
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -200,7 +200,7 @@ public class BlockManipulationServer {
             }
         }
         
-        MyNetwork.sendRedirectedMessage(
+        IPNetworking.sendRedirectedMessage(
             player,
             dimension,
             new BlockUpdateS2CPacket(targetWorld, blockPos)
@@ -208,7 +208,7 @@ public class BlockManipulationServer {
         
         BlockPos offseted = blockPos.offset(direction);
         if (offseted.getY() >= 0 && offseted.getY() <= 256) {
-            MyNetwork.sendRedirectedMessage(
+            IPNetworking.sendRedirectedMessage(
                 player,
                 dimension,
                 new BlockUpdateS2CPacket(targetWorld, offseted)

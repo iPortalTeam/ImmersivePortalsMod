@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
-import qouteall.imm_ptl.core.network.CommonNetwork;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntityDestroyS2CPacket;
@@ -38,7 +38,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
         at = @At("HEAD")
     )
     private void onTick(CallbackInfo ci) {
-        CommonNetwork.validateForceRedirecting();
+        IPCommonNetwork.validateForceRedirecting();
     }
     
     /**
@@ -46,7 +46,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
      */
     @Overwrite
     public void stopTracking(ServerPlayerEntity player) {
-        CommonNetwork.withForceRedirect(
+        IPCommonNetwork.withForceRedirect(
             entity.world.getRegistryKey(), () -> {
                 entity.onStoppedTrackingBy(player);
                 player.networkHandler.sendPacket(new EntityDestroyS2CPacket(entity.getId()));
@@ -59,7 +59,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
      */
     @Overwrite
     public void startTracking(ServerPlayerEntity player) {
-        CommonNetwork.withForceRedirect(
+        IPCommonNetwork.withForceRedirect(
             entity.world.getRegistryKey(), () -> {
                 ServerPlayNetworkHandler var10001 = player.networkHandler;
                 Objects.requireNonNull(var10001);
@@ -95,7 +95,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
     }
     
     @Override

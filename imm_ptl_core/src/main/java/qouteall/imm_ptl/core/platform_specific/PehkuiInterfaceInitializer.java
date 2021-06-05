@@ -1,8 +1,7 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -101,7 +100,7 @@ public class PehkuiInterfaceInitializer {
             scaleData.setScale(newScale);
             scaleData.tick();
             
-            ModMain.serverTaskList.addTask(() -> {
+            IPGlobal.serverTaskList.addTask(() -> {
                 McHelper.setEyePos(entity, eyePos, lastTickEyePos);
                 McHelper.updateBoundingBox(entity);
                 return true;
@@ -123,7 +122,7 @@ public class PehkuiInterfaceInitializer {
     }
     
     private static boolean isScaleIllegal(float scale) {
-        return (scale > Global.scaleLimit) || (scale < (1.0f / (Global.scaleLimit * 2)));
+        return (scale > IPGlobal.scaleLimit) || (scale < (1.0f / (IPGlobal.scaleLimit * 2)));
     }
     
 }

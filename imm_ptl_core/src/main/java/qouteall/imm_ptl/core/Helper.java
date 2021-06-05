@@ -752,7 +752,7 @@ public class Helper {
         Vec3d end = context.getEnd();
         
         // If we're past the max portal layer, don't let the player target behind this portal, create a missed result
-        if (portals.size() > Global.maxPortalLayer) {
+        if (portals.size() > IPGlobal.maxPortalLayer) {
             Vec3d diff = end.subtract(start);
             
             return new Pair<>(

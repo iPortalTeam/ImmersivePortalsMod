@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.google.common.collect.Lists;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -65,14 +65,14 @@ public class IntrinsicPortalGeneration {
         
         if (fromDimension == World.OVERWORLD) {
             CustomPortalGeneration gen =
-                Global.netherPortalMode == Global.NetherPortalMode.normal ?
+                IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
                     IntrinsicPortalGeneration.intrinsicToNether :
                     diligentToNether;
             return gen.perform(fromWorld, firePos, null);
         }
         else if (fromDimension == World.NETHER) {
             CustomPortalGeneration gen =
-                Global.netherPortalMode == Global.NetherPortalMode.normal ?
+                IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.normal ?
                     IntrinsicPortalGeneration.intrinsicFromNether :
                     diligentFromNether;
             return gen.perform(fromWorld, firePos, null);

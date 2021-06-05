@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
@@ -60,7 +60,7 @@ public class MyLoadingTicket {
     }
     
     public static int getLoadingRadius() {
-        if (Global.activeLoading) {
+        if (IPGlobal.activeLoading) {
             return 2;
         }
         else {

@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
@@ -74,7 +74,7 @@ public abstract class NetherPortalLikeForm extends PortalGenForm {
             toWorld,
             fromShape,
             toPos,
-            Global.netherPortalFindingRadius,
+            IPGlobal.netherPortalFindingRadius,
             otherSideFramePredicate,
             toShape -> {
                 generateNewFrame(fromWorld, fromShape, toWorld, toShape);

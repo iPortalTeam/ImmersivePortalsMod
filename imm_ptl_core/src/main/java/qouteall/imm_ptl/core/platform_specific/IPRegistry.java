@@ -26,7 +26,7 @@ import net.minecraft.util.registry.Registry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MyRegistry {
+public class IPRegistry {
     public static void registerMyDimensionsFabric() {
     }
     

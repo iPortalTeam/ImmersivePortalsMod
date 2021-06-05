@@ -8,10 +8,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -125,42 +125,42 @@ public class ClientDebugCommand {
         builder = builder.then(ClientCommandManager
             .literal("client_remote_ticking_enable")
             .executes(context -> {
-                CGlobal.isClientRemoteTickingEnabled = true;
+                IPCGlobal.isClientRemoteTickingEnabled = true;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("client_remote_ticking_disable")
             .executes(context -> {
-                CGlobal.isClientRemoteTickingEnabled = false;
+                IPCGlobal.isClientRemoteTickingEnabled = false;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("advanced_frustum_culling_enable")
             .executes(context -> {
-                CGlobal.doUseAdvancedFrustumCulling = true;
+                IPCGlobal.doUseAdvancedFrustumCulling = true;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("advanced_frustum_culling_disable")
             .executes(context -> {
-                CGlobal.doUseAdvancedFrustumCulling = false;
+                IPCGlobal.doUseAdvancedFrustumCulling = false;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("hacked_chunk_render_dispatcher_enable")
             .executes(context -> {
-                CGlobal.useHackedChunkRenderDispatcher = true;
+                IPCGlobal.useHackedChunkRenderDispatcher = true;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("hacked_chunk_render_dispatcher_disable")
             .executes(context -> {
-                CGlobal.useHackedChunkRenderDispatcher = false;
+                IPCGlobal.useHackedChunkRenderDispatcher = false;
                 return 0;
             })
         );
@@ -175,7 +175,7 @@ public class ClientDebugCommand {
         builder = builder.then(ClientCommandManager
             .literal("report_render_info_num")
             .executes(context -> {
-                String str = Helper.myToString(CGlobal.renderInfoNumMap.entrySet().stream());
+                String str = Helper.myToString(IPCGlobal.renderInfoNumMap.entrySet().stream());
                 context.getSource().getPlayer().sendMessage(new LiteralText(str), false);
                 return 0;
             })
@@ -224,28 +224,28 @@ public class ClientDebugCommand {
         builder = builder.then(ClientCommandManager
             .literal("render_mode_normal")
             .executes(context -> {
-                Global.renderMode = Global.RenderMode.normal;
+                IPGlobal.renderMode = IPGlobal.RenderMode.normal;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("render_mode_compatibility")
             .executes(context -> {
-                Global.renderMode = Global.RenderMode.compatibility;
+                IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("render_mode_debug")
             .executes(context -> {
-                Global.renderMode = Global.RenderMode.debug;
+                IPGlobal.renderMode = IPGlobal.RenderMode.debug;
                 return 0;
             })
         );
         builder = builder.then(ClientCommandManager
             .literal("render_mode_none")
             .executes(context -> {
-                Global.renderMode = Global.RenderMode.none;
+                IPGlobal.renderMode = IPGlobal.RenderMode.none;
                 return 0;
             })
         );
@@ -469,54 +469,54 @@ public class ClientDebugCommand {
         registerSwitchCommand(
             builder,
             "front_clipping",
-            cond -> CGlobal.useFrontClipping = cond
+            cond -> IPCGlobal.useFrontClipping = cond
         );
         registerSwitchCommand(
             builder,
             "gl_check_error",
-            cond -> Global.doCheckGlError = cond
+            cond -> IPGlobal.doCheckGlError = cond
         );
         registerSwitchCommand(
             builder,
             "smooth_chunk_unload",
-            cond -> CGlobal.smoothChunkUnload = cond
+            cond -> IPCGlobal.smoothChunkUnload = cond
         );
         
         registerSwitchCommand(
             builder,
             "early_light_update",
-            cond -> CGlobal.earlyClientLightUpdate = cond
+            cond -> IPCGlobal.earlyClientLightUpdate = cond
         );
         registerSwitchCommand(
             builder,
             "super_advanced_frustum_culling",
-            cond -> CGlobal.useSuperAdvancedFrustumCulling = cond
+            cond -> IPCGlobal.useSuperAdvancedFrustumCulling = cond
         );
         
         registerSwitchCommand(
             builder,
             "teleportation_debug",
-            cond -> Global.teleportationDebugEnabled = cond
+            cond -> IPGlobal.teleportationDebugEnabled = cond
         );
         registerSwitchCommand(
             builder,
             "cross_portal_entity_rendering",
-            cond -> Global.correctCrossPortalEntityRendering = cond
+            cond -> IPGlobal.correctCrossPortalEntityRendering = cond
         );
         registerSwitchCommand(
             builder,
             "loose_visible_chunk_iteration",
-            cond -> Global.looseVisibleChunkIteration = cond
+            cond -> IPGlobal.looseVisibleChunkIteration = cond
         );
         registerSwitchCommand(
             builder,
             "early_cull_portal",
-            cond -> CGlobal.earlyFrustumCullingPortal = cond
+            cond -> IPCGlobal.earlyFrustumCullingPortal = cond
         );
         registerSwitchCommand(
             builder,
             "cache_gl_buffer",
-            cond -> Global.cacheGlBuffer = cond
+            cond -> IPGlobal.cacheGlBuffer = cond
         );
         registerSwitchCommand(
             builder,
@@ -526,47 +526,47 @@ public class ClientDebugCommand {
         registerSwitchCommand(
             builder,
             "server_smooth_loading",
-            cond -> Global.serverSmoothLoading = cond
+            cond -> IPGlobal.serverSmoothLoading = cond
         );
         registerSwitchCommand(
             builder,
             "secondary_vertex_consumer",
-            cond -> Global.useSecondaryEntityVertexConsumer = cond
+            cond -> IPGlobal.useSecondaryEntityVertexConsumer = cond
         );
         registerSwitchCommand(
             builder,
             "cull_sections_behind",
-            cond -> Global.cullSectionsBehind = cond
+            cond -> IPGlobal.cullSectionsBehind = cond
         );
         registerSwitchCommand(
             builder,
             "offset_occlusion_query",
-            cond -> Global.offsetOcclusionQuery = cond
+            cond -> IPGlobal.offsetOcclusionQuery = cond
         );
         registerSwitchCommand(
             builder,
             "cloud_optimization",
-            cond -> Global.cloudOptimization = cond
+            cond -> IPGlobal.cloudOptimization = cond
         );
         registerSwitchCommand(
             builder,
             "cross_portal_collision",
-            cond -> Global.crossPortalCollision = cond
+            cond -> IPGlobal.crossPortalCollision = cond
         );
         registerSwitchCommand(
             builder,
             "light_logging",
-            cond -> Global.lightLogging = cond
+            cond -> IPGlobal.lightLogging = cond
         );
         registerSwitchCommand(
             builder,
             "disable_fog",
-            cond -> Global.debugDisableFog = cond
+            cond -> IPGlobal.debugDisableFog = cond
         );
         registerSwitchCommand(
             builder,
             "depth_clamp_for_portal_rendering",
-            cond -> Global.enableDepthClampForPortalRendering = cond
+            cond -> IPGlobal.enableDepthClampForPortalRendering = cond
         );
         
         builder.then(ClientCommandManager
@@ -694,7 +694,7 @@ public class ClientDebugCommand {
     }
     
     private static int setMaxPortalLayer(int m) {
-        Global.maxPortalLayer = m;
+        IPGlobal.maxPortalLayer = m;
         return 0;
     }
     

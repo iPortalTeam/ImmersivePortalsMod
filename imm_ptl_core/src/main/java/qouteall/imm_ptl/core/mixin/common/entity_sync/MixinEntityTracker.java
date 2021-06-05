@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.network.CommonNetwork;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
@@ -62,7 +62,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     private void onSendToOtherNearbyPlayers(
         EntityTrackingListener entityTrackingListener, Packet<?> packet
     ) {
-        CommonNetwork.withForceRedirect(
+        IPCommonNetwork.withForceRedirect(
             entity.world.getRegistryKey(),
             () -> {
                 entityTrackingListener.sendPacket(packet);
@@ -81,7 +81,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         ServerPlayNetworkHandler serverPlayNetworkHandler,
         Packet<?> packet_1
     ) {
-        CommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
+        IPCommonNetwork.sendRedirectedPacket(serverPlayNetworkHandler, packet_1, entity.world.getRegistryKey());
     }
     
     /**
@@ -158,7 +158,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         ((IEEntityTrackerEntry) entry).ip_updateTrackedEntityPosition();
         
         Packet<?> spawnPacket = entity.createSpawnPacket();
-        Packet redirected = MyNetwork.createRedirectedMessage(entity.world.getRegistryKey(), spawnPacket);
+        Packet redirected = IPNetworking.createRedirectedMessage(entity.world.getRegistryKey(), spawnPacket);
         listeners.forEach(handler -> {
             handler.sendPacket(redirected);
         });

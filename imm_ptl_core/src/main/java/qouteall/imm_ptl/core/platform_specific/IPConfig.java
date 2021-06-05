@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MyConfig {
+public class IPConfig {
     // json does not allow comments...
     public String check_the_wiki_for_more_information = "https://qouteall.fun/immptl/wiki/Config-Options";
     
@@ -46,8 +46,8 @@ public class MyConfig {
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
-    public Global.NetherPortalMode netherPortalMode = Global.NetherPortalMode.normal;
-    public Global.EndPortalMode endPortalMode = Global.EndPortalMode.normal;
+    public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
+    public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
     
     private static File getGameDir() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -58,13 +58,13 @@ public class MyConfig {
         }
     }
     
-    public static MyConfig readConfig() {
+    public static IPConfig readConfig() {
         File oldConfigFile = new File(getGameDir(), "imm_ptl_config.json");
         File newConfigFile = getConfigFileLocation();
         
         if (oldConfigFile.exists()) {
             Helper.log("Detected the old config file. deleted.");
-            MyConfig result = readConfigFromFile(oldConfigFile);
+            IPConfig result = readConfigFromFile(oldConfigFile);
             oldConfigFile.delete();
             return result;
         }
@@ -79,23 +79,23 @@ public class MyConfig {
         );
     }
     
-    public static MyConfig readConfigFromFile(File configFile) {
+    public static IPConfig readConfigFromFile(File configFile) {
         if (configFile.exists()) {
             try {
                 String data = Files.lines(configFile.toPath()).collect(Collectors.joining());
-                MyConfig result = Global.gson.fromJson(data, MyConfig.class);
+                IPConfig result = IPGlobal.gson.fromJson(data, IPConfig.class);
                 if (result == null) {
-                    return new MyConfig();
+                    return new IPConfig();
                 }
                 return result;
             }
             catch (Throwable e) {
                 e.printStackTrace();
-                return new MyConfig();
+                return new IPConfig();
             }
         }
         else {
-            MyConfig configObject = new MyConfig();
+            IPConfig configObject = new IPConfig();
             configObject.saveConfigFile();
             return configObject;
         }
@@ -108,7 +108,7 @@ public class MyConfig {
             configFile1.createNewFile();
             FileWriter fileWriter = new FileWriter(configFile1);
             
-            fileWriter.write(Global.gson.toJson(this));
+            fileWriter.write(IPGlobal.gson.toJson(this));
             fileWriter.close();
         }
         catch (IOException e) {
@@ -118,36 +118,36 @@ public class MyConfig {
     
     public void onConfigChanged() {
         if (compatibilityRenderMode) {
-            Global.renderMode = Global.RenderMode.compatibility;
+            IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
         }
         else {
-            Global.renderMode = Global.RenderMode.normal;
+            IPGlobal.renderMode = IPGlobal.RenderMode.normal;
         }
-        Global.doCheckGlError = doCheckGlError;
-        Global.maxPortalLayer = maxPortalLayer;
-        Global.lagAttackProof = lagAttackProof;
-        Global.portalRenderLimit = portalRenderLimit;
-        Global.netherPortalFindingRadius = portalSearchingRange;
-        Global.renderYourselfInPortal = renderYourselfInPortal;
+        IPGlobal.doCheckGlError = doCheckGlError;
+        IPGlobal.maxPortalLayer = maxPortalLayer;
+        IPGlobal.lagAttackProof = lagAttackProof;
+        IPGlobal.portalRenderLimit = portalRenderLimit;
+        IPGlobal.netherPortalFindingRadius = portalSearchingRange;
+        IPGlobal.renderYourselfInPortal = renderYourselfInPortal;
         
-        Global.activeLoading = activeLoading;
-        Global.teleportationDebugEnabled = teleportationDebug;
-        Global.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
-        Global.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
-        Global.looseMovementCheck = looseMovementCheck;
-        Global.pureMirror = pureMirror;
-        Global.enableAlternateDimensions = enableAlternateDimensions;
-        Global.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
-        Global.netherPortalMode = netherPortalMode;
-        Global.endPortalMode = endPortalMode;
-        Global.reducedPortalRendering = reducedPortalRendering;
-        Global.offsetOcclusionQuery = visibilityPrediction;
-        Global.chunkUnloadDelayTicks = chunkUnloadDelayTicks;
-        Global.forceMergePortalRendering = forceMergePortalRendering;
-        Global.netherPortalOverlay = netherPortalOverlay;
-        Global.serverSmoothLoading = graduallyIncreaseLoadingRange;
-        Global.scaleLimit = scaleLimit;
-        Global.easeCreativePermission = easeCreativePermission;
+        IPGlobal.activeLoading = activeLoading;
+        IPGlobal.teleportationDebugEnabled = teleportationDebug;
+        IPGlobal.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
+        IPGlobal.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
+        IPGlobal.looseMovementCheck = looseMovementCheck;
+        IPGlobal.pureMirror = pureMirror;
+        IPGlobal.enableAlternateDimensions = enableAlternateDimensions;
+        IPGlobal.indirectLoadingRadiusCap = indirectLoadingRadiusCap;
+        IPGlobal.netherPortalMode = netherPortalMode;
+        IPGlobal.endPortalMode = endPortalMode;
+        IPGlobal.reducedPortalRendering = reducedPortalRendering;
+        IPGlobal.offsetOcclusionQuery = visibilityPrediction;
+        IPGlobal.chunkUnloadDelayTicks = chunkUnloadDelayTicks;
+        IPGlobal.forceMergePortalRendering = forceMergePortalRendering;
+        IPGlobal.netherPortalOverlay = netherPortalOverlay;
+        IPGlobal.serverSmoothLoading = graduallyIncreaseLoadingRange;
+        IPGlobal.scaleLimit = scaleLimit;
+        IPGlobal.easeCreativePermission = easeCreativePermission;
         
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

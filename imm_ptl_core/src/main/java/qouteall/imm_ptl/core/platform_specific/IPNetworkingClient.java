@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
-import qouteall.imm_ptl.core.network.CommonNetworkClient;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.network.ImplRemoteProcedureCall;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
@@ -30,21 +30,21 @@ import net.minecraft.world.World;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
-public class MyNetworkClient {
+public class IPNetworkingClient {
     
     private static MinecraftClient client = MinecraftClient.getInstance();
     
     public static void init() {
         
         ClientPlayNetworking.registerGlobalReceiver(
-            MyNetwork.id_stcRedirected,
+            IPNetworking.id_stcRedirected,
             (c, handler, buf, responseSender) -> {
                 processRedirectedMessage(buf);
             }
         );
         
         ClientPlayNetworking.registerGlobalReceiver(
-            MyNetwork.id_stcDimSync,
+            IPNetworking.id_stcDimSync,
             (c, handler, buf, responseSender) -> {
                 processDimSync(buf);
                 
@@ -52,7 +52,7 @@ public class MyNetworkClient {
         );
         
         ClientPlayNetworking.registerGlobalReceiver(
-            MyNetwork.id_stcSpawnEntity,
+            IPNetworking.id_stcSpawnEntity,
             (c, handler, buf, responseSender) -> {
                 processStcSpawnEntity(null, buf);
                 
@@ -60,21 +60,21 @@ public class MyNetworkClient {
         );
         
         ClientPlayNetworking.registerGlobalReceiver(
-            MyNetwork.id_stcDimensionConfirm,
+            IPNetworking.id_stcDimensionConfirm,
             (c, handler, buf, responseSender) -> {
                 processStcDimensionConfirm(null, buf);
             }
         );
         
         ClientPlayNetworking.registerGlobalReceiver(
-            MyNetwork.id_stcUpdateGlobalPortal,
+            IPNetworking.id_stcUpdateGlobalPortal,
             (c, handler, buf, responseSender) -> {
                 processGlobalPortalUpdate(buf);
             }
         );
         
         ClientPlayNetworking.registerGlobalReceiver(
-            MyNetwork.id_stcRemote,
+            IPNetworking.id_stcRemote,
             (c, handler, buf, responseSender) -> {
                 CHelper.executeOnRenderThread(
                     ImplRemoteProcedureCall.clientReadFunctionAndArguments(buf)
@@ -93,7 +93,7 @@ public class MyNetworkClient {
         
         NbtCompound compoundTag = buf.readNbt();
         
-        CommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
+        IPCommonNetworkClient.processEntitySpawn(entityTypeString, entityId, dim, compoundTag);
     }
     
     private static void processStcDimensionConfirm(PacketContext context, PacketByteBuf buf) {
@@ -106,7 +106,7 @@ public class MyNetworkClient {
         );
         
         CHelper.executeOnRenderThread(() -> {
-            CGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
+            IPCGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos,
                 false
             );
@@ -120,7 +120,7 @@ public class MyNetworkClient {
         int messageType = buf.readInt();
         Packet packet = createPacketByType(messageType,buf);
         
-        CommonNetworkClient.processRedirectedPacket(dimension, packet);
+        IPCommonNetworkClient.processRedirectedPacket(dimension, packet);
     }
     
     public static void processDimSync(
@@ -153,7 +153,7 @@ public class MyNetworkClient {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimension, true);
         packet.write(buf);
-        return new CustomPayloadC2SPacket(MyNetwork.id_ctsPlayerAction, buf);
+        return new CustomPayloadC2SPacket(IPNetworking.id_ctsPlayerAction, buf);
     }
     
     public static Packet createCtsRightClick(
@@ -163,7 +163,7 @@ public class MyNetworkClient {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         DimId.writeWorldId(buf, dimension, true);
         packet.write(buf);
-        return new CustomPayloadC2SPacket(MyNetwork.id_ctsRightClick, buf);
+        return new CustomPayloadC2SPacket(IPNetworking.id_ctsRightClick, buf);
     }
     
     public static Packet createCtsTeleport(
@@ -177,7 +177,7 @@ public class MyNetworkClient {
         buf.writeDouble(posBefore.y);
         buf.writeDouble(posBefore.z);
         buf.writeUuid(portalEntityId);
-        return new CustomPayloadC2SPacket(MyNetwork.id_ctsTeleport, buf);
+        return new CustomPayloadC2SPacket(IPNetworking.id_ctsTeleport, buf);
     }
     
     private static Packet createPacketByType(

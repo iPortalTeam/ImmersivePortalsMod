@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
@@ -110,7 +110,7 @@ public class MyGameRenderer {
         
         float tickDelta = RenderStates.tickDelta;
         
-        if (CGlobal.useHackedChunkRenderDispatcher) {
+        if (IPCGlobal.useHackedChunkRenderDispatcher) {
             ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage().updateCameraPosition(
                 cameraEntity.getX(),
                 cameraEntity.getZ()
@@ -166,7 +166,7 @@ public class MyGameRenderer {
         }
         ieGameRenderer.setCamera(newCamera);
         
-        if (Global.useSecondaryEntityVertexConsumer) {
+        if (IPGlobal.useSecondaryEntityVertexConsumer) {
             ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
             ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
         }
@@ -178,7 +178,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
         
-        if (Global.looseVisibleChunkIteration) {
+        if (IPGlobal.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = false;
         }
         
@@ -230,7 +230,7 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
         
-        if (Global.looseVisibleChunkIteration) {
+        if (IPGlobal.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = oldChunkCullingEnabled;
         }
         
@@ -333,7 +333,7 @@ public class MyGameRenderer {
     
     public static void pruneRenderList(ObjectList<?> visibleChunks) {
         if (PortalRendering.isRendering()) {
-            if (Global.cullSectionsBehind) {
+            if (IPGlobal.cullSectionsBehind) {
                 // this thing has no optimization effect -_-
                 
                 PortalLike renderingPortal = PortalRendering.getRenderingPortal();

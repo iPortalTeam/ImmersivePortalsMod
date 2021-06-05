@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render.lag_spike_fix;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +26,7 @@ public class GlBufferCache {
     
     @Deprecated
     private static void onPreRender() {
-        if (!Global.cacheGlBuffer) {
+        if (!IPGlobal.cacheGlBuffer) {
             return;
         }
         

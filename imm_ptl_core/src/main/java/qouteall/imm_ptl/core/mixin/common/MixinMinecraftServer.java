@@ -3,8 +3,8 @@ package qouteall.imm_ptl.core.mixin.common;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdManagement;
 import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
@@ -63,7 +63,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     )
     private void onServerTick(BooleanSupplier booleanSupplier_1, CallbackInfo ci) {
         getProfiler().push("imm_ptl_tick");
-        ModMain.postServerTickSignal.emit();
+        IPGlobal.postServerTickSignal.emit();
         getProfiler().pop();
     }
     
@@ -72,7 +72,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         at = @At("RETURN")
     )
     private void onServerClose(CallbackInfo ci) {
-        ModMain.serverCleanupSignal.emit();
+        IPGlobal.serverCleanupSignal.emit();
     }
     
     @Inject(

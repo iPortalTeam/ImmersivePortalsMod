@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ModMainClient;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalThirdPersonView;
@@ -59,14 +59,14 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean renderWorldIn,
         CallbackInfo ci
     ) {
-        ModMain.preTotalRenderTaskList.processTasks();
+        IPGlobal.preTotalRenderTaskList.processTasks();
         if (client.world == null) {
             return;
         }
         RenderStates.updatePreRenderInfo(tickDelta);
-        CGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
-        ModMain.preGameRenderSignal.emit();
-        if (CGlobal.earlyClientLightUpdate) {
+        IPCGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
+        IPGlobal.preGameRenderSignal.emit();
+        if (IPCGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
         }
         
@@ -89,7 +89,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     ) {
         ModMainClient.switchToCorrectRenderer();
         
-        CGlobal.renderer.prepareRendering();
+        IPCGlobal.renderer.prepareRendering();
     }
     
     //after rendering world (not triggered when rendering portal)
@@ -107,7 +107,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean boolean_1,
         CallbackInfo ci
     ) {
-        CGlobal.renderer.finishRendering();
+        IPCGlobal.renderer.finishRendering();
         
         RenderStates.onTotalRenderEnd();
         
@@ -139,7 +139,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         MatrixStack matrixStack_1,
         CallbackInfo ci
     ) {
-        CGlobal.renderer.onRenderCenterEnded(matrixStack_1);
+        IPCGlobal.renderer.onRenderCenterEnded(matrixStack_1);
     }
     
     //resize all world renderers when resizing window

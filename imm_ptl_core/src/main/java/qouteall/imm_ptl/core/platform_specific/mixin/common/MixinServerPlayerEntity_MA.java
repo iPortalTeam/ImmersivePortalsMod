@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific.mixin.common;
 
-import qouteall.imm_ptl.core.Global;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,9 +42,9 @@ public class MixinServerPlayerEntity_MA {
     
     private static void onBeforeDimensionTravel(ServerPlayerEntity player) {
         CustomPortalGenManagement.onBeforeConventionalDimensionChange(player);
-        Global.chunkDataSyncManager.onPlayerRespawn(player);
+        IPGlobal.chunkDataSyncManager.onPlayerRespawn(player);
         
-        ModMain.serverTaskList.addTask(() -> {
+        IPGlobal.serverTaskList.addTask(() -> {
             CustomPortalGenManagement.onAfterConventionalDimensionChange(player);
             return true;
         });

@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -41,7 +41,7 @@ public class RendererMixed extends PortalRenderer {
     private boolean nextFramePortalRenderingNeeded = false;
     
     public RendererMixed() {
-        ModMain.preGameRenderSignal.connect(() -> {
+        IPGlobal.preGameRenderSignal.connect(() -> {
             updateNeedsPortalRendering();
         });
     }

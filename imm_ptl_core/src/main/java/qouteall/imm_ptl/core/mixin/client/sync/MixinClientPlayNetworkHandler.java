@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
 import com.mojang.authlib.GameProfile;
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.network.NetworkAdapt;
+import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -112,7 +112,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         PlayerPositionLookS2CPacket packet,
         CallbackInfo ci
     ) {
-        if (!NetworkAdapt.doesServerHasIP()) {
+        if (!IPNetworkAdapt.doesServerHasIP()) {
             return;
         }
         
@@ -138,7 +138,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             }
         }
         
-        CGlobal.clientTeleportationManager.disableTeleportFor(5);
+        IPCGlobal.clientTeleportationManager.disableTeleportFor(5);
         
     }
     
@@ -161,7 +161,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         if (entity_1 == null) {
             if (!isReProcessingPassengerPacket) {
                 Helper.log("Re-processed riding packet");
-                ModMain.clientTaskList.addTask(() -> {
+                IPGlobal.clientTaskList.addTask(() -> {
                     isReProcessingPassengerPacket = true;
                     onEntityPassengersSet(entityPassengersSetS2CPacket_1);
                     isReProcessingPassengerPacket = false;
@@ -183,7 +183,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         cancellable = true
     )
     private void onOnUnload(UnloadChunkS2CPacket packet, CallbackInfo ci) {
-        if (CGlobal.smoothChunkUnload) {
+        if (IPCGlobal.smoothChunkUnload) {
             DimensionalChunkPos pos = new DimensionalChunkPos(
                 world.getRegistryKey(), packet.getX(), packet.getZ()
             );
@@ -197,7 +197,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             
             int[] counter = new int[1];
             counter[0] = (int) (Math.random() * 200);
-            ModMain.clientTaskList.addTask(() -> {
+            IPGlobal.clientTaskList.addTask(() -> {
                 ClientWorld world1 = ClientWorldLoader.getWorld(pos.dimension);
                 
                 if (world1.getChunkManager().isChunkLoaded(pos.x, pos.z)) {

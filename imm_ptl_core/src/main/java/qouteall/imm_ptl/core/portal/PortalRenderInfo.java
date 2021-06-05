@@ -1,9 +1,8 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.render.GlQueryObject;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import qouteall.imm_ptl.core.render.QueryManager;
@@ -215,7 +214,7 @@ public class PortalRenderInfo {
         Profiler profiler = MinecraftClient.getInstance().getProfiler();
         
         boolean decision;
-        if (Global.offsetOcclusionQuery && portal instanceof Portal) {
+        if (IPGlobal.offsetOcclusionQuery && portal instanceof Portal) {
             PortalRenderInfo presentation = get(((Portal) portal));
             
             List<UUID> renderingDescription = WorldRenderInfo.getRenderingDescription();
@@ -279,7 +278,7 @@ public class PortalRenderInfo {
     private void updateGrouping(Portal portal) {
         Validate.isTrue(!portal.isGlobalPortal);
         
-        if (!Global.enablePortalRenderingMerge) {
+        if (!IPGlobal.enablePortalRenderingMerge) {
             return;
         }
         
@@ -341,7 +340,7 @@ public class PortalRenderInfo {
     }
     
     private static boolean canMerge(Portal p) {
-        if (Global.forceMergePortalRendering) {
+        if (IPGlobal.forceMergePortalRendering) {
             return true;
         }
         return p.isRenderingMergable();
@@ -378,7 +377,7 @@ public class PortalRenderInfo {
         // normally if a portal is removed by calling remove() it will dispose normally
         // but that cannot be guaranteed
         // use this to avoid potential resource leak
-        ModMain.clientTaskList.addTask(() -> {
+        IPGlobal.clientTaskList.addTask(() -> {
             dispose();
             return true;
         });

@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity;
 // temporary work around for bugs
 public class DubiousThings {
     public static void init() {
-        ModMain.postClientTickSignal.connect(DubiousThings::tick);
+        IPGlobal.postClientTickSignal.connect(DubiousThings::tick);
     }
     
     private static void tick() {

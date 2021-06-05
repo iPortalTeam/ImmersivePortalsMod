@@ -2,10 +2,9 @@ package qouteall.imm_ptl.core.render;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -44,9 +43,9 @@ public class CrossPortalEntityRenderer {
     public static boolean isRendering = false;
     
     public static void init() {
-        ModMain.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
+        IPGlobal.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
         
-        ModMain.clientCleanupSignal.connect(CrossPortalEntityRenderer::cleanUp);
+        IPGlobal.clientCleanupSignal.connect(CrossPortalEntityRenderer::cleanUp);
     }
     
     private static void cleanUp() {
@@ -72,7 +71,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void onBeginRenderingEntities(MatrixStack matrixStack) {
-        if (!Global.correctCrossPortalEntityRendering) {
+        if (!IPGlobal.correctCrossPortalEntityRendering) {
             return;
         }
         
@@ -85,7 +84,7 @@ public class CrossPortalEntityRenderer {
     
     // do not use runWithTransformation here (because matrixStack is changed?)
     public static void onEndRenderingEntities(MatrixStack matrixStack) {
-        if (!Global.correctCrossPortalEntityRendering) {
+        if (!IPGlobal.correctCrossPortalEntityRendering) {
             return;
         }
         
@@ -93,7 +92,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void beforeRenderingEntity(Entity entity, MatrixStack matrixStack) {
-        if (!Global.correctCrossPortalEntityRendering) {
+        if (!IPGlobal.correctCrossPortalEntityRendering) {
             return;
         }
         if (!PortalRendering.isRendering()) {
@@ -116,7 +115,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void afterRenderingEntity(Entity entity) {
-        if (!Global.correctCrossPortalEntityRendering) {
+        if (!IPGlobal.correctCrossPortalEntityRendering) {
             return;
         }
         if (!PortalRendering.isRendering()) {
@@ -131,7 +130,7 @@ public class CrossPortalEntityRenderer {
     //if an entity is in overworld but halfway through a nether portal
     //then it has a projection in nether
     private static void renderEntityProjections(MatrixStack matrixStack) {
-        if (!Global.correctCrossPortalEntityRendering) {
+        if (!IPGlobal.correctCrossPortalEntityRendering) {
             return;
         }
         collidedEntities.keySet().forEach(entity -> {
@@ -238,7 +237,7 @@ public class CrossPortalEntityRenderer {
         }
         
         if (entity instanceof ClientPlayerEntity) {
-            if (!Global.renderYourselfInPortal) {
+            if (!IPGlobal.renderYourselfInPortal) {
                 return;
             }
             
@@ -323,7 +322,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static boolean shouldRenderPlayerDefault() {
-        if (!Global.renderYourselfInPortal) {
+        if (!IPGlobal.renderYourselfInPortal) {
             return false;
         }
         if (!WorldRenderInfo.isRendering()) {

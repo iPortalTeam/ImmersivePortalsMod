@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.CGlobal;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,7 +27,7 @@ public class PortalEntityRenderer extends EntityRenderer<Portal> {
         int light
     ) {
         
-        CGlobal.renderer.renderPortalInEntityRenderer(portal);
+        IPCGlobal.renderer.renderPortalInEntityRenderer(portal);
         
 //        if (portal instanceof BreakablePortalEntity) {
 //            BreakablePortalEntity breakablePortalEntity = (BreakablePortalEntity) portal;

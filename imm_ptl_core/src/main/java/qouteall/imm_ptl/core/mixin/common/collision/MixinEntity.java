@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -109,7 +109,7 @@ public abstract class MixinEntity implements IEEntity {
         if (collidingPortal == null ||
             entity.hasPassengers() ||
             entity.hasVehicle() ||
-            !Global.crossPortalCollision
+            !IPGlobal.crossPortalCollision
         ) {
             return adjustMovementForCollisions(attemptedMove);
         }
@@ -162,7 +162,7 @@ public abstract class MixinEntity implements IEEntity {
     )
     private void onSetPos(double nx, double ny, double nz, CallbackInfo ci) {
         if (((Object) this) instanceof ServerPlayerEntity) {
-            if (Global.teleportationDebugEnabled) {
+            if (IPGlobal.teleportationDebugEnabled) {
                 if (Math.abs(getX() - nx) > 10 ||
                     Math.abs(getY() - ny) > 10 ||
                     Math.abs(getZ() - nz) > 10

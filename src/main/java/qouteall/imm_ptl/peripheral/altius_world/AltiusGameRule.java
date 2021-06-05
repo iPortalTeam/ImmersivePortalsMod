@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import net.minecraft.world.GameRules;
 
 public class AltiusGameRule {
@@ -18,7 +18,7 @@ public class AltiusGameRule {
             GameRules.BooleanRule.create(false)
         );
         
-        ModMain.postServerTickSignal.connect(AltiusGameRule::serverTick);
+        IPGlobal.postServerTickSignal.connect(AltiusGameRule::serverTick);
     }
     
     private static void serverTick() {

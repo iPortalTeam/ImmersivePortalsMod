@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import net.fabricmc.api.EnvType;
@@ -120,7 +120,7 @@ public class LoadingIndicatorEntity extends Entity {
     
     @Override
     public Packet<?> createSpawnPacket() {
-        return MyNetwork.createStcSpawnEntity(this);
+        return IPNetworking.createStcSpawnEntity(this);
     }
     
     public void inform(Text str) {

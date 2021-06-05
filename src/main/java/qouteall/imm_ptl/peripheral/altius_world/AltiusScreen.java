@@ -2,9 +2,8 @@ package qouteall.imm_ptl.peripheral.altius_world;
 
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.my_util.GuiHelper;
 import qouteall.imm_ptl.core.my_util.MyTaskList;
 import net.fabricmc.api.EnvType;
@@ -99,7 +98,7 @@ public class AltiusScreen extends Screen {
         );
         
         Consumer<DimEntryWidget> callback = getElementSelectCallback();
-        if (Global.enableAlternateDimensions) {
+        if (IPGlobal.enableAlternateDimensions) {
             dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate5));
             dimListWidget.entryWidgets.add(createDimEntryWidget(AlternateDimensions.alternate1));
         }
@@ -283,7 +282,7 @@ public class AltiusScreen extends Screen {
             new SaveLevelScreen(new TranslatableText("imm_ptl.loading_datapack_dimensions"))
         );
         
-        ModMain.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
+        IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
             MinecraftClient.getInstance().openScreen(
                 new SelectDimensionScreen(
                     this,

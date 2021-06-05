@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
-import qouteall.imm_ptl.core.platform_specific.MyNetworkClient;
+import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.ducks.IEClientPlayerInteractionManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -42,7 +42,7 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
     ) {
         if (BlockManipulationClient.isContextSwitched) {
             this.networkHandler.sendPacket(
-                MyNetworkClient.createCtsPlayerAction(
+                IPNetworkingClient.createCtsPlayerAction(
                     BlockManipulationClient.remotePointedDim,
                     new PlayerActionC2SPacket(action, blockPos, direction)
                 )
@@ -64,7 +64,7 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
     ) {
         if (BlockManipulationClient.isContextSwitched) {
             clientPlayNetworkHandler.sendPacket(
-                MyNetworkClient.createCtsRightClick(
+                IPNetworkingClient.createCtsRightClick(
                     BlockManipulationClient.remotePointedDim,
                     ((PlayerInteractBlockC2SPacket) packet)
                 )

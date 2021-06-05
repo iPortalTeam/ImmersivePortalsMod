@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.render.context_management.CloudContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.gl.VertexBuffer;
@@ -58,7 +58,7 @@ public abstract class MixinWorldRenderer_Clouds {
             return;
         }
         
-        if (Global.cloudOptimization) {
+        if (IPGlobal.cloudOptimization) {
             portal_onBeginCloudRendering(tickDelta, cameraX, cameraY, cameraZ);
         }
     }
@@ -72,7 +72,7 @@ public abstract class MixinWorldRenderer_Clouds {
             return;
         }
         
-        if (Global.cloudOptimization) {
+        if (IPGlobal.cloudOptimization) {
             portal_onEndCloudRendering();
         }
     }

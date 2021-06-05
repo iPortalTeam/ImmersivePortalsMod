@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.mixin.client.sync;
 
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
-import qouteall.imm_ptl.core.network.NetworkAdapt;
+import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.registry.RegistryKey;
@@ -19,10 +19,10 @@ public class MixinPlayerPositionLookS2CPacket_C {
         if (buf.isReadable()) {
             RegistryKey<World> playerDimension = DimId.readWorldId(buf, true);
             ((IEPlayerPositionLookS2CPacket) this).setPlayerDimension(playerDimension);
-            NetworkAdapt.setServerHasIP(true);
+            IPNetworkAdapt.setServerHasIP(true);
         }
         else {
-            NetworkAdapt.setServerHasIP(false);
+            IPNetworkAdapt.setServerHasIP(false);
         }
     }
     

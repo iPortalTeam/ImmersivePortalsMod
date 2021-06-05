@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.lag_spike_fix.GlBufferCache;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,7 +37,7 @@ public abstract class MixinGlStateManager {
         cancellable = true
     )
     private static void onGenBuffers(CallbackInfoReturnable<Integer> cir) {
-        if (Global.cacheGlBuffer) {
+        if (IPGlobal.cacheGlBuffer) {
             cir.setReturnValue(GlBufferCache.getNewBufferId());
             cir.cancel();
         }

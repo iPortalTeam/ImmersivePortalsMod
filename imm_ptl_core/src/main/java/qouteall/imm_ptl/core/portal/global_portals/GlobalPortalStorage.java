@@ -2,9 +2,9 @@ package qouteall.imm_ptl.core.portal.global_portals;
 
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -37,14 +37,14 @@ public class GlobalPortalStorage extends PersistentState {
     private boolean shouldReSync = false;
     
     public static void init() {
-        ModMain.postServerTickSignal.connect(() -> {
+        IPGlobal.postServerTickSignal.connect(() -> {
             McHelper.getServer().getWorlds().forEach(world1 -> {
                 GlobalPortalStorage gps = GlobalPortalStorage.get(world1);
                 gps.tick();
             });
         });
         
-        ModMain.serverCleanupSignal.connect(() -> {
+        IPGlobal.serverCleanupSignal.connect(() -> {
             for (ServerWorld world : McHelper.getServer().getWorlds()) {
                 get(world).onServerClose();
             }
@@ -57,7 +57,7 @@ public class GlobalPortalStorage extends PersistentState {
     
     @Environment(EnvType.CLIENT)
     private static void initClient() {
-        ModMain.clientCleanupSignal.connect(GlobalPortalStorage::onClientCleanup);
+        IPGlobal.clientCleanupSignal.connect(GlobalPortalStorage::onClientCleanup);
     }
     
     @Environment(EnvType.CLIENT)
@@ -82,7 +82,7 @@ public class GlobalPortalStorage extends PersistentState {
                 GlobalPortalStorage storage = get(world);
                 if (!storage.data.isEmpty()) {
                     player.networkHandler.sendPacket(
-                        MyNetwork.createGlobalPortalUpdate(
+                        IPNetworking.createGlobalPortalUpdate(
                             storage
                         )
                     );
@@ -129,7 +129,7 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     private void syncToAllPlayers() {
-        Packet packet = MyNetwork.createGlobalPortalUpdate(this);
+        Packet packet = IPNetworking.createGlobalPortalUpdate(this);
         McHelper.getCopiedPlayerList().forEach(
             player -> player.networkHandler.sendPacket(packet)
         );

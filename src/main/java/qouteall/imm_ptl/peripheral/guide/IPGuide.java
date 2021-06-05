@@ -1,10 +1,9 @@
 package qouteall.imm_ptl.peripheral.guide;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.my_util.MyTaskList;
-import qouteall.imm_ptl.core.network.CommonNetworkClient;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -37,7 +36,7 @@ public class IPGuide {
             
             GuideInfo result = null;
             try (FileReader fileReader = new FileReader(storageFile)) {
-                result = Global.gson.fromJson(fileReader, GuideInfo.class);
+                result = IPGlobal.gson.fromJson(fileReader, GuideInfo.class);
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -61,7 +60,7 @@ public class IPGuide {
     private static void writeToFile(GuideInfo guideInfo) {
         try (FileWriter fileWriter = new FileWriter(getStorageFile())) {
             
-            Global.gson.toJson(guideInfo, fileWriter);
+            IPGlobal.gson.toJson(guideInfo, fileWriter);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -73,7 +72,7 @@ public class IPGuide {
     public static void initClient() {
         guideInfo = readFromFile();
         
-        CommonNetworkClient.clientPortalSpawnSignal.connect(p -> {
+        IPCommonNetworkClient.clientPortalSpawnSignal.connect(p -> {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
             
             if (!guideInfo.wikiInformed) {
@@ -92,7 +91,7 @@ public class IPGuide {
                     guideInfo.lagInformed = true;
                     writeToFile(guideInfo);
                     
-                    ModMain.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
+                    IPGlobal.clientTaskList.addTask(MyTaskList.withDelay(100, () -> {
                         MinecraftClient.getInstance().inGameHud.addChatMessage(
                             MessageType.SYSTEM,
                             new TranslatableText("imm_ptl.about_lag"),

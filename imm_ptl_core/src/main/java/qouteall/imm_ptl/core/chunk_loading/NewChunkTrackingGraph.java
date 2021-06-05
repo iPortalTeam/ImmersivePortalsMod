@@ -1,10 +1,9 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -267,7 +266,7 @@ public class NewChunkTrackingGraph {
         if (record.player.isRemoved()) {
             return true;
         }
-        long unloadDelay = Global.chunkUnloadDelayTicks;
+        long unloadDelay = IPGlobal.chunkUnloadDelayTicks;
         
         if (unloadDelay < updateInterval + 1) {
             unloadDelay = updateInterval + 1;
@@ -308,8 +307,8 @@ public class NewChunkTrackingGraph {
     }
     
     public static void init() {
-        ModMain.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
-        ModMain.serverCleanupSignal.connect(NewChunkTrackingGraph::cleanup);
+        IPGlobal.postServerTickSignal.connect(NewChunkTrackingGraph::tick);
+        IPGlobal.serverCleanupSignal.connect(NewChunkTrackingGraph::cleanup);
     }
     
     public static boolean isPlayerWatchingChunk(
@@ -396,7 +395,7 @@ public class NewChunkTrackingGraph {
                 p -> {
                     //it solves issue but making respawn laggier
                     p.networkHandler.sendPacket(
-                        MyNetwork.createRedirectedMessage(
+                        IPNetworking.createRedirectedMessage(
                             dim, new UnloadChunkS2CPacket(
                                 ChunkPos.getPackedX(chunkPos),
                                 ChunkPos.getPackedZ(chunkPos)

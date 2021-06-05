@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
@@ -49,12 +49,12 @@ public class MixinPlayerManager {
         ServerPlayerEntity player,
         CallbackInfo ci
     ) {
-        player.networkHandler.sendPacket(MyNetwork.createDimSync());
+        player.networkHandler.sendPacket(IPNetworking.createDimSync());
     }
     
     @Inject(method = "sendWorldInfo", at = @At("RETURN"))
     private void onSendWorldInfo(ServerPlayerEntity player, ServerWorld world, CallbackInfo ci) {
-        if (!Global.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
+        if (!IPGlobal.serverTeleportationManager.isFiringMyChangeDimensionEvent) {
             GlobalPortalStorage.onPlayerLoggedIn(player);
         }
     }
@@ -74,7 +74,7 @@ public class MixinPlayerManager {
         for (ServerPlayerEntity player : players) {
             if (player.world.getRegistryKey() == dimension) {
                 player.networkHandler.sendPacket(
-                    MyNetwork.createRedirectedMessage(
+                    IPNetworking.createRedirectedMessage(
                         dimension,
                         packet
                     )
@@ -103,7 +103,7 @@ public class MixinPlayerManager {
             playerEntity, dimension, chunkPos.x, chunkPos.z, (int) distance + 16
         )).forEach(playerEntity -> {
             if (playerEntity != excludingPlayer) {
-                playerEntity.networkHandler.sendPacket(MyNetwork.createRedirectedMessage(
+                playerEntity.networkHandler.sendPacket(IPNetworking.createRedirectedMessage(
                     dimension, packet
                 ));
             }

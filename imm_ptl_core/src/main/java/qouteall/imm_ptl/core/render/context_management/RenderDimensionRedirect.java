@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.render.context_management;
 
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.ModMain;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,7 +30,7 @@ public class RenderDimensionRedirect {
             RegistryKey<World> from = DimId.idToKey(new Identifier(key));
             RegistryKey<World> to = DimId.idToKey(new Identifier(value));
             if (from == null) {
-                ModMain.clientTaskList.addTask(() -> {
+                IPGlobal.clientTaskList.addTask(() -> {
                     CHelper.printChat("Invalid Dimension " + key);
                     return true;
                 });
@@ -38,7 +38,7 @@ public class RenderDimensionRedirect {
             }
             if (to == null) {
                 if (!value.equals("vanilla")) {
-                    ModMain.clientTaskList.addTask(() -> {
+                    IPGlobal.clientTaskList.addTask(() -> {
                         CHelper.printChat("Invalid Dimension " + value);
                         return true;
                     });

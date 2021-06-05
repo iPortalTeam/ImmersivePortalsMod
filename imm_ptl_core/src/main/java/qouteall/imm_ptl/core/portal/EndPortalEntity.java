@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -44,16 +44,16 @@ public class EndPortalEntity extends Portal {
     }
     
     public static void onEndPortalComplete(ServerWorld world, Vec3d portalCenter) {
-        if (Global.endPortalMode == Global.EndPortalMode.normal) {
+        if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.normal) {
             generateClassicalEndPortal(world, new Vec3d(0, 120, 0), portalCenter);
         }
-        else if (Global.endPortalMode == Global.EndPortalMode.toObsidianPlatform) {
+        else if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
             BlockPos endSpawnPos = ServerWorld.END_SPAWN_POS;
             generateClassicalEndPortal(world,
                 Vec3d.ofCenter(endSpawnPos).add(0, 1, 0), portalCenter
             );
         }
-        else if (Global.endPortalMode == Global.EndPortalMode.scaledView) {
+        else if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.scaledView) {
             generateScaledViewEndPortal(world, portalCenter);
         }
         else {
@@ -231,7 +231,7 @@ public class EndPortalEntity extends Portal {
         // maybe allows easier farming of obsidian
         if (!world.isClient()) {
             if (entity instanceof ServerPlayerEntity) {
-                if (Global.endPortalMode == Global.EndPortalMode.toObsidianPlatform) {
+                if (IPGlobal.endPortalMode == IPGlobal.EndPortalMode.toObsidianPlatform) {
                     generateObsidianPlatform();
                 }
             }

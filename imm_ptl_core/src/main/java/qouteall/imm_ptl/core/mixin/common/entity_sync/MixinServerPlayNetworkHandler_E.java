@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
-import qouteall.imm_ptl.core.network.CommonNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,10 +16,10 @@ public class MixinServerPlayNetworkHandler_E {
         argsOnly = true
     )
     private Packet modifyPacket(Packet originalPacket) {
-        if (CommonNetwork.getForceRedirectDimension() == null) {
+        if (IPCommonNetwork.getForceRedirectDimension() == null) {
             return originalPacket;
         }
         
-        return MyNetwork.createRedirectedMessage(CommonNetwork.getForceRedirectDimension(), originalPacket);
+        return IPNetworking.createRedirectedMessage(IPCommonNetwork.getForceRedirectDimension(), originalPacket);
     }
 }

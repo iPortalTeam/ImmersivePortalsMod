@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ModMain;
 import qouteall.imm_ptl.core.my_util.MyTaskList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
@@ -63,7 +63,7 @@ public class ChunkLoader {
     public void loadChunksAndDo(Runnable runnable) {
         NewChunkTrackingGraph.addGlobalAdditionalChunkLoader(this);
         
-        ModMain.serverTaskList.addTask(MyTaskList.withDelayCondition(
+        IPGlobal.serverTaskList.addTask(MyTaskList.withDelayCondition(
             () -> getLoadedChunkNum() < getChunkNum(),
             MyTaskList.oneShotTask(() -> {
                 NewChunkTrackingGraph.removeGlobalAdditionalChunkLoader(this);

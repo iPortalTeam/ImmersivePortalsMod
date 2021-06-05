@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import qouteall.imm_ptl.core.Global;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
@@ -58,7 +58,7 @@ public class ChunkDataSyncManager {
                 McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
                 player.networkHandler.sendPacket(
-                    MyNetwork.createRedirectedMessage(
+                    IPNetworking.createRedirectedMessage(
                         chunkPos.dimension,
                         new ChunkDataS2CPacket(((WorldChunk) chunk))
                     )
@@ -71,12 +71,12 @@ public class ChunkDataSyncManager {
                     true
                 );
                 player.networkHandler.sendPacket(
-                    MyNetwork.createRedirectedMessage(
+                    IPNetworking.createRedirectedMessage(
                         chunkPos.dimension,
                         lightPacket
                     )
                 );
-                if (Global.lightLogging) {
+                if (IPGlobal.lightLogging) {
                     Helper.log(String.format(
                         "light sent immediately %s %d %d %d %d",
                         chunk.getWorld().getRegistryKey().getValue(),
@@ -105,7 +105,7 @@ public class ChunkDataSyncManager {
         McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
-            () -> MyNetwork.createRedirectedMessage(
+            () -> IPNetworking.createRedirectedMessage(
                 dimension,
                 new ChunkDataS2CPacket(((WorldChunk) chunk))
             )
@@ -118,7 +118,7 @@ public class ChunkDataSyncManager {
                     null,null,
                     true
                 );
-                if (Global.lightLogging) {
+                if (IPGlobal.lightLogging) {
                     Helper.log(String.format(
                         "light sent deferred %s %d %d %d %d",
                         chunk.getWorld().getRegistryKey().getValue(),
@@ -126,7 +126,7 @@ public class ChunkDataSyncManager {
                         lightPacket.getBlockLightMask(), lightPacket.getFilledBlockLightMask())
                     );
                 }
-                return MyNetwork.createRedirectedMessage(
+                return IPNetworking.createRedirectedMessage(
                     dimension,
                     lightPacket
                 );
@@ -149,7 +149,7 @@ public class ChunkDataSyncManager {
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
         
         player.networkHandler.sendPacket(
-            MyNetwork.createRedirectedMessage(
+            IPNetworking.createRedirectedMessage(
                 chunkPos.dimension,
                 new UnloadChunkS2CPacket(
                     chunkPos.x, chunkPos.z

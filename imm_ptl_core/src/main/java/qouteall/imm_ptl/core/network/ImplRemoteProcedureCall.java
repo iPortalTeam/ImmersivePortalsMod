@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import qouteall.imm_ptl.core.platform_specific.MyNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -164,7 +164,7 @@ public class ImplRemoteProcedureCall {
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new CustomPayloadC2SPacket(MyNetwork.id_ctsRemote, buf);
+        return new CustomPayloadC2SPacket(IPNetworking.id_ctsRemote, buf);
     }
     
     public static CustomPayloadS2CPacket createS2CPacket(
@@ -175,7 +175,7 @@ public class ImplRemoteProcedureCall {
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new CustomPayloadS2CPacket(MyNetwork.id_stcRemote, buf);
+        return new CustomPayloadS2CPacket(IPNetworking.id_stcRemote, buf);
     }
     
     @Environment(EnvType.CLIENT)
