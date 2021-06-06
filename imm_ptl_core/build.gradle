@@ -1,5 +1,5 @@
 archivesBaseName = "imm_ptl_core"
-group = "com.qouteall"
+group = "qouteall"
 
 minecraft {
     accessWidener = file("src/main/resources/imm_ptl.accesswidener")

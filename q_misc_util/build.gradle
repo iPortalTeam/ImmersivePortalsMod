@@ -1,0 +1,10 @@
+archivesBaseName = "q_misc_util"
+group = "qouteall"
+
+minecraft {
+    
+}
+
+dependencies {
+    
+}

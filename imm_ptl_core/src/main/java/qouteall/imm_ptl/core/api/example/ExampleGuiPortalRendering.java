@@ -93,7 +93,7 @@ public class ExampleGuiPortalRendering {
         // Tell the client to open the screen
         McRemoteProcedureCall.tellClientToInvoke(
             player,
-            "com.qouteall.immersive_portals.api.example.ExampleGuiPortalRendering.RemoteCallables.clientActivateExampleGuiPortal",
+            "qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering.RemoteCallables.clientActivateExampleGuiPortal",
             world.getRegistryKey(),
             pos
         );

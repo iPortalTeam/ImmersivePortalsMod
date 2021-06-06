@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "q_misc_util",
+  "version": "${version}",
+
+  "name": "Qouteall Miscellaneous Util",
+  "description": "",
+  "authors": [
+    "qouteall"
+  ],
+  "contact": {
+    "homepage": "https://qouteall.fun/immptl",
+    "sources": "https://github.com/qouteall/ImmersivePortalsMod",
+    "issues": "https://github.com/qouteall/ImmersivePortalsMod/issues"
+  },
+  "license": "Apache License",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+
+    ],
+    "client": [
+
+    ],
+    "server": [
+
+    ]
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": ">=0.28.1"
+  },
+  "suggests": {
+
+  }
+
+}

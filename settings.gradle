@@ -9,3 +9,4 @@ pluginManagement {
 }
 
 include 'imm_ptl_core'
+include 'q_misc_util'
