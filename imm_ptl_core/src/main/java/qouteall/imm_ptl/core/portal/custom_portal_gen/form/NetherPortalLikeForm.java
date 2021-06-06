@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.my_util.IntBox;
+import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;

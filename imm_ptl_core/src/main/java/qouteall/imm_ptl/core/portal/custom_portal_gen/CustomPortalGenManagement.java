@@ -9,7 +9,7 @@ import com.mojang.serialization.Lifecycle;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.my_util.UCoordinate;
+import qouteall.q_misc_util.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;

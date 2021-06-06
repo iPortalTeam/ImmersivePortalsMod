@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.teleportation;
 
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,7 +30,7 @@ public class CrossPortalSound {
         
         soundWorld.getProfiler().push("cross_portal_sound");
         
-        Vec3d result = McHelper.getNearbyPortals(
+        Vec3d result = IPMcHelper.getNearbyPortals(
             soundWorld, soundPos, 10
         ).filter(
             portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&

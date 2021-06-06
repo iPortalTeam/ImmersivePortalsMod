@@ -4,7 +4,7 @@ import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;

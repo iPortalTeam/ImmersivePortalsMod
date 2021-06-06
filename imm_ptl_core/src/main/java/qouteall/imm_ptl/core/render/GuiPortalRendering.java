@@ -5,7 +5,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
-import qouteall.imm_ptl.core.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;

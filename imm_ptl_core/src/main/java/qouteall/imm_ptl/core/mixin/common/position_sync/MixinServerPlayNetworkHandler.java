@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.mixin.common.position_sync;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
@@ -214,7 +214,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (((IEEntity) player).getCollidingPortal() != null) {
             return false;
         }
-        boolean portalsNearby = McHelper.getNearbyPortals(
+        boolean portalsNearby = IPMcHelper.getNearbyPortals(
             player,
             16
         ).findAny().isPresent();
@@ -289,7 +289,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (((IEEntity) player).getCollidingPortal() != null) {
             return true;
         }
-        boolean portalsNearby = McHelper.getNearbyPortals(player, 16).findFirst().isPresent();
+        boolean portalsNearby = IPMcHelper.getNearbyPortals(player, 16).findFirst().isPresent();
         if (portalsNearby) {
             return true;
         }

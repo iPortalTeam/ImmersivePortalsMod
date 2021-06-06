@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.IPDimensionAPI;
+import qouteall.q_misc_util.api.DimensionAPI;
 
 @Mixin(LevelProperties.class)
 public class MixinLevelProperties_D {
@@ -35,7 +35,7 @@ public class MixinLevelProperties_D {
         NbtCompound compoundTag2, CallbackInfo ci
     ) {
         ((IEGeneratorOptions) generatorOptions).setDimOptionRegistry(
-            IPDimensionAPI.getAdditionalDimensionsRemoved(
+            DimensionAPI._getAdditionalDimensionsRemoved(
                 generatorOptions.getDimensions()
             )
         );

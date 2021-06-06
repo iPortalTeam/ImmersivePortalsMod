@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -33,8 +32,8 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.my_util.MyTaskList;
-import qouteall.imm_ptl.core.network.McRemoteProcedureCall;
+import qouteall.q_misc_util.my_util.MyTaskList;
+import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.imm_ptl.core.portal.Portal;
 
 import java.time.Duration;

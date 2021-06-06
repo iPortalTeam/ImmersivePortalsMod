@@ -2,13 +2,12 @@ package qouteall.imm_ptl.core.mixin.common.collision;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.imm_ptl.core.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
-import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
@@ -220,7 +219,7 @@ public abstract class MixinEntity implements IEEntity {
         }
         
         if (world.isClient) {
-            McHelper.onClientEntityTick(this_);
+            IPMcHelper.onClientEntityTick(this_);
         }
     }
     

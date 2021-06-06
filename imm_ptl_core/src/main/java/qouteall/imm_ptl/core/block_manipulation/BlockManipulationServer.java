@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -73,7 +74,7 @@ public class BlockManipulationServer {
                 return true;
             }
         }
-        return McHelper.getNearbyPortals(
+        return IPMcHelper.getNearbyPortals(
             player,
             20
         ).anyMatch(portal ->

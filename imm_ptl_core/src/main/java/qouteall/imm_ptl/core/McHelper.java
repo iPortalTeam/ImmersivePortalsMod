@@ -210,26 +210,6 @@ public class McHelper {
         );
     }
     
-    // includes global portals
-    public static Stream<Portal> getNearbyPortals(Entity center, double range) {
-        return getNearbyPortals(center.world, center.getPos(), range);
-    }
-    
-    // includes global portals
-    public static Stream<Portal> getNearbyPortals(World world, Vec3d pos, double range) {
-        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
-        
-        Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
-            world, pos, Portal.class, range
-        );
-        return Streams.concat(
-            globalPortals.stream().filter(
-                p -> p.getDistanceToNearestPointInPortal(pos) < range * 2
-            ),
-            nearbyPortals
-        );
-    }
-    
     public static int getRenderDistanceOnServer() {
         return getIEStorage(World.OVERWORLD).getWatchDistance();
     }
@@ -346,11 +326,6 @@ public class McHelper {
         );
     }
     
-    
-    //avoid dedicated server crash
-    public static void onClientEntityTick(Entity entity) {
-        CrossPortalEntityRenderer.onEntityTickClient(entity);
-    }
     
     public static Portal copyEntity(Portal portal) {
         Portal newPortal = ((Portal) portal.getType().create(portal.world));

@@ -4,7 +4,7 @@ import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

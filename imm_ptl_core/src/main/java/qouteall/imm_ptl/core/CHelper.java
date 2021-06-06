@@ -59,7 +59,7 @@ public class CHelper {
     }
     
     public static Stream<Portal> getClientNearbyPortals(double range) {
-        return McHelper.getNearbyPortals(MinecraftClient.getInstance().player, range);
+        return IPMcHelper.getNearbyPortals(MinecraftClient.getInstance().player, range);
     }
     
     public static void checkGlError() {

@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.teleportation;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -10,8 +11,8 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
-import qouteall.imm_ptl.core.my_util.LimitedLogger;
-import qouteall.imm_ptl.core.my_util.MyTaskList;
+import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
@@ -208,7 +209,7 @@ public class ServerTeleportationManager {
                 return true;
             }
         }
-        return McHelper.getNearbyPortals(player, 20)
+        return IPMcHelper.getNearbyPortals(player, 20)
             .filter(portal -> portal.dimensionTo == dimension)
             .map(portal -> portal.transformPoint(playerPos))
             .anyMatch(mappedPos -> mappedPos.squaredDistanceTo(pos) < 256);

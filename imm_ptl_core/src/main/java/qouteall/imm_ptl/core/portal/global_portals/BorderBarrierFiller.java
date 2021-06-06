@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.portal.global_portals;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Streams;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.my_util.IntBox;
+import qouteall.q_misc_util.my_util.IntBox;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerLightingProvider;

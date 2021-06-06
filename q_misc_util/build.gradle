@@ -6,5 +6,5 @@ minecraft {
 }
 
 dependencies {
-    api project(":imm_ptl_core")
+//    api project(":imm_ptl_core")
 }

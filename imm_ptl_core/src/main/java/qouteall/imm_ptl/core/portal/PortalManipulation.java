@@ -1,10 +1,11 @@
 package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.Helper;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.my_util.DQuaternion;
-import qouteall.imm_ptl.core.my_util.RotationHelper;
+import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.RotationHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.world.ServerWorld;
@@ -353,7 +354,7 @@ public class PortalManipulation {
         Vec3d playerLook = entity.getRotationVector();
         
         Pair<BlockHitResult, List<Portal>> rayTrace =
-            Helper.rayTrace(
+            IPMcHelper.rayTrace(
                 entity.world,
                 new RaycastContext(
                     entity.getCameraPosVec(1.0f),
@@ -368,7 +369,7 @@ public class PortalManipulation {
         BlockHitResult hitResult = rayTrace.getLeft();
         List<Portal> hitPortals = rayTrace.getRight();
         
-        if (Helper.hitResultIsMissedOrNull(hitResult)) {
+        if (IPMcHelper.hitResultIsMissedOrNull(hitResult)) {
             return null;
         }
         

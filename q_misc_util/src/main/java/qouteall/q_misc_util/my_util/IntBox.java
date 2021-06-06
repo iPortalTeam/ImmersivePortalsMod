@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.my_util;
+package qouteall.q_misc_util.my_util;
 
 import qouteall.imm_ptl.core.Helper;
 import net.minecraft.util.math.BlockPos;

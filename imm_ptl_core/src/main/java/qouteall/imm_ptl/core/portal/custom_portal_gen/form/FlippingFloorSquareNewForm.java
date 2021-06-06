@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.my_util.IntBox;
+import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;

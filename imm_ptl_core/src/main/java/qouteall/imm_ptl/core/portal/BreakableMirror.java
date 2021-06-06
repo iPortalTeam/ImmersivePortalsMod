@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.my_util.IntBox;
+import qouteall.q_misc_util.my_util.IntBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.GlassBlock;
 import net.minecraft.block.PaneBlock;

@@ -5,7 +5,7 @@ import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.my_util.ObjectBuffer;
+import qouteall.q_misc_util.my_util.ObjectBuffer;
 import qouteall.imm_ptl.core.optifine_compatibility.OFBuiltChunkStorageFix;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;

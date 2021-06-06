@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.my_util.SignalArged;
+import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalManipulation;

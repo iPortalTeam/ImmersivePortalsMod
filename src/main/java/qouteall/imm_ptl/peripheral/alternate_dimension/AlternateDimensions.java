@@ -6,7 +6,7 @@ import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunkGener
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.IPDimensionAPI;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -36,7 +36,7 @@ import java.util.Optional;
 
 public class AlternateDimensions {
     public static void init() {
-        IPDimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
+        DimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
         
         IPGlobal.postServerTickSignal.connect(AlternateDimensions::tick);
     }
@@ -58,51 +58,51 @@ public class AlternateDimensions {
         }
         
         //different seed
-        IPDimensionAPI.addDimension(
+        DimensionAPI.addDimension(
             seed,
             registry,
             alternate1Option.getValue(),
             () -> surfaceTypeObject,
             createSkylandGenerator(seed + 1, registryManager)
         );
-        IPDimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
         
-        IPDimensionAPI.addDimension(
+        DimensionAPI.addDimension(
             seed,
             registry,
             alternate2Option.getValue(),
             () -> surfaceTypeObject,
             createSkylandGenerator(seed, registryManager)
         );
-        IPDimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
         
         //different seed
-        IPDimensionAPI.addDimension(
+        DimensionAPI.addDimension(
             seed,
             registry,
             alternate3Option.getValue(),
             () -> surfaceTypeObject,
             createErrorTerrainGenerator(seed + 1, registryManager)
         );
-        IPDimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
         
-        IPDimensionAPI.addDimension(
+        DimensionAPI.addDimension(
             seed,
             registry,
             alternate4Option.getValue(),
             () -> surfaceTypeObject,
             createErrorTerrainGenerator(seed, registryManager)
         );
-        IPDimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
         
-        IPDimensionAPI.addDimension(
+        DimensionAPI.addDimension(
             seed,
             registry,
             alternate5Option.getValue(),
             () -> surfaceTypeObject,
             createVoidGenerator(registryManager)
         );
-        IPDimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
+        DimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
     }
     
     

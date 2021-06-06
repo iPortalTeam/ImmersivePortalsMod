@@ -2,7 +2,7 @@ package qouteall.imm_ptl.peripheral.guide;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.my_util.MyTaskList;
+import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

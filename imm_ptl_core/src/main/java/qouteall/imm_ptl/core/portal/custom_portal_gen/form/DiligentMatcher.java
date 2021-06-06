@@ -2,8 +2,8 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.my_util.DQuaternion;
-import qouteall.imm_ptl.core.my_util.IntBox;
+import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.util.Pair;

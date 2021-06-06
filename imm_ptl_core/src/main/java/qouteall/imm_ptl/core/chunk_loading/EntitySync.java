@@ -4,7 +4,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.server.MinecraftServer;

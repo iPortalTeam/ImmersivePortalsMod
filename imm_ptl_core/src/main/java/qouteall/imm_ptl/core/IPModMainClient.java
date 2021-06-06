@@ -1,12 +1,11 @@
 package qouteall.imm_ptl.core;
 
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
-import net.minecraft.text.LiteralText;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.my_util.MyTaskList;
+import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.imm_ptl.core.optifine_compatibility.OFBuiltChunkStorageFix;
 import qouteall.imm_ptl.core.optifine_compatibility.OFGlobal;
 import qouteall.imm_ptl.core.optifine_compatibility.OFInterfaceInitializer;

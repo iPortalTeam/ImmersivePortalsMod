@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.my_util.SignalArged;
+import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;

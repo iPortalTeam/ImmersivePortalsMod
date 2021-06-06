@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.mixin.client;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
-import qouteall.imm_ptl.core.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.network;
+package qouteall.q_misc_util;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -8,7 +8,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -164,7 +163,7 @@ public class ImplRemoteProcedureCall {
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new CustomPayloadC2SPacket(IPNetworking.id_ctsRemote, buf);
+        return new CustomPayloadC2SPacket(MiscNetworking.id_ctsRemote, buf);
     }
     
     public static CustomPayloadS2CPacket createS2CPacket(
@@ -175,7 +174,7 @@ public class ImplRemoteProcedureCall {
         
         serializeStringWithArguments(methodPath, arguments, buf);
         
-        return new CustomPayloadS2CPacket(IPNetworking.id_stcRemote, buf);
+        return new CustomPayloadS2CPacket(MiscNetworking.id_stcRemote, buf);
     }
     
     @Environment(EnvType.CLIENT)

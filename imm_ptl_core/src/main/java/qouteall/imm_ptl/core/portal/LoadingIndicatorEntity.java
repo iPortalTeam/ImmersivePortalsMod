@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.imm_ptl.core.my_util.IntBox;
+import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

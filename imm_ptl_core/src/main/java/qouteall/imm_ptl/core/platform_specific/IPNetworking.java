@@ -6,7 +6,7 @@ import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
-import qouteall.imm_ptl.core.network.ImplRemoteProcedureCall;
+import qouteall.q_misc_util.ImplRemoteProcedureCall;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -26,6 +26,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.MiscNetworking;
 
 import java.util.UUID;
 
@@ -48,10 +49,6 @@ public class IPNetworking {
         new Identifier("imm_ptl", "player_action");
     public static final Identifier id_ctsRightClick =
         new Identifier("imm_ptl", "right_click");
-    public static final Identifier id_stcRemote =
-        new Identifier("imm_ptl", "remote_stc");
-    public static final Identifier id_ctsRemote =
-        new Identifier("imm_ptl", "remote_cts");
     
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(
@@ -76,7 +73,7 @@ public class IPNetworking {
         );
         
         ServerPlayNetworking.registerGlobalReceiver(
-            id_ctsRemote,
+            MiscNetworking.id_ctsRemote,
             (server, player, handler, buf, responseSender) -> {
                 McHelper.executeOnServerThread(
                     ImplRemoteProcedureCall.serverReadFunctionAndArguments(player, buf)

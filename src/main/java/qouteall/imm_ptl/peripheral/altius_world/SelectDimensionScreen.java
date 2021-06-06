@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.q_misc_util.IPDimensionAPI;
+import qouteall.q_misc_util.api.DimensionAPI;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -43,7 +43,7 @@ public class SelectDimensionScreen extends Screen {
         GeneratorOptions generatorOptions = generatorOptionsSupplier.get();
         SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
         
-        IPDimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, dynamicRegistryManager);
+        DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, dynamicRegistryManager);
         
         ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
         

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.my_util.SignalBiArged;
+import qouteall.q_misc_util.my_util.SignalBiArged;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
