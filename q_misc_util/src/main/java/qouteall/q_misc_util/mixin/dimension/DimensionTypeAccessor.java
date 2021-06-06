@@ -1,4 +1,4 @@
-package qouteall.q_misc_util.mixin;
+package qouteall.q_misc_util.mixin.dimension;
 
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;

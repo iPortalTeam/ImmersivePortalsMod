@@ -10,7 +10,6 @@ import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.imm_ptl.core.my_util.SignalBiArged;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
@@ -20,7 +19,7 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import qouteall.q_misc_util.mixin.DimensionTypeAccessor;
+import qouteall.q_misc_util.mixin.dimension.DimensionTypeAccessor;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.common.dimension;
+package qouteall.q_misc_util.mixin.dimension;
 
 import qouteall.imm_ptl.core.ducks.IEGeneratorOptions;
 import net.minecraft.util.registry.SimpleRegistry;

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.common.dimension;
+package qouteall.q_misc_util.mixin.dimension;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
