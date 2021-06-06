@@ -1,6 +1,6 @@
 package qouteall.q_misc_util.my_util;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;

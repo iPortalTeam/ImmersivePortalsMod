@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.ducks;
+package qouteall.q_misc_util.ducks;
 
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.dimension.DimensionOptions;

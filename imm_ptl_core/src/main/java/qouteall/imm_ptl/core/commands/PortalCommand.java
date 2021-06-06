@@ -10,9 +10,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.q_misc_util.my_util.MyTaskList;
@@ -1625,7 +1626,7 @@ public class PortalCommand {
         Portal portal
     ) {
         PortalManipulation.removeOverlappedPortals(
-            McHelper.getServer().getWorld(portal.dimensionTo),
+            MiscHelper.getServer().getWorld(portal.dimensionTo),
             portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
             p -> Objects.equals(portal.specificPlayerId, p.specificPlayerId),
@@ -1846,7 +1847,7 @@ public class PortalCommand {
         RegistryKey<World> targetDim,
         Vec3d targetPos
     ) {
-        ServerWorld targetWorld = McHelper.getServer().getWorld(targetDim);
+        ServerWorld targetWorld = MiscHelper.getServer().getWorld(targetDim);
         
         int numTeleported = 0;
         

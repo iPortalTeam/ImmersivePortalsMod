@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import net.fabricmc.api.EnvType;
@@ -24,6 +24,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.Objects;
 
@@ -220,7 +221,7 @@ public class EndPortalEntity extends Portal {
     }
     
     private static void generateObsidianPlatform() {
-        ServerWorld endWorld = McHelper.getServer().getWorld(World.END);
+        ServerWorld endWorld = MiscHelper.getServer().getWorld(World.END);
         
         ServerWorld.createEndSpawnPlatform(endWorld);
     }

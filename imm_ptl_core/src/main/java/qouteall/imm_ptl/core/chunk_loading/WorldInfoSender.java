@@ -10,13 +10,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.Set;
 
 public class WorldInfoSender {
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
-            McHelper.getServer().getProfiler().push("portal_send_world_info");
+            MiscHelper.getServer().getProfiler().push("portal_send_world_info");
             if (McHelper.getServerGameTime() % 100 == 42) {
                 for (ServerPlayerEntity player : McHelper.getCopiedPlayerList()) {
                     Set<RegistryKey<World>> visibleDimensions = NewChunkTrackingGraph.getVisibleDimensions(player);
@@ -24,11 +25,11 @@ public class WorldInfoSender {
                     if (player.world.getRegistryKey() != World.OVERWORLD) {
                         sendWorldInfo(
                             player,
-                            McHelper.getServer().getWorld(World.OVERWORLD)
+                            MiscHelper.getServer().getWorld(World.OVERWORLD)
                         );
                     }
                     
-                    McHelper.getServer().getWorlds().forEach(thisWorld -> {
+                    MiscHelper.getServer().getWorlds().forEach(thisWorld -> {
                         if (isNonOverworldSurfaceDimension(thisWorld)) {
                             if (visibleDimensions.contains(thisWorld.getRegistryKey())) {
                                 sendWorldInfo(
@@ -41,7 +42,7 @@ public class WorldInfoSender {
                     
                 }
             }
-            McHelper.getServer().getProfiler().pop();
+            MiscHelper.getServer().getProfiler().pop();
         });
     }
     

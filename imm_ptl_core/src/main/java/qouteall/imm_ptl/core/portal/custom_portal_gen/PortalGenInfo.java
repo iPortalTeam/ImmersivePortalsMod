@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -68,7 +69,7 @@ public class PortalGenInfo {
     }
     
     public <T extends Portal> T createTemplatePortal(EntityType<T> entityType) {
-        ServerWorld fromWorld = McHelper.getServer().getWorld(from);
+        ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
         
         T portal = entityType.create(fromWorld);
         fromShape.initPortalPosAxisShape(portal, false);
@@ -87,8 +88,8 @@ public class PortalGenInfo {
     public <T extends BreakablePortalEntity> BreakablePortalEntity[] generateBiWayBiFacedPortal(
         EntityType<T> entityType
     ) {
-        ServerWorld fromWorld = McHelper.getServer().getWorld(from);
-        ServerWorld toWorld = McHelper.getServer().getWorld(to);
+        ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
+        ServerWorld toWorld = MiscHelper.getServer().getWorld(to);
         
         T f1 = createTemplatePortal(entityType);
         
@@ -116,7 +117,7 @@ public class PortalGenInfo {
     }
     
     public void generatePlaceholderBlocks() {
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         
         NetherPortalGeneration.fillInPlaceHolderBlocks(
             server.getWorld(from), fromShape

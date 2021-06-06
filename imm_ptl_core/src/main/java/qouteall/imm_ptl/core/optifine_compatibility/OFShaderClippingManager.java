@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.optifine_compatibility;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;

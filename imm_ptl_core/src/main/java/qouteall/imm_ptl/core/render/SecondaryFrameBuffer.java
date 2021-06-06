@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;

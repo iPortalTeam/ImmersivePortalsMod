@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.ducks.IEWorldRendererChunkInfo;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.LimitedLogger;

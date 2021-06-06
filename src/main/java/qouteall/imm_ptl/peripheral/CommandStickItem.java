@@ -2,7 +2,6 @@ package qouteall.imm_ptl.peripheral;
 
 import com.mojang.serialization.Lifecycle;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,6 +28,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
+import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -122,7 +122,7 @@ public class CommandStickItem extends Item {
             
             ServerCommandSource commandSource = player.getCommandSource().withLevel(2);
             
-            CommandManager commandManager = McHelper.getServer().getCommandManager();
+            CommandManager commandManager = MiscHelper.getServer().getCommandManager();
             
             commandManager.execute(commandSource, data.command);
         }

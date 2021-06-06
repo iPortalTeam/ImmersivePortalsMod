@@ -2,10 +2,11 @@ package qouteall.imm_ptl.core.teleportation;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -342,7 +343,7 @@ public class CollisionHelper {
             return CHelper.getClientWorld(dimension);
         }
         else {
-            return McHelper.getServer().getWorld(dimension);
+            return MiscHelper.getServer().getWorld(dimension);
         }
     }
     
@@ -395,7 +396,7 @@ public class CollisionHelper {
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
-            for (ServerWorld world : McHelper.getServer().getWorlds()) {
+            for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
                 updateGlobalPortalCollidingPortalForWorld(world);
             }
         });

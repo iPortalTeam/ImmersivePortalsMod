@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.QueryManager;

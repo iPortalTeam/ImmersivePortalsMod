@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;

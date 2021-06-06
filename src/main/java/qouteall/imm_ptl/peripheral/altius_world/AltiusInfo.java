@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;

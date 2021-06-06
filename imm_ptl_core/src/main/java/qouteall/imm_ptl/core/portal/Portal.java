@@ -2,13 +2,14 @@ package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.mc_utils.IPEntityEventListenableEntity;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.RotationHelper;
@@ -769,7 +770,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             getY() > -1000;
         if (valid) {
             if (world instanceof ServerWorld) {
-                ServerWorld destWorld = McHelper.getServer().getWorld(dimensionTo);
+                ServerWorld destWorld = MiscHelper.getServer().getWorld(dimensionTo);
                 if (destWorld == null) {
                     Helper.err("Missing Dimension " + dimensionTo.getValue());
                     return false;
@@ -1095,7 +1096,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             return CHelper.getClientWorld(dimensionTo);
         }
         else {
-            return McHelper.getServer().getWorld(dimensionTo);
+            return MiscHelper.getServer().getWorld(dimensionTo);
         }
     }
     

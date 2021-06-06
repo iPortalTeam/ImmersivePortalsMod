@@ -1,6 +1,6 @@
 package qouteall.q_misc_util.my_util;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

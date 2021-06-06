@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -54,7 +54,7 @@ public class IPConfig {
             return MinecraftClient.getInstance().runDirectory;
         }
         else {
-            return McHelper.getServer().getRunDirectory();
+            return MiscHelper.getServer().getRunDirectory();
         }
     }
     

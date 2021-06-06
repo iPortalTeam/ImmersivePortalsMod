@@ -12,10 +12,11 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.imm_ptl.core.optifine_compatibility.UniformReport;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -262,7 +263,7 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
             .literal("check_server_light")
             .executes(context -> {
-                McHelper.getServer().execute(() -> {
+                MiscHelper.getServer().execute(() -> {
                     ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
                     
                     BlockPos.stream(
@@ -278,7 +279,7 @@ public class ClientDebugCommand {
         builder.then(ClientCommandManager
                 .literal("update_server_light")
                 .executes(context -> {
-                    McHelper.getServer().execute(() -> {
+                    MiscHelper.getServer().execute(() -> {
                         ServerPlayerEntity player = McHelper.getRawPlayerList().get(0);
                         
                         ServerLightingProvider lightingProvider = (ServerLightingProvider) player.world.getLightingProvider();
@@ -674,7 +675,7 @@ public class ClientDebugCommand {
             );
         });
         
-        McHelper.getServer().execute(() -> {
+        MiscHelper.getServer().execute(() -> {
             McRemoteProcedureCall.tellClientToInvoke(
                 player,
                 "qouteall.imm_ptl.core.commands.ClientDebugCommand.TestRemoteCallable.serverToClient",

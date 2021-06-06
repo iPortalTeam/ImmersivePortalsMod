@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.util.math.MatrixStack;

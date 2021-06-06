@@ -1,12 +1,10 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationServer;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
-import qouteall.q_misc_util.ImplRemoteProcedureCall;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -26,7 +24,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
-import qouteall.q_misc_util.MiscNetworking;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.UUID;
 
@@ -72,14 +70,7 @@ public class IPNetworking {
             }
         );
         
-        ServerPlayNetworking.registerGlobalReceiver(
-            MiscNetworking.id_ctsRemote,
-            (server, player, handler, buf, responseSender) -> {
-                McHelper.executeOnServerThread(
-                    ImplRemoteProcedureCall.serverReadFunctionAndArguments(player, buf)
-                );
-            }
-        );
+        
         
     }
     
@@ -177,7 +168,7 @@ public class IPNetworking {
         );
         UUID portalEntityId = buf.readUuid();
         
-        McHelper.executeOnServerThread(() -> {
+        MiscHelper.executeOnServerThread(() -> {
             IPGlobal.serverTeleportationManager.onPlayerTeleportedInClient(
                 player,
                 dim,

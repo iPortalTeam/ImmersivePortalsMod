@@ -1,13 +1,11 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdRecord;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
-import qouteall.q_misc_util.ImplRemoteProcedureCall;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -26,7 +24,7 @@ import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import qouteall.q_misc_util.MiscNetworking;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.UUID;
 
@@ -74,14 +72,7 @@ public class IPNetworkingClient {
             }
         );
         
-        ClientPlayNetworking.registerGlobalReceiver(
-            MiscNetworking.id_stcRemote,
-            (c, handler, buf, responseSender) -> {
-                CHelper.executeOnRenderThread(
-                    ImplRemoteProcedureCall.clientReadFunctionAndArguments(buf)
-                );
-            }
-        );
+       
         
     }
     
@@ -106,7 +97,7 @@ public class IPNetworkingClient {
             buf.readDouble()
         );
         
-        CHelper.executeOnRenderThread(() -> {
+        MiscHelper.executeOnRenderThread(() -> {
             IPCGlobal.clientTeleportationManager.acceptSynchronizationDataFromServer(
                 dimension, pos,
                 false
@@ -142,7 +133,7 @@ public class IPNetworkingClient {
     private static void processGlobalPortalUpdate(PacketByteBuf buf) {
         RegistryKey<World> dimension = DimId.readWorldId(buf, true);
         NbtCompound compoundTag = buf.readNbt();
-        CHelper.executeOnRenderThread(() -> {
+        MiscHelper.executeOnRenderThread(() -> {
             GlobalPortalStorage.receiveGlobalPortalSync(dimension, compoundTag);
         });
     }

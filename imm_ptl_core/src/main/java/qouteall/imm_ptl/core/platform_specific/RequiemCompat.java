@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.EnvType;

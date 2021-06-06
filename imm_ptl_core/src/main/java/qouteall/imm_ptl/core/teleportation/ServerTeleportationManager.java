@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.teleportation;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
@@ -11,6 +11,7 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -160,7 +161,7 @@ public class ServerTeleportationManager {
     }
     
     private Portal findPortal(RegistryKey<World> dimensionBefore, UUID portalId) {
-        ServerWorld originalWorld = McHelper.getServer().getWorld(dimensionBefore);
+        ServerWorld originalWorld = MiscHelper.getServer().getWorld(dimensionBefore);
         Entity portalEntity = originalWorld.getEntity(portalId);
         if (portalEntity == null) {
             portalEntity = GlobalPortalStorage.get(originalWorld).data
@@ -220,10 +221,10 @@ public class ServerTeleportationManager {
         RegistryKey<World> dimensionTo,
         Vec3d newEyePos
     ) {
-        McHelper.getServer().getProfiler().push("portal_teleport");
+        MiscHelper.getServer().getProfiler().push("portal_teleport");
         
         ServerWorld fromWorld = (ServerWorld) player.world;
-        ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
+        ServerWorld toWorld = MiscHelper.getServer().getWorld(dimensionTo);
         
         if (player.world.getRegistryKey() == dimensionTo) {
             McHelper.setEyePos(player, newEyePos, newEyePos);
@@ -237,7 +238,7 @@ public class ServerTeleportationManager {
         McHelper.adjustVehicle(player);
         player.networkHandler.syncWithPlayerPosition();
         
-        McHelper.getServer().getProfiler().pop();
+        MiscHelper.getServer().getProfiler().pop();
     }
     
     public void invokeTpmeCommand(
@@ -246,7 +247,7 @@ public class ServerTeleportationManager {
         Vec3d newPos
     ) {
         ServerWorld fromWorld = (ServerWorld) player.world;
-        ServerWorld toWorld = McHelper.getServer().getWorld(dimensionTo);
+        ServerWorld toWorld = MiscHelper.getServer().getWorld(dimensionTo);
         
         if (player.world.getRegistryKey() == dimensionTo) {
             player.setPosition(newPos.x, newPos.y, newPos.z);
@@ -480,7 +481,7 @@ public class ServerTeleportationManager {
         boolean recreateEntity
     ) {
         ServerWorld fromWorld = (ServerWorld) entity.world;
-        ServerWorld toWorld = McHelper.getServer().getWorld(toDimension);
+        ServerWorld toWorld = MiscHelper.getServer().getWorld(toDimension);
         entity.detach();
         
         if (recreateEntity) {

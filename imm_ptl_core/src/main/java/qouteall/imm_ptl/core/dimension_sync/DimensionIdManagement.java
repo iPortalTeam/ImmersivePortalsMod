@@ -2,8 +2,7 @@ package qouteall.imm_ptl.core.dimension_sync;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -14,6 +13,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.level.storage.LevelStorage;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -100,7 +100,7 @@ public class DimensionIdManagement {
     }
     
     private static File getIPDimIdFile() {
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         Validate.notNull(server);
         Path saveDir = server.session.directory;
         return new File(new File(saveDir.toFile(), "data"), "imm_ptl_dim_reg.dat");
@@ -115,7 +115,7 @@ public class DimensionIdManagement {
         Helper.log("Start Completing Dimension Id Record");
         Helper.log("Before:\n" + DimensionIdRecord.serverRecord);
         
-        Set<RegistryKey<World>> keys = McHelper.getServer().getWorldRegistryKeys();
+        Set<RegistryKey<World>> keys = MiscHelper.getServer().getWorldRegistryKeys();
         
         BiMap<RegistryKey<World>, Integer> bimap = DimensionIdRecord.serverRecord.idMap;
         
@@ -161,7 +161,7 @@ public class DimensionIdManagement {
                 fabric_activeTag_field.setAccessible(true);
             }
             
-            LevelStorage.Session session = McHelper.getServer().session;
+            LevelStorage.Session session = MiscHelper.getServer().session;
             
             NbtCompound tag = (NbtCompound) fabric_activeTag_field.get(session);
             

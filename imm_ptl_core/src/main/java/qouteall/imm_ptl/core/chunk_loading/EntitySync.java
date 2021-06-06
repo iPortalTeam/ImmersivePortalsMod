@@ -4,6 +4,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntityTracker;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -28,7 +29,7 @@ public class EntitySync {
      * regarding to the players in all dimensions
      */
     private static void tick() {
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         
         server.getProfiler().push("ip_entity_tracking");
         

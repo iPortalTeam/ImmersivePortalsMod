@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine;
 
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;

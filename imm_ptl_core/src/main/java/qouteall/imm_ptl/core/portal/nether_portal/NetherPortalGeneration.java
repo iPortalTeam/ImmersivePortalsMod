@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;

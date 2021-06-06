@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.optifine_compatibility;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;

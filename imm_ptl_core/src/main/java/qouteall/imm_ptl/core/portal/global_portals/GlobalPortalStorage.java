@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.portal.global_portals;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -25,6 +25,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
@@ -41,14 +42,14 @@ public class GlobalPortalStorage extends PersistentState {
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
-            McHelper.getServer().getWorlds().forEach(world1 -> {
+            MiscHelper.getServer().getWorlds().forEach(world1 -> {
                 GlobalPortalStorage gps = GlobalPortalStorage.get(world1);
                 gps.tick();
             });
         });
         
         IPGlobal.serverCleanupSignal.connect(() -> {
-            for (ServerWorld world : McHelper.getServer().getWorlds()) {
+            for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
                 get(world).onServerClose();
             }
         });
@@ -80,7 +81,7 @@ public class GlobalPortalStorage extends PersistentState {
     }
     
     public static void onPlayerLoggedIn(ServerPlayerEntity player) {
-        McHelper.getServer().getWorlds().forEach(
+        MiscHelper.getServer().getWorlds().forEach(
             world -> {
                 GlobalPortalStorage storage = get(world);
                 if (!storage.data.isEmpty()) {
@@ -248,7 +249,7 @@ public class GlobalPortalStorage extends PersistentState {
     public void clearAbnormalPortals() {
         data.removeIf(e -> {
             RegistryKey<World> dimensionTo = ((Portal) e).dimensionTo;
-            if (McHelper.getServer().getWorld(dimensionTo) == null) {
+            if (MiscHelper.getServer().getWorld(dimensionTo) == null) {
                 Helper.err("Missing Dimension for global portal " + dimensionTo.getValue());
                 return true;
             }

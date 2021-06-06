@@ -26,12 +26,13 @@ import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -314,7 +315,7 @@ public class PortalDebugCommands {
                 StringBuilder result = new StringBuilder();
                 result.append("Server Portals\n");
                 
-                for (ServerWorld world : McHelper.getServer().getWorlds()) {
+                for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
                     for (Entity entity : world.iterateEntities()) {
                         result.append(world.getRegistryKey().getValue().toString() + "\n");
                         for (Entity e : world.iterateEntities()) {
@@ -342,7 +343,7 @@ public class PortalDebugCommands {
                 StringBuilder str = new StringBuilder();
                 
                 str.append("Server Chunks:\n");
-                McHelper.getServer().getWorlds().forEach(
+                MiscHelper.getServer().getWorlds().forEach(
                     world -> {
                         str.append(String.format(
                             "%s %s\n",
@@ -367,7 +368,7 @@ public class PortalDebugCommands {
             .literal("print_generator_config")
             .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .executes(context -> {
-                McHelper.getServer().getWorlds().forEach(world -> {
+                MiscHelper.getServer().getWorlds().forEach(world -> {
                     ChunkGenerator generator = world.getChunkManager().getChunkGenerator();
                     Helper.log(world.getRegistryKey().getValue());
                     Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
@@ -377,7 +378,7 @@ public class PortalDebugCommands {
                     ));
                 });
             
-                GeneratorOptions options = McHelper.getServer().getSaveProperties().getGeneratorOptions();
+                GeneratorOptions options = MiscHelper.getServer().getSaveProperties().getGeneratorOptions();
             
                 Helper.log(McHelper.serializeToJson(options, GeneratorOptions.CODEC));
             

@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.optifine_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;

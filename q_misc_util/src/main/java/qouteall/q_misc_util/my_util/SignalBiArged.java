@@ -1,6 +1,6 @@
 package qouteall.q_misc_util.my_util;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.lang.ref.WeakReference;

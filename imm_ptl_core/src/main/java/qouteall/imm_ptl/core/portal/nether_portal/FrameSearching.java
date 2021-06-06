@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.imm_ptl.core.McHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class FrameSearching {
                         centerPoint, framePredicate,
                         matchShape
                     );
-                    McHelper.getServer().execute(() -> {
+                    MiscHelper.getServer().execute(() -> {
                         if (result != null) {
                             onFound.accept(result);
                         }

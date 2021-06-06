@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.miscellaneous;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,7 +32,7 @@ public class GcMonitor {
     
     public static void initCommon() {
         IPGlobal.postServerTickSignal.connect(() -> {
-            MinecraftServer server = McHelper.getServer();
+            MinecraftServer server = MiscHelper.getServer();
             if (server != null) {
                 if (server.isDedicated()) {
                     update();

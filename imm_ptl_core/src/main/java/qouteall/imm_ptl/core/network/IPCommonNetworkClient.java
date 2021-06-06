@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.network;
 
-import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -51,7 +51,7 @@ public class IPCommonNetworkClient {
             }
         };
         
-        CHelper.executeOnRenderThread(func);
+        MiscHelper.executeOnRenderThread(func);
     }
     
     
@@ -128,7 +128,7 @@ public class IPCommonNetworkClient {
             return;
         }
         
-        CHelper.executeOnRenderThread(() -> {
+        MiscHelper.executeOnRenderThread(() -> {
             client.getProfiler().push("ip_spawn_entity");
             
             ClientWorld world = ClientWorldLoader.getWorld(dim);

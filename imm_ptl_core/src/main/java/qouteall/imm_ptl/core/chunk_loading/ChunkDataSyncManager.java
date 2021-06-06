@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
@@ -15,6 +15,7 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.function.Supplier;
 
@@ -37,13 +38,13 @@ public class ChunkDataSyncManager {
      * @link ThreadedAnvilChunkStorage#sendChunkDataPackets(ServerPlayerEntity, Packet[], WorldChunk)
      */
     private void onBeginWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
-        McHelper.getServer().getProfiler().push("begin_watch");
+        MiscHelper.getServer().getProfiler().push("begin_watch");
         
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(chunkPos.dimension);
         
         sendChunkDataPacketNow(player, chunkPos, ieStorage);
         
-        McHelper.getServer().getProfiler().pop();
+        MiscHelper.getServer().getProfiler().pop();
     }
     
     private void sendChunkDataPacketNow(
@@ -55,7 +56,7 @@ public class ChunkDataSyncManager {
         if (chunkHolder != null) {
             WorldChunk chunk = chunkHolder.getWorldChunk();
             if (chunk != null) {
-                McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
+                MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
                 
                 player.networkHandler.sendPacket(
                     IPNetworking.createRedirectedMessage(
@@ -87,7 +88,7 @@ public class ChunkDataSyncManager {
                 
                 ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
                 
-                McHelper.getServer().getProfiler().pop();
+                MiscHelper.getServer().getProfiler().pop();
                 
                 return;
             }
@@ -102,7 +103,7 @@ public class ChunkDataSyncManager {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
         
-        McHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
+        MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
             () -> IPNetworking.createRedirectedMessage(
@@ -143,7 +144,7 @@ public class ChunkDataSyncManager {
             ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
         });
         
-        McHelper.getServer().getProfiler().pop();
+        MiscHelper.getServer().getProfiler().pop();
     }
     
     private void onEndWatch(ServerPlayerEntity player, DimensionalChunkPos chunkPos) {
@@ -159,7 +160,7 @@ public class ChunkDataSyncManager {
     }
     
     public void onPlayerRespawn(ServerPlayerEntity oldPlayer) {
-        McHelper.getServer().getWorlds()
+        MiscHelper.getServer().getWorlds()
             .forEach(world -> {
                 ServerChunkManager chunkManager = (ServerChunkManager) world.getChunkManager();
                 IEThreadedAnvilChunkStorage storage =

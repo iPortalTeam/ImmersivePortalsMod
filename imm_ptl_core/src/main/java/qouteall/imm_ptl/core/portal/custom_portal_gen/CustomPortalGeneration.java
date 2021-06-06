@@ -6,7 +6,7 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.form.PortalGenForm;
@@ -19,6 +19,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
+import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -153,7 +154,7 @@ public class CustomPortalGeneration {
         
         RegistryKey<World> toDimension = this.toDimension;
         if (toDimension != theSameDimension) {
-            if (McHelper.getServer().getWorld(toDimension) == null) {
+            if (MiscHelper.getServer().getWorld(toDimension) == null) {
                 return false;
             }
         }
@@ -199,7 +200,7 @@ public class CustomPortalGeneration {
             destDimension = world.getRegistryKey();
         }
         
-        ServerWorld toWorld = McHelper.getServer().getWorld(destDimension);
+        ServerWorld toWorld = MiscHelper.getServer().getWorld(destDimension);
         
         if (toWorld == null) {
             Helper.err("Missing dimension " + destDimension.getValue());

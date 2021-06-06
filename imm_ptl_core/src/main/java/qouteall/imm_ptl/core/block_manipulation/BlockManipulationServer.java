@@ -1,8 +1,7 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.block.BlockState;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class BlockManipulationServer {
     ) {
         if (packet.getAction() == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
             return canInstantMine(
-                McHelper.getServer().getWorld(dimension),
+                MiscHelper.getServer().getWorld(dimension),
                 player,
                 packet.getPos()
             );
@@ -89,7 +89,7 @@ public class BlockManipulationServer {
         PlayerActionC2SPacket packet,
         ServerPlayerEntity player
     ) {
-        ServerWorld destWorld = McHelper.getServer().getWorld(dimension);
+        ServerWorld destWorld = MiscHelper.getServer().getWorld(dimension);
         ServerWorld oldWorld = player.getServerWorld();
         player.interactionManager.setWorld(destWorld);
         player.interactionManager.tryBreakBlock(
@@ -157,7 +157,7 @@ public class BlockManipulationServer {
         Hand hand = packet.getHand();
         BlockHitResult blockHitResult = packet.getBlockHitResult();
         
-        ServerWorld world = McHelper.getServer().getWorld(dimension);
+        ServerWorld world = MiscHelper.getServer().getWorld(dimension);
         
         doProcessRightClick(dimension, player, hand, blockHitResult);
     }
@@ -170,7 +170,7 @@ public class BlockManipulationServer {
     ) {
         ItemStack itemStack = player.getStackInHand(hand);
         
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         ServerWorld targetWorld = server.getWorld(dimension);
         
         BlockPos blockPos = blockHitResult.getBlockPos();

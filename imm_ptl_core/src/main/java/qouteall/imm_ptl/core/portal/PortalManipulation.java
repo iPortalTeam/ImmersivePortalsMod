@@ -1,9 +1,10 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.RotationHelper;
 import net.minecraft.entity.Entity;
@@ -50,7 +51,7 @@ public class PortalManipulation {
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
             removalInformer
         );
-        ServerWorld toWorld = McHelper.getServer().getWorld(portal.dimensionTo);
+        ServerWorld toWorld = MiscHelper.getServer().getWorld(portal.dimensionTo);
         removeOverlappedPortals(
             toWorld,
             portal.getDestPos(),
@@ -221,7 +222,7 @@ public class PortalManipulation {
         
         Portal oppositeFacedPortal = completeBiFacedPortal(portal, entityType);
         removeOverlappedPortals(
-            McHelper.getServer().getWorld(portal.dimensionTo),
+            MiscHelper.getServer().getWorld(portal.dimensionTo),
             portal.getDestPos(),
             portal.transformLocalVecNonScale(portal.getNormal().multiply(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),
@@ -230,7 +231,7 @@ public class PortalManipulation {
         
         Portal r1 = completeBiWayPortal(portal, entityType);
         removeOverlappedPortals(
-            McHelper.getServer().getWorld(oppositeFacedPortal.dimensionTo),
+            MiscHelper.getServer().getWorld(oppositeFacedPortal.dimensionTo),
             oppositeFacedPortal.getDestPos(),
             oppositeFacedPortal.transformLocalVecNonScale(oppositeFacedPortal.getNormal().multiply(-1)),
             p -> Objects.equals(p.specificPlayerId, portal.specificPlayerId),

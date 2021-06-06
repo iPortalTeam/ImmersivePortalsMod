@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.IntBox;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.entity.EntityType;

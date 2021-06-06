@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.dimension_sync.DimensionIdManagement;
 import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
@@ -24,6 +23,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.lang.ref.WeakReference;
 import java.net.Proxy;
@@ -51,7 +51,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         GameProfileRepository gameProfileRepository, UserCache userCache,
         WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
     ) {
-        McHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
+        
         
         O_O.loadConfigFabric();
         O_O.onServerConstructed();

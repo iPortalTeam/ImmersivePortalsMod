@@ -18,6 +18,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
+import qouteall.q_misc_util.Helper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -141,21 +142,6 @@ public class CHelper {
         
         ClientWorld clientWorld = (ClientWorld) world;
         return clientWorld.getEntities();
-    }
-    
-    /**
-     * {@link ReentrantThreadExecutor#shouldExecuteAsync()}
-     * The execution may get deferred on the render thread
-     */
-    public static void executeOnRenderThread(Runnable runnable) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        
-        if (client.isOnThread()) {
-            runnable.run();
-        }
-        else {
-            client.execute(runnable);
-        }
     }
     
     public static double getSmoothCycles(long unitTicks) {

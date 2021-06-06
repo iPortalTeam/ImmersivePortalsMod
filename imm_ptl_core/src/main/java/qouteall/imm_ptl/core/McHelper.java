@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import com.google.common.collect.Streams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
@@ -13,8 +12,6 @@ import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
-import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -41,7 +38,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.WorldChunk;
@@ -49,17 +45,16 @@ import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.entity.SectionedEntityCache;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -68,33 +63,26 @@ import java.util.stream.Stream;
 // mc related helper methods
 public class McHelper {
     
-    public static WeakReference<MinecraftServer> refMinecraftServer =
-        new WeakReference<>(null);
-    
     public static IEThreadedAnvilChunkStorage getIEStorage(RegistryKey<World> dimension) {
         return (IEThreadedAnvilChunkStorage) (
-            (ServerChunkManager) getServer().getWorld(dimension).getChunkManager()
+            (ServerChunkManager) MiscHelper.getServer().getWorld(dimension).getChunkManager()
         ).threadedAnvilChunkStorage;
     }
     
     public static ArrayList<ServerPlayerEntity> getCopiedPlayerList() {
-        return new ArrayList<>(getServer().getPlayerManager().getPlayerList());
+        return new ArrayList<>(MiscHelper.getServer().getPlayerManager().getPlayerList());
     }
     
     public static List<ServerPlayerEntity> getRawPlayerList() {
-        return getServer().getPlayerManager().getPlayerList();
+        return MiscHelper.getServer().getPlayerManager().getPlayerList();
     }
     
     public static Vec3d lastTickPosOf(Entity entity) {
         return new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
     }
     
-    public static MinecraftServer getServer() {
-        return refMinecraftServer.get();
-    }
-    
     public static ServerWorld getOverWorldOnServer() {
-        return getServer().getWorld(World.OVERWORLD);
+        return MiscHelper.getServer().getWorld(World.OVERWORLD);
     }
     
     public static void serverLog(
@@ -352,12 +340,12 @@ public class McHelper {
     }
     
     public static void validateOnServerThread() {
-        Validate.isTrue(Thread.currentThread() == getServer().getThread(), "must be on server thread");
+        Validate.isTrue(Thread.currentThread() == MiscHelper.getServer().getThread(), "must be on server thread");
     }
     
     public static void invokeCommandAs(Entity commandSender, List<String> commandList) {
         ServerCommandSource commandSource = commandSender.getCommandSource().withLevel(2).withSilent();
-        CommandManager commandManager = getServer().getCommandManager();
+        CommandManager commandManager = MiscHelper.getServer().getCommandManager();
         
         for (String command : commandList) {
             commandManager.execute(commandSource, command);
@@ -579,7 +567,7 @@ public class McHelper {
     public static void sendMessageToFirstLoggedPlayer(Text text) {
         Helper.log(text.asString());
         IPGlobal.serverTaskList.addTask(() -> {
-            MinecraftServer server = getServer();
+            MinecraftServer server = MiscHelper.getServer();
             if (server == null) {
                 return false;
             }
@@ -626,19 +614,8 @@ public class McHelper {
         }
     }
     
-    public static void executeOnServerThread(Runnable runnable) {
-        MinecraftServer server = McHelper.getServer();
-        
-        if (server.isOnThread()) {
-            runnable.run();
-        }
-        else {
-            server.execute(runnable);
-        }
-    }
-    
     public static ServerWorld getServerWorld(RegistryKey<World> dim) {
-        ServerWorld world = McHelper.getServer().getWorld(dim);
+        ServerWorld world = MiscHelper.getServer().getWorld(dim);
         if (world == null) {
             throw new RuntimeException("Missing dimension " + dim.getValue());
         }

@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.optifine_compatibility;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import net.minecraft.client.gl.Framebuffer;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;

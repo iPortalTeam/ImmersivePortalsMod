@@ -1,7 +1,8 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalExtension;
@@ -53,15 +54,15 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     ) {
         removeConnectingPortal(connectorType, from);
         
-        ServerWorld fromWorld = McHelper.getServer().getWorld(from);
+        ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
         
         VerticalConnectingPortal connectingPortal = createConnectingPortal(
             fromWorld,
             connectorType,
-            McHelper.getServer().getWorld(to),
+            MiscHelper.getServer().getWorld(to),
             respectSpaceRatio ?
                 fromWorld.getDimension().getCoordinateScale() /
-                    McHelper.getServer().getWorld(to).getDimension().getCoordinateScale()
+                    MiscHelper.getServer().getWorld(to).getDimension().getCoordinateScale()
                 : 1.0,
             false,
             0
@@ -160,7 +161,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     private static void removeConnectingPortal(
         Predicate<Portal> predicate, RegistryKey<World> dimension
     ) {
-        ServerWorld endWorld = McHelper.getServer().getWorld(dimension);
+        ServerWorld endWorld = MiscHelper.getServer().getWorld(dimension);
         GlobalPortalStorage storage = GlobalPortalStorage.get(endWorld);
         
         storage.removePortals(

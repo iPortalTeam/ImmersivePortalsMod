@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
@@ -55,7 +56,7 @@ public class ChunkLoader {
     }
     
     public LenientChunkRegion createChunkRegion() {
-        ServerWorld world = McHelper.getServer().getWorld(center.dimension);
+        ServerWorld world = MiscHelper.getServer().getWorld(center.dimension);
         
         return LenientChunkRegion.createLenientChunkRegion(center, radius, world);
     }

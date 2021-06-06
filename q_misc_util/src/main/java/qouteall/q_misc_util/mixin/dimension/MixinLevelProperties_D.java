@@ -1,7 +1,6 @@
 package qouteall.q_misc_util.mixin.dimension;
 
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.core.ducks.IEGeneratorOptions;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.gen.GeneratorOptions;
@@ -14,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.ducks.IEGeneratorOptions;
 
 @Mixin(LevelProperties.class)
 public class MixinLevelProperties_D {

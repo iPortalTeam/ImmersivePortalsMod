@@ -2,10 +2,11 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -264,7 +265,7 @@ public class NewChunkTrackingGraph {
             });
         });
         
-        McHelper.getServer().getWorlds().forEach(world -> {
+        MiscHelper.getServer().getWorlds().forEach(world -> {
             
             Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> chunkRecordMap = getChunkRecordMap(world.getRegistryKey());
 
@@ -328,7 +329,7 @@ public class NewChunkTrackingGraph {
     }
     
     private static void tick() {
-        McHelper.getServer().getProfiler().push("portal_chunk_tracking");
+        MiscHelper.getServer().getProfiler().push("portal_chunk_tracking");
         
         long gameTime = McHelper.getOverWorldOnServer().getTime();
         McHelper.getCopiedPlayerList().forEach(player -> {
@@ -341,7 +342,7 @@ public class NewChunkTrackingGraph {
             updateAndPurge();
         }
         
-        McHelper.getServer().getProfiler().pop();
+        MiscHelper.getServer().getProfiler().pop();
     }
     
     public static void init() {

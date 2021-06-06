@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.core.McHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
@@ -11,6 +10,7 @@ import net.minecraft.tag.Tag;
 import net.minecraft.tag.TagManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.function.Predicate;
 
@@ -52,7 +52,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
     }
     
     private static DataResult<SimpleBlockPredicate> deserialize(String string) {
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         
         if (server == null) {
             return DataResult.error(
@@ -77,7 +77,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
     }
     
     private static String serialize(SimpleBlockPredicate predicate) {
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         
         if (server == null) {
             throw new RuntimeException(

@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.NbtDouble;

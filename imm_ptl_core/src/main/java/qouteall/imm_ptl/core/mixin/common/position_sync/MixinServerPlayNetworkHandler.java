@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;

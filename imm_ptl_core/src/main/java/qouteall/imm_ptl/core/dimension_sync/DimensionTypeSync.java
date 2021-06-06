@@ -1,8 +1,7 @@
 package qouteall.imm_ptl.core.dimension_sync;
 
 import com.google.common.collect.Streams;
-import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
@@ -13,6 +12,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import qouteall.q_misc_util.MiscHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,10 +61,10 @@ public class DimensionTypeSync {
     }
     
     public static NbtCompound createTagFromServerWorldInfo() {
-        DynamicRegistryManager registryManager = McHelper.getServer().getRegistryManager();
+        DynamicRegistryManager registryManager = MiscHelper.getServer().getRegistryManager();
         Registry<DimensionType> dimensionTypes = registryManager.get(Registry.DIMENSION_TYPE_KEY);
         return typeMapToTag(
-            Streams.stream(McHelper.getServer().getWorlds()).collect(
+            Streams.stream(MiscHelper.getServer().getWorlds()).collect(
                 Collectors.toMap(
                     World::getRegistryKey,
                     w -> {

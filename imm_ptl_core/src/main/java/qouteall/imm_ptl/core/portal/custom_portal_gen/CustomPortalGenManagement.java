@@ -6,9 +6,10 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.UCoordinate;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
@@ -44,7 +45,7 @@ public class CustomPortalGenManagement {
         
         Helper.log("Loading custom portal gen");
         
-        MinecraftServer server = McHelper.getServer();
+        MinecraftServer server = MiscHelper.getServer();
         
         DynamicRegistryManager.Impl registryTracker =
             ((DynamicRegistryManager.Impl) server.getRegistryManager());

@@ -6,7 +6,8 @@
     "dimension.DimensionTypeAccessor",
     "dimension.MixinGeneratorOptions",
     "dimension.MixinLevelProperties_D",
-    "dimension.MixinMinecraftServer_D"
+    "dimension.MixinMinecraftServer_D",
+    "MixinMinecraftServer_Misc"
   ],
   "client": [
   ],

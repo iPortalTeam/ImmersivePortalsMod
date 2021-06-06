@@ -2,7 +2,7 @@ package qouteall.q_misc_util.my_util;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 

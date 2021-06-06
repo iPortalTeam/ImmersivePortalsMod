@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.platform_specific;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.SodiumInterfaceInitializer;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.Helper;
+import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.SodiumInterface;
 import qouteall.imm_ptl.core.portal.BreakableMirror;

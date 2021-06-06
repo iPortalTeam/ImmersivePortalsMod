@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core;
+package qouteall.q_misc_util;
 
 import com.google.common.collect.Streams;
 import qouteall.q_misc_util.my_util.IntBox;
