@@ -102,7 +102,7 @@ public class PortalGroup implements PortalLike {
     public Box getExactAreaBox() {
         if (exactBoundingBox == null) {
             exactBoundingBox = portals.stream().map(
-                Portal::getNarrowBoundingBox
+                Portal::getExactBoundingBox
             ).reduce(Box::union).get();
         }
         return exactBoundingBox;

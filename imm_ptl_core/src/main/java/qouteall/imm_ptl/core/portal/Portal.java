@@ -712,7 +712,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 w = Math.min(this.width, 64.0);
                 h = Math.min(this.height, 64.0);
             }
-        
+            
             boundingBoxCache = new Box(
                 getPointInPlane(w / 2, h / 2)
                     .add(getNormal().multiply(0.2)),
@@ -732,7 +732,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         return !getIsGlobal();
     }
     
-    public Box getNarrowBoundingBox() {
+    public Box getExactBoundingBox() {
         if (exactBoundingBoxCache == null) {
             exactBoundingBoxCache = new Box(
                 getPointInPlane(width / 2, height / 2)
@@ -1144,7 +1144,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     public Box getExactAreaBox() {
-        return getNarrowBoundingBox();
+        return getExactBoundingBox();
     }
     
     @Override
@@ -1357,6 +1357,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     // can be overridden
     public void onCollidingWithEntity(Entity entity) {
     
+    }
+    
+    public void updateBoundingBox() {
+        updateCache();
+        setBoundingBox(calculateBoundingBox());
     }
     
     @Override

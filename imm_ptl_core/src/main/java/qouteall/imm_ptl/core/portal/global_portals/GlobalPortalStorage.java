@@ -185,6 +185,10 @@ public class GlobalPortalStorage extends PersistentState {
         
         ((Portal) e).isGlobalPortal = true;
         
+        // normal portals' bounding boxes are limited
+        // update to non-limited bounding box
+        ((Portal) e).updateBoundingBox();
+        
         return (Portal) e;
     }
     
