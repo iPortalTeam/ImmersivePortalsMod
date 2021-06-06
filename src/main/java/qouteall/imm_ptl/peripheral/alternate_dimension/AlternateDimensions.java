@@ -36,7 +36,7 @@ import java.util.Optional;
 
 public class AlternateDimensions {
     public static void init() {
-        IPDimensionAPI.onServerWorldInit.connect(AlternateDimensions::initializeAlternateDimensions);
+        IPDimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
         
         IPGlobal.postServerTickSignal.connect(AlternateDimensions::tick);
     }

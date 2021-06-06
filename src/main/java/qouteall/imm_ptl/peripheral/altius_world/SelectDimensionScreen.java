@@ -43,7 +43,7 @@ public class SelectDimensionScreen extends Screen {
         GeneratorOptions generatorOptions = generatorOptionsSupplier.get();
         SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
         
-        IPDimensionAPI.onServerWorldInit.emit(generatorOptions, dynamicRegistryManager);
+        IPDimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, dynamicRegistryManager);
         
         ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
         

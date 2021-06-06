@@ -29,9 +29,8 @@ public abstract class MixinMinecraftServer_D {
         GeneratorOptions generatorOptions = saveProperties.getGeneratorOptions();
         
         DynamicRegistryManager registryManager = getRegistryManager();
-        
-        IPDimensionAPI.onServerWorldInit.emit(generatorOptions, registryManager);
-        
+    
+        IPDimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, registryManager);
         
     }
     

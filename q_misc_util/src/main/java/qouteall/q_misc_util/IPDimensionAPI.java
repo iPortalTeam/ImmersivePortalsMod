@@ -1,13 +1,15 @@
 package qouteall.q_misc_util;
 
 import com.mojang.serialization.Lifecycle;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
 import net.minecraft.world.biome.source.TheEndBiomeSource;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
-import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qouteall.imm_ptl.core.my_util.SignalBiArged;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
@@ -25,12 +27,26 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class IPDimensionAPI {
-    public static final SignalBiArged<GeneratorOptions, DynamicRegistryManager> onServerWorldInit = new SignalBiArged<>();
+    private static final Logger logger = LogManager.getLogger();
+    
+    public static interface ServerDimensionsLoadCallback {
+        void run(GeneratorOptions generatorOptions, DynamicRegistryManager registryManager);
+    }
+    
+    public static final Event<ServerDimensionsLoadCallback> serverDimensionsLoadEvent =
+        EventFactory.createArrayBacked(
+            ServerDimensionsLoadCallback.class,
+            (listeners) -> ((generatorOptions, registryManager) -> {
+                for (ServerDimensionsLoadCallback listener : listeners) {
+                    listener.run(generatorOptions, registryManager);
+                }
+            })
+        );
     
     private static final Set<Identifier> nonPersistentDimensions = new HashSet<>();
     
     public static void init() {
-        onServerWorldInit.connect(IPDimensionAPI::addMissingVanillaDimensions);
+        serverDimensionsLoadEvent.register(IPDimensionAPI::addMissingVanillaDimensions);
     }
     
     public static void addDimension(
@@ -67,7 +83,7 @@ public class IPDimensionAPI {
             return registry;
         }
         
-        return McHelper.filterAndCopyRegistry(
+        return MiscHelper.filterAndCopyRegistry(
             registry,
             (key, obj) -> {
                 Identifier identifier = key.getValue();
@@ -81,7 +97,7 @@ public class IPDimensionAPI {
         SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
         long seed = generatorOptions.getSeed();
         if (!registry.getIds().contains(DimensionOptions.NETHER.getValue())) {
-            Helper.err("Missing the nether. This may be caused by DFU. Trying to fix");
+            logger.error("Missing the nether. This may be caused by DFU. Trying to fix");
             
             IPDimensionAPI.addDimension(
                 seed,
@@ -97,7 +113,7 @@ public class IPDimensionAPI {
         }
         
         if (!registry.getIds().contains(DimensionOptions.END.getValue())) {
-            Helper.err("Missing the end. This may be caused by DFU. Trying to fix");
+            logger.error("Missing the end. This may be caused by DFU. Trying to fix");
             IPDimensionAPI.addDimension(
                 seed,
                 registry,

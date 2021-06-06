@@ -46,8 +46,6 @@ public class IPModMain {
         PortalExtension.init();
         
         GcMonitor.initCommon();
-        
-        IPDimensionAPI.init();
     }
     
 }
