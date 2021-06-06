@@ -303,7 +303,7 @@ public class PortalCommand {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 sendMessage(
                     context,
-                    Helper.myToString(McHelper.getGlobalPortals(player.world).stream())
+                    Helper.myToString(GlobalPortalStorage.getGlobalPortals(player.world).stream())
                 );
                 return 0;
             })
@@ -1937,7 +1937,7 @@ public class PortalCommand {
             from.distanceTo(to)
         ).stream();
         if (includeGlobalPortal) {
-            List<Portal> globalPortals = McHelper.getGlobalPortals(world);
+            List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
             portalStream = Streams.concat(
                 portalStream,
                 globalPortals.stream()

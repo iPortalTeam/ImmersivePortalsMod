@@ -6,10 +6,10 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
@@ -73,7 +73,7 @@ public abstract class PortalRenderer {
         });
         
         List<PortalLike> portalsToRender = new ArrayList<>();
-        List<Portal> globalPortals = McHelper.getGlobalPortals(client.world);
+        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(client.world);
         for (Portal globalPortal : globalPortals) {
             if (!shouldSkipRenderingPortal(globalPortal, frustumSupplier)) {
                 portalsToRender.add(globalPortal);

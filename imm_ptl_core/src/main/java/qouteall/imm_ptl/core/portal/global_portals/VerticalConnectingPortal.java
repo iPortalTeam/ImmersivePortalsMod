@@ -171,7 +171,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
     public static VerticalConnectingPortal getConnectingPortal(
         World world, ConnectorType type
     ) {
-        return (VerticalConnectingPortal) McHelper.getGlobalPortals(world).stream()
+        return (VerticalConnectingPortal) GlobalPortalStorage.getGlobalPortals(world).stream()
             .filter(getPredicate(type))
             .findFirst().orElse(null);
     }

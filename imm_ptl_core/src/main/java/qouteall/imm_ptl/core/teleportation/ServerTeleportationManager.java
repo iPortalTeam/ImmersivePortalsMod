@@ -361,7 +361,7 @@ public class ServerTeleportationManager {
             ).filter(
                 entity -> !(entity instanceof ServerPlayerEntity)
             ).forEach(entity -> {
-                McHelper.getGlobalPortals(entity.world).stream()
+                GlobalPortalStorage.getGlobalPortals(entity.world).stream()
                     .filter(
                         globalPortal -> shouldEntityTeleport(globalPortal, entity)
                     )

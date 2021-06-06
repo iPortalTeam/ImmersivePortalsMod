@@ -21,6 +21,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 import java.util.List;
 
@@ -122,7 +123,7 @@ public class BlockManipulationServer {
         Vec3d sideVec = Vec3d.of(side.getVector());
         Vec3d hitCenter = Vec3d.ofCenter(blockHitResult.getBlockPos());
         
-        List<Portal> globalPortals = McHelper.getGlobalPortals(world);
+        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         
         Portal portal = globalPortals.stream().filter(p ->
             p.getNormal().dotProduct(sideVec) < -0.9

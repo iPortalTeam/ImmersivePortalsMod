@@ -9,6 +9,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.PortalGroup;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -372,7 +373,7 @@ public class CollisionHelper {
     private static void updateGlobalPortalCollidingPortalForWorld(World world) {
         world.getProfiler().push("global_portal_colliding_portal");
         
-        List<Portal> globalPortals = McHelper.getGlobalPortals(world);
+        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         Iterable<Entity> worldEntityList = McHelper.getWorldEntityList(world);
         
         if (!globalPortals.isEmpty()) {

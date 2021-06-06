@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -80,7 +81,7 @@ public class ChunkVisibility {
             predicate
         );
         
-        for (Portal globalPortal : McHelper.getGlobalPortals(world)) {
+        for (Portal globalPortal : GlobalPortalStorage.getGlobalPortals(world)) {
             if (globalPortal.getDistanceToNearestPointInPortal(pos) < (isDirect ? 256 : 32)) {
                 result.add(globalPortal);
             }

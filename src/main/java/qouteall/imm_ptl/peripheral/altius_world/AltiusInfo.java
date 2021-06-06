@@ -4,6 +4,7 @@ import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -71,7 +72,7 @@ public class AltiusInfo {
             return;
         }
         
-        if (!McHelper.getGlobalPortals(McHelper.getServerWorld(entries.get(0).dimension)).isEmpty()) {
+        if (!GlobalPortalStorage.getGlobalPortals(McHelper.getServerWorld(entries.get(0).dimension)).isEmpty()) {
             Helper.err("There are already global portals when initializing dimension stack");
             return;
         }

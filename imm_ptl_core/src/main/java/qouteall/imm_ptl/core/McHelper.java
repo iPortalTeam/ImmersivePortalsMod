@@ -50,14 +50,12 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -107,89 +105,10 @@ public class McHelper {
         player.sendMessage(new LiteralText(text), false);
     }
     
-    public static Box getChunkBoundingBox(ChunkPos chunkPos) {
-        return new Box(
-            chunkPos.getStartPos(),
-            chunkPos.getStartPos().add(16, 256, 16)
-        );
-    }
-    
     public static long getServerGameTime() {
         return getOverWorldOnServer().getTime();
     }
     
-    @Deprecated
-    public static <T> void performFindingTaskOnServer(
-        boolean isMultithreaded,
-        Stream<T> stream,
-        Predicate<T> predicate,
-        IntPredicate taskWatcher,//return false to abort the task
-        Consumer<T> onFound,
-        Runnable onNotFound,
-        Runnable finalizer
-    ) {
-        if (isMultithreaded) {
-            performMultiThreadedFindingTaskOnServer(
-                stream, predicate, taskWatcher, onFound, onNotFound, finalizer
-            );
-        }
-        else {
-            performSplittedFindingTaskOnServer(
-                stream, predicate, taskWatcher, onFound, onNotFound, finalizer
-            );
-        }
-    }
-    
-    public static <T> void performSplittedFindingTaskOnServer(
-        Stream<T> stream,
-        Predicate<T> predicate,
-        IntPredicate taskWatcher,//return false to abort the task
-        Consumer<T> onFound,
-        Runnable onNotFound,
-        Runnable finalizer
-    ) {
-        final long timeValve = (1000000000L / 50);
-        int[] countStorage = new int[1];
-        countStorage[0] = 0;
-        Iterator<T> iterator = stream.iterator();
-        IPGlobal.serverTaskList.addTask(() -> {
-            boolean shouldContinueRunning =
-                taskWatcher.test(countStorage[0]);
-            if (!shouldContinueRunning) {
-                finalizer.run();
-                return true;
-            }
-            long startTime = System.nanoTime();
-            for (; ; ) {
-                for (int i = 0; i < 300; i++) {
-                    if (iterator.hasNext()) {
-                        T next = iterator.next();
-                        if (predicate.test(next)) {
-                            onFound.accept(next);
-                            finalizer.run();
-                            return true;
-                        }
-                        countStorage[0] += 1;
-                    }
-                    else {
-                        //finished searching
-                        onNotFound.run();
-                        finalizer.run();
-                        return true;
-                    }
-                }
-                
-                long currTime = System.nanoTime();
-                
-                if (currTime - startTime > timeValve) {
-                    //suspend the task and retry it next tick
-                    return false;
-                }
-            }
-        });
-    }
-    
-    @Deprecated
     public static <T> void performMultiThreadedFindingTaskOnServer(
         Stream<T> stream,
         Predicate<T> predicate,
@@ -201,7 +120,7 @@ public class McHelper {
         int[] progress = new int[1];
         Helper.SimpleBox<Boolean> isAborted = new Helper.SimpleBox<>(false);
         Helper.SimpleBox<Runnable> finishBehavior = new Helper.SimpleBox<>(() -> {
-            Helper.err("Error Occured???");
+            Helper.err("Error Occured");
         });
         CompletableFuture<Void> future = CompletableFuture.runAsync(
             () -> {
@@ -241,12 +160,12 @@ public class McHelper {
                 return true;
             }
             if (future.isCancelled()) {
-                Helper.err("The future is cancelled???");
+                Helper.err("The future is cancelled");
                 finalizer.run();
                 return true;
             }
             if (future.isCompletedExceptionally()) {
-                Helper.err("The future is completed exceptionally???");
+                Helper.err("The future is completed exceptionally");
                 finalizer.run();
                 return true;
             }
@@ -291,21 +210,6 @@ public class McHelper {
         );
     }
     
-    @Nonnull
-    public static List<Portal> getGlobalPortals(World world) {
-        List<Portal> result;
-        if (world.isClient()) {
-            result = CHelper.getClientGlobalPortal(world);
-        }
-        else if (world instanceof ServerWorld) {
-            result = GlobalPortalStorage.get(((ServerWorld) world)).data;
-        }
-        else {
-            result = null;
-        }
-        return result != null ? result : Collections.emptyList();
-    }
-    
     // includes global portals
     public static Stream<Portal> getNearbyPortals(Entity center, double range) {
         return getNearbyPortals(center.world, center.getPos(), range);
@@ -313,7 +217,7 @@ public class McHelper {
     
     // includes global portals
     public static Stream<Portal> getNearbyPortals(World world, Vec3d pos, double range) {
-        List<Portal> globalPortals = getGlobalPortals(world);
+        List<Portal> globalPortals = GlobalPortalStorage.getGlobalPortals(world);
         
         Stream<Portal> nearbyPortals = McHelper.getServerEntitiesNearbyWithoutLoadingChunk(
             world, pos, Portal.class, range

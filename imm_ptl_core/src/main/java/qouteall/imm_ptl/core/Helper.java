@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 import javax.annotation.Nullable;
 import java.nio.FloatBuffer;
@@ -659,7 +660,7 @@ public class Helper {
         List<Portal> nearby = McHelper.getEntitiesNearby(world, middle, Portal.class, chunkRadius*16);
         
         if (includeGlobalPortals) {
-            nearby.addAll(McHelper.getGlobalPortals(world));
+            nearby.addAll(GlobalPortalStorage.getGlobalPortals(world));
         }
         
         // Make a list of all portals actually intersecting with this line, and then sort them by the distance from the

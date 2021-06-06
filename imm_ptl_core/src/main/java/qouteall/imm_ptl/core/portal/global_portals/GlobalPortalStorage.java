@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -25,8 +26,10 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -64,7 +67,7 @@ public class GlobalPortalStorage extends PersistentState {
     private static void onClientCleanup() {
         if (ClientWorldLoader.getIsInitialized()) {
             for (ClientWorld clientWorld : ClientWorldLoader.getClientWorlds()) {
-                for (Portal globalPortal : McHelper.getGlobalPortals(clientWorld)) {
+                for (Portal globalPortal : getGlobalPortals(clientWorld)) {
                     globalPortal.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
                 }
             }
@@ -312,5 +315,20 @@ public class GlobalPortalStorage extends PersistentState {
         for (Portal portal : data) {
             portal.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
         }
+    }
+    
+    @Nonnull
+    public static List<Portal> getGlobalPortals(World world) {
+        List<Portal> result;
+        if (world.isClient()) {
+            result = CHelper.getClientGlobalPortal(world);
+        }
+        else if (world instanceof ServerWorld) {
+            result = get(((ServerWorld) world)).data;
+        }
+        else {
+            result = null;
+        }
+        return result != null ? result : Collections.emptyList();
     }
 }
