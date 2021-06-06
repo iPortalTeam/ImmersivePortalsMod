@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.mixin.client.render;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ModMainClient;
+import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalThirdPersonView;
 import qouteall.imm_ptl.core.render.GuiPortalRendering;
@@ -87,7 +87,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean boolean_1,
         CallbackInfo ci
     ) {
-        ModMainClient.switchToCorrectRenderer();
+        IPModMainClient.switchToCorrectRenderer();
         
         IPCGlobal.renderer.prepareRendering();
     }

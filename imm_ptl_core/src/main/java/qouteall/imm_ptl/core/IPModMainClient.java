@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core;
 
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.minecraft.text.LiteralText;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -27,7 +28,7 @@ import net.minecraft.text.TranslatableText;
 
 import java.util.UUID;
 
-public class ModMainClient {
+public class IPModMainClient {
     
     public static void switchToCorrectRenderer() {
         if (PortalRendering.isRendering()) {
@@ -88,6 +89,21 @@ public class ModMainClient {
         ));
     }
     
+    private static void showPreviewWarning() {
+        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            () -> MinecraftClient.getInstance().world == null,
+            MyTaskList.oneShotTask(() -> {
+                MinecraftClient.getInstance().inGameHud.addChatMessage(
+                    MessageType.CHAT,
+                    new TranslatableText("imm_ptl.preview_warning").append(
+                        McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
+                    ),
+                    UUID.randomUUID()
+                );
+            })
+        ));
+    }
+    
     public static void init() {
         IPNetworkingClient.init();
         
@@ -127,8 +143,10 @@ public class ModMainClient {
         }
         
         GcMonitor.initClient();
-    
+        
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
+        
+        showPreviewWarning();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

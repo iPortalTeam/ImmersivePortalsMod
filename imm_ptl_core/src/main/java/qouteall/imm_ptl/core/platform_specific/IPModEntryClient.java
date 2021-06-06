@@ -4,7 +4,7 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.SodiumInterfaceInitializer;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.Helper;
-import qouteall.imm_ptl.core.ModMainClient;
+import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.SodiumInterface;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
@@ -61,7 +61,7 @@ public class IPModEntryClient implements ClientModInitializer {
     
     @Override
     public void onInitializeClient() {
-        ModMainClient.init();
+        IPModMainClient.init();
         
         initPortalRenderers();
         
