@@ -18,13 +18,13 @@ jobs:
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
+        java-version: 16
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - uses: eskatos/gradle-command-action@v1
       with:
-        gradle-version: 6.5
+        gradle-version: 7.0.1
         arguments: build additionalCopy
 
     - name: Upload assets to GitHub
