@@ -35,27 +35,17 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-//        maven {
-//            url 'http://maven.fabricmc.net/'
-//            name 'Fabric'
-//        }
         maven {
             name = 'JitPack'
             url = 'https://jitpack.io'
         }
         maven { url "https://maven.shedaniel.me/" }
-
-//        maven { url 'https://repo.repsy.io/mvn/gandiber/geckolib' }
-
     }
 
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
+        it.options.release = 16
     }
-
 
     dependencies {
         minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -84,24 +74,19 @@ allprojects {
 
     afterEvaluate {
         remapJar {
-            input = file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar")
+            input = file("${project.buildDir}/libs/$archivesBaseName-$version-dev.jar")
             archiveName = "${archivesBaseName}-${version}-mc${project.minecraft_version}-fabric.jar"
         }
 
         artifacts {
-            //dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+//            dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
         }
 
         processResources {
             inputs.property "version", project.version
 
-            from(sourceSets.main.resources.srcDirs) {
-                include "fabric.mod.json"
+            filesMatching("fabric.mod.json") {
                 expand "version": project.version
-            }
-
-            from(sourceSets.main.resources.srcDirs) {
-                exclude "fabric.mod.json"
             }
         }
 
