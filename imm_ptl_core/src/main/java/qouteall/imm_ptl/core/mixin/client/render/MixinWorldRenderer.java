@@ -228,7 +228,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "renderLayer",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderSystem;getShader()Lnet/minecraft/client/render/Shader;"
+            target = "Lnet/minecraft/client/render/BufferRenderer;unbindAll()V"
         )
     )
     private void onGetShaderInRenderingLayer(
