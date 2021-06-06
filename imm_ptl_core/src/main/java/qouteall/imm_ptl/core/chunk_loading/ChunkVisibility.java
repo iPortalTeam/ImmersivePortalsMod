@@ -56,10 +56,10 @@ public class ChunkVisibility {
         
         int cappedLoadingDistance = Math.min(targetLoadingDistance, cap);
         
-        if (!IPGlobal.serverSmoothLoading) {
-            return cappedLoadingDistance;
-        }
-        
+//        if (!IPGlobal.serverSmoothLoading) {
+//            return cappedLoadingDistance;
+//        }
+
 //        int maxLoadDistance = PortalExtension.get(portal).refreshAndGetLoadDistanceCap(
 //            portal, player, cappedLoadingDistance
 //        );

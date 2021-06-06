@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 public class NewChunkTrackingGraph {
     
     public static final int updateInterval = 40;
-    public static boolean addCustomTicketForDirectLoadingDelayed = true;
     
     public static class PlayerWatchRecord {
         public final ServerPlayerEntity player;

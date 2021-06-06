@@ -358,52 +358,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder.then(ClientCommandManager
-                .literal("test")
-                .executes(context -> {
-//                IPDimensionAPI.onServerWorldInit.connect((generatorOptions, registryManager) -> {
-//                    SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
-//                    long seed = generatorOptions.getSeed();
-//
-//                    DimensionType dimensionType = registryManager.get(Registry.DIMENSION_TYPE_KEY)
-//                        .get(new Identifier("namespace:dimension_type_id"));
-//
-//                    Validate.notNull(dimensionType);
-//
-//                    MutableRegistry<Biome> biomeRegistry = registryManager.get(Registry.BIOME_KEY);
-//                    BiomeSource biomeSource = new CustomBiomeSource(seed, biomeRegistry);
-//
-//                    Identifier dimensionId = new Identifier("namespace:dimension_id");
-//                    IPDimensionAPI.addDimension(
-//                        seed, registry, dimensionId, () -> dimensionType,
-//                        new CustomChunkGenerator(seed,biomeSource)
-//                    );
-//                    IPDimensionAPI.markDimensionNonPersistent(dimensionId);
-//                });
-                    
-                    return 0;
-                })
-        );
-        builder.then(ClientCommandManager
-            .literal("print_generator_config")
-            .executes(context -> {
-                McHelper.getServer().getWorlds().forEach(world -> {
-                    ChunkGenerator generator = world.getChunkManager().getChunkGenerator();
-                    Helper.log(world.getRegistryKey().getValue());
-                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
-                    Helper.log(McHelper.serializeToJson(
-                        world.getDimension(),
-                        DimensionType.CODEC.stable()
-                    ));
-                });
-                
-                GeneratorOptions options = McHelper.getServer().getSaveProperties().getGeneratorOptions();
-                
-                Helper.log(McHelper.serializeToJson(options, GeneratorOptions.CODEC));
-                
-                return 0;
-            })
-        );
+     
         builder.then(ClientCommandManager
             .literal("report_portal_groups")
             .executes(context -> {
@@ -492,12 +447,6 @@ public class ClientDebugCommand {
             "super_advanced_frustum_culling",
             cond -> IPCGlobal.useSuperAdvancedFrustumCulling = cond
         );
-        
-        registerSwitchCommand(
-            builder,
-            "teleportation_debug",
-            cond -> IPGlobal.teleportationDebugEnabled = cond
-        );
         registerSwitchCommand(
             builder,
             "cross_portal_entity_rendering",
@@ -517,16 +466,6 @@ public class ClientDebugCommand {
             builder,
             "cache_gl_buffer",
             cond -> IPGlobal.cacheGlBuffer = cond
-        );
-        registerSwitchCommand(
-            builder,
-            "add_custom_ticket_for_direct_loading_delayed",
-            cond -> NewChunkTrackingGraph.addCustomTicketForDirectLoadingDelayed = cond
-        );
-        registerSwitchCommand(
-            builder,
-            "server_smooth_loading",
-            cond -> IPGlobal.serverSmoothLoading = cond
         );
         registerSwitchCommand(
             builder,
@@ -560,7 +499,7 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "disable_fog",
+            "nofog",
             cond -> IPGlobal.debugDisableFog = cond
         );
         registerSwitchCommand(

@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -22,7 +23,11 @@ import net.minecraft.util.profiler.ProfilerSystem;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
@@ -174,7 +179,6 @@ public class PortalDebugCommands {
                 })
             )
         );
-        
         
         builder.then(CommandManager.literal("test")
             .executes(context -> {
@@ -334,6 +338,7 @@ public class PortalDebugCommands {
         );
         
         builder.then(CommandManager.literal("report_resource_consumption")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .executes(context -> {
                 StringBuilder str = new StringBuilder();
                 
@@ -355,6 +360,28 @@ public class PortalDebugCommands {
                     "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportResourceConsumption"
                 );
                 
+                return 0;
+            })
+        );
+    
+        builder.then(CommandManager
+            .literal("print_generator_config")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+            .executes(context -> {
+                McHelper.getServer().getWorlds().forEach(world -> {
+                    ChunkGenerator generator = world.getChunkManager().getChunkGenerator();
+                    Helper.log(world.getRegistryKey().getValue());
+                    Helper.log(McHelper.serializeToJson(generator, ChunkGenerator.CODEC));
+                    Helper.log(McHelper.serializeToJson(
+                        world.getDimension(),
+                        DimensionType.CODEC.stable()
+                    ));
+                });
+            
+                GeneratorOptions options = McHelper.getServer().getSaveProperties().getGeneratorOptions();
+            
+                Helper.log(McHelper.serializeToJson(options, GeneratorOptions.CODEC));
+            
                 return 0;
             })
         );
