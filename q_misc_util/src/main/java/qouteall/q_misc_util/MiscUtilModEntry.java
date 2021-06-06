@@ -7,6 +7,6 @@ public class MiscUtilModEntry implements ModInitializer {
     public void onInitialize() {
         DimensionMisc.init();
         
-        
+        MiscNetworking.init();
     }
 }
