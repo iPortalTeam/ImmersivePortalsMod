@@ -178,11 +178,11 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         if (++this.requestedTeleportId == Integer.MAX_VALUE) {
             this.requestedTeleportId = 0;
         }
-        
-        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
-            Helper.err("Teleport request cancelled " + player.getName().asString());
-            return;
-        }
+
+//        if (IPGlobal.serverTeleportationManager.isJustTeleported(player, 100)) {
+//            Helper.err("Teleport request cancelled " + player.getName().asString());
+//            return;
+//        }
         
         this.teleportRequestTick = this.ticks;
         this.player.updatePositionAndAngles(x, y, z, yaw, pitch);
