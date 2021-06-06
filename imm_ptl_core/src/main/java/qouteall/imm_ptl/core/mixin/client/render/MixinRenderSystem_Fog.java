@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(RenderSystem.class)
+@Mixin(value = RenderSystem.class, remap = false)
 public class MixinRenderSystem_Fog {
     @ModifyVariable(
         method = "_setShaderFogStart", at = @At("HEAD"), argsOnly = true
