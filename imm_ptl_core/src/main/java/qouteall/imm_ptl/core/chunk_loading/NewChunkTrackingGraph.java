@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
@@ -162,6 +160,13 @@ public class NewChunkTrackingGraph {
                         beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
                             record.dimension, new ChunkPos(record.chunkPos)
                         ));
+                        if (!record.isDirectLoading) {
+                            MyLoadingTicket.addTicketIfNotLoaded(
+                                McHelper.getServerWorld(record.dimension),
+                                new ChunkPos(record.chunkPos)
+                            );
+                        }
+                        
                         
                         loaded++;
                     }
@@ -262,15 +267,15 @@ public class NewChunkTrackingGraph {
         McHelper.getServer().getWorlds().forEach(world -> {
             
             Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> chunkRecordMap = getChunkRecordMap(world.getRegistryKey());
-            
-            chunkRecordMap.long2ObjectEntrySet().forEach(entry -> {
-                long longChunkPos = entry.getLongKey();
-                ArrayList<PlayerWatchRecord> records = entry.getValue();
-                
-                if (shouldAddCustomTicket(world, longChunkPos, records)) {
-                    MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(longChunkPos));
-                }
-            });
+
+//            chunkRecordMap.long2ObjectEntrySet().forEach(entry -> {
+//                long longChunkPos = entry.getLongKey();
+//                ArrayList<PlayerWatchRecord> records = entry.getValue();
+//
+//                if (shouldAddCustomTicket(world, longChunkPos, records)) {
+//                    MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(longChunkPos));
+//                }
+//            });
             
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(weakRef -> {
@@ -297,7 +302,7 @@ public class NewChunkTrackingGraph {
             });
             
             chunksToUnload.forEach((long longChunkPos) -> {
-                MyLoadingTicket.removeTicket(world, new ChunkPos(longChunkPos));
+                MyLoadingTicket.removeTicketIfPresent(world, new ChunkPos(longChunkPos));
             });
         });
         

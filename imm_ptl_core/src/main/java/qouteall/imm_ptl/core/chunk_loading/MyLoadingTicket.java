@@ -49,7 +49,7 @@ public class MyLoadingTicket {
         }
     }
     
-    public static void removeTicket(ServerWorld world, ChunkPos chunkPos) {
+    public static void removeTicketIfPresent(ServerWorld world, ChunkPos chunkPos) {
         boolean isNewlyRemoved = getRecord(world).remove(chunkPos.toLong());
         
         if (isNewlyRemoved) {
