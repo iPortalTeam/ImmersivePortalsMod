@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.block.Block;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import net.minecraft.block.BlockState;
@@ -33,6 +34,8 @@ import net.minecraft.world.gen.feature.StrongholdFeature;
 import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.WoodlandMansionFeature;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -165,15 +168,19 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     @Override
     public CompletableFuture<Chunk> populateNoise(Executor executor, StructureAccessor accessor, Chunk chunk) {
         ChunkSection[] sectionArray = chunk.getSectionArray();
+        ArrayList<ChunkSection> locked = new ArrayList<>();
         for (ChunkSection chunkSection : sectionArray) {
-            chunkSection.lock();
+            if (chunkSection != null) {
+                chunkSection.lock();
+                locked.add(chunkSection);
+            }
         }
         
         return CompletableFuture.supplyAsync(() -> {
             doPopulateNoise(chunk);
             return chunk;
         }, executor).thenApplyAsync((chunkx) -> {
-            for (ChunkSection chunkSection : chunkx.getSectionArray()) {
+            for (ChunkSection chunkSection : locked) {
                 chunkSection.unlock();
             }
             
@@ -243,6 +250,8 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
                     );
                 }
             }
+            
+            avoidSandLag(region);
         }
         catch (Throwable e) {
             limitedLogger.invoke(e::printStackTrace);
@@ -250,29 +259,29 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     }
     
     //TODO carve more
-
-//    private static void avoidSandLag(ChunkRegion region) {
-//        Chunk centerChunk = region.getChunk(region.getCenterChunkX(), region.getCenterChunkZ());
-//        BlockPos.Mutable temp = new BlockPos.Mutable();
-//        for (int z = 0; z < 16; z++) {
-//            for (int x = 0; x < 16; x++) {
-//                boolean isLastAir = true;
-//                for (int y = 0; y < 100; y++) {
-//                    temp.set(x, y, z);
-//                    BlockState blockState = centerChunk.getBlockState(temp);
-//                    Block block = blockState.getBlock();
-//                    if (block == Blocks.SAND || block == Blocks.GRAVEL) {
-//                        if (isLastAir) {
-//                            centerChunk.setBlockState(
-//                                temp,
-//                                Blocks.SANDSTONE.getDefaultState(),
-//                                true
-//                            );
-//                        }
-//                    }
-//                    isLastAir = blockState.isAir();
-//                }
-//            }
-//        }
-//    }
+    
+    private static void avoidSandLag(ChunkRegion region) {
+        Chunk centerChunk = region.getChunk(region.getCenterPos().x, region.getCenterPos().z);
+        BlockPos.Mutable temp = new BlockPos.Mutable();
+        for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 16; x++) {
+                boolean isLastAir = true;
+                for (int y = 0; y < 100; y++) {
+                    temp.set(x, y, z);
+                    BlockState blockState = centerChunk.getBlockState(temp);
+                    Block block = blockState.getBlock();
+                    if (block == Blocks.SAND || block == Blocks.GRAVEL) {
+                        if (isLastAir) {
+                            centerChunk.setBlockState(
+                                temp,
+                                Blocks.SANDSTONE.getDefaultState(),
+                                true
+                            );
+                        }
+                    }
+                    isLastAir = blockState.isAir();
+                }
+            }
+        }
+    }
 }
