@@ -85,7 +85,9 @@ public class NewChunkTrackingGraph {
         long chunkPos,
         ArrayList<PlayerWatchRecord> records
     ) {
-        boolean isIndirectLoading = Helper.indexOf(records, r -> !r.isDirectLoading) != -1;
+        boolean isIndirectLoading = Helper.indexOf(records, r ->
+            (r.isLoadedToPlayer) && (!r.isDirectLoading)
+        ) != -1;
         
         return isIndirectLoading;
     }
@@ -148,7 +150,7 @@ public class NewChunkTrackingGraph {
     public static void flushPendingLoading(ServerPlayerEntity player) {
         PlayerInfo playerInfo = getPlayerInfo(player);
         
-        final int limit = 5;
+        final int limit = getChunkDeliveringLimitPerTick(player);
         int loaded = 0;
         
         for (int distance = 0; distance < playerInfo.distanceToPendingChunks.size(); distance++) {
@@ -167,6 +169,10 @@ public class NewChunkTrackingGraph {
                 }
             }
         }
+    }
+    
+    private static int getChunkDeliveringLimitPerTick(ServerPlayerEntity player) {
+        return player.age < 100 ? 200 : 5;
     }
     
     private static void updatePlayerForChunkLoader(
