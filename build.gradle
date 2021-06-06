@@ -1,11 +1,13 @@
 plugins {
     id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
+    id 'java-library'
 }
 
 allprojects {
     apply plugin: 'fabric-loom'
     apply plugin: 'maven-publish'
+    apply plugin: 'java-library'
 }
 
 archivesBaseName = project.archives_base_name
@@ -148,6 +150,8 @@ publishing {
 }
 
 dependencies {
+    api project(":q_misc_util")
+
 //    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
@@ -203,8 +207,7 @@ dependencies {
 dependencies {
     afterEvaluate {
         subprojects.each {
-            compileOnly project(":${it.name}")
-            runtimeOnly project(":${it.name}")
+            api project(":${it.name}")
             include project("${it.name}:")
         }
     }

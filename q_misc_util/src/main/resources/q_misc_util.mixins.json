@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "qouteall.q_misc_util.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "DimensionTypeAccessor"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

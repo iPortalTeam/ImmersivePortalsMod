@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.imm_ptl.core.api.IPDimensionAPI;
+import qouteall.q_misc_util.IPDimensionAPI;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;

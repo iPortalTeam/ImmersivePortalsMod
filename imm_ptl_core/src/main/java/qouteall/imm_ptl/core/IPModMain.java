@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import qouteall.imm_ptl.core.api.IPDimensionAPI;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
@@ -11,6 +10,7 @@ import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+import qouteall.q_misc_util.IPDimensionAPI;
 
 public class IPModMain {
     

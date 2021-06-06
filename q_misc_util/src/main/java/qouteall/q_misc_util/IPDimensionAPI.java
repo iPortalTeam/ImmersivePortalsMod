@@ -1,6 +1,11 @@
-package qouteall.imm_ptl.core.api;
+package qouteall.q_misc_util;
 
 import com.mojang.serialization.Lifecycle;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
+import net.minecraft.world.biome.source.TheEndBiomeSource;
+import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
+import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.my_util.SignalBiArged;
@@ -13,6 +18,7 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import qouteall.q_misc_util.mixin.DimensionTypeAccessor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -70,7 +76,7 @@ public class IPDimensionAPI {
         );
     }
     
-    // fix nether and end swallowed by DFU error
+    // fix the issue that nether and end get swallowed by DFU
     private static void addMissingVanillaDimensions(GeneratorOptions generatorOptions, DynamicRegistryManager registryManager) {
         SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();
         long seed = generatorOptions.getSeed();
@@ -81,8 +87,8 @@ public class IPDimensionAPI {
                 seed,
                 registry,
                 DimensionOptions.NETHER.getValue(),
-                () -> DimensionType.THE_NETHER,
-                DimensionType.createNetherGenerator(
+                () -> DimensionTypeAccessor._getTheNether(),
+                createNetherGenerator(
                     registryManager.get(Registry.BIOME_KEY),
                     registryManager.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY),
                     seed
@@ -96,13 +102,28 @@ public class IPDimensionAPI {
                 seed,
                 registry,
                 DimensionOptions.END.getValue(),
-                () -> DimensionType.THE_END,
-                DimensionType.createEndGenerator(
+                () -> DimensionTypeAccessor._getTheEnd(),
+                createEndGenerator(
                     registryManager.get(Registry.BIOME_KEY),
                     registryManager.get(Registry.CHUNK_GENERATOR_SETTINGS_KEY),
                     seed
                 )
             );
         }
+    }
+    
+    /**
+     * Copied from {@link DimensionType}
+     */
+    private static ChunkGenerator createNetherGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+        return new NoiseChunkGenerator(MultiNoiseBiomeSource.Preset.NETHER.getBiomeSource(biomeRegistry, seed), seed, () -> {
+            return (ChunkGeneratorSettings) chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.NETHER);
+        });
+    }
+    
+    private static ChunkGenerator createEndGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+        return new NoiseChunkGenerator(new TheEndBiomeSource(biomeRegistry, seed), seed, () -> {
+            return (ChunkGeneratorSettings) chunkGeneratorSettingsRegistry.getOrThrow(ChunkGeneratorSettings.END);
+        });
     }
 }

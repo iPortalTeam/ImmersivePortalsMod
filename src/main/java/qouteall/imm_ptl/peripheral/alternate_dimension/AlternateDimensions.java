@@ -6,7 +6,7 @@ import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunkGener
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.api.IPDimensionAPI;
+import qouteall.q_misc_util.IPDimensionAPI;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;

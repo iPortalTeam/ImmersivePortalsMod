@@ -6,5 +6,7 @@ minecraft {
 }
 
 dependencies {
+    api project(":q_misc_util")
+
     compileOnly files('ofdep.jar')
 }
