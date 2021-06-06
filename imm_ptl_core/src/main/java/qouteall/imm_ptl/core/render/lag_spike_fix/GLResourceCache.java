@@ -1,17 +1,29 @@
 package qouteall.imm_ptl.core.render.lag_spike_fix;
 
+import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.IPGlobal;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL15;
 
-public class GlBufferCache {
+import java.util.function.Consumer;
+import java.util.function.IntSupplier;
+
+public class GLResourceCache {
     public static MinecraftClient client = MinecraftClient.getInstance();
     
-    private static final IntList bufferIds = new IntArrayList();
+    private final Consumer<int[]> generator;
+    private final IntList bufferIds = new IntArrayList();
     
-    public static int getNewBufferId() {
+    public static GLResourceCache bufferCache = new GLResourceCache(GL15::glGenBuffers);
+    public static GLResourceCache vertexArrayCache = new GLResourceCache(GL30::glGenVertexArrays);
+    
+    public GLResourceCache(Consumer<int[]> generator) {
+        this.generator = generator;
+    }
+    
+    public int getNewResourceId() {
         if (bufferIds.isEmpty()) {
             reserve(1000);
         }
@@ -24,38 +36,13 @@ public class GlBufferCache {
     
     }
     
-    @Deprecated
-    private static void onPreRender() {
-        if (!IPGlobal.cacheGlBuffer) {
-            return;
-        }
-        
-        if (client.world == null) {
-            return;
-        }
-        
-        if (client.player == null) {
-            return;
-        }
-        
-        client.getProfiler().push("gl_buffer_cache");
-        
-        int expectedBufferSize = getExpectedBufferSize();
-        if (bufferIds.size() < expectedBufferSize) {
-            reserve(expectedBufferSize / 120);
-        }
-        
-        client.getProfiler().pop();
-        
-    }
-    
-    private static void reserve(int num) {
+    private void reserve(int num) {
         int[] buf = new int[num];
-        GL15.glGenBuffers(buf);
+        generator.accept(buf);
         bufferIds.addElements(bufferIds.size(), buf);
     }
     
-    private static int getExpectedBufferSize() {
+    private int getExpectedBufferSize() {
         int viewDistance = client.options.viewDistance;
         int diameter = viewDistance * 2 + 1;
         
