@@ -95,7 +95,7 @@ public class AltiusInfo {
         );
     }
     
-    public static void replaceBedrock(ChunkRegion world, Chunk chunk) {
+    public static void replaceBedrock(ServerWorld world, Chunk chunk) {
         if (AltiusGameRule.getIsDimensionStack()) {
             BlockPos.Mutable mutable = new BlockPos.Mutable();
             for (int x = 0; x < 16; x++) {
