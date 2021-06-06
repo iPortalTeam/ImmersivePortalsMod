@@ -651,19 +651,20 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     private void portal_increaseRenderDistance(int targetRadius) {
-        if (chunks instanceof MyBuiltChunkStorage) {
-            int radius = ((MyBuiltChunkStorage) chunks).getRadius();
-            
-            if (radius < targetRadius) {
-                Helper.log("Resizing built chunk storage to " + targetRadius);
-                
-                chunks.clear();
-                
-                chunks = new MyBuiltChunkStorage(
-                    chunkBuilder, world, targetRadius, ((WorldRenderer) (Object) this)
-                );
-            }
-        }
+        // TODO implement resizing with changing ChunkInfoList
+//        if (chunks instanceof MyBuiltChunkStorage) {
+//            int radius = ((MyBuiltChunkStorage) chunks).getRadius();
+//
+//            if (radius < targetRadius) {
+//                Helper.log("Resizing built chunk storage to " + targetRadius);
+//
+//                chunks.clear();
+//
+//                chunks = new MyBuiltChunkStorage(
+//                    chunkBuilder, world, targetRadius, ((WorldRenderer) (Object) this)
+//                );
+//            }
+//        }
     }
     
     
