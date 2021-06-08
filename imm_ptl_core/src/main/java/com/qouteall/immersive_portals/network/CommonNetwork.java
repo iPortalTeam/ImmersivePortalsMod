@@ -2,6 +2,7 @@ package com.qouteall.immersive_portals.network;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ducks.IMutableThread;
 import me.jellysquid.mods.sodium.mixin.features.world_ticking.MixinClientWorld;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -58,9 +59,5 @@ public class CommonNetwork {
                 )
             );
         }
-    }
-
-    public interface IMutableThread {
-        Thread getThread();
     }
 }

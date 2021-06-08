@@ -4,7 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "alternate_dimension.MixinMobSpawnerLogic",
-    "alternate_dimension.WorldMixin",
+    "WorldMixin",
     "block_manipulation.MixinItem",
     "block_manipulation.MixinServerPlayerInteractionManager",
     "block_manipulation.MixinServerPlayNetworkHandler_B"
