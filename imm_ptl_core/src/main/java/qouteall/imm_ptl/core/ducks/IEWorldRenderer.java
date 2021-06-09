@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.BuiltChunkStorage;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -42,4 +43,8 @@ public interface IEWorldRenderer {
     int portal_getRenderDistance();
     
     void portal_setRenderDistance(int arg);
+    
+    Frustum portal_getFrustum();
+    
+    void portal_setFrustum(Frustum arg);
 }

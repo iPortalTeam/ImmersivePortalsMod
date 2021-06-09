@@ -2,7 +2,10 @@ package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -109,6 +112,9 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     @Nullable
     private Framebuffer translucentFramebuffer;
+    
+    @Shadow
+    private Frustum frustum;
     
     // important rendering hooks
     @Inject(
@@ -495,18 +501,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         MyRenderHelper.recoverFaceCulling();
     }
     
-    @Inject(method = "render", at = @At("HEAD"))
-    private void onBeforeRender(
-        MatrixStack matrices,
-        float tickDelta,
-        long limitTime,
-        boolean renderBlockOutline,
-        Camera camera,
-        GameRenderer gameRenderer,
-        LightmapTextureManager lightmapTextureManager,
-        Matrix4f matrix4f,
-        CallbackInfo ci
-    ) {
+    @Inject(
+        method = "setupFrustum", at = @At("HEAD")
+    )
+    private void onSetupFrustum(MatrixStack matrices, Vec3d pos, Matrix4f projectionMatrix, CallbackInfo ci) {
+        Camera camera = client.gameRenderer.getCamera();
         TransformationManager.processTransformation(camera, matrices);
     }
     
@@ -667,5 +666,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
 //        }
     }
     
+    @Override
+    public Frustum portal_getFrustum() {
+        return frustum;
+    }
     
+    @Override
+    public void portal_setFrustum(Frustum arg) {
+        frustum = arg;
+    }
 }

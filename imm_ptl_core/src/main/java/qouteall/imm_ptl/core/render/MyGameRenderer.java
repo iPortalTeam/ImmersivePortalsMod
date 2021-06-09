@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.render.Frustum;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -140,6 +141,7 @@ public class MyGameRenderer {
         BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
+        Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
@@ -226,6 +228,8 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
         
+        ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
+        
         if (IPGlobal.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = oldChunkCullingEnabled;
         }
@@ -247,16 +251,14 @@ public class MyGameRenderer {
     }
     
     /**
-     * For example the Cull assumes that the culling is enabled before using it
-     * {@link net.minecraft.client.render.RenderPhase.Cull}
      */
     public static void resetGlStates() {
 //        GlStateManager.disableAlphaTest();
-        GlStateManager._enableCull();
-        GlStateManager._disableBlend();
-        net.minecraft.client.render.DiffuseLighting.disableGuiDepthLighting();
-        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
-        client.gameRenderer.getOverlayTexture().teardownOverlayColor();
+//        GlStateManager._enableCull();
+//        GlStateManager._disableBlend();
+//        net.minecraft.client.render.DiffuseLighting.disableGuiDepthLighting();
+//        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
+//        client.gameRenderer.getOverlayTexture().teardownOverlayColor();
     }
     
     public static void renderPlayerItself(Runnable doRenderEntity) {
