@@ -218,11 +218,9 @@ dependencies {
 }
 
 dependencies {
-    afterEvaluate {
-        subprojects.each {
-            api project(":${it.name}")
-            include project("${it.name}:")
-        }
+    subprojects.each {
+        api project(":${it.name}")
+        include project("${it.name}:")
     }
 }
 
