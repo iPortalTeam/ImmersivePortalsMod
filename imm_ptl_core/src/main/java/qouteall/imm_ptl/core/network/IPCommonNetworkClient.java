@@ -137,7 +137,7 @@ public class IPCommonNetworkClient {
                 world
             );
             entity.readNbt(compoundTag);
-            entity.setEntityId(entityId);
+            entity.setId(entityId);
             entity.updateTrackedPosition(entity.getX(), entity.getY(), entity.getZ());
             world.addEntity(entityId, entity);
             

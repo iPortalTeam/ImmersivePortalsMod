@@ -25,7 +25,7 @@ public class MixinGameRenderer_Shaders {
     private void onLoadShaders(ResourceManager manager, CallbackInfo ci) {
         MyRenderHelper.loadShaderSignal.emit(
             manager, (shader) -> {
-                shaders.put(shader.method_35787(), shader);
+                shaders.put(shader.getName(), shader);
             }
         );
     }

@@ -68,7 +68,7 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         if (type == Type.mainDimensionList) {
-            DimEntryWidget selected = getSelected();
+            DimEntryWidget selected = getSelectedOrNull();
             
             if (selected != null) {
                 DimEntryWidget mouseOn = getEntryAtPosition(mouseX, mouseY);

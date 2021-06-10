@@ -79,7 +79,7 @@ public class SelectDimensionScreen extends Screen {
             this.width / 2 - 75, this.height - 28, 150, 20,
             new TranslatableText("imm_ptl.confirm_select_dimension"),
             (buttonWidget) -> {
-                DimEntryWidget selected = dimListWidget.getSelected();
+                DimEntryWidget selected = dimListWidget.getSelectedOrNull();
                 if (selected == null) {
                     return;
                 }

@@ -262,7 +262,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onAddEntry() {
-        DimEntryWidget selected = dimListWidget.getSelected();
+        DimEntryWidget selected = dimListWidget.getSelectedOrNull();
         
         int position;
         if (selected == null) {
@@ -301,7 +301,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onRemoveEntry() {
-        DimEntryWidget selected = dimListWidget.getSelected();
+        DimEntryWidget selected = dimListWidget.getSelectedOrNull();
         if (selected == null) {
             return;
         }
@@ -317,7 +317,7 @@ public class AltiusScreen extends Screen {
     }
     
     private void onEditEntry() {
-        DimEntryWidget selected = dimListWidget.getSelected();
+        DimEntryWidget selected = dimListWidget.getSelectedOrNull();
         if (selected == null) {
             return;
         }
