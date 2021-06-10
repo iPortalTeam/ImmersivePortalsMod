@@ -44,7 +44,7 @@ allprojects {
         maven { url "https://maven.shedaniel.me/" }
     }
 
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
         it.options.release = 16
     }
@@ -59,12 +59,12 @@ allprojects {
         //For Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-        modCompileOnly ("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"){
+        modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
             exclude(group: "net.fabricmc.fabric-api")
         }
         modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
-        modCompileOnly ('com.github.Virtuoel:Pehkui:1.17-SNAPSHOT') {
+        modCompileOnly('com.github.Virtuoel:Pehkui:1.17-SNAPSHOT') {
             transitive = false
         }
 
@@ -98,9 +98,16 @@ allprojects {
     // if it is present.
     // If you remove this task, sources will not be generated.
     task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = "sources"
+        archiveClassifier = "sources"
         from sourceSets.main.allSource
     }
+}
+
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
 }
 
 jar {
@@ -120,6 +127,13 @@ subprojects {
                     }
                 }
             }
+        }
+        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+        repositories {
+            // Add repositories to publish to here.
+            // Notice: This block does NOT have the same function as the block in the top level.
+            // The repositories here will be used for publishing your artifact, not for
+            // retrieving dependencies.
         }
     }
 }
@@ -150,14 +164,13 @@ publishing {
 }
 
 dependencies {
-    api project(":q_misc_util")
+//    api project(":q_misc_util")
 
 //    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
 //    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    include "io.github.prospector:modmenu:${modmenu_version}"
-
 
 
 //    modImplementation ('com.github.qouteall:MiniScaledMod:v0.01-1.16'){
@@ -220,7 +233,7 @@ task printClasspath {
     }
 }
 
-task additionalCopy(type:Copy){
+task additionalCopy(type: Copy) {
     from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
     into file("${project.buildDir}/to_upload")
 }
