@@ -25,9 +25,9 @@ repositories {
 }
 
 allprojects {
-    loom {
-        shareCaches = true
-    }
+//    loom {
+//        shareCaches = true
+//    }
 
     sourceCompatibility = JavaVersion.VERSION_16
     targetCompatibility = JavaVersion.VERSION_16
