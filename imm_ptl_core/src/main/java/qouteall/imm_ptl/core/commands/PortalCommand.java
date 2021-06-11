@@ -907,93 +907,6 @@ public class PortalCommand {
     private static void registerCBPortalCommands(
         LiteralArgumentBuilder<ServerCommandSource> builder
     ) {
-        builder.then(CommandManager.literal("cb_set_portal_destination")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
-                    .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                        .executes(
-                            context -> processPortalArgumentedCBCommand(
-                                context,
-                                (portal) -> invokeSetPortalDestination(context, portal)
-                            )
-                        )
-                    )
-                )
-            )
-        );
-        
-        builder.then(CommandManager.literal("cb_complete_bi_way_portal")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCBCommand(
-                    context,
-                    portal -> {
-                        invokeCompleteBiWayPortal(context, portal);
-                    }
-                ))
-            )
-        );
-        
-        
-        builder.then(CommandManager.literal("cb_complete_bi_faced_portal")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCBCommand(
-                    context,
-                    portal -> {
-                        invokeCompleteBiFacedPortal(context, portal);
-                    }
-                ))
-            )
-        );
-        
-        builder.then(CommandManager.literal("cb_complete_bi_way_bi_faced_portal")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCBCommand(
-                    context,
-                    portal -> {
-                        invokeCompleteBiWayBiFacedPortal(context, portal);
-                    }
-                ))
-            )
-        );
-        
-        
-        builder.then(CommandManager.literal("cb_remove_connected_portals")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> processPortalArgumentedCBCommand(
-                    context,
-                    portal -> {
-                        PortalManipulation.removeConnectedPortals(
-                            portal,
-                            p -> sendMessage(context, "Removed " + p)
-                        );
-                    }
-                ))
-            )
-        );
-        
-        
-        builder.then(CommandManager.literal("cb_set_portal_specific_accessor")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .executes(context -> {
-                    EntityArgumentType.getEntities(context, "portal")
-                        .stream().filter(e -> e instanceof Portal)
-                        .forEach(p -> removeSpecificAccessor(context, ((Portal) p)));
-                    return 0;
-                })
-                .then(CommandManager.argument("player", EntityArgumentType.player())
-                    .executes(context -> {
-                        Entity player = EntityArgumentType.getEntity(context, "player");
-                        EntityArgumentType.getEntities(context, "portal")
-                            .stream().filter(e -> e instanceof Portal)
-                            .forEach(p -> {
-                                setSpecificAccessor(context, ((Portal) p), player);
-                            });
-                        return 0;
-                    })
-                )
-            )
-        );
-        
         builder.then(CommandManager.literal("cb_make_portal")
             .then(CommandManager.argument("width", DoubleArgumentType.doubleArg())
                 .then(CommandManager.argument("height", DoubleArgumentType.doubleArg())
@@ -1027,17 +940,6 @@ public class PortalCommand {
                                 
                                 return 0;
                             })
-                        )
-                    )
-                )
-            )
-        );
-        builder.then(CommandManager.literal("cb_set_portal_nbt")
-            .then(CommandManager.argument("portal", EntityArgumentType.entities())
-                .then(CommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound())
-                    .executes(context -> processPortalArgumentedCBCommand(
-                        context,
-                        (portal) -> invokeSetPortalNBT(context, portal)
                         )
                     )
                 )
