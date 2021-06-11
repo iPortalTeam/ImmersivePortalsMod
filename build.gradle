@@ -64,7 +64,7 @@ allprojects {
         }
         modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
-        modCompileOnly('com.github.Virtuoel:Pehkui:1.17-SNAPSHOT') {
+        modCompileOnly('com.github.qouteall:Pehkui:fabric~1.17-SNAPSHOT') {
             transitive = false
         }
 
@@ -164,12 +164,11 @@ publishing {
 }
 
 dependencies {
-//    api project(":q_misc_util")
 
-//    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+    modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
-
-//    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+//
+    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    include "io.github.prospector:modmenu:${modmenu_version}"
 
 
