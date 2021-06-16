@@ -54,11 +54,12 @@ public class ViewAreaRenderer {
         GL11.glEnable(GL32.GL_DEPTH_CLAMP);
         
         Shader shader = MyRenderHelper.portalAreaShader;
+        RenderSystem.setShader(() -> shader);
         
         shader.modelViewMat.set(modelViewMatrix);
         shader.projectionMat.set(projectionMatrix);
         
-        FrontClipping.updateClippingEquationUniform();
+        FrontClipping.updateClippingEquationUniformForCurrentShader();
         
         shader.upload();
         

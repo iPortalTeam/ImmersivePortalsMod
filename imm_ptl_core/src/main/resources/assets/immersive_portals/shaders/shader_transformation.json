@@ -18,7 +18,7 @@
   {
     "type": "vs",
     "affectedShaders": [
-      "rendertype_entity_cutout"
+      "rendertype_entity_cutout", "portal_area"
     ],
     "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
     "replacement": [

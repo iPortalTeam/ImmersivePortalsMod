@@ -5,7 +5,6 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -194,7 +193,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                matrices,
                 PortalRendering.getRenderingPortal(),
                 true
             );
@@ -226,7 +224,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
-            FrontClipping.updateClippingEquationUniform();
+            FrontClipping.updateClippingEquationUniformForCurrentShader();
         }
     }
     
@@ -241,7 +239,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         RenderLayer renderLayer, MatrixStack matrices,
         double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
     ) {
-        FrontClipping.updateClippingEquationUniform();
+        FrontClipping.updateClippingEquationUniformForCurrentShader();
     }
     
     @Inject(
@@ -381,7 +379,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                matrices, PortalRendering.getRenderingPortal(), true
+                PortalRendering.getRenderingPortal(), true
             );
         }
     }

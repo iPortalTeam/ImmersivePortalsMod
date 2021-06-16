@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEShader;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -29,9 +30,18 @@ public class FrontClipping {
         isClippingEnabled = true;
     }
     
+    public static void updateInnerClipping() {
+        if (PortalRendering.isRendering()) {
+            setupInnerClipping(PortalRendering.getRenderingPortal(), false);
+        }
+        else {
+            disableClipping();
+        }
+    }
+    
     //NOTE the actual culling plane is related to current model view matrix
     public static void setupInnerClipping(
-        MatrixStack matrixStack, PortalLike portalLike, boolean doCompensate
+        PortalLike portalLike, boolean doCompensate
     ) {
         if (!IPCGlobal.useFrontClipping) {
             return;
@@ -115,7 +125,7 @@ public class FrontClipping {
         return activeClipPlaneEquation;
     }
     
-    public static void updateClippingEquationUniform() {
+    public static void updateClippingEquationUniformForCurrentShader() {
         Shader shader = RenderSystem.getShader();
         GlUniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
         if (clippingEquationUniform != null) {

@@ -179,6 +179,9 @@ public class RendererUsingStencil extends PortalRenderer {
         
         GL11.glStencilMask(0xFF);
         
+        // update it before pushing
+        FrontClipping.updateInnerClipping();
+        
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3d.ZERO,
             matrixStack.peek().getModel(),
@@ -222,6 +225,8 @@ public class RendererUsingStencil extends PortalRenderer {
         int originalDepthFunc = GL11.glGetInteger(GL_DEPTH_FUNC);
         
         GL11.glDepthFunc(GL_ALWAYS);
+        
+        FrontClipping.disableClipping();
         
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3d.ZERO,
