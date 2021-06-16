@@ -51,9 +51,6 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
         GameProfileRepository gameProfileRepository, UserCache userCache,
         WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci
     ) {
-        
-        
-        O_O.loadConfigFabric();
         O_O.onServerConstructed();
     }
     
