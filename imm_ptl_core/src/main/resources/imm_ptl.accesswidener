@@ -30,3 +30,4 @@ accessible class net/minecraft/client/gl/Program$Type
 accessible method net/minecraft/client/gl/Program$Type getGlType ()I
 
 
+extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/util/math/Box;

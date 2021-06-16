@@ -263,12 +263,14 @@ public class PortalManipulation {
         Vec3d normal,
         Predicate<Portal> predicate
     ) {
-        return world.getEntitiesByClass(
+        return McHelper.findEntitiesByBox(
             Portal.class,
+            world,
             new Box(
                 pos.add(0.1, 0.1, 0.1),
                 pos.subtract(0.1, 0.1, 0.1)
             ),
+            20,
             p -> p.getNormal().dotProduct(normal) > 0.5 && predicate.test(p)
         );
     }

@@ -23,3 +23,5 @@ Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minec
 
 accessible class net/minecraft/client/gl/Program$Type
 accessible method net/minecraft/client/gl/Program$Type getGlType ()I
+
+extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/util/math/Box;

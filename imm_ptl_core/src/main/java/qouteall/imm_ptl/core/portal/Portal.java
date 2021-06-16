@@ -62,6 +62,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public static EntityType<Portal> entityType;
     
     public static final UUID nullUUID = Util.NIL_UUID;
+    private static final Box nullBox = new Box(0, 0, 0, 0, 0, 0);
     
     /**
      * The portal area length along axisW
@@ -285,6 +286,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * If the portal attributes get changed, these cache should be updated
      */
     public void updateCache() {
+        if (axisW == null) {
+            return;
+        }
+        
         boolean updates =
             boundingBoxCache != null || exactBoundingBoxCache != null ||
                 normal != null || contentDirection != null;
@@ -297,6 +302,18 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (updates) {
             portalCacheUpdateSignal.emit(this);
         }
+    }
+    
+    @Override
+    public Box getBoundingBox() {
+        if (boundingBoxCache == null) {
+            boundingBoxCache = calculateBoundingBox();
+            if (boundingBoxCache == null) {
+                Helper.err("Cannot calc portal bounding box");
+                return nullBox;
+            }
+        }
+        return boundingBoxCache;
     }
     
     /**
@@ -681,6 +698,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     public void tick() {
+        if (getBoundingBox().equals(nullBox)) {
+            Helper.err("Abnormal bounding box " + this);
+        }
+        
         if (world.isClient) {
             clientPortalTickSignal.emit(this);
         }
@@ -699,10 +720,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Override
     protected Box calculateBoundingBox() {
         if (axisW == null) {
-            //avoid npe with pehkui
-            //pehkui will invoke this when axisW is not initialized
+            // it may be called when the portal is not yet initialized
             boundingBoxCache = null;
-            return new Box(0, 0, 0, 0, 0, 0);
+            return nullBox;
         }
         if (boundingBoxCache == null) {
             double w = width;
@@ -1357,11 +1377,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     // can be overridden
     public void onCollidingWithEntity(Entity entity) {
     
-    }
-    
-    public void updateBoundingBox() {
-        updateCache();
-        setBoundingBox(calculateBoundingBox());
     }
     
     @Override

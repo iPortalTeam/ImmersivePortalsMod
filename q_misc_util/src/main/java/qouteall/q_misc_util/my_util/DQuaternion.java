@@ -365,4 +365,13 @@ public class DQuaternion {
         
         return new DQuaternion(qx, qy, qz, qw);
     }
+    
+    public static DQuaternion getRotationBetween(Vec3d from, Vec3d to) {
+        from = from.normalize();
+        to = to.normalize();
+        Vec3d axis = from.crossProduct(to).normalize();
+        double cos = from.dotProduct(to);
+        double angle = Math.acos(cos);
+        return DQuaternion.rotationByRadians(axis, angle);
+    }
 }
