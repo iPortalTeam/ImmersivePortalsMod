@@ -138,7 +138,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
             
             if (shouldTrack && this.playersTracking.add(player)) {
                 CommonNetwork.withForceRedirect(
-                    entity.world.getRegistryKey(),
+                    entity.world,
                     () -> {
                         this.entry.startTracking(player);
                     }
@@ -147,7 +147,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         }
         else if (this.playersTracking.remove(player)) {
             CommonNetwork.withForceRedirect(
-                entity.world.getRegistryKey(),
+                entity.world,
                 () -> {
                     this.entry.stopTracking(player);
                 }

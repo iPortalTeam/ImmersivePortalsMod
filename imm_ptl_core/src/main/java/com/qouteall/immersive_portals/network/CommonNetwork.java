@@ -2,6 +2,8 @@ package com.qouteall.immersive_portals.network;
 
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.ducks.IMutableThread;
+import me.jellysquid.mods.sodium.mixin.features.world_ticking.MixinClientWorld;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.registry.RegistryKey;
@@ -16,14 +18,13 @@ public class CommonNetwork {
     @Nullable
     public static RegistryKey<World> forceRedirect = null;
     
-    public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
+    public static void withForceRedirect(World dimension, Runnable func) {
         Validate.isTrue(
-            McHelper.getServer().getThread() == Thread.currentThread(),
+            ((IMutableThread)dimension).getThread() == Thread.currentThread(),
             "Maybe a mod is trying to add entity in a non-server thread. This is probably not IP's issue"
         );
-        
         RegistryKey<World> oldForceRedirect = forceRedirect;
-        forceRedirect = dimension;
+        forceRedirect = dimension.getRegistryKey();
         try {
             func.run();
         }
