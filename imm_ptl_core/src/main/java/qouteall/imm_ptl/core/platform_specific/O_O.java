@@ -17,8 +17,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
 public class O_O {
-    
-    public static boolean isReachEntityAttributesPresent;
+    public static boolean isDimensionalThreadingPresent = false;
     
     public static boolean isForge() {
         return false;
