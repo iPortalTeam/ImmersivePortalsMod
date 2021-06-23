@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.network;
 
+import net.minecraft.server.world.ServerWorld;
+import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -17,14 +19,14 @@ public class IPCommonNetwork {
     @Nullable
     private static RegistryKey<World> forceRedirect = null;
     
-    public static void withForceRedirect(RegistryKey<World> dimension, Runnable func) {
+    public static void withForceRedirect(ServerWorld world, Runnable func) {
         Validate.isTrue(
-            MiscHelper.getServer().getThread() == Thread.currentThread(),
+            ((IEWorld) world).portal_getThread() == Thread.currentThread(),
             "Maybe a mod is trying to add entity in a non-server thread. This is probably not IP's issue"
         );
         
         RegistryKey<World> oldForceRedirect = forceRedirect;
-        forceRedirect = dimension;
+        forceRedirect = world.getRegistryKey();
         try {
             func.run();
         }

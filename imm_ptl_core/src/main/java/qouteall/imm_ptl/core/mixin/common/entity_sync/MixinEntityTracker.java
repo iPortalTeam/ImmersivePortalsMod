@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
+import me.jellysquid.mods.sodium.mixin.features.world_ticking.MixinClientWorld;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -63,7 +64,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
         EntityTrackingListener entityTrackingListener, Packet<?> packet
     ) {
         IPCommonNetwork.withForceRedirect(
-            entity.world.getRegistryKey(),
+            ((ServerWorld) entity.world),
             () -> {
                 entityTrackingListener.sendPacket(packet);
             }

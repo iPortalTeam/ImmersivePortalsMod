@@ -11,4 +11,6 @@ public interface IEWorld {
     void portal_setWeather(float rainGradPrev, float rainGrad, float thunderGradPrev, float thunderGrad);
     
     EntityLookup<Entity> portal_getEntityLookup();
+    
+    Thread portal_getThread();
 }

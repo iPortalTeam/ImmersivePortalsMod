@@ -94,7 +94,7 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         }
         
         IPCommonNetwork.withForceRedirect(
-            world.getRegistryKey(),
+            world,
             () -> {
                 for (Entity entity : attachedEntityList) {
                     player.networkHandler.sendPacket(new EntityAttachS2CPacket(

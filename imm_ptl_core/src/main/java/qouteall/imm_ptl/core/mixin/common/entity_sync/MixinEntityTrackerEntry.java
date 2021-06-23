@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
+import me.jellysquid.mods.sodium.mixin.features.world_ticking.MixinClientWorld;
+import net.minecraft.server.world.ServerWorld;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.entity.Entity;
@@ -47,7 +49,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     @Overwrite
     public void stopTracking(ServerPlayerEntity player) {
         IPCommonNetwork.withForceRedirect(
-            entity.world.getRegistryKey(), () -> {
+            ((ServerWorld) entity.world), () -> {
                 entity.onStoppedTrackingBy(player);
                 player.networkHandler.sendPacket(new EntityDestroyS2CPacket(entity.getId()));
             }
@@ -60,7 +62,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     @Overwrite
     public void startTracking(ServerPlayerEntity player) {
         IPCommonNetwork.withForceRedirect(
-            entity.world.getRegistryKey(), () -> {
+            ((ServerWorld) entity.world), () -> {
                 ServerPlayNetworkHandler var10001 = player.networkHandler;
                 Objects.requireNonNull(var10001);
                 this.sendPackets(var10001::sendPacket);

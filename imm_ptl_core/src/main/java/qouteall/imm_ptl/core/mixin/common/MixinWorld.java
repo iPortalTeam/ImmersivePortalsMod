@@ -38,6 +38,10 @@ public abstract class MixinWorld implements IEWorld {
     @Shadow
     protected abstract EntityLookup<Entity> getEntityLookup();
     
+    @Shadow
+    @Final
+    private Thread thread;
+    
     // Fix overworld rain cause nether fog change
     @Inject(method = "initWeatherGradients", at = @At("TAIL"))
     private void onInitWeatherGradients(CallbackInfo ci) {
@@ -65,5 +69,10 @@ public abstract class MixinWorld implements IEWorld {
     @Override
     public EntityLookup<Entity> portal_getEntityLookup() {
         return getEntityLookup();
+    }
+    
+    @Override
+    public Thread portal_getThread() {
+        return thread;
     }
 }
