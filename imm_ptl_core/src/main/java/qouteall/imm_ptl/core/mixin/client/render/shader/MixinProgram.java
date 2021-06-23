@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Mixin(value = Program.class, priority = 1200)
+// 800 priority to avoid clash with iris
+@Mixin(value = Program.class, priority = 800)
 public class MixinProgram {
     /**
      * @author qouteall

@@ -71,6 +71,8 @@ allprojects {
         modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
 //        modImplementation("me.jellysquid.mods:sodium:0.1.202103212-SNAPSHOT")
 
+        modImplementation 'net.coderbot.iris_mc1_17:iris:1.0.3'
+
 
     }
 

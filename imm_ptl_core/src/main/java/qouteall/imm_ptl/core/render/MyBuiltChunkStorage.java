@@ -92,7 +92,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     @Override
     public void clear() {
-        getAllActiveBuiltChunks().forEach(
+        Set<BuiltChunk> allActiveBuiltChunks = getAllActiveBuiltChunks();
+        allActiveBuiltChunks.forEach(
             ChunkBuilder.BuiltChunk::delete
         );
         columnMap.clear();
@@ -349,6 +350,9 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         if (chunks != null) {
             result.addAll(Arrays.asList(chunks));
         }
+        
+        // if this.chunks are all null, it will have a null
+        result.remove(null);
         
         return result;
     }

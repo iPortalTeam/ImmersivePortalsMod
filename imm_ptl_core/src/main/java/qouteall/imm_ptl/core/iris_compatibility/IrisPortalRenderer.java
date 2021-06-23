@@ -1,0 +1,349 @@
+package qouteall.imm_ptl.core.iris_compatibility;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.coderbot.iris.Iris;
+import net.coderbot.iris.gl.framebuffer.GlFramebuffer;
+import net.coderbot.iris.pipeline.PipelineManager;
+import net.coderbot.iris.pipeline.WorldRenderingPipeline;
+import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20C;
+import org.lwjgl.opengl.GL30;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.PortalRenderInfo;
+import qouteall.imm_ptl.core.render.MyGameRenderer;
+import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.PortalRenderer;
+import qouteall.imm_ptl.core.render.SecondaryFrameBuffer;
+import qouteall.imm_ptl.core.render.ViewAreaRenderer;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.q_misc_util.Helper;
+
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_EQUAL;
+import static org.lwjgl.opengl.GL11.GL_INCR;
+import static org.lwjgl.opengl.GL11.GL_KEEP;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glStencilFunc;
+import static org.lwjgl.opengl.GL11.glStencilOp;
+
+public class IrisPortalRenderer extends PortalRenderer {
+    public static final IrisPortalRenderer instance = new IrisPortalRenderer();
+    
+    
+    private SecondaryFrameBuffer[] deferredFbs = new SecondaryFrameBuffer[0];
+    
+    //OptiFine messes up with transformations so store it
+    private MatrixStack modelView = new MatrixStack();
+    
+    private boolean portalRenderingNeeded = false;
+    private boolean nextFramePortalRenderingNeeded = false;
+    
+    IrisPortalRenderer() {
+        IPGlobal.preGameRenderSignal.connect(() -> {
+            updateNeedsPortalRendering();
+        });
+    }
+    
+    @Override
+    public boolean replaceFrameBufferClearing() {
+        return false;
+    }
+    
+    @Override
+    public void onRenderCenterEnded(MatrixStack matrixStack) {
+        // avoid this thing needs to be invoked when no portal is rendered
+        // it may cost performance
+        if (portalRenderingNeeded) {
+            int portalLayer = PortalRendering.getPortalLayer();
+            
+            initStencilForLayer(portalLayer);
+            
+            deferredFbs[portalLayer].fb.beginWrite(true);
+            deferredFbs[portalLayer].fb.checkFramebufferStatus();
+            
+            glEnable(GL_STENCIL_TEST);
+            glStencilFunc(GL_EQUAL, portalLayer, 0xFF);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            
+            Framebuffer mcFrameBuffer = client.getFramebuffer();
+            
+            MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
+            
+            deferredFbs[portalLayer].fb.beginWrite(true);
+            deferredFbs[portalLayer].fb.checkFramebufferStatus();
+            MyRenderHelper.drawScreenFrameBuffer(mcFrameBuffer, false, true);
+            
+            glDisable(GL_STENCIL_TEST);
+            
+            deferredFbs[portalLayer].fb.endWrite();
+        }
+        
+        MatrixStack effectiveTransformation = this.modelView;
+        modelView = new MatrixStack();
+        
+        renderPortals(effectiveTransformation);
+    }
+    
+    private void initStencilForLayer(int portalLayer) {
+        if (portalLayer == 0) {
+            deferredFbs[portalLayer].fb.beginWrite(true);
+            deferredFbs[portalLayer].fb.checkFramebufferStatus();
+            GlStateManager._clearStencil(0);
+            GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        }
+        else {
+            deferredFbs[portalLayer - 1].fb.beginWrite(false);
+            deferredFbs[portalLayer - 1].fb.checkFramebufferStatus();
+            deferredFbs[portalLayer].fb.beginWrite(false);
+            deferredFbs[portalLayer].fb.checkFramebufferStatus();
+            
+            
+            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
+            GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
+            
+            GL30.glBlitFramebuffer(
+                0, 0, deferredFbs[0].fb.viewportWidth, deferredFbs[0].fb.viewportHeight,
+                0, 0, deferredFbs[0].fb.viewportWidth, deferredFbs[0].fb.viewportHeight,
+                GL_STENCIL_BUFFER_BIT, GL_NEAREST
+            );
+        }
+    }
+    
+    @Override
+    public void onBeforeTranslucentRendering(MatrixStack matrixStack) {
+    
+    }
+    
+    @Override
+    public void onAfterTranslucentRendering(MatrixStack matrixStack) {
+        if (portalRenderingNeeded) {
+            deferredFbs[PortalRendering.getPortalLayer()].fb.beginWrite(false);
+            deferredFbs[PortalRendering.getPortalLayer()].fb.checkFramebufferStatus();
+            
+            copyFromIrisShaderFbTo(
+                deferredFbs[PortalRendering.getPortalLayer()].fb,
+                GL_DEPTH_BUFFER_BIT
+            );
+        }
+        
+        modelView.push();
+        modelView.peek().getModel().multiply(matrixStack.peek().getModel());
+        modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
+    }
+    
+    @Override
+    public void prepareRendering() {
+        if (deferredFbs.length != PortalRendering.getMaxPortalLayer() + 1) {
+            for (SecondaryFrameBuffer fb : deferredFbs) {
+                fb.fb.delete();
+            }
+            
+            deferredFbs = new SecondaryFrameBuffer[PortalRendering.getMaxPortalLayer() + 1];
+            for (int i = 0; i < deferredFbs.length; i++) {
+                deferredFbs[i] = new SecondaryFrameBuffer();
+            }
+        }
+        
+        CHelper.checkGlError();
+        
+        for (SecondaryFrameBuffer deferredFb : deferredFbs) {
+            deferredFb.prepare();
+            ((IEFrameBuffer) deferredFb.fb).setIsStencilBufferEnabledAndReload(true);
+            
+            deferredFb.fb.beginWrite(true);
+            GlStateManager._clearColor(1, 0, 1, 0);
+            GlStateManager._clearDepth(1);
+            GlStateManager._clearStencil(0);
+            GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            
+            CHelper.checkGlError();
+            
+            deferredFb.fb.endWrite();
+        }
+    }
+    
+    private void updateNeedsPortalRendering() {
+        portalRenderingNeeded = nextFramePortalRenderingNeeded;
+        nextFramePortalRenderingNeeded = false;
+    }
+    
+    @Override
+    public void finishRendering() {
+        GlStateManager._colorMask(true, true, true, true);
+        
+        if (RenderStates.getRenderedPortalNum() == 0) {
+            return;
+        }
+        
+        if (!portalRenderingNeeded) {
+            return;
+        }
+        
+        Framebuffer mainFrameBuffer = client.getFramebuffer();
+        mainFrameBuffer.beginWrite(true);
+        mainFrameBuffer.checkFramebufferStatus();
+        
+        deferredFbs[0].fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
+        
+        CHelper.checkGlError();
+    }
+    
+    @Override
+    protected void doRenderPortal(PortalLike portal, MatrixStack matrixStack) {
+        nextFramePortalRenderingNeeded = true;
+        
+        if (!portalRenderingNeeded) {
+            return;
+        }
+        
+        //reset projection matrix
+        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
+        
+        //write to deferred buffer
+        if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {
+            return;
+        }
+        
+        PortalRendering.pushPortalLayer(portal);
+        
+        renderPortalContent(portal);
+        
+        int innerLayer = PortalRendering.getPortalLayer();
+        
+        PortalRendering.popPortalLayer();
+        
+        int outerLayer = PortalRendering.getPortalLayer();
+        
+        if (innerLayer > PortalRendering.getMaxPortalLayer()) {
+            return;
+        }
+        
+        deferredFbs[outerLayer].fb.beginWrite(true);
+        deferredFbs[outerLayer].fb.checkFramebufferStatus();
+        
+        MyRenderHelper.drawScreenFrameBuffer(
+            deferredFbs[innerLayer].fb,
+            true,
+            true
+        );
+    }
+    
+    private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(
+        PortalLike portal, MatrixStack matrixStack
+    ) {
+        
+        int portalLayer = PortalRendering.getPortalLayer();
+        
+        initStencilForLayer(portalLayer);
+        
+        deferredFbs[portalLayer].fb.beginWrite(true);
+        deferredFbs[portalLayer].fb.checkFramebufferStatus();
+        
+        GL11.glEnable(GL_STENCIL_TEST);
+        GL11.glStencilFunc(GL11.GL_EQUAL, portalLayer, 0xFF);
+        GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+        
+        GlStateManager._enableDepthTest();
+        
+        boolean result = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
+            ViewAreaRenderer.renderPortalArea(
+                portal, Vec3d.ZERO,
+                modelView.peek().getModel(),
+                RenderStates.projectionMatrix,
+                true, true
+            );
+        });
+        
+        GL11.glDisable(GL_STENCIL_TEST);
+        
+        getIrisBaselineFramebuffer().bind();
+        
+        return result;
+    }
+    
+    @Override
+    public void invokeWorldRendering(
+        WorldRenderInfo worldRenderInfo
+    ) {
+        MyGameRenderer.renderWorldNew(
+            worldRenderInfo,
+            runnable -> {
+                runnable.run();
+            }
+        );
+    }
+    
+    @Override
+    public void renderPortalInEntityRenderer(Portal portal) {
+    
+    }
+    
+    // may have issue on amd
+    public static void copyFromIrisShaderFbTo(Framebuffer destFb, int copyComponent) {
+        GlFramebuffer baselineFramebuffer = getIrisBaselineFramebuffer();
+        baselineFramebuffer.bindAsReadBuffer();
+        
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destFb.fbo);
+        
+        GL30.glBlitFramebuffer(
+            0, 0, destFb.textureWidth, destFb.textureHeight,
+            0, 0, destFb.textureWidth, destFb.textureHeight,
+            copyComponent, GL_NEAREST
+        );
+        
+        int errorCode = GL11.glGetError();
+        if (errorCode != GL_NO_ERROR && IPGlobal.renderMode == IPGlobal.RenderMode.normal) {
+            String message = "[Immersive Portals] Switch to Compatibility Portal Renderer";
+            Helper.err("OpenGL Error" + errorCode);
+            Helper.log(message);
+            CHelper.printChat(message);
+            
+            IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
+        }
+        
+        getIrisBaselineFramebuffer().bind();
+    }
+    
+    private static GlFramebuffer getIrisBaselineFramebuffer() {
+        WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipeline();
+        NewWorldRenderingPipeline newPipeline = (NewWorldRenderingPipeline) pipeline;
+        
+        GlFramebuffer baselineFramebuffer = newPipeline.getBaselineFramebuffer();
+        return baselineFramebuffer;
+    }
+    
+    @Deprecated
+    private static void copyDepth(
+        GlFramebuffer from,
+        int toTexture,
+        int width, int height
+    ) {
+        doCopyComponent(from, toTexture, width, height, GL20C.GL_DEPTH_COMPONENT);
+    }
+    
+    @Deprecated
+    private static void doCopyComponent(
+        GlFramebuffer from, int toTexture, int width, int height, int copiedComponent
+    ) {
+        from.bindAsReadBuffer();
+        GlStateManager._bindTexture(toTexture);
+        GL20C.glCopyTexImage2D(GL20C.GL_TEXTURE_2D, 0, copiedComponent, 0, 0, width, height, 0);
+        GlStateManager._bindTexture(0);
+    }
+}

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMain;
 import qouteall.imm_ptl.core.PehkuiInterface;
@@ -39,6 +40,13 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
+        if (FabricLoader.getInstance().isModLoaded("iris")) {
+            Helper.log("Iris is present");
+            IrisInterface.invoker = new IrisInterface.OnIrisPresent();
+        }
+        else {
+            Helper.log("Iris is not present");
+        }
         
     }
     
