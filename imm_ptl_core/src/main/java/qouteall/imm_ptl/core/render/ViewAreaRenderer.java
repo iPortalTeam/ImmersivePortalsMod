@@ -16,8 +16,6 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL32;
 
 import java.util.function.Consumer;
 
@@ -26,7 +24,8 @@ public class ViewAreaRenderer {
     public static void renderPortalArea(
         PortalLike portal, Vec3d fogColor,
         Matrix4f modelViewMatrix, Matrix4f projectionMatrix,
-        boolean doFaceCulling, boolean doModifyColor
+        boolean doFaceCulling, boolean doModifyColor,
+        boolean doModifyDepth
     ) {
         if (doFaceCulling) {
             GlStateManager._enableCull();
@@ -37,11 +36,21 @@ public class ViewAreaRenderer {
         
         if (portal.isFuseView()) {
             GlStateManager._colorMask(false, false, false, false);
-            GlStateManager._depthMask(false);
         }
         else {
             GlStateManager._colorMask(true, true, true, true);
-            GlStateManager._depthMask(true);
+        }
+        
+        if (doModifyDepth) {
+            if (portal.isFuseView()) {
+                GlStateManager._depthMask(false);
+            }
+            else {
+                GlStateManager._depthMask(true);
+            }
+        }
+        else {
+            GlStateManager._depthMask(false);
         }
         
         if (!doModifyColor) {
@@ -50,9 +59,9 @@ public class ViewAreaRenderer {
         
         GlStateManager._enableDepthTest();
         GlStateManager._disableTexture();
-        
-        GL11.glEnable(GL32.GL_DEPTH_CLAMP);
-        
+    
+        CHelper.enableDepthClamp();
+    
         Shader shader = MyRenderHelper.portalAreaShader;
         RenderSystem.setShader(() -> shader);
         
@@ -81,8 +90,8 @@ public class ViewAreaRenderer {
         
         GlStateManager._enableTexture();
         GlStateManager._enableCull();
-        GL11.glDisable(GL32.GL_DEPTH_CLAMP);
-        
+        CHelper.disableDepthClamp();
+    
         GlStateManager._colorMask(true, true, true, true);
         GlStateManager._depthMask(true);
         

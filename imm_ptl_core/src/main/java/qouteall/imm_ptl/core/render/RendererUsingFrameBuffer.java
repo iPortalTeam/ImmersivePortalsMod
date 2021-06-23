@@ -103,13 +103,13 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
                 portal, Vec3d.ZERO,
                 matrixStack.peek().getModel(),
                 RenderStates.projectionMatrix,
-                true, true
-            );
+                true, true,
+                true);
         });
     }
     
     private void renderSecondBufferIntoMainBuffer(PortalLike portal, MatrixStack matrixStack) {
-        MyRenderHelper.drawFrameBufferUp(
+        MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
             secondaryFrameBuffer.fb,
             matrixStack.peek().getModel(),

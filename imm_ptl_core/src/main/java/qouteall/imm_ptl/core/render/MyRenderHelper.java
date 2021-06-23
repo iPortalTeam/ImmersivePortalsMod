@@ -125,7 +125,7 @@ public class MyRenderHelper {
     public static Shader portalAreaShader;
     public static Shader blitScreenNoBlendShader;
     
-    public static void drawFrameBufferUp(
+    public static void drawPortalAreaWithFramebuffer(
         PortalLike portal,
         Framebuffer textureProvider,
         Matrix4f modelViewMatrix,
@@ -166,44 +166,6 @@ public class MyRenderHelper {
         
         // wrong name. unbind
         shader.bind();
-
-
-//        ShaderManager shaderManager = CGlobal.shaderManager;
-//
-//        CHelper.checkGlError();
-//        McHelper.runWithTransformation(
-//            matrixStack,
-//            () -> {
-//                shaderManager.loadContentShaderAndShaderVars(0);
-//
-//                if (OFInterface.isShaders.getAsBoolean()) {
-//                    GlStateManager.viewport(
-//                        0,
-//                        0,
-//                        PortalRenderer.client.getFramebuffer().viewportWidth,
-//                        PortalRenderer.client.getFramebuffer().viewportHeight
-//                    );
-//                }
-//
-//                GlStateManager.enableTexture();
-//                GlStateManager.activeTexture(GL13.GL_TEXTURE0);
-//
-//                textureProvider.beginRead();
-//                GlStateManager.texParameter(3553, 10241, 9729);
-//                GlStateManager.texParameter(3553, 10240, 9729);
-//                GlStateManager.texParameter(3553, 10242, 10496);
-//                GlStateManager.texParameter(3553, 10243, 10496);
-//
-//                ViewAreaRenderer.drawPortalViewTriangle(portal, matrixStack, false, false);
-//
-//                shaderManager.unloadShader();
-//
-//                textureProvider.endRead();
-//
-//                OFInterface.resetViewport.run();
-//            }
-//        );
-//        CHelper.checkGlError();
     }
     
     public static void renderScreenTriangle() {

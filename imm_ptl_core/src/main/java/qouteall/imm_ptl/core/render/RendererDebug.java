@@ -80,8 +80,8 @@ public class RendererDebug extends PortalRenderer {
                 portal, Vec3d.ZERO,
                 matrixStack.peek().getModel(),
                 RenderStates.projectionMatrix,
-                true, true
-            );
+                true, true,
+                true);
         });
     }
 }

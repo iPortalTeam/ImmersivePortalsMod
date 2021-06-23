@@ -1,16 +1,10 @@
 package qouteall.imm_ptl.core.iris_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.coderbot.iris.Iris;
-import net.coderbot.iris.gl.framebuffer.GlFramebuffer;
-import net.coderbot.iris.pipeline.PipelineManager;
-import net.coderbot.iris.pipeline.WorldRenderingPipeline;
-import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20C;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -26,7 +20,6 @@ import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
-import qouteall.q_misc_util.Helper;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -34,7 +27,6 @@ import static org.lwjgl.opengl.GL11.GL_EQUAL;
 import static org.lwjgl.opengl.GL11.GL_INCR;
 import static org.lwjgl.opengl.GL11.GL_KEEP;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -136,7 +128,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             deferredFbs[PortalRendering.getPortalLayer()].fb.beginWrite(false);
             deferredFbs[PortalRendering.getPortalLayer()].fb.checkFramebufferStatus();
             
-            copyFromIrisShaderFbTo(
+            IPIrisHelper.copyFromIrisShaderFbTo(
                 deferredFbs[PortalRendering.getPortalLayer()].fb,
                 GL_DEPTH_BUFFER_BIT
             );
@@ -266,13 +258,13 @@ public class IrisPortalRenderer extends PortalRenderer {
                 portal, Vec3d.ZERO,
                 modelView.peek().getModel(),
                 RenderStates.projectionMatrix,
-                true, true
+                true, true, false
             );
         });
         
         GL11.glDisable(GL_STENCIL_TEST);
         
-        getIrisBaselineFramebuffer().bind();
+        IPIrisHelper.getIrisBaselineFramebuffer().bind();
         
         return result;
     }
@@ -294,56 +286,4 @@ public class IrisPortalRenderer extends PortalRenderer {
     
     }
     
-    // may have issue on amd
-    public static void copyFromIrisShaderFbTo(Framebuffer destFb, int copyComponent) {
-        GlFramebuffer baselineFramebuffer = getIrisBaselineFramebuffer();
-        baselineFramebuffer.bindAsReadBuffer();
-        
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destFb.fbo);
-        
-        GL30.glBlitFramebuffer(
-            0, 0, destFb.textureWidth, destFb.textureHeight,
-            0, 0, destFb.textureWidth, destFb.textureHeight,
-            copyComponent, GL_NEAREST
-        );
-        
-        int errorCode = GL11.glGetError();
-        if (errorCode != GL_NO_ERROR && IPGlobal.renderMode == IPGlobal.RenderMode.normal) {
-            String message = "[Immersive Portals] Switch to Compatibility Portal Renderer";
-            Helper.err("OpenGL Error" + errorCode);
-            Helper.log(message);
-            CHelper.printChat(message);
-            
-            IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
-        }
-        
-        getIrisBaselineFramebuffer().bind();
-    }
-    
-    private static GlFramebuffer getIrisBaselineFramebuffer() {
-        WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipeline();
-        NewWorldRenderingPipeline newPipeline = (NewWorldRenderingPipeline) pipeline;
-        
-        GlFramebuffer baselineFramebuffer = newPipeline.getBaselineFramebuffer();
-        return baselineFramebuffer;
-    }
-    
-    @Deprecated
-    private static void copyDepth(
-        GlFramebuffer from,
-        int toTexture,
-        int width, int height
-    ) {
-        doCopyComponent(from, toTexture, width, height, GL20C.GL_DEPTH_COMPONENT);
-    }
-    
-    @Deprecated
-    private static void doCopyComponent(
-        GlFramebuffer from, int toTexture, int width, int height, int copiedComponent
-    ) {
-        from.bindAsReadBuffer();
-        GlStateManager._bindTexture(toTexture);
-        GL20C.glCopyTexImage2D(GL20C.GL_TEXTURE_2D, 0, copiedComponent, 0, 0, width, height, 0);
-        GlStateManager._bindTexture(0);
-    }
 }
