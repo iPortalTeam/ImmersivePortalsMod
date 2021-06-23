@@ -59,7 +59,7 @@ public abstract class MixinServerWorld implements IEServerWorld {
     private void redirectSendToAll(PlayerManager playerManager, Packet<?> packet) {
         final ServerWorld this_ = (ServerWorld) (Object) this;
         CommonNetwork.withForceRedirect(
-            this_.getRegistryKey(),
+            this_,
             () -> {
                 playerManager.sendToAll(packet);
             }

@@ -60,7 +60,7 @@ public class EntitySync {
             Int2ObjectMap<ThreadedAnvilChunkStorage.EntityTracker> entityTrackerMap =
                 ((IEThreadedAnvilChunkStorage) storage).getEntityTrackerMap();
             
-            CommonNetwork.withForceRedirect(world.getRegistryKey(), () -> {
+            CommonNetwork.withForceRedirect(world, () -> {
                 for (ThreadedAnvilChunkStorage.EntityTracker tracker : entityTrackerMap.values()) {
                     ((IEEntityTracker) tracker).tickEntry();
                     
