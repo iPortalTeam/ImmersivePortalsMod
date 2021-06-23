@@ -201,6 +201,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         if (portal.isFuseView()) {
             GlStateManager.colorMask(true, true, true, true);
+            RenderSystem.depthMask(true);
         }
         
         GlStateManager.enableTexture();
