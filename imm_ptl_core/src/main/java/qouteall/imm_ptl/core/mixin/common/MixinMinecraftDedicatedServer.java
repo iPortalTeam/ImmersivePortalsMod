@@ -34,6 +34,7 @@ public class MixinMinecraftDedicatedServer {
         WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory,
         CallbackInfo ci
     ) {
+        // loading it requires getting the server directory
         O_O.loadConfigFabric();
     }
 }

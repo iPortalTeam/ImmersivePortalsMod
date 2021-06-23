@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common;
 
+import org.spongepowered.asm.mixin.Mutable;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IERayTraceContext;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -23,12 +24,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RaycastContext.class)
 public abstract class MixinRaycastContext implements IERayTraceContext {
-    @SuppressWarnings("ShadowModifiers")
     @Shadow
+    @Final
+    @Mutable
     private Vec3d start;
     
-    @SuppressWarnings("ShadowModifiers")
     @Shadow
+    @Final
+    @Mutable
     private Vec3d end;
     
     @Shadow
