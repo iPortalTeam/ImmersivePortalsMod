@@ -22,7 +22,7 @@ public class RendererDebug extends PortalRenderer {
     }
     
     @Override
-    public void onRenderCenterEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(MatrixStack matrixStack) {
     
     }
     

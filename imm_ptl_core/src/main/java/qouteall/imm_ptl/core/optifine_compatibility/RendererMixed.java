@@ -52,7 +52,7 @@ public class RendererMixed extends PortalRenderer {
     }
     
     @Override
-    public void onRenderCenterEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(MatrixStack matrixStack) {
         // avoid this thing needs to be invoked when no portal is rendered
         // it may cost performance
         if (portalRenderingNeeded) {

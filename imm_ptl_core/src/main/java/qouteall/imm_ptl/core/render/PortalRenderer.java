@@ -34,15 +34,11 @@ public abstract class PortalRenderer {
     
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
-    
-    // this WILL be called when rendering portal
     public abstract void onBeforeTranslucentRendering(MatrixStack matrixStack);
     
-    // this WILL be called when rendering portal
     public abstract void onAfterTranslucentRendering(MatrixStack matrixStack);
     
-    // this WILL be called when rendering portal
-    public abstract void onRenderCenterEnded(MatrixStack matrixStack);
+    public abstract void onHandRenderingEnded(MatrixStack matrixStack);
     
     // this will NOT be called when rendering portal
     public abstract void prepareRendering();

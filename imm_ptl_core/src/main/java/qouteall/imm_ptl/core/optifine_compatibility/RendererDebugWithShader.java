@@ -92,7 +92,7 @@ public class RendererDebugWithShader extends PortalRenderer {
     }
     
     @Override
-    public void onRenderCenterEnded(MatrixStack matrixStack) {
+    public void onHandRenderingEnded(MatrixStack matrixStack) {
         if (PortalRendering.isRendering()) {
             return;
         }

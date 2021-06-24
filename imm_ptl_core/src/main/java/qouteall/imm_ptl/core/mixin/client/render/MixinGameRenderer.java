@@ -139,7 +139,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         MatrixStack matrixStack_1,
         CallbackInfo ci
     ) {
-        IPCGlobal.renderer.onRenderCenterEnded(matrixStack_1);
+        IPCGlobal.renderer.onHandRenderingEnded(matrixStack_1);
     }
     
     //resize all world renderers when resizing window
