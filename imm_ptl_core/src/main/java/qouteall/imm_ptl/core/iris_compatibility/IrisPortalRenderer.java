@@ -59,7 +59,7 @@ public class IrisPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onBeforeHandRendering(MatrixStack matrixStack) {
         // avoid this thing needs to be invoked when no portal is rendered
         // it may cost performance
         if (portalRenderingNeeded) {
@@ -75,7 +75,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
             
             Framebuffer mcFrameBuffer = client.getFramebuffer();
-            
+
 //            MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
             
             deferredFbs[portalLayer].fb.beginWrite(true);
@@ -91,6 +91,11 @@ public class IrisPortalRenderer extends PortalRenderer {
         cachedModelView = new MatrixStack();
         
         renderPortals(effectiveTransformation);
+    }
+    
+    @Override
+    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    
     }
     
     private void initStencilForLayer(int portalLayer) {
