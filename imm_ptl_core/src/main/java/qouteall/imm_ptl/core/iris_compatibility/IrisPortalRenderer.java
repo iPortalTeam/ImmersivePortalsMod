@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.iris_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -41,7 +42,7 @@ public class IrisPortalRenderer extends PortalRenderer {
     private SecondaryFrameBuffer[] deferredFbs = new SecondaryFrameBuffer[0];
     
     //OptiFine messes up with transformations so store it
-    private MatrixStack modelView = new MatrixStack();
+    private MatrixStack cachedModelView = new MatrixStack();
     
     private boolean portalRenderingNeeded = false;
     private boolean nextFramePortalRenderingNeeded = false;
@@ -75,7 +76,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             
             Framebuffer mcFrameBuffer = client.getFramebuffer();
             
-            MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
+//            MyRenderHelper.clearAlphaTo1(mcFrameBuffer);
             
             deferredFbs[portalLayer].fb.beginWrite(true);
             deferredFbs[portalLayer].fb.checkFramebufferStatus();
@@ -86,8 +87,8 @@ public class IrisPortalRenderer extends PortalRenderer {
             deferredFbs[portalLayer].fb.endWrite();
         }
         
-        MatrixStack effectiveTransformation = this.modelView;
-        modelView = new MatrixStack();
+        MatrixStack effectiveTransformation = this.cachedModelView;
+        cachedModelView = new MatrixStack();
         
         renderPortals(effectiveTransformation);
     }
@@ -134,9 +135,9 @@ public class IrisPortalRenderer extends PortalRenderer {
             );
         }
         
-        modelView.push();
-        modelView.peek().getModel().multiply(matrixStack.peek().getModel());
-        modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
+        cachedModelView.push();
+        cachedModelView.peek().getModel().multiply(matrixStack.peek().getModel());
+        cachedModelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
     }
     
     @Override
@@ -190,7 +191,8 @@ public class IrisPortalRenderer extends PortalRenderer {
         Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
         mainFrameBuffer.checkFramebufferStatus();
-        
+    
+//        RenderSystem.enableBlend();
         deferredFbs[0].fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
         
         CHelper.checkGlError();
@@ -256,9 +258,9 @@ public class IrisPortalRenderer extends PortalRenderer {
         boolean result = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
-                modelView.peek().getModel(),
+                matrixStack.peek().getModel(),
                 RenderStates.projectionMatrix,
-                true, true, false
+                true, true, true
             );
         });
         

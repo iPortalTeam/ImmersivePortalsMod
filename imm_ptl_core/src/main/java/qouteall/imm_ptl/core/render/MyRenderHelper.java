@@ -228,7 +228,7 @@ public class MyRenderHelper {
      */
     public static void drawScreenFrameBuffer(
         Framebuffer textureProvider,
-        boolean doEnableAlphaTest,
+        boolean doUseAlphaBlend,
         boolean doEnableModifyAlpha
     ) {
         float right = (float) textureProvider.viewportWidth;
@@ -240,19 +240,19 @@ public class MyRenderHelper {
         int viewportHeight = textureProvider.viewportHeight;
         
         drawFramebufferWithViewport(
-            textureProvider, doEnableAlphaTest, doEnableModifyAlpha,
+            textureProvider, doUseAlphaBlend, doEnableModifyAlpha,
             left, (double) right, bottom, (double) up,
             viewportWidth, viewportHeight
         );
     }
     
     public static void drawFramebuffer(
-        Framebuffer textureProvider, boolean doEnableAlphaTest, boolean doEnableModifyAlpha,
+        Framebuffer textureProvider, boolean doUseAlphaBlend, boolean doEnableModifyAlpha,
         float left, double right, float bottom, double up
     ) {
         drawFramebufferWithViewport(
             textureProvider,
-            doEnableAlphaTest, doEnableModifyAlpha,
+            doUseAlphaBlend, doEnableModifyAlpha,
             left, right, bottom, up,
             client.getWindow().getFramebufferWidth(),
             client.getWindow().getFramebufferHeight()
@@ -265,10 +265,24 @@ public class MyRenderHelper {
         int viewportWidth, int viewportHeight
     ) {
         
-        GlStateManager._colorMask(true, true, true, false);
+        
         GlStateManager._disableDepthTest();
         GlStateManager._depthMask(false);
         GlStateManager._viewport(0, 0, viewportWidth, viewportHeight);
+        
+        if (doUseAlphaBlend) {
+            RenderSystem.enableBlend();
+        }
+        else {
+            RenderSystem.disableBlend();
+        }
+        
+        if (doEnableModifyAlpha) {
+            GlStateManager._colorMask(true, true, true, true);
+        }
+        else {
+            GlStateManager._colorMask(true, true, true, false);
+        }
         
         Shader shader = doUseAlphaBlend ? client.gameRenderer.blitScreenShader : blitScreenNoBlendShader;
         
@@ -312,6 +326,8 @@ public class MyRenderHelper {
         
         GlStateManager._depthMask(true);
         GlStateManager._colorMask(true, true, true, true);
+        
+        RenderSystem.enableBlend();
         
         CHelper.checkGlError();
     }

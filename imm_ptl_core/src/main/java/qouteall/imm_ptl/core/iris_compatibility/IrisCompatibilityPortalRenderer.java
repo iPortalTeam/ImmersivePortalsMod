@@ -82,7 +82,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
         
         deferredBuffer.fb.beginWrite(true);
-    
+        
         CHelper.enableDepthClamp();
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
@@ -161,5 +161,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             false,
             false
         );
+        
+        IPIrisHelper.getIrisBaselineFramebuffer().bind();
     }
 }

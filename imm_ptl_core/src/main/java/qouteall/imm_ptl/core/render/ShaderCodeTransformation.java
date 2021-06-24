@@ -69,7 +69,7 @@ public class ShaderCodeTransformation {
         }
         
         String replacement = String.join("\n", selected.replacement);
-        String result = inputCode.replaceFirst(selected.pattern, replacement);
+        String result = inputCode.replaceAll(selected.pattern, replacement);
         
         if (selected.debugOutput) {
             Helper.log("Shader Transformed " + shaderId + "\n" + result);

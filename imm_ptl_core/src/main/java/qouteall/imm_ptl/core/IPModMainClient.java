@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.iris_compatibility.IrisCompatibilityPortalRenderer;
 import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.iris_compatibility.IrisPortalRenderer;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
@@ -39,8 +40,19 @@ public class IPModMainClient {
         }
         if (IrisInterface.invoker.isIrisPresent()) {
             if (IrisInterface.invoker.isShaders()) {
-                switchRenderer(IrisCompatibilityPortalRenderer.instance);
-                return;
+                switch (IPGlobal.renderMode) {
+                    case normal:
+                        switchRenderer(IrisPortalRenderer.instance);
+                        return;
+                    case compatibility:
+                        switchRenderer(IrisCompatibilityPortalRenderer.instance);
+                        return;
+                    case debug:
+                    case none:
+                        switchRenderer(IPCGlobal.rendererDummy);
+                        return;
+                }
+                
             }
         }
         if (OFInterface.isShaders.getAsBoolean()) {

@@ -27,5 +27,20 @@
       "    gl_ClipDistance[0] = dot(Position.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
     ],
     "debugOutput": false
+  },
+  {
+    "type": "vs",
+    "affectedShaders": [
+      "gbuffers_terrain_solid",
+      "gbuffers_terrain_cutout",
+      "gbuffers_terrain_cutout_mipped"
+    ],
+    "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+    "replacement": [
+      "uniform vec4 imm_ptl_ClippingEquation;",
+      "void main() {",
+      "    gl_ClipDistance[0] = dot(gl_Vertex.xyz + iris_ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+    ],
+    "debugOutput": false
   }
 ]

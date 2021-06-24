@@ -33,16 +33,16 @@ public abstract class MixinShader implements IEShader {
     @Nullable
     private GlUniform ip_clippingEquation;
     
-    @Inject(
-        method = "<init>",
-        at = @At("RETURN")
-    )
-    private void onConstructed(
-        ResourceFactory factory, String name,
-        VertexFormat format, CallbackInfo ci
-    ) {
-        ip_clippingEquation = getUniform("imm_ptl_ClippingEquation");
-    }
+//    @Inject(
+//        method = "<init>",
+//        at = @At("RETURN")
+//    )
+//    private void onConstructed(
+//        ResourceFactory factory, String name,
+//        VertexFormat format, CallbackInfo ci
+//    ) {
+//
+//    }
     
     @Inject(
         method = "loadReferences",
@@ -52,10 +52,11 @@ public abstract class MixinShader implements IEShader {
         GlShader this_ = (GlShader) (Object) this;
         
         if (ShaderCodeTransformation.shouldAddUniform(name)) {
-            uniforms.add(new GlUniform(
+            ip_clippingEquation = new GlUniform(
                 "imm_ptl_ClippingEquation",
                 7, 4, this_
-            ));
+            );
+            uniforms.add(ip_clippingEquation);
         }
     }
     
