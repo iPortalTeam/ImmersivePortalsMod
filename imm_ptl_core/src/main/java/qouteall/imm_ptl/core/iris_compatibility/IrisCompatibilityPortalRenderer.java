@@ -39,6 +39,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         if (PortalRendering.isRendering()) {
             return;
         }
+        
+        modelView = new MatrixStack();
         modelView.push();
         modelView.peek().getModel().multiply(matrixStack.peek().getModel());
         modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
@@ -73,6 +75,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             return;
         }
         
+        client.getFramebuffer().beginWrite(true);
+        
         PortalRendering.pushPortalLayer(portal);
         
         renderPortalContent(portal);
@@ -80,9 +84,9 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         PortalRendering.popPortalLayer();
         
         client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
-        
+
         deferredBuffer.fb.beginWrite(true);
-        
+
         CHelper.enableDepthClamp();
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
@@ -91,10 +95,10 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             RenderStates.projectionMatrix
         );
         CHelper.disableDepthClamp();
-        
+
         RenderSystem.colorMask(true, true, true, true);
-        
-        IPIrisHelper.getIrisBaselineFramebuffer().bind();
+    
+        client.getFramebuffer().beginWrite(true);
     }
     
     @Override
@@ -133,11 +137,11 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     }
     
     @Override
-    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    public void onBeforeHandRendering(MatrixStack matrixStack) {
         if (PortalRendering.isRendering()) {
             return;
         }
-        
+    
         GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getFramebuffer().fbo);
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
         GL30.glBlitFramebuffer(
@@ -145,21 +149,26 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
             GL11.GL_COLOR_BUFFER_BIT, GL_NEAREST
         );
-        
+    
         CHelper.checkGlError();
-        
+    
         IPIrisHelper.copyFromIrisShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
-        
+    
         renderPortals(modelView);
         modelView.pop();
-        
+    
         Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
-        
+    
         MyRenderHelper.drawScreenFrameBuffer(
             deferredBuffer.fb,
             false,
             false
         );
+    }
+    
+    @Override
+    public void onHandRenderingEnded(MatrixStack matrixStack) {
+    
     }
 }

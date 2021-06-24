@@ -142,6 +142,18 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         IPCGlobal.renderer.onHandRenderingEnded(matrixStack_1);
     }
     
+    @Inject(
+        method = "renderWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lnet/minecraft/util/math/Matrix4f;)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onRightBeforeHandRendering(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
+        IPCGlobal.renderer.onBeforeHandRendering(matrix);
+    }
+    
     //resize all world renderers when resizing window
     @Inject(method = "onResized", at = @At("RETURN"))
     private void onOnResized(int int_1, int int_2, CallbackInfo ci) {

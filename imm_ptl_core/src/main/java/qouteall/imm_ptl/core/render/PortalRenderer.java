@@ -38,7 +38,11 @@ public abstract class PortalRenderer {
     
     public abstract void onAfterTranslucentRendering(MatrixStack matrixStack);
     
+    // will be called when rendering portal
     public abstract void onHandRenderingEnded(MatrixStack matrixStack);
+    
+    // will be called when rendering portal
+    public void onBeforeHandRendering(MatrixStack matrixStack) {}
     
     // this will NOT be called when rendering portal
     public abstract void prepareRendering();
@@ -53,7 +57,7 @@ public abstract class PortalRenderer {
     // this will also be called in outer world rendering
     public abstract boolean replaceFrameBufferClearing();
     
-    protected void renderPortals(MatrixStack matrixStack) {
+    protected final void renderPortals(MatrixStack matrixStack) {
         Validate.isTrue(client.cameraEntity.world == client.world);
         
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {

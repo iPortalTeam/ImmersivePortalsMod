@@ -191,8 +191,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
         mainFrameBuffer.checkFramebufferStatus();
-    
-//        RenderSystem.enableBlend();
+        
         deferredFbs[0].fb.draw(mainFrameBuffer.viewportWidth, mainFrameBuffer.viewportHeight);
         
         CHelper.checkGlError();
