@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.iris_compatibility;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.coderbot.iris.rendertarget.FramebufferBlitter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -84,10 +85,11 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         PortalRendering.popPortalLayer();
         
         client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
-
-        deferredBuffer.fb.beginWrite(true);
-
+        
         CHelper.enableDepthClamp();
+        
+        // draw portal content to the deferred buffer
+        deferredBuffer.fb.beginWrite(true);
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
             client.getFramebuffer(),
@@ -95,9 +97,9 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             RenderStates.projectionMatrix
         );
         CHelper.disableDepthClamp();
-
+        
         RenderSystem.colorMask(true, true, true, true);
-    
+        
         client.getFramebuffer().beginWrite(true);
     }
     
@@ -141,25 +143,25 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         if (PortalRendering.isRendering()) {
             return;
         }
-    
+        
+        // save the main framebuffer to deferredBuffer
         GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getFramebuffer().fbo);
         GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredBuffer.fb.fbo);
         GL30.glBlitFramebuffer(
             0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
             0, 0, deferredBuffer.fb.textureWidth, deferredBuffer.fb.textureHeight,
-            GL11.GL_COLOR_BUFFER_BIT, GL_NEAREST
+            GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT,
+            GL_NEAREST
         );
-    
+        
         CHelper.checkGlError();
-    
-        IPIrisHelper.copyFromIrisShaderFbTo(deferredBuffer.fb, GL11.GL_DEPTH_BUFFER_BIT);
-    
+        
         renderPortals(modelView);
         modelView.pop();
-    
+        
         Framebuffer mainFrameBuffer = client.getFramebuffer();
         mainFrameBuffer.beginWrite(true);
-    
+        
         MyRenderHelper.drawScreenFrameBuffer(
             deferredBuffer.fb,
             false,
