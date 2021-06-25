@@ -33,7 +33,9 @@
     "affectedShaders": [
       "gbuffers_terrain_solid",
       "gbuffers_terrain_cutout",
-      "gbuffers_terrain_cutout_mipped"
+      "gbuffers_terrain_cutout_mipped",
+      "gbuffers_translucent",
+      "gbuffers_water"
     ],
     "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
     "replacement": [

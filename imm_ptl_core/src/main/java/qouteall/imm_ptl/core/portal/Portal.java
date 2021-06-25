@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
@@ -367,8 +368,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public void renderViewAreaMesh(Vec3d portalPosRelativeToCamera, Consumer<Vec3d> vertexOutput) {
         if (this instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
-            double mirrorOffset =
-                (OFInterface.isShaders.getAsBoolean() || IPGlobal.pureMirror) ? 0.01 : -0.01;
+            boolean offsetFront = OFInterface.isShaders.getAsBoolean()
+                || IrisInterface.invoker.isShaders()
+                || IPGlobal.pureMirror;
+            double mirrorOffset = offsetFront ? 0.01 : -0.01;
             portalPosRelativeToCamera = portalPosRelativeToCamera.add(
                 ((Mirror) this).getNormal().multiply(mirrorOffset));
         }

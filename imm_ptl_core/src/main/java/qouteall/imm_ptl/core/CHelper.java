@@ -41,8 +41,7 @@ public class CHelper {
         );
     }
     
-    //do not inline this
-    //or it will crash in server
+    //do not inline this or it will crash in server
     public static World getClientWorld(RegistryKey<World> dimension) {
         return ClientWorldLoader.getWorld(dimension);
     }

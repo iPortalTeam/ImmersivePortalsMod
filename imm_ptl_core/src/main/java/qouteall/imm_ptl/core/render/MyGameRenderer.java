@@ -1,10 +1,12 @@
 package qouteall.imm_ptl.core.render;
 
+import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.render.Frustum;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
@@ -145,6 +147,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
         
         int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
+        WorldRenderingPipeline irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
         
         //switch
         ((IEMinecraftClient) client).setWorldRenderer(worldRenderer);
@@ -175,6 +178,8 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
+        
+        IrisInterface.invoker.setPipeline(worldRenderer, null);
         
         if (IPGlobal.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = false;
@@ -229,6 +234,8 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
         
+        IrisInterface.invoker.setPipeline(worldRenderer, irisPipeline);
+        
         if (IPGlobal.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = oldChunkCullingEnabled;
         }
@@ -250,6 +257,7 @@ public class MyGameRenderer {
     }
     
     /**
+     *
      */
     public static void resetGlStates() {
 //        GlStateManager.disableAlphaTest();
@@ -289,15 +297,15 @@ public class MyGameRenderer {
     public static void resetFogState() {
         Camera camera = client.gameRenderer.getCamera();
         float g = client.gameRenderer.getViewDistance();
-    
+        
         Vec3d cameraPos = camera.getPos();
         double d = cameraPos.getX();
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
-    
+        
         boolean bl2 = client.world.getSkyProperties().useThickFog(MathHelper.floor(d), MathHelper.floor(e)) ||
             client.inGameHud.getBossBarHud().shouldThickenFog();
-    
+        
         BackgroundRenderer.applyFog(camera, BackgroundRenderer.FogType.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
         BackgroundRenderer.setFogBlack();
     }
