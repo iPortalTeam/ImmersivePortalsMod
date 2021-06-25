@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.iris_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -270,12 +271,13 @@ public class IrisPortalRenderer extends PortalRenderer {
     public void invokeWorldRendering(
         WorldRenderInfo worldRenderInfo
     ) {
+        // update the per-frame uniforms
+        SystemTimeUniforms.COUNTER.beginFrame();
         MyGameRenderer.renderWorldNew(
             worldRenderInfo,
-            runnable -> {
-                runnable.run();
-            }
+            Runnable::run
         );
+        SystemTimeUniforms.COUNTER.beginFrame();
     }
     
     @Override

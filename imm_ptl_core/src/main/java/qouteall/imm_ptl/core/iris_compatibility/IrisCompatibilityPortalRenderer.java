@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.iris_compatibility;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.coderbot.iris.rendertarget.FramebufferBlitter;
+import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -107,12 +108,12 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     public void invokeWorldRendering(
         WorldRenderInfo worldRenderInfo
     ) {
+        SystemTimeUniforms.COUNTER.beginFrame();
         MyGameRenderer.renderWorldNew(
             worldRenderInfo,
-            runnable -> {
-                runnable.run();
-            }
+            Runnable::run
         );
+        SystemTimeUniforms.COUNTER.beginFrame();
     }
     
     @Override
