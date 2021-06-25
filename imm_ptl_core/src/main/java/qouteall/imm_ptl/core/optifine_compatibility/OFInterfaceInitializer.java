@@ -24,6 +24,8 @@ public class OFInterfaceInitializer {
         
         OFInterface.isShaders = Config::isShaders;
         
+        OFInterface.isShadowPass = () -> Shaders.isShadowPass;
+        
         OFInterface.createNewRenderInfosNormal = newWorldRenderer1 -> {
             /**{@link WorldRenderer#chunkInfos}*/
             //in vanilla it will create new chunkInfos object every frame

@@ -8,7 +8,6 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.optifine_compatibility.OFShaderClippingManager;
 import qouteall.imm_ptl.core.portal.Mirror;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -107,9 +106,6 @@ public class CrossPortalEntityRenderer {
                 client.getBufferBuilders().getEntityVertexConsumers().draw();
                 
                 FrontClipping.setupOuterClipping(matrixStack, collidingPortal);
-                if (OFInterface.isShaders.getAsBoolean()) {
-                    OFShaderClippingManager.update();
-                }
             }
         }
     }
@@ -278,7 +274,6 @@ public class CrossPortalEntityRenderer {
             transformingPortal, entity, matrixStack
         );
         
-        OFInterface.updateEntityTypeForShader.accept(entity);
         VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
         ((IEWorldRenderer) client.worldRenderer).myRenderEntity(
             entity,

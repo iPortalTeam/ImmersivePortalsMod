@@ -41,10 +41,6 @@ public class CHelper {
         );
     }
     
-    public static boolean shouldDisableFog() {
-        return OFInterface.shouldDisableFog.getAsBoolean();
-    }
-    
     //do not inline this
     //or it will crash in server
     public static World getClientWorld(RegistryKey<World> dimension) {

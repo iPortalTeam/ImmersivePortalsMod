@@ -343,9 +343,6 @@ public class ClientTeleportationManager {
             tickTimeForTeleportation
         ));
         
-        
-        OFInterface.onPlayerTraveled.accept(fromDimension, toDimension);
-        
         FogRendererContext.onPlayerTeleport(fromDimension, toDimension);
         
         O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);

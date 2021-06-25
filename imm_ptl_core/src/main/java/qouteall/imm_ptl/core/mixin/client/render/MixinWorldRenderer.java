@@ -480,20 +480,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    //fix sun abnormal with optifine and fog disabled
-    @Inject(
-        method = "renderSky",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/render/WorldRenderer;SUN:Lnet/minecraft/util/Identifier;"
-        )
-    )
-    private void onStartRenderingSun(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
-        if (OFInterface.isFogDisabled.getAsBoolean()) {
-            GL11.glDisable(GL11.GL_FOG);
-        }
-    }
-    
     @Inject(method = "renderSky", at = @At("RETURN"))
     private void onRenderSkyEnd(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         MyRenderHelper.recoverFaceCulling();

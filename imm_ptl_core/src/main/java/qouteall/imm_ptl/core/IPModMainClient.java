@@ -55,38 +55,22 @@ public class IPModMainClient {
                 
             }
         }
-        if (OFInterface.isShaders.getAsBoolean()) {
-            switch (IPGlobal.renderMode) {
-                case normal:
-                    switchRenderer(OFGlobal.rendererMixed);
-                    break;
-                case compatibility:
-                    switchRenderer(OFGlobal.rendererDeferred);
-                    break;
-                case debug:
-                    switchRenderer(OFGlobal.rendererDebugWithShader);
-                    break;
-                case none:
-                    switchRenderer(IPCGlobal.rendererDummy);
-                    break;
-            }
+        
+        switch (IPGlobal.renderMode) {
+            case normal:
+                switchRenderer(IPCGlobal.rendererUsingStencil);
+                break;
+            case compatibility:
+                switchRenderer(IPCGlobal.rendererUsingFrameBuffer);
+                break;
+            case debug:
+                switchRenderer(IPCGlobal.rendererDebug);
+                break;
+            case none:
+                switchRenderer(IPCGlobal.rendererDummy);
+                break;
         }
-        else {
-            switch (IPGlobal.renderMode) {
-                case normal:
-                    switchRenderer(IPCGlobal.rendererUsingStencil);
-                    break;
-                case compatibility:
-                    switchRenderer(IPCGlobal.rendererUsingFrameBuffer);
-                    break;
-                case debug:
-                    switchRenderer(IPCGlobal.rendererDebug);
-                    break;
-                case none:
-                    switchRenderer(IPCGlobal.rendererDummy);
-                    break;
-            }
-        }
+        
     }
     
     private static void switchRenderer(PortalRenderer renderer) {

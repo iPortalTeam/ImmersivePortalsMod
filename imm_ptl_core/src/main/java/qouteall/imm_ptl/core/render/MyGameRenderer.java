@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.render.Frustum;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
@@ -288,29 +287,17 @@ public class MyGameRenderer {
     }
     
     public static void resetFogState() {
-        if (OFInterface.isFogDisabled.getAsBoolean()) {
-            return;
-        }
-        
-        if (OFInterface.isShaders.getAsBoolean()) {
-            return;
-        }
-        
-        forceResetFogState();
-    }
-    
-    public static void forceResetFogState() {
         Camera camera = client.gameRenderer.getCamera();
         float g = client.gameRenderer.getViewDistance();
-        
+    
         Vec3d cameraPos = camera.getPos();
         double d = cameraPos.getX();
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
-        
+    
         boolean bl2 = client.world.getSkyProperties().useThickFog(MathHelper.floor(d), MathHelper.floor(e)) ||
             client.inGameHud.getBossBarHud().shouldThickenFog();
-        
+    
         BackgroundRenderer.applyFog(camera, BackgroundRenderer.FogType.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
         BackgroundRenderer.setFogBlack();
     }
