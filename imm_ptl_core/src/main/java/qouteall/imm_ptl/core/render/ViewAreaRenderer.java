@@ -6,6 +6,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
@@ -57,11 +58,16 @@ public class ViewAreaRenderer {
             GlStateManager._colorMask(false, false, false, false);
         }
         
+        boolean shouldReverseCull = PortalRendering.isRenderingOddNumberOfMirrors();
+        if (shouldReverseCull) {
+            MyRenderHelper.applyMirrorFaceCulling();
+        }
+        
         GlStateManager._enableDepthTest();
         GlStateManager._disableTexture();
-    
+        
         CHelper.enableDepthClamp();
-    
+        
         Shader shader = MyRenderHelper.portalAreaShader;
         RenderSystem.setShader(() -> shader);
         
@@ -91,9 +97,13 @@ public class ViewAreaRenderer {
         GlStateManager._enableTexture();
         GlStateManager._enableCull();
         CHelper.disableDepthClamp();
-    
+        
         GlStateManager._colorMask(true, true, true, true);
         GlStateManager._depthMask(true);
+        
+        if (shouldReverseCull) {
+            MyRenderHelper.recoverFaceCulling();
+        }
         
         CHelper.checkGlError();
     }
