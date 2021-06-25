@@ -18,24 +18,8 @@ public class OFInterface {
     
     public static BooleanSupplier isShaders = returnFalse;
     
-    public static BooleanSupplier isShadowPass = returnFalse;
-    
-    public static Runnable resetViewport = invokeNothing;
-    
-    public static BiConsumer<RegistryKey<World>, RegistryKey<World>> onPlayerTraveled = (a, b) -> {
-    };
-    
-    public static BooleanSupplier shouldDisableFog = returnFalse;
-    
     public static Consumer<Object> createNewRenderInfosNormal = (a) -> {
     };
     
-//    public static Runnable initShaderCullingManager = invokeNothing;
     
-    public static BooleanSupplier isFogDisabled = returnFalse;
-    
-    public static Consumer<Entity> updateEntityTypeForShader = (a) -> {
-    };
-    
-    public static BooleanSupplier isInternalShader = returnFalse;
 }

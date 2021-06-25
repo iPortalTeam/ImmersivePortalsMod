@@ -23,44 +23,7 @@ public class OFInterfaceInitializer {
         Validate.isTrue(OFInterface.isOptifinePresent);
         
         OFInterface.isShaders = Config::isShaders;
-        OFInterface.isShadowPass = () -> Config.isShaders() && Shaders.isShadowPass;
         
-        OFInterface.resetViewport = () -> {
-            if (OFInterface.isShaders.getAsBoolean()) {
-                GlStateManager._viewport(0, 0, Shaders.renderWidth, Shaders.renderHeight);
-            }
-        };
-        OFInterface.onPlayerTraveled = (fromDimension1, toDimension1) -> {
-            if (OFInterface.isShaders.getAsBoolean()) {
-                OFGlobal.shaderContextManager.onPlayerTraveled(
-                    fromDimension1,
-                    toDimension1
-                );
-            }
-        };
-        OFInterface.shouldDisableFog = () -> {
-            GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
-            
-            if (gameRenderer_fogStandard == null) {
-                try {
-                    gameRenderer_fogStandard = GameRenderer.class.getDeclaredField(
-                        "fogStandard"
-                    );
-                }
-                catch (NoSuchFieldException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-            
-            try {
-                boolean fogStandard = gameRenderer_fogStandard.getBoolean(gameRenderer);
-                
-                return Config.isFogOff() && fogStandard;
-            }
-            catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            }
-        };
         OFInterface.createNewRenderInfosNormal = newWorldRenderer1 -> {
             /**{@link WorldRenderer#chunkInfos}*/
             //in vanilla it will create new chunkInfos object every frame
@@ -80,11 +43,6 @@ public class OFInterfaceInitializer {
                 return null;
             });
         };
-//        OFInterface.initShaderCullingManager = ShaderCullingManager::init;
-        OFInterface.isFogDisabled = () -> Config.isFogOff();
-        OFInterface.updateEntityTypeForShader = (e) -> {
-        };
         
-        OFInterface.isInternalShader = () -> Shaders.getShaderPack() instanceof ShaderPackDefault;
     }
 }

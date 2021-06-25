@@ -6,14 +6,7 @@
     "IEOFBuiltChunk",
     "IEOFConfig",
     "IEOFVboRegion",
-    "MixinConfig",
-    "MixinDynamicLights",
-    "MixinLightmapTextureManager",
-    "MixinShaders",
-    "MixinShaders_DimensionRedirect",
-    "MixinShaders_Swap",
-    "MixinShadersRender",
-    "MixinWorldUtils"
+    "MixinDynamicLights"
   ],
   "injectors": {
     "defaultRequire": 1
