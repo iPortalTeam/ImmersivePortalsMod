@@ -264,7 +264,7 @@ public class MyRenderHelper {
         float left, double right, float bottom, double up,
         int viewportWidth, int viewportHeight
     ) {
-        
+        CHelper.checkGlError();
         
         GlStateManager._disableDepthTest();
         GlStateManager._depthMask(false);

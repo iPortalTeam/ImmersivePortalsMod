@@ -79,40 +79,4 @@ public abstract class MixinWindowFramebuffer extends Framebuffer {
         }
     }
 
-//    /**
-//     * @author
-//     */
-//    @Overwrite
-//    private void initSize(int width, int height) {
-//        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-////        WindowFramebuffer.Size size = this.findSuitableSize(width, height);
-//        this.fbo = GlStateManager.glGenFramebuffers();
-//        GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
-//        GlStateManager._bindTexture(this.colorAttachment);
-//        GlStateManager._texParameter(3553, 10241, 9728);
-//        GlStateManager._texParameter(3553, 10240, 9728);
-//        GlStateManager._texParameter(3553, 10242, 33071);
-//        GlStateManager._texParameter(3553, 10243, 33071);
-//        GlStateManager._glFramebufferTexture2D(
-//            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-//            GL_TEXTURE_2D, this.colorAttachment, 0
-//        );
-//        GlStateManager._bindTexture(this.depthAttachment);
-//        GlStateManager._texParameter(3553, 34892, 0);
-//        GlStateManager._texParameter(3553, 10241, 9728);
-//        GlStateManager._texParameter(3553, 10240, 9728);
-//        GlStateManager._texParameter(3553, 10242, 33071);
-//        GlStateManager._texParameter(3553, 10243, 33071);
-//        GlStateManager._glFramebufferTexture2D(
-//            GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-//            GL_TEXTURE_2D, this.depthAttachment, 0
-//        );
-//        GlStateManager._bindTexture(0);
-////        this.viewportWidth = size.width;
-////        this.viewportHeight = size.height;
-////        this.textureWidth = size.width;
-////        this.textureHeight = size.height;
-//        this.checkFramebufferStatus();
-//        GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//    }
 }

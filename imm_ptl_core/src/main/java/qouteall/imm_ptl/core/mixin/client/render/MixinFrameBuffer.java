@@ -18,7 +18,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.IntBuffer;
 
+import static org.lwjgl.opengl.ARBShadow.GL_TEXTURE_COMPARE_MODE_ARB;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_RGBA8;
+import static org.lwjgl.opengl.GL11.GL_STENCIL;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_INDEX;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL14.GL_TEXTURE_COMPARE_MODE;
+import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
+import static org.lwjgl.opengl.GL30.GL_DEPTH24_STENCIL8;
+import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
+import static org.lwjgl.opengl.GL30.GL_DEPTH_STENCIL;
+import static org.lwjgl.opengl.GL30.GL_DEPTH_STENCIL_ATTACHMENT;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30.GL_STENCIL_ATTACHMENT;
+import static org.lwjgl.opengl.GL30.GL_STENCIL_INDEX8;
+import static org.lwjgl.opengl.GL30.GL_UNSIGNED_INT_24_8;
 
 @Mixin(Framebuffer.class)
 public abstract class MixinFrameBuffer implements IEFrameBuffer {
@@ -73,7 +95,6 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
     
     //6402 0x1902 GL_DEPTH_COMPONENT
     //36096 0x8D00 GL_DEPTH_ATTACHMENT
-    
     
     // https://github.com/Astrarre/Astrarre/blob/1.17/astrarre-rendering-v0/src/main/java/io/github/astrarre/rendering/internal/mixin/FramebufferMixin_EnableStencil.java
     

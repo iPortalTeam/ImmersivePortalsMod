@@ -10,6 +10,8 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
+import qouteall.imm_ptl.core.mixin.client.render.MixinWindowFramebuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -64,6 +66,9 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         deferredBuffer.fb.setClearColor(1, 0, 0, 0);
         deferredBuffer.fb.clear(MinecraftClient.IS_SYSTEM_MAC);
+        
+        Framebuffer mcFb = MinecraftClient.getInstance().getFramebuffer();
+        ((IEFrameBuffer) mcFb).setIsStencilBufferEnabledAndReload(false);
     }
     
     @Override
@@ -144,6 +149,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         if (PortalRendering.isRendering()) {
             return;
         }
+        
+        CHelper.checkGlError();
         
         // save the main framebuffer to deferredBuffer
         GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, client.getFramebuffer().fbo);

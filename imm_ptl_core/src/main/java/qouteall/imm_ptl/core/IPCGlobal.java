@@ -34,4 +34,10 @@ public class IPCGlobal {
     public static boolean earlyClientLightUpdate = true;
     public static boolean useSuperAdvancedFrustumCulling = true;
     public static boolean earlyFrustumCullingPortal = true;
+    
+    public static enum StencilMode{
+        none, packedWithDepth, separatedStencil
+    }
+    
+    public static boolean useSeparateStencilBuffer = true;
 }

@@ -96,6 +96,8 @@ public class IrisPortalRenderer extends PortalRenderer {
     
     @Override
     public void onBeforeHandRendering(MatrixStack matrixStack) {
+        CHelper.checkGlError();
+        
         Framebuffer mcFrameBuffer = client.getFramebuffer();
         int portalLayer = PortalRendering.getPortalLayer();
         
@@ -146,6 +148,8 @@ public class IrisPortalRenderer extends PortalRenderer {
             GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
         }
         else {
+            CHelper.checkGlError();
+            
             GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, deferredFbs[portalLayer - 1].fb.fbo);
             GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
             
@@ -154,6 +158,8 @@ public class IrisPortalRenderer extends PortalRenderer {
                 0, 0, deferredFbs[0].fb.viewportWidth, deferredFbs[0].fb.viewportHeight,
                 GL_STENCIL_BUFFER_BIT, GL_NEAREST
             );
+            
+            CHelper.checkGlError();
         }
     }
     

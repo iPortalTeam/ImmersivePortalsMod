@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import org.lwjgl.opengl.KHRDebug;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.SodiumInterfaceInitializer;
 import qouteall.imm_ptl.core.CHelper;
