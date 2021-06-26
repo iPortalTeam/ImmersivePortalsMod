@@ -15,6 +15,7 @@ import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -56,7 +57,7 @@ public class ChunkVisibility {
         }
         
         int cappedLoadingDistance = Math.min(targetLoadingDistance, cap);
-        
+
 //        if (!IPGlobal.serverSmoothLoading) {
 //            return cappedLoadingDistance;
 //        }
@@ -89,8 +90,11 @@ public class ChunkVisibility {
         
         if (result.size() > 50) {
             limitedLogger.err("too many portal nearby " + world + pos);
-            result.sort(Comparator.comparingDouble(p -> p.getDistanceToNearestPointInPortal(pos)));
-            result = result.subList(0, 50);
+            
+            Optional<Portal> nearest =
+                result.stream().min(Comparator.comparingDouble(p -> p.getDistanceToNearestPointInPortal(pos)));
+            
+            return List.of(nearest.get());
         }
         
         return result;
