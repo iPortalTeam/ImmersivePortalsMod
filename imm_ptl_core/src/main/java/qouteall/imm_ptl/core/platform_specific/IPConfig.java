@@ -48,6 +48,7 @@ public class IPConfig {
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
+    public boolean enableServerCollision = true;
     
     private static File getGameDir() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -148,6 +149,7 @@ public class IPConfig {
         IPGlobal.serverSmoothLoading = graduallyIncreaseLoadingRange;
         IPGlobal.scaleLimit = scaleLimit;
         IPGlobal.easeCreativePermission = easeCreativePermission;
+        IPGlobal.enableServerCollision = enableServerCollision;
         
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

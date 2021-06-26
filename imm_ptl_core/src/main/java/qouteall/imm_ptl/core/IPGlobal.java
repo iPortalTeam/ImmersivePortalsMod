@@ -94,6 +94,8 @@ public class IPGlobal {
     
     public static boolean enableDepthClampForPortalRendering = false;
     
+    public static boolean enableServerCollision = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

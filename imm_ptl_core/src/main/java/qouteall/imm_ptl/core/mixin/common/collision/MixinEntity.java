@@ -67,7 +67,8 @@ public abstract class MixinEntity implements IEEntity {
     @Shadow
     public abstract Vec3d getVelocity();
     
-    @Shadow protected abstract void unsetRemoved();
+    @Shadow
+    protected abstract void unsetRemoved();
     
     //maintain collidingPortal field
     @Inject(method = "tick", at = @At("HEAD"))
@@ -85,12 +86,23 @@ public abstract class MixinEntity implements IEEntity {
         )
     )
     private Vec3d redirectHandleCollisions(Entity entity, Vec3d attemptedMove) {
+        if (!IPGlobal.enableServerCollision) {
+            if (!entity.world.isClient()) {
+                if (entity instanceof PlayerEntity) {
+                    return attemptedMove;
+                }
+                else {
+                    return Vec3d.ZERO;
+                }
+            }
+        }
+        
         if (attemptedMove.lengthSquared() > 60 * 60) {
             limitedLogger.invoke(() -> {
                 Helper.err("Entity moves too fast " + entity + attemptedMove + entity.world.getTime());
                 new Throwable().printStackTrace();
             });
-            
+
 //            if (entity instanceof ServerPlayerEntity) {
 //                ServerTeleportationManager.sendPositionConfirmMessage(((ServerPlayerEntity) entity));
 //                Helper.log("position confirm message sent " + entity);
