@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.miscellaneous;
 
+import net.minecraft.text.LiteralText;
+import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -78,6 +80,16 @@ public class GcMonitor {
                 "Memory not enough. Try to Shrink loading distance or allocate more memory." +
                     " If this happens with low loading distance, it usually indicates memory leak"
             );
+            
+            long l = Runtime.getRuntime().maxMemory();
+            long m = Runtime.getRuntime().totalMemory();
+            long n = Runtime.getRuntime().freeMemory();
+            long o = m - n;
+            
+            Helper.err(String.format(
+                "Memory: % 2d%% %03d/%03dMB", o * 100L / l,
+                PortalDebugCommands.toMiB(o), PortalDebugCommands.toMiB(l)
+            ));
             
             memoryNotEnough = true;
         }

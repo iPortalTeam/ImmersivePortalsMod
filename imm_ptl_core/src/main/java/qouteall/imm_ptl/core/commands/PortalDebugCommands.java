@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -23,9 +24,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.entity.EntityLookup;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
+import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
@@ -342,13 +347,18 @@ public class PortalDebugCommands {
             .executes(context -> {
                 StringBuilder str = new StringBuilder();
                 
-                str.append("Server Chunks:\n");
+                str.append("Server Tracked Chunks:\n");
                 MiscHelper.getServer().getWorlds().forEach(
                     world -> {
+                        LongSortedSet rec = MyLoadingTicket.loadedChunkRecord.get(world);
+                        EntityLookup<Entity> entityEntityLookup = ((IEWorld) world).portal_getEntityLookup();
+                        
                         str.append(String.format(
-                            "%s %s\n",
+                            "%s:\nIP Tracked Chunks: %s\nIP Loading Ticket:%s\nEntities:%s\n\n",
                             world.getRegistryKey().getValue(),
-                            NewChunkTrackingGraph.getLoadedChunkNum(world.getRegistryKey())
+                            NewChunkTrackingGraph.getLoadedChunkNum(world.getRegistryKey()),
+                            rec == null ? "null" : rec.size(),
+                            ((IESimpleEntityLookup) entityEntityLookup).getIndex().size()
                         ));
                     }
                 );
@@ -363,7 +373,7 @@ public class PortalDebugCommands {
                 return 0;
             })
         );
-    
+        
         builder.then(CommandManager
             .literal("print_generator_config")
             .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
@@ -377,11 +387,11 @@ public class PortalDebugCommands {
                         DimensionType.CODEC.stable()
                     ));
                 });
-            
+                
                 GeneratorOptions options = MiscHelper.getServer().getSaveProperties().getGeneratorOptions();
-            
+                
                 Helper.log(McHelper.serializeToJson(options, GeneratorOptions.CODEC));
-            
+                
                 return 0;
             })
         );
@@ -389,7 +399,7 @@ public class PortalDebugCommands {
         
     }
     
-    private static long toMiB(long bytes) {
+    public static long toMiB(long bytes) {
         return bytes / 1024L / 1024L;
     }
     
