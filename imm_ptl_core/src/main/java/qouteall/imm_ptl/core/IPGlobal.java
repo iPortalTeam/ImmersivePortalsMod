@@ -45,8 +45,6 @@ public class IPGlobal {
     
     public static boolean correctCrossPortalEntityRendering = true;
     
-    public static boolean multiThreadedNetherPortalSearching = true;
-    
     public static boolean disableTeleportation = false;
     
     public static boolean looseVisibleChunkIteration = true;

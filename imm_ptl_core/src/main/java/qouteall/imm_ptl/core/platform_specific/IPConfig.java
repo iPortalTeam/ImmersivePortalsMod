@@ -32,14 +32,11 @@ public class IPConfig {
     public boolean activeLoading = true;
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
-    public boolean multiThreadedNetherPortalSearching = true;
     public boolean looseMovementCheck = false;
     public boolean pureMirror = false;
     public boolean enableAlternateDimensions = true;
     public boolean reducedPortalRendering = false;
     public boolean visibilityPrediction = true;
-    public int chunkUnloadDelayTicks = 15 * 20;
-    public boolean forceMergePortalRendering = false;
     public boolean netherPortalOverlay = false;
     public boolean graduallyIncreaseLoadingRange = true;
     public int scaleLimit = 30;
@@ -48,7 +45,7 @@ public class IPConfig {
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
-    public boolean enableServerCollision = true;
+//    public boolean enableServerCollision = true;
     
     private static File getGameDir() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -134,7 +131,6 @@ public class IPConfig {
         IPGlobal.activeLoading = activeLoading;
         IPGlobal.teleportationDebugEnabled = teleportationDebug;
         IPGlobal.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
-        IPGlobal.multiThreadedNetherPortalSearching = multiThreadedNetherPortalSearching;
         IPGlobal.looseMovementCheck = looseMovementCheck;
         IPGlobal.pureMirror = pureMirror;
         IPGlobal.enableAlternateDimensions = enableAlternateDimensions;
@@ -143,13 +139,11 @@ public class IPConfig {
         IPGlobal.endPortalMode = endPortalMode;
         IPGlobal.reducedPortalRendering = reducedPortalRendering;
         IPGlobal.offsetOcclusionQuery = visibilityPrediction;
-        IPGlobal.chunkUnloadDelayTicks = chunkUnloadDelayTicks;
-        IPGlobal.forceMergePortalRendering = forceMergePortalRendering;
         IPGlobal.netherPortalOverlay = netherPortalOverlay;
         IPGlobal.serverSmoothLoading = graduallyIncreaseLoadingRange;
         IPGlobal.scaleLimit = scaleLimit;
         IPGlobal.easeCreativePermission = easeCreativePermission;
-        IPGlobal.enableServerCollision = enableServerCollision;
+//        IPGlobal.enableServerCollision = enableServerCollision;
         
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

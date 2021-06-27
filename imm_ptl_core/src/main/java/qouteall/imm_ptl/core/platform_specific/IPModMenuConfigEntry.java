@@ -79,10 +79,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.correct_cross_portal_entity_rendering"),
                 currConfig.correctCrossPortalEntityRendering
             ).setDefaultValue(true).build();
-            BooleanListEntry entryMultiThreadedNetherPortalSearching = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.multi_threaded_nether_portal_searching"),
-                currConfig.multiThreadedNetherPortalSearching
-            ).setDefaultValue(true).build();
             BooleanListEntry entryPureMirror = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.pure_mirror"),
                 currConfig.pureMirror
@@ -103,10 +99,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.visibility_prediction"),
                 currConfig.visibilityPrediction
             ).setDefaultValue(true).build();
-            BooleanListEntry entryAutomaticRenderingMerge = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.force_portal_rendering_merge"),
-                currConfig.forceMergePortalRendering
-            ).setDefaultValue(false).build();
             BooleanListEntry entryNetherPortalOverlay = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.enable_nether_portal_overlay"),
                 currConfig.netherPortalOverlay
@@ -115,11 +107,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                 new TranslatableText("imm_ptl.increase_loading_range_gradually"),
                 currConfig.graduallyIncreaseLoadingRange
             ).setDefaultValue(true).build();
-            IntegerSliderEntry entryChunkUnloadDelayTicks = builder.entryBuilder().startIntSlider(
-                new TranslatableText("imm_ptl.chunk_unload_delay_ticks"),
-                currConfig.chunkUnloadDelayTicks,
-                0, 30 * 20
-            ).setDefaultValue(15 * 20).build();
             EnumListEntry<IPGlobal.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
                 .startEnumSelector(
                     new TranslatableText("imm_ptl.nether_portal_mode"),
@@ -147,7 +134,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryPortalRenderLimit);
             clientSide.addEntry(entryCompatibilityRenderMode);
             clientSide.addEntry(entryVisibilityPrediction);
-            clientSide.addEntry(entryAutomaticRenderingMerge);
             clientSide.addEntry(entryCheckGlError);
             clientSide.addEntry(entryPureMirror);
             clientSide.addEntry(entryRenderYourselfInPortal);
@@ -161,10 +147,8 @@ public class IPModMenuConfigEntry implements ModMenuApi {
             serverSide.addEntry(entryNetherPortalOverlay);
             serverSide.addEntry(entryPortalSearchingRange);
             serverSide.addEntry(entryActiveLoading);
-            serverSide.addEntry(entryChunkUnloadDelayTicks);
             serverSide.addEntry(entryTeleportDebug);
             serverSide.addEntry(entryLooseMovementCheck);
-            serverSide.addEntry(entryMultiThreadedNetherPortalSearching);
             serverSide.addEntry(entryIncreaseLoadingRangeGradually);
             
             return builder
@@ -181,7 +165,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                     newConfig.activeLoading = entryActiveLoading.getValue();
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
-                    newConfig.multiThreadedNetherPortalSearching = entryMultiThreadedNetherPortalSearching.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
                     newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
                     newConfig.reducedPortalRendering = entryReducedPortalRendering.getValue();
@@ -193,8 +176,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                     newConfig.endPortalMode = entryEndPortalMode.getValue();
                     newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                     newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
-                    newConfig.chunkUnloadDelayTicks = entryChunkUnloadDelayTicks.getValue();
-                    newConfig.forceMergePortalRendering = entryAutomaticRenderingMerge.getValue();
                     newConfig.netherPortalOverlay = entryNetherPortalOverlay.getValue();
                     
                     newConfig.saveConfigFile();
