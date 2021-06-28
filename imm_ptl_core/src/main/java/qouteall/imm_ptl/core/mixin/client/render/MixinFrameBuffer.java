@@ -121,7 +121,7 @@ public abstract class MixinFrameBuffer implements IEFrameBuffer {
 //                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, 0);
 //                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 //                GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//                GlStateManager._texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, this.textureWidth, this.textureHeight, 0, GL_DEPTH_COMPONENT, 5126, (IntBuffer)null);
+//                GlStateManager._texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, this.textureWidth, this.textureHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (IntBuffer)null);
 //            }
 //
 //            this.setTexFilter(GL_NEAREST);

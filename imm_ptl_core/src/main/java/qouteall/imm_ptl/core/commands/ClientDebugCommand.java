@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import qouteall.imm_ptl.core.FramebufferWithSeparateStencil;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -355,7 +356,7 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-     
+        
         builder.then(ClientCommandManager
             .literal("report_portal_groups")
             .executes(context -> {
@@ -509,6 +510,18 @@ public class ClientDebugCommand {
             .literal("print_class_path")
             .executes(context -> {
                 printClassPath();
+                return 0;
+            })
+        );
+        
+        builder.then(ClientCommandManager
+            .literal("testfb")
+            .executes(context -> {
+                FramebufferWithSeparateStencil fb = new FramebufferWithSeparateStencil();
+                fb.initFbo(100, 100, true);
+                
+                Helper.log("oops");
+                
                 return 0;
             })
         );
