@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.netty.buffer.UnpooledDirectByteBuf;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -27,13 +28,26 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.OptionalDouble;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glReadPixels;
 
 public class MyRenderHelper {
     
@@ -389,5 +403,58 @@ public class MyRenderHelper {
             return result;
         }
         return value;
+    }
+    
+    private static boolean debugEnabled = false;
+    
+    public static void debugFramebufferDepth() {
+        if (!debugEnabled) {
+            return;
+        }
+        debugEnabled = false;
+        
+        int width = client.getFramebuffer().textureWidth;
+        int height = client.getFramebuffer().textureHeight;
+        
+        
+        ByteBuffer directBuffer = ByteBuffer.allocateDirect(width * height * 4).order(ByteOrder.LITTLE_ENDIAN);
+        
+        FloatBuffer floatBuffer = directBuffer.asFloatBuffer();
+        
+        glReadPixels(
+            0, 0, width, height,
+            GL_DEPTH_COMPONENT, GL_FLOAT, floatBuffer
+        );
+        
+        float[] data = new float[width * height];
+        
+        floatBuffer.rewind();
+        floatBuffer.get(data);
+        
+        float maxValue = (float) IntStream.range(0, data.length)
+            .mapToDouble(i -> data[i]).max().getAsDouble();
+        float minValue = (float) IntStream.range(0, data.length)
+            .mapToDouble(i -> data[i]).min().getAsDouble();
+        
+        byte[] grayData = new byte[width * height];
+        for (int i = 0; i < data.length; i++) {
+            float datum = data[i];
+            
+            datum = (datum - minValue) / (maxValue - minValue);
+            
+            grayData[i] = (byte) (datum * 255);
+        }
+        
+        BufferedImage bufferedImage =
+            new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        
+        bufferedImage.setData(
+            Raster.createRaster(
+                bufferedImage.getSampleModel(),
+                new DataBufferByte(grayData, grayData.length), new Point()
+            )
+        );
+        
+        System.out.println("oops");
     }
 }
