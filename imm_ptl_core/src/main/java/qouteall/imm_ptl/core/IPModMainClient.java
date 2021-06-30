@@ -41,34 +41,20 @@ public class IPModMainClient {
         if (IrisInterface.invoker.isIrisPresent()) {
             if (IrisInterface.invoker.isShaders()) {
                 switch (IPGlobal.renderMode) {
-                    case normal:
-                        switchRenderer(IrisPortalRenderer.instance);
-                        return;
-                    case compatibility:
-                        switchRenderer(IrisCompatibilityPortalRenderer.instance);
-                        return;
-                    case debug:
-                    case none:
-                        switchRenderer(IPCGlobal.rendererDummy);
-                        return;
+                    case normal -> switchRenderer(IrisPortalRenderer.instance);
+                    case compatibility -> switchRenderer(IrisCompatibilityPortalRenderer.instance);
+                    case debug -> switchRenderer(IPCGlobal.rendererDummy);
+                    case none -> switchRenderer(IPCGlobal.rendererDummy);
                 }
-                
+                return;
             }
         }
         
         switch (IPGlobal.renderMode) {
-            case normal:
-                switchRenderer(IPCGlobal.rendererUsingStencil);
-                break;
-            case compatibility:
-                switchRenderer(IPCGlobal.rendererUsingFrameBuffer);
-                break;
-            case debug:
-                switchRenderer(IPCGlobal.rendererDebug);
-                break;
-            case none:
-                switchRenderer(IPCGlobal.rendererDummy);
-                break;
+            case normal -> switchRenderer(IPCGlobal.rendererUsingStencil);
+            case compatibility -> switchRenderer(IPCGlobal.rendererUsingFrameBuffer);
+            case debug -> switchRenderer(IPCGlobal.rendererDebug);
+            case none -> switchRenderer(IPCGlobal.rendererDummy);
         }
         
     }

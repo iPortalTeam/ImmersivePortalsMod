@@ -9,8 +9,10 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
+import qouteall.imm_ptl.core.mixin.client.render.MixinWindowFramebuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
@@ -22,6 +24,7 @@ import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.q_misc_util.Helper;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -29,6 +32,7 @@ import static org.lwjgl.opengl.GL11.GL_EQUAL;
 import static org.lwjgl.opengl.GL11.GL_INCR;
 import static org.lwjgl.opengl.GL11.GL_KEEP;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -87,6 +91,8 @@ public class IrisPortalRenderer extends PortalRenderer {
             
             deferredFb.fb.endWrite();
         }
+        
+        ((IEFrameBuffer) client.getFramebuffer()).setIsStencilBufferEnabledAndReload(false);
     }
     
     private void updateNeedsPortalRendering() {
@@ -102,6 +108,8 @@ public class IrisPortalRenderer extends PortalRenderer {
         int portalLayer = PortalRendering.getPortalLayer();
         
         if (portalRenderingNeeded) {
+            CHelper.doCheckGlError();
+            
             // copy depth from mc fb to deferred fb
             GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mcFrameBuffer.fbo);
             GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, deferredFbs[portalLayer].fb.fbo);
@@ -110,6 +118,14 @@ public class IrisPortalRenderer extends PortalRenderer {
                 0, 0, mcFrameBuffer.viewportWidth, mcFrameBuffer.viewportHeight,
                 GL_DEPTH_BUFFER_BIT, GL_NEAREST
             );
+            
+            int errorCode = GL11.glGetError();
+            if (errorCode != GL_NO_ERROR) {
+                IPGlobal.renderMode = IPGlobal.RenderMode.compatibility;
+                CHelper.printChat("[Immersive Portals]" +
+                    "Switched to compatibility portal rendering mode." +
+                    " Portal-in-portal wont' be rendered");
+            }
             
             initStencilForLayer(portalLayer);
             

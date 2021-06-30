@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.WindowFramebuffer;
@@ -14,6 +15,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL30.GL_DEPTH24_STENCIL8;
+import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
+import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
 @Mixin(WindowFramebuffer.class)
 public abstract class MixinWindowFramebuffer extends Framebuffer {
@@ -40,12 +44,12 @@ public abstract class MixinWindowFramebuffer extends Framebuffer {
             GlStateManager._texImage2D(
                 target,
                 level,
-                ARBFramebufferObject.GL_DEPTH24_STENCIL8,//GL_DEPTH32F_STENCIL8
+                IPCGlobal.useAnotherStencilFormat ? GL_DEPTH32F_STENCIL8 : GL_DEPTH24_STENCIL8,//
                 width,
                 height,
                 border,
                 ARBFramebufferObject.GL_DEPTH_STENCIL,
-                GL30.GL_UNSIGNED_INT_24_8,//GL_FLOAT_32_UNSIGNED_INT_24_8_REV
+                IPCGlobal.useAnotherStencilFormat ? GL_FLOAT_32_UNSIGNED_INT_24_8_REV : GL30.GL_UNSIGNED_INT_24_8,//
                 pixels
             );
         }
@@ -78,5 +82,5 @@ public abstract class MixinWindowFramebuffer extends Framebuffer {
             GlStateManager._glFramebufferTexture2D(target, attachment, textureTarget, texture, level);
         }
     }
-
+    
 }

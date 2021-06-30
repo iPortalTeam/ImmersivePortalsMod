@@ -66,6 +66,10 @@ public class CHelper {
         if (reportedErrorNum > 100) {
             return;
         }
+        doCheckGlError();
+    }
+    
+    public static void doCheckGlError() {
         int errorCode = GL11.glGetError();
         if (errorCode != GL_NO_ERROR) {
             Helper.err("OpenGL Error" + errorCode);
