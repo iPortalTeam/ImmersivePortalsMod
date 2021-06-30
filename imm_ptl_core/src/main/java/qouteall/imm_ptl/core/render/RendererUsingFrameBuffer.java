@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.mixin.client.render.MixinWindowFramebuffer;
@@ -84,7 +85,9 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         
         PortalRendering.popPortalLayer();
         
+        CHelper.enableDepthClamp();
         renderSecondBufferIntoMainBuffer(portal, matrixStack);
+        CHelper.disableDepthClamp();
         
         MyRenderHelper.debugFramebufferDepth();
     }
