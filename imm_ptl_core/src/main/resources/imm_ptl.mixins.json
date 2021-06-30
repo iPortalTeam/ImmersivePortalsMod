@@ -67,8 +67,6 @@
     "client.debug.isometric.MixinGameRenderer_I",
     "client.gui_portal.MixinWindow",
     "client.gui_portal.MixinWorldRenderer_G",
-    "client.iris.MixinIrisDepthTexture",
-    "client.iris.MixinIrisGlFramebuffer",
     "client.multiworld_awareness.MixinBackgroundRenderer",
     "client.multiworld_awareness.MixinBiomeEffectSoundPlayer",
     "client.particle.IEParticle",
