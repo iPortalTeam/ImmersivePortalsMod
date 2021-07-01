@@ -423,6 +423,8 @@ public class ServerTeleportationManager {
         
         Vec3d newEyePos = getRegularEntityTeleportedEyePos(entity, portal);
         
+        portal.transformVelocity(entity);
+        
         if (portal.dimensionTo != entity.world.getRegistryKey()) {
             entity = changeEntityDimension(entity, portal.dimensionTo, newEyePos, true);
             
@@ -437,10 +439,6 @@ public class ServerTeleportationManager {
         
         McHelper.setEyePos(entity, newEyePos, newEyePos);
         McHelper.updateBoundingBox(entity);
-
-//        ((ServerWorld) entity.world).checkEntityChunkPos(entity);
-        
-        portal.transformVelocity(entity);
         
         portal.onEntityTeleportedOnServer(entity);
         
