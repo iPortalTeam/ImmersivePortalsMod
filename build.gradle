@@ -68,8 +68,13 @@ allprojects {
             transitive = false
         }
 
-        modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
-//        modImplementation("me.jellysquid.mods:sodium:0.1.202103212-SNAPSHOT")
+        modImplementation('com.github.qouteall:sodium-fabric:1.17~ipc_build-SNAPSHOT') {
+            transitive = false
+        }
+
+//        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.0+IRIS1-rev.6436a00-dirty'){
+//            transitive = false
+//        }
 
 //        modImplementation 'net.coderbot.iris_mc1_17:iris:1.0.3'
         modImplementation 'com.github.qouteall:Iris:1.17-SNAPSHOT'
@@ -198,24 +203,24 @@ dependencies {
 //    }
 
 
-//    fileTree(dir: 'deps', include: '*.jar').each {
-//        String baseName = it.name.replace(".jar", "")
-//        String version = "0.1.0"
-//        int split = baseName.lastIndexOf('-')
-//
-//        if (split != -1) {
-//            version = baseName.substring(split + 1)
-//            baseName = baseName.substring(0, split)
-//        }
-//
-//        String name = "testmod:${baseName}:${version}"
-//
-//        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
-//
-//        modImplementation name
-////        modCompileOnly name
-////        modRuntime name
-//    }
+    fileTree(dir: 'deps', include: '*.jar').each {
+        String baseName = it.name.replace(".jar", "")
+        String version = "0.1.0"
+        int split = baseName.lastIndexOf('-')
+
+        if (split != -1) {
+            version = baseName.substring(split + 1)
+            baseName = baseName.substring(0, split)
+        }
+
+        String name = "testmod:${baseName}:${version}"
+
+        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
+
+        modImplementation name
+//        modCompileOnly name
+//        modRuntime name
+    }
 }
 
 dependencies {
