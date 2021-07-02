@@ -1,6 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Matrix4f;
 import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -113,5 +116,20 @@ public class MixinWorldRenderer_Optional {
             }
         }
         chunkBuilder.setCameraPosition(cameraPosition);
+    }
+    
+    @Inject(
+        method = "renderLayer",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/BufferRenderer;unbindAll()V"
+        ),
+        require = 0
+    )
+    private void onGetShaderInRenderingLayer(
+        RenderLayer renderLayer, MatrixStack matrices,
+        double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
+    ) {
+        FrontClipping.updateClippingEquationUniformForCurrentShader();
     }
 }

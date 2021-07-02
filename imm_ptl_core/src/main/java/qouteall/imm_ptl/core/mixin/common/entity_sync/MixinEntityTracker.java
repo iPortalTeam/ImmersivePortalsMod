@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import me.jellysquid.mods.sodium.mixin.features.world_ticking.MixinClientWorld;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;

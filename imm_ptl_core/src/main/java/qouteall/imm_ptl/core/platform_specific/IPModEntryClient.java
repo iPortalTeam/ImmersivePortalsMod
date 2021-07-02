@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import org.lwjgl.opengl.KHRDebug;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.SodiumInterfaceInitializer;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMainClient;
@@ -66,22 +65,22 @@ public class IPModEntryClient implements ClientModInitializer {
         
         initPortalRenderers();
         
-        SodiumInterface.isSodiumPresent =
+        boolean isSodiumPresent =
             FabricLoader.getInstance().isModLoaded("sodium");
-        if (SodiumInterface.isSodiumPresent) {
+        if (isSodiumPresent) {
             Helper.log("Sodium is present");
             
-            try {
-                Class.forName("me.jellysquid.mods.sodium.client.SodiumHooks");
-            }
-            catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                throw new RuntimeException("The sodium version that you use" +
-                    " is incompatible with Immersive Portals. Check https://github.com/qouteall/sodium-fabric/releases"
-                );
-            }
+//            try {
+//                Class.forName("me.jellysquid.mods.sodium.client.SodiumHooks");
+//            }
+//            catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//                throw new RuntimeException("The sodium version that you use" +
+//                    " is incompatible with Immersive Portals. Check https://github.com/qouteall/sodium-fabric/releases"
+//                );
+//            }
             
-            SodiumInterfaceInitializer.init();
+            SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
         }
         else {
             Helper.log("Sodium is not present");

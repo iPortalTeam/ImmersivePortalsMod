@@ -229,20 +229,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Inject(
-        method = "renderLayer",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/BufferRenderer;unbindAll()V"
-        )
-    )
-    private void onGetShaderInRenderingLayer(
-        RenderLayer renderLayer, MatrixStack matrices,
-        double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
-    ) {
-        FrontClipping.updateClippingEquationUniformForCurrentShader();
-    }
-    
-    @Inject(
         method = "render",
         at = @At(
             value = "INVOKE",

@@ -120,7 +120,7 @@ public class O_O {
     
     @Environment(EnvType.CLIENT)
     public static ClientChunkManager createMyClientChunkManager(ClientWorld world, int loadDistance) {
-        return SodiumInterface.createClientChunkManager.apply(world, loadDistance);
+        return SodiumInterface.invoker.createClientChunkManager(world, loadDistance);
     }
     
     public static boolean getIsPehkuiPresent() {

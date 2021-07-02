@@ -1,9 +1,12 @@
 package qouteall.imm_ptl.core.platform_specific.sodium_compatibility;
 
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import me.jellysquid.mods.sodium.client.world.ClientChunkManagerExtended;
+import net.minecraft.client.MinecraftClient;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
-import me.jellysquid.mods.sodium.client.world.ChunkStatusListenerManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -13,7 +16,7 @@ import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.BitSet;
 
-public class ClientChunkManagerWithSodium extends MyClientChunkManager implements ChunkStatusListenerManager {
+public class ClientChunkManagerWithSodium extends MyClientChunkManager implements ClientChunkManagerExtended {
     private ChunkStatusListener listener;
     
     public ClientChunkManagerWithSodium(ClientWorld clientWorld, int loadDistance) {
@@ -26,14 +29,25 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     }
     
     @Override
+    public LongCollection getLoadedChunks() {
+        return chunkMap.keySet();
+    }
+    
+    @Override
     public WorldChunk loadChunkFromPacket(
         int x, int z, BiomeArray biomes,
         PacketByteBuf buf, NbtCompound nbt, BitSet bitSet
     ) {
+        Validate.isTrue(MinecraftClient.getInstance().isOnThread());
+        
+        boolean wasLoaded = chunkMap.containsKey(ChunkPos.toLong(x, z));
+        
         WorldChunk worldChunk = super.loadChunkFromPacket(x, z, biomes, buf, nbt, bitSet);
         
         if (listener != null) {
-            listener.onChunkAdded(worldChunk.getPos().x, worldChunk.getPos().z);
+            if (!wasLoaded) {
+                listener.onChunkAdded(worldChunk.getPos().x, worldChunk.getPos().z);
+            }
         }
         
         return worldChunk;
@@ -41,20 +55,25 @@ public class ClientChunkManagerWithSodium extends MyClientChunkManager implement
     
     @Override
     public void unload(int x, int z) {
-        synchronized (chunkMap) {
-            ChunkPos chunkPos = new ChunkPos(x, z);
-            WorldChunk worldChunk = chunkMap.get(chunkPos.toLong());
-            if (positionEquals(worldChunk, x, z)) {
-                chunkMap.remove(chunkPos.toLong());
-                
-                O_O.postClientChunkUnloadEvent(worldChunk);
-                world.unloadBlockEntities(worldChunk);
-                clientChunkUnloadSignal.emit(worldChunk);
-                
-                if (listener != null) {
+        Validate.isTrue(MinecraftClient.getInstance().isOnThread());
+        
+        boolean wasLoaded = chunkMap.containsKey(ChunkPos.toLong(x, z));
+        
+        ChunkPos chunkPos = new ChunkPos(x, z);
+        WorldChunk worldChunk = chunkMap.get(chunkPos.toLong());
+        if (positionEquals(worldChunk, x, z)) {
+            chunkMap.remove(chunkPos.toLong());
+            
+            O_O.postClientChunkUnloadEvent(worldChunk);
+            world.unloadBlockEntities(worldChunk);
+            clientChunkUnloadSignal.emit(worldChunk);
+            
+            if (listener != null) {
+                if (wasLoaded) {
                     listener.onChunkRemoved(x, z);
                 }
             }
         }
+        
     }
 }

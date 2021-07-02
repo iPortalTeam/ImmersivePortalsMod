@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import me.jellysquid.mods.sodium.mixin.features.world_ticking.MixinClientWorld;
 import net.minecraft.server.world.ServerWorld;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
+import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.render.Frustum;
 import qouteall.imm_ptl.core.IPCGlobal;
@@ -172,9 +173,9 @@ public class MyGameRenderer {
             ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
             ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
         }
-        
-        Object newSodiumContext = SodiumInterface.createNewRenderingContext.apply(worldRenderer);
-        Object oldSodiumContext = SodiumInterface.switchRenderingContext.apply(worldRenderer, newSodiumContext);
+    
+        RenderSectionManager.RenderingContext newSodiumContext = SodiumInterface.invoker.createNewContext();
+        SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
@@ -207,7 +208,7 @@ public class MyGameRenderer {
         }
         
         //recover
-        SodiumInterface.switchRenderingContext.apply(worldRenderer, oldSodiumContext);
+        SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         client.world = oldEntityWorld;
