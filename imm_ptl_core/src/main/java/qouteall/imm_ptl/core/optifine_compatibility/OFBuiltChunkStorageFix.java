@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.optifine_compatibility;
 
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
-import qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine.IEOFBuiltChunk;
 import qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine.IEOFConfig;
 import qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine.IEOFVboRegion;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
@@ -23,6 +22,8 @@ public class OFBuiltChunkStorageFix {
     private static Field BuiltChunkStorage_mapVboRegions;
     
     private static Method BuiltChunkStorage_deleteVboRegions;
+    
+    private static Method BuiltChunk_setRenderChunkNeighbor;
     
     public static void init() {
         BuiltChunkStorage_updateVboRegion = Helper.noError(() ->
@@ -45,6 +46,11 @@ public class OFBuiltChunkStorageFix {
                 .getDeclaredMethod(
                     "deleteVboRegions"
                 )
+        );
+        
+        BuiltChunk_setRenderChunkNeighbor = Helper.noError(() ->
+            ChunkBuilder.BuiltChunk.class.getDeclaredMethod(
+                "setRenderChunkNeighbour", Direction.class, ChunkBuilder.BuiltChunk.class)
         );
     }
     
@@ -126,8 +132,8 @@ public class OFBuiltChunkStorageFix {
                     ChunkBuilder.BuiltChunk neighbour =
                         storage.getSectionFromRawArray(neighborPos, chunks);
                     
-                    ((IEOFBuiltChunk) renderChunk).ip_setRenderChunkNeighbour(
-                        facing, neighbour
+                    BuiltChunk_setRenderChunkNeighbor.invoke(
+                        renderChunk, facing, neighbour
                     );
                 }
             }

@@ -3,7 +3,6 @@
   "package": "qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "IEOFBuiltChunk",
     "IEOFConfig",
     "IEOFVboRegion",
     "MixinDynamicLights"
