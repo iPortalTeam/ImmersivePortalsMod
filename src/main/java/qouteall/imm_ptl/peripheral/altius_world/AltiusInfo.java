@@ -100,7 +100,7 @@ public class AltiusInfo {
             BlockPos.Mutable mutable = new BlockPos.Mutable();
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
-                    for (int y = 0; y < chunk.getHeight(); y++) {
+                    for (int y = chunk.getBottomY(); y < chunk.getTopY(); y++) {
                         mutable.set(x, y, z);
                         BlockState blockState = chunk.getBlockState(mutable);
                         if (blockState.getBlock() == Blocks.BEDROCK) {

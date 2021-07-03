@@ -203,7 +203,7 @@ public class PortalDebugCommands {
                     invokeEraseChunk(
                         player.world, center,
                         IntegerArgumentType.getInteger(context, "rChunks"),
-                        0, 256
+                        McHelper.getMinY(player.world), McHelper.getMaxYExclusive(player.world)
                     );
                     
                     return 0;
