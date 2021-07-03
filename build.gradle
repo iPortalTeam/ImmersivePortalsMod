@@ -68,7 +68,7 @@ allprojects {
             transitive = false
         }
 
-        modImplementation('com.github.qouteall:sodium-fabric:1.17~ipc_build-SNAPSHOT') {
+        modCompileOnly('com.github.qouteall:sodium-fabric:1.17~ipc_build-SNAPSHOT') {
             transitive = false
         }
 
@@ -77,7 +77,7 @@ allprojects {
 //        }
 
 //        modImplementation 'net.coderbot.iris_mc1_17:iris:1.0.3'
-        modImplementation 'com.github.qouteall:Iris:1.17-SNAPSHOT'
+        modCompileOnly 'com.github.qouteall:Iris:1.17-SNAPSHOT'
 
     }
 
