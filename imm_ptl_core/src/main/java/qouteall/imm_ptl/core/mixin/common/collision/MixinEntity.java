@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
+import net.minecraft.block.BlockState;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
@@ -116,8 +117,8 @@ public abstract class MixinEntity implements IEEntity {
         }
         
         if (collidingPortal == null ||
-            entity.hasPassengers() ||
-            entity.hasVehicle() ||
+//            entity.hasPassengers() ||
+//            entity.hasVehicle() ||
             !IPGlobal.crossPortalCollision
         ) {
             return adjustMovementForCollisions(attemptedMove);
@@ -199,6 +200,31 @@ public abstract class MixinEntity implements IEEntity {
                 if (pose == EntityPose.SWIMMING) {
                     if (isRecentlyCollidingWithPortal()) {
                         ci.cancel();
+                    }
+                }
+            }
+        }
+    }
+    
+    //fix climbing onto ladder cross portal
+    @Inject(method = "getBlockStateAtPos", at = @At("HEAD"), cancellable = true)
+    private void onGetBlockState(CallbackInfoReturnable<BlockState> cir) {
+        Portal collidingPortal = ((IEEntity) this).getCollidingPortal();
+        Entity this_ = (Entity) (Object) this;
+        if (collidingPortal != null) {
+            if (collidingPortal.getNormal().y > 0) {
+                BlockPos remoteLandingPos = new BlockPos(
+                    collidingPortal.transformPoint(this_.getPos())
+                );
+                
+                World destinationWorld = collidingPortal.getDestinationWorld();
+                
+                if (destinationWorld.isChunkLoaded(remoteLandingPos)) {
+                    BlockState result = destinationWorld.getBlockState(remoteLandingPos);
+                    
+                    if (!result.isAir()) {
+                        cir.setReturnValue(result);
+                        cir.cancel();
                     }
                 }
             }

@@ -25,7 +25,6 @@
     "common.collision.MixinAbstractDecorationEntity",
     "common.collision.MixinAbstractMinecartEntity",
     "common.collision.MixinEntity",
-    "common.collision.MixinEntity_Collision",
     "common.collision.MixinProjectileEntity",
     "common.collision.MixinSnowballEntity",
     "common.entity_sync.MixinEntityTracker",
