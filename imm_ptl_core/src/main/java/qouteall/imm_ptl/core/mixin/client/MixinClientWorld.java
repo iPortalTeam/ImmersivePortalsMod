@@ -49,7 +49,13 @@ public abstract class MixinClientWorld implements IEClientWorld {
     @Shadow
     @Final
     private MinecraftClient client;
-    private List<Portal> globalTrackedPortals;
+    
+    @Mutable
+    @Shadow
+    @Final
+    private WorldRenderer worldRenderer;
+    
+    private List<Portal> portal_globalPortals;
     
     @Override
     public ClientPlayNetworkHandler getNetHandler() {
@@ -63,12 +69,12 @@ public abstract class MixinClientWorld implements IEClientWorld {
     
     @Override
     public List<Portal> getGlobalPortals() {
-        return globalTrackedPortals;
+        return portal_globalPortals;
     }
     
     @Override
     public void setGlobalPortals(List<Portal> arg) {
-        globalTrackedPortals = arg;
+        portal_globalPortals = arg;
     }
     
     //use my client chunk manager
@@ -129,5 +135,10 @@ public abstract class MixinClientWorld implements IEClientWorld {
     private void onToString(CallbackInfoReturnable<String> cir) {
         ClientWorld this_ = (ClientWorld) (Object) this;
         cir.setReturnValue("ClientWorld " + this_.getRegistryKey().getValue());
+    }
+    
+    @Override
+    public void resetWorldRendererRef() {
+        worldRenderer = null;
     }
 }

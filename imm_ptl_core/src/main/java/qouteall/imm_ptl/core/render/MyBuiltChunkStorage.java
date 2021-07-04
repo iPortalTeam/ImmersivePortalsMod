@@ -54,7 +54,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private final Long2ObjectOpenHashMap<Column> columnMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<Preset> presets = new Long2ObjectOpenHashMap<>();
     private boolean shouldUpdateMainPresetNeighbor = true;
-    private final ObjectBuffer<BuiltChunk> builtChunkBuffer;
+//    private final ObjectBuffer<BuiltChunk> builtChunkBuffer;
     private Preset currentPreset = null;
     
     private boolean isAlive = true;
@@ -77,11 +77,11 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             cacheSize = cacheSize / 10;
         }
         
-        builtChunkBuffer = new ObjectBuffer<>(
-            cacheSize,
-            () -> factory.new BuiltChunk(0),
-            ChunkBuilder.BuiltChunk::delete
-        );
+//        builtChunkBuffer = new ObjectBuffer<>(
+//            cacheSize,
+//            () -> factory.new BuiltChunk(0),
+//            ChunkBuilder.BuiltChunk::delete
+//        );
     }
     
     @Override
@@ -98,7 +98,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
         columnMap.clear();
         presets.clear();
-        builtChunkBuffer.destroyAll();
+//        builtChunkBuffer.destroyAll();
         
         OFBuiltChunkStorageFix.onBuiltChunkStorageCleanup(this);
         
@@ -251,7 +251,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         int minY = McHelper.getMinY(world);
         
         for (int offsetCY = 0; offsetCY < sizeY; offsetCY++) {
-            ChunkBuilder.BuiltChunk builtChunk = builtChunkBuffer.takeObject();
+            ChunkBuilder.BuiltChunk builtChunk = factory.new BuiltChunk(0);
             
             builtChunk.setOrigin(
                 chunkX << 4, (offsetCY << 4) + minY, chunkZ << 4
@@ -321,7 +321,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             
             if (shouldRemove) {
                 for (ChunkBuilder.BuiltChunk chunk : column.chunks) {
-                    builtChunkBuffer.returnObject(chunk);
+                    chunk.delete();
+//                    builtChunkBuffer.returnObject(chunk);
                 }
             }
             

@@ -65,7 +65,7 @@ public class MixinParticleManager implements IEParticleManager {
     }
     
     @Override
-    public void mySetWorld(ClientWorld world_) {
+    public void ip_setWorld(ClientWorld world_) {
         world = world_;
     }
     

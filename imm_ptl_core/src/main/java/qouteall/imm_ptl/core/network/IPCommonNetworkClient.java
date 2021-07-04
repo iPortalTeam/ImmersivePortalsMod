@@ -65,9 +65,8 @@ public class IPCommonNetworkClient {
         
         ClientPlayNetworkHandler netHandler = ((IEClientWorld) packetWorld).getNetHandler();
         
-        if ((netHandler).getWorld() != packetWorld) {
-            ((IEClientPlayNetworkHandler) netHandler).setWorld(packetWorld);
-            Helper.err("The world field of client net handler is wrong");
+        if (netHandler.getWorld() != client.world) {
+            Helper.err("Net handler world state inconsistent");
         }
         
         client.getProfiler().push(() -> {
@@ -93,6 +92,8 @@ public class IPCommonNetworkClient {
     public static void withSwitchedWorld(ClientWorld newWorld, Runnable runnable) {
         Validate.isTrue(client.isOnThread());
         
+        ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
+        
         ClientWorld originalWorld = client.world;
         WorldRenderer originalWorldRenderer = client.worldRenderer;
         
@@ -101,8 +102,9 @@ public class IPCommonNetworkClient {
         Validate.notNull(newWorldRenderer);
         
         client.world = newWorld;
-        ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
+        ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
+        ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
         
         try {
             runnable.run();
@@ -117,7 +119,8 @@ public class IPCommonNetworkClient {
             
             client.world = originalWorld;
             ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
-            ((IEParticleManager) client.particleManager).mySetWorld(originalWorld);
+            ((IEParticleManager) client.particleManager).ip_setWorld(originalWorld);
+            ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalWorld);
         }
     }
     

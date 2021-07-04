@@ -47,4 +47,6 @@ public interface IEWorldRenderer {
     Frustum portal_getFrustum();
     
     void portal_setFrustum(Frustum arg);
+    
+    void portal_fullyDispose();
 }

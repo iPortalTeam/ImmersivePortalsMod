@@ -65,7 +65,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     private DynamicRegistryManager registryManager;
     
     @Override
-    public void setWorld(ClientWorld world) {
+    public void ip_setWorld(ClientWorld world) {
         this.world = world;
     }
     

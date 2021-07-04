@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import com.mojang.authlib.GameProfile;
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
@@ -8,6 +7,7 @@ import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
@@ -16,13 +16,10 @@ import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
@@ -119,7 +116,7 @@ public class ClientWorldLoader {
         WorldRenderer oldWorldRenderer = client.worldRenderer;
         
         client.world = newWorld;
-        ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
+        ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
         
         //the world renderer's world field is used for particle spawning
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
@@ -137,7 +134,7 @@ public class ClientWorldLoader {
         }
         finally {
             client.world = oldWorld;
-            ((IEParticleManager) client.particleManager).mySetWorld(oldWorld);
+            ((IEParticleManager) client.particleManager).ip_setWorld(oldWorld);
             ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         }
     }
@@ -170,8 +167,18 @@ public class ClientWorldLoader {
     
     private static void cleanUp() {
         worldRendererMap.values().forEach(
-            worldRenderer -> worldRenderer.setWorld(null)
+            worldRenderer -> {
+                worldRenderer.setWorld(null);
+                if (worldRenderer != client.worldRenderer) {
+                    worldRenderer.close();
+                    ((IEWorldRenderer) worldRenderer).portal_fullyDispose();
+                }
+            }
         );
+        
+        for (ClientWorld clientWorld : clientWorldMap.values()) {
+            ((IEClientWorld) clientWorld).resetWorldRendererRef();
+        }
         
         clientWorldMap.clear();
         worldRendererMap.clear();
@@ -253,24 +260,15 @@ public class ClientWorldLoader {
         
         ClientWorld newWorld;
         try {
-            ClientPlayNetworkHandler newNetworkHandler = new ClientPlayNetworkHandler(
-                client,
-                new ChatScreen("You should not be seeing me. I'm just a faked screen."),
-                new ClientConnection(NetworkSide.CLIENTBOUND),
-                new GameProfile(null, "faked_profiler_id")
-            );
             //multiple net handlers share the same playerListEntries object
             ClientPlayNetworkHandler mainNetHandler = client.player.networkHandler;
-            ((IEClientPlayNetworkHandler) newNetworkHandler).setPlayerListEntries(
-                ((IEClientPlayNetworkHandler) mainNetHandler).getPlayerListEntries()
-            );
+            
             RegistryKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
             DynamicRegistryManager dimensionTracker = mainNetHandler.getRegistryManager();
-            ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setRegistryManager(
-                dimensionTracker);
+            
             DimensionType dimensionType = dimensionTracker
                 .get(Registry.DIMENSION_TYPE_KEY).get(dimensionTypeKey);
             
@@ -280,7 +278,7 @@ public class ClientWorldLoader {
                 isFlatWorld
             );
             newWorld = new ClientWorld(
-                newNetworkHandler,
+                mainNetHandler,
                 properties,
                 dimension,
                 dimensionType,
@@ -300,10 +298,11 @@ public class ClientWorldLoader {
         
         worldRenderer.setWorld(newWorld);
         
+        // there are two "reload" methods
         worldRenderer.reload(client.getResourceManager());
         
         ((IEClientPlayNetworkHandler) ((IEClientWorld) newWorld).getNetHandler())
-            .setWorld(newWorld);
+            .ip_setWorld(newWorld);
         
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);

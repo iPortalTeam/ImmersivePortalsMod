@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.mixin.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -114,6 +115,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Shadow
     private Frustum frustum;
+    
+    @Shadow
+    @Nullable
+    private VertexBuffer starsBuffer;
+    
+    @Shadow
+    @Nullable
+    private VertexBuffer lightSkyBuffer;
+    
+    @Shadow
+    @Nullable
+    private VertexBuffer darkSkyBuffer;
+    
+    @Shadow
+    @Nullable
+    private VertexBuffer cloudsBuffer;
     
     // important rendering hooks
     @Inject(
@@ -644,5 +661,24 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void portal_setFrustum(Frustum arg) {
         frustum = arg;
+    }
+    
+    @Override
+    public void portal_fullyDispose() {
+        if (starsBuffer != null) {
+            starsBuffer.close();
+        }
+        if (lightSkyBuffer != null) {
+            lightSkyBuffer.close();
+        }
+        if (darkSkyBuffer != null) {
+            darkSkyBuffer.close();
+        }
+        if (cloudsBuffer != null) {
+            cloudsBuffer.close();
+        }
+    
+        world = null;
+        
     }
 }

@@ -5,7 +5,6 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
@@ -286,12 +285,7 @@ public class ClientTeleportationManager {
         RegistryKey<World> toDimension = toWorld.getRegistryKey();
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
         
-        ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
-        ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
-        ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
-        ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
-        ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
-        ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
+        ((IEClientPlayNetworkHandler) client.getNetworkHandler()).ip_setWorld(toWorld);
         
         fromWorld.removeEntity(player.getId(), Entity.RemovalReason.CHANGED_DIMENSION);
         
@@ -314,7 +308,7 @@ public class ClientTeleportationManager {
         if (client.particleManager != null) {
 //            client.particleManager.setWorld(toWorld);
             // avoid clearing all particles
-            ((IEParticleManager) client.particleManager).mySetWorld(toWorld);
+            ((IEParticleManager) client.particleManager).ip_setWorld(toWorld);
         }
         
         client.getBlockEntityRenderDispatcher().setWorld(toWorld);

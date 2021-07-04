@@ -6,7 +6,7 @@ import net.minecraft.util.registry.DynamicRegistryManager;
 import java.util.Map;
 
 public interface IEClientPlayNetworkHandler {
-    void setWorld(ClientWorld world);
+    void ip_setWorld(ClientWorld world);
     
     Map getPlayerListEntries();
     

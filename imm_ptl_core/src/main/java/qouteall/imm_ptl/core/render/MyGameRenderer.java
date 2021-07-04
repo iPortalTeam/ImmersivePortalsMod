@@ -163,7 +163,7 @@ public class MyGameRenderer {
         FogRendererContext.swappingManager.pushSwapping(
             RenderDimensionRedirect.getRedirectedDimension(newDimension)
         );
-        ((IEParticleManager) client.particleManager).mySetWorld(newWorld);
+        ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
         if (BlockManipulationClient.remotePointedDim == newDimension) {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;
         }
@@ -218,7 +218,7 @@ public class MyGameRenderer {
         client.player.noClip = oldNoClip;
         ieGameRenderer.setDoRenderHand(oldDoRenderHand);
         
-        ((IEParticleManager) client.particleManager).mySetWorld(oldEntityWorld);
+        ((IEParticleManager) client.particleManager).ip_setWorld(oldEntityWorld);
         client.crosshairTarget = oldCrosshairTarget;
         ieGameRenderer.setCamera(oldCamera);
         
