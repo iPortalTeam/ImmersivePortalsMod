@@ -504,6 +504,11 @@ public class ClientDebugCommand {
             "depth_clamp_for_portal_rendering",
             cond -> IPGlobal.enableDepthClampForPortalRendering = cond
         );
+        registerSwitchCommand(
+            builder,
+            "shared_block_mesh_builder",
+            cond -> IPGlobal.enableSharedBlockMeshBuffers = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")

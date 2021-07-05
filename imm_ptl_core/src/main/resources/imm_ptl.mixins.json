@@ -72,6 +72,7 @@
     "client.particle.MixinParticleManager",
     "client.render.framebuffer.MixinFrameBuffer",
     "client.render.framebuffer.MixinWindowFramebuffer",
+    "client.render.optimization.MixinChunkBuilder",
     "client.render.optimization.MixinFrustum",
     "client.render.optimization.MixinWorldRenderer_Clouds",
     "client.render.MixinBackgroundRenderer_R",

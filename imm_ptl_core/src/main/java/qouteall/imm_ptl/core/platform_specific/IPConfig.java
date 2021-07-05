@@ -22,6 +22,7 @@ public class IPConfig {
     public String check_the_wiki_for_more_information = "https://qouteall.fun/immptl/wiki/Config-Options";
     
     public int maxPortalLayer = 5;
+    public boolean sharedBlockMeshBufferOptimization = true;
     public boolean lagAttackProof = true;
     public int portalRenderLimit = 200;
     public int indirectLoadingRadiusCap = 8;
@@ -127,7 +128,6 @@ public class IPConfig {
         IPGlobal.portalRenderLimit = portalRenderLimit;
         IPGlobal.netherPortalFindingRadius = portalSearchingRange;
         IPGlobal.renderYourselfInPortal = renderYourselfInPortal;
-        
         IPGlobal.activeLoading = activeLoading;
         IPGlobal.teleportationDebugEnabled = teleportationDebug;
         IPGlobal.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
@@ -143,6 +143,7 @@ public class IPConfig {
         IPGlobal.serverSmoothLoading = graduallyIncreaseLoadingRange;
         IPGlobal.scaleLimit = scaleLimit;
         IPGlobal.easeCreativePermission = easeCreativePermission;
+        IPGlobal.enableSharedBlockMeshBuffers = sharedBlockMeshBufferOptimization;
 //        IPGlobal.enableServerCollision = enableServerCollision;
         
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {

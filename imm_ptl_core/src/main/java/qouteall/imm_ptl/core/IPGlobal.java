@@ -94,6 +94,8 @@ public class IPGlobal {
     
     public static boolean enableServerCollision = true;
     
+    public static boolean enableSharedBlockMeshBuffers = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

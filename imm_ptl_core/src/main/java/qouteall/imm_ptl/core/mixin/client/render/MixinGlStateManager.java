@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.mixin.client.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.core.render.lag_spike_fix.GLResourceCache;
+import qouteall.imm_ptl.core.render.optimization.GLResourceCache;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

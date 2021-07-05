@@ -8,10 +8,10 @@ import qouteall.imm_ptl.core.iris_compatibility.IrisPortalRenderer;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
+import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.imm_ptl.core.optifine_compatibility.OFBuiltChunkStorageFix;
-import qouteall.imm_ptl.core.optifine_compatibility.OFGlobal;
 import qouteall.imm_ptl.core.optifine_compatibility.OFInterfaceInitializer;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
@@ -22,7 +22,7 @@ import qouteall.imm_ptl.core.render.RendererUsingStencil;
 import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 import qouteall.imm_ptl.core.render.context_management.CloudContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.imm_ptl.core.render.lag_spike_fix.GLResourceCache;
+import qouteall.imm_ptl.core.render.optimization.GLResourceCache;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import net.minecraft.client.MinecraftClient;
@@ -124,6 +124,8 @@ public class IPModMainClient {
         PortalRenderInfo.init();
         
         CloudContext.init();
+        
+        SharedBlockMeshBuffers.init();
         
         OFInterface.isOptifinePresent = O_O.detectOptiFine();
         if (OFInterface.isOptifinePresent) {

@@ -1,14 +1,12 @@
-package qouteall.imm_ptl.core.render.lag_spike_fix;
+package qouteall.imm_ptl.core.render.optimization;
 
 import org.lwjgl.opengl.GL30;
-import qouteall.imm_ptl.core.IPGlobal;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL15;
 
 import java.util.function.Consumer;
-import java.util.function.IntSupplier;
 
 public class GLResourceCache {
     public static MinecraftClient client = MinecraftClient.getInstance();

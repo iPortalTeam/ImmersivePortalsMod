@@ -173,8 +173,8 @@ public class MyGameRenderer {
             ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
             ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
         }
-    
-        RenderSectionManager.RenderingContext newSodiumContext = SodiumInterface.invoker.createNewContext();
+        
+        Object newSodiumContext = SodiumInterface.invoker.createNewContext();
         SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
