@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.iris_compatibility;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.coderbot.iris.rendertarget.FramebufferBlitter;
 import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -11,7 +10,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
-import qouteall.imm_ptl.core.mixin.client.render.MixinWindowFramebuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;

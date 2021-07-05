@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
-import qouteall.imm_ptl.core.mixin.client.render.MixinWindowFramebuffer;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.client.render;
+package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ducks.IEFrustum;

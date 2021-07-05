@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.mixin.client.render;
+package qouteall.imm_ptl.core.mixin.client.render.framebuffer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import qouteall.imm_ptl.core.IPCGlobal;
