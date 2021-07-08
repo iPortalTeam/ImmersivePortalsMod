@@ -1,11 +1,10 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import org.lwjgl.opengl.KHRDebug;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMainClient;
-import qouteall.imm_ptl.core.SodiumInterface;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
 import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
@@ -26,6 +25,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.text.LiteralText;
 import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.util.Arrays;
 
@@ -69,7 +69,7 @@ public class IPModEntryClient implements ClientModInitializer {
             FabricLoader.getInstance().isModLoaded("sodium");
         if (isSodiumPresent) {
             Helper.log("Sodium is present");
-            
+
 //            try {
 //                Class.forName("me.jellysquid.mods.sodium.client.SodiumHooks");
 //            }
@@ -81,6 +81,11 @@ public class IPModEntryClient implements ClientModInitializer {
 //            }
             
             SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
+            
+            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+                CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
+                    "The compatibility is not yet stable.");
+            }));
         }
         else {
             Helper.log("Sodium is not present");

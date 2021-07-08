@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine;
+package qouteall.imm_ptl.core.compat.optifine_compatibility.mixin_optifine;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

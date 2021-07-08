@@ -1,6 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMain;
 import qouteall.imm_ptl.core.PehkuiInterface;

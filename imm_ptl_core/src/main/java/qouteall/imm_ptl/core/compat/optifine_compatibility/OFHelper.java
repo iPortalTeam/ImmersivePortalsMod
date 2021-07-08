@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.optifine_compatibility;
+package qouteall.imm_ptl.core.compat.optifine_compatibility;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;

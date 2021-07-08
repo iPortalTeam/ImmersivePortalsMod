@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.SodiumInterface;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

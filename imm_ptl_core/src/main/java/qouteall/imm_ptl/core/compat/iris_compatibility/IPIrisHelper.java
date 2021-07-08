@@ -1,20 +1,4 @@
-package qouteall.imm_ptl.core.iris_compatibility;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.coderbot.iris.Iris;
-import net.coderbot.iris.gl.framebuffer.GlFramebuffer;
-import net.coderbot.iris.pipeline.WorldRenderingPipeline;
-import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
-import net.minecraft.client.gl.Framebuffer;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.opengl.GL30;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.Helper;
-
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
+package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 public class IPIrisHelper {
 

@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.optifine_compatibility;
+package qouteall.imm_ptl.core.compat.optifine_compatibility;
 
 import net.minecraft.world.World;
 import net.optifine.shaders.IShaderPack;

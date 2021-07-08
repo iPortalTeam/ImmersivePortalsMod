@@ -1,9 +1,9 @@
-package qouteall.imm_ptl.core.optifine_compatibility;
+package qouteall.imm_ptl.core.compat.optifine_compatibility;
 
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
-import qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine.IEOFConfig;
-import qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine.IEOFVboRegion;
+import qouteall.imm_ptl.core.compat.optifine_compatibility.mixin_optifine.IEOFConfig;
+import qouteall.imm_ptl.core.compat.optifine_compatibility.mixin_optifine.IEOFVboRegion;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;

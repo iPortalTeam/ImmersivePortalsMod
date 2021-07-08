@@ -1,14 +1,10 @@
-package qouteall.imm_ptl.core.optifine_compatibility;
+package qouteall.imm_ptl.core.compat.optifine_compatibility;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.WorldRenderer;
 import net.optifine.Config;
-import net.optifine.shaders.ShaderPackDefault;
 import net.optifine.shaders.Shaders;
 import org.apache.commons.lang3.Validate;
 

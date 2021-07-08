@@ -18,7 +18,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.imm_ptl.core.optifine_compatibility.UniformReport;
+import qouteall.imm_ptl.core.compat.optifine_compatibility.UniformReport;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;

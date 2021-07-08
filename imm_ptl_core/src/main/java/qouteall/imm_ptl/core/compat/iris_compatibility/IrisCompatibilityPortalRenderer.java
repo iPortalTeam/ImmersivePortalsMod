@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.iris_compatibility;
+package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.coderbot.iris.uniforms.SystemTimeUniforms;

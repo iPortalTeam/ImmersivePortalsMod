@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core;
+package qouteall.imm_ptl.core.compat.sodium_compatibility;
 
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
@@ -7,6 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.mixin.IESodiumWorldRenderer;
 import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.ClientChunkManagerWithSodium;
 
 @Environment(EnvType.CLIENT)
@@ -46,15 +47,21 @@ public class SodiumInterface {
         }
         
         @Override
-        public RenderSectionManager.RenderingContext createNewContext() {
-            return new RenderSectionManager.RenderingContext();
+        public Object createNewContext() {
+            return new SodiumRenderingContext();
         }
         
         @Override
         public void switchContextWithCurrentWorldRenderer(Object context) {
             SodiumWorldRenderer swr = SodiumWorldRenderer.getInstance();
             swr.scheduleTerrainUpdate();
-            swr.swapRenderingContext(((RenderSectionManager.RenderingContext) context));
+            
+            RenderSectionManager renderSectionManager =
+                ((IESodiumWorldRenderer) swr).ip_getRenderSectionManager();
+            
+            ((IESodiumRenderSectionManager) renderSectionManager)
+                .ip_swapContext(((SodiumRenderingContext) context));
+            
             swr.scheduleTerrainUpdate();
         }
     }

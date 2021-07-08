@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine;
+package qouteall.imm_ptl.core.compat.optifine_compatibility.mixin_optifine;
 
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import net.minecraft.client.render.WorldRenderer;

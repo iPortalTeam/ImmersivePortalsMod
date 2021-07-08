@@ -1,17 +1,16 @@
 package qouteall.imm_ptl.core.render;
 
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.render.Frustum;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
-import qouteall.imm_ptl.core.SodiumInterface;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;

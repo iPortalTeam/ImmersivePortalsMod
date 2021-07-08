@@ -2,7 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;

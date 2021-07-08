@@ -1,4 +1,4 @@
-package qouteall.imm_ptl.core.iris_compatibility;
+package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;

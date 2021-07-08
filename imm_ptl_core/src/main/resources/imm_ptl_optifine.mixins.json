@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "qouteall.imm_ptl.core.optifine_compatibility.mixin_optifine",
+  "package": "qouteall.imm_ptl.core.compat.optifine_compatibility.mixin_optifine",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "IEOFConfig",

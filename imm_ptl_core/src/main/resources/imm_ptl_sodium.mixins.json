@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "qouteall.imm_ptl.core.compat.sodium_compatibility.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "plugin": "qouteall.imm_ptl.core.compat.sodium_compatibility.IPSodiumMixinPlugin",
+  "mixins": [
+    "IESodiumWorldRenderer",
+    "MixinSodiumRenderSectionManager"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
