@@ -7,24 +7,33 @@
       "rendertype_cutout_mipped",
       "rendertype_translucent"
     ],
-    "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
-    "replacement": [
-      "uniform vec4 imm_ptl_ClippingEquation;",
-      "void main() {",
-      "    gl_ClipDistance[0] = dot(Position.xyz + ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+    "transformations": [
+      {
+        "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+        "replacement": [
+          "uniform vec4 imm_ptl_ClippingEquation;",
+          "void main() {",
+          "    gl_ClipDistance[0] = dot(Position.xyz + ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+        ]
+      }
     ],
     "debugOutput": false
   },
   {
     "type": "vs",
     "affectedShaders": [
-      "rendertype_entity_cutout", "portal_area"
+      "rendertype_entity_cutout",
+      "portal_area"
     ],
-    "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
-    "replacement": [
-      "uniform vec4 imm_ptl_ClippingEquation;",
-      "void main() {",
-      "    gl_ClipDistance[0] = dot(Position.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+    "transformations": [
+      {
+        "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+        "replacement": [
+          "uniform vec4 imm_ptl_ClippingEquation;",
+          "void main() {",
+          "    gl_ClipDistance[0] = dot(Position.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+        ]
+      }
     ],
     "debugOutput": false
   },
@@ -37,11 +46,41 @@
       "gbuffers_translucent",
       "gbuffers_water"
     ],
-    "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
-    "replacement": [
-      "uniform vec4 imm_ptl_ClippingEquation;",
-      "void main() {",
-      "    gl_ClipDistance[0] = dot(gl_Vertex.xyz + iris_ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+    "transformations": [
+      {
+        "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+        "replacement": [
+          "uniform vec4 imm_ptl_ClippingEquation;",
+          "void main() {",
+          "    gl_ClipDistance[0] = dot(gl_Vertex.xyz + iris_ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+        ]
+      }
+    ],
+    "debugOutput": false
+  },
+  {
+    "type": "vs",
+    "affectedShaders": [
+      "sodium:blocks/block_layer_solid.vsh",
+      "sodium:blocks/block_layer_cutout_mipped.vsh",
+      "sodium:blocks/block_layer_cutout.vsh",
+      "sodium:blocks/block_layer_translucent.vsh"
+    ],
+    "transformations": [
+      {
+        "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+        "replacement": [
+          "uniform vec4 imm_ptl_ClippingEquation;",
+          "void main() {"
+        ]
+      },
+      {
+        "pattern": "vec3 pos = getVertexPosition\\(\\);",
+        "replacement": [
+          "vec3 pos = getVertexPosition();",
+          "    gl_ClipDistance[0] = dot(pos, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+        ]
+      }
     ],
     "debugOutput": false
   }

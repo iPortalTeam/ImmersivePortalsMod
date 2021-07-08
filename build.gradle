@@ -68,7 +68,7 @@ allprojects {
             transitive = false
         }
 
-        modCompileOnly('com.github.qouteall:sodium-fabric:1.17~ipc_build-SNAPSHOT') {
+        modImplementation('com.github.qouteall:sodium-fabric:5cfc6674') {
             transitive = false
         }
 

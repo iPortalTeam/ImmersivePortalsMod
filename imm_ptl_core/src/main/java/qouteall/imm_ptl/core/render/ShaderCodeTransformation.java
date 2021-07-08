@@ -31,11 +31,15 @@ public class ShaderCodeTransformation {
         return false;
     }
     
+    public static class TransformationEntry {
+        public String pattern;
+        public List<String> replacement;
+    }
+    
     public static class Config {
         public ShaderType type;
         public Set<String> affectedShaders;
-        public String pattern;
-        public List<String> replacement;
+        public List<TransformationEntry> transformations;
         public boolean debugOutput;
     }
     
@@ -68,8 +72,12 @@ public class ShaderCodeTransformation {
             return inputCode;
         }
         
-        String replacement = String.join("\n", selected.replacement);
-        String result = inputCode.replaceAll(selected.pattern, replacement);
+        String result = inputCode;
+        
+        for (TransformationEntry entry : selected.transformations) {
+            String replacement = String.join("\n", entry.replacement);
+            result = result.replaceAll(entry.pattern, replacement);
+        }
         
         if (selected.debugOutput) {
             Helper.log("Shader Transformed " + shaderId + "\n" + result);

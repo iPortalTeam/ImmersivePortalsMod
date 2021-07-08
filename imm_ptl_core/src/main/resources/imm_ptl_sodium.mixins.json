@@ -5,7 +5,10 @@
   "plugin": "qouteall.imm_ptl.core.compat.sodium_compatibility.IPSodiumMixinPlugin",
   "mixins": [
     "IESodiumWorldRenderer",
-    "MixinSodiumRenderSectionManager"
+    "MixinSodiumChunkGraphInfo",
+    "MixinSodiumChunkProgram",
+    "MixinSodiumRenderSectionManager",
+    "MixinSodiumShaderLoader"
   ],
   "injectors": {
     "defaultRequire": 1
