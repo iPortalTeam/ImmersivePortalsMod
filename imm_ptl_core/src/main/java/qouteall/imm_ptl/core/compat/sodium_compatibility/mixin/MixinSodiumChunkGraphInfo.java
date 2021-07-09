@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.ducks.IEFrustum;
 
-@Mixin(ChunkGraphInfo.class)
+@Mixin(value = ChunkGraphInfo.class, remap = false)
 public abstract class MixinSodiumChunkGraphInfo {
     @Shadow
     public abstract int getOriginX();

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 
-@Mixin(ShaderLoader.class)
+@Mixin(value = ShaderLoader.class, remap = false)
 public abstract class MixinSodiumShaderLoader {
     
     @Shadow

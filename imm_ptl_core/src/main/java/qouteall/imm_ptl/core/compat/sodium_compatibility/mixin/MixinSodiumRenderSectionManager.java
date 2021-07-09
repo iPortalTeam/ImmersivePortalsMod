@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.IESodiumRenderSectionManager;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumRenderingContext;
 
-@Mixin(RenderSectionManager.class)
+@Mixin(value = RenderSectionManager.class, remap = false)
 public class MixinSodiumRenderSectionManager implements IESodiumRenderSectionManager {
     @Shadow
     @Final

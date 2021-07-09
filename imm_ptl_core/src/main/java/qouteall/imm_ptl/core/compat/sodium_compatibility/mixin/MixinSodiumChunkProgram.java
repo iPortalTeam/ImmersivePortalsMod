@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.q_misc_util.Helper;
 
-@Mixin(ChunkProgram.class)
+@Mixin(value = ChunkProgram.class, remap = false)
 public class MixinSodiumChunkProgram extends GlObject {
     private int uIPClippingEquation;
     
