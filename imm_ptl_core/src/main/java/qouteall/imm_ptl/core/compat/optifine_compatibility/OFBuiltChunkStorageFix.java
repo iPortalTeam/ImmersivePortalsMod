@@ -102,7 +102,9 @@ public class OFBuiltChunkStorageFix {
                 // needs to be deleted
                 Object[] regionArray1 = (Object[]) regionArray;
                 for (Object o : regionArray1) {
-                    ((IEOFVboRegion) o).ip_deleteGlBuffers();
+                    if (o != null) {
+                        ((IEOFVboRegion) o).ip_deleteGlBuffers();
+                    }
                 }
                 
                 Helper.log("Purged OptiFine render region " + key);

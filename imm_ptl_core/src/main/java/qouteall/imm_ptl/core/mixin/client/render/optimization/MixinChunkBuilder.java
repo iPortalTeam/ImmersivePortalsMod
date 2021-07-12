@@ -53,7 +53,8 @@ public class MixinChunkBuilder {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/thread/TaskExecutor;create(Ljava/util/concurrent/Executor;Ljava/lang/String;)Lnet/minecraft/util/thread/TaskExecutor;"
-        )
+        ),
+        require = 0
     )
     private TaskExecutor redirectCreate(Executor executor, String name) {
         if (IPGlobal.enableSharedBlockMeshBuffers && !OFInterface.isOptifinePresent) {
