@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 
 import java.util.Queue;
@@ -36,10 +37,11 @@ public class MixinChunkBuilder {
             value = "INVOKE",
             target = "Ljava/lang/Math;max(II)I",
             ordinal = 1
-        )
+        ),
+        require = 0
     )
     private int redirectMax(int a, int b) {
-        if (IPGlobal.enableSharedBlockMeshBuffers) {
+        if (IPGlobal.enableSharedBlockMeshBuffers && !OFInterface.isOptifinePresent) {
             return 0;
         }
         return Math.max(a, b);
@@ -54,7 +56,7 @@ public class MixinChunkBuilder {
         )
     )
     private TaskExecutor redirectCreate(Executor executor, String name) {
-        if (IPGlobal.enableSharedBlockMeshBuffers) {
+        if (IPGlobal.enableSharedBlockMeshBuffers && !OFInterface.isOptifinePresent) {
             Validate.isTrue(threadBuffers.size() == 0);
             threadBuffers = SharedBlockMeshBuffers.getThreadBuffers();
             bufferCount = threadBuffers.size();
