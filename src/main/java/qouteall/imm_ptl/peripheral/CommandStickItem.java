@@ -118,7 +118,7 @@ public class CommandStickItem extends Item {
         }
         
         if (canUseCommand(player)) {
-            Data data = Data.deserialize(stack.getOrCreateTag());
+            Data data = Data.deserialize(stack.getOrCreateNbt());
             
             ServerCommandSource commandSource = player.getCommandSource().withLevel(2);
             
@@ -144,7 +144,7 @@ public class CommandStickItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
         
-        Data data = Data.deserialize(stack.getOrCreateTag());
+        Data data = Data.deserialize(stack.getOrCreateNbt());
         
         tooltip.add(new LiteralText(data.command).formatted(Formatting.GOLD));
         
@@ -160,7 +160,7 @@ public class CommandStickItem extends Item {
         if (isIn(group)) {
             commandStickTypeRegistry.stream().forEach(data -> {
                 ItemStack stack = new ItemStack(instance);
-                data.serialize(stack.getOrCreateTag());
+                data.serialize(stack.getOrCreateNbt());
                 stacks.add(stack);
             });
         }
@@ -168,7 +168,7 @@ public class CommandStickItem extends Item {
     
     @Override
     public String getTranslationKey(ItemStack stack) {
-        Data data = Data.deserialize(stack.getOrCreateTag());
+        Data data = Data.deserialize(stack.getOrCreateNbt());
         return data.nameTranslationKey;
     }
     
@@ -183,7 +183,7 @@ public class CommandStickItem extends Item {
                 command,
                 command, new ArrayList<>()
             );
-            data.serialize(itemStack.getOrCreateTag());
+            data.serialize(itemStack.getOrCreateNbt());
             
             player.getInventory().insertStack(itemStack);
             player.playerScreenHandler.sendContentUpdates();

@@ -92,7 +92,7 @@ public class CHelper {
         String link
     ) {
         MinecraftClient client = MinecraftClient.getInstance();
-        client.openScreen(new ConfirmChatLinkScreen(
+        client.setScreen(new ConfirmChatLinkScreen(
             (result) -> {
                 if (result) {
                     try {
@@ -102,7 +102,7 @@ public class CHelper {
                         e.printStackTrace();
                     }
                 }
-                client.openScreen(parent);
+                client.setScreen(parent);
             },
             link, true
         ));

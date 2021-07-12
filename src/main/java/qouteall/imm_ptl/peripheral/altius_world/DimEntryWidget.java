@@ -38,7 +38,7 @@ public class DimEntryWidget extends ElementListWidget.Entry<DimEntryWidget> {
     public final static int widgetHeight = 50;
     
     @Override
-    public List<? extends Selectable> method_37025() {
+    public List<? extends Selectable> selectableChildren() {
         return List.of();
     }
     

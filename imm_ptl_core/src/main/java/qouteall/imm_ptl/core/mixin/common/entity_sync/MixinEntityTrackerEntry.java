@@ -5,7 +5,7 @@ import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
 import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.EntityDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -50,7 +50,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
         IPCommonNetwork.withForceRedirect(
             ((ServerWorld) entity.world), () -> {
                 entity.onStoppedTrackingBy(player);
-                player.networkHandler.sendPacket(new EntityDestroyS2CPacket(entity.getId()));
+                player.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(entity.getId()));
             }
         );
     }

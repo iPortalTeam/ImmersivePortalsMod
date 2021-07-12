@@ -36,10 +36,6 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     
     @Shadow
     @Final
-    private ServerLightingProvider serverLightingProvider;
-    
-    @Shadow
-    @Final
     private ServerWorld world;
     
     @Shadow
@@ -64,12 +60,12 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     private MessageListener<ChunkTaskPrioritySystem.Task<Runnable>> mainExecutor;
     
     @Shadow
-    @Final
-    private File saveDir;
-    
-    @Shadow
     @Nullable
     protected abstract NbtCompound getUpdatedChunkNbt(ChunkPos pos) throws IOException;
+    
+    @Shadow
+    @Final
+    private ServerLightingProvider lightingProvider;
     
     @Override
     public int getWatchDistance() {
@@ -83,17 +79,12 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     
     @Override
     public ServerLightingProvider getLightingProvider() {
-        return serverLightingProvider;
+        return lightingProvider;
     }
     
     @Override
     public ChunkHolder getChunkHolder_(long long_1) {
         return getChunkHolder(long_1);
-    }
-    
-    @Override
-    public File portal_getSaveDir() {
-        return saveDir;
     }
     
     @Override
@@ -124,22 +115,6 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     ) {
         //chunk data packet will be sent on ChunkDataSyncManager
     }
-    
-    //cancel vanilla packet sending
-//    @Redirect(
-//        method = "makeChunkTickable",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Ljava/util/concurrent/CompletableFuture;thenAcceptAsync(Ljava/util/function/Consumer;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"
-//        )
-//    )
-//    private CompletableFuture<Void> redirectThenAcceptAsync(
-//        CompletableFuture completableFuture,
-//        Consumer<?> action,
-//        Executor executor
-//    ) {
-//        return null;
-//    }
     
     //do my packet sending
     @Inject(

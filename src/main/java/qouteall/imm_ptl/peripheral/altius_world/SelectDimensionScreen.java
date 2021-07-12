@@ -84,7 +84,7 @@ public class SelectDimensionScreen extends Screen {
                     return;
                 }
                 outerCallback.accept(selected.dimension);
-                MinecraftClient.getInstance().openScreen(parent);
+                MinecraftClient.getInstance().setScreen(parent);
             }
         ));
         
@@ -93,7 +93,7 @@ public class SelectDimensionScreen extends Screen {
     @Override
     public void onClose() {
         // When `esc` is pressed return to the parent screen rather than setting screen to `null` which returns to the main menu.
-        this.client.openScreen(this.parent);
+        this.client.setScreen(this.parent);
     }
     
     @Override

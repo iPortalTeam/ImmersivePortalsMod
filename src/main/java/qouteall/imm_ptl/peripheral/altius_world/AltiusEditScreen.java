@@ -80,7 +80,7 @@ public class AltiusEditScreen extends Screen {
                     editing.entry.scale = 1;
                 }
                 
-                MinecraftClient.getInstance().openScreen(parent);
+                MinecraftClient.getInstance().setScreen(parent);
             }
         );
         
@@ -167,7 +167,7 @@ public class AltiusEditScreen extends Screen {
     
     @Override
     public void onClose() {
-        MinecraftClient.getInstance().openScreen(parent);
+        MinecraftClient.getInstance().setScreen(parent);
     }
     
     @Override

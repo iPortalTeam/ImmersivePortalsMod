@@ -123,7 +123,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
         }
         
-        MinecraftClient.getInstance().openScreen(altiusScreen);
+        MinecraftClient.getInstance().setScreen(altiusScreen);
     }
     
     @Override

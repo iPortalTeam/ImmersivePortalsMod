@@ -61,7 +61,7 @@ public class AltiusScreen extends Screen {
             0, 0, 72, 20,
             new TranslatableText("imm_ptl.back"),
             (buttonWidget) -> {
-                MinecraftClient.getInstance().openScreen(parent);
+                MinecraftClient.getInstance().setScreen(parent);
             }
         );
         addDimensionButton = new ButtonWidget(
@@ -221,7 +221,7 @@ public class AltiusScreen extends Screen {
     @Override
     public void onClose() {
         // When `esc` is pressed return to the parent screen rather than setting screen to `null` which returns to the main menu.
-        this.client.openScreen(this.parent);
+        this.client.setScreen(this.parent);
     }
     
     private Consumer<DimEntryWidget> getElementSelectCallback() {
@@ -278,12 +278,12 @@ public class AltiusScreen extends Screen {
         
         int insertingPosition = position + 1;
         
-        MinecraftClient.getInstance().openScreen(
+        MinecraftClient.getInstance().setScreen(
             new SaveLevelScreen(new TranslatableText("imm_ptl.loading_datapack_dimensions"))
         );
         
         IPGlobal.preTotalRenderTaskList.addTask(MyTaskList.withDelay(1, () -> {
-            MinecraftClient.getInstance().openScreen(
+            MinecraftClient.getInstance().setScreen(
                 new SelectDimensionScreen(
                     this,
                     dimensionType -> {
@@ -322,7 +322,7 @@ public class AltiusScreen extends Screen {
             return;
         }
         
-        MinecraftClient.getInstance().openScreen(new AltiusEditScreen(
+        MinecraftClient.getInstance().setScreen(new AltiusEditScreen(
             this, selected
         ));
     }
