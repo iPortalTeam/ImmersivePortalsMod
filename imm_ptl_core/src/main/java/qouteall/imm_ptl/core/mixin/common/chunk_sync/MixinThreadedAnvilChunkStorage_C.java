@@ -130,8 +130,6 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
         
         future.thenAcceptAsync((either) -> {
             either.mapLeft((worldChunk) -> {
-                this.totalChunksLoadedCount.getAndIncrement();
-                
                 IPGlobal.chunkDataSyncManager.onChunkProvidedDeferred(worldChunk);
                 
                 return Either.left(worldChunk);
