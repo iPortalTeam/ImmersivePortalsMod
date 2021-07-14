@@ -126,4 +126,11 @@
   "imm_ptl.command_desc.disable_rendering_yourself": "",
   "imm_ptl.command.create_5_connected_rooms": "Создаёт 5 соединённых комнат вокруг вас",
   "imm_ptl.command_desc.create_5_connected_rooms": ""
+  "imm_ptl.command.accelerate50": "Ускориться на 50",
+  "imm_ptl.command_desc.accelerate50": "Лети!",
+  "imm_ptl.command.accelerate200": "Ускориться на 200",
+  "imm_ptl.command_desc.accelerate200": "Лети!",
+  "imm_ptl.about_lag": "[Immersive Portals] Порталы резко загружают много блоков и могут вызвать всплески лагов. Лаги, вероятно, исчезнут после игры в течение 1 или 2 минут.",
+  "imm_ptl.portal_helper_not_linked": "Рядом нет совместимой рамки портального помощника. Создана новая рамка. Портальный помощник может соединяться только с совместимой рамкой. 1x3 может соединяться с 2x6, но 1x2 не может соединяться с 2x5. ",
+  "imm_ptl.preview_warning": "Вы используете предварительную версию мода Immersive Portals, которая ещё не стабильна. Сообщить об ошибках:"
 }
