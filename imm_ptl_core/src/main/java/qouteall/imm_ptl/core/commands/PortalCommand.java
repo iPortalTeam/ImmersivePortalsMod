@@ -1264,6 +1264,42 @@ public class PortalCommand {
             )
         );
         
+        builder.then(CommandManager.literal("adjust_rotation_to_connect")
+            .then(CommandManager.argument("portal1", EntityArgumentType.entity())
+                .then(CommandManager.argument("portal2", EntityArgumentType.entity())
+                    .executes(context -> {
+                        Entity e1 = EntityArgumentType.getEntity(context, "portal1");
+                        Entity e2 = EntityArgumentType.getEntity(context, "portal2");
+                        
+                        if (!(e1 instanceof Portal)) {
+                            context.getSource().sendError(
+                                new LiteralText("portal1 is not a portal entity"));
+                            return 0;
+                        }
+                        
+                        if (!(e2 instanceof Portal)) {
+                            context.getSource().sendError(
+                                new LiteralText("portal2 is not a portal entity"));
+                            return 0;
+                        }
+                        
+                        Portal portal1 = (Portal) e1;
+                        Portal portal2 = (Portal) e2;
+                        
+                        portal1.setDestination(portal2.getOriginPos());
+                        portal2.setDestination(portal1.getOriginPos());
+                        
+                        PortalManipulation.adjustRotationToConnect(portal1, portal2);
+                        
+                        portal1.reloadAndSyncToClient();
+                        portal2.reloadAndSyncToClient();
+                        
+                        return 0;
+                    })
+                )
+            )
+        );
+        
         builder.then(CommandManager
             .literal("wiki")
             .executes(context -> {

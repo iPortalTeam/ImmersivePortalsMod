@@ -321,8 +321,8 @@ public class PortalDebugCommands {
                 result.append("Server Portals\n");
                 
                 for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
+                    result.append(world.getRegistryKey().getValue().toString() + "\n");
                     for (Entity entity : world.iterateEntities()) {
-                        result.append(world.getRegistryKey().getValue().toString() + "\n");
                         for (Entity e : world.iterateEntities()) {
                             if (e instanceof Portal) {
                                 result.append(e.toString());
