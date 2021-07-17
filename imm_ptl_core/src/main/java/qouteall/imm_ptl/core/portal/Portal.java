@@ -368,8 +368,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public void renderViewAreaMesh(Vec3d portalPosRelativeToCamera, Consumer<Vec3d> vertexOutput) {
         if (this instanceof Mirror) {
             //rendering portal behind translucent objects with shader is broken
-            boolean offsetFront = OFInterface.isShaders.getAsBoolean()
-                || IrisInterface.invoker.isShaders()
+            boolean offsetFront = IrisInterface.invoker.isShaders()
                 || IPGlobal.pureMirror;
             double mirrorOffset = offsetFront ? 0.01 : -0.01;
             portalPosRelativeToCamera = portalPosRelativeToCamera.add(

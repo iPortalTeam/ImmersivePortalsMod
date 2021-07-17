@@ -16,8 +16,6 @@ public class OFInterface {
     
     public static boolean isOptifinePresent = false;
     
-    public static BooleanSupplier isShaders = returnFalse;
-    
     public static BooleanSupplier isShadowPass = returnFalse;
     
     public static Consumer<Object> createNewRenderInfosNormal = (a) -> {

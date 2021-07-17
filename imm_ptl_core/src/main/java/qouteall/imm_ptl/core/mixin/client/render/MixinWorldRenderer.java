@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -472,7 +473,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     private void onRenderSkyBegin(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
             if (PortalRendering.getRenderingPortal().isFuseView()) {
-                if (!OFInterface.isShaders.getAsBoolean()) {
+                if (!IrisInterface.invoker.isShaders()) {
                     ci.cancel();
                 }
             }
