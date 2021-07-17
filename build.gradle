@@ -72,7 +72,7 @@ allprojects {
             transitive = false
         }
 
-//        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.0+IRIS1-rev.6436a00-dirty'){
+//        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.0+IRIS1-rev.faa155f-dirty'){
 //            transitive = false
 //        }
 

@@ -5,6 +5,8 @@
   "plugin": "qouteall.imm_ptl.core.compat.sodium_compatibility.IPSodiumMixinPlugin",
   "mixins": [
     "IESodiumWorldRenderer",
+    "MixinIrisSodiumChunkProgram",
+    "MixinIrisSodiumSodiumTerrainPipeline",
     "MixinSodiumChunkGraphInfo",
     "MixinSodiumChunkProgram",
     "MixinSodiumRenderSectionManager",

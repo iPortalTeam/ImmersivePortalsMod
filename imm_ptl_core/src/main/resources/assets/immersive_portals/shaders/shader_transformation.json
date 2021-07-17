@@ -1,5 +1,6 @@
 [
   {
+    "comment": "For vanilla terrain rendering",
     "type": "vs",
     "affectedShaders": [
       "rendertype_solid",
@@ -20,6 +21,7 @@
     "debugOutput": false
   },
   {
+    "comment": "For portal area rendering and entity rendering",
     "type": "vs",
     "affectedShaders": [
       "rendertype_entity_cutout",
@@ -38,6 +40,7 @@
     "debugOutput": false
   },
   {
+    "comment": "For iris",
     "type": "vs",
     "affectedShaders": [
       "gbuffers_terrain_solid",
@@ -59,6 +62,25 @@
     "debugOutput": false
   },
   {
+    "comment": "For iris+sodium",
+    "type": "vs",
+    "affectedShaders": [
+      "iris_sodium_terrain_vertex"
+    ],
+    "transformations": [
+      {
+        "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
+        "replacement": [
+          "uniform vec4 imm_ptl_ClippingEquation;",
+          "void main() {",
+          "    gl_ClipDistance[0] = dot(gl_Vertex.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+        ]
+      }
+    ],
+    "debugOutput": false
+  },
+  {
+    "comment": "For sodium",
     "type": "vs",
     "affectedShaders": [
       "sodium:blocks/block_layer_solid.vsh",
