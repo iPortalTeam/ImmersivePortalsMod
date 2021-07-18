@@ -232,8 +232,10 @@ public class RendererUsingStencil extends PortalRenderer {
             portal, Vec3d.ZERO,
             matrixStack.peek().getModel(),
             RenderStates.projectionMatrix,
-            true, false,
-            true);
+            false,
+            false,
+            true
+        );
         
         GL11.glDepthFunc(originalDepthFunc);
     }

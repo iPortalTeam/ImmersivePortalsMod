@@ -382,9 +382,9 @@ public class PortalRenderInfo {
         // but that cannot be guaranteed
         // use this to avoid potential resource leak
         IPGlobal.preTotalRenderTaskList.addTask(() -> {
-            if (!infoMap.isEmpty()) {
-                Helper.err("A PortalRenderInfo is not being deterministically disposed");
-            }
+//            if (!infoMap.isEmpty()) {
+//                Helper.err("A PortalRenderInfo is not being deterministically disposed");
+//            }
             dispose();
             return true;
         });
