@@ -301,9 +301,6 @@ public class ClientWorldLoader {
         // there are two "reload" methods
         worldRenderer.reload(client.getResourceManager());
         
-        ((IEClientPlayNetworkHandler) ((IEClientWorld) newWorld).getNetHandler())
-            .ip_setWorld(newWorld);
-        
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);
         
