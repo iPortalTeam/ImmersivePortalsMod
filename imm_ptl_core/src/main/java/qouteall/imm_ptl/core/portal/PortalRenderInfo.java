@@ -16,6 +16,7 @@ import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.ref.Cleaner;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -145,6 +146,10 @@ public class PortalRenderInfo {
     
     // disposing twice is fine
     public void dispose() {
+        disposeInfoMap((Map<List<UUID>, Visibility>) this.infoMap);
+    }
+    
+    private static void disposeInfoMap(Map<List<UUID>, Visibility> infoMap) {
         infoMap.values().forEach(Visibility::dispose);
         infoMap.clear();
     }
@@ -165,8 +170,7 @@ public class PortalRenderInfo {
                 infoMap.values().forEach(Visibility::update);
             }
             else {
-                infoMap.values().forEach(Visibility::dispose);
-                infoMap.clear();
+                disposeInfoMap(infoMap);
             }
             
             thisFrameQueryFrameIndex = RenderStates.frameIndex;
@@ -377,7 +381,10 @@ public class PortalRenderInfo {
         // normally if a portal is removed by calling remove() it will dispose normally
         // but that cannot be guaranteed
         // use this to avoid potential resource leak
-        IPGlobal.clientTaskList.addTask(() -> {
+        IPGlobal.preTotalRenderTaskList.addTask(() -> {
+            if (!infoMap.isEmpty()) {
+                Helper.err("A PortalRenderInfo is not being deterministically disposed");
+            }
             dispose();
             return true;
         });
