@@ -25,6 +25,7 @@
   ],
   "client": [
     "client.MixinBossBarHud",
+    "client.MixinSplashTextResourceSupplier",
     "client.alternate_dimension.MixinBackgroundRenderer_A",
     "client.alternate_dimension.MixinClientWorld_A",
     "client.alternate_dimension.MixinClientWorldProperties",
