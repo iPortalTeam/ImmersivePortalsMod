@@ -18,6 +18,8 @@ public class OFInterfaceInitializer {
     public static void init() {
         Validate.isTrue(OFInterface.isOptifinePresent);
         
+        OFInterface.isShaders = () -> Config.isShaders();
+        
         OFInterface.isShadowPass = () -> Shaders.isShadowPass;
         
         OFInterface.createNewRenderInfosNormal = newWorldRenderer1 -> {

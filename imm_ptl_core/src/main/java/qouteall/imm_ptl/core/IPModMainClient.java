@@ -33,11 +33,26 @@ import java.util.UUID;
 
 public class IPModMainClient {
     
+    private static boolean optifineShaderWarned = false;
+    
     public static void switchToCorrectRenderer() {
         if (PortalRendering.isRendering()) {
             //do not switch when rendering
             return;
         }
+        
+        if (OFInterface.isShaders.getAsBoolean()) {
+            switchRenderer(IPCGlobal.rendererDummy);
+            
+            if (!optifineShaderWarned) {
+                optifineShaderWarned = true;
+                CHelper.printChat(
+                    "Immersive Portals in 1.17 is incompatible with OptiFine shaders."
+                );
+            }
+            return;
+        }
+        
         if (IrisInterface.invoker.isIrisPresent()) {
             if (IrisInterface.invoker.isShaders()) {
                 switch (IPGlobal.renderMode) {
