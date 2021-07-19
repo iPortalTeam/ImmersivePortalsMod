@@ -59,7 +59,7 @@ public abstract class MixinMinecraftServer_Misc {
                 " This may cause other issues"
         );
         RegistryOps<JsonElement> registryOps =
-            RegistryOps.of(JsonOps.INSTANCE, resourceManager.getResourceManager(), registryTracker);
+            RegistryOps.method_36574(JsonOps.INSTANCE, resourceManager.getResourceManager(), registryTracker);
         
         DynamicRegistryManager.load(registryTracker, registryOps);
     }
