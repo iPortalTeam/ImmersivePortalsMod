@@ -1,26 +1,37 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 
 @Environment(EnvType.CLIENT)
 public class CrossPortalSound {
+    public static final float VOLUME_RADIUS_MULT = 16f;
+    public static final float MIN_SOUND_RADIUS = 16f;
+
     public static boolean isPlayerWorld(ClientWorld world) {
         return world.getRegistryKey() == RenderStates.originalPlayerDimension;
     }
     
     @Nullable
-    public static Vec3d getTransformedSoundPosition(
+    public static PositionedSoundInstance createCrossPortalSound(
         ClientWorld soundWorld,
-        Vec3d soundPos
+        SoundEvent sound,
+        SoundCategory category,
+        Vec3d soundPos,
+        float soundVol,
+        float soundPitch
     ) {
         MinecraftClient client = MinecraftClient.getInstance();
         
@@ -29,54 +40,58 @@ public class CrossPortalSound {
         }
         
         soundWorld.getProfiler().push("cross_portal_sound");
-        
-        Vec3d result = IPMcHelper.getNearbyPortals(
-            soundWorld, soundPos, 10
+
+        final double soundRadius = Math.max(VOLUME_RADIUS_MULT * soundVol, MIN_SOUND_RADIUS);
+        final Vec3d playerCameraPos = RenderStates.originalPlayerPos.add(
+            0, client.player.getStandingEyeHeight(), 0
+        );
+
+        // find portals in range of the sound
+        PositionedSoundInstance result = IPMcHelper.getNearbyPortals(
+            soundWorld, soundPos, soundRadius
         ).filter(
+            // keep portals in range of the player
             portal -> portal.getDestDim() == RenderStates.originalPlayerDimension &&
-                portal.transformPoint(soundPos).distanceTo(RenderStates.originalPlayerPos) < 20
-        ).findFirst().map(
-            portal -> {
-                // sound goes to portal then goes through portal then goes to player
-                
-                
-                Vec3d playerCameraPos = RenderStates.originalPlayerPos.add(
-                    0, client.player.getStandingEyeHeight(), 0
+                isPlayerInRange(portal, soundPos, soundRadius)
+        ).min(
+            // use portal that is closest to the sound
+            Comparator.comparingDouble(portal -> getPortalDistance(portal, soundPos))
+        ).map(
+            portal ->
+            {
+                // set sound position to the point the sound would exit the portal
+                final Vec3d soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
+                final Vec3d soundExitPortalPoint = portal.transformPoint(soundEnterPortalPoint);
+
+                // reduce volume based on distance from the sound source to the portal entry point
+                final float volumeToEnterPortal =
+                    (float) soundEnterPortalPoint.distanceTo(soundPos) / CrossPortalSound.VOLUME_RADIUS_MULT;
+                float volumeAtPortal = soundVol - volumeToEnterPortal;
+
+                return new PositionedSoundInstance(
+                    sound,
+                    category,
+                    volumeAtPortal,
+                    soundPitch,
+                    soundExitPortalPoint.getX(),
+                    soundExitPortalPoint.getY(),
+                    soundExitPortalPoint.getZ()
                 );
-                
-                Vec3d soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
-                double soundEnterPortalDistance = soundEnterPortalPoint.distanceTo(soundPos);
-                Vec3d soundExitPortalPoint = portal.transformPoint(soundEnterPortalPoint);
-                
-                Vec3d playerToSoundExitPoint = soundExitPortalPoint.subtract(playerCameraPos);
-                
-                // the distance between sound source and the portal is applied by
-                //  moving the pos further away from the player
-                Vec3d projectedPos = portal.getDestPos().add(
-                    playerToSoundExitPoint.normalize().multiply(soundEnterPortalDistance)
-                );
-                
-                // lerp to actual position when you get close to the portal
-                // this helps smooth the transition when the player is going through the portal
-                
-                Vec3d actualPos = portal.transformPoint(soundPos);
-                
-                double playerDistanceToPortalDest = soundExitPortalPoint.distanceTo(playerCameraPos);
-                final double fadeDistance = 5.0;
-                // 0 means close, 1 means far
-                double lerpRatio = MathHelper.clamp(
-                    playerDistanceToPortalDest / fadeDistance, 0.0, 1.0
-                );
-                
-                // do the lerp
-                Vec3d resultPos = actualPos.add(projectedPos.subtract(actualPos).multiply(lerpRatio));
-                
-                return resultPos;
             }
         ).orElse(null);
-        
+
         soundWorld.getProfiler().pop();
         
         return result;
+    }
+
+    private static boolean isPlayerInRange(Portal portal, Vec3d soundPos, double soundRadius) {
+        final Vec3d soundExitPoint = portal.transformPoint(portal.getNearestPointInPortal(soundPos));
+        return soundExitPoint.isInRange(RenderStates.originalPlayerPos, soundRadius);
+    }
+
+    private static double getPortalDistance(Portal portal, Vec3d soundPos) {
+        final Vec3d soundEnterPortalPoint = portal.getNearestPointInPortal(soundPos);
+        return soundEnterPortalPoint.squaredDistanceTo(soundPos);
     }
 }
