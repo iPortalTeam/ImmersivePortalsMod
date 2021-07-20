@@ -96,6 +96,8 @@ public class IPGlobal {
     
     public static boolean enableSharedBlockMeshBuffers = true;
     
+    public static boolean enableDatapackPortalGen = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

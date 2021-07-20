@@ -38,6 +38,10 @@ public class CustomPortalGenManagement {
     private static final Map<UUID, UCoordinate> playerPosBeforeTravel = new HashMap<>();
     
     public static void onDatapackReload() {
+        if (!IPGlobal.enableDatapackPortalGen) {
+            return;
+        }
+        
         useItemGen.clear();
         throwItemGen.clear();
         convGen.clear();
@@ -51,7 +55,7 @@ public class CustomPortalGenManagement {
             ((DynamicRegistryManager.Impl) server.getRegistryManager());
         
         ResourceManager resourceManager = server.serverResourceManager.getResourceManager();
-    
+        
         RegistryOps<JsonElement> registryOps = RegistryOps.of(
             JsonOps.INSTANCE,
             RegistryOps.EntryLoader.resourceBacked(resourceManager),

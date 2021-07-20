@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.q_misc_util.DimensionMisc;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -54,13 +55,15 @@ public abstract class MixinMinecraftServer_Misc {
     private void loadResourcesIntoRegistry(
         DynamicRegistryManager registryTracker, ServerResourceManager resourceManager
     ) {
-        Helper.log(
-            "Reloading Server Resources to Ensure Custom Dimension Type Loading." +
-                " This may cause other issues"
-        );
-        RegistryOps<JsonElement> registryOps =
-            RegistryOps.method_36574(JsonOps.INSTANCE, resourceManager.getResourceManager(), registryTracker);
-        
-        DynamicRegistryManager.load(registryTracker, registryOps);
+        if (DimensionMisc.enableDedicatedServerEarlyReload) {
+            Helper.log(
+                "Reloading Server Resources to Ensure Custom Dimension Type Loading." +
+                    " This may cause other issues"
+            );
+            RegistryOps<JsonElement> registryOps =
+                RegistryOps.method_36574(JsonOps.INSTANCE, resourceManager.getResourceManager(), registryTracker);
+            
+            DynamicRegistryManager.load(registryTracker, registryOps);
+        }
     }
 }

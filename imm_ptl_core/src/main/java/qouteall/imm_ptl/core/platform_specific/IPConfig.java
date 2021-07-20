@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.q_misc_util.DimensionMisc;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
@@ -43,6 +44,8 @@ public class IPConfig {
     public int scaleLimit = 30;
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
+    public boolean enableDatapackPortalGen = true;
+    public boolean enableDedicatedServerEarlyReload = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
@@ -144,7 +147,10 @@ public class IPConfig {
         IPGlobal.scaleLimit = scaleLimit;
         IPGlobal.easeCreativePermission = easeCreativePermission;
         IPGlobal.enableSharedBlockMeshBuffers = sharedBlockMeshBufferOptimization;
+        IPGlobal.enableDatapackPortalGen = enableDatapackPortalGen;
 //        IPGlobal.enableServerCollision = enableServerCollision;
+        
+        DimensionMisc.enableDedicatedServerEarlyReload = enableDedicatedServerEarlyReload;
         
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
