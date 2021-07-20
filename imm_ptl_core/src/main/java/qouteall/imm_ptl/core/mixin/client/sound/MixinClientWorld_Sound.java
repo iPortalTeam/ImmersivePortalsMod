@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.mixin.client.sound;
 import qouteall.imm_ptl.core.teleportation.CrossPortalSound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.sound.EntityTrackingSoundInstance;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -32,32 +31,24 @@ public class MixinClientWorld_Sound {
     )
     private void onPlaySound(
         double x, double y, double z,
-        SoundEvent sound, SoundCategory category, float volume, float pitch, boolean bl,
+        SoundEvent sound, SoundCategory category, float volume, float pitch, boolean repeat,
         CallbackInfo ci
     ) {
         ClientWorld this_ = (ClientWorld) (Object) this;
         Vec3d soundPos = new Vec3d(x, y, z);
         
         if (!portal_isPosNearPlayer(soundPos)) {
-            Vec3d transformedSoundPosition =
-                CrossPortalSound.getTransformedSoundPosition(this_, soundPos);
-            if (transformedSoundPosition != null) {
-                portal_playSound(
-                    transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z,
-                    sound, category, volume, pitch, bl
-                );
+            PositionedSoundInstance crossPortalSound = CrossPortalSound.createCrossPortalSound(
+                this_, sound, category, soundPos, volume, pitch
+            );
+            if (crossPortalSound != null) {
+                portal_playSound(crossPortalSound, repeat);
                 ci.cancel();
             }
-            else {
-                if (CrossPortalSound.isPlayerWorld(this_)) {
-                    // play normally
-                }
-                else {
-                    // do not play remote sound when no portal can transfer the sound
-                    ci.cancel();
-                }
+            else if (!CrossPortalSound.isPlayerWorld(this_)) {
+                // do not play remote sound when no portal can transfer the sound
+                ci.cancel();
             }
-            
         }
     }
     
@@ -73,44 +64,29 @@ public class MixinClientWorld_Sound {
         ClientWorld this_ = (ClientWorld) (Object) this;
         
         if (!portal_isPosNearPlayer(entity.getPos())) {
-            Vec3d entityPos = entity.getPos();
-            Vec3d transformedSoundPosition = CrossPortalSound.getTransformedSoundPosition(
-                this_, entityPos
+            PositionedSoundInstance crossPortalSound = CrossPortalSound.createCrossPortalSound(
+                this_, sound, category, entity.getPos(), volume, pitch
             );
             
-            if (transformedSoundPosition != null) {
-                entity.setPos(transformedSoundPosition.x, transformedSoundPosition.y, transformedSoundPosition.z);
-                EntityTrackingSoundInstance sound1 = new EntityTrackingSoundInstance(
-                    sound, category, volume, pitch, entity
-                );
-                client.getSoundManager().play(sound1);
-                entity.setPos(entityPos.x, entityPos.y, entityPos.z);
+            if (crossPortalSound != null) {
+                client.getSoundManager().play(crossPortalSound);
                 ci.cancel();
             }
-            else {
-                if (CrossPortalSound.isPlayerWorld(this_)) {
-                    // play normally
-                }
-                else {
-                    // do not play remote sound when no portal can transfer the sound
-                    ci.cancel();
-                }
+            else if (!CrossPortalSound.isPlayerWorld(this_)) {
+                // do not play remote sound when no portal can transfer the sound
+                ci.cancel();
             }
         }
     }
     
-    private void portal_playSound(
-        double x, double y, double z,
-        SoundEvent sound, SoundCategory category, float volume, float pitch, boolean bl
-    ) {
-        double d = client.gameRenderer.getCamera().getPos().squaredDistanceTo(x, y, z);
-        PositionedSoundInstance positionedSoundInstance = new PositionedSoundInstance(sound, category, volume, pitch, x, y, z);
-        if (bl && d > 100.0D) {
+    private void portal_playSound(PositionedSoundInstance sound, boolean repeat) {
+        double d = client.gameRenderer.getCamera().getPos().squaredDistanceTo(sound.getX(), sound.getY(), sound.getZ());
+        if (repeat && d > 100.0D) {
             double e = Math.sqrt(d) / 40.0D;
-            client.getSoundManager().play(positionedSoundInstance, (int) (e * 20.0D));
+            client.getSoundManager().play(sound, (int) (e * 20.0D));
         }
         else {
-            client.getSoundManager().play(positionedSoundInstance);
+            client.getSoundManager().play(sound);
         }
     }
     
