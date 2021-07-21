@@ -5,11 +5,14 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vector4f;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -30,7 +33,6 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkBuilder;
@@ -493,8 +495,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         method = "setupFrustum", at = @At("HEAD")
     )
     private void onSetupFrustum(MatrixStack matrices, Vec3d pos, Matrix4f projectionMatrix, CallbackInfo ci) {
-        Camera camera = client.gameRenderer.getCamera();
-        TransformationManager.processTransformation(camera, matrices);
+        TransformationManager.processTransformation(client.gameRenderer.getCamera(), matrices);
     }
     
     //reduce lag spike

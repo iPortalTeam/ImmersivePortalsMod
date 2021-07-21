@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.render.context_management;
 
+import net.minecraft.util.math.Vector4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -70,6 +71,11 @@ public class RenderStates {
     public static boolean isRenderingEntities = false;
     
     public static boolean renderedScalingPortal = false;
+    
+//    public static Vector4f viewBobbingOffsetRotated = new Vector4f(0, 0, 0, 1);
+//    public static Vec3d viewBobbingOffset = Vec3d.ZERO;
+    
+    public static Vec3d viewBobbedCameraPos = Vec3d.ZERO;
     
     public static void updatePreRenderInfo(
         float tickDelta_
@@ -150,7 +156,7 @@ public class RenderStates {
                 return;
             }
         }
-        
+
 //        if (renderedScalingPortal) {
 //            setViewBobFactor(0);
 //            renderedScalingPortal = false;

@@ -77,7 +77,8 @@ public class MyGameRenderer {
             worldRenderInfo.cameraPos,
             worldRenderInfo.cameraPos,
             invokeWrapper,
-            worldRenderInfo.renderDistance
+            worldRenderInfo.renderDistance,
+            worldRenderInfo.doRenderHand
         );
         
         WorldRenderInfo.popRenderInfo();
@@ -88,7 +89,8 @@ public class MyGameRenderer {
         Vec3d thisTickCameraPos,
         Vec3d lastTickCameraPos,
         Consumer<Runnable> invokeWrapper,
-        int renderDistance
+        int renderDistance,
+        boolean doRenderHand
     ) {
         resetGlStates();
         
@@ -157,7 +159,7 @@ public class MyGameRenderer {
         client.getBlockEntityRenderDispatcher().world = newWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         client.player.noClip = true;
-        ieGameRenderer.setDoRenderHand(false);
+        client.gameRenderer.setRenderHand(doRenderHand);
         
         FogRendererContext.swappingManager.pushSwapping(
             RenderDimensionRedirect.getRedirectedDimension(newDimension)
@@ -215,7 +217,7 @@ public class MyGameRenderer {
         client.getBlockEntityRenderDispatcher().world = oldEntityWorld;
         ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
         client.player.noClip = oldNoClip;
-        ieGameRenderer.setDoRenderHand(oldDoRenderHand);
+        client.gameRenderer.setRenderHand(oldDoRenderHand);
         
         ((IEParticleManager) client.particleManager).ip_setWorld(oldEntityWorld);
         client.crosshairTarget = oldCrosshairTarget;

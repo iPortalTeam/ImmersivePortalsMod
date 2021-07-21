@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 public class ClientTeleportationManager {
-    MinecraftClient client = MinecraftClient.getInstance();
+    public static final MinecraftClient client = MinecraftClient.getInstance();
     public long tickTimeForTeleportation = 0;
     private long lastTeleportGameTime = 0;
     private Vec3d moveStartPoint = null;
@@ -175,7 +175,7 @@ public class ClientTeleportationManager {
         }
     }
     
-    private Vec3d getPlayerHeadPos(float tickDelta) {
+    public static Vec3d getPlayerHeadPos(float tickDelta) {
         return client.player.getCameraPosVec(tickDelta);
     }
     
@@ -409,8 +409,9 @@ public class ClientTeleportationManager {
         ).forEach(CollisionHelper::notifyCollidingPortals);
         
         CollisionHelper.tickClient();
+    
+        ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
         
-        player.tick();
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
     }

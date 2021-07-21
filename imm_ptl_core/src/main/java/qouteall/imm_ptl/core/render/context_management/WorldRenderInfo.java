@@ -52,6 +52,8 @@ public class WorldRenderInfo {
      */
     public final int renderDistance;
     
+    public final boolean doRenderHand;
+    
     private static final Stack<WorldRenderInfo> renderInfoStack = new Stack<>();
     
     public WorldRenderInfo(
@@ -61,12 +63,27 @@ public class WorldRenderInfo {
         @Nullable UUID description,
         int renderDistance
     ) {
+        this(
+            world, cameraPos, cameraTransformation, overwriteCameraTransformation,
+            description, renderDistance, false
+        );
+    }
+    
+    public WorldRenderInfo(
+        ClientWorld world, Vec3d cameraPos,
+        @Nullable Matrix4f cameraTransformation,
+        boolean overwriteCameraTransformation,
+        @Nullable UUID description,
+        int renderDistance,
+        boolean doRenderHand
+    ) {
         this.world = world;
         this.cameraPos = cameraPos;
         this.cameraTransformation = cameraTransformation;
         this.description = description;
         this.renderDistance = renderDistance;
         this.overwriteCameraTransformation = overwriteCameraTransformation;
+        this.doRenderHand = doRenderHand;
     }
     
     public static void pushRenderInfo(WorldRenderInfo worldRenderInfo) {

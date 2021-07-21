@@ -17,7 +17,7 @@ import java.io.InputStream;
 public class MixinProgram {
     /**
      * @author qouteall
-     * @reason make the logic clear
+     * @reason make the logic clear (Iris redirects it)
      */
     @Overwrite
     public static int loadProgram(

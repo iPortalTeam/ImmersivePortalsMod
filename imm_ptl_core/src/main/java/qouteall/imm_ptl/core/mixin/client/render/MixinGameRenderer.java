@@ -1,5 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3f;
+import org.spongepowered.asm.mixin.Overwrite;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -180,10 +184,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         portal_isRenderingHand = false;
     }
     
-    //View bobbing will make the camera pos offset to actual camera pos
-    //Teleportation is based on camera pos. If the teleportation is incorrect
-    //then rendering will have problem
-    //So smoothly disable view bobbing when player is near a portal
+    // do not translate
     @Redirect(
         method = "bobView",
         at = @At(
@@ -192,8 +193,12 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         )
     )
     private void redirectBobViewTranslate(MatrixStack matrixStack, double x, double y, double z) {
-        double viewBobFactor = portal_isRenderingHand ? 1 : RenderStates.viewBobFactor;
-        matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
+        if (portal_isRenderingHand) {
+            matrixStack.translate(x, y, z);
+        }
+
+//        double viewBobFactor = portal_isRenderingHand ? 1 : RenderStates.viewBobFactor;
+//        matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
     }
     
     @Redirect(
@@ -227,11 +232,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Override
     public boolean getDoRenderHand() {
         return renderHand;
-    }
-    
-    @Override
-    public void setDoRenderHand(boolean e) {
-        renderHand = e;
     }
     
     @Override

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
+import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.ducks.IEMatrix4f;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -33,6 +34,10 @@ public class TransformationManager {
     public static float isometricViewLength = 50;
     
     public static void processTransformation(Camera camera, MatrixStack matrixStack) {
+        if (!WorldRenderInfo.isRendering()) {
+            ((IECamera) camera).portal_setPos(RenderStates.viewBobbedCameraPos);
+        }
+        
         if (isAnimationRunning()) {
             // override vanilla camera transformation
             matrixStack.peek().getModel().loadIdentity();
