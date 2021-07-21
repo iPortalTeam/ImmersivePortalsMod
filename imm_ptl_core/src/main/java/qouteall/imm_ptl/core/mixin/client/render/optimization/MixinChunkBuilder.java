@@ -17,12 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
+import qouteall.q_misc_util.Helper;
 
 import java.util.Queue;
 import java.util.concurrent.Executor;
 
 @Mixin(ChunkBuilder.class)
-public class MixinChunkBuilder {
+public abstract class MixinChunkBuilder {
     @Shadow
     @Final
     @Mutable
@@ -30,6 +31,9 @@ public class MixinChunkBuilder {
     
     @Shadow
     private volatile int bufferCount;
+    
+    @Shadow
+    protected abstract void scheduleRunTasks();
     
     @Redirect(
         method = "<init>",
@@ -65,21 +69,43 @@ public class MixinChunkBuilder {
         
         return TaskExecutor.create(executor, name);
     }
-
-//    @Inject(
-//        method = "<init>",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/util/thread/TaskExecutor;create(Ljava/util/concurrent/Executor;Ljava/lang/String;)Lnet/minecraft/util/thread/TaskExecutor;"
-//        )
-//    )
-//    private void onInit(
-//        World world, WorldRenderer worldRenderer,
-//        Executor executor, boolean is64Bits, BlockBufferBuilderStorage buffers,
-//        CallbackInfo ci
-//    ) {
-//
-//    }
     
+    private boolean portal_isInRaceCondition = false;
+    
+    // it firstly check empty and then pool an element
+    // because this queue may be manipulated concurrently, it may pool a null
+    // if so, retry next tick
+    @Redirect(
+        method = "scheduleRunTasks",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/Queue;poll()Ljava/lang/Object;"
+        )
+    )
+    private Object redirectPool(Queue queue) {
+        Object result = queue.poll();
+        portal_isInRaceCondition = result == null;
+        return result;
+    }
+    
+    @Inject(
+        method = "scheduleRunTasks",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/concurrent/CompletableFuture;runAsync(Ljava/lang/Runnable;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"
+        ),
+        cancellable = true
+    )
+    private void onScheduleTasks(CallbackInfo ci) {
+        if (portal_isInRaceCondition) {
+            portal_isInRaceCondition = false;
+            Helper.log("ChunkBuilder race condition triggered");
+            IPGlobal.clientTaskList.addTask(() -> {
+                scheduleRunTasks();
+                return true;
+            });
+            ci.cancel();
+        }
+    }
     
 }
