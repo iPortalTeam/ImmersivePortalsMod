@@ -1,15 +1,11 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
-import org.spongepowered.asm.mixin.Overwrite;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
-import qouteall.imm_ptl.core.render.CrossPortalThirdPersonView;
+import qouteall.imm_ptl.core.render.CrossPortalViewRendering;
 import qouteall.imm_ptl.core.render.GuiPortalRendering;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -129,7 +125,7 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     private void redirectRenderingWorld(
         GameRenderer gameRenderer, float tickDelta, long limitTime, MatrixStack matrix
     ) {
-        if (CrossPortalThirdPersonView.renderCrossPortalThirdPersonView()) {
+        if (CrossPortalViewRendering.renderCrossPortalView()) {
             return;
         }
         

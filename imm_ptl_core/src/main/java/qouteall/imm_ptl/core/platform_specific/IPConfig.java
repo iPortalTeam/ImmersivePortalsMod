@@ -46,6 +46,7 @@ public class IPConfig {
     public boolean easeCommandStickPermission = false;
     public boolean enableDatapackPortalGen = true;
     public boolean enableDedicatedServerEarlyReload = true;
+    public boolean enableCrossPortalView = true;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
@@ -148,6 +149,7 @@ public class IPConfig {
         IPGlobal.easeCreativePermission = easeCreativePermission;
         IPGlobal.enableSharedBlockMeshBuffers = sharedBlockMeshBufferOptimization;
         IPGlobal.enableDatapackPortalGen = enableDatapackPortalGen;
+        IPGlobal.enableCrossPortalView = enableCrossPortalView;
 //        IPGlobal.enableServerCollision = enableServerCollision;
         
         DimensionMisc.enableDedicatedServerEarlyReload = enableDedicatedServerEarlyReload;

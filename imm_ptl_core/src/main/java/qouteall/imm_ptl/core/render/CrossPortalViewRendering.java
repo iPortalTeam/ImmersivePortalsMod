@@ -9,6 +9,7 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Vector4f;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.imm_ptl.core.ducks.IECamera;
@@ -25,11 +26,18 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 
-public class CrossPortalThirdPersonView {
+// in third person view it may render cross portal.
+// if view bobbing make the camera go through portal before the actual player go through portal,
+//  it will also render cross-portal
+public class CrossPortalViewRendering {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     
     // if rendered, return true
-    public static boolean renderCrossPortalThirdPersonView() {
+    public static boolean renderCrossPortalView() {
+        if (!IPGlobal.enableCrossPortalView) {
+            return false;
+        }
+        
         Entity cameraEntity = client.cameraEntity;
         
         Camera camera1 = new Camera();
