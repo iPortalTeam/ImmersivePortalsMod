@@ -41,7 +41,7 @@ public class CrossPortalSound {
         
         soundWorld.getProfiler().push("cross_portal_sound");
         
-        double soundRadius = Math.max(VOLUME_RADIUS_MULT * soundVol, MIN_SOUND_RADIUS);
+        double soundRadius = Math.min(64, Math.max(VOLUME_RADIUS_MULT * soundVol, MIN_SOUND_RADIUS));
         Vec3d playerCameraPos = RenderStates.originalPlayerPos.add(
             0, client.player.getStandingEyeHeight(), 0
         );
