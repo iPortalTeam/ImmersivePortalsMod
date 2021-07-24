@@ -2,6 +2,7 @@
   "required": true,
   "package": "qouteall.imm_ptl.core.mixin",
   "compatibilityLevel": "JAVA_16",
+  "plugin": "qouteall.imm_ptl.core.IPMixinPlugin",
   "mixins": [
     "common.MixinCommandManager",
     "common.MixinLivingEntity",
@@ -86,7 +87,7 @@
     "client.render.MixinWorldRendererChunkInfo",
     "client.render.framebuffer.MixinFrameBuffer",
     "client.render.framebuffer.MixinWindowFramebuffer",
-    "client.render.optimization.MixinChunkBuilder",
+    "client.render.optimization.MixinChunkBuilder_Optimization",
     "client.render.optimization.MixinFrustum",
     "client.render.optimization.MixinWorldRenderer_Clouds",
     "client.render.shader.MixinGameRenderer_Shaders",

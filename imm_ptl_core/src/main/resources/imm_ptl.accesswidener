@@ -31,3 +31,12 @@ accessible method net/minecraft/client/gl/Program$Type getGlType ()I
 
 
 extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/util/math/Box;
+
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$Task
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$Result
+
+
+
+
+
+
