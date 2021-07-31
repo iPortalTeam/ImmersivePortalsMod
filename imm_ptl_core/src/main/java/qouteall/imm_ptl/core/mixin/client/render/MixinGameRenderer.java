@@ -203,8 +203,6 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
                 z * RenderStates.viewBobFactor
             );
         }
-
-//        double viewBobFactor = portal_isRenderingHand ? 1 : RenderStates.viewBobFactor;
 //
     }
     

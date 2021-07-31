@@ -144,27 +144,30 @@ public class ClientWorldLoader {
     private static void tickRemoteWorldRandomTicksClient(
         ClientWorld newWorld, List<Portal> nearbyPortals
     ) {
-        if (newWorld.getTime() % 3 == 0) {
-            nearbyPortals.stream().filter(
-                portal -> portal.dimensionTo == newWorld.getRegistryKey()
-            ).findFirst().ifPresent(portal -> {
-                Vec3d playerPos = client.player.getPos();
-                Vec3d center = portal.transformPoint(playerPos);
-                
-                Camera camera = client.gameRenderer.getCamera();
-                Vec3d oldCameraPos = camera.getPos();
-                
-                ((IECamera) camera).portal_setPos(center);
-                
+        nearbyPortals.stream().filter(
+            portal -> portal.dimensionTo == newWorld.getRegistryKey()
+        ).findFirst().ifPresent(portal -> {
+            Vec3d playerPos = client.player.getPos();
+            Vec3d center = portal.transformPoint(playerPos);
+            
+            Camera camera = client.gameRenderer.getCamera();
+            Vec3d oldCameraPos = camera.getPos();
+            
+            ((IECamera) camera).portal_setPos(center);
+            
+            if (newWorld.getTime() % 2 == 0) {
+                // it costs some CPU time
                 newWorld.doRandomBlockDisplayTicks(
                     (int) center.x, (int) center.y, (int) center.z
                 );
-                
-                client.particleManager.tick();
-                
-                ((IECamera) camera).portal_setPos(oldCameraPos);
-            });
-        }
+            }
+            
+            client.particleManager.tick();
+            
+            ((IECamera) camera).portal_setPos(oldCameraPos);
+        });
+        
+        
     }
     
     private static void cleanUp() {
