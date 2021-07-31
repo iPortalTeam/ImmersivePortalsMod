@@ -395,12 +395,15 @@ public class MyRenderHelper {
         }
         
         if (PortalRendering.isRendering()) {
-            double scaling = PortalRendering.getRenderingPortal().getScale();
-            float result = (float) (value / scaling);
-            if (scaling > 10) {
-                result *= 10;
+            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
+            if (PortalRenderer.shouldApplyScaleToModelView(renderingPortal)) {
+                double scaling = renderingPortal.getScale();
+                float result = (float) (value / scaling);
+                if (scaling > 10) {
+                    result *= 10;
+                }
+                return result;
             }
-            return result;
         }
         return value;
     }

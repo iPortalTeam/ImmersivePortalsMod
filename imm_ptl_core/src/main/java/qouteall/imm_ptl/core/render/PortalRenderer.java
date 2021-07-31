@@ -269,11 +269,15 @@ public abstract class PortalRenderer {
         // whether to apply scale transformation to camera does not change triangle position
         // to avoid abrupt fog change, do not apply for non-fuse-view portal
         // for fuse-view portal, the depth value should be correct so the scale should be applied
-        if (portal.hasScaling() && portal.isFuseView()) {
+        if (shouldApplyScaleToModelView(portal)) {
             float v = (float) (1.0 / portal.getScale());
             return Matrix4f.scale(v, v, v);
         }
         return null;
+    }
+    
+    public static boolean shouldApplyScaleToModelView(PortalLike portal) {
+        return portal.hasScaling() && portal.isFuseView();
     }
     
 }
