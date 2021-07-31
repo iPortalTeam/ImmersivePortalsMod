@@ -127,13 +127,13 @@ public class MyGameRenderer {
             ClientWorldLoader.getDimensionRenderHelper(
                 RenderDimensionRedirect.getRedirectedDimension(newDimension)
             );
-        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
+//        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
         Camera newCamera = new Camera();
         
         //store old state
         WorldRenderer oldWorldRenderer = client.worldRenderer;
         LightmapTextureManager oldLightmap = client.gameRenderer.getLightmapTextureManager();
-        GameMode oldGameMode = playerListEntry.getGameMode();
+//        GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = client.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(worldRenderer);
@@ -157,7 +157,7 @@ public class MyGameRenderer {
         ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
         
         client.getBlockEntityRenderDispatcher().world = newWorld;
-        ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
+//        ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         client.player.noClip = true;
         client.gameRenderer.setRenderHand(doRenderHand);
         
@@ -215,7 +215,7 @@ public class MyGameRenderer {
         client.world = oldEntityWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
         client.getBlockEntityRenderDispatcher().world = oldEntityWorld;
-        ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
+//        ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
         client.player.noClip = oldNoClip;
         client.gameRenderer.setRenderHand(oldDoRenderHand);
         

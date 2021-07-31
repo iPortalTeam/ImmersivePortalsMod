@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.mixin.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vector4f;
@@ -533,6 +534,20 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z"
+        )
+    )
+    private boolean redirectIsSpectator(ClientPlayerEntity clientPlayerEntity) {
+        if (WorldRenderInfo.isRendering()) {
+            return true;
+        }
+        return clientPlayerEntity.isSpectator();
+    }
+    
     @Override
     public EntityRenderDispatcher getEntityRenderDispatcher() {
         return entityRenderDispatcher;
@@ -679,7 +694,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (cloudsBuffer != null) {
             cloudsBuffer.close();
         }
-    
+        
         world = null;
         
     }
