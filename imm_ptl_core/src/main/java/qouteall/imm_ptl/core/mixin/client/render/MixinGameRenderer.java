@@ -8,6 +8,7 @@ import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalViewRendering;
 import qouteall.imm_ptl.core.render.GuiPortalRendering;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.TransformationManager;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
@@ -51,6 +52,9 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     
     @Shadow
     public abstract void loadProjectionMatrix(Matrix4f matrix4f);
+    
+    @Shadow
+    protected abstract void bobView(MatrixStack matrices, float f);
     
     @Inject(method = "render", at = @At("HEAD"))
     private void onFarBeforeRendering(
@@ -192,9 +196,16 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (portal_isRenderingHand) {
             matrixStack.translate(x, y, z);
         }
+        else if (TransformationManager.isCalculatingViewBobbingOffset) {
+            matrixStack.translate(
+                x * RenderStates.viewBobFactor,
+                y * RenderStates.viewBobFactor,
+                z * RenderStates.viewBobFactor
+            );
+        }
 
 //        double viewBobFactor = portal_isRenderingHand ? 1 : RenderStates.viewBobFactor;
-//        matrixStack.translate(x * viewBobFactor, y * viewBobFactor, z * viewBobFactor);
+//
     }
     
     @Redirect(
@@ -238,5 +249,10 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
     @Override
     public void setIsRenderingPanorama(boolean cond) {
         renderingPanorama = cond;
+    }
+    
+    @Override
+    public void portal_bobView(MatrixStack matrixStack, float tickDelta) {
+        bobView(matrixStack, tickDelta);
     }
 }

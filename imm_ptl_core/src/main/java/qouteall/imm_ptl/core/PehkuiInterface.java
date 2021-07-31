@@ -26,6 +26,8 @@ public class PehkuiInterface {
     
     public static Function<Entity, Float> getScale = e -> 1.0f;
     
+    public static Function<Entity, Float> getMotionScale = e -> 1.0f;
+    
     private static void onClientPlayerTeleportDefault(Portal portal) {
         showMissingPehkui(portal);
     }

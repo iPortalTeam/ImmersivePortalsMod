@@ -1,12 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.math.Vector4f;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -52,7 +46,7 @@ public class CrossPortalViewRendering {
             RenderStates.tickDelta
         );
         
-        Vec3d viewBobbingOffset = getViewBobbingOffset(camera);
+        Vec3d viewBobbingOffset = TransformationManager.getViewBobbingOffset(camera);
         ((IECamera) camera).portal_setPos(camera.getPos().add(viewBobbingOffset));
         
         Vec3d realCameraPos = camera.getPos();
@@ -143,48 +137,7 @@ public class CrossPortalViewRendering {
         return 4.0d * PehkuiInterface.getScale.apply(MinecraftClient.getInstance().player);
     }
     
-    /**
-     * {@link net.minecraft.client.render.GameRenderer#renderWorld(float, long, MatrixStack)}
-     */
-    private static Vec3d getViewBobbingOffset(Camera camera) {
-        MatrixStack matrixStack = new MatrixStack();
-        
-        if (client.options.bobView) {
-            if (client.getCameraEntity() instanceof PlayerEntity) {
-                PlayerEntity playerEntity = (PlayerEntity) client.getCameraEntity();
-                float g = playerEntity.horizontalSpeed - playerEntity.prevHorizontalSpeed;
-                float h = -(playerEntity.horizontalSpeed + g * RenderStates.tickDelta);
-                float i = MathHelper.lerp(
-                    RenderStates.tickDelta, playerEntity.prevStrideDistance, playerEntity.strideDistance
-                );
-                matrixStack.translate(
-                    (double) (MathHelper.sin(h * 3.1415927F) * i * 0.5F),
-                    (double) (-Math.abs(MathHelper.cos(h * 3.1415927F) * i)),
-                    0.0D
-                );
-                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(
-                    MathHelper.sin(h * 3.1415927F) * i * 3.0F
-                ));
-                matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(
-                    Math.abs(MathHelper.cos(h * 3.1415927F - 0.2F) * i) * 5.0F
-                ));
-            }
-        }
-        
-        matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(camera.getPitch()));
-        matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw() + 180.0F));
-        
-        WorldRenderInfo.applyAdditionalTransformations(matrixStack);
-        
-        Matrix4f matrix = matrixStack.peek().getModel();
-        matrix.invert();
-        Vector4f origin = new Vector4f(0, 0, 0, 1);
-        origin.transform(matrix);
-        
-        return new Vec3d(origin.getX(), origin.getY(), origin.getZ());
-    }
-
-//    private static Vec3d getThirdPersonCameraPos(Portal portalHit, Camera resuableCamera) {
+    //    private static Vec3d getThirdPersonCameraPos(Portal portalHit, Camera resuableCamera) {
 //        return CHelper.withWorldSwitched(
 //            client.cameraEntity,
 //            portalHit,

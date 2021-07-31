@@ -72,9 +72,6 @@ public class RenderStates {
     
     public static boolean renderedScalingPortal = false;
     
-//    public static Vector4f viewBobbingOffsetRotated = new Vector4f(0, 0, 0, 1);
-//    public static Vec3d viewBobbingOffset = Vec3d.ZERO;
-    
     public static Vec3d viewBobbedCameraPos = Vec3d.ZERO;
     
     public static void updatePreRenderInfo(

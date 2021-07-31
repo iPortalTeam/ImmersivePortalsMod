@@ -64,7 +64,7 @@ allprojects {
         }
         modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
-        modCompileOnly('com.github.qouteall:Pehkui:fabric~1.17-SNAPSHOT') {
+        modImplementation('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.17-SNAPSHOT') {
             transitive = false
         }
 

@@ -1,6 +1,10 @@
 package qouteall.imm_ptl.core.render;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vector4f;
 import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.ducks.IEMatrix4f;
 import qouteall.q_misc_util.my_util.DQuaternion;
@@ -204,6 +208,58 @@ public class TransformationManager {
         ((IEMatrix4f) (Object) m1).loadFromArray(arr);
         
         return m1;
+    }
+    
+    // design this weird thing to make it compatible with pehkui
+    public static boolean isCalculatingViewBobbingOffset = false;
+    
+    /**
+     * {@link net.minecraft.client.render.GameRenderer#renderWorld(float, long, MatrixStack)}
+     */
+    public static Vec3d getViewBobbingOffset(Camera camera) {
+        MatrixStack matrixStack = new MatrixStack();
+        
+        isCalculatingViewBobbingOffset = true;
+        
+        if (client.options.bobView) {
+            ((IEGameRenderer) client.gameRenderer).portal_bobView(matrixStack, RenderStates.tickDelta);
+        }
+
+//        if (CrossPortalViewRendering.client.options.bobView) {
+//            if (CrossPortalViewRendering.client.getCameraEntity() instanceof PlayerEntity) {
+//                PlayerEntity playerEntity = (PlayerEntity) CrossPortalViewRendering.client.getCameraEntity();
+//                float g = playerEntity.horizontalSpeed - playerEntity.prevHorizontalSpeed;
+//                float h = -(playerEntity.horizontalSpeed + g * RenderStates.tickDelta);
+//                float i = MathHelper.lerp(
+//                    RenderStates.tickDelta, playerEntity.prevStrideDistance, playerEntity.strideDistance
+//                );
+//                matrixStack.translate(
+//                    (double) (MathHelper.sin(h * 3.1415927F) * i * 0.5F),
+//                    (double) (-Math.abs(MathHelper.cos(h * 3.1415927F) * i)),
+//                    0.0D
+//                );
+//                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(
+//                    MathHelper.sin(h * 3.1415927F) * i * 3.0F
+//                ));
+//                matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(
+//                    Math.abs(MathHelper.cos(h * 3.1415927F - 0.2F) * i) * 5.0F
+//                ));
+//            }
+//        }
+        
+        isCalculatingViewBobbingOffset = false;
+        
+        matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(camera.getPitch()));
+        matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(camera.getYaw() + 180.0F));
+        
+        WorldRenderInfo.applyAdditionalTransformations(matrixStack);
+        
+        Matrix4f matrix = matrixStack.peek().getModel();
+        matrix.invert();
+        Vector4f origin = new Vector4f(0, 0, 0, 1);
+        origin.transform(matrix);
+        
+        return new Vec3d(origin.getX(), origin.getY(), origin.getZ());
     }
     
     @Environment(EnvType.CLIENT)
