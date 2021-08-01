@@ -35,6 +35,7 @@ public class IntBox {
         );
     }
     
+    
     public IntBox expandOrShrink(Vec3i offset) {
         return new IntBox(
             l.subtract(offset),
@@ -142,7 +143,7 @@ public class IntBox {
     ) {
         BlockPos l = Helper.max(a.l, b.l);
         BlockPos h = Helper.min(a.h, b.h);
-    
+        
         if (l.getX() > h.getX()) {
             return null;
         }
@@ -152,7 +153,7 @@ public class IntBox {
         if (l.getZ() > h.getZ()) {
             return null;
         }
-    
+        
         return new IntBox(l, h);
     }
     
@@ -297,14 +298,79 @@ public class IntBox {
     }
     
     public boolean contains(BlockPos pos) {
-        
-        
         return pos.getX() >= l.getX() &&
             pos.getX() <= h.getX() &&
             pos.getY() >= l.getY() &&
             pos.getY() <= h.getY() &&
             pos.getZ() >= l.getZ() &&
             pos.getZ() <= h.getZ();
+    }
+    
+    public BlockPos selectCoordinateFromBox(boolean high) {
+        return high ? h : l;
+    }
+    
+    public IntBox[] get12Edges() {
+        return new IntBox[]{
+            new IntBox(
+                selectCoordinateFromBox(false, false, false),
+                selectCoordinateFromBox(false, false, true)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(false, true, false),
+                selectCoordinateFromBox(false, true, true)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(true, false, false),
+                selectCoordinateFromBox(true, false, true)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(true, true, false),
+                selectCoordinateFromBox(true, true, true)
+            ),
+            
+            new IntBox(
+                selectCoordinateFromBox(false, false, false),
+                selectCoordinateFromBox(false, true, false)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(false, false, true),
+                selectCoordinateFromBox(false, true, true)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(true, false, false),
+                selectCoordinateFromBox(true, true, false)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(true, false, true),
+                selectCoordinateFromBox(true, true, true)
+            ),
+            
+            new IntBox(
+                selectCoordinateFromBox(false, false, false),
+                selectCoordinateFromBox(true, false, false)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(false, false, true),
+                selectCoordinateFromBox(true, false, true)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(false, true, false),
+                selectCoordinateFromBox(true, true, false)
+            ),
+            new IntBox(
+                selectCoordinateFromBox(false, true, true),
+                selectCoordinateFromBox(true, true, true)
+            )
+        };
+    }
+    
+    public BlockPos selectCoordinateFromBox(boolean xUp, boolean yUp, boolean zUp) {
+        return new BlockPos(
+            selectCoordinateFromBox(xUp).getX(),
+            selectCoordinateFromBox(yUp).getY(),
+            selectCoordinateFromBox(zUp).getZ()
+        );
     }
     
     @Override

@@ -8,6 +8,7 @@ import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vector4f;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -223,7 +224,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
             
             if (IPGlobal.enableDepthClampForPortalRendering) {
-                GL11.glEnable(GL32.GL_DEPTH_CLAMP);
+                CHelper.enableDepthClamp();
             }
         }
     }
@@ -246,6 +247,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
             FrontClipping.updateClippingEquationUniformForCurrentShader();
+            
+            if (IPGlobal.enableDepthClampForPortalRendering) {
+                CHelper.disableDepthClamp();
+            }
         }
     }
     

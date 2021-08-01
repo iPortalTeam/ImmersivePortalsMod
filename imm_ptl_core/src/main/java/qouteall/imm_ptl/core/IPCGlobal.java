@@ -39,8 +39,5 @@ public class IPCGlobal {
         none, packedWithDepth, separatedStencil
     }
     
-    public static boolean useSeparateStencilBuffer = true;
-    
     public static boolean useAnotherStencilFormat = false;
-    //use depth32stencil8 will cause glBlitFramebuffer to not do format conversion
 }
