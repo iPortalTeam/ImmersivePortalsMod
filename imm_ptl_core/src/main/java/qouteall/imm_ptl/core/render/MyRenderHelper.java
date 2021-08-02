@@ -6,6 +6,7 @@ import io.netty.buffer.UnpooledDirectByteBuf;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -391,7 +392,13 @@ public class MyRenderHelper {
     
     public static float transformFogDistance(float value) {
         if (IPGlobal.debugDisableFog) {
-            return 233333;
+            return value * 23333;
+        }
+        
+        // sodium use world position to calculate fog color
+        // vanilla use transformed position to calculate fog
+        if (SodiumInterface.invoker.isSodiumPresent()) {
+            return value;
         }
         
         if (PortalRendering.isRendering()) {

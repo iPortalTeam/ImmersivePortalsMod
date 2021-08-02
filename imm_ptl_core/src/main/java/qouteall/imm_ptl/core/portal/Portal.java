@@ -1377,6 +1377,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     // can be overridden
+    // NOTE you should not add or remove or move entity here
     public void onCollidingWithEntity(Entity entity) {
     
     }
