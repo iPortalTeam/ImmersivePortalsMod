@@ -632,6 +632,10 @@ public class ClientDebugCommand {
             
             CHelper.printChat(result);
         }
+        
+        public static void setNoFog(boolean cond) {
+            IPGlobal.debugDisableFog = cond;
+        }
     }
     
     private static int setMaxPortalLayer(int m) {

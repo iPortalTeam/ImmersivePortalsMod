@@ -396,7 +396,29 @@ public class PortalDebugCommands {
             })
         );
         
+        builder.then(CommandManager
+            .literal("nofog_enable")
+            .executes(context -> {
+                McRemoteProcedureCall.tellClientToInvoke(
+                    context.getSource().getPlayer(),
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.setNoFog",
+                    true
+                );
+                return 0;
+            })
+        );
         
+        builder.then(CommandManager
+            .literal("nofog_disable")
+            .executes(context -> {
+                McRemoteProcedureCall.tellClientToInvoke(
+                    context.getSource().getPlayer(),
+                    "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.setNoFog",
+                    false
+                );
+                return 0;
+            })
+        );
     }
     
     public static long toMiB(long bytes) {

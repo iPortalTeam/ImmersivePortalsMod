@@ -179,10 +179,10 @@ dependencies {
 //    include "io.github.prospector:modmenu:${modmenu_version}"
 
 
-    modImplementation ('com.github.qouteall:MiniScaledMod:e4c0d34'){
-        exclude module: 'imm_ptl_core'
-        exclude module: 'q_misc_util'
-    }
+//    modImplementation ('com.github.qouteall:MiniScaledMod:e4c0d34'){
+//        exclude module: 'imm_ptl_core'
+//        exclude module: 'q_misc_util'
+//    }
 
 //    modImplementation 'com.github.CaffeineMC:phosphor-fabric:mc1.16.2-v0.7.1'
 
