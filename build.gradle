@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '0.8-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '0.9-SNAPSHOT' apply(false)
     id 'maven-publish'
 }
 
@@ -14,8 +14,8 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-minecraft {
-    accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
+loom {
+    accessWidenerPath = file("src/main/resources/imm_ptl_peripheral.accesswidener")
 }
 
 repositories {
@@ -68,7 +68,7 @@ allprojects {
             transitive = false
         }
 
-        modCompileOnly('com.github.qouteall:sodium-fabric:5cfc6674') {
+        modImplementation('com.github.qouteall:sodium-fabric:5cfc6674') {
             transitive = false
         }
 
@@ -179,9 +179,10 @@ dependencies {
 //    include "io.github.prospector:modmenu:${modmenu_version}"
 
 
-//    modImplementation ('com.github.qouteall:MiniScaledMod:v0.01-1.16'){
-//        exclude module: 'imm_ptl_core'
-//    }
+    modImplementation ('com.github.qouteall:MiniScaledMod:e4c0d34'){
+        exclude module: 'imm_ptl_core'
+        exclude module: 'q_misc_util'
+    }
 
 //    modImplementation 'com.github.CaffeineMC:phosphor-fabric:mc1.16.2-v0.7.1'
 

@@ -1,9 +1,7 @@
 archivesBaseName = "q_misc_util"
 group = "qouteall"
 
-minecraft {
-    
-}
+
 
 dependencies {
 //    api project(":imm_ptl_core")
