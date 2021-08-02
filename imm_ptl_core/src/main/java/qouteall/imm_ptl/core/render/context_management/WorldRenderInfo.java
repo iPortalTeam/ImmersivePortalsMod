@@ -111,7 +111,13 @@ public class WorldRenderInfo {
             Matrix4f matrix = worldRenderInfo.cameraTransformation;
             if (matrix != null) {
                 matrixStack.peek().getModel().multiply(matrix);
-                matrixStack.peek().getNormal().multiply(new Matrix3f(matrix));
+                
+                Matrix3f normalMatrixMult = new Matrix3f(matrix);
+                // make its determinant 1 so it won't scale the normal vector
+                normalMatrixMult.multiply(
+                    (float) Math.pow(1.0 / Math.abs(normalMatrixMult.determinant()), 1.0 / 3)
+                );
+                matrixStack.peek().getNormal().multiply(normalMatrixMult);
             }
         }
     }
