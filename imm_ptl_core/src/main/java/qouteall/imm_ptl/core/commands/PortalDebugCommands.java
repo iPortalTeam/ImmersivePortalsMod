@@ -171,6 +171,7 @@ public class PortalDebugCommands {
         
         builder.then(CommandManager
             .literal("accelerate")
+            .requires(PortalCommand::canUsePortalCommand)
             .then(CommandManager
                 .argument("v", DoubleArgumentType.doubleArg())
                 .executes(context -> {
@@ -231,6 +232,7 @@ public class PortalDebugCommands {
         
         builder.then(CommandManager
             .literal("report_chunk_loaders")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 ChunkVisibility.getBaseChunkLoaders(
@@ -314,6 +316,7 @@ public class PortalDebugCommands {
         );
         
         builder.then(CommandManager.literal("list_portals")
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
                 
