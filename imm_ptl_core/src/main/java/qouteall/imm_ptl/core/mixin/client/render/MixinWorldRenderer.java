@@ -8,6 +8,7 @@ import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vector4f;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -539,18 +540,18 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z"
-        )
+    // if not in spectator mode, when the camera is in block chunk culling will cull chunks wrongly
+    @ModifyVariable(
+        method = "setupTerrain",
+        at = @At("HEAD"),
+        argsOnly = true,
+        ordinal = 1
     )
-    private boolean redirectIsSpectator(ClientPlayerEntity clientPlayerEntity) {
+    private boolean modifyIsSpectator(boolean value) {
         if (WorldRenderInfo.isRendering()) {
             return true;
         }
-        return clientPlayerEntity.isSpectator();
+        return value;
     }
     
     @Override
