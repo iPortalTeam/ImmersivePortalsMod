@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.render;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
@@ -70,7 +71,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void onBeginRenderingEntities(MatrixStack matrixStack) {
-        if (!IPGlobal.correctCrossPortalEntityRendering) {
+        if (!enableCrossPortalEntityRendering()) {
             return;
         }
         
@@ -81,9 +82,16 @@ public class CrossPortalEntityRenderer {
         }
     }
     
+    private static boolean enableCrossPortalEntityRendering() {
+        if (IrisInterface.invoker.isIrisPresent()) {
+            return false;
+        }
+        return IPGlobal.correctCrossPortalEntityRendering;
+    }
+    
     // do not use runWithTransformation here (because matrixStack is changed?)
     public static void onEndRenderingEntities(MatrixStack matrixStack) {
-        if (!IPGlobal.correctCrossPortalEntityRendering) {
+        if (!enableCrossPortalEntityRendering()) {
             return;
         }
         
@@ -91,7 +99,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void beforeRenderingEntity(Entity entity, MatrixStack matrixStack) {
-        if (!IPGlobal.correctCrossPortalEntityRendering) {
+        if (!enableCrossPortalEntityRendering()) {
             return;
         }
         if (!PortalRendering.isRendering()) {
@@ -111,7 +119,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void afterRenderingEntity(Entity entity) {
-        if (!IPGlobal.correctCrossPortalEntityRendering) {
+        if (!enableCrossPortalEntityRendering()) {
             return;
         }
         if (!PortalRendering.isRendering()) {
@@ -126,7 +134,7 @@ public class CrossPortalEntityRenderer {
     //if an entity is in overworld but halfway through a nether portal
     //then it has a projection in nether
     private static void renderEntityProjections(MatrixStack matrixStack) {
-        if (!IPGlobal.correctCrossPortalEntityRendering) {
+        if (!enableCrossPortalEntityRendering()) {
             return;
         }
         collidedEntities.keySet().forEach(entity -> {
@@ -224,9 +232,9 @@ public class CrossPortalEntityRenderer {
             
             Vec3d transformedEntityPos = newEyePos.subtract(0, entity.getStandingEyeHeight(), 0);
             Box transformedBoundingBox = McHelper.getBoundingBoxWithMovedPosition(entity, transformedEntityPos);
-    
+            
             boolean intersects = PortalManipulation.isOtherSideBoxInside(transformedBoundingBox, renderingPortal);
-    
+            
             if (!intersects) {
                 return;
             }

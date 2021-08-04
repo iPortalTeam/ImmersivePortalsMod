@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMainClient;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
@@ -69,16 +70,6 @@ public class IPModEntryClient implements ClientModInitializer {
             FabricLoader.getInstance().isModLoaded("sodium");
         if (isSodiumPresent) {
             Helper.log("Sodium is present");
-
-//            try {
-//                Class.forName("me.jellysquid.mods.sodium.client.SodiumHooks");
-//            }
-//            catch (ClassNotFoundException e) {
-//                e.printStackTrace();
-//                throw new RuntimeException("The sodium version that you use" +
-//                    " is incompatible with Immersive Portals. Check https://github.com/qouteall/sodium-fabric/releases"
-//                );
-//            }
             
             SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
             
@@ -89,6 +80,19 @@ public class IPModEntryClient implements ClientModInitializer {
         }
         else {
             Helper.log("Sodium is not present");
+        }
+        
+        if (FabricLoader.getInstance().isModLoaded("iris")) {
+            Helper.log("Iris is present");
+            IrisInterface.invoker = new IrisInterface.OnIrisPresent();
+            
+            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+                CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
+                    "The compatibility is not yet stable. Cross-portal entity rendering is being disabled.");
+            }));
+        }
+        else {
+            Helper.log("Iris is not present");
         }
         
         initWarnings();

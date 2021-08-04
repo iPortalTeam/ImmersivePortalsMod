@@ -152,8 +152,8 @@ public class IPModMainClient {
         GcMonitor.initClient();
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
-        
-        showPreviewWarning();
+
+//        showPreviewWarning();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

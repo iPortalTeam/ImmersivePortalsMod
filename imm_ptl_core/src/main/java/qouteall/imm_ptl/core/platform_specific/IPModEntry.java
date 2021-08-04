@@ -40,13 +40,7 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-        if (FabricLoader.getInstance().isModLoaded("iris")) {
-            Helper.log("Iris is present");
-            IrisInterface.invoker = new IrisInterface.OnIrisPresent();
-        }
-        else {
-            Helper.log("Iris is not present");
-        }
+       
         
     }
     
