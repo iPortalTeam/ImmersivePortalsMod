@@ -72,11 +72,11 @@ public class IPModEntryClient implements ClientModInitializer {
             Helper.log("Sodium is present");
             
             SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
-            
-            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
-                CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
-                    "The compatibility is not yet stable.");
-            }));
+
+//            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+//                CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
+//                    "The compatibility is not yet stable.");
+//            }));
         }
         else {
             Helper.log("Sodium is not present");
@@ -85,11 +85,11 @@ public class IPModEntryClient implements ClientModInitializer {
         if (FabricLoader.getInstance().isModLoaded("iris")) {
             Helper.log("Iris is present");
             IrisInterface.invoker = new IrisInterface.OnIrisPresent();
-            
-            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
-                CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
-                    "The compatibility is not yet stable. Cross-portal entity rendering is being disabled.");
-            }));
+
+//            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+//                CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
+//                    "The compatibility is not yet stable. Cross-portal entity rendering is being disabled.");
+//            }));
         }
         else {
             Helper.log("Iris is not present");
