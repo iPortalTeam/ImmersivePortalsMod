@@ -50,6 +50,10 @@ public class RendererUsingStencil extends PortalRenderer {
     }
     
     private void doPortalRendering(MatrixStack matrixStack) {
+        // maybe fix issue with modern industrialization
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
+        
         client.getProfiler().swap("render_portal_total");
         renderPortals(matrixStack);
         if (PortalRendering.isRendering()) {
