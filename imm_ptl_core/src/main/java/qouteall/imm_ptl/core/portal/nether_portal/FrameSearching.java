@@ -6,6 +6,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
@@ -72,12 +74,14 @@ public class FrameSearching {
         BlockPos.Mutable temp = new BlockPos.Mutable();
         BlockPos.Mutable temp1 = new BlockPos.Mutable();
         
+        int minSectionY = McHelper.getMinSectionY(region);
+        
         // avoid using stream api and maintain cache locality
         for (int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++) {
             Chunk chunk = chunks.get(chunkIndex);
             ChunkSection[] sectionArray = chunk.getSectionArray();
-            for (int sectionY = 0; sectionY < sectionArray.length; sectionY++) {
-                ChunkSection chunkSection = sectionArray[sectionY];
+            for (int ySectionIndex = 0; ySectionIndex < sectionArray.length; ySectionIndex++) {
+                ChunkSection chunkSection = sectionArray[ySectionIndex];
                 if (chunkSection != null) {
                     for (int localY = 0; localY < 16; localY++) {
                         for (int localZ = 0; localZ < 16; localZ++) {
@@ -87,10 +91,10 @@ public class FrameSearching {
                                 );
                                 if (framePredicate.test(blockState)) {
                                     int worldX = localX + chunk.getPos().getStartX();
-                                    int worldY = localY + sectionY * 16;
+                                    int worldY = localY + (ySectionIndex + minSectionY) * 16;
                                     int worldZ = localZ + chunk.getPos().getStartZ();
                                     temp.set(worldX, worldY, worldZ);
-    
+                                    
                                     T result = matchShape.apply(temp);
                                     if (result != null) {
                                         return result;
