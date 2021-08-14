@@ -38,8 +38,8 @@ public class RenderStates {
     public static int frameIndex = 0;
     
     public static RegistryKey<World> originalPlayerDimension;
-    public static Vec3d originalPlayerPos;
-    public static Vec3d originalPlayerLastTickPos;
+    public static Vec3d originalPlayerPos = Vec3d.ZERO;
+    public static Vec3d originalPlayerLastTickPos = Vec3d.ZERO;
     public static GameMode originalGameMode;
     public static float tickDelta = 0;
     public static Box originalPlayerBoundingBox;
