@@ -484,8 +484,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void setOrientation(Vec3d newAxisW, Vec3d newAxisH) {
-        axisW = newAxisW;
-        axisH = newAxisH;
+        axisW = newAxisW.normalize();
+        axisH = newAxisH.normalize();
         updateCache();
     }
     
