@@ -316,7 +316,7 @@ public class ServerTeleportationManager {
             McHelper.adjustVehicle(player);
         }
         
-        Helper.log(String.format(
+        Helper.dbg(String.format(
             "%s :: (%s %s %s %s)->(%s %s %s %s)",
             player.getName().asString(),
             fromWorld.getRegistryKey().getValue(),

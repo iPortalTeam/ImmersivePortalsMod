@@ -11,7 +11,7 @@ import qouteall.imm_ptl.core.render.FrontClipping;
 
 import java.util.function.Supplier;
 
-@Mixin(RenderSystem.class)
+@Mixin(value = RenderSystem.class, remap = false)
 public class MixinRenderSystem_Clipping {
     @Inject(
         method = "setShader",
