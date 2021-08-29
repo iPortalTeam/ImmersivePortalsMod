@@ -130,6 +130,6 @@ public class MixinWorldRenderer_Optional {
         RenderLayer renderLayer, MatrixStack matrices,
         double x, double y, double z, Matrix4f matrix4f, CallbackInfo ci
     ) {
-        FrontClipping.updateClippingEquationUniformForCurrentShader();
+        FrontClipping.updateClippingEquationUniformForCurrentShader(false);
     }
 }

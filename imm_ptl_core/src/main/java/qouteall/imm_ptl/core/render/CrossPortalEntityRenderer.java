@@ -40,7 +40,9 @@ public class CrossPortalEntityRenderer {
     //there is no weak hash set
     private static final WeakHashMap<Entity, Object> collidedEntities = new WeakHashMap<>();
     
-    public static boolean isRendering = false;
+    public static boolean isRenderingEntityNormally = false;
+    
+    public static boolean isRenderingEntityProjection = false;
     
     public static void init() {
         IPGlobal.postClientTickSignal.connect(CrossPortalEntityRenderer::onClientTick);
@@ -71,18 +73,16 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void onBeginRenderingEntities(MatrixStack matrixStack) {
-        if (!enableCrossPortalEntityRendering()) {
-            return;
-        }
+        isRenderingEntityNormally = true;
         
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                PortalRendering.getRenderingPortal(), false
+                PortalRendering.getRenderingPortal(), false, matrixStack
             );
         }
     }
     
-    private static boolean enableCrossPortalEntityRendering() {
+    private static boolean isCrossPortalRenderingEnabled() {
         if (IrisInterface.invoker.isIrisPresent()) {
             return false;
         }
@@ -91,7 +91,11 @@ public class CrossPortalEntityRenderer {
     
     // do not use runWithTransformation here (because matrixStack is changed?)
     public static void onEndRenderingEntities(MatrixStack matrixStack) {
-        if (!enableCrossPortalEntityRendering()) {
+        isRenderingEntityNormally = false;
+        
+        FrontClipping.disableClipping();
+        
+        if (!isCrossPortalRenderingEnabled()) {
             return;
         }
         
@@ -99,7 +103,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void beforeRenderingEntity(Entity entity, MatrixStack matrixStack) {
-        if (!enableCrossPortalEntityRendering()) {
+        if (!isCrossPortalRenderingEnabled()) {
             return;
         }
         if (!PortalRendering.isRendering()) {
@@ -119,7 +123,7 @@ public class CrossPortalEntityRenderer {
     }
     
     public static void afterRenderingEntity(Entity entity) {
-        if (!enableCrossPortalEntityRendering()) {
+        if (!isCrossPortalRenderingEnabled()) {
             return;
         }
         if (!PortalRendering.isRendering()) {
@@ -134,7 +138,7 @@ public class CrossPortalEntityRenderer {
     //if an entity is in overworld but halfway through a nether portal
     //then it has a projection in nether
     private static void renderEntityProjections(MatrixStack matrixStack) {
-        if (!enableCrossPortalEntityRendering()) {
+        if (!isCrossPortalRenderingEnabled()) {
             return;
         }
         collidedEntities.keySet().forEach(entity -> {
@@ -191,7 +195,7 @@ public class CrossPortalEntityRenderer {
             // don't draw the existing triangles with culling enabled
             client.getBufferBuilders().getEntityVertexConsumers().draw();
             
-            FrontClipping.setupInnerClipping(collidingPortal, false);
+            FrontClipping.setupInnerClipping(collidingPortal, false, matrixStack);
             renderEntityRegardingPlayer(entity, collidingPortal, matrixStack);
             FrontClipping.disableClipping();
         }
@@ -276,7 +280,7 @@ public class CrossPortalEntityRenderer {
         
         entity.world = newWorld;
         
-        isRendering = true;
+        isRenderingEntityProjection = true;
         matrixStack.push();
         setupEntityProjectionRenderingTransformation(
             transformingPortal, entity, matrixStack
@@ -293,7 +297,7 @@ public class CrossPortalEntityRenderer {
         consumers.draw();
         
         matrixStack.pop();
-        isRendering = false;
+        isRenderingEntityProjection = false;
         
         McHelper.setEyePos(
             entity, oldEyePos, oldLastTickEyePos

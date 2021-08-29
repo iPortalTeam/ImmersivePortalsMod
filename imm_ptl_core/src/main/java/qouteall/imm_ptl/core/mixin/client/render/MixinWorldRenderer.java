@@ -217,7 +217,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
                 PortalRendering.getRenderingPortal(),
-                true
+                true,
+                matrices
             );
             
             if (PortalRendering.isRenderingOddNumberOfMirrors()) {
@@ -247,7 +248,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
-            FrontClipping.updateClippingEquationUniformForCurrentShader();
+            FrontClipping.updateClippingEquationUniformForCurrentShader(false);
             
             if (IPGlobal.enableDepthClampForPortalRendering) {
                 CHelper.disableDepthClamp();
@@ -392,7 +393,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.setupInnerClipping(
-                PortalRendering.getRenderingPortal(), true
+                PortalRendering.getRenderingPortal(), true,matrices
             );
         }
     }

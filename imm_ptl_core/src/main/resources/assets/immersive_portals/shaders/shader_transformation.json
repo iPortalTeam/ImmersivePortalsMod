@@ -25,6 +25,7 @@
     "type": "vs",
     "affectedShaders": [
       "rendertype_entity_cutout",
+      "rendertype_entity_cutout_no_cull",
       "portal_area"
     ],
     "transformations": [

@@ -74,7 +74,7 @@ public class ViewAreaRenderer {
         shader.modelViewMat.set(modelViewMatrix);
         shader.projectionMat.set(projectionMatrix);
         
-        FrontClipping.updateClippingEquationUniformForCurrentShader();
+        FrontClipping.updateClippingEquationUniformForCurrentShader(false);
         
         shader.upload();
         

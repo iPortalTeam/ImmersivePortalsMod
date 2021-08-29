@@ -105,7 +105,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         PortalLike portal,
         MatrixStack matrixStack
     ) {
-        FrontClipping.updateInnerClipping();
+        FrontClipping.updateInnerClipping(matrixStack);
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
