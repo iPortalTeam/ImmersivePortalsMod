@@ -24,8 +24,16 @@
     "comment": "For portal area rendering and entity rendering",
     "type": "vs",
     "affectedShaders": [
+      "rendertype_entity_solid",
       "rendertype_entity_cutout",
       "rendertype_entity_cutout_no_cull",
+      "rendertype_entity_cutout_no_cull_z_offset",
+      "rendertype_item_entity_translucent_cull",
+      "rendertype_entity_translucent_cull",
+      "rendertype_entity_translucent",
+      "rendertype_entity_smooth_cutout",
+
+
       "portal_area"
     ],
     "transformations": [
