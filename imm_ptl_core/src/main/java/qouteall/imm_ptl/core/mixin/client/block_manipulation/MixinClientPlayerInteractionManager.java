@@ -3,7 +3,6 @@ package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.ducks.IEClientPlayerInteractionManager;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.network.Packet;
@@ -16,15 +15,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public abstract class MixinClientPlayerInteractionManager implements IEClientPlayerInteractionManager {
-    @Shadow
-    @Final
-    private MinecraftClient client;
-    
     @Shadow
     @Final
     private ClientPlayNetworkHandler networkHandler;
@@ -51,27 +46,24 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
         }
     }
     
-    @Redirect(
+    @ModifyArg(
         method = "interactBlock",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"
         )
     )
-    private void redirectSendPacketOnInteractBlock(
-        ClientPlayNetworkHandler clientPlayNetworkHandler,
+    private Packet<?> redirectSendPacketOnInteractBlock(
         Packet<?> packet
     ) {
         if (BlockManipulationClient.isContextSwitched) {
-            clientPlayNetworkHandler.sendPacket(
-                IPNetworkingClient.createCtsRightClick(
-                    BlockManipulationClient.remotePointedDim,
-                    ((PlayerInteractBlockC2SPacket) packet)
-                )
+            return IPNetworkingClient.createCtsRightClick(
+                BlockManipulationClient.remotePointedDim,
+                ((PlayerInteractBlockC2SPacket) packet)
             );
         }
         else {
-            clientPlayNetworkHandler.sendPacket(packet);
+            return packet;
         }
     }
     
