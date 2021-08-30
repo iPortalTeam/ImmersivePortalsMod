@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.compat.sodium_compatibility;
 
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
+import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
+import net.minecraft.client.MinecraftClient;
 import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -53,7 +55,8 @@ public class SodiumInterface {
         
         @Override
         public void switchContextWithCurrentWorldRenderer(Object context) {
-            SodiumWorldRenderer swr = SodiumWorldRenderer.getInstance();
+            SodiumWorldRenderer swr =
+                ((WorldRendererExtended) MinecraftClient.getInstance().worldRenderer).getSodiumWorldRenderer();
             swr.scheduleTerrainUpdate();
             
             RenderSectionManager renderSectionManager =
