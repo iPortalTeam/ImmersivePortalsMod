@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import qouteall.imm_ptl.core.OFInterface;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import net.minecraft.block.entity.BlockEntity;
@@ -28,6 +29,9 @@ public class MixinBlockEntityRenderDispatcher {
         CallbackInfo ci
     ) {
         if (OFInterface.isShadowPass.getAsBoolean()) {
+            return;
+        }
+        if (IrisInterface.invoker.isRenderingShadowMap()) {
             return;
         }
         if (PortalRendering.isRendering()) {

@@ -346,6 +346,9 @@ public class CrossPortalEntityRenderer {
         if (OFInterface.isShadowPass.getAsBoolean()) {
             return true;
         }
+        if (IrisInterface.invoker.isRenderingShadowMap()) {
+            return true;
+        }
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             Portal collidingPortal = ((IEEntity) entity).getCollidingPortal();

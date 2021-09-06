@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import net.coderbot.iris.Iris;
+import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.render.WorldRenderer;
 import qouteall.q_misc_util.Helper;
@@ -18,10 +19,15 @@ public class IrisInterface {
             return false;
         }
         
+        public boolean isRenderingShadowMap() {
+            return false;
+        }
+        
         public WorldRenderingPipeline getPipeline(WorldRenderer worldRenderer) {
             return null;
         }
         
+        // TODO check whether it's necessary
         public void setPipeline(WorldRenderer worldRenderer, WorldRenderingPipeline pipeline) {
         
         }
@@ -43,6 +49,11 @@ public class IrisInterface {
         @Override
         public boolean isShaders() {
             return Iris.getCurrentPack().isPresent();
+        }
+        
+        @Override
+        public boolean isRenderingShadowMap() {
+            return ShadowRenderer.ACTIVE;
         }
         
         @Override

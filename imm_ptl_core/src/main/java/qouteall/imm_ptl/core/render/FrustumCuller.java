@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.render;
 
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
@@ -41,6 +42,9 @@ public class FrustumCuller {
         double cameraZ
     ) {
         if (!IPCGlobal.doUseAdvancedFrustumCulling) {
+            return BoxPredicate.nonePredicate;
+        }
+        if (IrisInterface.invoker.isRenderingShadowMap()) {
             return BoxPredicate.nonePredicate;
         }
         
