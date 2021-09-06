@@ -72,11 +72,11 @@ public class IPModEntryClient implements ClientModInitializer {
             Helper.log("Sodium is present");
             
             SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
-
-//            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
-//                CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
-//                    "The compatibility is not yet stable.");
-//            }));
+            
+            IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+                CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
+                    "The compatibility is not yet stable. Rendering issues may occur.");
+            }));
         }
         else {
             Helper.log("Sodium is not present");
