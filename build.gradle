@@ -69,17 +69,17 @@ allprojects {
         }
 
         // use online dependency to make sure other people can compile
-//        modCompileOnly('com.github.qouteall:sodium-fabric:5cfc6674') {
-//            transitive = false
-//        }
-
-//        modCompileOnly 'com.github.qouteall:Iris:7bf9a90'
-
-        // to test local iris+sodium
-        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.2+IRIS2-rev.d5cd1c2'){
+        modCompileOnly('com.github.qouteall:sodium-fabric:5cfc6674') {
             transitive = false
         }
-        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.2+"
+
+        modCompileOnly 'com.github.qouteall:Iris:7bf9a90'
+
+        // to test local iris+sodium
+//        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.2+IRIS2-rev.d5cd1c2'){
+//            transitive = false
+//        }
+//        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.2+"
 
     }
 
