@@ -28,12 +28,10 @@ public abstract class MixinSodiumChunkGraphInfo {
         float y = this.getOriginY();
         float z = this.getOriginZ();
         
-        if (frustum != null) {
-            if (((IEFrustum) frustum).canDetermineInvisible(
-                x, y, z, x + 16.0f, y + 16.0f, z + 16.0f
-            )) {
-                return true;
-            }
+        if (((IEFrustum) frustum).canDetermineInvisible(
+            x, y, z, x + 16.0f, y + 16.0f, z + 16.0f
+        )) {
+            return true;
         }
         
         

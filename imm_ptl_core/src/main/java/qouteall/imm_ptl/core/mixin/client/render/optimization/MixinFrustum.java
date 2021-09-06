@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
 import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IEFrustum;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import net.minecraft.client.render.Frustum;
@@ -27,11 +28,16 @@ public class MixinFrustum implements IEFrustum {
         at = @At("TAIL")
     )
     private void onSetOrigin(double double_1, double double_2, double double_3, CallbackInfo ci) {
+        if (IrisInterface.invoker.isRenderingShadowMap()) {
+            return;
+        }
+        
         if (portal_frustumCuller == null) {
             portal_frustumCuller = new FrustumCuller();
         }
         portal_frustumCuller.update(x, y, z);
     }
+    
     
     @Inject(
         method = "Lnet/minecraft/client/render/Frustum;isVisible(DDDDDD)Z",
@@ -43,10 +49,7 @@ public class MixinFrustum implements IEFrustum {
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (IPCGlobal.doUseAdvancedFrustumCulling) {
-            boolean canDetermineInvisible = portal_frustumCuller.canDetermineInvisible(
-                minX - x, minY - y, minZ - z,
-                maxX - x, maxY - y, maxZ - z
-            );
+            boolean canDetermineInvisible = canDetermineInvisible(minX, minY, minZ, maxX, maxY, maxZ);
             if (canDetermineInvisible) {
                 cir.setReturnValue(false);
             }
@@ -55,6 +58,9 @@ public class MixinFrustum implements IEFrustum {
     
     @Override
     public boolean canDetermineInvisible(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        if (portal_frustumCuller == null) {
+            return false;
+        }
         return portal_frustumCuller.canDetermineInvisible(
             minX - x, minY - y, minZ - z,
             maxX - x, maxY - y, maxZ - z
