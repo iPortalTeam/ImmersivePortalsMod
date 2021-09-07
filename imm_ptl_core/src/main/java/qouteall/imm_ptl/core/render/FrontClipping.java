@@ -147,6 +147,10 @@ public class FrontClipping {
         return activeClipPlaneEquation;
     }
     
+    public static double[] getActiveClipPlaneEquationForEntities() {
+        return activeClipPlaneForEntities;
+    }
+    
     public static void updateClippingEquationUniformForCurrentShader(boolean isRenderingEntities) {
         Shader shader = RenderSystem.getShader();
         GlUniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();

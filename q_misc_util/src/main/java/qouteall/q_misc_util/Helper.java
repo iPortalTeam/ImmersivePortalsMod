@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -733,5 +734,12 @@ public class Helper {
                 func.consume(i, value);
             }
         }
+    }
+    
+    public static Object reflectionInvoke(Object target, String methodName) {
+        return noError(() -> {
+            Method method = target.getClass().getDeclaredMethod(methodName);
+            return method.invoke(target);
+        });
     }
 }

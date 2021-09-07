@@ -82,7 +82,7 @@
         "replacement": [
           "uniform vec4 imm_ptl_ClippingEquation;",
           "void main() {",
-          "    gl_ClipDistance[0] = dot(gl_Vertex.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+          "    gl_ClipDistance[0] = dot((gl_ModelViewMatrix * gl_Vertex).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
         ]
       }
     ],
