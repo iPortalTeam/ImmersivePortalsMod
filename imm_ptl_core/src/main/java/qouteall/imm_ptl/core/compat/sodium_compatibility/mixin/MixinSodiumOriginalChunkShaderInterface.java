@@ -45,7 +45,7 @@ public class MixinSodiumOriginalChunkShaderInterface {
     private void onSetup(ChunkVertexType vertexType, CallbackInfo ci) {
         if (uIPClippingEquation != -1) {
             if (FrontClipping.isClippingEnabled) {
-                double[] equation = FrontClipping.getActiveClipPlaneEquation();
+                double[] equation = FrontClipping.getActiveClipPlaneEquationForEntities();
                 GL20C.glUniform4f(
                     uIPClippingEquation,
                     (float) equation[0],

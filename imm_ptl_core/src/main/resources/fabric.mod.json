@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "imm_ptl_core",
   "version": "${version}",
-
   "name": "Immersive Portals Core",
   "description": "The core functionality of see-through portals and seamless teleportation. Provide the portal commands and datapack-based custom portal generation. The core does not change vanila nether portal and end portal mechanics.",
   "authors": [
@@ -42,11 +41,17 @@
     "fabricloader": ">=0.7.4",
     "fabric": ">=0.28.1"
   },
+  "breaks": {
+    "sodium": [
+      ">0.3.2",
+      "<0.3.2"
+    ]
+  },
   "suggests": {
     "flamingo": "*"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true
   },
-  "accessWidener" : "imm_ptl.accesswidener"
+  "accessWidener": "imm_ptl.accesswidener"
 }

@@ -69,7 +69,7 @@ allprojects {
         }
 
         // use online dependency to make sure other people can compile
-        modCompileOnly('com.github.qouteall:sodium-fabric:5cfc6674') {
+        modImplementation('com.github.qouteall:sodium-fabric:28bdaff') {
             transitive = false
         }
 

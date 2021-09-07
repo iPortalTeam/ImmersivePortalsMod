@@ -47,6 +47,7 @@ public class RenderStates {
     public static Set<RegistryKey<World>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<PortalLike>>> lastPortalRenderInfos = new ArrayList<>();
     public static List<List<WeakReference<PortalLike>>> portalRenderInfos = new ArrayList<>();
+    public static int portalsRenderedThisFrame=0;// mixins to sodium use that
     
     public static Vec3d lastCameraPos = Vec3d.ZERO;
     public static Vec3d cameraPosDelta = Vec3d.ZERO;
@@ -95,6 +96,7 @@ public class RenderStates {
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
+        portalsRenderedThisFrame=0;
         
         FogRendererContext.update();
         

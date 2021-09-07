@@ -92,10 +92,7 @@
     "comment": "For sodium",
     "type": "vs",
     "affectedShaders": [
-      "sodium:blocks/block_layer_solid.vsh",
-      "sodium:blocks/block_layer_cutout_mipped.vsh",
-      "sodium:blocks/block_layer_cutout.vsh",
-      "sodium:blocks/block_layer_translucent.vsh"
+      "sodium:blocks/block_layer_opaque.vsh"
     ],
     "transformations": [
       {
@@ -106,10 +103,10 @@
         ]
       },
       {
-        "pattern": "vec3 pos = getVertexPosition\\(\\);",
+        "pattern": "v_LightCoord = a_LightCoord;",
         "replacement": [
-          "vec3 pos = getVertexPosition();",
-          "    gl_ClipDistance[0] = dot(pos, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+          "v_LightCoord = a_LightCoord;",
+          "gl_ClipDistance[0] = dot(pos.xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
         ]
       }
     ],

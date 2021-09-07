@@ -74,6 +74,7 @@ public class PortalRendering {
             (Function<PortalLike, WeakReference<PortalLike>>) WeakReference::new
         ).collect(Collectors.toList());
         RenderStates.portalRenderInfos.add(currRenderInfo);
+        RenderStates.portalsRenderedThisFrame++;
         
         if (portalLayers.stream().anyMatch(PortalLike::hasScaling)) {
             RenderStates.renderedScalingPortal = true;
