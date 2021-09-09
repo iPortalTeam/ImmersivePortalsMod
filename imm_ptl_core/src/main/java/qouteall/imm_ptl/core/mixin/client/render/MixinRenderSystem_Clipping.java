@@ -19,9 +19,7 @@ public class MixinRenderSystem_Clipping {
     )
     private static void onSetShader(Supplier<Shader> supplier, CallbackInfo ci) {
         if (CrossPortalEntityRenderer.isRenderingEntityNormally || CrossPortalEntityRenderer.isRenderingEntityProjection) {
-            if (FrontClipping.isClippingEnabled) {
-                FrontClipping.updateClippingEquationUniformForCurrentShader(true);
-            }
+            FrontClipping.updateClippingEquationUniformForCurrentShader(true);
         }
     }
 }

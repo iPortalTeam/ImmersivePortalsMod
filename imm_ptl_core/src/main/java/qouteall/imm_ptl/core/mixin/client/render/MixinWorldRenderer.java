@@ -248,7 +248,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
             MyRenderHelper.recoverFaceCulling();
-            FrontClipping.updateClippingEquationUniformForCurrentShader(false);
             
             if (IPGlobal.enableDepthClampForPortalRendering) {
                 CHelper.disableDepthClamp();
