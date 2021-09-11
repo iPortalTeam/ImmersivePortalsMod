@@ -165,8 +165,8 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         if (WorldRenderInfo.isRendering()) {
             client.getBufferBuilders().getEntityVertexConsumers().draw();
         }
-
-//        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
+        
+        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
         MyGameRenderer.updateFogColor();
         MyGameRenderer.resetFogState();
@@ -284,7 +284,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f,
         CallbackInfo ci
     ) {
-        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
+//        IPCGlobal.renderer.onBeforeTranslucentRendering(matrices);
         
         CrossPortalEntityRenderer.onBeginRenderingEntities(matrices);
     }
