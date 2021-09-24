@@ -12,17 +12,17 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
 public interface IEWorldRenderer {
-    EntityRenderDispatcher getEntityRenderDispatcher();
+    EntityRenderDispatcher ip_getEntityRenderDispatcher();
     
-    BuiltChunkStorage getBuiltChunkStorage();
+    BuiltChunkStorage ip_getBuiltChunkStorage();
     
-    ObjectArrayList getVisibleChunks();
+    ObjectArrayList ip_getVisibleChunks();
     
-    void setVisibleChunks(ObjectArrayList l);
+    void ip_setVisibleChunks(ObjectArrayList l);
     
     ChunkBuilder getChunkBuilder();
     
-    void myRenderEntity(
+    void ip_myRenderEntity(
         Entity entity,
         double cameraX,
         double cameraY,
@@ -36,9 +36,9 @@ public interface IEWorldRenderer {
     
     void portal_setTransparencyShader(ShaderEffect arg);
     
-    BufferBuilderStorage getBufferBuilderStorage();
+    BufferBuilderStorage ip_getBufferBuilderStorage();
     
-    void setBufferBuilderStorage(BufferBuilderStorage arg);
+    void ip_setBufferBuilderStorage(BufferBuilderStorage arg);
     
     int portal_getRenderDistance();
     

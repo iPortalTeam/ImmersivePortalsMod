@@ -115,7 +115,7 @@ public class MyGameRenderer {
         float tickDelta = RenderStates.tickDelta;
         
         if (IPCGlobal.useHackedChunkRenderDispatcher) {
-            ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage().updateCameraPosition(
+            ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage().updateCameraPosition(
                 cameraEntity.getX(),
                 cameraEntity.getZ()
             );
@@ -137,16 +137,16 @@ public class MyGameRenderer {
         boolean oldNoClip = client.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(worldRenderer);
-        ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).getVisibleChunks();
+        ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).ip_getVisibleChunks();
         HitResult oldCrosshairTarget = client.crosshairTarget;
         Camera oldCamera = client.gameRenderer.getCamera();
         ShaderEffect oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
-        BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).getBufferBuilderStorage();
+        BufferBuilderStorage oldBufferBuilder = ((IEWorldRenderer) worldRenderer).ip_getBufferBuilderStorage();
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
         
-        ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(new ObjectArrayList());
+        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(new ObjectArrayList());
         
         int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
         WorldRenderingPipeline irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
@@ -171,7 +171,7 @@ public class MyGameRenderer {
         ieGameRenderer.setCamera(newCamera);
         
         if (IPGlobal.useSecondaryEntityVertexConsumer) {
-            ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(secondaryBufferBuilderStorage);
+            ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(secondaryBufferBuilderStorage);
             ((IEMinecraftClient) client).setBufferBuilderStorage(secondaryBufferBuilderStorage);
         }
         
@@ -227,9 +227,9 @@ public class MyGameRenderer {
         
         FogRendererContext.swappingManager.popSwapping();
         
-        ((IEWorldRenderer) oldWorldRenderer).setVisibleChunks(oldVisibleChunks);
+        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(oldVisibleChunks);
         
-        ((IEWorldRenderer) worldRenderer).setBufferBuilderStorage(oldBufferBuilder);
+        ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(oldBufferBuilder);
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
         
         ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
@@ -272,7 +272,7 @@ public class MyGameRenderer {
     
     public static void renderPlayerItself(Runnable doRenderEntity) {
         EntityRenderDispatcher entityRenderDispatcher =
-            ((IEWorldRenderer) client.worldRenderer).getEntityRenderDispatcher();
+            ((IEWorldRenderer) client.worldRenderer).ip_getEntityRenderDispatcher();
         PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
         GameMode originalGameMode = RenderStates.originalGameMode;
         

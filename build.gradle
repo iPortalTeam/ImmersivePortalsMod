@@ -72,14 +72,14 @@ allprojects {
         modCompileOnly('com.github.qouteall:sodium-fabric:28bdaff') {
             transitive = false
         }
-
-        modCompileOnly 'com.github.qouteall:Iris:7bf9a90'
+//
+//        modCompileOnly 'com.github.qouteall:Iris:7bf9a90'
 
         // to test local iris+sodium
 //        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.2+IRIS2-rev.d5cd1c2'){
 //            transitive = false
 //        }
-//        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.2+"
+        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.2+"
 
     }
 

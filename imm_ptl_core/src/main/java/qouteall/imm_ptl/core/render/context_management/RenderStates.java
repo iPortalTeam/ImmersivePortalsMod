@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import net.minecraft.util.math.Vector4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -196,7 +195,7 @@ public class RenderStates {
         
         if (getRenderedPortalNum() != 0) {
             //recover chunk renderer dispatcher
-            ((IEWorldRenderer) client.worldRenderer).getBuiltChunkStorage().updateCameraPosition(
+            ((IEWorldRenderer) client.worldRenderer).ip_getBuiltChunkStorage().updateCameraPosition(
                 client.cameraEntity.getX(),
                 client.cameraEntity.getZ()
             );

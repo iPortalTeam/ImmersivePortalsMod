@@ -287,7 +287,7 @@ public class CrossPortalEntityRenderer {
         );
         
         VertexConsumerProvider.Immediate consumers = client.getBufferBuilders().getEntityVertexConsumers();
-        ((IEWorldRenderer) client.worldRenderer).myRenderEntity(
+        ((IEWorldRenderer) client.worldRenderer).ip_myRenderEntity(
             entity,
             cameraPos.x, cameraPos.y, cameraPos.z,
             RenderStates.tickDelta, matrixStack,

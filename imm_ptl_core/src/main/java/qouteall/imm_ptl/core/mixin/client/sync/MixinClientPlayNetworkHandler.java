@@ -190,7 +190,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
             
             WorldRenderer worldRenderer =
                 ClientWorldLoader.getWorldRenderer(world.getRegistryKey());
-            BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).getBuiltChunkStorage();
+            BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
             if (storage instanceof MyBuiltChunkStorage) {
                 ((MyBuiltChunkStorage) storage).onChunkUnload(packet.getX(), packet.getZ());
             }

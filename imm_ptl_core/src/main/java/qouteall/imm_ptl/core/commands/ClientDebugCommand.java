@@ -345,7 +345,7 @@ public class ClientDebugCommand {
                     ClientWorldLoader.getClientWorlds().forEach((world) -> {
                         MyBuiltChunkStorage builtChunkStorage = (MyBuiltChunkStorage) ((IEWorldRenderer)
                             ClientWorldLoader.getWorldRenderer(world.getRegistryKey()))
-                            .getBuiltChunkStorage();
+                            .ip_getBuiltChunkStorage();
                         CHelper.printChat(
                             world.getRegistryKey().getValue().toString() + builtChunkStorage.getDebugString()
                         );
@@ -622,7 +622,7 @@ public class ClientDebugCommand {
                         "%s %s\n",
                         dimension.getValue(),
                         ((MyBuiltChunkStorage) ((IEWorldRenderer) worldRenderer)
-                            .getBuiltChunkStorage()
+                            .ip_getBuiltChunkStorage()
                         ).getManagedSectionNum()
                     ));
                 }

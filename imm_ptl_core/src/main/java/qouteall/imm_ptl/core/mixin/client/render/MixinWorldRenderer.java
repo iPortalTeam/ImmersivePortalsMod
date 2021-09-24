@@ -557,22 +557,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public EntityRenderDispatcher getEntityRenderDispatcher() {
+    public EntityRenderDispatcher ip_getEntityRenderDispatcher() {
         return entityRenderDispatcher;
     }
     
     @Override
-    public BuiltChunkStorage getBuiltChunkStorage() {
+    public BuiltChunkStorage ip_getBuiltChunkStorage() {
         return chunks;
     }
     
     @Override
-    public ObjectArrayList getVisibleChunks() {
+    public ObjectArrayList ip_getVisibleChunks() {
         return visibleChunks;
     }
     
     @Override
-    public void setVisibleChunks(ObjectArrayList l) {
+    public void ip_setVisibleChunks(ObjectArrayList l) {
         visibleChunks = l;
     }
     
@@ -582,7 +582,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public void myRenderEntity(
+    public void ip_myRenderEntity(
         Entity entity,
         double cameraX,
         double cameraY,
@@ -607,12 +607,12 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public BufferBuilderStorage getBufferBuilderStorage() {
+    public BufferBuilderStorage ip_getBufferBuilderStorage() {
         return bufferBuilders;
     }
     
     @Override
-    public void setBufferBuilderStorage(BufferBuilderStorage arg) {
+    public void ip_setBufferBuilderStorage(BufferBuilderStorage arg) {
         bufferBuilders = arg;
     }
     
