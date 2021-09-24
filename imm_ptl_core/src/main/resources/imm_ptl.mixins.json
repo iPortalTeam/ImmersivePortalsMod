@@ -82,6 +82,7 @@
     "client.render.MixinInGameOverlayRenderer",
     "client.render.MixinRenderSystem_Clipping",
     "client.render.MixinRenderSystem_Fog",
+    "client.render.MixinShaderForIris",
     "client.render.MixinVertexConsumerProviderImmediate",
     "client.render.MixinWorldRenderer",
     "client.render.MixinWorldRenderer_Optional",

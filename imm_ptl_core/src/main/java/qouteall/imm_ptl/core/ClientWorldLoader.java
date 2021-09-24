@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core;
 
 import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
 import qouteall.imm_ptl.core.ducks.IECamera;
-import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
@@ -98,11 +97,15 @@ public class ClientWorldLoader {
             }
         }
         if (lightmapTextureConflict) {
-            renderHelperMap.values().forEach(DimensionRenderHelper::cleanUp);
-            renderHelperMap.clear();
+            disposeRenderHelpers();
             Helper.log("Refreshed Lightmaps");
         }
         
+    }
+    
+    public static void disposeRenderHelpers() {
+        renderHelperMap.values().forEach(DimensionRenderHelper::cleanUp);
+        renderHelperMap.clear();
     }
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(10);
@@ -187,10 +190,9 @@ public class ClientWorldLoader {
         
         clientWorldMap.clear();
         worldRendererMap.clear();
-        
-        renderHelperMap.values().forEach(DimensionRenderHelper::cleanUp);
-        renderHelperMap.clear();
-        
+    
+        disposeRenderHelpers();
+    
         isInitialized = false;
         
         

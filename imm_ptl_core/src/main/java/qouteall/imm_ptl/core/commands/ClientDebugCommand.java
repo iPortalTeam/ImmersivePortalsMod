@@ -418,6 +418,18 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
+        
+        builder.then(ClientCommandManager
+            .literal("reload_world_renderer")
+            .executes(context -> {
+                MinecraftClient.getInstance().execute(() -> {
+                    ClientWorldLoader.disposeRenderHelpers();
+                    MinecraftClient.getInstance().worldRenderer.reload();
+                });
+                return 0;
+            })
+        );
+        
         registerSwitchCommand(
             builder,
             "front_clipping",
