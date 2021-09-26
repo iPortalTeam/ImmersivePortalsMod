@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -417,6 +418,20 @@ public class PortalDebugCommands {
                 McRemoteProcedureCall.tellClientToInvoke(
                     context.getSource().getPlayer(),
                     "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.setNoFog",
+                    false
+                );
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager
+            .literal("report_air")
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                BlockState blockState = player.world.getBlockState(player.getBlockPos());
+                
+                context.getSource().sendFeedback(
+                    blockState.getBlock().getName(),
                     false
                 );
                 return 0;

@@ -60,6 +60,11 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             );
         }
         
+        if (string.equals("minecraft:air")) {
+            // to make it work for both normal air, cave air and void air
+            return DataResult.success(new AirPredicate());
+        }
+        
         TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
         Identifier id = new Identifier(string);
         Tag<Block> blockTag = tagManager.getOrCreateTagGroup(Registry.BLOCK_KEY).getTag(id);
@@ -110,5 +115,11 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             SimpleBlockPredicate::serialize
         );
     
+    public static class AirPredicate extends SimpleBlockPredicate {
+        @Override
+        public boolean test(BlockState blockState) {
+            return blockState.isAir();
+        }
+    }
     
 }
