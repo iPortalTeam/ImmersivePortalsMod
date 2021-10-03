@@ -153,6 +153,11 @@ public class FrontClipping {
     
     public static void updateClippingEquationUniformForCurrentShader(boolean isRenderingEntities) {
         Shader shader = RenderSystem.getShader();
+        
+        if (shader == null) {
+            return;
+        }
+        
         GlUniform clippingEquationUniform = ((IEShader) shader).ip_getClippingEquationUniform();
         if (clippingEquationUniform != null) {
             if (isClippingEnabled) {
