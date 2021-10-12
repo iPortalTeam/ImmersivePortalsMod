@@ -291,13 +291,8 @@ public class ClientTeleportationManager {
         
         RegistryKey<World> toDimension = toWorld.getRegistryKey();
         RegistryKey<World> fromDimension = fromWorld.getRegistryKey();
-        
-        ClientPlayNetworkHandler workingNetHandler = ((IEClientWorld) fromWorld).getNetHandler();
-        ClientPlayNetworkHandler fakedNetHandler = ((IEClientWorld) toWorld).getNetHandler();
-        ((IEClientPlayNetworkHandler) workingNetHandler).setWorld(toWorld);
-        ((IEClientPlayNetworkHandler) fakedNetHandler).setWorld(fromWorld);
-        ((IEClientWorld) fromWorld).setNetHandler(fakedNetHandler);
-        ((IEClientWorld) toWorld).setNetHandler(workingNetHandler);
+    
+        ((IEClientPlayNetworkHandler) client.getNetworkHandler()).ip_setWorld(toWorld);
         
         O_O.segregateClientEntity(fromWorld, player);
         

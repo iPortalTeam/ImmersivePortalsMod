@@ -1,6 +1,5 @@
 package com.qouteall.immersive_portals;
 
-import com.mojang.authlib.GameProfile;
 import com.qouteall.immersive_portals.dimension_sync.DimensionTypeSync;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.ducks.IEClientPlayNetworkHandler;
@@ -8,6 +7,7 @@ import com.qouteall.immersive_portals.ducks.IEClientWorld;
 import com.qouteall.immersive_portals.ducks.IEMinecraftClient;
 import com.qouteall.immersive_portals.ducks.IEParticleManager;
 import com.qouteall.immersive_portals.ducks.IEWorld;
+import com.qouteall.immersive_portals.ducks.IEWorldRenderer;
 import com.qouteall.immersive_portals.my_util.LimitedLogger;
 import com.qouteall.immersive_portals.my_util.SignalArged;
 import com.qouteall.immersive_portals.portal.Portal;
@@ -15,13 +15,10 @@ import com.qouteall.immersive_portals.render.context_management.DimensionRenderH
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.RegistryKey;
@@ -165,7 +162,13 @@ public class ClientWorldLoader {
     
     private static void cleanUp() {
         worldRendererMap.values().forEach(
-            worldRenderer -> worldRenderer.setWorld(null)
+            worldRenderer -> {
+                worldRenderer.setWorld(null);
+                if (worldRenderer != client.worldRenderer) {
+                    worldRenderer.close();
+                    ((IEWorldRenderer) worldRenderer).portal_fullyDispose();
+                }
+            }
         );
         
         clientWorldMap.clear();
@@ -248,24 +251,14 @@ public class ClientWorldLoader {
         
         ClientWorld newWorld;
         try {
-            ClientPlayNetworkHandler newNetworkHandler = new ClientPlayNetworkHandler(
-                client,
-                new ChatScreen("You should not be seeing me. I'm just a faked screen."),
-                new ClientConnection(NetworkSide.CLIENTBOUND),
-                new GameProfile(null, "faked_profiler_id")
-            );
-            //multiple net handlers share the same playerListEntries object
+    
             ClientPlayNetworkHandler mainNetHandler = client.player.networkHandler;
-            ((IEClientPlayNetworkHandler) newNetworkHandler).setPlayerListEntries(
-                ((IEClientPlayNetworkHandler) mainNetHandler).getPlayerListEntries()
-            );
+            
             RegistryKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
             DynamicRegistryManager dimensionTracker = mainNetHandler.getRegistryManager();
-            ((IEClientPlayNetworkHandler) newNetworkHandler).portal_setRegistryManager(
-                dimensionTracker);
             DimensionType dimensionType = dimensionTracker
                 .getDimensionTypes().get(dimensionTypeKey);
             
@@ -275,7 +268,7 @@ public class ClientWorldLoader {
                 currentProperty.getSkyDarknessHeight() < 1.0
             );
             newWorld = new ClientWorld(
-                newNetworkHandler,
+                mainNetHandler,
                 properties,
                 dimension,
                 dimensionType,
@@ -296,9 +289,6 @@ public class ClientWorldLoader {
         worldRenderer.setWorld(newWorld);
         
         worldRenderer.apply(client.getResourceManager());
-        
-        ((IEClientPlayNetworkHandler) ((IEClientWorld) newWorld).getNetHandler())
-            .setWorld(newWorld);
         
         clientWorldMap.put(dimension, newWorld);
         worldRendererMap.put(dimension, worldRenderer);

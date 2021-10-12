@@ -19,6 +19,7 @@ import com.qouteall.immersive_portals.render.context_management.WorldRenderInfo;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Camera;
@@ -35,6 +36,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 import org.spongepowered.asm.mixin.Final;
@@ -113,6 +115,14 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     @Final
     private BufferBuilderStorage bufferBuilders;
+    
+    @Shadow @Nullable private VertexBuffer starsBuffer;
+    
+    @Shadow @Nullable private VertexBuffer lightSkyBuffer;
+    
+    @Shadow @Nullable private VertexBuffer darkSkyBuffer;
+    
+    @Shadow @Nullable private VertexBuffer cloudsBuffer;
     
     // important rendering hooks
     @Inject(
@@ -692,5 +702,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    
+    @Override
+    public void portal_fullyDispose() {
+        if (starsBuffer != null) {
+            starsBuffer.close();
+        }
+        if (lightSkyBuffer != null) {
+            lightSkyBuffer.close();
+        }
+        if (darkSkyBuffer != null) {
+            darkSkyBuffer.close();
+        }
+        if (cloudsBuffer != null) {
+            cloudsBuffer.close();
+        }
+        
+        world = null;
+        
+    }
 }

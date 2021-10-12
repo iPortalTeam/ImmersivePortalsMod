@@ -42,4 +42,6 @@ public interface IEWorldRenderer {
     int portal_getRenderDistance();
     
     void portal_setRenderDistance(int arg);
+    
+    void portal_fullyDispose();
 }
