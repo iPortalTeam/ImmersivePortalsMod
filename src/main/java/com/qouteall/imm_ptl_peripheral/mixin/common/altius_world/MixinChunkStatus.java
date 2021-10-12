@@ -15,7 +15,7 @@ import java.util.List;
 @Mixin(ChunkStatus.class)
 public class MixinChunkStatus {
     @Inject(
-        method = "*",
+        method = "method_16567",
         at = @At(
             value = "INVOKE",
             shift = At.Shift.AFTER,
