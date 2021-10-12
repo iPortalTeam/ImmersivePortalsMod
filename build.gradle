@@ -1,19 +1,21 @@
 plugins {
-    id 'fabric-loom' version '0.5-SNAPSHOT'
+    id 'java-library'
+    id 'fabric-loom' version '0.9-SNAPSHOT' apply(false)
     id 'maven-publish'
+}
+
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'fabric-loom'
+    apply plugin: 'maven-publish'
 }
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-subprojects {
-    apply plugin: 'fabric-loom'
-    apply plugin: 'maven-publish'
-}
-
-minecraft {
-    accessWidener = file("src/main/resources/imm_ptl_peripheral.accesswidener")
+loom {
+    accessWidenerPath = file("src/main/resources/imm_ptl_peripheral.accesswidener")
 }
 
 repositories {
@@ -23,9 +25,9 @@ repositories {
 }
 
 allprojects {
-    loom {
-        shareCaches = true
-    }
+//    loom {
+//        shareCaches = true
+//    }
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -36,26 +38,16 @@ allprojects {
         mavenCentral()
         mavenLocal()
         maven {
-            url 'http://maven.fabricmc.net/'
-            name 'Fabric'
-        }
-        maven {
             name = 'JitPack'
             url = 'https://jitpack.io'
         }
         maven { url "https://maven.shedaniel.me/" }
-
-//        maven { url 'https://repo.repsy.io/mvn/gandiber/geckolib' }
-
     }
 
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
+        it.options.release = 8
     }
-
 
     dependencies {
         minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -67,41 +59,40 @@ allprojects {
         //For Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-        modCompileOnly ("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"){
+        modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
             exclude(group: "net.fabricmc.fabric-api")
         }
         modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
-        modImplementation ('com.github.Virtuoel:Pehkui:1.17-SNAPSHOT') {
+        modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.17-SNAPSHOT') {
             transitive = false
         }
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
-//        modImplementation("me.jellysquid.mods:sodium:0.1.202103212-SNAPSHOT")
 
+        // to test local iris+sodium
+//        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.2+IRIS2-rev.d5cd1c2'){
+//            transitive = false
+//        }
+//        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.2+"
 
     }
 
     afterEvaluate {
         remapJar {
-            input = file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar")
+            input = file("${project.buildDir}/libs/$archivesBaseName-$version-dev.jar")
             archiveName = "${archivesBaseName}-${version}-mc${project.minecraft_version}-fabric.jar"
         }
 
         artifacts {
-            //dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+//            dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
         }
 
         processResources {
             inputs.property "version", project.version
 
-            from(sourceSets.main.resources.srcDirs) {
-                include "fabric.mod.json"
+            filesMatching("fabric.mod.json") {
                 expand "version": project.version
-            }
-
-            from(sourceSets.main.resources.srcDirs) {
-                exclude "fabric.mod.json"
             }
         }
 
@@ -111,9 +102,16 @@ allprojects {
     // if it is present.
     // If you remove this task, sources will not be generated.
     task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = "sources"
+        archiveClassifier = "sources"
         from sourceSets.main.allSource
     }
+}
+
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
 }
 
 jar {
@@ -133,6 +131,13 @@ subprojects {
                     }
                 }
             }
+        }
+        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+        repositories {
+            // Add repositories to publish to here.
+            // Notice: This block does NOT have the same function as the block in the top level.
+            // The repositories here will be used for publishing your artifact, not for
+            // retrieving dependencies.
         }
     }
 }
@@ -163,15 +168,18 @@ publishing {
 }
 
 dependencies {
+
     modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
-
+//    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
+//
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-    include "io.github.prospector:modmenu:${modmenu_version}"
+//    include "io.github.prospector:modmenu:${modmenu_version}"
 
-    modImplementation ('com.github.qouteall:MiniScaledMod:v0.01-1.16'){
-        exclude module: 'imm_ptl_core'
-    }
+
+//    modImplementation ('com.github.qouteall:MiniScaledMod:e4c0d34'){
+//        exclude module: 'imm_ptl_core'
+//        exclude module: 'q_misc_util'
+//    }
 
 //    modImplementation 'com.github.CaffeineMC:phosphor-fabric:mc1.16.2-v0.7.1'
 
@@ -193,32 +201,30 @@ dependencies {
 //    }
 
 
-//    fileTree(dir: 'deps', include: '*.jar').each {
-//        String baseName = it.name.replace(".jar", "")
-//        String version = "0.1.0"
-//        int split = baseName.lastIndexOf('-')
-//
-//        if (split != -1) {
-//            version = baseName.substring(split + 1)
-//            baseName = baseName.substring(0, split)
-//        }
-//
-//        String name = "testmod:${baseName}:${version}"
-//
-//        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
-//
-//        modImplementation name
-////        modCompileOnly name
-////        modRuntime name
-//    }
+    fileTree(dir: 'deps', include: '*.jar').each {
+        String baseName = it.name.replace(".jar", "")
+        String version = "0.1.0"
+        int split = baseName.lastIndexOf('-')
+
+        if (split != -1) {
+            version = baseName.substring(split + 1)
+            baseName = baseName.substring(0, split)
+        }
+
+        String name = "testmod:${baseName}:${version}"
+
+        System.out.println("Found test mod: " + it.name.replace(".jar", "") + " -> " + name)
+
+        modImplementation name
+//        modCompileOnly name
+//        modRuntime name
+    }
 }
 
 dependencies {
-    afterEvaluate {
-        subprojects.each {
-            compile project(path: ":${it.name}")
-            include project("${it.name}:")
-        }
+    subprojects.each {
+        api project(":${it.name}")
+        include project("${it.name}:")
     }
 }
 
@@ -229,7 +235,7 @@ task printClasspath {
     }
 }
 
-task additionalCopy(type:Copy){
+task additionalCopy(type: Copy) {
     from file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
     into file("${project.buildDir}/to_upload")
 }
