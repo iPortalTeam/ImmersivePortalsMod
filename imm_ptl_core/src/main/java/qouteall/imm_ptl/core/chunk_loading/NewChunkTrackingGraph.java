@@ -268,15 +268,6 @@ public class NewChunkTrackingGraph {
         MiscHelper.getServer().getWorlds().forEach(world -> {
             
             Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> chunkRecordMap = getChunkRecordMap(world.getRegistryKey());
-
-//            chunkRecordMap.long2ObjectEntrySet().forEach(entry -> {
-//                long longChunkPos = entry.getLongKey();
-//                ArrayList<PlayerWatchRecord> records = entry.getValue();
-//
-//                if (shouldAddCustomTicket(world, longChunkPos, records)) {
-//                    MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(longChunkPos));
-//                }
-//            });
             
             LongSortedSet additionalLoadedChunks = new LongLinkedOpenHashSet();
             additionalChunkLoaders.forEach(weakRef -> {

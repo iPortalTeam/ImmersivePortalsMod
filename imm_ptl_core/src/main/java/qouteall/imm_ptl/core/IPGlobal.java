@@ -59,8 +59,6 @@ public class IPGlobal {
     
     public static boolean enableAlternateDimensions = true;
     
-    public static boolean serverSmoothLoading = true;
-    
     public static boolean reducedPortalRendering = false;
     
     public static boolean useSecondaryEntityVertexConsumer = true;

@@ -190,9 +190,9 @@ public class ClientWorldLoader {
         
         clientWorldMap.clear();
         worldRendererMap.clear();
-    
+        
         disposeRenderHelpers();
-    
+        
         isInitialized = false;
         
         
@@ -267,17 +267,17 @@ public class ClientWorldLoader {
         
         ClientWorld newWorld;
         try {
-            //multiple net handlers share the same playerListEntries object
             ClientPlayNetworkHandler mainNetHandler = client.player.networkHandler;
             
             RegistryKey<DimensionType> dimensionTypeKey =
                 DimensionTypeSync.getDimensionTypeKey(dimension);
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
-            DynamicRegistryManager dimensionTracker = mainNetHandler.getRegistryManager();
+            DynamicRegistryManager registryManager = mainNetHandler.getRegistryManager();
             
-            DimensionType dimensionType = dimensionTracker
+            DimensionType dimensionType = registryManager
                 .get(Registry.DIMENSION_TYPE_KEY).get(dimensionTypeKey);
+            Validate.notNull(dimensionType);
             
             ClientWorld.Properties properties = new ClientWorld.Properties(
                 currentProperty.getDifficulty(),
@@ -290,7 +290,7 @@ public class ClientWorldLoader {
                 dimension,
                 dimensionType,
                 chunkLoadDistance,
-                () -> client.getProfiler(),
+                client::getProfiler,
                 worldRenderer,
                 client.world.isDebugWorld(),
                 client.world.getBiomeAccess().seed
