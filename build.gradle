@@ -181,7 +181,7 @@ dependencies {
 
 dependencies {
     subprojects.each {
-        api project(path: ":${it.name}", configuration: "namedElements")
+        implementation project(path: ":${it.name}", configuration: "namedElements")
         include project("${it.name}:")
     }
 }

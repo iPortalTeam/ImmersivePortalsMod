@@ -6,7 +6,7 @@ loom {
 }
 
 dependencies {
-    api project(":q_misc_util")
+    implementation project(path: ":q_misc_util", configuration: "namedElements")
 
     compileOnly files('ofdep.jar')
 }
