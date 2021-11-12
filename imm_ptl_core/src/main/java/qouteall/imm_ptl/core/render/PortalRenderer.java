@@ -63,7 +63,7 @@ public abstract class PortalRenderer {
         
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
             Frustum frustum = new Frustum(
-                matrixStack.peek().getModel(),
+                matrixStack.peek().getPositionMatrix(),
                 RenderStates.projectionMatrix
             );
             

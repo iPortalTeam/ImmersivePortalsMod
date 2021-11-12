@@ -44,8 +44,8 @@ public class TransformationManager {
         
         if (isAnimationRunning()) {
             // override vanilla camera transformation
-            matrixStack.peek().getModel().loadIdentity();
-            matrixStack.peek().getNormal().loadIdentity();
+            matrixStack.peek().getPositionMatrix().loadIdentity();
+            matrixStack.peek().getNormalMatrix().loadIdentity();
             
             DQuaternion cameraRotation = DQuaternion.getCameraRotation(camera.getPitch(), camera.getYaw());
             
@@ -254,7 +254,7 @@ public class TransformationManager {
         
         WorldRenderInfo.applyAdditionalTransformations(matrixStack);
         
-        Matrix4f matrix = matrixStack.peek().getModel();
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
         matrix.invert();
         Vector4f origin = new Vector4f(0, 0, 0, 1);
         origin.transform(matrix);

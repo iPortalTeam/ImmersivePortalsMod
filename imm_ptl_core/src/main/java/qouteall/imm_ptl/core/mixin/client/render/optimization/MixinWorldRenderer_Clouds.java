@@ -105,7 +105,7 @@ public abstract class MixinWorldRenderer_Clouds {
     private void portal_onBeginCloudRendering(
         float tickDelta, double cameraX, double cameraY, double cameraZ
     ) {
-        float f = this.world.getSkyProperties().getCloudsHeight();
+        float f = this.world.getDimensionEffects().getCloudsHeight();
         float g = 12.0F;
         float h = 4.0F;
         double d = 2.0E-4D;

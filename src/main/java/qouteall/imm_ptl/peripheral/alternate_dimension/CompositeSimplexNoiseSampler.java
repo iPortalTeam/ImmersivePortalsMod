@@ -1,8 +1,7 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
-import net.minecraft.world.gen.ChunkRandom;
-
+import net.minecraft.world.gen.random.ChunkRandom;
 import java.util.stream.IntStream;
 
 public class CompositeSimplexNoiseSampler {

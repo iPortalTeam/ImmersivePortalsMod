@@ -64,7 +64,7 @@ public class WorldCreationDimensionHelper {
         RegistryReadingOps<JsonElement> registryReadingOps =
             RegistryReadingOps.of(JsonOps.INSTANCE, registryTracker);
         RegistryOps<JsonElement> registryOps =
-            RegistryOps.method_36574(JsonOps.INSTANCE, (ResourceManager) resourceManager, registryTracker);
+            RegistryOps.ofLoaded(JsonOps.INSTANCE, (ResourceManager) resourceManager, registryTracker);
         
         DynamicRegistryManager.load(registryTracker, registryOps);
         

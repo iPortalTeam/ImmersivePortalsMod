@@ -76,7 +76,7 @@ public class ViewAreaRenderer {
         
         FrontClipping.updateClippingEquationUniformForCurrentShader(false);
         
-        shader.upload();
+        shader.bind();
         
         Tessellator tessellator = RenderSystem.renderThreadTesselator();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -92,7 +92,7 @@ public class ViewAreaRenderer {
         BufferRenderer.postDraw(bufferBuilder);
         
         // wrong name. unbind
-        shader.bind();
+        shader.unbind();
         
         GlStateManager._enableTexture();
         GlStateManager._enableCull();

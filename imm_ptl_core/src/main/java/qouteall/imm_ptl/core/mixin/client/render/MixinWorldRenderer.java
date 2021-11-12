@@ -198,7 +198,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         IPCGlobal.renderer.onAfterTranslucentRendering(matrices);
         
         //make hand rendering normal
-        DiffuseLighting.disableForLevel(matrices.peek().getModel());
+        DiffuseLighting.disableForLevel(matrices.peek().getPositionMatrix());
     }
     
     @Inject(

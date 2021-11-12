@@ -90,7 +90,7 @@ public class BlockManipulationServer {
         ServerPlayerEntity player
     ) {
         ServerWorld destWorld = MiscHelper.getServer().getWorld(dimension);
-        ServerWorld oldWorld = player.getServerWorld();
+        ServerWorld oldWorld = player.getWorld();
         player.interactionManager.setWorld(destWorld);
         player.interactionManager.tryBreakBlock(
             packet.getPos()

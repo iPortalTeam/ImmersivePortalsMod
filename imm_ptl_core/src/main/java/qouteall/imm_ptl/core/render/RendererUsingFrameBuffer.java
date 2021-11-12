@@ -109,7 +109,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         return QueryManager.renderAndGetDoesAnySamplePass(() -> {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
-                matrixStack.peek().getModel(),
+                matrixStack.peek().getPositionMatrix(),
                 RenderStates.projectionMatrix,
                 true, true,
                 true);
@@ -120,7 +120,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
             secondaryFrameBuffer.fb,
-            matrixStack.peek().getModel(),
+            matrixStack.peek().getPositionMatrix(),
             RenderStates.projectionMatrix
         );
     }

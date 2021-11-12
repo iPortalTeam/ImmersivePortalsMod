@@ -274,7 +274,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         boolean result = PortalRenderInfo.renderAndDecideVisibility(portal, () -> {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
-                matrixStack.peek().getModel(),
+                matrixStack.peek().getPositionMatrix(),
                 RenderStates.projectionMatrix,
                 true, true, true
             );

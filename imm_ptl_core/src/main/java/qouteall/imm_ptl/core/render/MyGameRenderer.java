@@ -305,7 +305,7 @@ public class MyGameRenderer {
         double e = cameraPos.getY();
         double f = cameraPos.getZ();
         
-        boolean bl2 = client.world.getSkyProperties().useThickFog(MathHelper.floor(d), MathHelper.floor(e)) ||
+        boolean bl2 = client.world.getDimensionEffects().useThickFog(MathHelper.floor(d), MathHelper.floor(e)) ||
             client.inGameHud.getBossBarHud().shouldThickenFog();
         
         BackgroundRenderer.applyFog(camera, BackgroundRenderer.FogType.FOG_TERRAIN, Math.max(g - 16.0F, 32.0F), bl2);
@@ -323,7 +323,7 @@ public class MyGameRenderer {
     }
     
     public static void resetDiffuseLighting(MatrixStack matrixStack) {
-        DiffuseLighting.enableForLevel(matrixStack.peek().getModel());
+        DiffuseLighting.enableForLevel(matrixStack.peek().getPositionMatrix());
     }
     
     public static void pruneRenderList(ObjectList<?> visibleChunks) {

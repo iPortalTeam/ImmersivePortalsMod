@@ -188,7 +188,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3d.ZERO,
-            matrixStack.peek().getModel(),
+            matrixStack.peek().getPositionMatrix(),
             RenderStates.projectionMatrix,
             true, true,
             true);
@@ -234,7 +234,7 @@ public class RendererUsingStencil extends PortalRenderer {
         
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3d.ZERO,
-            matrixStack.peek().getModel(),
+            matrixStack.peek().getPositionMatrix(),
             RenderStates.projectionMatrix,
             false,
             false,

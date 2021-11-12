@@ -164,7 +164,7 @@ public class MyRenderHelper {
             shader.projectionMat.set(projectionMatrix);
         }
         
-        shader.upload();
+        shader.bind();
         
         Tessellator tessellator = RenderSystem.renderThreadTesselator();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -180,7 +180,7 @@ public class MyRenderHelper {
         BufferRenderer.postDraw(bufferBuilder);
         
         // wrong name. unbind
-        shader.bind();
+        shader.unbind();
     }
     
     public static void renderScreenTriangle() {
@@ -206,7 +206,7 @@ public class MyRenderHelper {
         shader.modelViewMat.set(identityMatrix);
         shader.projectionMat.set(identityMatrix);
         
-        shader.upload();
+        shader.bind();
         
         RenderSystem.disableTexture();
         
@@ -233,7 +233,7 @@ public class MyRenderHelper {
         BufferRenderer.postDraw(bufferBuilder);
         
         // wrong name. unbind
-        shader.bind();
+        shader.unbind();
         
         RenderSystem.enableTexture();
     }
@@ -310,7 +310,7 @@ public class MyRenderHelper {
         
         shader.projectionMat.set(projectionMatrix);
         
-        shader.upload();
+        shader.bind();
         
         float textureXScale = (float) viewportWidth / (float) textureProvider.textureWidth;
         float textureYScale = (float) viewportHeight / (float) textureProvider.textureHeight;
@@ -337,7 +337,7 @@ public class MyRenderHelper {
         BufferRenderer.postDraw(bufferBuilder);
         
         // unbind
-        shader.bind();
+        shader.unbind();
         
         GlStateManager._depthMask(true);
         GlStateManager._colorMask(true, true, true, true);

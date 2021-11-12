@@ -72,7 +72,7 @@ public class FrontClipping {
     ) {
         Vector4f eq =
             new Vector4f((float) equation[0], (float) equation[1], (float) equation[2], (float) equation[3]);
-        Matrix4f m = matrixStack.peek().getModel().copy();
+        Matrix4f m = matrixStack.peek().getPositionMatrix().copy();
         m.invert();
         m.transpose();
         eq.transform(m);

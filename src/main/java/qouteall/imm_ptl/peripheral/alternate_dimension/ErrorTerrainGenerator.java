@@ -22,7 +22,6 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ProtoChunk;
-import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
@@ -33,7 +32,7 @@ import net.minecraft.world.gen.feature.OceanMonumentFeature;
 import net.minecraft.world.gen.feature.StrongholdFeature;
 import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.WoodlandMansionFeature;
-
+import net.minecraft.world.gen.random.ChunkRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;

@@ -266,7 +266,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
                     
                     entity.updatePositionAndAngles(newX, newY, newZ, yaw, pitch);
                     
-                    this.player.getServerWorld().getChunkManager().updatePosition(this.player);
+                    this.player.getWorld().getChunkManager().updatePosition(this.player);
                     
                     vehicleFloating = false;
                     updatedRiddenX = entity.getX();

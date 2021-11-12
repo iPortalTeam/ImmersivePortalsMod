@@ -44,8 +44,8 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         modelView = new MatrixStack();
         modelView.push();
-        modelView.peek().getModel().multiply(matrixStack.peek().getModel());
-        modelView.peek().getNormal().multiply(matrixStack.peek().getNormal());
+        modelView.peek().getPositionMatrix().multiply(matrixStack.peek().getPositionMatrix());
+        modelView.peek().getNormalMatrix().multiply(matrixStack.peek().getNormalMatrix());
     }
     
     @Override
@@ -97,7 +97,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         MyRenderHelper.drawPortalAreaWithFramebuffer(
             portal,
             client.getFramebuffer(),
-            matrixStack.peek().getModel(),
+            matrixStack.peek().getPositionMatrix(),
             RenderStates.projectionMatrix
         );
         CHelper.disableDepthClamp();
@@ -135,7 +135,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
-                matrixStack.peek().getModel(),
+                matrixStack.peek().getPositionMatrix(),
                 RenderStates.projectionMatrix,
                 true, false, false
             );

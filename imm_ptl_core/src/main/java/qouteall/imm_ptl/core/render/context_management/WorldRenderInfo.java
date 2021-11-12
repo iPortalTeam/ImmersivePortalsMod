@@ -104,20 +104,20 @@ public class WorldRenderInfo {
     public static void applyAdditionalTransformations(MatrixStack matrixStack) {
         for (WorldRenderInfo worldRenderInfo : renderInfoStack) {
             if (worldRenderInfo.overwriteCameraTransformation) {
-                matrixStack.peek().getModel().loadIdentity();
-                matrixStack.peek().getNormal().loadIdentity();
+                matrixStack.peek().getPositionMatrix().loadIdentity();
+                matrixStack.peek().getNormalMatrix().loadIdentity();
             }
             
             Matrix4f matrix = worldRenderInfo.cameraTransformation;
             if (matrix != null) {
-                matrixStack.peek().getModel().multiply(matrix);
+                matrixStack.peek().getPositionMatrix().multiply(matrix);
                 
                 Matrix3f normalMatrixMult = new Matrix3f(matrix);
                 // make its determinant 1 so it won't scale the normal vector
                 normalMatrixMult.multiply(
                     (float) Math.pow(1.0 / Math.abs(normalMatrixMult.determinant()), 1.0 / 3)
                 );
-                matrixStack.peek().getNormal().multiply(normalMatrixMult);
+                matrixStack.peek().getNormalMatrix().multiply(normalMatrixMult);
             }
         }
     }

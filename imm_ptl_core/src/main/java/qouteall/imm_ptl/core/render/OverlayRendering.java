@@ -197,8 +197,8 @@ public class OverlayRendering {
         int[] is = quad.getVertexData();
         Vec3i vec3i = quad.getFace().getVector();
         Vec3f vector3f = new Vec3f((float) vec3i.getX(), (float) vec3i.getY(), (float) vec3i.getZ());
-        Matrix4f matrix4f = matrixEntry.getModel();
-        vector3f.transform(matrixEntry.getNormal());
+        Matrix4f matrix4f = matrixEntry.getPositionMatrix();
+        vector3f.transform(matrixEntry.getNormalMatrix());
         
         int j = is.length / 8;
         MemoryStack memoryStack = MemoryStack.stackPush();
