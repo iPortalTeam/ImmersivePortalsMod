@@ -16,10 +16,6 @@ public interface IEWorldRenderer {
     
     BuiltChunkStorage ip_getBuiltChunkStorage();
     
-    ObjectArrayList ip_getVisibleChunks();
-    
-    void ip_setVisibleChunks(ObjectArrayList l);
-    
     ChunkBuilder getChunkBuilder();
     
     void ip_myRenderEntity(

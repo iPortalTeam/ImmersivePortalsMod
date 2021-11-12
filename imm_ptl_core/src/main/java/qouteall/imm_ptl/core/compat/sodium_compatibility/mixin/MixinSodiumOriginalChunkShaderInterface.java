@@ -28,7 +28,8 @@ public class MixinSodiumOriginalChunkShaderInterface {
     @Inject(
         method = "<init>",
         at = @At("RETURN"),
-        require = 0
+        require = 0,
+        remap = false
     )
     private void onInitIrisSodium(
         @Coerce Object context,
@@ -40,7 +41,8 @@ public class MixinSodiumOriginalChunkShaderInterface {
     
     @Inject(
         method = "setup",
-        at = @At("RETURN")
+        at = @At("RETURN"),
+        remap = false
     )
     private void onSetup(ChunkVertexType vertexType, CallbackInfo ci) {
         if (uIPClippingEquation != -1) {

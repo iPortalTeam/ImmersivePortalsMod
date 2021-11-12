@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import net.minecraft.network.packet.s2c.play.ChunkData;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.my_util.SignalArged;
@@ -15,7 +16,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
-import net.minecraft.world.biome.source.BiomeArray;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.function.Consumer;
 
 // allow storing chunks that are far away from the player
 @Environment(EnvType.CLIENT)
@@ -94,63 +95,32 @@ public class MyClientChunkManager extends ClientChunkManager {
     
     @Override
     public WorldChunk loadChunkFromPacket(
-        int x, int z, BiomeArray biomes,
-        PacketByteBuf buf, NbtCompound nbt, BitSet bitSet
+        int x, int z,
+        PacketByteBuf buf, NbtCompound nbt, Consumer<ChunkData.BlockEntityVisitor> consumer
     ) {
         long chunkPosLong = ChunkPos.toLong(x, z);
         
         WorldChunk worldChunk;
-        ChunkPos chunkPos = new ChunkPos(x, z);
+        
         synchronized (chunkMap) {
-            worldChunk = (WorldChunk) this.chunkMap.get(chunkPosLong);
-            if (positionEquals(worldChunk, x, z)) {
-                worldChunk.loadFromPacket(biomes, buf, nbt, bitSet);
-            }
-            else {
-                if (biomes == null) {
-                    LOGGER.error(
-                        "Missing Biome Array: {} {} {} Client Biome May be Incorrect",
-                        world.getRegistryKey().getValue(), x, z
-                    );
-                    throw new RuntimeException("Null biome array");
-                }
-                
-                worldChunk = new WorldChunk(this.world, chunkPos, biomes);
-                worldChunk.loadFromPacket(biomes, buf, nbt, bitSet);
+            worldChunk = chunkMap.get(chunkPosLong);
+            ChunkPos chunkPos = new ChunkPos(x, z);
+            if (!positionEquals(worldChunk, x, z)) {
+                worldChunk = new WorldChunk(this.world, chunkPos);
+                worldChunk.loadFromPacket(buf, nbt, consumer);
                 chunkMap.put(chunkPosLong, worldChunk);
             }
+            else {
+                worldChunk.loadFromPacket(buf, nbt, consumer);
+            }
         }
         
-        ChunkSection[] chunkSections = worldChunk.getSectionArray();
-        LightingProvider lightingProvider = this.getLightingProvider();
-        lightingProvider.setColumnEnabled(chunkPos, true);
-        
-        for (int yIndex = 0; yIndex < chunkSections.length; ++yIndex) {
-            ChunkSection chunkSection = chunkSections[yIndex];
-            lightingProvider.setSectionStatus(
-                ChunkSectionPos.from(x, worldChunk.sectionIndexToCoord(yIndex), z),
-                ChunkSection.isEmpty(chunkSection)
-            );
-        }
-        
-        this.world.resetChunkColor(chunkPos);
+        this.world.resetChunkColor(new ChunkPos(x, z));
         
         O_O.postClientChunkLoadEvent(worldChunk);
         clientChunkLoadSignal.emit(worldChunk);
         
         return worldChunk;
-    }
-    
-    public static void updateLightStatus(WorldChunk chunk) {
-        LightingProvider lightingProvider = chunk.getWorld().getLightingProvider();
-        ChunkSection[] chunkSections = chunk.getSectionArray();
-        for (int cy = 0; cy < chunkSections.length; ++cy) {
-            ChunkSection chunkSection = chunkSections[cy];
-            lightingProvider.setSectionStatus(
-                ChunkSectionPos.from(chunk.getPos().x, cy, chunk.getPos().z),
-                ChunkSection.isEmpty(chunkSection)
-            );
-        }
     }
     
     public List<WorldChunk> getCopiedChunkList() {

@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.mixin.common.chunk_sync;
 
 import com.mojang.datafixers.util.Either;
+import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
+import org.apache.commons.lang3.mutable.MutableObject;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -108,10 +110,8 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
      * @reason make mod incompatibility fail fast
      */
     @Overwrite
-    public void sendChunkDataPackets(
-        ServerPlayerEntity player,
-        Packet<?>[] packets_1,
-        WorldChunk worldChunk_1
+    private void sendChunkDataPackets(
+        ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk
     ) {
         //chunk data packet will be sent on ChunkDataSyncManager
     }

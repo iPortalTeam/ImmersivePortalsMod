@@ -77,9 +77,10 @@ public class CustomPortalGeneration {
         return registry;
     });
     
-    public static final MapCodec<CustomPortalGeneration> codec = schemaRegistry.dispatchMap(
-        "schema_version", e -> codecV1, Function.identity()
-    );
+    public static final MapCodec<CustomPortalGeneration> codec = null;
+//        schemaRegistry.dispatchMap(
+//        "schema_version", e -> codecV1, Function.identity()
+//    );
     
     public final List<RegistryKey<World>> fromDimensions;
     public final RegistryKey<World> toDimension;

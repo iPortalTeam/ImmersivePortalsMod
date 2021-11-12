@@ -44,6 +44,7 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     
     /**
      * @author qouteall
+     * @reason make incompat fail fast
      */
     @Overwrite
     public void stopTracking(ServerPlayerEntity player) {
@@ -57,14 +58,15 @@ public abstract class MixinEntityTrackerEntry implements IEEntityTrackerEntry {
     
     /**
      * @author qouteall
+     * @reason make incompat fail fast
      */
     @Overwrite
     public void startTracking(ServerPlayerEntity player) {
         IPCommonNetwork.withForceRedirect(
             ((ServerWorld) entity.world), () -> {
-                ServerPlayNetworkHandler var10001 = player.networkHandler;
-                Objects.requireNonNull(var10001);
-                this.sendPackets(var10001::sendPacket);
+                ServerPlayNetworkHandler networkHandler = player.networkHandler;
+                Objects.requireNonNull(networkHandler);
+                this.sendPackets(networkHandler::sendPacket);
                 this.entity.onStartedTrackingBy(player);
             }
         );

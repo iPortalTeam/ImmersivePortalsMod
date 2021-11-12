@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 //NOTE must redirect all packets about entities
-@Mixin(targets = "net.minecraft.server.world.ThreadedAnvilChunkStorage$EntityTracker")
+@Mixin(ThreadedAnvilChunkStorage.EntityTracker.class)
 public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final
@@ -86,6 +87,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     /**
      * @author qouteall
+     * @reason make incompat fail fast
      */
     @Overwrite
     public void updateTrackedStatus(ServerPlayerEntity player) {
@@ -94,6 +96,7 @@ public abstract class MixinEntityTracker implements IEEntityTracker {
     
     /**
      * @author qouteall
+     * @reason make incompat fail fast
      */
     @Overwrite
     public void updateTrackedStatus(List<ServerPlayerEntity> list) {

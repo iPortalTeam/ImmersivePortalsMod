@@ -79,11 +79,12 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
     @Inject(
         method = "render",
         at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/util/snooper/Snooper;update()V"
+            value = "FIELD",
+            target = "Lnet/minecraft/client/MinecraftClient;currentFps:I",
+            shift = At.Shift.AFTER
         )
     )
-    private void onSnooperUpdate(boolean tick, CallbackInfo ci) {
+    private static void onSnooperUpdate(boolean tick, CallbackInfo ci) {
         FPSMonitor.updateEverySecond(currentFps);
     }
     

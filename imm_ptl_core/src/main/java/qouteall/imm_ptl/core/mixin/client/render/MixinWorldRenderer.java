@@ -88,16 +88,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     );
     
     @Shadow
-    private boolean needsTerrainUpdate;
-    
-    @Shadow
     private ChunkBuilder chunkBuilder;
-    
-    @Shadow
-    protected abstract void updateChunks(long limitTime);
-    
-    @Shadow
-    private Set<ChunkBuilder.BuiltChunk> chunksToRebuild;
     
     @Shadow
     private ShaderEffect transparencyShader;
@@ -106,11 +97,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     @Final
     private BufferBuilderStorage bufferBuilders;
-    
-    @Shadow
-    @Final
-    @Mutable
-    private ObjectArrayList visibleChunks;
     
     @Shadow
     private int viewDistance;
@@ -255,27 +241,28 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    @Inject(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/RenderLayer;getSolid()Lnet/minecraft/client/render/RenderLayer;"
-        )
-    )
-    private void onBeginRenderingSolid(
-        MatrixStack matrices, float tickDelta, long limitTime,
-        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-        LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f,
-        CallbackInfo ci
-    ) {
-        MyGameRenderer.pruneRenderList(this.visibleChunks);
-    }
+    // TODO add back
+//    @Inject(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/RenderLayer;getSolid()Lnet/minecraft/client/render/RenderLayer;"
+//        )
+//    )
+//    private void onBeginRenderingSolid(
+//        MatrixStack matrices, float tickDelta, long limitTime,
+//        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
+//        LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f,
+//        CallbackInfo ci
+//    ) {
+//        MyGameRenderer.pruneRenderList(this.visibleChunks);
+//    }
     
     @Inject(
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/SkyProperties;isDarkened()Z"
+            target = "Lnet/minecraft/client/render/DimensionEffects;isDarkened()Z"
         )
     )
     private void onAfterCutoutRendering(
@@ -480,7 +467,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         isReloadingOtherWorldRenderers = false;
     }
     
-    @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
+    @Inject(
+        method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FLjava/lang/Runnable;)V",
+        at = @At("HEAD"), cancellable = true
+    )
     private void onRenderSkyBegin(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         if (PortalRendering.isRendering()) {
             if (PortalRendering.getRenderingPortal().isFuseView()) {
@@ -495,7 +485,10 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    @Inject(method = "renderSky", at = @At("RETURN"))
+    @Inject(
+        method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FLjava/lang/Runnable;)V",
+        at = @At("RETURN")
+    )
     private void onRenderSkyEnd(MatrixStack matrices, Matrix4f matrix4f, float f, Runnable runnable, CallbackInfo ci) {
         MyRenderHelper.recoverFaceCulling();
     }
@@ -507,22 +500,23 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         TransformationManager.processTransformation(client.gameRenderer.getCamera(), matrices);
     }
     
+    // TODO recover
     //reduce lag spike
-    @Redirect(
-        method = "render",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/render/WorldRenderer;updateChunks(J)V"
-        )
-    )
-    private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
-        if (PortalRendering.isRendering() && (!OFInterface.isOptifinePresent)) {
-            portal_updateChunks();
-        }
-        else {
-            updateChunks(limitTime);
-        }
-    }
+//    @Redirect(
+//        method = "render",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/client/render/WorldRenderer;updateChunks(J)V"
+//        )
+//    )
+//    private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
+//        if (PortalRendering.isRendering() && (!OFInterface.isOptifinePresent)) {
+//            portal_updateChunks();
+//        }
+//        else {
+//            updateChunks(limitTime);
+//        }
+//    }
     
     // vanilla clears translucentFramebuffer even when transparencyShader is null
     // it makes the framebuffer to be wrongly bound in fabulous mode
@@ -567,16 +561,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     }
     
     @Override
-    public ObjectArrayList ip_getVisibleChunks() {
-        return visibleChunks;
-    }
-    
-    @Override
-    public void ip_setVisibleChunks(ObjectArrayList l) {
-        visibleChunks = l;
-    }
-    
-    @Override
     public ChunkBuilder getChunkBuilder() {
         return chunkBuilder;
     }
@@ -615,36 +599,36 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     public void ip_setBufferBuilderStorage(BufferBuilderStorage arg) {
         bufferBuilders = arg;
     }
-    
-    private void portal_updateChunks() {
-        
-        ChunkBuilder chunkBuilder = this.chunkBuilder;
-        boolean uploaded = chunkBuilder.upload();
-        this.needsTerrainUpdate |= uploaded;//no short circuit
-        
-        int limit = Math.max(1, (chunksToRebuild.size() / 1000));
-        
-        int num = 0;
-        for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
-            ChunkBuilder.BuiltChunk builtChunk = iterator.next();
-            
-            //vanilla's updateChunks() does not check shouldRebuild()
-            //so it may create many rebuild tasks and cancelling it which creates performance cost
-            if (builtChunk.shouldBuild()) {
-                builtChunk.scheduleRebuild(chunkBuilder);
-                builtChunk.cancelRebuild();
-                
-                iterator.remove();
-                
-                num++;
-                
-                if (num >= limit) {
-                    break;
-                }
-            }
-        }
-        
-    }
+//
+//    private void portal_updateChunks() {
+//
+//        ChunkBuilder chunkBuilder = this.chunkBuilder;
+//        boolean uploaded = chunkBuilder.upload();
+//        this.needsTerrainUpdate |= uploaded;//no short circuit
+//
+//        int limit = Math.max(1, (chunksToRebuild.size() / 1000));
+//
+//        int num = 0;
+//        for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
+//            ChunkBuilder.BuiltChunk builtChunk = iterator.next();
+//
+//            //vanilla's updateChunks() does not check shouldRebuild()
+//            //so it may create many rebuild tasks and cancelling it which creates performance cost
+//            if (builtChunk.shouldBuild()) {
+//                builtChunk.scheduleRebuild(chunkBuilder);
+//                builtChunk.cancelRebuild();
+//
+//                iterator.remove();
+//
+//                num++;
+//
+//                if (num >= limit) {
+//                    break;
+//                }
+//            }
+//        }
+//
+//    }
     
     @Override
     public int portal_getRenderDistance() {

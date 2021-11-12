@@ -88,6 +88,7 @@ public class MixinPlayerManager {
     /**
      * @author qoutall
      * mostly for sound events
+     * @reason make incompat fail fast
      */
     @Overwrite
     public void sendToAround(

@@ -35,8 +35,7 @@ public class MixinWorldRenderer_Optional {
     @Final
     private MinecraftClient client;
     
-    @Shadow
-    private boolean needsTerrainUpdate;
+    @Shadow private boolean field_34810;
     
     //avoid translucent sort while rendering portal
     @Redirect(
@@ -66,19 +65,14 @@ public class MixinWorldRenderer_Optional {
         require = 0
     )
     private void onBeforeChunkBuilderSetCameraPosition(
-        Camera camera_1,
-        Frustum frustum_1,
-        boolean boolean_1,
-        int int_1,
-        boolean boolean_2,
-        CallbackInfo ci
+        Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator, CallbackInfo ci
     ) {
         if (IPCGlobal.useHackedChunkRenderDispatcher) {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
         
         if (PortalRendering.isRendering()) {
-            needsTerrainUpdate = true;
+            field_34810 = true;
         }
     }
     

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
+import net.minecraft.server.world.ServerLightingProvider;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
@@ -53,6 +54,9 @@ public class ChunkDataSyncManager {
         IEThreadedAnvilChunkStorage ieStorage
     ) {
         ChunkHolder chunkHolder = ieStorage.getChunkHolder_(chunkPos.getChunkPos().toLong());
+        
+        ServerLightingProvider lightingProvider = ieStorage.getLightingProvider();
+        
         if (chunkHolder != null) {
             WorldChunk chunk = chunkHolder.getWorldChunk();
             if (chunk != null) {
@@ -61,30 +65,9 @@ public class ChunkDataSyncManager {
                 player.networkHandler.sendPacket(
                     IPNetworking.createRedirectedMessage(
                         chunkPos.dimension,
-                        new ChunkDataS2CPacket(((WorldChunk) chunk))
+                        new ChunkDataS2CPacket(((WorldChunk) chunk), lightingProvider, null, null, true)
                     )
                 );
-                
-                LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(
-                    chunkPos.getChunkPos(),
-                    ieStorage.getLightingProvider(),
-                    null, null,
-                    true
-                );
-                player.networkHandler.sendPacket(
-                    IPNetworking.createRedirectedMessage(
-                        chunkPos.dimension,
-                        lightPacket
-                    )
-                );
-                if (IPGlobal.lightLogging) {
-                    Helper.log(String.format(
-                        "light sent immediately %s %d %d %d %d",
-                        chunk.getWorld().getRegistryKey().getValue(),
-                        chunk.getPos().x, chunk.getPos().z,
-                        lightPacket.getBlockLightMask(), lightPacket.getFilledBlockLightMask())
-                    );
-                }
                 
                 ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
                 
@@ -102,44 +85,21 @@ public class ChunkDataSyncManager {
     public void onChunkProvidedDeferred(WorldChunk chunk) {
         RegistryKey<World> dimension = chunk.getWorld().getRegistryKey();
         IEThreadedAnvilChunkStorage ieStorage = McHelper.getIEStorage(dimension);
-        
+        ServerLightingProvider lightingProvider = ieStorage.getLightingProvider();
+    
         MiscHelper.getServer().getProfiler().push("ptl_create_chunk_packet");
         
         Supplier<Packet> chunkDataPacketRedirected = Helper.cached(
             () -> IPNetworking.createRedirectedMessage(
                 dimension,
-                new ChunkDataS2CPacket(((WorldChunk) chunk))
+                new ChunkDataS2CPacket(((WorldChunk) chunk), lightingProvider, null, null, true)
             )
-        );
-        
-        Supplier<Packet> lightPacketRedirected = Helper.cached(
-            () -> {
-                LightUpdateS2CPacket lightPacket = new LightUpdateS2CPacket(
-                    chunk.getPos(), ieStorage.getLightingProvider(),
-                    null,null,
-                    true
-                );
-                if (IPGlobal.lightLogging) {
-                    Helper.log(String.format(
-                        "light sent deferred %s %d %d %d %d",
-                        chunk.getWorld().getRegistryKey().getValue(),
-                        chunk.getPos().x, chunk.getPos().z,
-                        lightPacket.getBlockLightMask(), lightPacket.getFilledBlockLightMask())
-                    );
-                }
-                return IPNetworking.createRedirectedMessage(
-                    dimension,
-                    lightPacket
-                );
-            }
         );
         
         NewChunkTrackingGraph.getPlayersViewingChunk(
             dimension, chunk.getPos().x, chunk.getPos().z
         ).forEach(player -> {
             player.networkHandler.sendPacket(chunkDataPacketRedirected.get());
-            
-            player.networkHandler.sendPacket(lightPacketRedirected.get());
             
             ieStorage.updateEntityTrackersAfterSendingChunkPacket(chunk, player);
         });

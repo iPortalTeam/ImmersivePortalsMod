@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.util.telemetry.TelemetrySender;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.q_misc_util.Helper;
@@ -84,19 +85,17 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         at = @At("RETURN")
     )
     private void onInit(
-        MinecraftClient minecraftClient_1,
-        Screen screen_1,
-        ClientConnection clientConnection_1,
-        GameProfile gameProfile_1,
-        CallbackInfo ci
+        MinecraftClient client,
+        Screen screen, ClientConnection connection,
+        GameProfile profile, TelemetrySender telemetrySender, CallbackInfo ci
     ) {
         isReProcessingPassengerPacket = false;
     }
     
     @Inject(method = "onGameJoin", at = @At("RETURN"))
     private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
-        ClientWorldLoader.isFlatWorld = packet.isFlatWorld();
-        DimensionTypeSync.onGameJoinPacketReceived(packet.getRegistryManager());
+        ClientWorldLoader.isFlatWorld = packet.flatWorld();
+        DimensionTypeSync.onGameJoinPacketReceived(packet.registryManager());
     }
     
     @Inject(
@@ -172,65 +171,6 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
         }
     }
     
-    //fix lag spike
-    //this lag spike is more severe with many portals pointing to different area
-    @Inject(
-        method = "onUnloadChunk",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientChunkManager;getLightingProvider()Lnet/minecraft/world/chunk/light/LightingProvider;"
-        ),
-        cancellable = true
-    )
-    private void onOnUnload(UnloadChunkS2CPacket packet, CallbackInfo ci) {
-        if (IPCGlobal.smoothChunkUnload) {
-            DimensionalChunkPos pos = new DimensionalChunkPos(
-                world.getRegistryKey(), packet.getX(), packet.getZ()
-            );
-            
-            WorldRenderer worldRenderer =
-                ClientWorldLoader.getWorldRenderer(world.getRegistryKey());
-            BuiltChunkStorage storage = ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage();
-            if (storage instanceof MyBuiltChunkStorage) {
-                ((MyBuiltChunkStorage) storage).onChunkUnload(packet.getX(), packet.getZ());
-            }
-            
-            int[] counter = new int[1];
-            counter[0] = (int) (Math.random() * 200);
-            IPGlobal.clientTaskList.addTask(() -> {
-                ClientWorld world1 = ClientWorldLoader.getWorld(pos.dimension);
-                
-                if (world1.getChunkManager().isChunkLoaded(pos.x, pos.z)) {
-                    return true;
-                }
-                
-                if (counter[0] > 0) {
-                    counter[0]--;
-                    return false;
-                }
-                
-                WorldRenderer wr = ClientWorldLoader.getWorldRenderer(pos.dimension);
-                
-                Profiler profiler = MinecraftClient.getInstance().getProfiler();
-                profiler.push("delayed_unload");
-                
-                for (int y = 0; y < 16; ++y) {
-                    wr.scheduleBlockRenders(pos.x, y, pos.z);
-                    world1.getLightingProvider().setSectionStatus(
-                        ChunkSectionPos.from(pos.x, y, pos.z), true
-                    );
-                }
-                
-                world1.getLightingProvider().setColumnEnabled(pos.getChunkPos(), false);
-                
-                profiler.pop();
-                
-                return true;
-            });
-            ci.cancel();
-        }
-    }
-    
     // for debug
     @Redirect(
         method = "onEntityTrackerUpdate",
@@ -248,7 +188,7 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     }
     
     @Redirect(
-        method = "onVelocityUpdate",
+        method = "onEntityVelocityUpdate",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/entity/Entity;setVelocityClient(DDD)V"

@@ -21,6 +21,7 @@ public abstract class MixinSodiumChunkGraphInfo {
     
     /**
      * @author qouteall
+     * @reason ...
      */
     @Overwrite
     public boolean isCulledByFrustum(FrustumExtended frustum) {

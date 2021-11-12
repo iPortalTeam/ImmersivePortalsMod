@@ -79,8 +79,6 @@ public class IPGlobal {
     
     public static boolean netherPortalOverlay = false;
     
-    public static boolean lightLogging = false;
-    
     public static boolean debugDisableFog = false;
     
     public static int scaleLimit = 30;
