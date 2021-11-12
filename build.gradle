@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '0.9-SNAPSHOT' apply(false)
+    id 'fabric-loom' version '0.10-SNAPSHOT' apply(false)
     id 'maven-publish'
 }
 
@@ -127,14 +127,7 @@ subprojects {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                afterEvaluate {
-                    artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")) {
-                        builtBy remapJar
-                    }
-                    artifact(sourcesJar) {
-                        builtBy remapSourcesJar
-                    }
-                }
+                from components.java
             }
         }
         // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
@@ -152,22 +145,7 @@ subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact(file("${project.buildDir}/libs/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")) {
-                builtBy remapJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-            pom.withXml {
-                def depsNode = asNode().appendNode("dependencies")
-                subprojects.each {
-                    def depNode = depsNode.appendNode("dependency")
-                    depNode.appendNode("groupId", it.group)
-                    depNode.appendNode("artifactId", it.name)
-                    depNode.appendNode("version", it.version)
-                    depNode.appendNode("scope", "compile")
-                }
-            }
+            from components.java
         }
     }
 }
@@ -179,31 +157,6 @@ dependencies {
 //
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 //    include "io.github.prospector:modmenu:${modmenu_version}"
-
-
-//    modImplementation ('com.github.qouteall:MiniScaledMod:e4c0d34'){
-//        exclude module: 'imm_ptl_core'
-//        exclude module: 'q_misc_util'
-//    }
-
-//    modImplementation 'com.github.CaffeineMC:phosphor-fabric:mc1.16.2-v0.7.1'
-
-    //make the game launch faster in dev
-//    modRuntime("com.github.SuperCoder7979:databreaker:master-SNAPSHOT") {
-//        exclude module: "fabric-loader"
-//    }
-
-//    modImplementation('com.github.LTHeaven:InnerDimensionMod:main-SNAPSHOT'){
-//        exclude module: "imm_ptl_core"
-//    }
-
-    // OptiFine
-//    modImplementation 'com.github.qouteall:OptiFabric:llama-SNAPSHOT'
-//    modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
-//    compile 'org.zeroturnaround:zt-zip:1.13'
-//    compile('net.fabricmc:stitch:0.5.1+build.77') {
-//        transitive = false
-//    }
 
 
     fileTree(dir: 'deps', include: '*.jar').each {
@@ -228,7 +181,7 @@ dependencies {
 
 dependencies {
     subprojects.each {
-        api project(":${it.name}")
+        api project(path: ":${it.name}", configuration: "namedElements")
         include project("${it.name}:")
     }
 }
