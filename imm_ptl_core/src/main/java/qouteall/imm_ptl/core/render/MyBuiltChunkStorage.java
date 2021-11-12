@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.LongConsumer;
 
 public class MyBuiltChunkStorage extends BuiltChunkStorage {
+    
     public static class Column {
         public long mark = 0;
         public ChunkBuilder.BuiltChunk[] chunks;
@@ -53,8 +54,11 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     private final Long2ObjectOpenHashMap<Column> columnMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<Preset> presets = new Long2ObjectOpenHashMap<>();
     private boolean shouldUpdateMainPresetNeighbor = true;
-//    private final ObjectBuffer<BuiltChunk> builtChunkBuffer;
+    //    private final ObjectBuffer<BuiltChunk> builtChunkBuffer;
     private Preset currentPreset = null;
+    
+    public final int minSectionY;
+    public final int endSectionY;
     
     private boolean isAlive = true;
     
@@ -76,11 +80,8 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             cacheSize = cacheSize / 10;
         }
         
-//        builtChunkBuffer = new ObjectBuffer<>(
-//            cacheSize,
-//            () -> factory.new BuiltChunk(0),
-//            ChunkBuilder.BuiltChunk::delete
-//        );
+        minSectionY = McHelper.getMinSectionY(world);
+        endSectionY = McHelper.getMaxSectionYExclusive(world);
     }
     
     @Override
@@ -156,12 +157,10 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     
     @Override
     public void scheduleRebuild(int cx, int cy, int cz, boolean isImportant) {
-        //TODO change it
         ChunkBuilder.BuiltChunk builtChunk = provideBuiltChunkByChunkPos(cx, cy, cz);
         builtChunk.scheduleRebuild(isImportant);
     }
     
-    // TODO update in 1.17
     public ChunkBuilder.BuiltChunk provideBuiltChunkByChunkPos(int cx, int cy, int cz) {
         Column column = provideColumn(ChunkPos.toLong(cx, cz));
         int offsetChunkY = MathHelper.clamp(
@@ -389,7 +388,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         Column column = columnMap.get(chunkPos);
         if (column != null) {
             for (ChunkBuilder.BuiltChunk builtChunk : column.chunks) {
-                ((IEBuiltChunk) builtChunk).fullyReset();
+                ((IEBuiltChunk) builtChunk).portal_fullyReset();
             }
         }
     }
@@ -421,11 +420,30 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             k = MathHelper.floorMod(k, this.sizeZ);
             int chunkIndex = this.getChunkIndex(i, j, k);
             BuiltChunk result = this.chunks[chunkIndex];
-            ((IEBuiltChunk) result).setIndex(chunkIndex);
+            ((IEBuiltChunk) result).portal_setIndex(chunkIndex);
             return result;
         }
         else {
             return null;
         }
+    }
+    
+    @Nullable
+    public BuiltChunk rawGet(int cx, int cy, int cz, long timeMark) {
+        if (cy < minSectionY || cy >= endSectionY) {
+            return null;
+        }
+        
+        long l = ChunkPos.toLong(cx, cz);
+        Column column = columnMap.get(l);
+        if (column == null) {
+            return null;
+        }
+        
+        column.mark = timeMark;
+        
+        int yOffset = cy - minSectionY;
+        
+        return column.chunks[yOffset];
     }
 }

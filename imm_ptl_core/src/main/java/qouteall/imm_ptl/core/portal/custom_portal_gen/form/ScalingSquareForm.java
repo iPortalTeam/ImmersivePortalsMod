@@ -19,9 +19,9 @@ import java.util.function.Predicate;
 public class ScalingSquareForm extends NetherPortalLikeForm {
     public static final Codec<ScalingSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            Registry.BLOCK.method_39673().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            Registry.BLOCK.method_39673().fieldOf("area_block").forGetter(o -> o.areaBlock),
+            Registry.BLOCK.method_39673().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
             Codec.INT.fieldOf("from_length").forGetter(o -> o.fromLength),
             Codec.INT.fieldOf("to_length").forGetter(o -> o.toLength),
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)

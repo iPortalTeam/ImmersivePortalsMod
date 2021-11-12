@@ -274,6 +274,7 @@ public class ClientWorldLoader {
             ClientWorld.Properties currentProperty =
                 (ClientWorld.Properties) ((IEWorld) client.world).myGetProperties();
             DynamicRegistryManager registryManager = mainNetHandler.getRegistryManager();
+            int simulationDistance = client.world.getSimulationDistance();
             
             DimensionType dimensionType = registryManager
                 .get(Registry.DIMENSION_TYPE_KEY).get(dimensionTypeKey);
@@ -290,6 +291,7 @@ public class ClientWorldLoader {
                 dimension,
                 dimensionType,
                 chunkLoadDistance,
+                simulationDistance,// seems that client world does not use this
                 client::getProfiler,
                 worldRenderer,
                 client.world.isDebugWorld(),

@@ -503,11 +503,6 @@ public class ClientDebugCommand {
         );
         registerSwitchCommand(
             builder,
-            "light_logging",
-            cond -> IPGlobal.lightLogging = cond
-        );
-        registerSwitchCommand(
-            builder,
             "nofog",
             cond -> IPGlobal.debugDisableFog = cond
         );

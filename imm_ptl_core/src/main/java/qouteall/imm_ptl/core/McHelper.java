@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
@@ -418,10 +419,8 @@ public class McHelper {
             chunkYStart, chunkYEnd,
             chunkZStart, chunkZEnd,
             entityTrackingSection -> {
-                entityTrackingSection.forEach(
-                    typeFilter,
-                    e -> true,
-                    consumer
+                ((IEEntityTrackingSection) entityTrackingSection).myForeach(
+                    typeFilter, consumer
                 );
             }
         );

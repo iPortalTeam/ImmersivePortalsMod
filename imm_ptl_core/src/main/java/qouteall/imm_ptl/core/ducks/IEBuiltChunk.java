@@ -1,11 +1,15 @@
 package qouteall.imm_ptl.core.ducks;
 
+import net.minecraft.client.render.WorldRenderer;
+
 public interface IEBuiltChunk {
-    void fullyReset();
+    void portal_fullyReset();
     
-    long getMark();
+    long portal_getMark();
     
-    void setMark(long arg);
+    void portal_setMark(long arg);
     
-    void setIndex(int arg);
+    void portal_setIndex(int arg);
+    
+    WorldRenderer.ChunkInfo portal_getDummyChunkInfo();
 }

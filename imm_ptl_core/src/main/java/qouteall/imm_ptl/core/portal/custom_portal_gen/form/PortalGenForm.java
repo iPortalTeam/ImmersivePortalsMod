@@ -50,9 +50,10 @@ public abstract class PortalGenForm {
         return registry;
     });
     
-    public static final Codec<PortalGenForm> codec = codecRegistry.dispatchStable(
-        PortalGenForm::getCodec, Function.identity()
-    );
+    public static final Codec<PortalGenForm> codec = null;
+//        codecRegistry.dispatchStable(
+//        PortalGenForm::getCodec, Function.identity()
+//    );
     
     public abstract Codec<? extends PortalGenForm> getCodec();
     

@@ -29,4 +29,9 @@ extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/ut
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$Task
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$Result
 
+accessible class net/minecraft/client/render/WorldRenderer$ChunkInfo
+accessible method net/minecraft/client/render/WorldRenderer$ChunkInfo <init> (Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;Lnet/minecraft/util/math/Direction;I)V
+accessible field Lnet/minecraft/client/render/WorldRenderer$ChunkInfo chunk Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;
+
+
 

@@ -14,9 +14,9 @@ import java.util.function.Predicate;
 public class DiligentForm extends AbstractDiligentForm {
     public static final Codec<DiligentForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.BLOCK.fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
-            Registry.BLOCK.fieldOf("area_block").forGetter(o -> o.areaBlock),
-            Registry.BLOCK.fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
+            Registry.BLOCK.method_39673().fieldOf("from_frame_block").forGetter(o -> o.fromFrameBlock),
+            Registry.BLOCK.method_39673().fieldOf("area_block").forGetter(o -> o.areaBlock),
+            Registry.BLOCK.method_39673().fieldOf("to_frame_block").forGetter(o -> o.toFrameBlock),
             Codec.BOOL.fieldOf("generate_frame_if_not_found").forGetter(o -> o.generateFrameIfNotFound)
         ).apply(instance, instance.stable(DiligentForm::new));
     });

@@ -409,7 +409,7 @@ public class ClientTeleportationManager {
         ).forEach(CollisionHelper::notifyCollidingPortals);
         
         CollisionHelper.tickClient();
-    
+        
         ((IEEntity) player).tickCollidingPortal(RenderStates.tickDelta);
         
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
@@ -423,13 +423,20 @@ public class ClientTeleportationManager {
         
         Box boundingBox = player.getBoundingBox();
         Box bottomHalfBox = boundingBox.shrink(0, boundingBox.getYLength() / 2, 0);
-        Stream<VoxelShape> collisions = player.world.getBlockCollisions(
+        Iterable<VoxelShape> collisions = player.world.getBlockCollisions(
             player, bottomHalfBox
         );
-        double maxCollisionY = collisions.mapToDouble(s -> s.getBoundingBox().maxY)
-            .max().orElse(player.getY());
         
-        double delta = maxCollisionY - player.getY();
+        double maxY = player.getY();
+        for (VoxelShape collision : collisions) {
+            maxY = Math.max(
+                collision.getBoundingBox().maxY,
+                maxY
+            );
+        }
+    
+        double maxY1 = maxY;// must effectively final
+        double delta = maxY - player.getY();
         
         if (delta <= 0) {
             return;
@@ -444,7 +451,7 @@ public class ClientTeleportationManager {
             if (player.isRemoved()) {
                 return true;
             }
-            if (player.getY() < originalY - 1 || player.getY() > maxCollisionY + 1) {
+            if (player.getY() < originalY - 1 || player.getY() > maxY1 + 1) {
                 return true;
             }
             
@@ -458,7 +465,7 @@ public class ClientTeleportationManager {
             progress = TransformationManager.mapProgress(progress);
             double newY = MathHelper.lerp(
                 progress,
-                originalY, maxCollisionY
+                originalY, maxY1
             );
             
             Vec3d newPos = new Vec3d(player.getX(), newY, player.getZ());

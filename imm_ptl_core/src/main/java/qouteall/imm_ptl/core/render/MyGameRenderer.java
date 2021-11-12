@@ -2,11 +2,15 @@ package qouteall.imm_ptl.core.render;
 
 import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.render.Frustum;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
@@ -54,7 +58,9 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
+import java.util.ArrayDeque;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
 public class MyGameRenderer {
@@ -137,7 +143,7 @@ public class MyGameRenderer {
         boolean oldNoClip = client.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(worldRenderer);
-        ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).ip_getVisibleChunks();
+//        ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).ip_getVisibleChunks();
         HitResult oldCrosshairTarget = client.crosshairTarget;
         Camera oldCamera = client.gameRenderer.getCamera();
         ShaderEffect oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
@@ -145,8 +151,8 @@ public class MyGameRenderer {
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
-        
-        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(new ObjectArrayList());
+
+//        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(new ObjectArrayList());
         
         int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
         WorldRenderingPipeline irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
@@ -226,8 +232,8 @@ public class MyGameRenderer {
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(oldTransparencyShader);
         
         FogRendererContext.swappingManager.popSwapping();
-        
-        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(oldVisibleChunks);
+
+//        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(oldVisibleChunks);
         
         ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(oldBufferBuilder);
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
@@ -365,5 +371,15 @@ public class MyGameRenderer {
             }
         }
     }
+    
+    
+    
+    public static void discoverVisibleChunks(
+    
+    ) {
+    
+    }
+    
+    
     
 }
