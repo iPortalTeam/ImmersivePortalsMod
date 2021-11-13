@@ -99,6 +99,8 @@ public class IPGlobal {
     public static boolean enableDatapackPortalGen = true;
     
     public static boolean enableCrossPortalView = true;
+
+    public static boolean silencePortalNoise = true;
     
     public static enum RenderMode {
         normal,

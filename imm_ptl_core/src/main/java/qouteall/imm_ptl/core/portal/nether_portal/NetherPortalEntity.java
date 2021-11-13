@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.fabricmc.api.EnvType;
@@ -62,7 +63,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             }
         }
         
-        if (random.nextInt(800) == 0) {
+        if (!IPGlobal.silencePortalNoise && random.nextInt(800) == 0) {
             world.playSound(
                 getX(),
                 getY(),
