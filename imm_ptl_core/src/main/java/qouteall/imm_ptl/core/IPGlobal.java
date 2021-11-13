@@ -110,6 +110,8 @@ public class IPGlobal {
     
     public static boolean lightVanillaNetherPortalWhenCrouching = false;
     
+    public static boolean enableNetherPortalEffect = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

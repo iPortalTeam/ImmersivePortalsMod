@@ -8,6 +8,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
@@ -25,7 +26,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     
     @Override
     protected boolean isPortalIntactOnThisSide() {
-    
+        
         return blockPortalShape.area.stream()
             .allMatch(blockPos ->
                 world.getBlockState(blockPos).getBlock() == PortalPlaceholderBlock.instance
@@ -39,6 +40,10 @@ public class NetherPortalEntity extends BreakablePortalEntity {
     @Override
     @Environment(EnvType.CLIENT)
     protected void addSoundAndParticle() {
+        if (!IPGlobal.enableNetherPortalEffect) {
+            return;
+        }
+        
         Random random = world.getRandom();
         
         for (int i = 0; i < (int) Math.ceil(width * height / 20); i++) {
