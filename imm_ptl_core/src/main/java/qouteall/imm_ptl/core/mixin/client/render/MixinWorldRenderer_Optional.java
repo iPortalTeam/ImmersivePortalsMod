@@ -35,8 +35,6 @@ public class MixinWorldRenderer_Optional {
     @Final
     private MinecraftClient client;
     
-    @Shadow private boolean field_34810;
-    
     //avoid translucent sort while rendering portal
     @Redirect(
         method = "renderLayer",
@@ -71,27 +69,27 @@ public class MixinWorldRenderer_Optional {
             this.chunks.updateCameraPosition(this.client.player.getX(), this.client.player.getZ());
         }
         
-        if (PortalRendering.isRendering()) {
-            field_34810 = true;
-        }
+//        if (PortalRendering.isRendering()) {
+//            field_34810 = true;
+//        }
     }
     
-    //rebuild less chunk in render thread while rendering portal to reduce lag spike
-    //minecraft has two places rebuilding chunks in render thread
-    //one in updateChunks() one in setupTerrain()
-    @ModifyConstant(
-        method = "setupTerrain",
-        constant = @Constant(doubleValue = 768.0D),
-        require = 0
-    )
-    private double modifyRebuildRange(double original) {
-        if (PortalRendering.isRendering()) {
-            return 256.0;
-        }
-        else {
-            return original;
-        }
-    }
+//    //rebuild less chunk in render thread while rendering portal to reduce lag spike
+//    //minecraft has two places rebuilding chunks in render thread
+//    //one in updateChunks() one in setupTerrain()
+//    @ModifyConstant(
+//        method = "setupTerrain",
+//        constant = @Constant(doubleValue = 768.0D),
+//        require = 0
+//    )
+//    private double modifyRebuildRange(double original) {
+//        if (PortalRendering.isRendering()) {
+//            return 256.0;
+//        }
+//        else {
+//            return original;
+//        }
+//    }
     
     //the camera position is used for translucent sort
     //avoid messing it

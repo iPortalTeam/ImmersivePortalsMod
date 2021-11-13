@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.render;
 
 import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.ducks.IEWorldRendererChunkInfo;
 import qouteall.q_misc_util.my_util.BoxPredicate;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.Plane;
@@ -283,34 +282,35 @@ public class PortalGroup implements PortalLike {
     @Environment(EnvType.CLIENT)
     @Override
     public void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
-        if (!isEnclosed()) {
-            return;
-        }
-        
-        Box enclosedDestAreaBox = getDestAreaBox().contract(0.5);
-        
-        if (enclosedDestAreaBox != null) {
-            int xMin = (int) Math.floor(enclosedDestAreaBox.minX / 16);
-            int xMax = (int) Math.ceil(enclosedDestAreaBox.maxX / 16) - 1;
-            int yMin = (int) Math.floor(enclosedDestAreaBox.minY / 16);
-            int yMax = (int) Math.ceil(enclosedDestAreaBox.maxY / 16) - 1;
-            int zMin = (int) Math.floor(enclosedDestAreaBox.minZ / 16);
-            int zMax = (int) Math.ceil(enclosedDestAreaBox.maxZ / 16) - 1;
-            
-            Helper.removeIf(visibleChunks, (obj) -> {
-                ChunkBuilder.BuiltChunk builtChunk =
-                    ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-                
-                BlockPos origin = builtChunk.getOrigin();
-                int cx = origin.getX() >> 4;
-                int cy = origin.getY() >> 4;
-                int cz = origin.getZ() >> 4;
-                
-                return !(cx >= xMin && cx <= xMax &&
-                    cy >= yMin && cy <= yMax &&
-                    cz >= zMin && cz <= zMax);
-            });
-        }
+        // TODO recover
+//        if (!isEnclosed()) {
+//            return;
+//        }
+//
+//        Box enclosedDestAreaBox = getDestAreaBox().contract(0.5);
+//
+//        if (enclosedDestAreaBox != null) {
+//            int xMin = (int) Math.floor(enclosedDestAreaBox.minX / 16);
+//            int xMax = (int) Math.ceil(enclosedDestAreaBox.maxX / 16) - 1;
+//            int yMin = (int) Math.floor(enclosedDestAreaBox.minY / 16);
+//            int yMax = (int) Math.ceil(enclosedDestAreaBox.maxY / 16) - 1;
+//            int zMin = (int) Math.floor(enclosedDestAreaBox.minZ / 16);
+//            int zMax = (int) Math.ceil(enclosedDestAreaBox.maxZ / 16) - 1;
+//
+//            Helper.removeIf(visibleChunks, (obj) -> {
+//                ChunkBuilder.BuiltChunk builtChunk =
+//                    ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+//
+//                BlockPos origin = builtChunk.getOrigin();
+//                int cx = origin.getX() >> 4;
+//                int cy = origin.getY() >> 4;
+//                int cz = origin.getZ() >> 4;
+//
+//                return !(cx >= xMin && cx <= xMax &&
+//                    cy >= yMin && cy <= yMax &&
+//                    cz >= zMin && cz <= zMax);
+//            });
+//        }
     }
     
     @Override

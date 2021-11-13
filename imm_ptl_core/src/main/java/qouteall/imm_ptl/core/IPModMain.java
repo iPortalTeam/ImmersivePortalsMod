@@ -10,6 +10,7 @@ import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
@@ -48,6 +49,8 @@ public class IPModMain {
         PortalExtension.init();
         
         GcMonitor.initCommon();
+    
+        VisibleSectionDiscovery.init();
     }
     
 }

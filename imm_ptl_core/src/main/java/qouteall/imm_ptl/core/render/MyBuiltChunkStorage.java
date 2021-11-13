@@ -429,16 +429,13 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     }
     
     @Nullable
-    public BuiltChunk rawGet(int cx, int cy, int cz, long timeMark) {
+    public BuiltChunk rawFetch(int cx, int cy, int cz, long timeMark) {
         if (cy < minSectionY || cy >= endSectionY) {
             return null;
         }
         
         long l = ChunkPos.toLong(cx, cz);
-        Column column = columnMap.get(l);
-        if (column == null) {
-            return null;
-        }
+        Column column = provideColumn(l);
         
         column.mark = timeMark;
         

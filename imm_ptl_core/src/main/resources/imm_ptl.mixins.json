@@ -87,7 +87,6 @@
     "client.render.MixinVertexConsumerProviderImmediate",
     "client.render.MixinWorldRenderer",
     "client.render.MixinWorldRenderer_Optional",
-    "client.render.MixinWorldRendererChunkInfo",
     "client.render.framebuffer.MixinFrameBuffer",
     "client.render.framebuffer.MixinWindowFramebuffer",
     "client.render.optimization.MixinChunkBuilder_Optimization",

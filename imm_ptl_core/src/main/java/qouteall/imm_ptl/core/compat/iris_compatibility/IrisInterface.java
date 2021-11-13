@@ -23,12 +23,12 @@ public class IrisInterface {
             return false;
         }
         
-        public WorldRenderingPipeline getPipeline(WorldRenderer worldRenderer) {
+        public Object getPipeline(WorldRenderer worldRenderer) {
             return null;
         }
         
         // TODO check whether it's necessary
-        public void setPipeline(WorldRenderer worldRenderer, WorldRenderingPipeline pipeline) {
+        public void setPipeline(WorldRenderer worldRenderer, Object pipeline) {
         
         }
     }
@@ -57,14 +57,14 @@ public class IrisInterface {
         }
         
         @Override
-        public WorldRenderingPipeline getPipeline(WorldRenderer worldRenderer) {
+        public Object getPipeline(WorldRenderer worldRenderer) {
             return Helper.noError(() ->
                 ((WorldRenderingPipeline) worldRendererPipelineField.get(worldRenderer))
             );
         }
         
         @Override
-        public void setPipeline(WorldRenderer worldRenderer, WorldRenderingPipeline pipeline) {
+        public void setPipeline(WorldRenderer worldRenderer, Object pipeline) {
             Helper.noError(() -> {
                 worldRendererPipelineField.set(worldRenderer, pipeline);
                 return null;

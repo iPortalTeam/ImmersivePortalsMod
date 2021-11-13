@@ -21,7 +21,6 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEPlayerListEntry;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.ducks.IEWorldRendererChunkInfo;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -133,17 +132,16 @@ public class MyGameRenderer {
             ClientWorldLoader.getDimensionRenderHelper(
                 RenderDimensionRedirect.getRedirectedDimension(newDimension)
             );
-//        PlayerListEntry playerListEntry = CHelper.getClientPlayerListEntry();
         Camera newCamera = new Camera();
         
         //store old state
         WorldRenderer oldWorldRenderer = client.worldRenderer;
         LightmapTextureManager oldLightmap = client.gameRenderer.getLightmapTextureManager();
-//        GameMode oldGameMode = playerListEntry.getGameMode();
         boolean oldNoClip = client.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
         OFInterface.createNewRenderInfosNormal.accept(worldRenderer);
-//        ObjectArrayList oldVisibleChunks = ((IEWorldRenderer) oldWorldRenderer).ip_getVisibleChunks();
+        ObjectArrayList<WorldRenderer.ChunkInfo> oldChunkInfoList =
+            ((IEWorldRenderer) oldWorldRenderer).portal_getChunkInfoList();
         HitResult oldCrosshairTarget = client.crosshairTarget;
         Camera oldCamera = client.gameRenderer.getCamera();
         ShaderEffect oldTransparencyShader = ((IEWorldRenderer) worldRenderer).portal_getTransparencyShader();
@@ -151,11 +149,12 @@ public class MyGameRenderer {
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
-
-//        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(new ObjectArrayList());
+    
+        ObjectArrayList<WorldRenderer.ChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
+        ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(newChunkInfoList);
         
         int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
-        WorldRenderingPipeline irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
+        Object irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
         
         //switch
         ((IEMinecraftClient) client).setWorldRenderer(worldRenderer);
@@ -163,7 +162,6 @@ public class MyGameRenderer {
         ieGameRenderer.setLightmapTextureManager(helper.lightmapTexture);
         
         client.getBlockEntityRenderDispatcher().world = newWorld;
-//        ((IEPlayerListEntry) playerListEntry).setGameMode(GameMode.SPECTATOR);
         client.player.noClip = true;
         client.gameRenderer.setRenderHand(doRenderHand);
         
@@ -221,7 +219,6 @@ public class MyGameRenderer {
         client.world = oldEntityWorld;
         ieGameRenderer.setLightmapTextureManager(oldLightmap);
         client.getBlockEntityRenderDispatcher().world = oldEntityWorld;
-//        ((IEPlayerListEntry) playerListEntry).setGameMode(oldGameMode);
         client.player.noClip = oldNoClip;
         client.gameRenderer.setRenderHand(oldDoRenderHand);
         
@@ -233,7 +230,8 @@ public class MyGameRenderer {
         
         FogRendererContext.swappingManager.popSwapping();
 
-//        ((IEWorldRenderer) oldWorldRenderer).ip_setVisibleChunks(oldVisibleChunks);
+        ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(oldChunkInfoList);
+        VisibleSectionDiscovery.returnList(newChunkInfoList);
         
         ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(oldBufferBuilder);
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
@@ -344,41 +342,34 @@ public class MyGameRenderer {
         }
     }
     
-    // frustum culling is done elsewhere
-    // it's culling the sections behind the portal
-    public static void cullRenderingSections(
-        ObjectList<?> visibleChunks, PortalLike renderingPortal
-    ) {
-        if (renderingPortal instanceof Portal) {
-            int firstInsideOne = Helper.indexOf(
-                visibleChunks,
-                obj -> {
-                    ChunkBuilder.BuiltChunk builtChunk =
-                        ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-                    Box boundingBox = builtChunk.boundingBox;
-                    
-                    return FrustumCuller.isTouchingInsideContentArea(
-                        ((Portal) renderingPortal), boundingBox
-                    );
-                }
-            );
-            
-            if (firstInsideOne != -1) {
-                visibleChunks.removeElements(0, firstInsideOne);
-            }
-            else {
-                visibleChunks.clear();
-            }
-        }
-    }
+//    // frustum culling is done elsewhere
+//    // it's culling the sections behind the portal
+//    public static void cullRenderingSections(
+//        ObjectList<?> visibleChunks, PortalLike renderingPortal
+//    ) {
+//        if (renderingPortal instanceof Portal) {
+//            int firstInsideOne = Helper.indexOf(
+//                visibleChunks,
+//                obj -> {
+//                    ChunkBuilder.BuiltChunk builtChunk =
+//                        ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
+//                    Box boundingBox = builtChunk.boundingBox;
+//
+//                    return FrustumCuller.isTouchingInsideContentArea(
+//                        ((Portal) renderingPortal), boundingBox
+//                    );
+//                }
+//            );
+//
+//            if (firstInsideOne != -1) {
+//                visibleChunks.removeElements(0, firstInsideOne);
+//            }
+//            else {
+//                visibleChunks.clear();
+//            }
+//        }
+//    }
     
-    
-    
-    public static void discoverVisibleChunks(
-    
-    ) {
-    
-    }
     
     
     

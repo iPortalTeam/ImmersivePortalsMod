@@ -147,20 +147,20 @@ public class ClientDebugCommand {
                 return 0;
             })
         );
-        builder = builder.then(ClientCommandManager
-            .literal("hacked_chunk_render_dispatcher_enable")
-            .executes(context -> {
-                IPCGlobal.useHackedChunkRenderDispatcher = true;
-                return 0;
-            })
-        );
-        builder = builder.then(ClientCommandManager
-            .literal("hacked_chunk_render_dispatcher_disable")
-            .executes(context -> {
-                IPCGlobal.useHackedChunkRenderDispatcher = false;
-                return 0;
-            })
-        );
+//        builder = builder.then(ClientCommandManager
+//            .literal("hacked_chunk_render_dispatcher_enable")
+//            .executes(context -> {
+//                IPCGlobal.useHackedChunkRenderDispatcher = true;
+//                return 0;
+//            })
+//        );
+//        builder = builder.then(ClientCommandManager
+//            .literal("hacked_chunk_render_dispatcher_disable")
+//            .executes(context -> {
+//                IPCGlobal.useHackedChunkRenderDispatcher = false;
+//                return 0;
+//            })
+//        );
         builder = builder.then(ClientCommandManager
             .literal("report_resource_consumption")
             .executes(context1 -> {

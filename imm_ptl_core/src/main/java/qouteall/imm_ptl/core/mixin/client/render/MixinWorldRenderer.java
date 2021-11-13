@@ -15,6 +15,8 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.render.FrustumCuller;
+import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.OFInterface;
@@ -123,6 +125,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Shadow
     @Nullable
     private VertexBuffer cloudsBuffer;
+    
+    @Mutable
+    @Shadow
+    @Final
+    private ObjectArrayList<WorldRenderer.ChunkInfo> field_34807;
     
     // important rendering hooks
     @Inject(
@@ -238,6 +245,31 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             if (IPGlobal.enableDepthClampForPortalRendering) {
                 CHelper.disableDepthClamp();
             }
+        }
+    }
+    
+    @Inject(
+        method = "setupTerrain",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onSetupTerrain(
+        Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator,
+        CallbackInfo ci
+    ) {
+        if (PortalRendering.isRendering()) {
+            VisibleSectionDiscovery.discoverVisibleSections(
+                world, ((MyBuiltChunkStorage) chunks),
+                camera,
+                new Frustum(frustum).method_38557(8),
+                field_34807
+            );
+    
+            if (world.getRegistryKey() != RenderStates.originalPlayerDimension) {
+                chunkBuilder.setCameraPosition(camera.getPos());
+            }
+            
+            ci.cancel();
         }
     }
     
@@ -431,6 +463,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Inject(method = "reload()V", at = @At("HEAD"), cancellable = true)
     private void onReloadStarted(CallbackInfo ci) {
         if (WorldRenderInfo.isRendering()) {
+            Helper.log("world renderer reloading cancelled during portal rendering");
             ci.cancel();
         }
     }
@@ -691,6 +724,13 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         
     }
     
+    @Override
+    public void portal_setChunkInfoList(ObjectArrayList<WorldRenderer.ChunkInfo> arg) {
+        field_34807 = arg;
+    }
     
-    
+    @Override
+    public ObjectArrayList<WorldRenderer.ChunkInfo> portal_getChunkInfoList() {
+        return field_34807;
+    }
 }

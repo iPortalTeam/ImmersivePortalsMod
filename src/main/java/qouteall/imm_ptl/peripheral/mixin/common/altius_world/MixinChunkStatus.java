@@ -17,31 +17,13 @@ import java.util.List;
 @Mixin(ChunkStatus.class)
 public class MixinChunkStatus {
     @Inject(
-        method = "method_16566", at = @At("HEAD")
+        method = "method_17033", at = @At("HEAD"),
+        remap = false
     )
     private static void redirectPopulateEntities(
-        ChunkStatus targetStatus, ServerWorld world,
-        ChunkGenerator chunkGenerator, List<Chunk> list, Chunk chunk,
+        ChunkStatus var1, ServerWorld world, ChunkGenerator var3, List<Chunk> var4, Chunk chunk,
         CallbackInfo ci
     ) {
         AltiusInfo.replaceBedrock(world, chunk);
     }
-    
-    // TODO recover bedrock replacing
-
-//    @Inject(
-//        method = "*",
-//        at = @At(
-//            value = "INVOKE",
-//            shift = At.Shift.AFTER,
-//            target = "Lnet/minecraft/world/gen/chunk/ChunkGenerator;buildSurface(Lnet/minecraft/world/ChunkRegion;Lnet/minecraft/world/chunk/Chunk;)V"
-//        )
-//    )
-//    private static void redirectBuildSurface(
-//        ChunkGenerator generator, ChunkRegion region, Chunk chunk,
-//        CallbackInfo ci
-//    ) {
-//        AltiusInfo.replaceBedrock(region, chunk);
-//    }
-    
 }

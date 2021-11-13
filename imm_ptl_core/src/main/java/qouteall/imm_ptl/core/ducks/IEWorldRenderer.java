@@ -6,6 +6,7 @@ import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.BuiltChunkStorage;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
@@ -45,4 +46,8 @@ public interface IEWorldRenderer {
     void portal_setFrustum(Frustum arg);
     
     void portal_fullyDispose();
+    
+    void portal_setChunkInfoList(ObjectArrayList<WorldRenderer.ChunkInfo> arg);
+    
+    ObjectArrayList<WorldRenderer.ChunkInfo> portal_getChunkInfoList();
 }

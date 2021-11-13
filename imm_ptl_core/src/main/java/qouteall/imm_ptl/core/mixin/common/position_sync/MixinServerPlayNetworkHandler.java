@@ -241,7 +241,7 @@ public abstract class MixinServerPlayNetworkHandler implements IEServerPlayNetwo
         method = "onVehicleMove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;validateVehicleMove(DDDFF)Z"
+            target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isMovementInvalid(DDDFF)Z"
         ),
         cancellable = true
     )

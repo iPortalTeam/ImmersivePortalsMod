@@ -8,9 +8,10 @@ public class CompositeSimplexNoiseSampler {
     private SimplexNoiseSampler[] samplers;
     
     public CompositeSimplexNoiseSampler(int samplerNum, long seed) {
-        samplers = IntStream.range(0, samplerNum)
-            .mapToObj(i -> new SimplexNoiseSampler(new ChunkRandom(seed + i)))
-            .toArray(SimplexNoiseSampler[]::new);
+        // TODO recover
+//        samplers = IntStream.range(0, samplerNum)
+//            .mapToObj(i -> new SimplexNoiseSampler(new ChunkRandom(seed + i)))
+//            .toArray(SimplexNoiseSampler[]::new);
     }
     
     public int getSamplerNum() {

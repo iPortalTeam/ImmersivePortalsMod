@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import net.minecraft.client.render.WorldRenderer;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import net.minecraft.client.render.chunk.ChunkBuilder;
@@ -17,17 +18,6 @@ public abstract class MixinBuiltChunk implements IEBuiltChunk {
     
     private long portal_mark;
     private WorldRenderer.ChunkInfo portal_dummyChunkInfo;
-    
-    @Inject(
-        method = "needsImportantRebuild",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onNeedsImportantRebuild(CallbackInfoReturnable<Boolean> cir) {
-        if (PortalRendering.isRendering()) {
-            cir.setReturnValue(false);
-        }
-    }
     
     @Shadow
     protected abstract void clear();

@@ -84,7 +84,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
             shift = At.Shift.AFTER
         )
     )
-    private static void onSnooperUpdate(boolean tick, CallbackInfo ci) {
+    private void onSnooperUpdate(boolean tick, CallbackInfo ci) {
         FPSMonitor.updateEverySecond(currentFps);
     }
     

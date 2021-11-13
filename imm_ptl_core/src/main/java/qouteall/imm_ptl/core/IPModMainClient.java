@@ -47,7 +47,7 @@ public class IPModMainClient {
             if (!optifineShaderWarned) {
                 optifineShaderWarned = true;
                 CHelper.printChat(
-                    "Immersive Portals in 1.17 is incompatible with OptiFine shaders."
+                    "Immersive Portals after 1.17 is incompatible with OptiFine shaders."
                 );
             }
             return;
@@ -152,8 +152,8 @@ public class IPModMainClient {
         GcMonitor.initClient();
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
-
-//        showPreviewWarning();
+        
+        showPreviewWarning();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

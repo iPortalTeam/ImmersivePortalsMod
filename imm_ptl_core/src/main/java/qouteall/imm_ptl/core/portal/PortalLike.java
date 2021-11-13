@@ -122,7 +122,7 @@ public interface PortalLike {
     // the container contains WorldRenderer.ChunkInfo
     @Environment(EnvType.CLIENT)
     default void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
-        MyGameRenderer.cullRenderingSections(visibleChunks, this);
+//        MyGameRenderer.cullRenderingSections(visibleChunks, this);
     }
     
 //    // do additional cull when sodium is present

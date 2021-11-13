@@ -11,10 +11,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
 
 import java.util.ArrayDeque;
+import java.util.Stack;
 
 // discover visible sections by breadth-first traverse, for portal rendering
 // probably faster than vanilla
@@ -23,7 +25,6 @@ public class VisibleSectionDiscovery {
     
     private static MyBuiltChunkStorage builtChunks;
     private static Frustum vanillaFrustum;
-    private static FrustumCuller frustumCuller;
     private static ObjectArrayList<WorldRenderer.ChunkInfo> resultHolder;
     private static final ArrayDeque<ChunkBuilder.BuiltChunk> tempQueue = new ArrayDeque<>();
     private static ChunkSectionPos cameraSectionPos;
@@ -32,11 +33,9 @@ public class VisibleSectionDiscovery {
     
     public static void discoverVisibleSections(
         ClientWorld world,
-        WorldRenderer worldRenderer_,
         MyBuiltChunkStorage builtChunks_,
         Camera camera,
         Frustum vanillaFrustum_,
-        FrustumCuller frustumCuller_,
         ObjectArrayList<WorldRenderer.ChunkInfo> resultHolder_
     ) {
         builtChunks = builtChunks_;
@@ -51,6 +50,7 @@ public class VisibleSectionDiscovery {
         timeMark = System.nanoTime();
         
         Vec3d cameraPos = camera.getPos();
+        vanillaFrustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
         cameraSectionPos = ChunkSectionPos.from(new BlockPos(cameraPos));
         
         if (cameraPos.y < world.getBottomY()) {
@@ -60,16 +60,11 @@ public class VisibleSectionDiscovery {
             discoverBottomOrTopLayerVisibleChunks(builtChunks.endSectionY - 1);
         }
         else {
-            ChunkBuilder.BuiltChunk startPoint = builtChunks.rawGet(
+            checkSection(
                 cameraSectionPos.getSectionX(),
                 cameraSectionPos.getSectionY(),
-                cameraSectionPos.getSectionZ(),
-                timeMark
+                cameraSectionPos.getSectionZ()
             );
-            if (startPoint == null) {
-                return;
-            }
-            tempQueue.add(startPoint);
         }
         
         // breadth-first searching
@@ -91,17 +86,11 @@ public class VisibleSectionDiscovery {
         resultHolder = null;
         builtChunks = null;
         vanillaFrustum = null;
-        frustumCuller = null;
     }
     
     private static boolean isVisible(ChunkBuilder.BuiltChunk builtChunk) {
         Box box = builtChunk.boundingBox;
-        if (!vanillaFrustum.isVisible(box)) {
-            return false;
-        }
-        return !frustumCuller.canDetermineInvisible(
-            box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ
-        );
+        return vanillaFrustum.isVisible(box);
     }
     
     private static void discoverBottomOrTopLayerVisibleChunks(int cy) {
@@ -116,9 +105,19 @@ public class VisibleSectionDiscovery {
         );
     }
     
-    private static void checkSection(int cy, int cx, int cz) {
+    private static void checkSection(int cx, int cy, int cz) {
+        if (Math.abs(cx - cameraSectionPos.getSectionX()) > viewDistance) {
+            return;
+        }
+        if (Math.abs(cy - cameraSectionPos.getSectionY()) > viewDistance) {
+            return;
+        }
+        if (Math.abs(cz - cameraSectionPos.getSectionZ()) > viewDistance) {
+            return;
+        }
+        
         ChunkBuilder.BuiltChunk builtChunk =
-            builtChunks.rawGet(cx, cy, cz, timeMark);
+            builtChunks.rawFetch(cx, cy, cz, timeMark);
         if (builtChunk != null) {
             IEBuiltChunk ieBuiltChunk = (IEBuiltChunk) builtChunk;
             if (ieBuiltChunk.portal_getMark() != timeMark) {
@@ -129,6 +128,31 @@ public class VisibleSectionDiscovery {
                 }
             }
         }
+    }
+    
+    private static final Stack<ObjectArrayList<WorldRenderer.ChunkInfo>> listCaches = new Stack<>();
+    
+    public static ObjectArrayList<WorldRenderer.ChunkInfo> takeList() {
+        if (listCaches.isEmpty()) {
+            return new ObjectArrayList<>();
+        }
+        else {
+            return listCaches.pop();
+        }
+    }
+    
+    public static void returnList(ObjectArrayList<WorldRenderer.ChunkInfo> list) {
+        list.clear();// avoid memory leak
+        listCaches.push(list);
+    }
+    
+    public static void init() {
+        IPGlobal.clientCleanupSignal.connect(() -> {
+            listCaches.clear();
+            resultHolder = null;
+            builtChunks = null;
+            vanillaFrustum = null;
+        });
     }
     
 }
