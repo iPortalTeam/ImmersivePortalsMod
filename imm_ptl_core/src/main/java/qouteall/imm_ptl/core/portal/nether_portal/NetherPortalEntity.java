@@ -63,7 +63,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             }
         }
         
-        if (!IPGlobal.silencePortalNoise && random.nextInt(800) == 0) {
+        if (IPGlobal.enableNetherPortalNoise && random.nextInt(800) == 0) {
             world.playSound(
                 getX(),
                 getY(),

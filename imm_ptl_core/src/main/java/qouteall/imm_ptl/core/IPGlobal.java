@@ -100,7 +100,7 @@ public class IPGlobal {
     
     public static boolean enableCrossPortalView = true;
 
-    public static boolean silencePortalNoise = true;
+    public static boolean enableNetherPortalNoise = false;
     
     public static enum RenderMode {
         normal,

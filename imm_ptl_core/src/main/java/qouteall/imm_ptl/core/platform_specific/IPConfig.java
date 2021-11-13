@@ -47,7 +47,7 @@ public class IPConfig {
     public boolean enableDatapackPortalGen = true;
     public boolean enableDedicatedServerEarlyReload = true;
     public boolean enableCrossPortalView = true;
-    public boolean silencePortalNoise = true;
+    public boolean enableNetherPortalNoise = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
@@ -151,7 +151,7 @@ public class IPConfig {
         IPGlobal.enableSharedBlockMeshBuffers = sharedBlockMeshBufferOptimization;
         IPGlobal.enableDatapackPortalGen = enableDatapackPortalGen;
         IPGlobal.enableCrossPortalView = enableCrossPortalView;
-        IPGlobal.silencePortalNoise = silencePortalNoise;
+        IPGlobal.enableNetherPortalNoise = enableNetherPortalNoise;
 //        IPGlobal.enableServerCollision = enableServerCollision;
         
         DimensionMisc.enableDedicatedServerEarlyReload = enableDedicatedServerEarlyReload;
