@@ -3,13 +3,13 @@ package qouteall.imm_ptl.core.teleportation;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.render.MyGameRenderer;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
-import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
@@ -22,7 +22,6 @@ import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -242,6 +241,8 @@ public class ClientTeleportationManager {
         if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
             adjustPlayerPosition(player);
         }
+        
+        MyGameRenderer.vanillaTerrainSetupOverride = 1;
     }
     
     
@@ -434,7 +435,7 @@ public class ClientTeleportationManager {
                 maxY
             );
         }
-    
+        
         double maxY1 = maxY;// must effectively final
         double delta = maxY - player.getY();
         

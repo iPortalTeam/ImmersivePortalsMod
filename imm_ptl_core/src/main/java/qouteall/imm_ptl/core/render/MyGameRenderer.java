@@ -71,6 +71,11 @@ public class MyGameRenderer {
     // theoretically every layer of portal rendering should have its own buffer builder storage
     private static BufferBuilderStorage secondaryBufferBuilderStorage = new BufferBuilderStorage();
     
+    // the vanilla visibility sections discovery code is multi-threaded
+    // when the player teleports through a portal, on the first frame it will not work normally
+    // so use IP's non-multi-threaded algorithm at the first frame
+    public static int vanillaTerrainSetupOverride = 0;
+    
     public static void renderWorldNew(
         WorldRenderInfo worldRenderInfo,
         Consumer<Runnable> invokeWrapper

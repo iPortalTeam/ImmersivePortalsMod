@@ -244,23 +244,50 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onSetupTerrain(
+    private void onSetupTerrainBegin(
         Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator,
         CallbackInfo ci
     ) {
-        if (PortalRendering.isRendering()) {
+        if (WorldRenderInfo.isRendering()) {
+            world.getProfiler().push("ip_terrain_setup");
             VisibleSectionDiscovery.discoverVisibleSections(
                 world, ((MyBuiltChunkStorage) chunks),
                 camera,
                 new Frustum(frustum).method_38557(8),
                 field_34807
             );
+            world.getProfiler().pop();
             
             if (world.getRegistryKey() != RenderStates.originalPlayerDimension) {
                 chunkBuilder.setCameraPosition(camera.getPos());
             }
             
             ci.cancel();
+        }
+    }
+    
+    @Inject(
+        method = "setupTerrain",
+        at = @At("RETURN"),
+        cancellable = true
+    )
+    private void onSetupTerrainEnd(
+        Camera camera, Frustum frustum, boolean hasForcedFrustum, boolean spectator,
+        CallbackInfo ci
+    ) {
+        if (!WorldRenderInfo.isRendering()) {
+            if (MyGameRenderer.vanillaTerrainSetupOverride > 0) {
+                MyGameRenderer.vanillaTerrainSetupOverride--;
+                
+                world.getProfiler().push("ip_terrain_setup");
+                VisibleSectionDiscovery.discoverVisibleSections(
+                    world, ((MyBuiltChunkStorage) chunks),
+                    camera,
+                    new Frustum(frustum).method_38557(8),
+                    field_34807
+                );
+                world.getProfiler().pop();
+            }
         }
     }
     
