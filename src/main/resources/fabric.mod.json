@@ -38,9 +38,6 @@
   "breaks": {
     "optifabric": "*"
   },
-  "suggests": {
-    "flamingo": "*"
-  },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
     "mm:early_risers": [
