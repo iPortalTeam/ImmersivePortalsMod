@@ -9,6 +9,7 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.SeedMixer;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ChaosBiomeSource extends BiomeSource {
@@ -19,23 +20,25 @@ public class ChaosBiomeSource extends BiomeSource {
     
     private long worldSeed;
     private Registry<Biome> biomeRegistry;
+    private List<Biome> biomes;
     
     public ChaosBiomeSource(long seed, Registry<Biome> biomeRegistry) {
         super(biomeRegistry.stream().collect(Collectors.toList()));
         
         worldSeed = seed;
         this.biomeRegistry = biomeRegistry;
+        
+        // java does not allow doing things before constructor
+        biomes = biomeRegistry.stream().collect(Collectors.toList());
     }
     
-    // TODO recover
     private Biome getRandomBiome(int x, int z) {
-        throw new RuntimeException();
-//        int biomeNum = biomes.size();
-//
-//        int index = (Math.abs((int) SeedMixer.mixSeed(x, z))) % biomeNum;
-//        return biomes.get(index);
+        int biomeNum = biomes.size();
+        
+        int index = (Math.abs((int) SeedMixer.mixSeed(x, z))) % biomeNum;
+        return biomes.get(index);
     }
-    
+
 //    @Override
 //    public Biome getBiomeForNoiseGen(int biomeX, int biomeY, int biomeZ) {
 //        return VoronoiBiomeAccessType.INSTANCE.getBiome(
@@ -56,6 +59,6 @@ public class ChaosBiomeSource extends BiomeSource {
     
     @Override
     public Biome getBiome(int i, int j, int k, MultiNoiseUtil.MultiNoiseSampler multiNoiseSampler) {
-        return null;
+        return getRandomBiome(i, i + j + k);
     }
 }

@@ -49,61 +49,60 @@ public class AlternateDimensions {
         if (!IPGlobal.enableAlternateDimensions) {
             return;
         }
-        // TODO recover
         
-//        DimensionType surfaceTypeObject = registryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
-//
-//        if (surfaceTypeObject == null) {
-//            Helper.err("Missing dimension type immersive_portals:surface_type");
-//            return;
-//        }
-//
-//        //different seed
-//        DimensionAPI.addDimension(
-//            seed,
-//            registry,
-//            alternate1Option.getValue(),
-//            () -> surfaceTypeObject,
-//            createSkylandGenerator(seed + 1, registryManager)
-//        );
-//        DimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
-//
-//        DimensionAPI.addDimension(
-//            seed,
-//            registry,
-//            alternate2Option.getValue(),
-//            () -> surfaceTypeObject,
-//            createSkylandGenerator(seed, registryManager)
-//        );
-//        DimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
-//
-//        //different seed
-//        DimensionAPI.addDimension(
-//            seed,
-//            registry,
-//            alternate3Option.getValue(),
-//            () -> surfaceTypeObject,
-//            createErrorTerrainGenerator(seed + 1, registryManager)
-//        );
-//        DimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
-//
-//        DimensionAPI.addDimension(
-//            seed,
-//            registry,
-//            alternate4Option.getValue(),
-//            () -> surfaceTypeObject,
-//            createErrorTerrainGenerator(seed, registryManager)
-//        );
-//        DimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
-//
-//        DimensionAPI.addDimension(
-//            seed,
-//            registry,
-//            alternate5Option.getValue(),
-//            () -> surfaceTypeObject,
-//            createVoidGenerator(registryManager)
-//        );
-//        DimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
+        DimensionType surfaceTypeObject = registryManager.get(Registry.DIMENSION_TYPE_KEY).get(new Identifier("immersive_portals:surface_type"));
+        
+        if (surfaceTypeObject == null) {
+            Helper.err("Missing dimension type immersive_portals:surface_type");
+            return;
+        }
+        
+        //different seed
+        DimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate1Option.getValue(),
+            () -> surfaceTypeObject,
+            createSkylandGenerator(seed + 1, registryManager)
+        );
+        DimensionAPI.markDimensionNonPersistent(alternate1Option.getValue());
+        
+        DimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate2Option.getValue(),
+            () -> surfaceTypeObject,
+            createSkylandGenerator(seed, registryManager)
+        );
+        DimensionAPI.markDimensionNonPersistent(alternate2Option.getValue());
+        
+        //different seed
+        DimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate3Option.getValue(),
+            () -> surfaceTypeObject,
+            createErrorTerrainGenerator(seed + 1, registryManager)
+        );
+        DimensionAPI.markDimensionNonPersistent(alternate3Option.getValue());
+        
+        DimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate4Option.getValue(),
+            () -> surfaceTypeObject,
+            createErrorTerrainGenerator(seed, registryManager)
+        );
+        DimensionAPI.markDimensionNonPersistent(alternate4Option.getValue());
+        
+        DimensionAPI.addDimension(
+            seed,
+            registry,
+            alternate5Option.getValue(),
+            () -> surfaceTypeObject,
+            createVoidGenerator(registryManager)
+        );
+        DimensionAPI.markDimensionNonPersistent(alternate5Option.getValue());
     }
     
     
@@ -190,49 +189,48 @@ public class AlternateDimensions {
             structuresConfig, Blocks.STONE.getDefaultState(),
             Blocks.WATER.getDefaultState(), false, false
         );
-    
-        throw new RuntimeException();
         
-//        return new NoiseChunkGenerator(
-//            biomeSource, seed, () -> skylandSetting
-//        );
+        return new NoiseChunkGenerator(
+            rm.get(Registry.NOISE_WORLDGEN),
+            biomeSource, seed, () -> skylandSetting
+        );
     }
     
-//    public static ChunkGenerator createErrorTerrainGenerator(long seed, DynamicRegistryManager rm) {
-//        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
-//
-//        ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(seed, biomeRegistry);
-//        return new ErrorTerrainGenerator(seed, chaosBiomeSource);
-//    }
-//
-//    public static ChunkGenerator createVoidGenerator(DynamicRegistryManager rm) {
-//        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
-//
-//        StructuresConfig structuresConfig = new StructuresConfig(
-//            Optional.of(StructuresConfig.DEFAULT_STRONGHOLD),
-//            Maps.newHashMap(ImmutableMap.of())
-//        );
-//        FlatChunkGeneratorConfig flatChunkGeneratorConfig =
-//            new FlatChunkGeneratorConfig(structuresConfig, biomeRegistry);
-//        flatChunkGeneratorConfig.getLayers().add(new FlatChunkGeneratorLayer(1, Blocks.AIR));
-//        flatChunkGeneratorConfig.updateLayerBlocks();
-//
-//        return new FlatChunkGenerator(flatChunkGeneratorConfig);
-//    }
+    public static ChunkGenerator createErrorTerrainGenerator(long seed, DynamicRegistryManager rm) {
+        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+        
+        ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(seed, biomeRegistry);
+        return new NewErrorTerrainGenerator(seed, createSkylandGenerator(seed, rm), chaosBiomeSource);
+    }
+    
+    public static ChunkGenerator createVoidGenerator(DynamicRegistryManager rm) {
+        Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
+        
+        StructuresConfig structuresConfig = new StructuresConfig(
+            Optional.of(StructuresConfig.DEFAULT_STRONGHOLD),
+            Maps.newHashMap(ImmutableMap.of())
+        );
+        FlatChunkGeneratorConfig flatChunkGeneratorConfig =
+            new FlatChunkGeneratorConfig(structuresConfig, biomeRegistry);
+        flatChunkGeneratorConfig.getLayers().add(new FlatChunkGeneratorLayer(1, Blocks.AIR));
+        flatChunkGeneratorConfig.updateLayerBlocks();
+        
+        return new FlatChunkGenerator(flatChunkGeneratorConfig);
+    }
     
     
     private static void tick() {
-//        if (!IPGlobal.enableAlternateDimensions) {
-//            return;
-//        }
-//
-//        ServerWorld overworld = McHelper.getServerWorld(World.OVERWORLD);
-//
-//        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
-//        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
-//        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate3), overworld);
-//        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate4), overworld);
-//        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
+        if (!IPGlobal.enableAlternateDimensions) {
+            return;
+        }
+        
+        ServerWorld overworld = McHelper.getServerWorld(World.OVERWORLD);
+        
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate1), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate2), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate3), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate4), overworld);
+        syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
     }
     
     
