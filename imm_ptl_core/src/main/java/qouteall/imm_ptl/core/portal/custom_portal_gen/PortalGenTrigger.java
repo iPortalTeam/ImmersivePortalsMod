@@ -107,12 +107,10 @@ public abstract class PortalGenTrigger {
             ConventionalDimensionChangeTrigger.conventionalDimensionChangeCodec
         );
         
-        triggerCodec = null;
-
-//        triggerCodec = codecRegistry.dispatchStable(
-//            PortalGenTrigger::getCodec,
-//            Function.identity()
-//        );
+        triggerCodec = codecRegistry.method_39673().dispatchStable(
+            PortalGenTrigger::getCodec,
+            Function.identity()
+        );
     }
     
     

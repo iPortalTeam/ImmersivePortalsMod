@@ -18,15 +18,18 @@ import java.util.function.Predicate;
 public class SimpleBlockPredicate implements Predicate<BlockState> {
     public static final SimpleBlockPredicate pass = new SimpleBlockPredicate();
     
+    public final String name;
     private final Tag<Block> tag;
     private final Block block;
     
-    public SimpleBlockPredicate(Tag<Block> tag) {
+    public SimpleBlockPredicate(String name, Tag<Block> tag) {
+        this.name = name;
         this.tag = tag;
         this.block = null;
     }
     
-    public SimpleBlockPredicate(Block block) {
+    public SimpleBlockPredicate(String name, Block block) {
+        this.name = name;
         this.block = block;
         this.tag = null;
     }
@@ -34,6 +37,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
     private SimpleBlockPredicate() {
         this.tag = null;
         this.block = null;
+        this.name = "imm_ptl:pass";
     }
     
     @Override
@@ -70,12 +74,12 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
         Tag<Block> blockTag = tagManager.getOrCreateTagGroup(Registry.BLOCK_KEY).getTag(id);
         
         if (blockTag != null) {
-            return DataResult.success(new SimpleBlockPredicate(blockTag), Lifecycle.stable());
+            return DataResult.success(new SimpleBlockPredicate(string, blockTag), Lifecycle.stable());
         }
         
         if (Registry.BLOCK.getIds().contains(id)) {
             Block block = Registry.BLOCK.get(id);
-            return DataResult.success(new SimpleBlockPredicate(block), Lifecycle.stable());
+            return DataResult.success(new SimpleBlockPredicate(string, block), Lifecycle.stable());
         }
         
         return DataResult.error("Unknown block or block tag:" + string);
@@ -90,23 +94,7 @@ public class SimpleBlockPredicate implements Predicate<BlockState> {
             );
         }
         
-        if (predicate.block != null) {
-            return Registry.BLOCK.getId(predicate.block).toString();
-        }
-        
-        Tag<Block> tag = predicate.tag;
-        
-        TagManager tagManager = server.serverResourceManager.getRegistryTagManager();
-        
-        Identifier id = tagManager.getOrCreateTagGroup(Registry.BLOCK_KEY).getId(((Tag.Identified) tag));
-        
-        if (id == null) {
-            throw new RuntimeException(
-                "Cannot get id from tag " + tag
-            );
-        }
-        
-        return id.toString();
+        return predicate.name;
     }
     
     public static final Codec<SimpleBlockPredicate> codec =

@@ -51,38 +51,38 @@ public class CustomPortalGeneration {
     public static RegistryKey<Registry<CustomPortalGeneration>> registryRegistryKey =
         RegistryKey.ofRegistry(new Identifier("imm_ptl:custom_portal_generation"));
     
-    public static final Codec<CustomPortalGeneration> codecV1 =null;
-//        RecordCodecBuilder.create(instance -> {
-//        return instance.group(
-//            dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
-//            World.CODEC.fieldOf("to").forGetter(o -> o.toDimension),
-//            Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
-//            Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
-//            Codec.BOOL.optionalFieldOf("reversible", true).forGetter(o -> o.reversible),
-//            PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
-//            PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
-//            stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
-//                .forGetter(o -> o.postInvokeCommands),
-//            stringListListCodec.optionalFieldOf("commands_on_generated", Collections.emptyList())
-//                .forGetter(o -> o.commandsOnGenerated)
-//        ).apply(instance, instance.stable(CustomPortalGeneration::new));
-//    });
+    public static final Codec<CustomPortalGeneration> codecV1 =
+        RecordCodecBuilder.create(instance -> {
+        return instance.group(
+            dimensionListCodec.fieldOf("from").forGetter(o -> o.fromDimensions),
+            World.CODEC.fieldOf("to").forGetter(o -> o.toDimension),
+            Codec.INT.optionalFieldOf("space_ratio_from", 1).forGetter(o -> o.spaceRatioFrom),
+            Codec.INT.optionalFieldOf("space_ratio_to", 1).forGetter(o -> o.spaceRatioTo),
+            Codec.BOOL.optionalFieldOf("reversible", true).forGetter(o -> o.reversible),
+            PortalGenForm.codec.fieldOf("form").forGetter(o -> o.form),
+            PortalGenTrigger.triggerCodec.fieldOf("trigger").forGetter(o -> o.trigger),
+            stringListCodec.optionalFieldOf("post_invoke_commands", Collections.emptyList())
+                .forGetter(o -> o.postInvokeCommands),
+            stringListListCodec.optionalFieldOf("commands_on_generated", Collections.emptyList())
+                .forGetter(o -> o.commandsOnGenerated)
+        ).apply(instance, instance.stable(CustomPortalGeneration::new));
+    });
     
-    public static SimpleRegistry<Codec<CustomPortalGeneration>> schemaRegistry =null;
-//        Util.make(() -> {
-//        SimpleRegistry<Codec<CustomPortalGeneration>> registry = new SimpleRegistry<>(
-//            schemaRegistryKey, Lifecycle.stable()
-//        );
-//        Registry.register(
-//            registry, new Identifier("imm_ptl:v1"), codecV1
-//        );
-//        return registry;
-//    });
+    public static SimpleRegistry<Codec<CustomPortalGeneration>> schemaRegistry =
+        Util.make(() -> {
+        SimpleRegistry<Codec<CustomPortalGeneration>> registry = new SimpleRegistry<>(
+            schemaRegistryKey, Lifecycle.stable()
+        );
+        Registry.register(
+            registry, new Identifier("imm_ptl:v1"), codecV1
+        );
+        return registry;
+    });
     
-    public static final MapCodec<CustomPortalGeneration> codec = null;
-//        schemaRegistry.dispatchMap(
-//        "schema_version", e -> codecV1, Function.identity()
-//    );
+    public static final MapCodec<CustomPortalGeneration> codec =
+        schemaRegistry.method_39673().dispatchMap(
+        "schema_version", e -> codecV1, Function.identity()
+    );
     
     public final List<RegistryKey<World>> fromDimensions;
     public final RegistryKey<World> toDimension;

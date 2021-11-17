@@ -42,79 +42,79 @@ public class CustomPortalGenManagement {
             return;
         }
         
-//        useItemGen.clear();
-//        throwItemGen.clear();
-//        convGen.clear();
-//        playerPosBeforeTravel.clear();
-//
-//        Helper.log("Loading custom portal gen");
-//
-//        MinecraftServer server = MiscHelper.getServer();
-//
-//        DynamicRegistryManager.Impl registryTracker =
-//            ((DynamicRegistryManager.Impl) server.getRegistryManager());
-//
-//        ResourceManager resourceManager = server.serverResourceManager.getResourceManager();
-//
-//        RegistryOps<JsonElement> registryOps = RegistryOps.of(
-//            JsonOps.INSTANCE,
-//            RegistryOps.EntryLoader.resourceBacked(resourceManager),
-//            registryTracker
-//        );
-//
-//        SimpleRegistry<CustomPortalGeneration> emptyRegistry = new SimpleRegistry<>(
-//            CustomPortalGeneration.registryRegistryKey,
-//            Lifecycle.stable()
-//        );
-//
-//        DataResult<SimpleRegistry<CustomPortalGeneration>> dataResult =
-//            registryOps.loadToRegistry(
-//                emptyRegistry,
-//                CustomPortalGeneration.registryRegistryKey,
-//                CustomPortalGeneration.codec.codec()
-//            );
-//
-//        SimpleRegistry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
-//
-//        if (result == null) {
-//            DataResult.PartialResult<SimpleRegistry<CustomPortalGeneration>> r =
-//                dataResult.get().right().get();
-//            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
-//                "Error when parsing custom portal generation\n" +
-//                    r.message()
-//            ));
-//            return;
-//        }
-//
-//        result.getEntries().forEach((entry) -> {
-//            CustomPortalGeneration gen = entry.getValue();
-//            gen.identifier = entry.getKey().getValue();
-//
-//            if (!gen.initAndCheck()) {
-//                Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
-//                return;
-//            }
-//
-//            Helper.log("Loaded Custom Portal Gen " + entry.getKey().getValue());
-//
-//            load(gen);
-//
-//            if (gen.reversible) {
-//                CustomPortalGeneration reverse = gen.getReverse();
-//
-//                if (reverse != null) {
-//                    reverse.identifier = entry.getKey().getValue();
-//                    if (gen.initAndCheck()) {
-//                        load(reverse);
-//                    }
-//                }
-//                else {
-//                    McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
-//                        "Cannot create reverse generation of " + gen
-//                    ));
-//                }
-//            }
-//        });
+        useItemGen.clear();
+        throwItemGen.clear();
+        convGen.clear();
+        playerPosBeforeTravel.clear();
+
+        Helper.log("Loading custom portal gen");
+
+        MinecraftServer server = MiscHelper.getServer();
+
+        DynamicRegistryManager.Impl registryTracker =
+            ((DynamicRegistryManager.Impl) server.getRegistryManager());
+
+        ResourceManager resourceManager = server.serverResourceManager.getResourceManager();
+
+        RegistryOps<JsonElement> registryOps = RegistryOps.of(
+            JsonOps.INSTANCE,
+            resourceManager,
+            registryTracker
+        );
+
+        SimpleRegistry<CustomPortalGeneration> emptyRegistry = new SimpleRegistry<>(
+            CustomPortalGeneration.registryRegistryKey,
+            Lifecycle.stable()
+        );
+
+        DataResult<SimpleRegistry<CustomPortalGeneration>> dataResult =
+            registryOps.loadToRegistry(
+                emptyRegistry,
+                CustomPortalGeneration.registryRegistryKey,
+                CustomPortalGeneration.codec.codec()
+            );
+
+        SimpleRegistry<CustomPortalGeneration> result = dataResult.get().left().orElse(null);
+
+        if (result == null) {
+            DataResult.PartialResult<SimpleRegistry<CustomPortalGeneration>> r =
+                dataResult.get().right().get();
+            McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
+                "Error when parsing custom portal generation\n" +
+                    r.message()
+            ));
+            return;
+        }
+
+        result.getEntries().forEach((entry) -> {
+            CustomPortalGeneration gen = entry.getValue();
+            gen.identifier = entry.getKey().getValue();
+
+            if (!gen.initAndCheck()) {
+                Helper.log("Custom Portal Gen Is Not Activated " + gen.toString());
+                return;
+            }
+
+            Helper.log("Loaded Custom Portal Gen " + entry.getKey().getValue());
+
+            load(gen);
+
+            if (gen.reversible) {
+                CustomPortalGeneration reverse = gen.getReverse();
+
+                if (reverse != null) {
+                    reverse.identifier = entry.getKey().getValue();
+                    if (gen.initAndCheck()) {
+                        load(reverse);
+                    }
+                }
+                else {
+                    McHelper.sendMessageToFirstLoggedPlayer(new LiteralText(
+                        "Cannot create reverse generation of " + gen
+                    ));
+                }
+            }
+        });
     }
     
     private static void load(CustomPortalGeneration gen) {
