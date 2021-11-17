@@ -22,7 +22,7 @@
   "imm_ptl.altius_screen": "Dimension Stack (Immersive Portals)",
   "imm_ptl.altius_toggle_true": "Dimension Stack Enabled",
   "imm_ptl.altius_toggle_false": "Dimension Stack Disabled",
-  "imm_ptl.back": "Back",
+  "imm_ptl.finish": "Finish",
   "imm_ptl.dim_stack_add": "Add",
   "imm_ptl.dim_stack_remove": "Remove",
   "imm_ptl.dim_stack_edit": "Edit",

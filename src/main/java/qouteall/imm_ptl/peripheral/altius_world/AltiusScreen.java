@@ -59,7 +59,7 @@ public class AltiusScreen extends Screen {
         
         backButton = new ButtonWidget(
             0, 0, 72, 20,
-            new TranslatableText("imm_ptl.back"),
+            new TranslatableText("imm_ptl.finish"),
             (buttonWidget) -> {
                 MinecraftClient.getInstance().setScreen(parent);
             }
