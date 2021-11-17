@@ -15,6 +15,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -264,7 +265,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 new Frustum(frustum).method_38557(8),
                 field_34807
             );
-    
+            
             if (world.getRegistryKey() != RenderStates.originalPlayerDimension) {
                 chunkBuilder.setCameraPosition(camera.getPos());
             }
@@ -581,6 +582,21 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             return true;
         }
         return value;
+    }
+    
+    // the captured lambda uses the net handler's world field
+    // so switch that correctly
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/world/ClientWorld;runQueuedChunkUpdates()V"
+        )
+    )
+    private void redirectRunQueuedChunkUpdates(ClientWorld world) {
+        IPCommonNetworkClient.withSwitchedWorld(
+            world, world::runQueuedChunkUpdates
+        );
     }
     
     @Override

@@ -2,6 +2,14 @@ package qouteall.imm_ptl.core.mixin.client.sync;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.util.telemetry.TelemetrySender;
+import net.minecraft.network.NetworkThreadUtils;
+import net.minecraft.network.packet.s2c.play.LightData;
+import net.minecraft.network.packet.s2c.play.LightUpdateS2CPacket;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.LightingProvider;
+import org.apache.commons.lang3.Validate;
+import org.spongepowered.asm.mixin.Overwrite;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.q_misc_util.Helper;
@@ -64,6 +72,9 @@ public abstract class MixinClientPlayNetworkHandler implements IEClientPlayNetwo
     
     @Shadow
     private DynamicRegistryManager registryManager;
+    
+    @Shadow
+    protected abstract void readLightData(int x, int z, LightData data);
     
     @Override
     public void ip_setWorld(ClientWorld world) {

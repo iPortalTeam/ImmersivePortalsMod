@@ -96,7 +96,8 @@ public class IPCommonNetworkClient {
         
         ClientWorld originalWorld = client.world;
         WorldRenderer originalWorldRenderer = client.worldRenderer;
-        
+        ClientWorld originalNetHandlerWorld = networkHandler.getWorld();
+    
         WorldRenderer newWorldRenderer = ClientWorldLoader.getWorldRenderer(newWorld.getRegistryKey());
         
         Validate.notNull(newWorldRenderer);
@@ -120,7 +121,7 @@ public class IPCommonNetworkClient {
             client.world = originalWorld;
             ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
             ((IEParticleManager) client.particleManager).ip_setWorld(originalWorld);
-            ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalWorld);
+            ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
         }
     }
     

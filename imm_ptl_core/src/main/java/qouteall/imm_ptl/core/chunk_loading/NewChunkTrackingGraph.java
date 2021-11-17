@@ -36,6 +36,8 @@ public class NewChunkTrackingGraph {
     
     public static final int updateInterval = 40;
     
+    private static final boolean doImmediateLoad = false;
+    
     public static class PlayerWatchRecord {
         public final ServerPlayerEntity player;
         public final RegistryKey<World> dimension;
@@ -156,7 +158,7 @@ public class NewChunkTrackingGraph {
             if (records != null) {
                 while (!records.isEmpty() && loaded < limit) {
                     PlayerWatchRecord record = records.pollFirst();
-                    if (record.isValid && !record.isLoadedToPlayer) {
+                    if (record.isValid && (doImmediateLoad || !record.isLoadedToPlayer)) {
                         record.isLoadedToPlayer = true;
                         beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
                             record.dimension, new ChunkPos(record.chunkPos)
@@ -177,6 +179,9 @@ public class NewChunkTrackingGraph {
     }
     
     private static int getChunkDeliveringLimitPerTick(ServerPlayerEntity player) {
+        if (doImmediateLoad) {
+            return 999999999;
+        }
         return player.age < 100 ? 200 : 5;
     }
     
@@ -202,7 +207,7 @@ public class NewChunkTrackingGraph {
                 if (index == -1) {
                     PlayerWatchRecord newRecord = new PlayerWatchRecord(
                         player, dimension, chunkPos, gameTime, distanceToSource, chunkLoader.isDirectLoader,
-                        false
+                        doImmediateLoad
                     );
                     records.add(newRecord);
                     playerInfo.markPendingLoading(newRecord);
