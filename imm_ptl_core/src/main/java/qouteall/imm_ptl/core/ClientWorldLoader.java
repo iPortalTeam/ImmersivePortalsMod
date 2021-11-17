@@ -7,6 +7,7 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.ducks.IEParticleManager;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
@@ -113,33 +114,21 @@ public class ClientWorldLoader {
     private static void tickRemoteWorld(ClientWorld newWorld) {
         List<Portal> nearbyPortals = CHelper.getClientNearbyPortals(10).collect(Collectors.toList());
         
-        WorldRenderer newWorldRenderer = getWorldRenderer(newWorld.getRegistryKey());
-        
-        ClientWorld oldWorld = client.world;
-        WorldRenderer oldWorldRenderer = client.worldRenderer;
-        
-        client.world = newWorld;
-        ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
-        
-        //the world renderer's world field is used for particle spawning
-        ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
-        
-        try {
-            newWorld.tickEntities();
-            newWorld.tick(() -> true);
-            
-            if (!client.isPaused()) {
-                tickRemoteWorldRandomTicksClient(newWorld, nearbyPortals);
+        IPCommonNetworkClient.withSwitchedWorld(newWorld, () -> {
+            try {
+                newWorld.tickEntities();
+                newWorld.tick(() -> true);
+                
+                if (!client.isPaused()) {
+                    tickRemoteWorldRandomTicksClient(newWorld, nearbyPortals);
+                }
+                
+                newWorld.runQueuedChunkUpdates();
             }
-        }
-        catch (Throwable e) {
-            limitedLogger.invoke(e::printStackTrace);
-        }
-        finally {
-            client.world = oldWorld;
-            ((IEParticleManager) client.particleManager).ip_setWorld(oldWorld);
-            ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
-        }
+            catch (Throwable e) {
+                limitedLogger.invoke(e::printStackTrace);
+            }
+        });
     }
     
     // show nether particles through portal
