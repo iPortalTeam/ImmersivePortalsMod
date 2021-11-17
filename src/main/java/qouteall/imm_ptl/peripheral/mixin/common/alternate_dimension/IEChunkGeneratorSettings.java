@@ -1,18 +1,27 @@
 package qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.world.biome.source.util.VanillaTerrainParametersCreator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
+import net.minecraft.world.gen.chunk.GenerationShapeConfig;
+import net.minecraft.world.gen.chunk.NoiseSamplingConfig;
+import net.minecraft.world.gen.chunk.SlideConfig;
 import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.gen.surfacebuilder.MaterialRules;
+import net.minecraft.world.gen.surfacebuilder.VanillaSurfaceRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ChunkGeneratorSettings.class)
 public interface IEChunkGeneratorSettings {
-    @Invoker("createIslandSettings")
-    public static ChunkGeneratorSettings ip_createIslandSettings(
-        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid,
-        boolean bl, boolean bl2
+    @Invoker("<init>")
+    public static ChunkGeneratorSettings construct(
+        StructuresConfig structuresConfig, GenerationShapeConfig generationShapeConfig,
+        BlockState defaultBlock, BlockState defaultFluid, MaterialRules.MaterialRule surfaceRule,
+        int bedrockCeilingY, boolean mobGenerationDisabled, boolean aquifers, boolean noiseCaves,
+        boolean oreVeins, boolean noodleCaves, boolean useLegacyRandom
     ) {
         throw new RuntimeException();
     }
+    
 }

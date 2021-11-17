@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-public class NewErrorTerrainGenerator extends ChunkGenerator {
+public class ErrorTerrainGenerator extends ChunkGenerator {
     private ChunkGenerator delegate;
     private BiomeSource biomeSource;
     
@@ -45,7 +45,7 @@ public class NewErrorTerrainGenerator extends ChunkGenerator {
     
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
-    public NewErrorTerrainGenerator(long seed, ChunkGenerator delegate, BiomeSource biomeSource) {
+    public ErrorTerrainGenerator(long seed, ChunkGenerator delegate, BiomeSource biomeSource) {
         super(biomeSource, new StructuresConfig(true));
         this.delegate = delegate;
         this.biomeSource = biomeSource;
@@ -68,7 +68,7 @@ public class NewErrorTerrainGenerator extends ChunkGenerator {
     
     @Override
     public ChunkGenerator withSeed(long seed) {
-        return new NewErrorTerrainGenerator(
+        return new ErrorTerrainGenerator(
             seed,
             delegate.withSeed(seed),
             biomeSource.withSeed(seed)

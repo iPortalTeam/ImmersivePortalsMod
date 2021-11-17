@@ -2,7 +2,13 @@ package qouteall.imm_ptl.peripheral.alternate_dimension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import net.minecraft.block.BlockState;
 import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
+import net.minecraft.world.biome.source.util.VanillaTerrainParametersCreator;
+import net.minecraft.world.gen.chunk.GenerationShapeConfig;
+import net.minecraft.world.gen.chunk.NoiseSamplingConfig;
+import net.minecraft.world.gen.chunk.SlideConfig;
+import net.minecraft.world.gen.surfacebuilder.VanillaSurfaceRules;
 import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunkGeneratorSettings;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
@@ -35,6 +41,9 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public class AlternateDimensions {
+    // temporary workaround
+    public static boolean isCreatingSkylandGenerator = false;
+    
     public static void init() {
         DimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
         
@@ -185,7 +194,8 @@ public class AlternateDimensions {
         StructuresConfig structuresConfig = new StructuresConfig(
             Optional.empty(), structureMap
         );
-        ChunkGeneratorSettings skylandSetting = IEChunkGeneratorSettings.ip_createIslandSettings(
+        
+        ChunkGeneratorSettings skylandSetting = createIslandSettings(
             structuresConfig, Blocks.STONE.getDefaultState(),
             Blocks.WATER.getDefaultState(), false, false
         );
@@ -200,7 +210,7 @@ public class AlternateDimensions {
         Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
         
         ChaosBiomeSource chaosBiomeSource = new ChaosBiomeSource(seed, biomeRegistry);
-        return new NewErrorTerrainGenerator(seed, createSkylandGenerator(seed, rm), chaosBiomeSource);
+        return new ErrorTerrainGenerator(seed, createSkylandGenerator(seed, rm), chaosBiomeSource);
     }
     
     public static ChunkGenerator createVoidGenerator(DynamicRegistryManager rm) {
@@ -233,5 +243,27 @@ public class AlternateDimensions {
         syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
     }
     
-    
+    // vanilla copy
+    private static ChunkGeneratorSettings createIslandSettings(
+        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid,
+        boolean bl, boolean bl2
+    ) {
+        return IEChunkGeneratorSettings.construct(
+            structuresConfig,
+            GenerationShapeConfig.create(
+                0, 128,
+                new NoiseSamplingConfig(
+                    2.0, 1.0, 80.0, 160.0
+                ),
+                new SlideConfig(-23.4375, 64, -46),
+                new SlideConfig(-0.234375, 7, 1),
+                2, 1, bl2, false, false,
+                VanillaTerrainParametersCreator.createIslandParameters()
+            ),
+            defaultBlock, defaultFluid, VanillaSurfaceRules.createOverworldSurfaceRule(),
+            0, bl, false, false, false, false,
+            true
+        );
+        
+    }
 }
