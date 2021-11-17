@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
+import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -66,9 +67,11 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
+        Float playerScale = PehkuiInterface.getScale.apply(player);
+    
         Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
-        double distanceSquare = 6 * 6 * 4 * 4;//TODO get pehkui reach scale
+        double distanceSquare = 6 * 6 * 4 * 4 * playerScale * playerScale;
         if (player.world.getRegistryKey() == dimension) {
             if (playerPos.squaredDistanceTo(pos) < distanceSquare) {
                 return true;
@@ -84,6 +87,7 @@ public class BlockManipulationServer {
         );
     }
     
+    // vanilla copy
     private static void doDestroyBlock(
         RegistryKey<World> dimension,
         PlayerActionC2SPacket packet,
@@ -162,6 +166,10 @@ public class BlockManipulationServer {
         doProcessRightClick(dimension, player, hand, blockHitResult);
     }
     
+    // vanilla copy
+    /**
+     * {@link net.minecraft.server.network.ServerPlayNetworkHandler#onPlayerInteractBlock(PlayerInteractBlockC2SPacket)}
+     * */
     public static void doProcessRightClick(
         RegistryKey<World> dimension,
         ServerPlayerEntity player,
@@ -209,7 +217,7 @@ public class BlockManipulationServer {
         );
         
         BlockPos offseted = blockPos.offset(direction);
-        if (offseted.getY() >= 0 && offseted.getY() <= 256) {
+        if (offseted.getY() >= targetWorld.getBottomY() && offseted.getY() < targetWorld.getTopY()) {
             IPNetworking.sendRedirectedMessage(
                 player,
                 dimension,

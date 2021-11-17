@@ -16,8 +16,6 @@
     "common.MixinServerWorld",
     "common.MixinWorld",
     "common.MixinWorldChunk",
-    "common.block_manipulation.MixinPlayerEntity_B",
-    "common.block_manipulation.MixinStatusEffect",
     "common.chunk_sync.MixinChunkHolder",
     "common.chunk_sync.MixinChunkTicketManager",
     "common.chunk_sync.MixinCustomPayloadS2CPacket",

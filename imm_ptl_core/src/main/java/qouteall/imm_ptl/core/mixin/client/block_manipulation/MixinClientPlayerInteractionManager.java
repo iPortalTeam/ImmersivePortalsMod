@@ -1,5 +1,9 @@
 package qouteall.imm_ptl.core.mixin.client.block_manipulation;
 
+import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.Vec3d;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.ducks.IEClientPlayerInteractionManager;
@@ -24,6 +28,15 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
     @Final
     private ClientPlayNetworkHandler networkHandler;
     
+    @Shadow
+    @Final
+    private Object2ObjectLinkedOpenHashMap<Pair<BlockPos, PlayerActionC2SPacket.Action>, Vec3d> unacknowledgedPlayerActions;
+    
+    @Shadow
+    @Final
+    private MinecraftClient client;
+    
+    // vanilla copy
     @Inject(
         method = "sendPlayerAction",
         at = @At("HEAD"),
@@ -36,6 +49,7 @@ public abstract class MixinClientPlayerInteractionManager implements IEClientPla
         CallbackInfo ci
     ) {
         if (BlockManipulationClient.isContextSwitched) {
+            this.unacknowledgedPlayerActions.put(Pair.of(blockPos, action), client.player.getPos());
             this.networkHandler.sendPacket(
                 IPNetworkingClient.createCtsPlayerAction(
                     BlockManipulationClient.remotePointedDim,

@@ -149,12 +149,12 @@ public class BlockManipulationClient {
                     correctedStart, end, blockPos, solidShape, blockState
                 );
                 VoxelShape fluidShape = rayTraceContext.getFluidShape(fluidState, world, blockPos);
-                BlockHitResult blockHitResult2 = fluidShape.raycast(start, end, blockPos);
+                BlockHitResult fluidHitResult = fluidShape.raycast(start, end, blockPos);
                 double d = blockHitResult == null ? Double.MAX_VALUE :
                     rayTraceContext.getStart().squaredDistanceTo(blockHitResult.getPos());
-                double e = blockHitResult2 == null ? Double.MAX_VALUE :
-                    rayTraceContext.getStart().squaredDistanceTo(blockHitResult2.getPos());
-                return d <= e ? blockHitResult : blockHitResult2;
+                double e = fluidHitResult == null ? Double.MAX_VALUE :
+                    rayTraceContext.getStart().squaredDistanceTo(fluidHitResult.getPos());
+                return d <= e ? blockHitResult : fluidHitResult;
             },
             (rayTraceContext) -> {
                 Vec3d vec3d = rayTraceContext.getStart().subtract(rayTraceContext.getEnd());
@@ -166,7 +166,7 @@ public class BlockManipulationClient {
             }
         );
         
-        if (remoteHitResult.getPos().y < 0.1) {
+        if (remoteHitResult.getPos().y < world.getBottomY() + 0.1) {
             remoteHitResult = new BlockHitResult(
                 remoteHitResult.getPos(),
                 Direction.DOWN,
@@ -286,12 +286,12 @@ public class BlockManipulationClient {
         remoteHitResult = blockHitResult;
         remotePointedDim = result.getRight();
         
-        int i = itemStack.getCount();
+        int count = itemStack.getCount();
         ActionResult actionResult2 = myInteractBlock(hand, targetWorld, blockHitResult);
         if (actionResult2.isAccepted()) {
             if (actionResult2.shouldSwingHand()) {
                 client.player.swingHand(hand);
-                if (!itemStack.isEmpty() && (itemStack.getCount() != i || client.interactionManager.hasCreativeInventory())) {
+                if (!itemStack.isEmpty() && (itemStack.getCount() != count || client.interactionManager.hasCreativeInventory())) {
                     client.gameRenderer.firstPersonRenderer.resetEquipProgress(hand);
                 }
             }
