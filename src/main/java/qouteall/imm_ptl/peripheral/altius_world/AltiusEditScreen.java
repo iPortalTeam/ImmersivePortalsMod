@@ -62,7 +62,7 @@ public class AltiusEditScreen extends Screen {
         horizontalRotationField.setSelectionEnd(0);
         
         backButton = new ButtonWidget(
-            0, 0, 0, 20, new TranslatableText("imm_ptl.back"),
+            0, 0, 0, 20, new TranslatableText("imm_ptl.finish"),
             button -> {
                 try {
                     editing.entry.horizontalRotation = Double.parseDouble(horizontalRotationField.getText());

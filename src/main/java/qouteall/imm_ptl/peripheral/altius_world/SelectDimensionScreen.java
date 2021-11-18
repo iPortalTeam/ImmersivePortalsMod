@@ -25,34 +25,31 @@ public class SelectDimensionScreen extends Screen {
     private DimListWidget dimListWidget;
     private ButtonWidget confirmButton;
     private Consumer<RegistryKey<World>> outerCallback;
-    private Supplier<GeneratorOptions> generatorOptionsSupplier;
     
-    protected SelectDimensionScreen(AltiusScreen parent, Consumer<RegistryKey<World>> callback, Supplier<GeneratorOptions> generatorOptionsSupplier1) {
+    protected SelectDimensionScreen(AltiusScreen parent, Consumer<RegistryKey<World>> callback) {
         super(new TranslatableText("imm_ptl.select_dimension"));
         this.parent = parent;
         this.outerCallback = callback;
-        
-        generatorOptionsSupplier = generatorOptionsSupplier1;
     }
     
-    public static List<RegistryKey<World>> getDimensionList(
-        Supplier<GeneratorOptions> generatorOptionsSupplier,
-        DynamicRegistryManager.Impl dynamicRegistryManager
-    ) {
-        
-        GeneratorOptions generatorOptions = generatorOptionsSupplier.get();
-        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
-        
-        DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, dynamicRegistryManager);
-        
-        ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
-        
-        for (Map.Entry<RegistryKey<DimensionOptions>, DimensionOptions> entry : dimensionMap.getEntries()) {
-            dimList.add(RegistryKey.of(Registry.WORLD_KEY, entry.getKey().getValue()));
-        }
-        
-        return dimList;
-    }
+//    public static List<RegistryKey<World>> getDimensionList(
+//        Supplier<GeneratorOptions> generatorOptionsSupplier,
+//        DynamicRegistryManager.Impl dynamicRegistryManager
+//    ) {
+//
+//        GeneratorOptions generatorOptions = generatorOptionsSupplier.get();
+//        SimpleRegistry<DimensionOptions> dimensionMap = generatorOptions.getDimensions();
+//
+//        DimensionAPI.serverDimensionsLoadEvent.invoker().run(generatorOptions, dynamicRegistryManager);
+//
+//        ArrayList<RegistryKey<World>> dimList = new ArrayList<>();
+//
+//        for (Map.Entry<RegistryKey<DimensionOptions>, DimensionOptions> entry : dimensionMap.getEntries()) {
+//            dimList.add(RegistryKey.of(Registry.WORLD_KEY, entry.getKey().getValue()));
+//        }
+//
+//        return dimList;
+//    }
     
     @Override
     protected void init() {
@@ -69,7 +66,7 @@ public class SelectDimensionScreen extends Screen {
         
         Consumer<DimEntryWidget> callback = w -> dimListWidget.setSelected(w);
         
-        for (RegistryKey<World> dim : getDimensionList(this.generatorOptionsSupplier, this.parent.parent.moreOptionsDialog.getRegistryManager())) {
+        for (RegistryKey<World> dim : parent.dimensionListSupplier.get()) {
             dimListWidget.entryWidgets.add(new DimEntryWidget(dim, dimListWidget, callback, DimEntryWidget.Type.simple));
         }
         

@@ -1,10 +1,15 @@
 package qouteall.imm_ptl.peripheral.mixin.client.altius_world;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
+import qouteall.imm_ptl.core.dimension_sync.DimId;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusInfo;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusScreen;
+import qouteall.imm_ptl.peripheral.altius_world.WorldCreationDimensionHelper;
 import qouteall.imm_ptl.peripheral.ducks.IECreateWorldScreen;
 import qouteall.q_misc_util.Helper;
 import net.minecraft.client.MinecraftClient;
@@ -26,9 +31,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.q_misc_util.api.DimensionAPI;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class MixinCreateWorldScreen extends Screen implements IECreateWorldScreen {
@@ -38,8 +46,13 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     @Shadow
     protected DataPackSettings dataPackSettings;
     
-    @Shadow @org.jetbrains.annotations.Nullable protected abstract Pair<File, ResourcePackManager> getScannedPack();
+    @Shadow
+    @org.jetbrains.annotations.Nullable
+    protected abstract Pair<File, ResourcePackManager> getScannedPack();
     
+    @Shadow
+    @Final
+    public MoreOptionsDialog moreOptionsDialog;
     private ButtonWidget altiusButton;
     
     @Nullable
@@ -120,10 +133,32 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
     
     private void openAltiusScreen() {
         if (altiusScreen == null) {
-            altiusScreen = new AltiusScreen((CreateWorldScreen) (Object) this);
+            altiusScreen = new AltiusScreen(
+                (CreateWorldScreen) (Object) this,
+                this::portal_getDimensionList
+            );
         }
         
         MinecraftClient.getInstance().setScreen(altiusScreen);
+    }
+    
+    private List<RegistryKey<World>> portal_getDimensionList() {
+        GeneratorOptions rawGeneratorOptions = moreOptionsDialog.getGeneratorOptions(false);
+        
+        DynamicRegistryManager.Impl registryManager = moreOptionsDialog.getRegistryManager();
+        
+        GeneratorOptions populated = WorldCreationDimensionHelper.populateGeneratorOptions1(
+            rawGeneratorOptions, registryManager,
+            portal_getResourcePackManager(),
+            dataPackSettings
+        );
+        
+        // register the alternate dimensions
+        DimensionAPI.serverDimensionsLoadEvent.invoker().run(populated, registryManager);
+        
+        return populated.getDimensions().getEntries().stream().map(
+            e -> DimId.idToKey(e.getKey().getValue())
+        ).collect(Collectors.toList());
     }
     
     @Override

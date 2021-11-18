@@ -85,16 +85,27 @@ public class WorldCreationDimensionHelper {
         return result;
         
     }
+
+//    public static GeneratorOptions populateGeneratorOptions(
+//        CreateWorldScreen createWorldScreen, GeneratorOptions rawGeneratorOptions,
+//        DynamicRegistryManager.Impl registryManager
+//    ) {
+//        IECreateWorldScreen ieCreateWorldScreen = (IECreateWorldScreen) createWorldScreen;
+//
+//        ResourcePackManager resourcePackManager = ieCreateWorldScreen.portal_getResourcePackManager();
+//        DataPackSettings dataPackSettings = ieCreateWorldScreen.portal_getDataPackSettings();
+//        return populateGeneratorOptions1(rawGeneratorOptions, registryManager, resourcePackManager, dataPackSettings);
+//    }
     
-    public static GeneratorOptions populateGeneratorOptions(
-        CreateWorldScreen createWorldScreen, GeneratorOptions rawGeneratorOptions,
-        DynamicRegistryManager.Impl registryManager
+    public static GeneratorOptions populateGeneratorOptions1(
+        GeneratorOptions rawGeneratorOptions,
+        DynamicRegistryManager.Impl registryManager,
+        ResourcePackManager resourcePackManager,
+        DataPackSettings dataPackSettings
     ) {
-        IECreateWorldScreen ieCreateWorldScreen = (IECreateWorldScreen) createWorldScreen;
-        
         ResourceManager resourceManager = fetchResourceManager(
-            ieCreateWorldScreen.portal_getResourcePackManager(),
-            ieCreateWorldScreen.portal_getDataPackSettings(),
+            resourcePackManager,
+            dataPackSettings,
             registryManager
         );
         

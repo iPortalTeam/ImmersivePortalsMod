@@ -12,7 +12,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.SaveLevelScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -22,13 +21,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.GeneratorOptions;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class AltiusScreen extends Screen {
-    CreateWorldScreen parent;
+    public final Screen parent;
     private final ButtonWidget backButton;
     private final ButtonWidget toggleButton;
     private final ButtonWidget addDimensionButton;
@@ -41,13 +41,14 @@ public class AltiusScreen extends Screen {
     
     public boolean isEnabled = false;
     public final DimListWidget dimListWidget;
-    private final Supplier<GeneratorOptions> generatorOptionsSupplier1;
-    
     public boolean loopEnabled = false;
     
-    public AltiusScreen(CreateWorldScreen parent) {
+    public final Supplier<List<RegistryKey<World>>> dimensionListSupplier;
+    
+    public AltiusScreen(Screen parent, Supplier<List<RegistryKey<World>>> dimensionListSupplier) {
         super(new TranslatableText("imm_ptl.altius_screen"));
         this.parent = parent;
+        this.dimensionListSupplier = dimensionListSupplier;
         
         toggleButton = new ButtonWidget(
             0, 0, 150, 20,
@@ -104,14 +105,14 @@ public class AltiusScreen extends Screen {
         }
         dimListWidget.entryWidgets.add(createDimEntryWidget(World.OVERWORLD));
         dimListWidget.entryWidgets.add(createDimEntryWidget(World.NETHER));
-        
-        generatorOptionsSupplier1 = Helper.cached(() -> {
-            GeneratorOptions rawGeneratorOptions =
-                this.parent.moreOptionsDialog.getGeneratorOptions(false);
-            return WorldCreationDimensionHelper.populateGeneratorOptions(
-                this.parent, rawGeneratorOptions, this.parent.moreOptionsDialog.getRegistryManager()
-            );
-        });
+
+//        generatorOptionsSupplier1 = Helper.cached(() -> {
+//            GeneratorOptions rawGeneratorOptions =
+//                this.parent.moreOptionsDialog.getGeneratorOptions(false);
+//            return WorldCreationDimensionHelper.populateGeneratorOptions(
+//                this.parent, rawGeneratorOptions, this.parent.moreOptionsDialog.getRegistryManager()
+//            );
+//        });
         
         helpButton = createHelpButton(this);
     }
@@ -293,7 +294,7 @@ public class AltiusScreen extends Screen {
                         );
                         removeDuplicate(insertingPosition);
                         dimListWidget.update();
-                    }, generatorOptionsSupplier1
+                    }
                 )
             );
             return true;
