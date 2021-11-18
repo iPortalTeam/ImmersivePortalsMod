@@ -1301,6 +1301,27 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager
+            .literal("dimension_stack")
+            .requires(commandSource -> commandSource.hasPermissionLevel(2))
+            .executes(context -> {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                
+                List<String> dimIdList = new ArrayList<>();
+                for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
+                    dimIdList.add(world.getRegistryKey().getValue().toString());
+                }
+                
+                McRemoteProcedureCall.tellClientToInvoke(
+                    player,
+                    "qouteall.imm_ptl.peripheral.altius_world.AltiusManagement.RemoteCallables.clientOpenScreen",
+                    dimIdList
+                );
+                
+                return 0;
+            })
+        );
+        
+        builder.then(CommandManager
             .literal("wiki")
             .executes(context -> {
                 McRemoteProcedureCall.tellClientToInvoke(

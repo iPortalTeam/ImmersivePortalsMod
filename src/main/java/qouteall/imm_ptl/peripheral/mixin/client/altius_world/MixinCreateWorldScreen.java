@@ -135,7 +135,10 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
         if (altiusScreen == null) {
             altiusScreen = new AltiusScreen(
                 (CreateWorldScreen) (Object) this,
-                this::portal_getDimensionList
+                this::portal_getDimensionList,
+                a -> {
+                    // clicking "Finish" invokes nothing
+                }
             );
         }
         

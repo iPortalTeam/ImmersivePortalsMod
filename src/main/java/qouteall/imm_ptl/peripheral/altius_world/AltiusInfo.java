@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
@@ -16,6 +18,7 @@ import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AltiusInfo {
     
@@ -116,4 +119,22 @@ public class AltiusInfo {
         }
     }
     
+    public NbtCompound toNbt(){
+        NbtCompound nbtCompound = new NbtCompound();
+        nbtCompound.putBoolean("loop", loop);
+        NbtList list = new NbtList();
+        for (AltiusEntry entry : entries) {
+            list.add(entry.toNbt());
+        }
+        nbtCompound.put("entries", list);
+        return nbtCompound;
+    }
+    
+    public static AltiusInfo fromNbt(NbtCompound compound) {
+        boolean loop = compound.getBoolean("loop");
+        NbtList list = compound.getList("entries", new NbtCompound().getType());
+        List<AltiusEntry> entries = list.stream()
+            .map(n -> AltiusEntry.fromNbt(((NbtCompound) n))).collect(Collectors.toList());
+        return new AltiusInfo(entries, loop);
+    }
 }

@@ -3,7 +3,6 @@ package qouteall.imm_ptl.peripheral.altius_world;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.GuiHelper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import net.fabricmc.api.EnvType;
@@ -18,7 +17,6 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.GeneratorOptions;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,8 +26,9 @@ import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class AltiusScreen extends Screen {
+    @org.jetbrains.annotations.Nullable
     public final Screen parent;
-    private final ButtonWidget backButton;
+    private final ButtonWidget finishButton;
     private final ButtonWidget toggleButton;
     private final ButtonWidget addDimensionButton;
     private final ButtonWidget removeDimensionButton;
@@ -44,12 +43,18 @@ public class AltiusScreen extends Screen {
     public boolean loopEnabled = false;
     
     public final Supplier<List<RegistryKey<World>>> dimensionListSupplier;
+    private final Consumer<AltiusInfo> finishCallback;
     
-    public AltiusScreen(Screen parent, Supplier<List<RegistryKey<World>>> dimensionListSupplier) {
+    public AltiusScreen(
+        Screen parent,
+        Supplier<List<RegistryKey<World>>> dimensionListSupplier,
+        Consumer<AltiusInfo> finishCallback
+    ) {
         super(new TranslatableText("imm_ptl.altius_screen"));
         this.parent = parent;
         this.dimensionListSupplier = dimensionListSupplier;
-        
+        this.finishCallback = finishCallback;
+    
         toggleButton = new ButtonWidget(
             0, 0, 150, 20,
             new TranslatableText("imm_ptl.toggle_altius"),
@@ -58,11 +63,12 @@ public class AltiusScreen extends Screen {
             }
         );
         
-        backButton = new ButtonWidget(
+        finishButton = new ButtonWidget(
             0, 0, 72, 20,
             new TranslatableText("imm_ptl.finish"),
             (buttonWidget) -> {
                 MinecraftClient.getInstance().setScreen(parent);
+                finishCallback.accept(getAltiusInfo());
             }
         );
         addDimensionButton = new ButtonWidget(
@@ -151,7 +157,7 @@ public class AltiusScreen extends Screen {
     protected void init() {
         
         addDrawableChild(toggleButton);
-        addDrawableChild(backButton);
+        addDrawableChild(finishButton);
         addDrawableChild(addDimensionButton);
         addDrawableChild(removeDimensionButton);
         
@@ -186,7 +192,7 @@ public class AltiusScreen extends Screen {
             }),
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(true, 20, (from, to) -> {
-                backButton.y = from;
+                finishButton.y = from;
                 addDimensionButton.y = from;
                 removeDimensionButton.y = from;
                 editButton.y = from;
@@ -195,7 +201,7 @@ public class AltiusScreen extends Screen {
                     GuiHelper.blankSpace(10),
                     new GuiHelper.LayoutElement(
                         false, 1,
-                        GuiHelper.layoutButtonHorizontally(backButton)
+                        GuiHelper.layoutButtonHorizontally(finishButton)
                     ),
                     GuiHelper.blankSpace(5),
                     new GuiHelper.LayoutElement(
