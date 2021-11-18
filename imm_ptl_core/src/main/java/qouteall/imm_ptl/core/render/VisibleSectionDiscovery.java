@@ -96,10 +96,10 @@ public class VisibleSectionDiscovery {
     private static void discoverBottomOrTopLayerVisibleChunks(int cy) {
         BlockTraverse.<Object>searchOnPlane(
             cameraSectionPos.getSectionX(),
-            cameraSectionPos.getMaxZ(),
+            cameraSectionPos.getSectionZ(),
             viewDistance - 1,
             (cx, cz) -> {
-                checkSection(cy, cx, cz);
+                checkSection(cx, cy, cz);
                 return null;
             }
         );
