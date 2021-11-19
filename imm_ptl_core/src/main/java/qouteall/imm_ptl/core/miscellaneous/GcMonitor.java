@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.miscellaneous;
 
-import net.minecraft.text.LiteralText;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
@@ -19,6 +18,7 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.WeakHashMap;
 
+// TODO seem to be abnormal with ZGC
 public class GcMonitor {
     private static boolean memoryNotEnough = false;
     
@@ -26,6 +26,9 @@ public class GcMonitor {
         new WeakHashMap<>();
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(3);
+    
+    private static long lastUpdateTime = 0;
+    private static long lastLongPauseTime = 0;
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
@@ -44,6 +47,11 @@ public class GcMonitor {
     }
     
     private static void update() {
+        long currTime = System.nanoTime();
+        if (currTime - lastUpdateTime > Helper.secondToNano(0.3)) {
+            lastLongPauseTime = currTime;
+        }
+        lastUpdateTime = currTime;
         
         for (GarbageCollectorMXBean garbageCollectorMXBean : ManagementFactory.getGarbageCollectorMXBeans()) {
             long currCount = garbageCollectorMXBean.getCollectionCount();
@@ -53,13 +61,14 @@ public class GcMonitor {
             
             if (lastCount != null) {
                 if (lastCount != currCount) {
-                    onGced();
+                    check();
                 }
             }
         }
+        
     }
     
-    private static void onGced() {
+    private static void check() {
         long maxMemory = Runtime.getRuntime().maxMemory();
         long totalMemory = Runtime.getRuntime().totalMemory();
         long freeMemory = Runtime.getRuntime().freeMemory();
@@ -67,7 +76,9 @@ public class GcMonitor {
         
         double usage = ((double) usedMemory) / maxMemory;
         
-        if (usage > 0.8) {
+        double timeFromLongPause = System.nanoTime() - lastLongPauseTime;
+        
+        if (usage > 0.8 && timeFromLongPause < Helper.secondToNano(2)) {
             if (memoryNotEnough) {
                 // show message the second time
                 
@@ -81,14 +92,14 @@ public class GcMonitor {
                     " If this happens with low loading distance, it usually indicates memory leak"
             );
             
-            long l = Runtime.getRuntime().maxMemory();
-            long m = Runtime.getRuntime().totalMemory();
-            long n = Runtime.getRuntime().freeMemory();
-            long o = m - n;
+            long maxMemory1 = Runtime.getRuntime().maxMemory();
+            long totalMemory1 = Runtime.getRuntime().totalMemory();
+            long freeMemory1 = Runtime.getRuntime().freeMemory();
+            long usedMemory1 = totalMemory1 - freeMemory1;
             
             Helper.err(String.format(
-                "Memory: % 2d%% %03d/%03dMB", o * 100L / l,
-                PortalDebugCommands.toMiB(o), PortalDebugCommands.toMiB(l)
+                "Memory: % 2d%% %03d/%03dMB", usedMemory1 * 100L / maxMemory1,
+                PortalDebugCommands.toMiB(usedMemory1), PortalDebugCommands.toMiB(maxMemory1)
             ));
             
             memoryNotEnough = true;
