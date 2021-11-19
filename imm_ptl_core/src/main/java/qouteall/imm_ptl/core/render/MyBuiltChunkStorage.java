@@ -313,10 +313,12 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             return shouldDropPreset;
         });
         
+        long timeThreshold = Helper.secondToNano(5);
+        
         columnMap.long2ObjectEntrySet().removeIf(entry -> {
             Column column = entry.getValue();
-            boolean shouldRemove = column.mark != currentTime;
             
+            boolean shouldRemove = currentTime - column.mark > timeThreshold;
             if (shouldRemove) {
                 for (ChunkBuilder.BuiltChunk chunk : column.chunks) {
                     chunk.delete();
