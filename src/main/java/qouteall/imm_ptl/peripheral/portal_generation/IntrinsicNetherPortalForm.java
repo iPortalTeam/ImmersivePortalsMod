@@ -1,6 +1,11 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.block.Block;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.Vec3d;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
@@ -17,6 +22,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
@@ -62,13 +68,41 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
             initializeOverlay(portals[2], info.toShape);
             initializeOverlay(portals[3], info.toShape);
         }
+    
+        if (encounteredVanillaPortalBlock) {
+            encounteredVanillaPortalBlock = false;
+            List<ServerPlayerEntity> nearbyPlayers = McHelper.findEntitiesRough(
+                ServerPlayerEntity.class,
+                McHelper.getServerWorld(info.from),
+                Vec3d.of(info.fromShape.anchor),
+                2,
+                p -> true
+            );
+            for (ServerPlayerEntity player : nearbyPlayers) {
+                player.sendMessage(
+                    new TranslatableText("imm_ptl.cannot_connect_to_vanilla_portal"),
+                    false
+                );
+            }
+        }
         
         return portals;
     }
     
+    private static boolean encounteredVanillaPortalBlock = false;
+    
     @Override
     public Predicate<BlockState> getOtherSideFramePredicate() {
-        return O_O::isObsidian;
+        return blockState -> {
+            if (O_O.isObsidian(blockState)) {
+                return true;
+            }
+            Block block = blockState.getBlock();
+            if (block == Blocks.NETHER_PORTAL) {
+                encounteredVanillaPortalBlock = true;
+            }
+            return false;
+        };
     }
     
     @Override
