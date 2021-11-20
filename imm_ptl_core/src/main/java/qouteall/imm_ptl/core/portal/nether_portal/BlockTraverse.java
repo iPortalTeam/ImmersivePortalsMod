@@ -20,6 +20,7 @@ public class BlockTraverse {
         T eval(int x, int y, int z);
     }
     
+    // the from and to are inclusive!
     public static <T> T searchFromTo(int from, int to, IntFunc<T> func) {
         if (from > to) {
             for (int i = from; i >= to; i--) {
@@ -94,6 +95,7 @@ public class BlockTraverse {
     }
     
     // NOTE Mutable block pos
+    // NOTE the startY and endY are inclusive
     public static <T> T searchColumned(
         int centerX, int centerZ, int range,
         int startY, int endY,

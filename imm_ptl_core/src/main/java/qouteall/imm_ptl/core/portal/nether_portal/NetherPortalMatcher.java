@@ -10,6 +10,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.WorldAccess;
 
 import java.util.Arrays;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -24,24 +25,32 @@ public class NetherPortalMatcher {
         BlockPos searchingCenter
     ) {
         int radius = 16;
+        
+        int maxY = McHelper.getMaxContentYExclusive(world);
+        int minY = McHelper.getMinY(world);
+        
+        // search for place above ground
         IntBox airCube = getAirCubeOnSolidGround(
             areaSize, new BlockPos(6, 0, 6), world, searchingCenter,
-            radius, true
+            radius, true,
+            64, maxY
         );
         
         if (airCube == null) {
-            Helper.log("Cannot Find Portal Placement on Ground with 3 Spacing");
+            Helper.log("Cannot Find Portal Placement on Ground with 6 Spacing");
             airCube = getAirCubeOnSolidGround(
                 areaSize, new BlockPos(2, 0, 2), world, searchingCenter,
-                radius, true
+                radius, true,
+                64, maxY
             );
         }
         
         if (airCube == null) {
-            Helper.log("Cannot Find Portal Placement on Ground with 1 Spacing");
+            Helper.log("Cannot Find Portal Placement on Ground with 2 Spacing");
             airCube = getAirCubeOnSolidGround(
                 areaSize, new BlockPos(6, 0, 6), world, searchingCenter,
-                radius, false
+                radius, false,
+                minY, maxY
             );
         }
         
@@ -78,7 +87,9 @@ public class NetherPortalMatcher {
         WorldAccess world,
         BlockPos searchingCenter,
         int findingRadius,
-        boolean solidGround
+        boolean solidGround,
+        int startY,
+        int endY
     ) {
         Predicate<BlockPos> isAirOnGroundPredicate =
             blockPos -> solidGround ? isAirOnSolidGround(world, blockPos) :
@@ -86,7 +97,7 @@ public class NetherPortalMatcher {
         
         return BlockTraverse.searchColumned(
             searchingCenter.getX(), searchingCenter.getZ(), findingRadius,
-            McHelper.getMinY(world) + 5, McHelper.getMaxContentYExclusive(world) - 5,
+            startY, endY,
             mutable -> {
                 if (isAirOnGroundPredicate.test(mutable)) {
                     IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
@@ -186,7 +197,7 @@ public class NetherPortalMatcher {
             searchingCenter.getX() - (areaSize.getX() / 2),
             searchingCenter.getZ() - (areaSize.getZ() / 2),
             findingRadius,
-            5 + McHelper.getMinY(world), McHelper.getMaxYExclusive(world) - 5,
+            1 + McHelper.getMinY(world), McHelper.getMaxYExclusive(world) - 1,
             mutable -> {
                 IntBox box = IntBox.getBoxByBasePointAndSize(areaSize, mutable);
                 if (isAirCubeMediumPlace(world, box)) {
