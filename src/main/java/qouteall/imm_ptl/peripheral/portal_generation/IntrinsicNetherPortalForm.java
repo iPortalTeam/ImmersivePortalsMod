@@ -58,23 +58,13 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     }
     
     @Override
-    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
-        info.generatePlaceholderBlocks();
-        BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.entityType);
-        
-        if (IPGlobal.netherPortalOverlay) {
-            initializeOverlay(portals[0], info.fromShape);
-            initializeOverlay(portals[1], info.fromShape);
-            initializeOverlay(portals[2], info.toShape);
-            initializeOverlay(portals[3], info.toShape);
-        }
-    
+    public PortalGenInfo getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, ServerWorld fromWorld, BlockPortalShape fromShape) {
         if (encounteredVanillaPortalBlock) {
             encounteredVanillaPortalBlock = false;
             List<ServerPlayerEntity> nearbyPlayers = McHelper.findEntitiesRough(
                 ServerPlayerEntity.class,
-                McHelper.getServerWorld(info.from),
-                Vec3d.of(info.fromShape.anchor),
+                fromWorld,
+                Vec3d.of(fromShape.anchor),
                 2,
                 p -> true
             );
@@ -86,9 +76,25 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
             }
         }
         
+        return super.getNewPortalPlacement(toWorld, toPos, fromWorld, fromShape);
+    }
+    
+    @Override
+    public BreakablePortalEntity[] generatePortalEntitiesAndPlaceholder(PortalGenInfo info) {
+        info.generatePlaceholderBlocks();
+        BreakablePortalEntity[] portals = info.generateBiWayBiFacedPortal(NetherPortalEntity.entityType);
+        
+        if (IPGlobal.netherPortalOverlay) {
+            initializeOverlay(portals[0], info.fromShape);
+            initializeOverlay(portals[1], info.fromShape);
+            initializeOverlay(portals[2], info.toShape);
+            initializeOverlay(portals[3], info.toShape);
+        }
+        
         return portals;
     }
     
+    // not thread safe but mostly fine
     private static boolean encounteredVanillaPortalBlock = false;
     
     @Override

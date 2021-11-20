@@ -7,7 +7,6 @@ import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;
@@ -17,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class FrameSearching {
     // T is PortalGenInfo
@@ -58,7 +58,6 @@ public class FrameSearching {
     }
     
     // Return null for not found
-    // After removing the usage of stream API, it becomes 100 times faster!!!
     @Nullable
     public static <T> T searchPortalFrame(
         ChunkRegion region,
@@ -71,19 +70,41 @@ public class FrameSearching {
             region, centerPoint, regionRadius
         );
         
-        BlockPos.Mutable temp = new BlockPos.Mutable();
-        BlockPos.Mutable temp1 = new BlockPos.Mutable();
-        
         int minSectionY = McHelper.getMinSectionY(region);
+        int maxSectionYExclusive = McHelper.getMaxSectionYExclusive(region);
+        
+        return searchPortalFrameWithYRange(
+            framePredicate, matchShape,
+            chunks, minSectionY,
+            McHelper.getMinY(region), McHelper.getMaxYExclusive(region)
+        );
+    }
+    
+    // After removing the usage of stream API, it becomes 100 times faster!!!
+    @Nullable
+    private static <T> T searchPortalFrameWithYRange(
+        Predicate<BlockState> framePredicate,
+        Function<BlockPos.Mutable, T> matchShape,
+        ArrayList<Chunk> chunks,
+        int minSectionY,
+        int yRangeStart, int yRangeEnd
+    ) {
+        BlockPos.Mutable temp = new BlockPos.Mutable();
         
         // avoid using stream api and maintain cache locality
         for (int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++) {
             Chunk chunk = chunks.get(chunkIndex);
             ChunkSection[] sectionArray = chunk.getSectionArray();
+            
             for (int ySectionIndex = 0; ySectionIndex < sectionArray.length; ySectionIndex++) {
+                int sectionY = ySectionIndex + minSectionY;
+                
                 ChunkSection chunkSection = sectionArray[ySectionIndex];
-                if (chunkSection != null) {
-                    for (int localY = 0; localY < 16; localY++) {
+                if (chunkSection != null && !chunkSection.isEmpty()) {
+                    int localYStart = Math.max(0, yRangeStart - sectionY * 16);
+                    int localYEnd = Math.min(16, yRangeEnd - sectionY * 16);
+                    
+                    for (int localY = localYStart; localY < localYEnd; localY++) {
                         for (int localZ = 0; localZ < 16; localZ++) {
                             for (int localX = 0; localX < 16; localX++) {
                                 BlockState blockState = chunkSection.getBlockState(
@@ -91,7 +112,7 @@ public class FrameSearching {
                                 );
                                 if (framePredicate.test(blockState)) {
                                     int worldX = localX + chunk.getPos().getStartX();
-                                    int worldY = localY + (ySectionIndex + minSectionY) * 16;
+                                    int worldY = localY + (sectionY) * 16;
                                     int worldZ = localZ + chunk.getPos().getStartZ();
                                     temp.set(worldX, worldY, worldZ);
                                     
