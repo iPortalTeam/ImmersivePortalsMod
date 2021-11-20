@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.mixin.client;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
-import qouteall.imm_ptl.core.miscellaneous.FPSMonitor;
+import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import net.minecraft.client.MinecraftClient;
@@ -85,7 +85,7 @@ public abstract class MixinMinecraftClient extends ReentrantThreadExecutor<Runna
         )
     )
     private void onSnooperUpdate(boolean tick, CallbackInfo ci) {
-        FPSMonitor.updateEverySecond(currentFps);
+        ClientPerformanceMonitor.updateEverySecond(currentFps);
     }
     
     @Inject(

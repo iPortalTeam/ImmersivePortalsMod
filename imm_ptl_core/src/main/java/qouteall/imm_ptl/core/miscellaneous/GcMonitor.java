@@ -18,7 +18,8 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.WeakHashMap;
 
-// TODO seem to be abnormal with ZGC
+// Java does not provide a program-accessible interface to tell GC pause time
+// so I can only roughly measure it
 public class GcMonitor {
     private static boolean memoryNotEnough = false;
     
@@ -26,6 +27,7 @@ public class GcMonitor {
         new WeakHashMap<>();
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(3);
+    private static final LimitedLogger limitedLogger2 = new LimitedLogger(3);
     
     private static long lastUpdateTime = 0;
     private static long lastLongPauseTime = 0;
@@ -87,20 +89,22 @@ public class GcMonitor {
                 }
             }
             
-            Helper.err(
-                "Memory not enough. Try to Shrink loading distance or allocate more memory." +
-                    " If this happens with low loading distance, it usually indicates memory leak"
-            );
-            
-            long maxMemory1 = Runtime.getRuntime().maxMemory();
-            long totalMemory1 = Runtime.getRuntime().totalMemory();
-            long freeMemory1 = Runtime.getRuntime().freeMemory();
-            long usedMemory1 = totalMemory1 - freeMemory1;
-            
-            Helper.err(String.format(
-                "Memory: % 2d%% %03d/%03dMB", usedMemory1 * 100L / maxMemory1,
-                PortalDebugCommands.toMiB(usedMemory1), PortalDebugCommands.toMiB(maxMemory1)
-            ));
+            limitedLogger2.invoke(() -> {
+                Helper.err(
+                    "Memory not enough. Try to Shrink loading distance or allocate more memory." +
+                        " If this happens with low loading distance, it usually indicates memory leak"
+                );
+                
+                long maxMemory1 = Runtime.getRuntime().maxMemory();
+                long totalMemory1 = Runtime.getRuntime().totalMemory();
+                long freeMemory1 = Runtime.getRuntime().freeMemory();
+                long usedMemory1 = totalMemory1 - freeMemory1;
+                
+                Helper.err(String.format(
+                    "Memory: % 2d%% %03d/%03dMB", usedMemory1 * 100L / maxMemory1,
+                    PortalDebugCommands.toMiB(usedMemory1), PortalDebugCommands.toMiB(maxMemory1)
+                ));
+            });
             
             memoryNotEnough = true;
         }

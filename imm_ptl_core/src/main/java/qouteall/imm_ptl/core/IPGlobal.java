@@ -71,7 +71,7 @@ public class IPGlobal {
     
     public static boolean crossPortalCollision = true;
     
-    public static int chunkUnloadDelayTicks = 15 * 20;
+    public static int chunkUnloadDelayTicks = 10 * 20;
     
     public static boolean enablePortalRenderingMerge = true;
     

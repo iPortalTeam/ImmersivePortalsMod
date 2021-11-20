@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
@@ -35,8 +36,6 @@ import java.util.stream.Stream;
 public class NewChunkTrackingGraph {
     
     public static final int updateInterval = 40;
-    
-    private static final boolean doImmediateLoad = false;
     
     public static class PlayerWatchRecord {
         public final ServerPlayerEntity player;
@@ -60,6 +59,19 @@ public class NewChunkTrackingGraph {
             this.distanceToSource = distanceToSource;
             this.isDirectLoading = isDirectLoading;
             this.isLoadedToPlayer = isLoadedToPlayer;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format(
+                "%s (%d,%d) distance:%d valid:%s loaded:%s",
+                dimension.getValue(),
+                ChunkPos.getPackedX(chunkPos),
+                ChunkPos.getPackedZ(chunkPos),
+                distanceToSource,
+                isValid,
+                isLoadedToPlayer
+            );
         }
     }
     
@@ -106,6 +118,8 @@ public class NewChunkTrackingGraph {
         public final ArrayList<ArrayDeque<PlayerWatchRecord>> distanceToPendingChunks =
             new ArrayList<>();
         
+        public PerformanceLevel performanceLevel = PerformanceLevel.bad;
+        
         public PlayerInfo() {
         }
         
@@ -128,7 +142,7 @@ public class NewChunkTrackingGraph {
         return data.computeIfAbsent(dimension, k -> new Long2ObjectLinkedOpenHashMap<>());
     }
     
-    private static PlayerInfo getPlayerInfo(ServerPlayerEntity player) {
+    public static PlayerInfo getPlayerInfo(ServerPlayerEntity player) {
         return playerInfoMap.computeIfAbsent(player, k -> new PlayerInfo());
     }
     
@@ -152,13 +166,14 @@ public class NewChunkTrackingGraph {
         
         final int limit = getChunkDeliveringLimitPerTick(player);
         int loaded = 0;
+        int directLoaded = 0;
         
         for (int distance = 0; distance < playerInfo.distanceToPendingChunks.size(); distance++) {
             ArrayDeque<PlayerWatchRecord> records = playerInfo.distanceToPendingChunks.get(distance);
             if (records != null) {
-                while (!records.isEmpty() && loaded < limit) {
+                while (!records.isEmpty() && loaded < limit && directLoaded < 5) {
                     PlayerWatchRecord record = records.pollFirst();
-                    if (record.isValid && (doImmediateLoad || !record.isLoadedToPlayer)) {
+                    if (record.isValid && !record.isLoadedToPlayer) {
                         record.isLoadedToPlayer = true;
                         beginWatchChunkSignal.emit(player, new DimensionalChunkPos(
                             record.dimension, new ChunkPos(record.chunkPos)
@@ -170,19 +185,36 @@ public class NewChunkTrackingGraph {
                             );
                         }
                         
-                        
-                        loaded++;
+                        if (!record.isDirectLoading) {
+                            loaded++;
+                        }
+                        else {
+                            directLoaded++;
+                        }
                     }
                 }
             }
         }
     }
     
+    private static final Random random = new Random();
+    
     private static int getChunkDeliveringLimitPerTick(ServerPlayerEntity player) {
-        if (doImmediateLoad) {
-            return 999999999;
+        if (player.age < 100) {
+            return 200;
         }
-        return player.age < 100 ? 200 : 5;
+        
+        PlayerInfo playerInfo = getPlayerInfo(player);
+        
+        if (playerInfo.performanceLevel == PerformanceLevel.good) {
+            return 5;
+        }
+        else if (playerInfo.performanceLevel == PerformanceLevel.medium) {
+            return 1;
+        }
+        else {
+            return player.age % 4 == 0 ? 1 : 0;
+        }
     }
     
     private static void updatePlayerForChunkLoader(
@@ -207,7 +239,7 @@ public class NewChunkTrackingGraph {
                 if (index == -1) {
                     PlayerWatchRecord newRecord = new PlayerWatchRecord(
                         player, dimension, chunkPos, gameTime, distanceToSource, chunkLoader.isDirectLoader,
-                        doImmediateLoad
+                        false
                     );
                     records.add(newRecord);
                     playerInfo.markPendingLoading(newRecord);
@@ -218,7 +250,6 @@ public class NewChunkTrackingGraph {
                     if (record.lastWatchTime == gameTime) {
                         //being updated again in the same turn
                         int oldDistance = record.distanceToSource;
-                        
                         if (distanceToSource < oldDistance) {
                             record.distanceToSource = distanceToSource;
                             playerInfo.markPendingLoading(record);
@@ -228,6 +259,11 @@ public class NewChunkTrackingGraph {
                     }
                     else {
                         //being updated at the first time in this turn
+                        int oldDistance = record.distanceToSource;
+                        if (distanceToSource < oldDistance) {
+                            playerInfo.markPendingLoading(record);
+                        }
+                        
                         record.distanceToSource = distanceToSource;
                         record.lastWatchTime = gameTime;
                         record.isDirectLoading = chunkLoader.isDirectLoader;
@@ -502,5 +538,15 @@ public class NewChunkTrackingGraph {
     
     public static Set<RegistryKey<World>> getVisibleDimensions(ServerPlayerEntity player) {
         return getPlayerInfo(player).visibleDimensions;
+    }
+    
+    public static class RemoteCallables {
+        public static void acceptClientPerformanceInfo(
+            ServerPlayerEntity player,
+            PerformanceLevel performanceLevel
+        ) {
+            PlayerInfo playerInfo = getPlayerInfo(player);
+            playerInfo.performanceLevel = performanceLevel;
+        }
     }
 }

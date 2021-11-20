@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client;
 
+import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -32,6 +33,11 @@ public class MixinDebugHud {
         }
         
         returnValue.add("Occlusion Query Stall: " + QueryManager.queryStallCounter);
+        returnValue.add("Client Perf %s %d %d".formatted(
+            ClientPerformanceMonitor.currentPerformanceLevel,
+            ClientPerformanceMonitor.getAverageFps(),
+            ClientPerformanceMonitor.getAverageFreeMemoryMB()
+        ));
         
         if (RenderStates.debugText != null && !RenderStates.debugText.isEmpty()) {
             returnValue.addAll(Helper.splitStringByLen(

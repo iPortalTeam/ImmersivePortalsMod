@@ -49,7 +49,12 @@ public class ChunkVisibility {
     private static int getCappedLoadingDistance(
         Portal portal, ServerPlayerEntity player, int targetLoadingDistance
     ) {
-        int cap = IPGlobal.indirectLoadingRadiusCap;
+        PerformanceLevel performanceLevel =
+            NewChunkTrackingGraph.getPlayerInfo(player).performanceLevel;
+        int cap1 = PerformanceLevel.getIndirectLoadingRadiusCap(performanceLevel);
+        int cap2 = IPGlobal.indirectLoadingRadiusCap;
+        
+        int cap = Math.min(cap1, cap2);
         
         // load more for scaling portal
         if (portal.getScale() > 2) {
@@ -57,33 +62,25 @@ public class ChunkVisibility {
         }
         
         int cappedLoadingDistance = Math.min(targetLoadingDistance, cap);
-
-//        if (!IPGlobal.serverSmoothLoading) {
-//            return cappedLoadingDistance;
-//        }
-
-//        int maxLoadDistance = PortalExtension.get(portal).refreshAndGetLoadDistanceCap(
-//            portal, player, cappedLoadingDistance
-//        );
+        
         return cappedLoadingDistance;
     }
     
     public static List<Portal> getNearbyPortals(
-        ServerWorld world, Vec3d pos, Predicate<Portal> predicate, boolean isDirect
+        ServerWorld world, Vec3d pos, Predicate<Portal> predicate,
+        int radiusChunks, int radiusChunksForGlobalPortals
     ) {
         List<Portal> result = McHelper.findEntitiesRough(
             Portal.class,
             world,
             pos,
-            (isDirect ?
-                (isShrinkLoading() ? portalLoadingRange / 2 : portalLoadingRange) :
-                secondaryPortalLoadingRange)
-                / 16,
+            radiusChunks,
             predicate
         );
         
         for (Portal globalPortal : GlobalPortalStorage.getGlobalPortals(world)) {
-            if (globalPortal.getDistanceToNearestPointInPortal(pos) < (isDirect ? 256 : 32)) {
+            double distance = globalPortal.getDistanceToNearestPointInPortal(pos);
+            if (distance < radiusChunksForGlobalPortals * 16) {
                 result.add(globalPortal);
             }
         }
@@ -186,6 +183,10 @@ public class ChunkVisibility {
     public static Stream<ChunkLoader> getBaseChunkLoaders(
         ServerPlayerEntity player
     ) {
+        PerformanceLevel perfLevel = NewChunkTrackingGraph.getPlayerInfo(player).performanceLevel;
+        int visiblePortalRangeChunks = PerformanceLevel.getVisiblePortalRangeChunks(perfLevel);
+        int indirectVisiblePortalRangeChunks = PerformanceLevel.getIndirectVisiblePortalRangeChunks(perfLevel);
+        
         ChunkLoader playerDirectLoader = playerDirectLoader(player);
         
         return Streams.concat(
@@ -195,7 +196,7 @@ public class ChunkVisibility {
                 ((ServerWorld) player.world),
                 player.getPos(),
                 portal -> portal.canBeSpectated(player),
-                true
+                visiblePortalRangeChunks, 256
             ).stream().flatMap(
                 portal -> {
                     Vec3d transformedPlayerPos = portal.transformPoint(player.getPos());
@@ -214,7 +215,7 @@ public class ChunkVisibility {
                                 ((ServerWorld) destinationWorld),
                                 transformedPlayerPos,
                                 p -> p.canBeSpectated(player),
-                                false
+                                indirectVisiblePortalRangeChunks, 32
                             ).stream().map(
                                 innerPortal -> getGeneralPortalIndirectLoader(
                                     player, transformedPlayerPos, innerPortal

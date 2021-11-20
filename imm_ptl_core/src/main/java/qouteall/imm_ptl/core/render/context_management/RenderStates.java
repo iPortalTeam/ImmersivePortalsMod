@@ -7,7 +7,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.miscellaneous.FPSMonitor;
+import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.mixin.client.particle.IEParticle;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
@@ -129,13 +129,13 @@ public class RenderStates {
             return;
         }
         if (isLaggy) {
-            if (FPSMonitor.getMinimumFps() > 15) {
+            if (ClientPerformanceMonitor.getMinimumFps() > 15) {
                 isLaggy = false;
             }
         }
         else {
             if (lastPortalRenderInfos.size() > 10) {
-                if (FPSMonitor.getAverageFps() < 8 || FPSMonitor.getMinimumFps() < 6) {
+                if (ClientPerformanceMonitor.getAverageFps() < 8 || ClientPerformanceMonitor.getMinimumFps() < 6) {
                     MyRenderHelper.client.inGameHud.setOverlayMessage(
                         new TranslatableText("imm_ptl.laggy"),
                         false
