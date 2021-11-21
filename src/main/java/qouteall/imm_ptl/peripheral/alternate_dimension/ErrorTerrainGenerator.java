@@ -168,21 +168,26 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     @Override
     public CompletableFuture<Chunk> populateNoise(Executor executor, StructureAccessor accessor, Chunk chunk) {
         ChunkSection[] sectionArray = chunk.getSectionArray();
-        ArrayList<ChunkSection> locked = new ArrayList<>();
-        for (ChunkSection chunkSection : sectionArray) {
-            if (chunkSection != null) {
-                chunkSection.lock();
-                locked.add(chunkSection);
-            }
-        }
+//        ArrayList<ChunkSection> locked = new ArrayList<>();
+//        for (ChunkSection chunkSection : sectionArray) {
+//            if (chunkSection != null) {
+//                chunkSection.lock();
+//                locked.add(chunkSection);
+//            }
+//        }
         
         return CompletableFuture.supplyAsync(() -> {
-            doPopulateNoise(chunk);
+            try {
+                doPopulateNoise(chunk);
+            }
+            catch (Throwable e) {
+                e.printStackTrace();
+            }
             return chunk;
         }, executor).thenApplyAsync((chunkx) -> {
-            for (ChunkSection chunkSection : locked) {
-                chunkSection.unlock();
-            }
+//            for (ChunkSection chunkSection : locked) {
+//                chunkSection.unlock();
+//            }
             
             return chunkx;
         }, executor);
