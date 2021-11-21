@@ -26,6 +26,10 @@ public class GcMonitor {
         new WeakHashMap<>();
     
     private static final LimitedLogger limitedLogger = new LimitedLogger(3);
+    private static final LimitedLogger limitedLogger2 = new LimitedLogger(3);
+    
+    private static long lastUpdateTime = 0;
+    private static long lastLongPauseTime = 0;
     
     @Environment(EnvType.CLIENT)
     public static void initClient() {
@@ -44,6 +48,11 @@ public class GcMonitor {
     }
     
     private static void update() {
+        long currTime = System.nanoTime();
+        if (currTime - lastUpdateTime > Helper.secondToNano(0.3)) {
+            lastLongPauseTime = currTime;
+        }
+        lastUpdateTime = currTime;
         
         for (GarbageCollectorMXBean garbageCollectorMXBean : ManagementFactory.getGarbageCollectorMXBeans()) {
             long currCount = garbageCollectorMXBean.getCollectionCount();
@@ -53,13 +62,14 @@ public class GcMonitor {
             
             if (lastCount != null) {
                 if (lastCount != currCount) {
-                    onGced();
+                    check();
                 }
             }
         }
+        
     }
     
-    private static void onGced() {
+    private static void check() {
         long maxMemory = Runtime.getRuntime().maxMemory();
         long totalMemory = Runtime.getRuntime().totalMemory();
         long freeMemory = Runtime.getRuntime().freeMemory();
@@ -67,7 +77,9 @@ public class GcMonitor {
         
         double usage = ((double) usedMemory) / maxMemory;
         
-        if (usage > 0.8) {
+        double timeFromLongPause = System.nanoTime() - lastLongPauseTime;
+        
+        if (usage > 0.8 && timeFromLongPause < Helper.secondToNano(2)) {
             if (memoryNotEnough) {
                 // show message the second time
                 
@@ -76,20 +88,22 @@ public class GcMonitor {
                 }
             }
             
-            Helper.err(
-                "Memory not enough. Try to Shrink loading distance or allocate more memory." +
-                    " If this happens with low loading distance, it usually indicates memory leak"
-            );
-            
-            long l = Runtime.getRuntime().maxMemory();
-            long m = Runtime.getRuntime().totalMemory();
-            long n = Runtime.getRuntime().freeMemory();
-            long o = m - n;
-            
-            Helper.err(String.format(
-                "Memory: % 2d%% %03d/%03dMB", o * 100L / l,
-                PortalDebugCommands.toMiB(o), PortalDebugCommands.toMiB(l)
-            ));
+            limitedLogger2.invoke(() -> {
+                Helper.err(
+                    "Memory not enough. Try to Shrink loading distance or allocate more memory." +
+                        " If this happens with low loading distance, it usually indicates memory leak"
+                );
+                
+                long maxMemory1 = Runtime.getRuntime().maxMemory();
+                long totalMemory1 = Runtime.getRuntime().totalMemory();
+                long freeMemory1 = Runtime.getRuntime().freeMemory();
+                long usedMemory1 = totalMemory1 - freeMemory1;
+                
+                Helper.err(String.format(
+                    "Memory: % 2d%% %03d/%03dMB", usedMemory1 * 100L / maxMemory1,
+                    PortalDebugCommands.toMiB(usedMemory1), PortalDebugCommands.toMiB(maxMemory1)
+                ));
+            });
             
             memoryNotEnough = true;
         }

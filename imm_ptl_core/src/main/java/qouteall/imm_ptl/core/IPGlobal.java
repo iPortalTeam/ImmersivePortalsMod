@@ -98,7 +98,7 @@ public class IPGlobal {
     
     public static boolean enableCrossPortalView = true;
 
-    public static boolean enableNetherPortalNoise = false;
+    public static boolean enableNetherPortalEffect = true;
     
     public static enum RenderMode {
         normal,
