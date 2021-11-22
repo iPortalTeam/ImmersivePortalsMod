@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core;
 
+import com.mojang.blaze3d.platform.GlDebugInfo;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.minecraft.client.option.GraphicsMode;
 import qouteall.imm_ptl.core.commands.ClientDebugCommand;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisCompatibilityPortalRenderer;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
@@ -34,11 +36,19 @@ import java.util.UUID;
 public class IPModMainClient {
     
     private static boolean optifineShaderWarned = false;
+    private static boolean fabulousWarned = false;
     
     public static void switchToCorrectRenderer() {
         if (PortalRendering.isRendering()) {
             //do not switch when rendering
             return;
+        }
+        
+        if (MinecraftClient.getInstance().options.graphicsMode == GraphicsMode.FABULOUS) {
+            if (!fabulousWarned) {
+                fabulousWarned = true;
+                CHelper.printChat(new TranslatableText("imm_ptl.fabulous_warning"));
+            }
         }
         
         if (OFInterface.isShaders.getAsBoolean()) {
@@ -109,6 +119,14 @@ public class IPModMainClient {
         ));
     }
     
+    private static void showIntelVideoCardWarning() {
+        MinecraftClient.getInstance().execute(() -> {
+            if (GlDebugInfo.getVendor().toLowerCase().contains("intel")) {
+                CHelper.printChat(new TranslatableText("imm_ptl.intel_warning"));
+            }
+        });
+    }
+    
     public static void init() {
         IPNetworkingClient.init();
         
@@ -154,6 +172,8 @@ public class IPModMainClient {
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
 
 //        showPreviewWarning();
+        
+        showIntelVideoCardWarning();
         
         Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }

@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core;
 
+import net.minecraft.text.Text;
 import org.lwjgl.opengl.GL32;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -83,7 +84,7 @@ public class CHelper {
         printChat(new LiteralText(str));
     }
     
-    public static void printChat(LiteralText text) {
+    public static void printChat(Text text) {
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
     }
     
