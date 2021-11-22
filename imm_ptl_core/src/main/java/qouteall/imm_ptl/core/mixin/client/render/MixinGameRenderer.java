@@ -63,16 +63,20 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         boolean renderWorldIn,
         CallbackInfo ci
     ) {
+        client.getProfiler().push("ip_pre_total_render");
         IPGlobal.preTotalRenderTaskList.processTasks();
+        client.getProfiler().pop();
         if (client.world == null) {
             return;
         }
+        client.getProfiler().push("ip_pre_render");
         RenderStates.updatePreRenderInfo(tickDelta);
         IPCGlobal.clientTeleportationManager.manageTeleportation(RenderStates.tickDelta);
         IPGlobal.preGameRenderSignal.emit();
         if (IPCGlobal.earlyClientLightUpdate) {
             MyRenderHelper.earlyUpdateLight();
         }
+        client.getProfiler().pop();
         
         RenderStates.frameIndex++;
     }

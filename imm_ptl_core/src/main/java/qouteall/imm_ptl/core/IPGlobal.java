@@ -12,8 +12,14 @@ public class IPGlobal {
     public static final Signal postClientTickSignal = new Signal();
     public static final Signal postServerTickSignal = new Signal();
     public static final Signal preGameRenderSignal = new Signal();
+    
+    // executed after ticking. will be cleared when client encounter loading screen
     public static final MyTaskList clientTaskList = new MyTaskList();
+    
+    // executed after ticking. will be cleared when server closes
     public static final MyTaskList serverTaskList = new MyTaskList();
+    
+    // won't be cleared
     public static final MyTaskList preGameRenderTaskList = new MyTaskList();
     public static final MyTaskList preTotalRenderTaskList = new MyTaskList();
     public static final Signal clientCleanupSignal = new Signal();

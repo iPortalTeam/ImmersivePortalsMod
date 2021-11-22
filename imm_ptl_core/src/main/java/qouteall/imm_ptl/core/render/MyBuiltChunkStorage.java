@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPModMain;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
@@ -21,6 +22,7 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -315,21 +317,37 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         
         long timeThreshold = Helper.secondToNano(5);
         
+        ArrayDeque<BuiltChunk> toDelete = new ArrayDeque<>();
+        
         columnMap.long2ObjectEntrySet().removeIf(entry -> {
             Column column = entry.getValue();
             
             boolean shouldRemove = currentTime - column.mark > timeThreshold;
             if (shouldRemove) {
-                for (ChunkBuilder.BuiltChunk chunk : column.chunks) {
-                    chunk.delete();
-//                    builtChunkBuffer.returnObject(chunk);
-                }
+                toDelete.addAll(Arrays.asList(column.chunks));
             }
             
             return shouldRemove;
         });
         
         OFBuiltChunkStorageFix.purgeRenderRegions(this);
+        
+        if (!toDelete.isEmpty()) {
+            IPGlobal.preGameRenderTaskList.addTask(() -> {
+                if (toDelete.isEmpty()) {
+                    return true;
+                }
+                
+                int num = 0;
+                while (!toDelete.isEmpty() && num < 500) {
+                    BuiltChunk builtChunk = toDelete.poll();
+                    builtChunk.delete();
+                    num++;
+                }
+                
+                return false;
+            });
+        }
         
         MinecraftClient.getInstance().getProfiler().pop();
     }
