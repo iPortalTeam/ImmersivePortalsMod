@@ -80,7 +80,7 @@ public class CustomPortalGeneration {
     });
     
     public static final MapCodec<CustomPortalGeneration> codec =
-        schemaRegistry.method_39673().dispatchMap(
+        schemaRegistry.getCodec().dispatchMap(
         "schema_version", e -> codecV1, Function.identity()
     );
     

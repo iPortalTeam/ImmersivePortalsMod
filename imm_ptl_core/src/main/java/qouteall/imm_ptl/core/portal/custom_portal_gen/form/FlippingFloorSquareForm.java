@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 
 public class FlippingFloorSquareForm extends PortalGenForm {
     
-    public static final ListCodec<Block> blockListCodec = new ListCodec<>(Registry.BLOCK.method_39673());
+    public static final ListCodec<Block> blockListCodec = new ListCodec<>(Registry.BLOCK.getCodec());
     
     public static final Codec<FlippingFloorSquareForm> codec = RecordCodecBuilder.create(instance -> {
         return instance.group(

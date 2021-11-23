@@ -180,7 +180,7 @@ public class AlternateDimensions {
     public static ChunkGenerator createSkylandGenerator(long seed, DynamicRegistryManager rm) {
         
         Registry<Biome> biomeRegistry = rm.get(Registry.BIOME_KEY);
-        MultiNoiseBiomeSource biomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.method_39532(
+        MultiNoiseBiomeSource biomeSource = MultiNoiseBiomeSource.Preset.OVERWORLD.getBiomeSource(
             biomeRegistry, true
         );
         

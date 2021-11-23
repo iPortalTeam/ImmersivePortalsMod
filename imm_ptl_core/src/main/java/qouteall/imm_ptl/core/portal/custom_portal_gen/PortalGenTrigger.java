@@ -76,14 +76,14 @@ public abstract class PortalGenTrigger {
     
     public static final Codec<UseItemTrigger> useItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.ITEM.method_39673().fieldOf("item").forGetter(o -> o.item),
+            Registry.ITEM.getCodec().fieldOf("item").forGetter(o -> o.item),
             Codec.BOOL.optionalFieldOf("consume", false).forGetter(o -> o.consume)
         ).apply(instance, instance.stable(UseItemTrigger::new));
     });
     
     public static final Codec<ThrowItemTrigger> throwItemTriggerCodec = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Registry.ITEM.method_39673().fieldOf("item").forGetter(o -> o.item)
+            Registry.ITEM.getCodec().fieldOf("item").forGetter(o -> o.item)
         ).apply(instance, instance.stable(ThrowItemTrigger::new));
     });
     
@@ -107,7 +107,7 @@ public abstract class PortalGenTrigger {
             ConventionalDimensionChangeTrigger.conventionalDimensionChangeCodec
         );
         
-        triggerCodec = codecRegistry.method_39673().dispatchStable(
+        triggerCodec = codecRegistry.getCodec().dispatchStable(
             PortalGenTrigger::getCodec,
             Function.identity()
         );

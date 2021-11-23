@@ -51,7 +51,7 @@ public abstract class PortalGenForm {
     });
     
     public static final Codec<PortalGenForm> codec =
-        codecRegistry.method_39673().dispatchStable(
+        codecRegistry.getCodec().dispatchStable(
             PortalGenForm::getCodec, Function.identity()
         );
     
