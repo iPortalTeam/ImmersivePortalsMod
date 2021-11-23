@@ -339,7 +339,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
                 }
                 
                 int num = 0;
-                while (!toDelete.isEmpty() && num < 500) {
+                while (!toDelete.isEmpty() && num < 100) {
                     BuiltChunk builtChunk = toDelete.poll();
                     builtChunk.delete();
                     num++;

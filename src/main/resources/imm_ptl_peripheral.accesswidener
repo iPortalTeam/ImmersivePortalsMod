@@ -1,6 +1,4 @@
-accessWidener v1 named
-# the two access wideners should be the same or the remapper will have issues
-# (the remapper cannot parse a reference to a private method/field)
+accessWidener v2 named
 Accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
 Accessible field net/minecraft/world/level/storage/LevelStorage$Session directory Ljava/nio/file/Path;
 Accessible field net/minecraft/world/dimension/DimensionType THE_NETHER Lnet/minecraft/world/dimension/DimensionType;
@@ -14,15 +12,12 @@ Accessible field net/minecraft/world/gen/chunk/NoiseChunkGenerator settings Ljav
 
 Accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
 
-
-Accessible method net/minecraft/world/dimension/DimensionType createNetherGenerator (Lnet/minecraft/util/registry/Registry;Lnet/minecraft/util/registry/Registry;J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
-Accessible method net/minecraft/world/dimension/DimensionType createEndGenerator (Lnet/minecraft/util/registry/Registry;Lnet/minecraft/util/registry/Registry;J)Lnet/minecraft/world/gen/chunk/ChunkGenerator;
-
 Accessible method net/minecraft/world/GameRules register (Ljava/lang/String;Lnet/minecraft/world/GameRules$Category;Lnet/minecraft/world/GameRules$Type;)Lnet/minecraft/world/GameRules$Key;
 Accessible method net/minecraft/world/GameRules$BooleanRule create (Z)Lnet/minecraft/world/GameRules$Type;
 
 accessible class net/minecraft/client/gl/Program$Type
 accessible method net/minecraft/client/gl/Program$Type getGlType ()I
+
 
 extendable method net/minecraft/entity/Entity getBoundingBox ()Lnet/minecraft/util/math/Box;
 
@@ -31,7 +26,6 @@ accessible class net/minecraft/client/render/chunk/ChunkBuilder$Result
 
 accessible class net/minecraft/client/render/WorldRenderer$ChunkInfo
 accessible method net/minecraft/client/render/WorldRenderer$ChunkInfo <init> (Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;Lnet/minecraft/util/math/Direction;I)V
-accessible field Lnet/minecraft/client/render/WorldRenderer$ChunkInfo chunk Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;
 
 
 
