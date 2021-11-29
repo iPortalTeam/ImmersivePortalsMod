@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+// set glDebugVerbosity:3 in options.txt
 @Mixin(GlDebug.class)
 public class MixinGlDebug {
     private static int loggedNum = 0;

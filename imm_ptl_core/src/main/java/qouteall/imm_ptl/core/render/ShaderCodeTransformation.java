@@ -49,15 +49,20 @@ public class ShaderCodeTransformation {
     private static List<Config> configs;
     
     public static void init() {
-        String json = McHelper.readTextResource(new Identifier(
-            "immersive_portals:shaders/shader_transformation.json"
-        ));
-        configs = IPGlobal.gson.fromJson(
-            json,
-            new TypeToken<List<Config>>() {}.getType()
-        );
-        
-        Helper.log("Loaded Shader Code Transformation");
+        if (IPGlobal.enableClippingMechanism) {
+            String json = McHelper.readTextResource(new Identifier(
+                "immersive_portals:shaders/shader_transformation.json"
+            ));
+            configs = IPGlobal.gson.fromJson(
+                json,
+                new TypeToken<List<Config>>() {}.getType()
+            );
+            
+            Helper.log("Loaded Shader Code Transformation");
+        }
+        else {
+            Helper.log("Shader Transformation Disabled");
+        }
     }
     
     public static String transform(Program.Type type, String shaderId, String inputCode) {

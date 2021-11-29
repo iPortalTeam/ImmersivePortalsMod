@@ -29,7 +29,9 @@ public class MixinVertexConsumerProviderImmediate {
         at = @At("RETURN")
     )
     private void onEndDraw(RenderLayer layer, CallbackInfo ci) {
-        RenderStates.shouldForceDisableCull = false;
-        GlStateManager._enableCull();
+        if (RenderStates.shouldForceDisableCull) {
+            RenderStates.shouldForceDisableCull = false;
+            GlStateManager._enableCull();
+        }
     }
 }

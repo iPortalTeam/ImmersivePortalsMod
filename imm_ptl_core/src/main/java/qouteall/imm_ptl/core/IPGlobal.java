@@ -102,6 +102,8 @@ public class IPGlobal {
     
     public static boolean enableCrossPortalView = true;
     
+    public static boolean enableClippingMechanism = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

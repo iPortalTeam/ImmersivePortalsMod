@@ -5,6 +5,7 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vector4f;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEShader;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.my_util.Plane;
@@ -27,13 +28,17 @@ public class FrontClipping {
     public static boolean isClippingEnabled = false;
     
     public static void disableClipping() {
-        GL11.glDisable(GL11.GL_CLIP_PLANE0);
-        isClippingEnabled = false;
+        if (IPGlobal.enableClippingMechanism) {
+            GL11.glDisable(GL11.GL_CLIP_PLANE0);
+            isClippingEnabled = false;
+        }
     }
     
     private static void enableClipping() {
-        GL11.glEnable(GL11.GL_CLIP_PLANE0);
-        isClippingEnabled = true;
+        if (IPGlobal.enableClippingMechanism) {
+            GL11.glEnable(GL11.GL_CLIP_PLANE0);
+            isClippingEnabled = true;
+        }
     }
     
     public static void updateInnerClipping(MatrixStack matrixStack) {
@@ -152,6 +157,10 @@ public class FrontClipping {
     }
     
     public static void updateClippingEquationUniformForCurrentShader(boolean isRenderingEntities) {
+        if (!IPGlobal.enableClippingMechanism) {
+            return;
+        }
+        
         Shader shader = RenderSystem.getShader();
         
         if (shader == null) {
