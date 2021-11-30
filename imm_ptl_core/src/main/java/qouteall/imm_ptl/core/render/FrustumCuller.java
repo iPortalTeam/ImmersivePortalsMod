@@ -20,19 +20,34 @@ public class FrustumCuller {
     
     
     private BoxPredicate canDetermineInvisibleFunc;
+    private double camX;
+    private double camY;
+    private double camZ;
     
     public FrustumCuller() {
     }
     
     public void update(double cameraX, double cameraY, double cameraZ) {
         canDetermineInvisibleFunc = getCanDetermineInvisibleFunc(cameraX, cameraY, cameraZ);
+        camX = cameraX;
+        camY = cameraY;
+        camZ = cameraZ;
     }
     
-    public boolean canDetermineInvisible(
+    public boolean canDetermineInvisibleWithCameraCoord(
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ
     ) {
         return canDetermineInvisibleFunc.test(
             minX, minY, minZ, maxX, maxY, maxZ
+        );
+    }
+    
+    public boolean canDetermineInvisibleWithWorldCoord(
+        double minX, double minY, double minZ, double maxX, double maxY, double maxZ
+    ) {
+        return canDetermineInvisibleWithCameraCoord(
+            minX - camX, minY - camY, minZ - camZ,
+            maxX - camX, maxY - camY, maxZ - camZ
         );
     }
     

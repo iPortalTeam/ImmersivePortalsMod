@@ -42,6 +42,17 @@ allprojects {
             url = 'https://jitpack.io'
         }
         maven { url "https://maven.shedaniel.me/" }
+
+        // for sodium
+        maven {
+            name = "Modrinth"
+            url = "https://api.modrinth.com/maven"
+            content {
+                includeGroup "maven.modrinth"
+            }
+        }
+
+
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -68,19 +79,10 @@ allprojects {
             transitive = false
         }
 
-        // use online dependency to make sure other people can compile
-        modCompileOnly('com.github.qouteall:sodium-fabric:28bdaff') {
-            transitive = false
-        }
+        modImplementation "maven.modrinth:sodium:mc1.17.1-0.3.3"
+        implementation "org.joml:joml:1.10.2" // for sodium
 
         modCompileOnly 'com.github.qouteall:Iris:7bf9a90'
-
-        // to test local iris+sodium
-//        modImplementation('me.jellysquid.mods:sodium-fabric:0.3.2+IRIS2-rev.d5cd1c2'){
-//            transitive = false
-//        }
-//        modImplementation "net.coderbot.iris_mc1_17:iris:1.1.2+"
-
     }
 
     afterEvaluate {
