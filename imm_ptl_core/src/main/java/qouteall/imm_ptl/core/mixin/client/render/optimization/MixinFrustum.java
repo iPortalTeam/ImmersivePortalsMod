@@ -61,7 +61,7 @@ public class MixinFrustum implements IEFrustum {
         if (portal_frustumCuller == null) {
             return false;
         }
-        return portal_frustumCuller.canDetermineInvisible(
+        return portal_frustumCuller.canDetermineInvisibleWithCameraCoord(
             minX - x, minY - y, minZ - z,
             maxX - x, maxY - y, maxZ - z
         );

@@ -2,6 +2,8 @@ package qouteall.imm_ptl.core.compat.sodium_compatibility.mixin;
 
 import me.jellysquid.mods.sodium.client.gl.GlObject;
 import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
+import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderOptions;
+import me.jellysquid.mods.sodium.client.render.chunk.shader.ShaderBindingContext;
 import org.lwjgl.opengl.GL20C;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -13,7 +15,7 @@ import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.q_misc_util.Helper;
 
 @Pseudo
-@Mixin(targets = "me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface")
+@Mixin(targets = "me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface", remap = false)
 public class MixinSodiumOriginalChunkShaderInterface {
     private int uIPClippingEquation;
     
@@ -32,8 +34,8 @@ public class MixinSodiumOriginalChunkShaderInterface {
         remap = false
     )
     private void onInitIrisSodium(
-        @Coerce Object context,
-        @Coerce Object options,
+        ShaderBindingContext context,
+        ChunkShaderOptions options,
         CallbackInfo ci
     ) {
         ip_init(((GlObject) context).handle());

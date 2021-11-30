@@ -57,6 +57,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -216,9 +217,10 @@ public class MyGameRenderer {
         catch (Throwable e) {
             limitedLogger.invoke(e::printStackTrace);
         }
+    
+        SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         //recover
-        SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         ((IEMinecraftClient) client).setWorldRenderer(oldWorldRenderer);
         client.world = oldEntityWorld;
@@ -246,6 +248,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
         
         IrisInterface.invoker.setPipeline(worldRenderer, irisPipeline);
+        
         
         if (IPGlobal.looseVisibleChunkIteration) {
             client.chunkCullingEnabled = oldChunkCullingEnabled;
@@ -374,8 +377,8 @@ public class MyGameRenderer {
 //            }
 //        }
 //    }
+
+
     
-    
-    
-    
+
 }
