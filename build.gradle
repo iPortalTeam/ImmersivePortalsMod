@@ -79,8 +79,8 @@ allprojects {
             transitive = false
         }
 
-        modImplementation "maven.modrinth:sodium:mc1.17.1-0.3.3"
-        implementation "org.joml:joml:1.10.2" // for sodium
+        modCompileOnly "maven.modrinth:sodium:mc1.17.1-0.3.3"
+//        implementation "org.joml:joml:1.10.2" // for sodium
 
         modCompileOnly 'com.github.qouteall:Iris:7bf9a90'
     }
