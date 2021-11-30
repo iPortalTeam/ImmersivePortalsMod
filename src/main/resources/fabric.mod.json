@@ -31,6 +31,7 @@
     "imm_ptl_peripheral_fabric.mixins.json"
   ],
   "depends": {
+    "imm_ptl_core": "*",
     "fabricloader": ">=0.7.4",
     "fabric": ">=0.28.1",
     "minecraft": "1.17.1"
