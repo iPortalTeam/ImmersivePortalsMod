@@ -759,7 +759,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Override
     public void portal_setChunkInfoList(ObjectArrayList<WorldRenderer.ChunkInfo> arg) {
-    	chunkInfos = arg;
+        chunkInfos = arg;
     }
     
     @Override
