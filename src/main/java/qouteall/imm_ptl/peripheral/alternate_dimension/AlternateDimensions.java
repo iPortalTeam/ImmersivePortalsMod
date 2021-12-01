@@ -258,7 +258,7 @@ public class AlternateDimensions {
                 new SlideConfig(-23.4375, 64, -46),
                 new SlideConfig(-0.234375, 7, 1),
                 2, 1, bl2, false, false,
-                VanillaTerrainParametersCreator.createIslandParameters()
+                VanillaTerrainParametersCreator.createEndParameters()
             ),
             defaultBlock, defaultFluid, VanillaSurfaceRules.createOverworldSurfaceRule(),
             0, bl, false, false, false, false,

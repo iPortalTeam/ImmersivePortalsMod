@@ -74,7 +74,7 @@
     "client.render.MixinBlockEntityRenderDispatcher",
     "client.render.MixinBuiltChunk",
     "client.render.MixinCamera",
-    "client.render.MixinChunkRendererRegion",
+    "client.render.MixinChunkRendererRegionBuilder",
     "client.render.MixinEntityRenderDispatcher",
     "client.render.MixinGameRenderer",
     "client.render.MixinGlStateManager",
