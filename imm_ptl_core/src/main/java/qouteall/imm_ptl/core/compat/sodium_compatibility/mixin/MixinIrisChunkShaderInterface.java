@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.q_misc_util.Helper;
 
-@Mixin(IrisChunkShaderInterface.class)
+@Mixin(value = IrisChunkShaderInterface.class, remap = false)
 public class MixinIrisChunkShaderInterface {
     private int uIPClippingEquation;
     
