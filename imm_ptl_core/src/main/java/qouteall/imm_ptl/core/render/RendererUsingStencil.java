@@ -76,12 +76,6 @@ public class RendererUsingStencil extends PortalRenderer {
     
     @Override
     public void prepareRendering() {
-        GL11.glClearStencil(0);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-        
-        GlStateManager._enableDepthTest();
-        GL11.glEnable(GL_STENCIL_TEST);
-        
         IEFrameBuffer ieFrameBuffer = (IEFrameBuffer) client.getFramebuffer();
         if (!ieFrameBuffer.getIsStencilBufferEnabled()) {
             ieFrameBuffer.setIsStencilBufferEnabledAndReload(true);
@@ -89,6 +83,12 @@ public class RendererUsingStencil extends PortalRenderer {
 //                client.worldRenderer.reload();
             }
         }
+    
+        GL11.glClearStencil(0);
+        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+    
+        GlStateManager._enableDepthTest();
+        GL11.glEnable(GL_STENCIL_TEST);
         
     }
     
