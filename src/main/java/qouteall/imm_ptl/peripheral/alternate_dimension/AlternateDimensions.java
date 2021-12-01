@@ -246,7 +246,7 @@ public class AlternateDimensions {
     // vanilla copy
     private static ChunkGeneratorSettings createIslandSettings(
         StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid,
-        boolean bl, boolean bl2
+        boolean mobGenerationDisabled, boolean islandNoiseOverride
     ) {
         return IEChunkGeneratorSettings.construct(
             structuresConfig,
@@ -257,12 +257,16 @@ public class AlternateDimensions {
                 ),
                 new SlideConfig(-23.4375, 64, -46),
                 new SlideConfig(-0.234375, 7, 1),
-                2, 1, bl2, false, false,
-                VanillaTerrainParametersCreator.createEndParameters()
+                2, 1, islandNoiseOverride, false, false,
+//                VanillaTerrainParametersCreator.createNetherParameters()
+                VanillaTerrainParametersCreator.createSurfaceParameters(false)
+//                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
             ),
-            defaultBlock, defaultFluid, VanillaSurfaceRules.createOverworldSurfaceRule(),
-            0, bl, false, false, false, false,
-            true
+            defaultBlock, defaultFluid,
+            VanillaSurfaceRules.createDefaultRule(true, false, false),
+//            VanillaSurfaceRules.createDefaultRule(true, false, true),
+            0, mobGenerationDisabled, false, false, false, false,
+            false
         );
         
     }
