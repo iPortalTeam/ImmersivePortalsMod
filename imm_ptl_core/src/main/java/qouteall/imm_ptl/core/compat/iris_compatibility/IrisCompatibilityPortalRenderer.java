@@ -26,10 +26,18 @@ import static org.lwjgl.opengl.GL11.GL_NEAREST;
 
 public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     
-    public static final IrisCompatibilityPortalRenderer instance = new IrisCompatibilityPortalRenderer();
+    public static final IrisCompatibilityPortalRenderer instance = new IrisCompatibilityPortalRenderer(false);
+    public static final IrisCompatibilityPortalRenderer debugModeInstance =
+        new IrisCompatibilityPortalRenderer(true);
     
     private SecondaryFrameBuffer deferredBuffer = new SecondaryFrameBuffer();
     private MatrixStack modelView = new MatrixStack();
+    
+    public boolean isDebugMode;
+    
+    public IrisCompatibilityPortalRenderer(boolean isDebugMode) {
+        this.isDebugMode = isDebugMode;
+    }
     
     @Override
     public boolean replaceFrameBufferClearing() {
@@ -92,14 +100,24 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         CHelper.enableDepthClamp();
         
-        // draw portal content to the deferred buffer
-        deferredBuffer.fb.beginWrite(true);
-        MyRenderHelper.drawPortalAreaWithFramebuffer(
-            portal,
-            client.getFramebuffer(),
-            matrixStack.peek().getModel(),
-            RenderStates.projectionMatrix
-        );
+        if (!isDebugMode) {
+            // draw portal content to the deferred buffer
+            deferredBuffer.fb.beginWrite(true);
+            MyRenderHelper.drawPortalAreaWithFramebuffer(
+                portal,
+                client.getFramebuffer(),
+                matrixStack.peek().getModel(),
+                RenderStates.projectionMatrix
+            );
+        }
+        else {
+            deferredBuffer.fb.beginWrite(true);
+            MyRenderHelper.drawScreenFrameBuffer(
+                client.getFramebuffer(),
+                true, true
+            );
+        }
+        
         CHelper.disableDepthClamp();
         
         RenderSystem.colorMask(true, true, true, true);

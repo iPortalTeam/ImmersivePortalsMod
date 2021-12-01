@@ -32,8 +32,6 @@
       "rendertype_entity_translucent_cull",
       "rendertype_entity_translucent",
       "rendertype_entity_smooth_cutout",
-
-
       "portal_area"
     ],
     "transformations": [
@@ -64,7 +62,7 @@
         "replacement": [
           "uniform vec4 imm_ptl_ClippingEquation;",
           "void main() {",
-          "    gl_ClipDistance[0] = dot(gl_Vertex.xyz + iris_ChunkOffset, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+          "    gl_ClipDistance[0] = dot(gl_ModelViewMatrix * gl_Vertex, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
         ]
       }
     ],
@@ -81,12 +79,18 @@
         "pattern": "void ( )*main( )*\\(( )*( )*\\)( )*(\n)*\\{",
         "replacement": [
           "uniform vec4 imm_ptl_ClippingEquation;",
-          "void main() {",
-          "    gl_ClipDistance[0] = dot((gl_ModelViewMatrix * gl_Vertex).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
+          "void main() {"
+        ]
+      },
+      {
+        "pattern": "irisMain\\(\\);",
+        "replacement": [
+          "irisMain();",
+          "gl_ClipDistance[0] = dot((gl_ModelViewMatrix * gl_Vertex).xyz, imm_ptl_ClippingEquation.xyz) + imm_ptl_ClippingEquation.w;"
         ]
       }
     ],
-    "debugOutput": false
+    "debugOutput": true
   },
   {
     "comment": "For sodium",

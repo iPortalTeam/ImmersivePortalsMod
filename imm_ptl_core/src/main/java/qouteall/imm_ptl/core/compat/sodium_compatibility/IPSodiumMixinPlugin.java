@@ -23,15 +23,9 @@ public class IPSodiumMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         boolean sodiumLoaded = FabricLoader.getInstance().isModLoaded("sodium");
         
-        // MixinIrisSodiumChunkShaderInterface and MixinIrisSodiumSodiumTerrainPipeline
         if (mixinClassName.contains("Iris")) {
             boolean irisLoaded = FabricLoader.getInstance().isModLoaded("iris");
             return sodiumLoaded && irisLoaded;
-        }
-        
-        if (mixinClassName.contains("SodiumOriginal")) {
-            boolean irisLoaded = FabricLoader.getInstance().isModLoaded("iris");
-            return sodiumLoaded && (!irisLoaded);
         }
         
         return sodiumLoaded;

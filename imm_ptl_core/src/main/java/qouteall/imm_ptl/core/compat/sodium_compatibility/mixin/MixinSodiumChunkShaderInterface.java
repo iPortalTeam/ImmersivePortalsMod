@@ -16,7 +16,7 @@ import qouteall.q_misc_util.Helper;
 
 @Pseudo
 @Mixin(targets = "me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface", remap = false)
-public class MixinSodiumOriginalChunkShaderInterface {
+public class MixinSodiumChunkShaderInterface {
     private int uIPClippingEquation;
     
     private void ip_init(int shaderId) {
@@ -32,7 +32,7 @@ public class MixinSodiumOriginalChunkShaderInterface {
         at = @At("RETURN"),
         require = 0
     )
-    private void onInitIrisSodium(
+    private void onInit(
         ShaderBindingContext context,
         ChunkShaderOptions options,
         CallbackInfo ci
