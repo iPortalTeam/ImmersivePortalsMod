@@ -120,7 +120,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Mutable
     @Shadow
     @Final
-    private ObjectArrayList<WorldRenderer.ChunkInfo> field_34807;
+    private ObjectArrayList<WorldRenderer.ChunkInfo> chunkInfos;
     
     // important rendering hooks
     @Inject(
@@ -254,7 +254,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                 world, ((MyBuiltChunkStorage) chunks),
                 camera,
                 new Frustum(frustum).method_38557(8),
-                field_34807
+                chunkInfos
             );
             world.getProfiler().pop();
             
@@ -284,7 +284,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
                     world, ((MyBuiltChunkStorage) chunks),
                     camera,
                     new Frustum(frustum).method_38557(8),
-                    field_34807
+                    chunkInfos
                 );
                 world.getProfiler().pop();
             }
@@ -759,11 +759,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     
     @Override
     public void portal_setChunkInfoList(ObjectArrayList<WorldRenderer.ChunkInfo> arg) {
-        field_34807 = arg;
+    	chunkInfos = arg;
     }
     
     @Override
     public ObjectArrayList<WorldRenderer.ChunkInfo> portal_getChunkInfoList() {
-        return field_34807;
+        return chunkInfos;
     }
 }
