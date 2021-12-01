@@ -5,6 +5,7 @@ import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
+import org.apache.commons.lang3.Validate;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import qouteall.imm_ptl.core.CHelper;
@@ -58,6 +59,8 @@ public class IrisPortalRenderer extends PortalRenderer {
     
     @Override
     public void prepareRendering() {
+        Validate.isTrue(!PortalRendering.isRendering());
+        
         if (deferredFbs.length != PortalRendering.getMaxPortalLayer() + 1) {
             for (SecondaryFrameBuffer fb : deferredFbs) {
                 fb.fb.delete();
@@ -98,6 +101,10 @@ public class IrisPortalRenderer extends PortalRenderer {
     
     @Override
     public void onBeforeHandRendering(MatrixStack matrixStack) {
+        doMainRenderings(matrixStack);
+    }
+    
+    private void doMainRenderings(MatrixStack matrixStack) {
         CHelper.checkGlError();
         
         Framebuffer mcFrameBuffer = client.getFramebuffer();
@@ -137,6 +144,8 @@ public class IrisPortalRenderer extends PortalRenderer {
             glDisable(GL_STENCIL_TEST);
             
             deferredFbs[portalLayer].fb.endWrite();
+            
+            mcFrameBuffer.beginWrite(false);
         }
         
         renderPortals(matrixStack);
@@ -228,6 +237,9 @@ public class IrisPortalRenderer extends PortalRenderer {
         
         PortalRendering.pushPortalLayer(portal);
         
+        // this is important
+        client.getFramebuffer().beginWrite(true);
+        
         renderPortalContent(portal);
         
         int innerLayer = PortalRendering.getPortalLayer();
@@ -253,6 +265,8 @@ public class IrisPortalRenderer extends PortalRenderer {
         );
         
         glDisable(GL_STENCIL_TEST);
+        
+        deferredFbs[outerLayer].fb.endWrite();
     }
     
     private boolean tryRenderViewAreaInDeferredBufferAndIncreaseStencil(

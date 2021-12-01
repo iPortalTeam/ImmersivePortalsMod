@@ -47,6 +47,7 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.GL_RED;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glReadPixels;
 
@@ -434,6 +435,57 @@ public class MyRenderHelper {
         glReadPixels(
             0, 0, width, height,
             GL_DEPTH_COMPONENT, GL_FLOAT, floatBuffer
+        );
+        
+        float[] data = new float[width * height];
+        
+        floatBuffer.rewind();
+        floatBuffer.get(data);
+        
+        float maxValue = (float) IntStream.range(0, data.length)
+            .mapToDouble(i -> data[i]).max().getAsDouble();
+        float minValue = (float) IntStream.range(0, data.length)
+            .mapToDouble(i -> data[i]).min().getAsDouble();
+        
+        byte[] grayData = new byte[width * height];
+        for (int i = 0; i < data.length; i++) {
+            float datum = data[i];
+            
+            datum = (datum - minValue) / (maxValue - minValue);
+            
+            grayData[i] = (byte) (datum * 255);
+        }
+        
+        BufferedImage bufferedImage =
+            new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        
+        bufferedImage.setData(
+            Raster.createRaster(
+                bufferedImage.getSampleModel(),
+                new DataBufferByte(grayData, grayData.length), new Point()
+            )
+        );
+        
+        System.out.println("oops");
+    }
+    
+    public static void debugFramebufferColorRed() {
+        if (!debugEnabled) {
+            return;
+        }
+        debugEnabled = false;
+        
+        int width = client.getFramebuffer().textureWidth;
+        int height = client.getFramebuffer().textureHeight;
+        
+        
+        ByteBuffer directBuffer = ByteBuffer.allocateDirect(width * height * 4).order(ByteOrder.LITTLE_ENDIAN);
+        
+        FloatBuffer floatBuffer = directBuffer.asFloatBuffer();
+        
+        glReadPixels(
+            0, 0, width, height,
+            GL_RED, GL_FLOAT, floatBuffer
         );
         
         float[] data = new float[width * height];

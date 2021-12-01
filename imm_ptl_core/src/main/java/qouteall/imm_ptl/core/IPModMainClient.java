@@ -68,7 +68,7 @@ public class IPModMainClient {
                 switch (IPGlobal.renderMode) {
                     case normal -> switchRenderer(IrisPortalRenderer.instance);
                     case compatibility -> switchRenderer(IrisCompatibilityPortalRenderer.instance);
-                    case debug -> switchRenderer(IPCGlobal.rendererDummy);
+                    case debug -> switchRenderer(IrisCompatibilityPortalRenderer.debugModeInstance);
                     case none -> switchRenderer(IPCGlobal.rendererDummy);
                 }
                 return;
