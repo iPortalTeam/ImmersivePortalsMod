@@ -41,8 +41,6 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public class AlternateDimensions {
-    // temporary workaround
-    public static boolean isCreatingSkylandGenerator = false;
     
     public static void init() {
         DimensionAPI.serverDimensionsLoadEvent.register(AlternateDimensions::initializeAlternateDimensions);
@@ -197,13 +195,15 @@ public class AlternateDimensions {
         
         ChunkGeneratorSettings skylandSetting = createIslandSettings(
             structuresConfig, Blocks.STONE.getDefaultState(),
-            Blocks.WATER.getDefaultState(), false, false
+            Blocks.WATER.getDefaultState()
         );
         
-        return new NoiseChunkGenerator(
+        NoiseChunkGenerator islandChunkGenerator = new NoiseChunkGenerator(
             rm.get(Registry.NOISE_WORLDGEN),
             biomeSource, seed, () -> skylandSetting
         );
+        
+        return islandChunkGenerator;
     }
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, DynamicRegistryManager rm) {
@@ -243,10 +243,12 @@ public class AlternateDimensions {
         syncWithOverworldTimeWeather(McHelper.getServerWorld(alternate5), overworld);
     }
     
-    // vanilla copy
+    /**
+     * vanilla copy
+     * {@link ChunkGeneratorSettings}
+     */
     private static ChunkGeneratorSettings createIslandSettings(
-        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid,
-        boolean mobGenerationDisabled, boolean islandNoiseOverride
+        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid
     ) {
         return IEChunkGeneratorSettings.construct(
             structuresConfig,
@@ -257,17 +259,41 @@ public class AlternateDimensions {
                 ),
                 new SlideConfig(-23.4375, 64, -46),
                 new SlideConfig(-0.234375, 7, 1),
-                2, 1, islandNoiseOverride, false, false,
+                2, 1, false, false, false,
 //                VanillaTerrainParametersCreator.createNetherParameters()
-                VanillaTerrainParametersCreator.createSurfaceParameters(false)
-//                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
+//                VanillaTerrainParametersCreator.createSurfaceParameters(false)
+                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
             ),
             defaultBlock, defaultFluid,
             VanillaSurfaceRules.createDefaultRule(true, false, false),
-//            VanillaSurfaceRules.createDefaultRule(true, false, true),
-            0, mobGenerationDisabled, false, false, false, false,
+            0, false, false, false, false, false,
             false
         );
         
     }
+
+//    private static ChunkGeneratorSettings createSurfaceSettings(
+//        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid
+//    ) {
+//        return IEChunkGeneratorSettings.construct(
+//            structuresConfig,
+//            GenerationShapeConfig.create(
+//                0, 128,
+//                new NoiseSamplingConfig(
+//                    2.0, 1.0, 80.0, 160.0
+//                ),
+//                new SlideConfig(-23.4375, 64, -46),
+//                new SlideConfig(-0.234375, 7, 1),
+//                2, 1, false, false, false,
+////                VanillaTerrainParametersCreator.createNetherParameters()
+//                VanillaTerrainParametersCreator.createSurfaceParameters(false)
+////                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
+//            ),
+//            defaultBlock, defaultFluid,
+//            VanillaSurfaceRules.createDefaultRule(true, false, false),
+//            0, false, false, false, false, false,
+//            false
+//        );
+//
+//    }
 }

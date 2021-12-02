@@ -31,9 +31,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-public class ErrorTerrainGenerator extends ChunkGenerator {
-    private ChunkGenerator delegate;
-    private BiomeSource biomeSource;
+public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
+    
     
     public static final int regionChunkNum = 4;
     public static final int averageY = 64;
@@ -46,9 +45,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     private final LoadingCache<ChunkPos, RegionErrorTerrainGenerator> cache;
     
     public ErrorTerrainGenerator(long seed, ChunkGenerator delegate, BiomeSource biomeSource) {
-        super(biomeSource, new StructuresConfig(true));
-        this.delegate = delegate;
-        this.biomeSource = biomeSource;
+        super(biomeSource, new StructuresConfig(true), delegate);
         
         cache = CacheBuilder.newBuilder()
             .maximumSize(10000)
@@ -62,42 +59,8 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
     }
     
     @Override
-    protected Codec<? extends ChunkGenerator> getCodec() {
-        return NoiseChunkGenerator.CODEC;
-    }
-    
-    @Override
     public ChunkGenerator withSeed(long seed) {
-        return new ErrorTerrainGenerator(
-            seed,
-            delegate.withSeed(seed),
-            biomeSource.withSeed(seed)
-        );
-    }
-    
-    @Override
-    public MultiNoiseUtil.MultiNoiseSampler getMultiNoiseSampler() {
-        return delegate.getMultiNoiseSampler();
-    }
-    
-    @Override
-    public void carve(ChunkRegion chunkRegion, long seed, BiomeAccess biomeAccess, StructureAccessor structureAccessor, Chunk chunk, GenerationStep.Carver generationStep) {
-        delegate.carve(chunkRegion, seed, biomeAccess, structureAccessor, chunk, generationStep);
-    }
-    
-    @Override
-    public void buildSurface(ChunkRegion region, StructureAccessor structures, Chunk chunk) {
-        delegate.buildSurface(region, structures, chunk);
-    }
-    
-    @Override
-    public void populateEntities(ChunkRegion region) {
-        delegate.populateEntities(region);
-    }
-    
-    @Override
-    public int getWorldHeight() {
-        return delegate.getWorldHeight();
+        return new ErrorTerrainGenerator(seed, delegate.withSeed(seed), biomeSource_);
     }
     
     @Override
@@ -120,26 +83,6 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
             
             return chunkx;
         }, executor);
-    }
-    
-    @Override
-    public int getSeaLevel() {
-        return delegate.getSeaLevel();
-    }
-    
-    @Override
-    public int getMinimumY() {
-        return delegate.getMinimumY();
-    }
-    
-    @Override
-    public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world) {
-        return delegate.getHeight(x, z, heightmap, world);
-    }
-    
-    @Override
-    public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world) {
-        return delegate.getColumnSample(x, z, world);
     }
     
     public void doPopulateNoise(Chunk chunk) {
@@ -178,7 +121,7 @@ public class ErrorTerrainGenerator extends ChunkGenerator {
                     }
                 }
             }
-            
+
 //            section.unlock();
         }
         

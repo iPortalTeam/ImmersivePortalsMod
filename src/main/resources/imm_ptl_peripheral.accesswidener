@@ -27,5 +27,19 @@ accessible class net/minecraft/client/render/chunk/ChunkBuilder$Result
 accessible class net/minecraft/client/render/WorldRenderer$ChunkInfo
 accessible method net/minecraft/client/render/WorldRenderer$ChunkInfo <init> (Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;Lnet/minecraft/util/math/Direction;I)V
 
+# peripheral only
+# accessible class net/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialRuleContext
+# accessible class net/minecraft/world/gen/surfacebuilder/MaterialRules$BlockStateRule
+# accessible method net/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialRuleContext initHorizontalContext (II)V
+# accessible method net/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialRuleContext <init> (Lnet/minecraft/world/gen/surfacebuilder/SurfaceBuilder;Lnet/minecraft/world/chunk/Chunk;Lnet/minecraft/world/gen/chunk/ChunkNoiseSampler;Ljava/util/function/Function;Lnet/minecraft/util/registry/Registry;Lnet/minecraft/world/gen/HeightContext;)V
+# accessible method net/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialRuleContext initVerticalContext (IIIIII)V
+# accessible method net/minecraft/world/gen/surfacebuilder/MaterialRules$BlockStateRule tryApply (III)Lnet/minecraft/block/BlockState;
+# accessible method net/minecraft/world/gen/surfacebuilder/MaterialRules$MaterialRuleContext method_39551 ()I
+
+
+
+
+
+
 
 
