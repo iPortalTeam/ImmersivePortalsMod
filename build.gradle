@@ -79,7 +79,7 @@ allprojects {
             transitive = false
         }
 
-        modCompileOnly "maven.modrinth:sodium:mc1.17.1-0.3.3"
+        modCompileOnly "maven.modrinth:sodium:mc1.18-0.4.0-alpha5"
         implementation "org.joml:joml:1.10.2" // for sodium
 
         modCompileOnly 'maven.modrinth:iris:mc1.17.1-1.1.3'

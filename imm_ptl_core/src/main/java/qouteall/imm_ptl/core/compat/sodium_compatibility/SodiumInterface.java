@@ -12,7 +12,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.mixin.IESodiumWorldRenderer;
-import qouteall.imm_ptl.core.platform_specific.sodium_compatibility.ClientChunkManagerWithSodium;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 
 import javax.annotation.Nullable;
@@ -28,11 +27,11 @@ public class SodiumInterface {
             return false;
         }
         
-        public ClientChunkManager createClientChunkManager(
-            ClientWorld world, int loadDistance
-        ) {
-            return new MyClientChunkManager(world, loadDistance);
-        }
+//        public ClientChunkManager createClientChunkManager(
+//            ClientWorld world, int loadDistance
+//        ) {
+//            return new MyClientChunkManager(world, loadDistance);
+//        }
         
         public Object createNewContext() {
             return null;
@@ -51,10 +50,10 @@ public class SodiumInterface {
             return true;
         }
         
-        @Override
-        public ClientChunkManager createClientChunkManager(ClientWorld world, int loadDistance) {
-            return new ClientChunkManagerWithSodium(world, loadDistance);
-        }
+//        @Override
+//        public ClientChunkManager createClientChunkManager(ClientWorld world, int loadDistance) {
+//            return new ClientChunkManagerWithSodium(world, loadDistance);
+//        }
         
         @Override
         public Object createNewContext() {

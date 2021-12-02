@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
@@ -120,7 +121,7 @@ public class O_O {
     
     @Environment(EnvType.CLIENT)
     public static ClientChunkManager createMyClientChunkManager(ClientWorld world, int loadDistance) {
-        return SodiumInterface.invoker.createClientChunkManager(world, loadDistance);
+        return new MyClientChunkManager(world, loadDistance);
     }
     
     public static boolean getIsPehkuiPresent() {
