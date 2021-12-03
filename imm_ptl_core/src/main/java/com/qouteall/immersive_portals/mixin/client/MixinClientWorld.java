@@ -51,6 +51,11 @@ public abstract class MixinClientWorld implements IEClientWorld {
     @Shadow
     @Final
     private MinecraftClient client;
+    
+    @Mutable
+    @Shadow
+    @Final
+    private WorldRenderer worldRenderer;
     private List<Portal> globalTrackedPortals;
     
     @Override
@@ -162,5 +167,10 @@ public abstract class MixinClientWorld implements IEClientWorld {
     private void onToString(CallbackInfoReturnable<String> cir) {
         ClientWorld this_ = (ClientWorld) (Object) this;
         cir.setReturnValue("ClientWorld " + this_.getRegistryKey().getValue());
+    }
+    
+    @Override
+    public void resetWorldRendererRef() {
+        worldRenderer = null;
     }
 }

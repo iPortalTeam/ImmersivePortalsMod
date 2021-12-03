@@ -15,4 +15,6 @@ public interface IEClientWorld {
     List<Portal> getGlobalPortals();
     
     void setGlobalPortals(List<Portal> arg);
+    
+    void resetWorldRendererRef();
 }

@@ -378,7 +378,7 @@ public class PortalRenderInfo {
         // normally if a portal is removed by calling remove() it will dispose normally
         // but that cannot be guaranteed
         // use this to avoid potential resource leak
-        ModMain.clientTaskList.addTask(() -> {
+        ModMain.preTotalRenderTaskList.addTask(() -> {
             dispose();
             return true;
         });

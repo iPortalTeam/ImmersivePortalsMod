@@ -4,6 +4,7 @@ import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.api.IPDimensionAPI;
 import com.qouteall.immersive_portals.chunk_loading.ChunkDataSyncManager;
 import com.qouteall.immersive_portals.chunk_loading.EntitySync;
+import com.qouteall.immersive_portals.chunk_loading.MyLoadingTicket;
 import com.qouteall.immersive_portals.chunk_loading.NewChunkTrackingGraph;
 import com.qouteall.immersive_portals.chunk_loading.WorldInfoSender;
 import com.qouteall.immersive_portals.miscellaneous.GcMonitor;
@@ -42,6 +43,7 @@ public class ModMain {
             }
         });
         serverCleanupSignal.connect(serverTaskList::forceClearTasks);
+        serverCleanupSignal.connect(MyLoadingTicket.loadedChunkRecord::clear);
         
         Global.serverTeleportationManager = new ServerTeleportationManager();
         Global.chunkDataSyncManager = new ChunkDataSyncManager();
@@ -59,7 +61,7 @@ public class ModMain {
         PortalExtension.init();
         
         GcMonitor.initCommon();
-    
+        
         IPDimensionAPI.init();
     }
     

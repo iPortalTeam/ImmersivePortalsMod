@@ -170,10 +170,11 @@ publishing {
 dependencies {
 
     modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-//    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
-//
+    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
+
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
-//    include "io.github.prospector:modmenu:${modmenu_version}"
+    include "io.github.prospector:modmenu:${modmenu_version}"
+
 
 
 //    modImplementation ('com.github.qouteall:MiniScaledMod:e4c0d34'){

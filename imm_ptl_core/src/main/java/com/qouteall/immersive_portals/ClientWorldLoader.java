@@ -170,6 +170,10 @@ public class ClientWorldLoader {
                 }
             }
         );
+    
+        for (ClientWorld clientWorld : clientWorldMap.values()) {
+            ((IEClientWorld) clientWorld).resetWorldRendererRef();
+        }
         
         clientWorldMap.clear();
         worldRendererMap.clear();

@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.profiler.Profiler;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 //NOTE must redirect all packets about entities
-@Mixin(targets = "net.minecraft.server.world.ThreadedAnvilChunkStorage$EntityTracker")
+@Mixin(value = ThreadedAnvilChunkStorage.EntityTracker.class)
 public abstract class MixinEntityTracker implements IEEntityTracker {
     @Shadow
     @Final

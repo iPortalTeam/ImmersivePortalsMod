@@ -8,15 +8,19 @@ import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.dimension_sync.DimensionIdManagement;
 import com.qouteall.immersive_portals.ducks.IEMinecraftServer;
+import com.qouteall.immersive_portals.ducks.IEServerWorld;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.resource.ServerResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.MetricsData;
 import net.minecraft.util.UserCache;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.SaveProperties;
+import net.minecraft.world.World;
 import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.ref.WeakReference;
 import java.net.Proxy;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
@@ -37,6 +42,7 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     
     @Shadow public abstract Profiler getProfiler();
     
+    @Shadow @Final private Map<RegistryKey<World>, ServerWorld> worlds;
     private boolean portal_areAllWorldsLoaded;
     
     @Inject(
@@ -73,6 +79,10 @@ public abstract class MixinMinecraftServer implements IEMinecraftServer {
     )
     private void onServerClose(CallbackInfo ci) {
         ModMain.serverCleanupSignal.emit();
+        
+        for (ServerWorld world : worlds.values()) {
+            ((IEServerWorld) world).debugDispose();
+        }
     }
     
     @Inject(
