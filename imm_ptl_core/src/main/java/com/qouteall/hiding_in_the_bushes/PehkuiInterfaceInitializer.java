@@ -16,7 +16,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
 import virtuoel.pehkui.api.ScaleData;
-import virtuoel.pehkui.api.ScaleType;
+import virtuoel.pehkui.api.ScaleTypes;
 
 public class PehkuiInterfaceInitializer {
     
@@ -27,7 +27,7 @@ public class PehkuiInterfaceInitializer {
         
         PehkuiInterface.onServerEntityTeleported = PehkuiInterfaceInitializer::onEntityTeleportedServer;
         
-        PehkuiInterface.getScale = e -> ScaleType.BASE.getScaleData(e).getScale();
+        PehkuiInterface.getScale = e -> ScaleTypes.BASE.getScaleData(e).getScale();
     }
     
     @Environment(EnvType.CLIENT)
@@ -43,7 +43,7 @@ public class PehkuiInterfaceInitializer {
             
             Validate.notNull(player);
             
-            ScaleData scaleData = ScaleType.BASE.getScaleData(player);
+            ScaleData scaleData = ScaleTypes.BASE.getScaleData(player);
             Vec3d eyePos = McHelper.getEyePos(player);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
             
@@ -81,7 +81,7 @@ public class PehkuiInterfaceInitializer {
             if (!portal.teleportChangesScale) {
                 return;
             }
-            ScaleData scaleData = ScaleType.BASE.getScaleData(entity);
+            ScaleData scaleData = ScaleTypes.BASE.getScaleData(entity);
             Vec3d eyePos = McHelper.getEyePos(entity);
             Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
             
