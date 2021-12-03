@@ -835,7 +835,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void transformVelocity(Entity entity) {
-        if (PehkuiInterface.isPehkuiPresent) {
+        if (PehkuiInterface.invoker.isPehkuiPresent()) {
             if (teleportChangesScale) {
                 entity.setVelocity(transformLocalVecNonScale(entity.getVelocity()));
             }

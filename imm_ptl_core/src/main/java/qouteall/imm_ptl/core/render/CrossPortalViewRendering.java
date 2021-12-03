@@ -134,7 +134,7 @@ public class CrossPortalViewRendering {
     }
     
     private static double getThirdPersonMaxDistance() {
-        return 4.0d * PehkuiInterface.getScale.apply(MinecraftClient.getInstance().player);
+        return 4.0d * PehkuiInterface.invoker.getScale(MinecraftClient.getInstance().player);
     }
     
     //    private static Vec3d getThirdPersonCameraPos(Portal portalHit, Camera resuableCamera) {

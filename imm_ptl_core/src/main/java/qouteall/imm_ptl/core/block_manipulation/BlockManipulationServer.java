@@ -67,8 +67,8 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
-        Float playerScale = PehkuiInterface.getScale.apply(player);
-    
+        Float playerScale = PehkuiInterface.invoker.getScale(player);
+        
         Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
         double distanceSquare = 6 * 6 * 4 * 4 * playerScale * playerScale;
@@ -167,9 +167,10 @@ public class BlockManipulationServer {
     }
     
     // vanilla copy
+    
     /**
      * {@link net.minecraft.server.network.ServerPlayNetworkHandler#onPlayerInteractBlock(PlayerInteractBlockC2SPacket)}
-     * */
+     */
     public static void doProcessRightClick(
         RegistryKey<World> dimension,
         ServerPlayerEntity player,

@@ -75,9 +75,7 @@ allprojects {
         }
         modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
-        modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.x.x-SNAPSHOT') {
-            transitive = false
-        }
+        modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.x.x-SNAPSHOT')
 
         modCompileOnly "maven.modrinth:sodium:mc1.18-0.4.0-alpha5"
         implementation "org.joml:joml:1.10.2" // for sodium

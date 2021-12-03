@@ -30,9 +30,7 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Dimensional Threading is not present");
         }
         
-        PehkuiInterface.isPehkuiPresent =
-            O_O.getIsPehkuiPresent();
-        if (PehkuiInterface.isPehkuiPresent) {
+        if (O_O.getIsPehkuiPresent()) {
             PehkuiInterfaceInitializer.init();
             Helper.log("Pehkui is present");
         }
@@ -40,7 +38,6 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-       
         
     }
     
