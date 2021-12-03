@@ -65,7 +65,7 @@ allprojects {
         modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
 
         modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.x.x-SNAPSHOT') {
-            transitive = false
+            exclude(group: "net.fabricmc.fabric-api")
         }
 
         modCompileOnly 'com.github.qouteall:sodium-fabric:compat_next_1_16_4-SNAPSHOT'
