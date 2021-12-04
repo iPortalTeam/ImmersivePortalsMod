@@ -52,7 +52,21 @@ public enum PerformanceLevel {
             return 7;
         }
         else {
-            return 4;
+            return 2;
+        }
+    }
+    
+    public static int getPortalRenderingChunkRadiusCap(
+        PerformanceLevel level
+    ) {
+        if (level == good) {
+            return 9999;
+        }
+        else if (level == medium) {
+            return 6;
+        }
+        else {
+            return 2;
         }
     }
 }
