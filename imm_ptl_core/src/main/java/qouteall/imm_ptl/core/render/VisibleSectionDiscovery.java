@@ -18,6 +18,7 @@ import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import java.util.ArrayDeque;
 import java.util.Stack;
@@ -49,12 +50,7 @@ public class VisibleSectionDiscovery {
         resultHolder.clear();
         tempQueue.clear();
         
-        int clientViewDistance = MinecraftClient.getInstance().options.viewDistance;
-        int viewDistanceCap = PerformanceLevel.getPortalRenderingChunkRadiusCap(
-            ClientPerformanceMonitor.currentPerformanceLevel
-        );
-        
-        updateViewDistance(clientViewDistance, viewDistanceCap);
+        updateViewDistance1();
         
         timeMark = System.nanoTime();
         
@@ -97,18 +93,13 @@ public class VisibleSectionDiscovery {
         vanillaFrustum = null;
     }
     
-    private static void updateViewDistance(int clientViewDistance, int viewDistanceCap) {
-        viewDistance = Math.min(clientViewDistance, viewDistanceCap);
+    private static void updateViewDistance1() {
+        int distance = WorldRenderInfo.getRenderDistance();
+        int viewDistanceCap = PerformanceLevel.getPortalRenderingChunkRadiusCap(
+            ClientPerformanceMonitor.currentPerformanceLevel
+        );
         
-        if (PortalRendering.isRendering()) {
-            PortalLike renderingPortal = PortalRendering.getRenderingPortal();
-            if (renderingPortal.getScale() > 10) {
-                viewDistance *= 5;
-            }
-            else if (renderingPortal.getScale() > 2) {
-                viewDistance *= 2;
-            }
-        }
+        viewDistance = Math.min(distance, viewDistanceCap);
     }
     
     private static boolean isVisible(ChunkBuilder.BuiltChunk builtChunk) {

@@ -132,7 +132,6 @@ public class MyGameRenderer {
             );
         }
         
-        
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
             ClientWorldLoader.getDimensionRenderHelper(
@@ -189,7 +188,6 @@ public class MyGameRenderer {
         SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(null);
-        ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(renderDistance);
         
         IrisInterface.invoker.setPipeline(worldRenderer, null);
         
@@ -242,8 +240,6 @@ public class MyGameRenderer {
         
         ((IEWorldRenderer) worldRenderer).ip_setBufferBuilderStorage(oldBufferBuilder);
         ((IEMinecraftClient) client).setBufferBuilderStorage(oldClientBufferBuilder);
-        
-        ((IEWorldRenderer) worldRenderer).portal_setRenderDistance(oldRenderDistance);
         
         ((IEWorldRenderer) worldRenderer).portal_setFrustum(oldFrustum);
         

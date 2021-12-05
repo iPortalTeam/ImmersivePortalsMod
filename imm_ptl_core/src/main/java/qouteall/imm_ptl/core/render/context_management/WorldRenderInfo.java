@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.render.context_management;
 
+import net.minecraft.client.MinecraftClient;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
@@ -139,5 +140,13 @@ public class WorldRenderInfo {
     public static List<UUID> getRenderingDescription() {
         return renderInfoStack.stream()
             .map(renderInfo -> renderInfo.description).collect(Collectors.toList());
+    }
+    
+    public static int getRenderDistance() {
+        if (renderInfoStack.isEmpty()) {
+            return MinecraftClient.getInstance().options.viewDistance;
+        }
+        
+        return renderInfoStack.peek().renderDistance;
     }
 }
