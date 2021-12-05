@@ -36,8 +36,7 @@
     "minecraft": "*"
   },
   "breaks": {
-    "optifabric": "*",
-    "sodium": "*"
+    "optifabric": "*"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,

@@ -12,6 +12,7 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
@@ -249,20 +250,24 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (WorldRenderInfo.isRendering()) {
-            world.getProfiler().push("ip_terrain_setup");
-            VisibleSectionDiscovery.discoverVisibleSections(
-                world, ((MyBuiltChunkStorage) chunks),
-                camera,
-                new Frustum(frustum).method_38557(8),
-                chunkInfos
-            );
-            world.getProfiler().pop();
-            
             if (world.getRegistryKey() != RenderStates.originalPlayerDimension) {
                 chunkBuilder.setCameraPosition(camera.getPos());
             }
-            
-            ci.cancel();
+        }
+        
+        if (!SodiumInterface.invoker.isSodiumPresent()) {
+            if (WorldRenderInfo.isRendering()) {
+                world.getProfiler().push("ip_terrain_setup");
+                VisibleSectionDiscovery.discoverVisibleSections(
+                    world, ((MyBuiltChunkStorage) chunks),
+                    camera,
+                    new Frustum(frustum).method_38557(8),
+                    chunkInfos
+                );
+                world.getProfiler().pop();
+                
+                ci.cancel();
+            }
         }
     }
     
@@ -276,17 +281,19 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (!WorldRenderInfo.isRendering()) {
-            if (MyGameRenderer.vanillaTerrainSetupOverride > 0) {
-                MyGameRenderer.vanillaTerrainSetupOverride--;
-                
-                world.getProfiler().push("ip_terrain_setup");
-                VisibleSectionDiscovery.discoverVisibleSections(
-                    world, ((MyBuiltChunkStorage) chunks),
-                    camera,
-                    new Frustum(frustum).method_38557(8),
-                    chunkInfos
-                );
-                world.getProfiler().pop();
+            if (!SodiumInterface.invoker.isSodiumPresent()) {
+                if (MyGameRenderer.vanillaTerrainSetupOverride > 0) {
+                    MyGameRenderer.vanillaTerrainSetupOverride--;
+                    
+                    world.getProfiler().push("ip_terrain_setup");
+                    VisibleSectionDiscovery.discoverVisibleSections(
+                        world, ((MyBuiltChunkStorage) chunks),
+                        camera,
+                        new Frustum(frustum).method_38557(8),
+                        chunkInfos
+                    );
+                    world.getProfiler().pop();
+                }
             }
         }
     }

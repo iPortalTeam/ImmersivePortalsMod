@@ -23,29 +23,17 @@ public abstract class MixinSodiumShaderLoader {
         throw new RuntimeException();
     }
     
-    // TODO recover
-    @Inject(
-        method = "loadShader",
-        at = @At("RETURN"),
-        cancellable = true
-    )
-    private static void onLoadShader(
-        ShaderType type, Identifier name,
-        ShaderConstants constants, CallbackInfoReturnable<GlShader> cir
-    ) {
+    /**
+     * @author qouteall
+     * @reason hard to inject
+     */
+    @Overwrite
+    public static GlShader loadShader(ShaderType type, Identifier name, ShaderConstants constants) {
+        String shaderSource = getShaderSource(name);
+        shaderSource = ShaderCodeTransformation.transform(
+            type == ShaderType.VERTEX ? Program.Type.VERTEX : Program.Type.FRAGMENT,
+            name.toString(), shaderSource
+        );
+        return new GlShader(type, name, ShaderParser.parseShader(shaderSource, constants));
     }
-    
-//    /**
-//     * @author qouteall
-//     * @reason hard to inject
-//     */
-//    @Overwrite
-//    public static GlShader loadShader(ShaderType type, Identifier name, ShaderConstants constants) {
-//        String shaderSource = getShaderSource(name);
-//        shaderSource = ShaderCodeTransformation.transform(
-//            type == ShaderType.VERTEX ? Program.Type.VERTEX : Program.Type.FRAGMENT,
-//            name.toString(), shaderSource
-//        );
-//        return new GlShader(type, name, ShaderParser.parseShader(shaderSource, constants));
-//    }
 }
