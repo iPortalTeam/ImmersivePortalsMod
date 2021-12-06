@@ -21,7 +21,7 @@
     "debugOutput": false
   },
   {
-    "comment": "For portal area rendering and entity rendering",
+    "comment": "For portal area rendering and entity rendering and particle",
     "type": "vs",
     "affectedShaders": [
       "rendertype_entity_solid",
@@ -32,7 +32,8 @@
       "rendertype_entity_translucent_cull",
       "rendertype_entity_translucent",
       "rendertype_entity_smooth_cutout",
-      "portal_area"
+      "portal_area",
+      "particle"
     ],
     "transformations": [
       {
@@ -90,7 +91,7 @@
         ]
       }
     ],
-    "debugOutput": true
+    "debugOutput": false
   },
   {
     "comment": "For sodium",

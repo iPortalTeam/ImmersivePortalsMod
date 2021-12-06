@@ -100,6 +100,8 @@ public class IPGlobal {
 
     public static boolean enableNetherPortalEffect = true;
     
+    public static boolean viewBobbingCameraCorrection = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

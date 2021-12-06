@@ -3,6 +3,8 @@ package qouteall.imm_ptl.core.render;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vector4f;
+import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.q_misc_util.Helper;
@@ -217,6 +219,8 @@ public class TransformationManager {
      * {@link net.minecraft.client.render.GameRenderer#renderWorld(float, long, MatrixStack)}
      */
     public static Vec3d getViewBobbingOffset(Camera camera) {
+        Validate.isTrue(!IPGlobal.viewBobbingCameraCorrection);
+        
         MatrixStack matrixStack = new MatrixStack();
         
         isCalculatingViewBobbingOffset = true;
@@ -224,28 +228,6 @@ public class TransformationManager {
         if (client.options.bobView) {
             ((IEGameRenderer) client.gameRenderer).portal_bobView(matrixStack, RenderStates.tickDelta);
         }
-
-//        if (CrossPortalViewRendering.client.options.bobView) {
-//            if (CrossPortalViewRendering.client.getCameraEntity() instanceof PlayerEntity) {
-//                PlayerEntity playerEntity = (PlayerEntity) CrossPortalViewRendering.client.getCameraEntity();
-//                float g = playerEntity.horizontalSpeed - playerEntity.prevHorizontalSpeed;
-//                float h = -(playerEntity.horizontalSpeed + g * RenderStates.tickDelta);
-//                float i = MathHelper.lerp(
-//                    RenderStates.tickDelta, playerEntity.prevStrideDistance, playerEntity.strideDistance
-//                );
-//                matrixStack.translate(
-//                    (double) (MathHelper.sin(h * 3.1415927F) * i * 0.5F),
-//                    (double) (-Math.abs(MathHelper.cos(h * 3.1415927F) * i)),
-//                    0.0D
-//                );
-//                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(
-//                    MathHelper.sin(h * 3.1415927F) * i * 3.0F
-//                ));
-//                matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(
-//                    Math.abs(MathHelper.cos(h * 3.1415927F - 0.2F) * i) * 5.0F
-//                ));
-//            }
-//        }
         
         isCalculatingViewBobbingOffset = false;
         

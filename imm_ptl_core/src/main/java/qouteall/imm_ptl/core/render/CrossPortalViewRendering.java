@@ -45,9 +45,11 @@ public class CrossPortalViewRendering {
             isFrontView(),
             RenderStates.tickDelta
         );
-        
-        Vec3d viewBobbingOffset = TransformationManager.getViewBobbingOffset(camera);
-        ((IECamera) camera).portal_setPos(camera.getPos().add(viewBobbingOffset));
+    
+        if (IPGlobal.viewBobbingCameraCorrection) {
+            Vec3d viewBobbingOffset = TransformationManager.getViewBobbingOffset(camera);
+            ((IECamera) camera).portal_setPos(camera.getPos().add(viewBobbingOffset));
+        }
         
         Vec3d realCameraPos = camera.getPos();
         RenderStates.viewBobbedCameraPos = realCameraPos;
