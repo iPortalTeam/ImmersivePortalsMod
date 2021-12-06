@@ -23,9 +23,11 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - uses: eskatos/gradle-command-action@v1
+      env:
+        MODRINTH: ${{ secrets.MODRINTH }}
       with:
         gradle-version: 7.3
-        arguments: build additionalCopy
+        arguments: build additionalCopy publishModrinth
 
     - name: Upload assets to GitHub
       uses: AButler/upload-release-assets@v2.0
