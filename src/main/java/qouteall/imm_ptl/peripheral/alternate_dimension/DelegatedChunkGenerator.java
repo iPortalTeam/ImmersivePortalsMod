@@ -10,6 +10,7 @@ import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
@@ -17,6 +18,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunk1;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -58,6 +60,8 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
     
     @Override
     public void buildSurface(ChunkRegion region, StructureAccessor structures, Chunk chunk) {
+        ((IEChunk1) chunk).ip_setChunkNoiseSampler(null);
+        
         delegate.buildSurface(region, structures, chunk);
     }
     
@@ -96,10 +100,10 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
         return delegate.getColumnSample(x, z, world);
     }
     
-    public static class SpecialNoise extends DelegatedChunkGenerator{
+    public static class SpecialNoise extends DelegatedChunkGenerator {
         
         public final ChunkGenerator noiseDelegate;
-    
+        
         public SpecialNoise(
             BiomeSource biomeSource, StructuresConfig structuresConfig,
             ChunkGenerator delegate,
@@ -108,18 +112,28 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
             super(biomeSource, structuresConfig, delegate);
             this.noiseDelegate = noiseDelegate;
         }
-    
+        
         @Override
         public CompletableFuture<Chunk> populateNoise(Executor executor, Blender arg, StructureAccessor structureAccessor, Chunk chunk) {
 //            return delegate.populateNoise(executor, arg, structureAccessor, chunk).thenComposeAsync(
 //                chunk1 -> {
-//                    for (int y = 0; y < 100; y++) {
+//                    for (ChunkSection chunkSection : chunk1.getSectionArray()) {
 //                        for (int x = 0; x < 16; x++) {
-//                            for (int z = 0; z < 16; z++) {
-//                                chunk1.setBlockState(new BlockPos(x, y, z), Blocks.AIR.getDefaultState(), false);
+//                            for (int y = 0; y < 16; y++) {
+//                                for (int z = 0; z < 16; z++) {
+//                                    chunkSection.setBlockState(x, y, z, Blocks.AIR.getDefaultState(), false);
+//                                }
 //                            }
 //                        }
 //                    }
+//
+////                    for (int y = 0; y < 100; y++) {
+////                        for (int x = 0; x < 16; x++) {
+////                            for (int z = 0; z < 16; z++) {
+////                                chunk1.setBlockState(new BlockPos(x, y, z), Blocks.AIR.getDefaultState(), false);
+////                            }
+////                        }
+////                    }
 //                    return noiseDelegate.populateNoise(executor, arg, structureAccessor, chunk);
 //                }, executor
 //            );

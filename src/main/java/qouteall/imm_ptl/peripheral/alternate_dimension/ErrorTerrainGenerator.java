@@ -24,6 +24,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import qouteall.imm_ptl.peripheral.mixin.common.alternate_dimension.IEChunk1;
 import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
@@ -100,11 +101,10 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
         
         for (int sectionY = 0; sectionY < 16; sectionY++) {
             ChunkSection section = protoChunk.getSection(sectionY);
-//            section.lock();
             
             for (int localX = 0; localX < 16; localX++) {
-                for (int localY = 0; localY < 16; localY++) {
-                    for (int localZ = 0; localZ < 16; localZ++) {
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    for (int localY = 0; localY < 16; localY++) {
                         int worldX = pos.x * 16 + localX;
                         int worldY = sectionY * 16 + localY;
                         int worldZ = pos.z * 16 + localZ;
@@ -121,10 +121,7 @@ public class ErrorTerrainGenerator extends DelegatedChunkGenerator {
                     }
                 }
             }
-
-//            section.unlock();
         }
-        
     }
     
 }

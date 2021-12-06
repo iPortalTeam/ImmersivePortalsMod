@@ -3,6 +3,7 @@
   "package": "qouteall.imm_ptl.peripheral.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "common.alternate_dimension.IEChunk1",
     "common.alternate_dimension.IEChunkGeneratorSettings",
     "common.altius_world.MixinChunkGenerator",
     "common.altius_world.MixinChunkStatus",

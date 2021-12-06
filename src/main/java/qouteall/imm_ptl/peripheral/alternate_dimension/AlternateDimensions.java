@@ -203,7 +203,20 @@ public class AlternateDimensions {
             biomeSource, seed, () -> skylandSetting
         );
         
-        return islandChunkGenerator;
+        ChunkGeneratorSettings surfaceSetting = createSurfaceSettings(
+            structuresConfig, Blocks.STONE.getDefaultState(),
+            Blocks.WATER.getDefaultState()
+        );
+        
+        NoiseChunkGenerator surfaceChunkGenerator = new NoiseChunkGenerator(
+            rm.get(Registry.NOISE_WORLDGEN),
+            biomeSource, seed, () -> surfaceSetting
+        );
+        
+        return new DelegatedChunkGenerator.SpecialNoise(
+            biomeSource, structuresConfig,
+            surfaceChunkGenerator, islandChunkGenerator
+        );
     }
     
     public static ChunkGenerator createErrorTerrainGenerator(long seed, DynamicRegistryManager rm) {
@@ -271,29 +284,29 @@ public class AlternateDimensions {
         );
         
     }
-
-//    private static ChunkGeneratorSettings createSurfaceSettings(
-//        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid
-//    ) {
-//        return IEChunkGeneratorSettings.construct(
-//            structuresConfig,
-//            GenerationShapeConfig.create(
-//                0, 128,
-//                new NoiseSamplingConfig(
-//                    2.0, 1.0, 80.0, 160.0
-//                ),
-//                new SlideConfig(-23.4375, 64, -46),
-//                new SlideConfig(-0.234375, 7, 1),
-//                2, 1, false, false, false,
-////                VanillaTerrainParametersCreator.createNetherParameters()
-//                VanillaTerrainParametersCreator.createSurfaceParameters(false)
-////                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
-//            ),
-//            defaultBlock, defaultFluid,
-//            VanillaSurfaceRules.createDefaultRule(true, false, false),
-//            0, false, false, false, false, false,
-//            false
-//        );
-//
-//    }
+    
+    private static ChunkGeneratorSettings createSurfaceSettings(
+        StructuresConfig structuresConfig, BlockState defaultBlock, BlockState defaultFluid
+    ) {
+        return IEChunkGeneratorSettings.construct(
+            structuresConfig,
+            GenerationShapeConfig.create(
+                0, 128,
+                new NoiseSamplingConfig(
+                    2.0, 1.0, 80.0, 160.0
+                ),
+                new SlideConfig(-23.4375, 64, -46),
+                new SlideConfig(-0.234375, 7, 1),
+                2, 1, false, false, false,
+//                VanillaTerrainParametersCreator.createNetherParameters()
+                VanillaTerrainParametersCreator.createSurfaceParameters(false)
+//                VanillaTerrainParametersCreator.createFloatingIslandsParameters()
+            ),
+            defaultBlock, defaultFluid,
+            VanillaSurfaceRules.createDefaultRule(true, false, false),
+            0, false, false, false, false, false,
+            false
+        );
+        
+    }
 }

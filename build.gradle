@@ -201,6 +201,7 @@ task printClasspath {
 }
 
 task additionalCopy(type: Copy) {
+    dependsOn(remapJar)
     from file("${project.buildDir}/libs/$archivesBaseName-${version}.jar")
     into file("${project.buildDir}/to_upload")
     rename { n -> "$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar" }
@@ -212,6 +213,7 @@ task additionalCopy(type: Copy) {
 import com.modrinth.minotaur.TaskModrinthUpload
 
 task publishModrinth(type: TaskModrinthUpload) { // Make sure it runs after build!
+    dependsOn(additionalCopy)
 
     onlyIf {
         System.getenv("MODRINTH") // Only attempt to run this task if the MODRINTH variable is set, otherwise SKIP it
@@ -233,5 +235,5 @@ task publishModrinth(type: TaskModrinthUpload) { // Make sure it runs after buil
     // Call this multiple times to add multiple game versions. There are tools that can help you generate the list of versions
     addLoader('fabric')
 
-    println("published to modrinth")
+    versionType = 'ALPHA'
 }
