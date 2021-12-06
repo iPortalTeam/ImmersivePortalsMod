@@ -441,7 +441,7 @@ public class CollisionHelper {
                 if (!entityBoxStretched.intersects(portalBoundingBox)) {
                     return;
                 }
-                boolean canCollideWithPortal = canCollideWithPortal(entity, portal, 0);
+                boolean canCollideWithPortal = canCollideWithPortal(entity, portal, 1);
                 if (!canCollideWithPortal) {
                     return;
                 }
