@@ -31,10 +31,8 @@ public class AltiusInfo {
     }
     
     public static void initializeFuseViewProperty(Portal portal) {
-        if (portal.world.getDimension().hasSkyLight()) {
-            if (portal.getNormal().y < 0) {
-                portal.fuseView = true;
-            }
+        if (portal.getNormal().y < 0) {
+            portal.fuseView = true;
         }
     }
     
