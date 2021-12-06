@@ -74,6 +74,8 @@ public class RenderStates {
     
     public static Vec3d viewBobbedCameraPos = Vec3d.ZERO;
     
+    public static boolean isRenderingPortalWeather = false;
+    
     public static void updatePreRenderInfo(
         float tickDelta_
     ) {

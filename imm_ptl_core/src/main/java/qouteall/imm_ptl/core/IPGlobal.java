@@ -104,6 +104,8 @@ public class IPGlobal {
     
     public static boolean enableClippingMechanism = true;
     
+    public static boolean viewBobbingCameraCorrection = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

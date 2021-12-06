@@ -6,8 +6,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.FrontClipping;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import java.util.function.Supplier;
 
@@ -18,8 +20,15 @@ public class MixinRenderSystem_Clipping {
         at = @At("RETURN")
     )
     private static void onSetShader(Supplier<Shader> supplier, CallbackInfo ci) {
-        if (CrossPortalEntityRenderer.isRenderingEntityNormally || CrossPortalEntityRenderer.isRenderingEntityProjection) {
-            FrontClipping.updateClippingEquationUniformForCurrentShader(true);
+        if (IPGlobal.enableClippingMechanism) {
+            if (CrossPortalEntityRenderer.isRenderingEntityNormally ||
+                CrossPortalEntityRenderer.isRenderingEntityProjection
+            ) {
+                FrontClipping.updateClippingEquationUniformForCurrentShader(true);
+            }
+            else if (RenderStates.isRenderingPortalWeather) {
+                FrontClipping.updateClippingEquationUniformForCurrentShader(false);
+            }
         }
     }
 }

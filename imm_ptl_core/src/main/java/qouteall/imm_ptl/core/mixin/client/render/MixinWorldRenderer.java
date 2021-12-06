@@ -440,6 +440,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             FrontClipping.setupInnerClipping(
                 PortalRendering.getRenderingPortal(), true, matrices
             );
+            RenderStates.isRenderingPortalWeather = true;
         }
     }
     
@@ -464,6 +465,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     ) {
         if (PortalRendering.isRendering()) {
             FrontClipping.disableClipping();
+            RenderStates.isRenderingPortalWeather = false;
         }
     }
     
