@@ -20,8 +20,6 @@ import qouteall.q_misc_util.mixin.dimension.DimensionTypeAccessor;
 public class DimensionMisc {
     private static final Logger logger = LogManager.getLogger();
     
-    public static boolean enableDedicatedServerEarlyReload = true;
-    
     // fix the issue that nether and end get swallowed by DFU
     public static void addMissingVanillaDimensions(GeneratorOptions generatorOptions, DynamicRegistryManager registryManager) {
 //        SimpleRegistry<DimensionOptions> registry = generatorOptions.getDimensions();

@@ -44,9 +44,9 @@ public class IPConfig {
     public boolean easeCreativePermission = true;
     public boolean easeCommandStickPermission = false;
     public boolean enableDatapackPortalGen = true;
-    public boolean enableDedicatedServerEarlyReload = true;
     public boolean enableCrossPortalView = true;
     public boolean enableClippingMechanism = true;
+    public boolean enableDepthClampForPortalRendering = false;
     public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
@@ -151,7 +151,9 @@ public class IPConfig {
         IPGlobal.enableCrossPortalView = enableCrossPortalView;
         IPGlobal.enableClippingMechanism = enableClippingMechanism;
         
-        DimensionMisc.enableDedicatedServerEarlyReload = enableDedicatedServerEarlyReload;
+        if (enableDepthClampForPortalRendering) {
+            IPGlobal.enableDepthClampForPortalRendering = true;
+        }
         
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);

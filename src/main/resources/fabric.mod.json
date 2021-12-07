@@ -36,7 +36,8 @@
     "minecraft": "*"
   },
   "breaks": {
-    "optifabric": "*"
+    "optifabric": "*",
+    "pehkui": "<3.0.0"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
