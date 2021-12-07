@@ -129,12 +129,10 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     public void invokeWorldRendering(
         WorldRenderInfo worldRenderInfo
     ) {
-        SystemTimeUniforms.COUNTER.beginFrame();
         MyGameRenderer.renderWorldNew(
             worldRenderInfo,
             Runnable::run
         );
-        SystemTimeUniforms.COUNTER.beginFrame();
     }
     
     @Override

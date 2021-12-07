@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import net.coderbot.iris.pipeline.WorldRenderingPipeline;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;

@@ -303,13 +303,10 @@ public class IrisPortalRenderer extends PortalRenderer {
     public void invokeWorldRendering(
         WorldRenderInfo worldRenderInfo
     ) {
-        // update the per-frame uniforms
-        SystemTimeUniforms.COUNTER.beginFrame();
         MyGameRenderer.renderWorldNew(
             worldRenderInfo,
             Runnable::run
         );
-        SystemTimeUniforms.COUNTER.beginFrame();
     }
     
     @Override

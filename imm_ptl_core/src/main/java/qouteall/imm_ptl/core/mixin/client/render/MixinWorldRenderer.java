@@ -255,7 +255,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
         
-        if (!SodiumInterface.invoker.isSodiumPresent()) {
+        if (shouldOverrideTerrainSetup()) {
             if (WorldRenderInfo.isRendering()) {
                 world.getProfiler().push("ip_terrain_setup");
                 VisibleSectionDiscovery.discoverVisibleSections(
@@ -271,6 +271,11 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
+    private boolean shouldOverrideTerrainSetup() {
+        return !SodiumInterface.invoker.isSodiumPresent()
+            && !IrisInterface.invoker.isRenderingShadowMap();
+    }
+    
     @Inject(
         method = "setupTerrain",
         at = @At("RETURN"),
@@ -281,7 +286,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (!WorldRenderInfo.isRendering()) {
-            if (!SodiumInterface.invoker.isSodiumPresent()) {
+            if (shouldOverrideTerrainSetup()) {
                 if (MyGameRenderer.vanillaTerrainSetupOverride > 0) {
                     MyGameRenderer.vanillaTerrainSetupOverride--;
                     
@@ -297,23 +302,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
     }
-    
-    // TODO add back
-//    @Inject(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/render/RenderLayer;getSolid()Lnet/minecraft/client/render/RenderLayer;"
-//        )
-//    )
-//    private void onBeginRenderingSolid(
-//        MatrixStack matrices, float tickDelta, long limitTime,
-//        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-//        LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f,
-//        CallbackInfo ci
-//    ) {
-//        MyGameRenderer.pruneRenderList(this.visibleChunks);
-//    }
     
     @Inject(
         method = "render",
@@ -560,24 +548,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         TransformationManager.processTransformation(client.gameRenderer.getCamera(), matrices);
     }
     
-    // TODO recover
-    //reduce lag spike
-//    @Redirect(
-//        method = "render",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/client/render/WorldRenderer;updateChunks(J)V"
-//        )
-//    )
-//    private void redirectUpdateChunks(WorldRenderer worldRenderer, long limitTime) {
-//        if (PortalRendering.isRendering() && (!OFInterface.isOptifinePresent)) {
-//            portal_updateChunks();
-//        }
-//        else {
-//            updateChunks(limitTime);
-//        }
-//    }
-    
     // vanilla clears translucentFramebuffer even when transparencyShader is null
     // it makes the framebuffer to be wrongly bound in fabulous mode
     @Redirect(
@@ -674,36 +644,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     public void ip_setBufferBuilderStorage(BufferBuilderStorage arg) {
         bufferBuilders = arg;
     }
-//
-//    private void portal_updateChunks() {
-//
-//        ChunkBuilder chunkBuilder = this.chunkBuilder;
-//        boolean uploaded = chunkBuilder.upload();
-//        this.needsTerrainUpdate |= uploaded;//no short circuit
-//
-//        int limit = Math.max(1, (chunksToRebuild.size() / 1000));
-//
-//        int num = 0;
-//        for (Iterator<ChunkBuilder.BuiltChunk> iterator = chunksToRebuild.iterator(); iterator.hasNext(); ) {
-//            ChunkBuilder.BuiltChunk builtChunk = iterator.next();
-//
-//            //vanilla's updateChunks() does not check shouldRebuild()
-//            //so it may create many rebuild tasks and cancelling it which creates performance cost
-//            if (builtChunk.shouldBuild()) {
-//                builtChunk.scheduleRebuild(chunkBuilder);
-//                builtChunk.cancelRebuild();
-//
-//                iterator.remove();
-//
-//                num++;
-//
-//                if (num >= limit) {
-//                    break;
-//                }
-//            }
-//        }
-//
-//    }
     
     @Override
     public int portal_getRenderDistance() {
