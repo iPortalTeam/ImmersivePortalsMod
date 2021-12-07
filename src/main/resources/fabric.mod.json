@@ -36,6 +36,9 @@
     "fabric": ">=0.28.1",
     "minecraft": "1.17.1"
   },
+  "breaks": {
+    "pehkui": "<3.0.0"
+  },
   "suggests": {
     "flamingo": "*"
   },
