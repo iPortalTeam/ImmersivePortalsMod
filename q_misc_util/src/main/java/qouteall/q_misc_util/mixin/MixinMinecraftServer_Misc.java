@@ -46,24 +46,5 @@ public abstract class MixinMinecraftServer_Misc {
         CallbackInfo ci
     ) {
         MiscHelper.refMinecraftServer = new WeakReference<>((MinecraftServer) ((Object) this));
-        
-        if (isDedicated()) {
-            loadResourcesIntoRegistry(registryManager, serverResourceManager);
-        }
-    }
-    
-    private void loadResourcesIntoRegistry(
-        DynamicRegistryManager registryTracker, ServerResourceManager resourceManager
-    ) {
-        if (DimensionMisc.enableDedicatedServerEarlyReload) {
-            Helper.log(
-                "Reloading Server Resources to Ensure Custom Dimension Type Loading." +
-                    " This may cause other issues"
-            );
-            RegistryOps<JsonElement> registryOps =
-                RegistryOps.ofLoaded(JsonOps.INSTANCE, resourceManager.getResourceManager(), registryTracker);
-            
-            DynamicRegistryManager.load(registryTracker, registryOps);
-        }
     }
 }
