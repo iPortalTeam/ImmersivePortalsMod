@@ -72,10 +72,10 @@ allprojects {
         //For Nullable
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-        modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
+        modImplementation("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
             exclude(group: "net.fabricmc.fabric-api")
         }
-        modCompileOnly "com.github.TerraformersMC:ModMenu:${modmenu_version}"
+        modImplementation "maven.modrinth:modmenu:${modmenu_version}"
 
         modCompileOnly('com.github.Virtuoel:Pehkui:fabric~1.14.4-1.x.x-SNAPSHOT')
 

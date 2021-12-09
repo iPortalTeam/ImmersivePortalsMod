@@ -10,9 +10,11 @@
   "contact": {
     "homepage": "https://qouteall.fun/immptl",
     "sources": "https://github.com/qouteall/ImmersivePortalsMod",
-    "issues": "https://github.com/qouteall/ImmersivePortalsMod/issues"
+    "issues": "https://github.com/qouteall/ImmersivePortalsMod/issues",
+    "email": "qouteall@163.com",
+    "discord": "https://discord.gg/BZxgURK"
   },
-  "license": "Apache License",
+  "license": "Apache-2.0",
   "icon": "assets/immersive_portals/icon.png",
   "environment": "*",
   "entrypoints": {

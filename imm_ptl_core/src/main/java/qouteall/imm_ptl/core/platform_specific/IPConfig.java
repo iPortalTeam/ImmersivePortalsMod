@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.DimensionMisc;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
@@ -32,7 +31,7 @@ public class IPConfig {
     public boolean doCheckGlError = false;
     public int portalSearchingRange = 128;
     public boolean renderYourselfInPortal = true;
-    public boolean activeLoading = true;
+    public boolean serverSideNormalChunkLoading = true;
     public boolean teleportationDebug = false;
     public boolean correctCrossPortalEntityRendering = true;
     public boolean looseMovementCheck = false;
@@ -134,7 +133,7 @@ public class IPConfig {
         IPGlobal.portalRenderLimit = portalRenderLimit;
         IPGlobal.netherPortalFindingRadius = portalSearchingRange;
         IPGlobal.renderYourselfInPortal = renderYourselfInPortal;
-        IPGlobal.activeLoading = activeLoading;
+        IPGlobal.activeLoading = serverSideNormalChunkLoading;
         IPGlobal.teleportationDebugEnabled = teleportationDebug;
         IPGlobal.correctCrossPortalEntityRendering = correctCrossPortalEntityRendering;
         IPGlobal.looseMovementCheck = looseMovementCheck;

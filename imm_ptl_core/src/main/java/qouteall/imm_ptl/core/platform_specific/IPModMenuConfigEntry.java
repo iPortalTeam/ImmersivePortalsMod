@@ -25,6 +25,7 @@ public class IPModMenuConfigEntry implements ModMenuApi {
             ConfigCategory clientSide = builder.getOrCreateCategory(
                 new TranslatableText("imm_ptl.client_side_config")
             );
+            
             IntegerSliderEntry entryMaxPortalLayer = builder.entryBuilder().startIntSlider(
                 new TranslatableText("imm_ptl.max_portal_layer"),
                 currConfig.maxPortalLayer,
@@ -44,6 +45,10 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                 currConfig.indirectLoadingRadiusCap,
                 1, 32
             ).setDefaultValue(8).build();
+            BooleanListEntry entryEnableWarning = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.enable_warning"),
+                currConfig.enableWarning
+            ).setDefaultValue(false).build();
             BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.compatibility_render_mode"),
                 currConfig.compatibilityRenderMode
@@ -60,10 +65,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
             BooleanListEntry entryRenderYourselfInPortal = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.render_yourself_in_portal"),
                 currConfig.renderYourselfInPortal
-            ).setDefaultValue(true).build();
-            BooleanListEntry entryActiveLoading = builder.entryBuilder().startBooleanToggle(
-                new TranslatableText("imm_ptl.active_loading"),
-                currConfig.activeLoading
             ).setDefaultValue(true).build();
             BooleanListEntry entryTeleportDebug = builder.entryBuilder().startBooleanToggle(
                 new TranslatableText("imm_ptl.teleportation_debug"),
@@ -129,14 +130,14 @@ public class IPModMenuConfigEntry implements ModMenuApi {
             clientSide.addEntry(entryRenderYourselfInPortal);
             clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
             clientSide.addEntry(entryDimensionRenderRedirect);
-            
+    
+            serverSide.addEntry(entryEnableWarning);
             serverSide.addEntry(entryIndirectLoadingRadiusCap);
             serverSide.addEntry(entryNetherPortalMode);
             serverSide.addEntry(entryEndPortalMode);
             serverSide.addEntry(entryEnableAlternateDimensions);
             serverSide.addEntry(entryNetherPortalOverlay);
             serverSide.addEntry(entryPortalSearchingRange);
-            serverSide.addEntry(entryActiveLoading);
             serverSide.addEntry(entryTeleportDebug);
             serverSide.addEntry(entryLooseMovementCheck);
             
@@ -151,7 +152,6 @@ public class IPModMenuConfigEntry implements ModMenuApi {
                     newConfig.doCheckGlError = entryCheckGlError.getValue();
                     newConfig.portalSearchingRange = entryPortalSearchingRange.getValue();
                     newConfig.renderYourselfInPortal = entryRenderYourselfInPortal.getValue();
-                    newConfig.activeLoading = entryActiveLoading.getValue();
                     newConfig.teleportationDebug = entryTeleportDebug.getValue();
                     newConfig.correctCrossPortalEntityRendering = entryCorrectCrossPortalEntityRendering.getValue();
                     newConfig.pureMirror = entryPureMirror.getValue();
