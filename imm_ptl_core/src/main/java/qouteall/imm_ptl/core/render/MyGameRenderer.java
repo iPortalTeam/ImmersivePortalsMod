@@ -12,7 +12,6 @@ import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.portal.nether_portal.BlockTraverse;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
@@ -143,7 +142,6 @@ public class MyGameRenderer {
         LightmapTextureManager oldLightmap = client.gameRenderer.getLightmapTextureManager();
         boolean oldNoClip = client.player.noClip;
         boolean oldDoRenderHand = ieGameRenderer.getDoRenderHand();
-        OFInterface.createNewRenderInfosNormal.accept(worldRenderer);
         ObjectArrayList<WorldRenderer.ChunkInfo> oldChunkInfoList =
             ((IEWorldRenderer) oldWorldRenderer).portal_getChunkInfoList();
         HitResult oldCrosshairTarget = client.crosshairTarget;

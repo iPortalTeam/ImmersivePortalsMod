@@ -80,25 +80,6 @@ public class O_O {
         return blockState == obsidianState;
     }
     
-    public static boolean detectOptiFine() {
-        boolean isOptiFabricPresent = FabricLoader.getInstance().isModLoaded("optifabric");
-        
-        if (!isOptiFabricPresent) {
-            return false;
-        }
-        
-        try {
-            //do not load other optifine classes that loads vanilla classes
-            //that would load the class before mixin
-            Class.forName("optifine.ZipResourceProvider");
-            return true;
-        }
-        catch (ClassNotFoundException e) {
-            Helper.err("OptiFabric is present but OptiFine is not present!!!");
-            return false;
-        }
-    }
-    
     public static void postClientChunkLoadEvent(WorldChunk chunk) {
         ClientChunkEvents.CHUNK_LOAD.invoker().onChunkLoad(
             ((ClientWorld) chunk.getWorld()), chunk

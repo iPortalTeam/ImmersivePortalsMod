@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 import qouteall.q_misc_util.Helper;
 

@@ -59,7 +59,6 @@
   "imm_ptl.incompatible_shape": "[Immersive Portals] Cannot convert the conventional portal because the shapes are incompatible.",
   "imm_ptl.enable_nether_portal_overlay": "Enable Nether Portal Overlay",
   "imm_ptl.increase_loading_range_gradually": "Gradually Increase Portal Loading Distance",
-  "imm_ptl.optifine_warning": "[Immersive Portals] You are using OptiFine with Immersive Portals. The compatibility with OptiFine is not yet stable. Portal rendering artifacts may appear. It's recommended to turn off Render Regions.",
   "imm_ptl.stagnate_movement": "Movement stagnated because the other side of the Portal is not yet loaded",
   "dimension.minecraft.overworld": "Overworld",
   "dimension.minecraft.the_nether": "Nether",

@@ -6,7 +6,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.portal.Mirror;
@@ -343,9 +342,6 @@ public class CrossPortalEntityRenderer {
     
     public static boolean shouldRenderEntityNow(Entity entity) {
         Validate.notNull(entity);
-        if (OFInterface.isShadowPass.getAsBoolean()) {
-            return true;
-        }
         if (IrisInterface.invoker.isRenderingShadowMap()) {
             return true;
         }

@@ -41,20 +41,6 @@ public class MixinParticleManager implements IEParticleManager {
         }
     }
     
-    @Redirect(
-        method = "*",//for optifine
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/particle/Particle;buildGeometry(Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/client/render/Camera;F)V"
-        ),
-        require = 0
-    )
-    private void redirectBuildGeometry(Particle particle, VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
-        if (RenderStates.shouldRenderParticle(particle)) {
-            particle.buildGeometry(vertexConsumer, camera, tickDelta);
-        }
-    }
-    
     // a lava ember particle can generate a smoke particle during ticking
     // avoid generating the particle into the wrong dimension
     @Inject(method = "tickParticle", at = @At("HEAD"), cancellable = true)

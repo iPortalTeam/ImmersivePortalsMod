@@ -33,7 +33,6 @@ import java.util.UUID;
 
 public class IPModMainClient {
     
-    private static boolean optifineShaderWarned = false;
     private static boolean fabulousWarned = false;
     
     public static void switchToCorrectRenderer() {
@@ -47,18 +46,6 @@ public class IPModMainClient {
                 fabulousWarned = true;
                 CHelper.printChat(new TranslatableText("imm_ptl.fabulous_warning"));
             }
-        }
-        
-        if (OFInterface.isShaders.getAsBoolean()) {
-            switchRenderer(IPCGlobal.rendererDummy);
-            
-            if (!optifineShaderWarned) {
-                optifineShaderWarned = true;
-                CHelper.printChat(
-                    "Immersive Portals after 1.17 is incompatible with OptiFine shaders."
-                );
-            }
-            return;
         }
         
         if (IrisInterface.invoker.isIrisPresent()) {
@@ -87,19 +74,6 @@ public class IPModMainClient {
             Helper.log("switched to renderer " + renderer.getClass());
             IPCGlobal.renderer = renderer;
         }
-    }
-    
-    private static void showOptiFineWarning() {
-        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
-            () -> MinecraftClient.getInstance().world == null,
-            MyTaskList.oneShotTask(() -> {
-                MinecraftClient.getInstance().inGameHud.addChatMessage(
-                    MessageType.CHAT,
-                    new TranslatableText("imm_ptl.optifine_warning"),
-                    UUID.randomUUID()
-                );
-            })
-        ));
     }
     
     private static void showPreviewWarning() {
@@ -158,11 +132,6 @@ public class IPModMainClient {
         
         SharedBlockMeshBuffers.init();
         
-        OFInterface.isOptifinePresent = O_O.detectOptiFine();
-        if (OFInterface.isOptifinePresent) {
-            showOptiFineWarning();
-        }
-        
         GcMonitor.initClient();
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
@@ -170,8 +139,6 @@ public class IPModMainClient {
         showPreviewWarning();
         
         showIntelVideoCardWarning();
-        
-        Helper.log(OFInterface.isOptifinePresent ? "Optifine is present" : "Optifine is not present");
     }
     
 }

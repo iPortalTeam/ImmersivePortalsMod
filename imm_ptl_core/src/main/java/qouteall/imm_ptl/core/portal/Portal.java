@@ -5,7 +5,6 @@ import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.OFInterface;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import qouteall.imm_ptl.core.dimension_sync.DimId;
