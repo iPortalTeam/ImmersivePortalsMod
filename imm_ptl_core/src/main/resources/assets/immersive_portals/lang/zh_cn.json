@@ -135,4 +135,5 @@
   "imm_ptl.fabulous_warning": "[Immersive Portals] With Immersive Portals installed, when graphic mode is \"fabulous\", the transparency rendering may be broken in some hardware. It's not recommended to use \"fabulous\" mode. And shaders make the game more fabulous than the vanilla \"fabulous\" mode.",
   "imm_ptl.intel_warning": "[空间折叠模组] 你正在使用 Intel 显卡。图形界面渲染可能会异常。",
   "modmenu.descriptionTranslation.immersive_portals": "透视传送门，可以直接走进传送门，无加载界面，让传送门的体验更加自然有沉浸感，产生“非欧几里得几何”的空间现象，产生“空间折叠”的假象"
+  "imm_ptl.enable_warning": "启用警告"
 }

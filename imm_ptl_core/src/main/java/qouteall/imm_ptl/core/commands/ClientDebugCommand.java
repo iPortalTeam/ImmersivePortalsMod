@@ -12,6 +12,7 @@ import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
@@ -55,6 +56,7 @@ import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.EmptyChunk;
+import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.lang.ref.Reference;
 import java.net.URLClassLoader;
@@ -383,6 +385,19 @@ public class ClientDebugCommand {
                     ClientWorldLoader.disposeRenderHelpers();
                     MinecraftClient.getInstance().worldRenderer.reload();
                 });
+                return 0;
+            })
+        );
+        
+        builder.then(ClientCommandManager
+            .literal("config")
+            .executes(context -> {
+                // works without modmenu
+                MinecraftClient client = MinecraftClient.getInstance();
+                
+                IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
+                    client.setScreen(IPConfigGUI.createClothConfigScreen(null));
+                }));
                 return 0;
             })
         );
