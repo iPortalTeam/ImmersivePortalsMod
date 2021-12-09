@@ -18,7 +18,6 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.imm_ptl.core.compat.optifine_compatibility.UniformReport;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.MyBuiltChunkStorage;
@@ -294,48 +293,6 @@ public class ClientDebugCommand {
                     });
                     return 0;
                 })
-        );
-        builder = builder.then(ClientCommandManager
-            .literal("uniform_report_textured")
-            .executes(context -> {
-                UniformReport.launchUniformReport(
-                    new String[]{
-                        "gbuffers_textured", "gbuffers_textured_lit"
-                    },
-                    s -> context.getSource().sendFeedback(
-                        new LiteralText(s)
-                    )
-                );
-                return 0;
-            })
-        );
-        builder = builder.then(ClientCommandManager
-            .literal("uniform_report_terrain")
-            .executes(context -> {
-                UniformReport.launchUniformReport(
-                    new String[]{
-                        "gbuffers_terrain", "gbuffers_terrain_solid"
-                    },
-                    s -> context.getSource().sendFeedback(
-                        new LiteralText(s)
-                    )
-                );
-                return 0;
-            })
-        );
-        builder = builder.then(ClientCommandManager
-            .literal("uniform_report_shadow")
-            .executes(context -> {
-                UniformReport.launchUniformReport(
-                    new String[]{
-                        "shadow_solid", "shadow"
-                    },
-                    s -> context.getSource().sendFeedback(
-                        new LiteralText(s)
-                    )
-                );
-                return 0;
-            })
         );
         
         builder.then(ClientCommandManager

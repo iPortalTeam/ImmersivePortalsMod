@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
 import qouteall.imm_ptl.core.IPGlobal;
-import io.github.prospector.modmenu.api.ConfigScreenFactory;
-import io.github.prospector.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
@@ -12,12 +12,6 @@ import me.shedaniel.clothconfig2.gui.entries.StringListListEntry;
 import net.minecraft.text.TranslatableText;
 
 public class IPModMenuConfigEntry implements ModMenuApi {
-    
-    
-    @Override
-    public String getModId() {
-        return "immersive_portals";
-    }
     
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {

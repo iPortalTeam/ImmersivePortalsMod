@@ -6,7 +6,6 @@ import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.compat.optifine_compatibility.OFBuiltChunkStorageFix;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
@@ -42,21 +41,17 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
     public static class Preset {
         public final ChunkBuilder.BuiltChunk[] data;
         public long lastActiveTime = 0;
-        public boolean isNeighborUpdated;
         
         public Preset(
-            ChunkBuilder.BuiltChunk[] data, boolean isNeighborUpdated
+            ChunkBuilder.BuiltChunk[] data
         ) {
             this.data = data;
-            this.isNeighborUpdated = isNeighborUpdated;
         }
     }
     
     private final ChunkBuilder factory;
     private final Long2ObjectOpenHashMap<Column> columnMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<Preset> presets = new Long2ObjectOpenHashMap<>();
-    private boolean shouldUpdateMainPresetNeighbor = true;
-    //    private final ObjectBuffer<BuiltChunk> builtChunkBuffer;
     private Preset currentPreset = null;
     
     public final int minSectionY;
@@ -102,8 +97,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         presets.clear();
 //        builtChunkBuffer.destroyAll();
         
-        OFBuiltChunkStorageFix.onBuiltChunkStorageCleanup(this);
-        
         isAlive = false;
     }
     
@@ -132,29 +125,9 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         this.currentPreset = preset;
         
         MinecraftClient.getInstance().getProfiler().push("neighbor");
-        manageNeighbor(preset);
         MinecraftClient.getInstance().getProfiler().pop();
         
         MinecraftClient.getInstance().getProfiler().pop();
-    }
-    
-    private void manageNeighbor(Preset preset) {
-        boolean isRenderingPortal = PortalRendering.isRendering();
-        if (!isRenderingPortal) {
-            if (shouldUpdateMainPresetNeighbor) {
-                shouldUpdateMainPresetNeighbor = false;
-                OFBuiltChunkStorageFix.updateNeighbor(this, preset.data);
-                preset.isNeighborUpdated = true;
-            }
-        }
-        
-        if (!preset.isNeighborUpdated) {
-            OFBuiltChunkStorageFix.updateNeighbor(this, preset.data);
-            preset.isNeighborUpdated = true;
-            if (isRenderingPortal) {
-                shouldUpdateMainPresetNeighbor = true;
-            }
-        }
     }
     
     @Override
@@ -200,7 +173,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             }
         }
         
-        return new Preset(chunks1, false);
+        return new Preset(chunks1);
     }
     
     /**
@@ -255,10 +228,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             
             builtChunk.setOrigin(
                 chunkX << 4, (offsetCY << 4) + minY, chunkZ << 4
-            );
-            
-            OFBuiltChunkStorageFix.onBuiltChunkCreated(
-                this, builtChunk
             );
             
             array[offsetCY] = builtChunk;
@@ -329,8 +298,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
             
             return shouldRemove;
         });
-        
-        OFBuiltChunkStorageFix.purgeRenderRegions(this);
         
         if (!toDelete.isEmpty()) {
             IPGlobal.preGameRenderTaskList.addTask(() -> {

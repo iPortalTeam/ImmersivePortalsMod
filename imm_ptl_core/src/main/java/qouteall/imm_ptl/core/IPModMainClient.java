@@ -13,8 +13,6 @@ import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
-import qouteall.imm_ptl.core.compat.optifine_compatibility.OFBuiltChunkStorageFix;
-import qouteall.imm_ptl.core.compat.optifine_compatibility.OFInterfaceInitializer;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
@@ -162,8 +160,6 @@ public class IPModMainClient {
         
         OFInterface.isOptifinePresent = O_O.detectOptiFine();
         if (OFInterface.isOptifinePresent) {
-            OFInterfaceInitializer.init();
-            OFBuiltChunkStorageFix.init();
             showOptiFineWarning();
         }
         
