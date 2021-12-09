@@ -33,7 +33,8 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": ">=0.28.1",
-    "minecraft": "*"
+    "minecraft": "1.18",
+    "imm_ptl_core": "*"
   },
   "breaks": {
     "optifabric": "*",

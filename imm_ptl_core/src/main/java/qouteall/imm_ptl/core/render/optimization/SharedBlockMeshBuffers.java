@@ -18,6 +18,7 @@ import java.util.Queue;
  * If enabled, it can avoid OutOfMemory issues
  * However in normal cases it increase memory usage by 10 MB, for unknown reasons
  */
+@Deprecated
 public class SharedBlockMeshBuffers {
     public static void init() {
         IPGlobal.clientCleanupSignal.connect(SharedBlockMeshBuffers::cleanup);

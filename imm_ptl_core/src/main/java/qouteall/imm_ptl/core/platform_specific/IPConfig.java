@@ -22,6 +22,7 @@ public class IPConfig {
     // json does not allow comments...
     public String check_the_wiki_for_more_information = "https://qouteall.fun/immptl/wiki/Config-Options";
     
+    public boolean enableWarning = true;
     public int maxPortalLayer = 5;
     public boolean sharedBlockMeshBufferOptimization = true;
     public boolean lagAttackProof = true;
@@ -126,6 +127,7 @@ public class IPConfig {
         else {
             IPGlobal.renderMode = IPGlobal.RenderMode.normal;
         }
+        IPGlobal.enableWarning = enableWarning;
         IPGlobal.doCheckGlError = doCheckGlError;
         IPGlobal.maxPortalLayer = maxPortalLayer;
         IPGlobal.lagAttackProof = lagAttackProof;

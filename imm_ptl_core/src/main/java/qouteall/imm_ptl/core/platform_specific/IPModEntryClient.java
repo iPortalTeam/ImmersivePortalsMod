@@ -74,8 +74,10 @@ public class IPModEntryClient implements ClientModInitializer {
             SodiumInterface.invoker = new SodiumInterface.OnSodiumPresent();
             
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
-                CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
-                    "The compatibility is not yet stable. Rendering issues may occur.");
+                if (IPGlobal.enableWarning) {
+                    CHelper.printChat("[Immersive Portals] You are using Sodium with Immersive Portals." +
+                        "The compatibility is not yet stable. Rendering issues may occur.");
+                }
             }));
         }
         else {
@@ -87,8 +89,10 @@ public class IPModEntryClient implements ClientModInitializer {
             IrisInterface.invoker = new IrisInterface.OnIrisPresent();
             
             IPGlobal.clientTaskList.addTask(MyTaskList.oneShotTask(() -> {
-                CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
-                    "The compatibility is not yet stable. Rendering issues may occur.");
+                if (IPGlobal.enableWarning) {
+                    CHelper.printChat("[Immersive Portals] You are using Iris with Immersive Portals." +
+                        "The compatibility is not yet stable. Rendering issues may occur.");
+                }
             }));
         }
         else {

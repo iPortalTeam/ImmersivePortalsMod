@@ -347,7 +347,7 @@ public class PortalDebugCommands {
         );
         
         builder.then(CommandManager.literal("report_resource_consumption")
-            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+            .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(2))
             .executes(context -> {
                 StringBuilder str = new StringBuilder();
                 

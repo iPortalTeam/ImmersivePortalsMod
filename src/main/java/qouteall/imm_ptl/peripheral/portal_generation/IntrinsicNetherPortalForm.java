@@ -61,18 +61,20 @@ public class IntrinsicNetherPortalForm extends NetherPortalLikeForm {
     public PortalGenInfo getNewPortalPlacement(ServerWorld toWorld, BlockPos toPos, ServerWorld fromWorld, BlockPortalShape fromShape) {
         if (encounteredVanillaPortalBlock) {
             encounteredVanillaPortalBlock = false;
-            List<ServerPlayerEntity> nearbyPlayers = McHelper.findEntitiesRough(
-                ServerPlayerEntity.class,
-                fromWorld,
-                Vec3d.of(fromShape.anchor),
-                2,
-                p -> true
-            );
-            for (ServerPlayerEntity player : nearbyPlayers) {
-                player.sendMessage(
-                    new TranslatableText("imm_ptl.cannot_connect_to_vanilla_portal"),
-                    false
+            if (IPGlobal.enableWarning) {
+                List<ServerPlayerEntity> nearbyPlayers = McHelper.findEntitiesRough(
+                    ServerPlayerEntity.class,
+                    fromWorld,
+                    Vec3d.of(fromShape.anchor),
+                    2,
+                    p -> true
                 );
+                for (ServerPlayerEntity player : nearbyPlayers) {
+                    player.sendMessage(
+                        new TranslatableText("imm_ptl.cannot_connect_to_vanilla_portal"),
+                        false
+                    );
+                }
             }
         }
         
