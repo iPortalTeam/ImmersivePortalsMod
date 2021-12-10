@@ -25,7 +25,6 @@ import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -132,9 +131,7 @@ public class MyGameRenderer {
         
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
-            ClientWorldLoader.getDimensionRenderHelper(
-                RenderDimensionRedirect.getRedirectedDimension(newDimension)
-            );
+            ClientWorldLoader.getDimensionRenderHelper(newDimension);
         Camera newCamera = new Camera();
         
         //store old state
@@ -167,9 +164,7 @@ public class MyGameRenderer {
         client.player.noClip = true;
         client.gameRenderer.setRenderHand(doRenderHand);
         
-        FogRendererContext.swappingManager.pushSwapping(
-            RenderDimensionRedirect.getRedirectedDimension(newDimension)
-        );
+        FogRendererContext.swappingManager.pushSwapping(newDimension);
         ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
         if (BlockManipulationClient.remotePointedDim == newDimension) {
             client.crosshairTarget = BlockManipulationClient.remoteHitResult;

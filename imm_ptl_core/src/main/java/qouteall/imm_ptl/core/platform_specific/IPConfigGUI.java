@@ -115,11 +115,6 @@ public class IPConfigGUI {
             )
             .setDefaultValue(IPGlobal.EndPortalMode.normal)
             .build();
-        StringListListEntry entryDimensionRenderRedirect = builder.entryBuilder().startStrList(
-                new TranslatableText("imm_ptl.render_redirect"),
-                IPConfig.mapToList(currConfig.dimensionRenderRedirect)
-            ).setDefaultValue(IPConfig.defaultRedirectMapList).setInsertInFront(true)
-            .setExpanded(true).build();
         clientSide.addEntry(entryMaxPortalLayer);
         clientSide.addEntry(entryLagAttackProof);
         clientSide.addEntry(entryReducedPortalRendering);
@@ -130,7 +125,6 @@ public class IPConfigGUI {
         clientSide.addEntry(entryPureMirror);
         clientSide.addEntry(entryRenderYourselfInPortal);
         clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
-        clientSide.addEntry(entryDimensionRenderRedirect);
         
         serverSide.addEntry(entryEnableWarning);
         serverSide.addEntry(entryIndirectLoadingRadiusCap);
@@ -159,9 +153,6 @@ public class IPConfigGUI {
                 newConfig.enableAlternateDimensions = entryEnableAlternateDimensions.getValue();
                 newConfig.reducedPortalRendering = entryReducedPortalRendering.getValue();
                 newConfig.indirectLoadingRadiusCap = entryIndirectLoadingRadiusCap.getValue();
-                newConfig.dimensionRenderRedirect = IPConfig.listToMap(
-                    entryDimensionRenderRedirect.getValue()
-                );
                 newConfig.netherPortalMode = entryNetherPortalMode.getValue();
                 newConfig.endPortalMode = entryEndPortalMode.getValue();
                 newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();

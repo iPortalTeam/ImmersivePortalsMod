@@ -4,7 +4,6 @@ import net.minecraft.network.packet.s2c.play.ChunkData;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.my_util.SignalArged;
-import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -50,7 +49,7 @@ public class MyClientChunkManager extends ClientChunkManager {
         this.lightingProvider = new LightingProvider(
             this,
             true,
-            RenderDimensionRedirect.hasSkylight(clientWorld)
+            clientWorld.getDimension().hasSkyLight()
         );
         
     }

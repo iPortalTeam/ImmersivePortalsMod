@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.platform_specific;
 
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.render.context_management.RenderDimensionRedirect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -47,7 +46,6 @@ public class IPConfig {
     public boolean enableCrossPortalView = true;
     public boolean enableClippingMechanism = true;
     public boolean enableDepthClampForPortalRendering = false;
-    public Map<String, String> dimensionRenderRedirect = defaultRedirectMap;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
 //    public boolean enableServerCollision = true;
@@ -156,48 +154,8 @@ public class IPConfig {
             IPGlobal.enableDepthClampForPortalRendering = true;
         }
         
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            RenderDimensionRedirect.updateIdMap(dimensionRenderRedirect);
-        }
-        
         Helper.log("IP Config Applied");
         
     }
     
-    public static Map<String, String> listToMap(List<String> redirectList) {
-        Map<String, String> result = new HashMap<>();
-        for (String s : redirectList) {
-            int i = s.indexOf(splitter);
-            if (i != -1) {
-                result.put(
-                    s.substring(0, i),
-                    s.substring(i + 2)
-                );
-            }
-            else {
-                result.put(s, "???");
-            }
-        }
-        return result;
-    }
-    
-    public static List<String> mapToList(Map<String, String> redirectMap) {
-        return redirectMap.entrySet().stream()
-            .map(entry -> entry.getKey() + splitter + entry.getValue())
-            .collect(Collectors.toList());
-    }
-    
-    private static final String splitter = "->";
-    private static final Map<String, String> defaultRedirectMap = new HashMap<>();
-    public static final List<String> defaultRedirectMapList;
-    
-    static {
-        defaultRedirectMap.put("immersive_portals:alternate1", "minecraft:overworld");
-        defaultRedirectMap.put("immersive_portals:alternate2", "minecraft:overworld");
-        defaultRedirectMap.put("immersive_portals:alternate3", "minecraft:overworld");
-        defaultRedirectMap.put("immersive_portals:alternate4", "minecraft:overworld");
-        defaultRedirectMap.put("immersive_portals:alternate5", "minecraft:overworld");
-        
-        defaultRedirectMapList = mapToList(defaultRedirectMap);
-    }
 }
