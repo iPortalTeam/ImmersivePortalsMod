@@ -9,6 +9,7 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.biome.source.SeedMixer;
 import net.minecraft.world.biome.source.util.MultiNoiseUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,14 +23,20 @@ public class ChaosBiomeSource extends BiomeSource {
     private Registry<Biome> biomeRegistry;
     private List<Biome> biomes;
     
+    public static List<Biome> getVanillaBiomes(Registry<Biome> biomeRegistry) {
+        return biomeRegistry.getIds().stream().filter(
+            id -> id.getNamespace().equals("minecraft")
+        ).map(id -> biomeRegistry.get(id)).toList();
+    }
+    
     public ChaosBiomeSource(long seed, Registry<Biome> biomeRegistry) {
-        super(biomeRegistry.stream().collect(Collectors.toList()));
+        super(getVanillaBiomes(biomeRegistry));
         
         worldSeed = seed;
         this.biomeRegistry = biomeRegistry;
         
-        // java does not allow doing things before constructor
-        biomes = biomeRegistry.stream().collect(Collectors.toList());
+        // java does not allow doing things before constructor, so invoke this again
+        biomes = getVanillaBiomes(biomeRegistry);
     }
     
     private Biome getRandomBiome(int x, int z) {
