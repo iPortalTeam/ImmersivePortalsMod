@@ -31,7 +31,7 @@ public class RandomSelector<T> {
         return selectByRandomValue(randomValue);
     }
     
-    private T selectByRandomValue(int randomValue) {
+    public T selectByRandomValue(int randomValue) {
         int result = Arrays.binarySearch(
             subWeightSum,
             0, subWeightSum.length,

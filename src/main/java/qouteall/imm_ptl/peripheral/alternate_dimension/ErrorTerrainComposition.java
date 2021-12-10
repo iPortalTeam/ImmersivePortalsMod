@@ -183,7 +183,7 @@ public class ErrorTerrainComposition {
             .add(10, classicalWatery)
             .add(10, newSolid)
             .add(30, floatingSea)
-            .add(3, treasured)
+            .add(1, treasured)
             .add(15, layeredHollow)
             .build();
 }

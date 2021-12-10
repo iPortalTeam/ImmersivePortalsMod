@@ -42,17 +42,9 @@ public class ChaosBiomeSource extends BiomeSource {
     private Biome getRandomBiome(int x, int z) {
         int biomeNum = biomes.size();
         
-        int index = (Math.abs((int) SeedMixer.mixSeed(x, z))) % biomeNum;
+        int index = (Math.abs((int) SeedMixer.mixSeed(x / 5, z / 5))) % biomeNum;
         return biomes.get(index);
     }
-
-//    @Override
-//    public Biome getBiomeForNoiseGen(int biomeX, int biomeY, int biomeZ) {
-//        return VoronoiBiomeAccessType.INSTANCE.getBiome(
-//            worldSeed, biomeX / 2, 0, biomeZ / 2,
-//            (x, y, z) -> getRandomBiome(x, z)
-//        );
-//    }
     
     @Override
     protected Codec<? extends BiomeSource> getCodec() {

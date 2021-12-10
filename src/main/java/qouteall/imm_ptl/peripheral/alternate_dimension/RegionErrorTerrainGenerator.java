@@ -49,7 +49,7 @@ public class RegionErrorTerrainGenerator {
             )
         );
         Random random = new Random(realSeed);
-        expression = FormulaGenerator.getRandomTriCompositeExpression(random);
+        expression = FormulaGenerator.newGetRandomTriCompositeExpression(random, 3);
         
         composition = ErrorTerrainComposition.selector.select(random);
     }
