@@ -41,6 +41,20 @@ public class MixinParticleManager implements IEParticleManager {
         }
     }
     
+    // maybe incompatible with sodium and iris
+    @Redirect(
+        method = "renderParticles",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/particle/Particle;buildGeometry(Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/client/render/Camera;F)V"
+        )
+    )
+    private void redirectBuildGeometry(Particle instance, VertexConsumer vertexConsumer, Camera camera, float v) {
+        if (RenderStates.shouldRenderParticle(instance)) {
+            instance.buildGeometry(vertexConsumer, camera, v);
+        }
+    }
+    
     // a lava ember particle can generate a smoke particle during ticking
     // avoid generating the particle into the wrong dimension
     @Inject(method = "tickParticle", at = @At("HEAD"), cancellable = true)
