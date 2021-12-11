@@ -69,8 +69,9 @@ public class FormulaGenerator {
         builder.add(30, noRandomArg.apply(x -> -x));
         builder.add(30, noRandomArg.apply(x -> x * x));
         builder.add(30, noRandomArg.apply(x -> x * x * x));
-        builder.add(10, noRandomArg.apply(x -> Math.sin(x * 3)));
-        builder.add(10, noRandomArg.apply(x -> Math.cos(x * 7)));
+        builder.add(10, noRandomArg.apply(x -> Math.max(x, 0)));
+        builder.add(7, noRandomArg.apply(x -> Math.sin(x * 3)));
+        builder.add(7, noRandomArg.apply(x -> Math.cos(x * 7)));
         builder.add(10, noRandomArg.apply(x -> Math.exp(x * 3)));
         builder.add(10, noRandomArg.apply(x -> Math.log(Math.abs(x) + 1)));
         builder.add(5, noRandomArg.apply(x -> Math.cosh(x)));
@@ -81,9 +82,10 @@ public class FormulaGenerator {
         builder.add(30, applyRandomArg.apply(arg -> x -> x * arg));
         builder.add(30, applyRandomArg.apply(arg -> x -> x / Math.max(arg, 0.1)));
         builder.add(10, applyRandomArg.apply(arg -> x -> Math.max(x, arg)));
-        builder.add(10, applyRandomArg.apply(arg -> x -> Math.floor(x * arg * 23)));
-        builder.add(10, applyRandomArg.apply(arg -> x -> Math.floor(x * arg)));
-        builder.add(5, applyRandomArg.apply(arg -> x -> weirdAnd(arg, x)));
+        builder.add(10, applyRandomArg.apply(arg -> x -> x + arg));
+        builder.add(7, applyRandomArg.apply(arg -> x -> Math.floor(x * arg * 23)));
+        builder.add(7, applyRandomArg.apply(arg -> x -> Math.floor(x * arg)));
+        builder.add(10, applyRandomArg.apply(arg -> x -> weirdAnd(arg, x)));
         builder.add(10, applyRandomArg.apply(arg -> x -> weirdXor(arg, x)));
         
         uniFuncSelector = builder.build();
@@ -116,7 +118,7 @@ public class FormulaGenerator {
     private static void initTriFuncSelector() {
         RandomSelector.Builder<TriNumFunction> builder = new RandomSelector.Builder<>();
         
-        builder.add(100, (x, y, z) -> x + y + z);
+        builder.add(50, (x, y, z) -> x + y + z);
         builder.add(50, (x, y, z) -> x * y * z);
         builder.add(10, (x, y, z) -> x * y + z);
         builder.add(10, (x, y, z) -> x + y * z);
@@ -129,113 +131,16 @@ public class FormulaGenerator {
         builder.add(10, (x, y, z) -> -x * x + y * y + z * z);
         builder.add(10, (x, y, z) -> x * x - y * y + z * z);
         builder.add(10, (x, y, z) -> x * x + y * y - z * z);
+        builder.add(10, (x, y, z) -> (x + y + z) * (x + y + z));
+        builder.add(10, (x, y, z) -> (x + y + z) * (x + y - z));
+        builder.add(10, (x, y, z) -> x * x * x * y * z);
         builder.add(5, (x, y, z) -> Math.pow(y, x + z));
         builder.add(5, (x, y, z) -> Math.pow(y, x - z));
         builder.add(5, (x, y, z) -> Math.pow(x * z, y));
-        builder.add(20, (x, y, z) -> Math.log(Math.abs(x + y + z) + 0.5));
+        builder.add(10, (x, y, z) -> Math.log(Math.abs(x + y + z) + 0.5));
         builder.add(10, (x, y, z) -> Math.log(Math.abs(x - y * z) + 0.5));
         
         triFuncSelector = builder.build();
-    }
-    
-    
-    public static UniNumFunction nestExpression(
-        UniNumFunction inner,
-        UniNumFunction outer
-    ) {
-        return x -> outer.eval(inner.eval(x));
-    }
-    
-    public static TriNumFunction nestExpression(
-        TriNumFunction base,
-        UniNumFunction a,
-        UniNumFunction b,
-        UniNumFunction c
-    ) {
-        return (x, y, z) -> base.eval(a.eval(x), b.eval(y), c.eval(z));
-    }
-    
-    public static UniNumFunction mergeExpression(
-        TriNumFunction base,
-        UniNumFunction a,
-        UniNumFunction b,
-        UniNumFunction c
-    ) {
-        return x -> base.eval(a.eval(x), b.eval(x), c.eval(x));
-    }
-    
-    public static UniNumFunction limitRange(
-        UniNumFunction fun
-    ) {
-        double v1 = fun.eval(0);
-        double v3 = fun.eval(1);
-        
-        final double tooBigThreshold = 233.0;
-        // having a too big number range may cause it to generate solid or void
-        if (Math.abs(v1) > tooBigThreshold || Math.abs(v3) > tooBigThreshold) {
-            return x -> Math.log(Math.abs(fun.eval(x)) + 1);
-        }
-        else {
-            return fun;
-        }
-    }
-    
-    @Deprecated
-    public static UniNumFunction addConstant(
-        UniNumFunction fun
-    ) {
-        double v1 = fun.eval(0);
-        double v2 = fun.eval(0.5);
-        double v3 = fun.eval(1);
-        
-        double average = (v1 + v2 + v3) / 3;
-        double offset = 0.5 - average;
-        if (Math.abs(offset) < 0.1) {
-            return fun;
-        }
-        
-        return x -> fun.eval(x) + offset;
-    }
-    
-    @Deprecated
-    public static UniNumFunction processFunc(UniNumFunction fun) {
-        return addConstant(limitRange(fun));
-    }
-    
-    @Deprecated
-    public static UniNumFunction getComplexUniExpression(
-        Random random,
-        int nestingLayer
-    ) {
-        if (nestingLayer == 0) {
-            return processFunc(
-                mergeExpression(
-                    triFuncSelector.select(random),
-                    processFunc(uniFuncSelector.select(random).apply(random)),
-                    processFunc(uniFuncSelector.select(random).apply(random)),
-                    processFunc(uniFuncSelector.select(random).apply(random))
-                )
-            );
-        }
-        
-        return mergeExpression(
-            triFuncSelector.select(random),
-            getComplexUniExpression(random, nestingLayer - 1),
-            getComplexUniExpression(random, nestingLayer - 1),
-            getComplexUniExpression(random, nestingLayer - 1)
-        );
-    }
-    
-    @Deprecated
-    public static TriNumFunction getRandomTriCompositeExpression(
-        Random random
-    ) {
-        return nestExpression(
-            triFuncSelector.select(random),
-            getComplexUniExpression(random, 2),
-            getComplexUniExpression(random, 2),
-            getComplexUniExpression(random, 2)
-        );
     }
     
     public static TriNumFunction newGetRandomTriCompositeExpression(Random random, int nestLayer) {
