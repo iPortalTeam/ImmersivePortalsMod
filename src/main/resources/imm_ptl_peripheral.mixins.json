@@ -9,7 +9,7 @@
     "common.altius_world.MixinChunkStatus",
     "common.altius_world.MixinLevelInfo",
     "common.altius_world.MixinLevelProperties",
-    "common.altius_world.MixinMinecraftServer_A",
+    "common.altius_world.MixinMinecraftServer_DimStack",
     "common.altius_world.MixinNoiseChunkGenerator",
     "common.altius_world.MixinSpawnHelper",
     "common.fix_concurrency.MixinWeightedList",
