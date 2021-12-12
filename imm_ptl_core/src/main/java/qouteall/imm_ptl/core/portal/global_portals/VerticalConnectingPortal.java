@@ -55,21 +55,17 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         removeConnectingPortal(connectorType, from);
         
         ServerWorld fromWorld = MiscHelper.getServer().getWorld(from);
-        ServerWorld toWorld = MiscHelper.getServer().getWorld(to);
         
         VerticalConnectingPortal connectingPortal = createConnectingPortal(
             fromWorld,
             connectorType,
-            toWorld,
+            MiscHelper.getServer().getWorld(to),
             respectSpaceRatio ?
                 fromWorld.getDimension().getCoordinateScale() /
-                    toWorld.getDimension().getCoordinateScale()
+                    MiscHelper.getServer().getWorld(to).getDimension().getCoordinateScale()
                 : 1.0,
             false,
-            0,
-            McHelper.getMinY(fromWorld), McHelper.getMaxContentYExclusive(fromWorld),
-            McHelper.getMinY(toWorld),
-            McHelper.getMaxContentYExclusive(toWorld)
+            0
         );
         
         GlobalPortalStorage storage = GlobalPortalStorage.get(fromWorld);
@@ -93,8 +89,7 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         ServerWorld toWorld,
         double scaling,
         boolean inverted,
-        double rotationAlongYDegrees,
-        int fromWorldMinY, int fromWorldMaxY, int toWorldMinY, int toWorldMaxY
+        double rotationAlongYDegrees
     ) {
         VerticalConnectingPortal verticalConnectingPortal = new VerticalConnectingPortal(
             entityType, fromWorld
@@ -106,35 +101,34 @@ public class VerticalConnectingPortal extends GlobalTrackedPortal {
         
         switch (connectorType) {
             case floor:
-                verticalConnectingPortal.setPosition(0, fromWorldMinY, 0);
+                verticalConnectingPortal.setPosition(0, McHelper.getMinY(fromWorld), 0);
                 verticalConnectingPortal.axisW = new Vec3d(0, 0, 1);
                 verticalConnectingPortal.axisH = new Vec3d(1, 0, 0);
                 break;
             case ceil:
-                verticalConnectingPortal.setPosition(0, fromWorldMaxY, 0);
+                verticalConnectingPortal.setPosition(0, McHelper.getMaxContentYExclusive(fromWorld), 0);
                 verticalConnectingPortal.axisW = new Vec3d(1, 0, 0);
                 verticalConnectingPortal.axisH = new Vec3d(0, 0, 1);
                 break;
         }
-    
         
         if (!inverted) {
             switch (connectorType) {
                 case floor:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMaxY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMaxContentYExclusive(toWorld), 0));
                     break;
                 case ceil:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMinY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMinY(toWorld), 0));
                     break;
             }
         }
         else {
             switch (connectorType) {
                 case floor:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMinY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMinY(toWorld), 0));
                     break;
                 case ceil:
-                    verticalConnectingPortal.setDestination(new Vec3d(0, toWorldMaxY, 0));
+                    verticalConnectingPortal.setDestination(new Vec3d(0, McHelper.getMaxContentYExclusive(toWorld), 0));
                     break;
             }
         }

@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.world.GameRules;
@@ -24,8 +23,9 @@ public class AltiusGameRule {
     
     private static void serverTick() {
         if (doUpgradeOldDimensionStack) {
-            BedrockReplacement.upgradeLegacyDimensionStack(MiscHelper.getServer());
+            setIsDimensionStack(true);
             doUpgradeOldDimensionStack = false;
+            Helper.log("Upgraded old dimension stack info");
         }
     }
     

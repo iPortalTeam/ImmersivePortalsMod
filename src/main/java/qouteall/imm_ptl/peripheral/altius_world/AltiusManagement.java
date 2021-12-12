@@ -76,7 +76,7 @@ public class AltiusManagement {
             altiusInfo.createPortals();
             
             AltiusGameRule.setIsDimensionStack(true);
-            
+    
             player.sendMessage(
                 new TranslatableText("imm_ptl.dim_stack_established"),
                 false
@@ -106,7 +106,6 @@ public class AltiusManagement {
         for (ServerWorld world : MiscHelper.getServer().getWorlds()) {
             GlobalPortalStorage gps = GlobalPortalStorage.get(world);
             gps.data.removeIf(p -> p instanceof VerticalConnectingPortal);
-            gps.bedrockReplacement = null;
             gps.onDataChanged();
         }
     }
