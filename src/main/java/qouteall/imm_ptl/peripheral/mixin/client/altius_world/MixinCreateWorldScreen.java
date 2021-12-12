@@ -119,7 +119,7 @@ public abstract class MixinCreateWorldScreen extends Screen implements IECreateW
             AltiusInfo info = altiusScreen.getAltiusInfo();
             
             if (info != null) {
-                AltiusManagement.dimensionStackPortalsToGenerate = info;
+                AltiusManagement.dimStackToApply = info;
                 
                 GameRules.BooleanRule rule = levelInfo.getGameRules().get(AltiusGameRule.dimensionStackKey);
                 rule.set(true, null);

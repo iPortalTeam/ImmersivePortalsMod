@@ -1,5 +1,7 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.NbtHelper;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.q_misc_util.Helper;
@@ -28,17 +30,25 @@ import org.apache.commons.lang3.Validate;
 import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * Stores global portals.
+ * Also stores bedrock replacement block state for dimension stack.
+ * */
 public class GlobalPortalStorage extends PersistentState {
     public List<Portal> data;
-    public WeakReference<ServerWorld> world;
+    public final WeakReference<ServerWorld> world;
     private int version = 1;
     private boolean shouldReSync = false;
+    
+    @Nullable
+    public BlockState bedrockReplacement;
     
     public static void init() {
         IPGlobal.postServerTickSignal.connect(() -> {
@@ -57,6 +67,23 @@ public class GlobalPortalStorage extends PersistentState {
         if (!O_O.isDedicatedServer()) {
             initClient();
         }
+    }
+    
+    public static GlobalPortalStorage get(
+        ServerWorld world
+    ) {
+        return world.getPersistentStateManager().getOrCreate(
+            (nbt) -> {
+                GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
+                globalPortalStorage.fromNbt(nbt);
+                return globalPortalStorage;
+            },
+            () -> {
+                Helper.log("Global portal storage initialized " + world.getRegistryKey().getValue());
+                return new GlobalPortalStorage(world);
+            },
+            "global_portal"
+        );
     }
     
     @Environment(EnvType.CLIENT)
@@ -145,11 +172,18 @@ public class GlobalPortalStorage extends PersistentState {
         Validate.notNull(currWorld);
         List<Portal> newData = getPortalsFromTag(tag, currWorld);
         
+        data = newData;
+        
         if (tag.contains("version")) {
             version = tag.getInt("version");
         }
         
-        data = newData;
+        if (tag.contains("bedrockReplacement")) {
+            bedrockReplacement = NbtHelper.toBlockState(tag.getCompound("bedrockReplacement"));
+        }
+        else {
+            bedrockReplacement = null;
+        }
         
         clearAbnormalPortals();
     }
@@ -217,24 +251,11 @@ public class GlobalPortalStorage extends PersistentState {
         
         tag.putInt("version", version);
         
+        if (bedrockReplacement != null) {
+            tag.put("bedrockReplacement", NbtHelper.fromBlockState(bedrockReplacement));
+        }
+        
         return tag;
-    }
-    
-    public static GlobalPortalStorage get(
-        ServerWorld world
-    ) {
-        return world.getPersistentStateManager().getOrCreate(
-            (nbt) -> {
-                GlobalPortalStorage globalPortalStorage = new GlobalPortalStorage(world);
-                globalPortalStorage.fromNbt(nbt);
-                return globalPortalStorage;
-            },
-            () -> {
-                Helper.log("Global portal storage initialized " + world.getRegistryKey().getValue());
-                return new GlobalPortalStorage(world);
-            },
-            "global_portal"
-        );
     }
     
     public void tick() {

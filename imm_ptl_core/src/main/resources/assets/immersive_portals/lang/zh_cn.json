@@ -58,7 +58,6 @@
   "imm_ptl.dim_stack_add": "添加",
   "imm_ptl.dim_stack_remove": "删除",
   "imm_ptl.dim_stack_edit": "编辑",
-  "imm_ptl.optifine_warning": "[Immersive Portals] You are using OptiFine with Immersive Portals. Portal rendering artefacts may appear.",
   "imm_ptl.stagnate_movement": "传送门另一侧区块未加载，暂停运动",
   "dimension.minecraft.overworld": "主世界",
   "dimension.minecraft.the_nether": "地狱",
@@ -135,5 +134,8 @@
   "imm_ptl.fabulous_warning": "[Immersive Portals] With Immersive Portals installed, when graphic mode is \"fabulous\", the transparency rendering may be broken in some hardware. It's not recommended to use \"fabulous\" mode. And shaders make the game more fabulous than the vanilla \"fabulous\" mode.",
   "imm_ptl.intel_warning": "[空间折叠模组] 你正在使用 Intel 显卡。图形界面渲染可能会异常。",
   "modmenu.descriptionTranslation.immersive_portals": "透视传送门，可以直接走进传送门，无加载界面，让传送门的体验更加自然有沉浸感，产生“非欧几里得几何”的空间现象，产生“空间折叠”的假象",
-  "imm_ptl.enable_warning": "启用警告"
+  "imm_ptl.enable_warning": "启用警告",
+  "imm_ptl.top_y": "顶部纵坐标",
+  "imm_ptl.bottom_y": "底部纵坐标",
+  "imm_ptl.bedrock_replacement": "基岩替换方块"
 }

@@ -134,6 +134,9 @@
   "imm_ptl.fabulous_warning": "[Immersive Portals] With Immersive Portals installed, when graphic mode is \"fabulous\", the transparency rendering may be broken in some hardware. It's not recommended to use \"fabulous\" mode. And shaders make the game more fabulous than the vanilla \"fabulous\" mode.",
   "imm_ptl.intel_warning": "[Immersive Portals] You are using Intel videocard. GUI rendering may be abnormal. The issue is still under investigation.",
   "modmenu.descriptionTranslation.immersive_portals": "See through portals and teleport seamlessly.",
-  "imm_ptl.enable_warning": "Enable Warning"
+  "imm_ptl.enable_warning": "Enable Warning",
+  "imm_ptl.top_y": "Top Y",
+  "imm_ptl.bottom_y": "Bottom Y",
+  "imm_ptl.bedrock_replacement": "Bedrock Replacement"
 
 }
