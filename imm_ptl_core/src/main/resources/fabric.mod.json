@@ -29,9 +29,6 @@
     ],
     "modmenu": [
       "qouteall.imm_ptl.core.platform_specific.IPModMenuConfigEntry"
-    ],
-    "mm:early_risers": [
-      "qouteall.imm_ptl.core.platform_specific.LaunchMixinWithOptifineRunnable"
     ]
   },
   "mixins": [
