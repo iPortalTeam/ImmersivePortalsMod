@@ -1,9 +1,12 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.render.FrontClipping;
 import qouteall.imm_ptl.core.render.MyGameRenderer;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
@@ -217,8 +220,6 @@ public class ClientTeleportationManager {
         
         tickAfterTeleportation(player, newEyePos, newLastTickEyePos);
         
-        amendChunkEntityStatus(player);
-        
         McHelper.adjustVehicle(player);
         
         portal.transformVelocity(player);
@@ -273,13 +274,14 @@ public class ClientTeleportationManager {
         
         moveStartPoint = null;
         disableTeleportFor(20);
-        
-        amendChunkEntityStatus(player);
     }
     
     public void changePlayerDimension(
         ClientPlayerEntity player, ClientWorld fromWorld, ClientWorld toWorld, Vec3d newEyePos
     ) {
+        Validate.isTrue(!WorldRenderInfo.isRendering());
+        Validate.isTrue(!FrontClipping.isClippingEnabled);
+        
         Entity vehicle = player.getVehicle();
         player.detach();
         
@@ -304,10 +306,12 @@ public class ClientTeleportationManager {
             ClientWorldLoader.getWorldRenderer(toDimension)
         );
         
+        // don't know whether it's necessary
+        MyGameRenderer.resetGlStates();
+        
         toWorld.setScoreboard(fromWorld.getScoreboard());
         
         if (client.particleManager != null) {
-//            client.particleManager.setWorld(toWorld);
             // avoid clearing all particles
             ((IEParticleManager) client.particleManager).ip_setWorld(toWorld);
         }
@@ -342,23 +346,6 @@ public class ClientTeleportationManager {
         
         O_O.onPlayerChangeDimensionClient(fromDimension, toDimension);
     }
-    
-    // TODO remove
-    private void amendChunkEntityStatus(Entity entity) {
-//        WorldChunk worldChunk1 = entity.world.getWorldChunk(new BlockPos(entity.getPos()));
-//        Chunk chunk2 = entity.world.getChunk(entity.chunkX, entity.chunkZ);
-//        removeEntityFromChunk(entity, worldChunk1);
-//        if (chunk2 instanceof WorldChunk) {
-//            removeEntityFromChunk(entity, ((WorldChunk) chunk2));
-//        }
-//        worldChunk1.addEntity(entity);
-    }
-
-//    private void removeEntityFromChunk(Entity entity, WorldChunk worldChunk) {
-//        for (TypeFilterableList<Entity> section : worldChunk.getEntitySectionArray()) {
-//            section.remove(entity);
-//        }
-//    }
     
     private void changePlayerMotionIfCollidingWithPortal() {
         ClientPlayerEntity player = client.player;

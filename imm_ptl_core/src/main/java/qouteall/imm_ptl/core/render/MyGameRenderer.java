@@ -1,8 +1,10 @@
 package qouteall.imm_ptl.core.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import org.lwjgl.opengl.GL20C;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -148,7 +150,7 @@ public class MyGameRenderer {
         BufferBuilderStorage oldClientBufferBuilder = client.getBufferBuilders();
         boolean oldChunkCullingEnabled = client.chunkCullingEnabled;
         Frustum oldFrustum = ((IEWorldRenderer) worldRenderer).portal_getFrustum();
-    
+        
         ObjectArrayList<WorldRenderer.ChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(newChunkInfoList);
         
@@ -207,7 +209,7 @@ public class MyGameRenderer {
         catch (Throwable e) {
             limitedLogger.invoke(e::printStackTrace);
         }
-    
+        
         SodiumInterface.invoker.switchContextWithCurrentWorldRenderer(newSodiumContext);
         
         //recover
@@ -226,7 +228,7 @@ public class MyGameRenderer {
         ((IEWorldRenderer) worldRenderer).portal_setTransparencyShader(oldTransparencyShader);
         
         FogRendererContext.swappingManager.popSwapping();
-
+        
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(oldChunkInfoList);
         VisibleSectionDiscovery.returnList(newChunkInfoList);
         
@@ -258,10 +260,14 @@ public class MyGameRenderer {
         resetGlStates();
     }
     
-    /**
-     *
-     */
     public static void resetGlStates() {
+        for (int i = 0; i < 16; i++) {
+            GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
+            GlStateManager._bindTexture(0);
+        }
+        
+        GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0);
+
 //        GlStateManager.disableAlphaTest();
 //        GlStateManager._enableCull();
 //        GlStateManager._disableBlend();
@@ -338,35 +344,5 @@ public class MyGameRenderer {
         }
     }
     
-//    // frustum culling is done elsewhere
-//    // it's culling the sections behind the portal
-//    public static void cullRenderingSections(
-//        ObjectList<?> visibleChunks, PortalLike renderingPortal
-//    ) {
-//        if (renderingPortal instanceof Portal) {
-//            int firstInsideOne = Helper.indexOf(
-//                visibleChunks,
-//                obj -> {
-//                    ChunkBuilder.BuiltChunk builtChunk =
-//                        ((IEWorldRendererChunkInfo) obj).getBuiltChunk();
-//                    Box boundingBox = builtChunk.boundingBox;
-//
-//                    return FrustumCuller.isTouchingInsideContentArea(
-//                        ((Portal) renderingPortal), boundingBox
-//                    );
-//                }
-//            );
-//
-//            if (firstInsideOne != -1) {
-//                visibleChunks.removeElements(0, firstInsideOne);
-//            }
-//            else {
-//                visibleChunks.clear();
-//            }
-//        }
-//    }
-
-
     
-
 }
