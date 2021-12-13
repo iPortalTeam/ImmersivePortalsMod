@@ -1,7 +1,6 @@
 package qouteall.q_misc_util;
 
 import com.google.common.collect.Streams;
-import qouteall.q_misc_util.my_util.IntBox;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Pair;
@@ -13,6 +12,7 @@ import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;

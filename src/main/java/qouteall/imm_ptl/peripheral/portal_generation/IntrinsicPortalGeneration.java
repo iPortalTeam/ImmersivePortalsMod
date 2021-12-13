@@ -1,13 +1,13 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.google.common.collect.Lists;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
 import java.util.ArrayList;
 

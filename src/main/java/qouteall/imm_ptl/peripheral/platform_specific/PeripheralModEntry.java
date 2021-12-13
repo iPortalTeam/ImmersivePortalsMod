@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.peripheral.platform_specific;
 
-import qouteall.imm_ptl.peripheral.CommandStickItem;
-import qouteall.imm_ptl.peripheral.PeripheralModMain;
-import qouteall.imm_ptl.peripheral.guide.IPGuide;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
@@ -19,6 +16,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.peripheral.CommandStickItem;
+import qouteall.imm_ptl.peripheral.PeripheralModMain;
+import qouteall.imm_ptl.peripheral.guide.IPGuide;
 
 import javax.annotation.Nullable;
 import java.util.List;

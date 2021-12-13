@@ -2,12 +2,12 @@ package qouteall.imm_ptl.core.mixin.client.render.shader;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
-import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 import net.minecraft.client.gl.GLImportProcessor;
 import net.minecraft.client.gl.Program;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 
 import java.io.IOException;
 import java.io.InputStream;

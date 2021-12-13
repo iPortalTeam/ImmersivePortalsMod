@@ -1,10 +1,11 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.q_misc_util.Helper;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.nbt.NbtDouble;
 import net.minecraft.nbt.NbtList;
+import qouteall.q_misc_util.Helper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeometryPortalShape {
     public static class TriangleInPlane {

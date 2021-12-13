@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core;
 
+import net.minecraft.world.dimension.DimensionType;
 import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.RendererDebug;
 import qouteall.imm_ptl.core.render.RendererDummy;
 import qouteall.imm_ptl.core.render.RendererUsingFrameBuffer;
 import qouteall.imm_ptl.core.render.RendererUsingStencil;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

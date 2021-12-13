@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.world.GameRules;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.q_misc_util.MiscHelper;
 
 public class AltiusGameRule {

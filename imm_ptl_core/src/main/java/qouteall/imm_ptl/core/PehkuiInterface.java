@@ -1,22 +1,12 @@
 package qouteall.imm_ptl.core;
 
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.math.Vec3d;
-import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.ducks.IECamera;
-import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
-import virtuoel.pehkui.api.ScaleData;
-import virtuoel.pehkui.api.ScaleTypes;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.portal.Portal;
 
 public class PehkuiInterface {
     

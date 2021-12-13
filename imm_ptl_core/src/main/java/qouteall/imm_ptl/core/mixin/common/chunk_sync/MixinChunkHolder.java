@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.chunk_sync;
 
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.imm_ptl.core.ducks.IEChunkHolder;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -14,6 +10,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEChunkHolder;
+import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 
 import java.util.function.Consumer;
 

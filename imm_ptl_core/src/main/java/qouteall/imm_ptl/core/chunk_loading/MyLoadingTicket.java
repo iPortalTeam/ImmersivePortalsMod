@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.core.chunk_loading;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
-import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import net.minecraft.server.world.ChunkTicket;
@@ -11,6 +8,9 @@ import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.SortedArraySet;
 import net.minecraft.util.math.ChunkPos;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
+import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
 
 import java.util.Comparator;
 import java.util.WeakHashMap;

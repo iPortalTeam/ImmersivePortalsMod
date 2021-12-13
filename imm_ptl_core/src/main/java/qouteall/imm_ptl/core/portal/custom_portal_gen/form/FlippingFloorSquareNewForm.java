@@ -2,18 +2,18 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
-import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
-import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
+import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
+import qouteall.q_misc_util.my_util.IntBox;
 
 public class FlippingFloorSquareNewForm extends HeterogeneousForm {
     public static final Codec<FlippingFloorSquareNewForm> codec = RecordCodecBuilder.create(instance -> {

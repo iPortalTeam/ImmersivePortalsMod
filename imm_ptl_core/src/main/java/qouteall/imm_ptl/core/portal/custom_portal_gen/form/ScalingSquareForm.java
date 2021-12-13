@@ -2,16 +2,16 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
-import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ChunkRegion;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

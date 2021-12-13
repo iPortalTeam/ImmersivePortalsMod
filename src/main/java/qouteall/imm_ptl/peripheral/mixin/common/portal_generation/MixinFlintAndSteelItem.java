@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
-import qouteall.imm_ptl.peripheral.PeripheralModMain;
-import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
-import qouteall.imm_ptl.core.portal.BreakableMirror;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.FlintAndSteelItem;
@@ -17,6 +14,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.portal.BreakableMirror;
+import qouteall.imm_ptl.peripheral.PeripheralModMain;
+import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 @Mixin(FlintAndSteelItem.class)
 public class MixinFlintAndSteelItem {

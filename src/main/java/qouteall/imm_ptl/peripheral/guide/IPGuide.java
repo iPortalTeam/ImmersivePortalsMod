@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.peripheral.guide;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.my_util.MyTaskList;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -13,6 +9,10 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
+import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.io.File;
 import java.io.FileReader;

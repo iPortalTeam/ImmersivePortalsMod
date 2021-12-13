@@ -1,6 +1,10 @@
 package qouteall.imm_ptl.peripheral;
 
 import com.google.common.collect.Lists;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import qouteall.imm_ptl.peripheral.alternate_dimension.FormulaGenerator;
@@ -8,10 +12,6 @@ import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
 import qouteall.imm_ptl.peripheral.altius_world.AltiusManagement;
 import qouteall.imm_ptl.peripheral.guide.IPGuide;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
 
 public class PeripheralModMain {
     

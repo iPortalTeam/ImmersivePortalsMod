@@ -1,16 +1,5 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.portal.BreakableMirror;
-import qouteall.imm_ptl.core.portal.EndPortalEntity;
-import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
-import qouteall.imm_ptl.core.portal.Mirror;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
-import qouteall.imm_ptl.core.portal.global_portals.GlobalTrackedPortal;
-import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
-import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
-import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
-import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Material;
@@ -22,6 +11,17 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.Registry;
+import qouteall.imm_ptl.core.portal.BreakableMirror;
+import qouteall.imm_ptl.core.portal.EndPortalEntity;
+import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
+import qouteall.imm_ptl.core.portal.Mirror;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalTrackedPortal;
+import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
+import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
+import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
+import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalEntity;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

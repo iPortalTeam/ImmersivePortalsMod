@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.portal_generation;
 
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
@@ -8,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
 @Mixin(ItemStack.class)
 public class MixinItemStack {

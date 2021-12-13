@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 public class GeneralBreakablePortal extends BreakablePortalEntity {
     

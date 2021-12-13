@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;

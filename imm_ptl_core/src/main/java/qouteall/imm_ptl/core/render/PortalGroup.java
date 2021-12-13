@@ -1,17 +1,8 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.BoxPredicate;
-import qouteall.q_misc_util.my_util.LimitedLogger;
-import qouteall.q_misc_util.my_util.Plane;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalLike;
-import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
@@ -20,6 +11,13 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.PortalRenderInfo;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.BoxPredicate;
+import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.Plane;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

@@ -1,11 +1,5 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
-import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.commands.PortalCommand;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -25,6 +19,12 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.commands.PortalCommand;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 public class BlockManipulationClient {
     private static final MinecraftClient client = MinecraftClient.getInstance();

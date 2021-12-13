@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import qouteall.imm_ptl.core.ducks.IEWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.MutableWorldProperties;
@@ -12,6 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.ducks.IEWorld;
 
 @Mixin(World.class)
 public abstract class MixinWorld implements IEWorld {

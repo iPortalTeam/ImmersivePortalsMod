@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.peripheral.mixin.client.alternate_dimension;
 
-import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
@@ -9,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import qouteall.imm_ptl.peripheral.alternate_dimension.AlternateDimensions;
 
 @Mixin(BackgroundRenderer.class)
 public class MixinBackgroundRenderer_A {

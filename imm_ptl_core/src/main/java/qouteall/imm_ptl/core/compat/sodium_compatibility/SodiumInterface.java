@@ -3,14 +3,9 @@ package qouteall.imm_ptl.core.compat.sodium_compatibility;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.Vec3d;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.chunk_loading.MyClientChunkManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.world.ClientChunkManager;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.MinecraftClient;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.mixin.IESodiumWorldRenderer;
 import qouteall.imm_ptl.core.render.FrustumCuller;
 

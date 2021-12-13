@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
 import com.mojang.authlib.GameProfile;
-import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -12,6 +11,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class MixinServerPlayerEntity extends PlayerEntity implements IEServerPlayerEntity {

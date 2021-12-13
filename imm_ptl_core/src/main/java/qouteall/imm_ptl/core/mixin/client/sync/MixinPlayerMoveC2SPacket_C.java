@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
-import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.registry.RegistryKey;
@@ -9,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 
 @Mixin(PlayerMoveC2SPacket.class)
 public class MixinPlayerMoveC2SPacket_C {

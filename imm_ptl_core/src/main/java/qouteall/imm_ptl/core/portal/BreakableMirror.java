@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.my_util.IntBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.GlassBlock;
 import net.minecraft.block.PaneBlock;
@@ -16,6 +13,9 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.IntBox;
 
 public class BreakableMirror extends Mirror {
     

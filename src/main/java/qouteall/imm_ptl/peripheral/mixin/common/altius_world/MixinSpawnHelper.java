@@ -1,15 +1,7 @@
 package qouteall.imm_ptl.peripheral.mixin.common.altius_world;
 
-import net.minecraft.world.WorldView;
-import qouteall.imm_ptl.peripheral.altius_world.AltiusGameRule;
-import qouteall.imm_ptl.core.McHelper;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(SpawnHelper.class)
 public class MixinSpawnHelper {

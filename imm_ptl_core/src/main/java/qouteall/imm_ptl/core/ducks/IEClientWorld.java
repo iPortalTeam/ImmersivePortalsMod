@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
-import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import qouteall.imm_ptl.core.portal.Portal;
 
 import javax.annotation.Nullable;
 import java.util.List;

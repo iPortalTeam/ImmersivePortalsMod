@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
@@ -23,6 +19,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 import javax.annotation.Nullable;
 import java.util.List;

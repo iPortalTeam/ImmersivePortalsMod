@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.render.context_management.CloudContext;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -16,6 +13,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.render.context_management.CloudContext;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import javax.annotation.Nullable;
 

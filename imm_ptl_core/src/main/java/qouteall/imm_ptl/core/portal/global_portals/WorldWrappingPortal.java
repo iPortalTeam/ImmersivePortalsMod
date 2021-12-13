@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
@@ -15,6 +12,9 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.ArrayList;
 import java.util.Comparator;

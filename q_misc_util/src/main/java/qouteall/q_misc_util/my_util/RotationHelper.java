@@ -1,10 +1,10 @@
 package qouteall.q_misc_util.my_util;
 
-import qouteall.q_misc_util.Helper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import qouteall.q_misc_util.Helper;
 
 public class RotationHelper {
     //NOTE this will mutate a and return a

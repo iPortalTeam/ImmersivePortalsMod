@@ -3,8 +3,6 @@ package qouteall.q_misc_util.api;
 import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
@@ -14,7 +12,8 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GeneratorOptions;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import qouteall.q_misc_util.DimensionMisc;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qouteall.q_misc_util.MiscHelper;
 
 import java.util.HashSet;

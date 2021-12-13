@@ -1,12 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.IPModMain;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
-import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
-import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BuiltChunkStorage;
@@ -20,6 +13,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
+import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
+import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;

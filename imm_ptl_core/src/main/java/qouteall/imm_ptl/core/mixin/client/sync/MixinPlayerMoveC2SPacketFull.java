@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client.sync;
 
-import qouteall.imm_ptl.core.dimension_sync.DimId;
-import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.PacketByteBuf;
@@ -13,6 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.dimension_sync.DimId;
+import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
 import qouteall.imm_ptl.core.network.IPNetworkAdapt;
 
 @Environment(EnvType.CLIENT)

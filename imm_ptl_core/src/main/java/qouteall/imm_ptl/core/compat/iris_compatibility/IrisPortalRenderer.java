@@ -1,7 +1,6 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;

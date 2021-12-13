@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.q_misc_util.Helper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
+import qouteall.q_misc_util.Helper;
 
 //it will always be the same size as the main frame buffer
 public class SecondaryFrameBuffer {

@@ -10,8 +10,6 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
 
-import java.io.File;
-
 public interface IEThreadedAnvilChunkStorage {
     int getWatchDistance();
     

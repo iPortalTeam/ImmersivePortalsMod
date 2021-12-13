@@ -1,13 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.ducks.IEEntityTracker;
-import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
@@ -15,6 +7,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.profiler.Profiler;
@@ -24,6 +17,13 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEEntityTracker;
+import qouteall.imm_ptl.core.ducks.IEEntityTrackerEntry;
+import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 
 import java.util.List;
 import java.util.Set;

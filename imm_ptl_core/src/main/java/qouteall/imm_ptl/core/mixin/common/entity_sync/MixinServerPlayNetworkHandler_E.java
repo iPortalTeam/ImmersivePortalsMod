@@ -1,12 +1,12 @@
 package qouteall.imm_ptl.core.mixin.common.entity_sync;
 
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.imm_ptl.core.network.IPCommonNetwork;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import qouteall.imm_ptl.core.network.IPCommonNetwork;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public class MixinServerPlayNetworkHandler_E {

@@ -1,31 +1,7 @@
 package qouteall.imm_ptl.core.mixin.client.render.optimization;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.chunk.BlockBufferBuilderStorage;
 import net.minecraft.client.render.chunk.ChunkBuilder;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.thread.TaskExecutor;
-import net.minecraft.world.World;
-import org.apache.commons.lang3.Validate;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.render.optimization.SharedBlockMeshBuffers;
-import qouteall.q_misc_util.Helper;
-
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
 
 @Mixin(ChunkBuilder.class)
 public abstract class MixinChunkBuilder_Optimization {

@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.peripheral.alternate_dimension;
 
-import qouteall.q_misc_util.Helper;
 import net.minecraft.util.Pair;
+import qouteall.q_misc_util.Helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

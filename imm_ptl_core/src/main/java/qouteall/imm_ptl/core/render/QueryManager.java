@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.CHelper;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
+import qouteall.imm_ptl.core.CHelper;
 
 public class QueryManager {
     public static int queryStallCounter = 0;

@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 
 import java.util.List;
 import java.util.function.Function;

@@ -1,10 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.portal.PortalLike;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
-import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -27,6 +22,11 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.Vector4f;
 import org.lwjgl.system.MemoryStack;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;

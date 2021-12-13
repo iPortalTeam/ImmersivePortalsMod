@@ -2,11 +2,11 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.SimpleBlockPredicate;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 
 import java.util.function.Predicate;
 

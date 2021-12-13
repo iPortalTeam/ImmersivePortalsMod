@@ -1,11 +1,11 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
 
 public class LoadingIndicatorRenderer extends EntityRenderer<LoadingIndicatorEntity> {
     public LoadingIndicatorRenderer(EntityRendererFactory.Context context) {

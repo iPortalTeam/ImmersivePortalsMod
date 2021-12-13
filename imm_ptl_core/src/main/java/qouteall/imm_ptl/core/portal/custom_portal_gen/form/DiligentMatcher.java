@@ -1,10 +1,6 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.google.common.math.IntMath;
-import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.DQuaternion;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.util.Pair;
 import net.minecraft.util.Util;
@@ -16,6 +12,10 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;

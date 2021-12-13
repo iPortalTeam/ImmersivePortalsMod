@@ -4,10 +4,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.peripheral.ducks.IECreateWorldScreen;
-import qouteall.q_misc_util.Helper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.resource.DataPackSettings;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourcePackManager;
@@ -19,6 +16,7 @@ import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.dynamic.RegistryReadingOps;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.gen.GeneratorOptions;
+import qouteall.q_misc_util.Helper;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

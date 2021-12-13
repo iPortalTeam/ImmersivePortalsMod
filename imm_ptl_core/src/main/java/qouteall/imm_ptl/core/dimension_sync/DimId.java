@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.dimension_sync;
 
-import qouteall.imm_ptl.core.platform_specific.O_O;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtInt;
@@ -10,6 +9,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 
 public class DimId {
     

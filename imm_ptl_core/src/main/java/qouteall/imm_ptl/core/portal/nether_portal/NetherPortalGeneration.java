@@ -1,17 +1,5 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
-import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.q_misc_util.my_util.LimitedLogger;
-import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
@@ -24,6 +12,18 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
+import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.portal.LoadingIndicatorEntity;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.IntBox;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import java.util.Arrays;
 import java.util.Objects;

@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +7,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.portal.Portal;
 
 @Mixin(LivingEntity.class)
 public class MixinLivingEntity_C {

@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.mc_util;
 
-import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
@@ -10,6 +9,7 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 
 import java.util.function.Consumer;
 

@@ -1,10 +1,10 @@
 package qouteall.imm_ptl.core.render.optimization;
 
-import org.lwjgl.opengl.GL30;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
 
 import java.util.function.Consumer;
 

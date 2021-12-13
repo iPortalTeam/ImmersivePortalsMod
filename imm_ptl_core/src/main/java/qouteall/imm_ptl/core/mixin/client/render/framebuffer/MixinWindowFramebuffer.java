@@ -1,8 +1,6 @@
 package qouteall.imm_ptl.core.mixin.client.render.framebuffer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.WindowFramebuffer;
 import org.lwjgl.opengl.ARBFramebufferObject;
@@ -11,6 +9,8 @@ import org.lwjgl.opengl.GL30C;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.ducks.IEFrameBuffer;
 
 import java.nio.IntBuffer;
 

@@ -1,18 +1,16 @@
 package qouteall.imm_ptl.core.mixin.client.render.shader;
 
-import qouteall.imm_ptl.core.ducks.IEShader;
-import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 import net.minecraft.client.gl.GlShader;
 import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.render.Shader;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.resource.ResourceFactory;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.ducks.IEShader;
+import qouteall.imm_ptl.core.render.ShaderCodeTransformation;
 
 import javax.annotation.Nullable;
 import java.util.List;

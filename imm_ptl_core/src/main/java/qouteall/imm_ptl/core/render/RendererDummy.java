@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.render;
 
+import net.minecraft.client.util.math.MatrixStack;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
-import net.minecraft.client.util.math.MatrixStack;
 
 public class RendererDummy extends PortalRenderer {
     @Override

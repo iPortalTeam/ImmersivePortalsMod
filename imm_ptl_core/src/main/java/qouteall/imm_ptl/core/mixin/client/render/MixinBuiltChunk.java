@@ -1,17 +1,12 @@
 package qouteall.imm_ptl.core.mixin.client.render;
 
 import net.minecraft.client.render.WorldRenderer;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
-import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import net.minecraft.client.render.chunk.ChunkBuilder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.ducks.IEBuiltChunk;
 
 @Mixin(ChunkBuilder.BuiltChunk.class)
 public abstract class MixinBuiltChunk implements IEBuiltChunk {

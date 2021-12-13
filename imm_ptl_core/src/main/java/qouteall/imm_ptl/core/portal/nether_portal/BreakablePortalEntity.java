@@ -1,11 +1,5 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.my_util.LimitedLogger;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -21,6 +15,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 import javax.annotation.Nullable;
 import java.util.List;

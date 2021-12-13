@@ -1,12 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.position_sync;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
-import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
-import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
@@ -32,6 +25,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.ducks.IEPlayerMoveC2SPacket;
+import qouteall.imm_ptl.core.ducks.IEPlayerPositionLookS2CPacket;
+import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
+import qouteall.q_misc_util.Helper;
 
 import java.util.Set;
 

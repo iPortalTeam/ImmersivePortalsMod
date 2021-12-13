@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
-import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
-import qouteall.imm_ptl.core.IPGlobal;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -12,6 +9,9 @@ import net.minecraft.world.dimension.AreaHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 import java.util.Optional;
 

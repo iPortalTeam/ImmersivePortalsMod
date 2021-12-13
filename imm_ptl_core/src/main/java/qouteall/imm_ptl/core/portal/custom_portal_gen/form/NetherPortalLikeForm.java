@@ -1,19 +1,19 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
-import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
-import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
+import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;

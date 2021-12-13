@@ -1,11 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client;
 
-import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.render.QueryManager;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -13,6 +7,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.QueryManager;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.q_misc_util.Helper;
 
 import java.util.List;
 

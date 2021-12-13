@@ -1,8 +1,6 @@
 package qouteall.imm_ptl.peripheral;
 
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.commands.PortalCommand;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -28,6 +26,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.commands.PortalCommand;
 import qouteall.q_misc_util.MiscHelper;
 
 import javax.annotation.Nullable;

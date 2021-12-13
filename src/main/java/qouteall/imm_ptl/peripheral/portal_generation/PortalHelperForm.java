@@ -1,14 +1,6 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.mojang.serialization.Codec;
-import qouteall.imm_ptl.peripheral.PeripheralModMain;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalManipulation;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.form.AbstractDiligentForm;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.form.PortalGenForm;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,6 +8,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.PortalGenInfo;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.form.AbstractDiligentForm;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.form.PortalGenForm;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.peripheral.PeripheralModMain;
 
 import java.util.function.Predicate;
 

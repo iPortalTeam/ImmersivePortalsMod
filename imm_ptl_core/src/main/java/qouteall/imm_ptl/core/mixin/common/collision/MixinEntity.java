@@ -1,14 +1,6 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
 import net.minecraft.block.BlockState;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.q_misc_util.my_util.LimitedLogger;
-import qouteall.imm_ptl.core.portal.EndPortalEntity;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,6 +17,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.portal.EndPortalEntity;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.teleportation.CollisionHelper;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.LimitedLogger;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IEEntity {

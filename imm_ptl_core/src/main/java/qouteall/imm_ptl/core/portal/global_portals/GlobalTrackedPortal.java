@@ -1,8 +1,8 @@
 package qouteall.imm_ptl.core.portal.global_portals;
 
-import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.portal.Portal;
 
 public class GlobalTrackedPortal extends Portal {
     public static EntityType<GlobalTrackedPortal> entityType;

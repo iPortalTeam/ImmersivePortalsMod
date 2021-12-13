@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
-import qouteall.imm_ptl.core.portal.Portal;
 import net.minecraft.entity.Entity;
+import qouteall.imm_ptl.core.portal.Portal;
 
 public interface IEEntity {
     void notifyCollidingWithPortal(Entity portal);

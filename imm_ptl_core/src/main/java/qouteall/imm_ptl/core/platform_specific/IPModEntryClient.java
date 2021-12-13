@@ -1,10 +1,17 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.IPGlobal;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.entity.EntityType;
+import net.minecraft.text.LiteralText;
+import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
-import qouteall.q_misc_util.Helper;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPModMainClient;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.compat.sodium_compatibility.SodiumInterface;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.core.portal.EndPortalEntity;
@@ -18,14 +25,7 @@ import qouteall.imm_ptl.core.portal.nether_portal.GeneralBreakablePortal;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalEntity;
 import qouteall.imm_ptl.core.render.LoadingIndicatorRenderer;
 import qouteall.imm_ptl.core.render.PortalEntityRenderer;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.EntityType;
-import net.minecraft.text.LiteralText;
-import org.apache.commons.lang3.Validate;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
 import java.util.Arrays;

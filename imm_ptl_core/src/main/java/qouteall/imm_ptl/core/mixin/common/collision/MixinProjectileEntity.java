@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.common.collision;
 
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.minecraft.block.Block;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.util.hit.BlockHitResult;
@@ -10,6 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 @Mixin(ProjectileEntity.class)
 public abstract class MixinProjectileEntity extends MixinEntity {

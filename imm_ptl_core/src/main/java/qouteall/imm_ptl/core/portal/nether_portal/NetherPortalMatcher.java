@@ -1,16 +1,15 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.my_util.IntBox;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.WorldAccess;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.Arrays;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 

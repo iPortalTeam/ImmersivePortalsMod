@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -14,6 +10,10 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
+import qouteall.q_misc_util.Helper;
 
 import java.lang.reflect.Method;
 

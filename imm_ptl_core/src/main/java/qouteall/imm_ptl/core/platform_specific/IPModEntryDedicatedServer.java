@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.platform_specific;
 
-import qouteall.q_misc_util.Helper;
 import net.fabricmc.api.DedicatedServerModInitializer;
+import qouteall.q_misc_util.Helper;
 
 public class IPModEntryDedicatedServer implements DedicatedServerModInitializer {
     

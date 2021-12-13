@@ -1,16 +1,16 @@
 package qouteall.imm_ptl.core.render;
 
-import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
-import qouteall.q_misc_util.my_util.BoxPredicate;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.q_misc_util.my_util.BoxPredicate;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;

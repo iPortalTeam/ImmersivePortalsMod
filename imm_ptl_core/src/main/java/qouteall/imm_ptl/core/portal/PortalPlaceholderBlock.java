@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -18,6 +16,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 
 import java.util.Random;
 

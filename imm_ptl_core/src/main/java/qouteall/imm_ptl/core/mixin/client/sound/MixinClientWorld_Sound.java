@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client.sound;
 
-import qouteall.imm_ptl.core.teleportation.CrossPortalSound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -16,6 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.teleportation.CrossPortalSound;
 
 @Mixin(ClientWorld.class)
 public class MixinClientWorld_Sound {

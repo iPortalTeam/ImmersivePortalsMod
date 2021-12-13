@@ -1,18 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vector4f;
-import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IECamera;
-import qouteall.imm_ptl.core.ducks.IEGameRenderer;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.ducks.IEMatrix4f;
-import qouteall.q_misc_util.my_util.DQuaternion;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -24,6 +11,17 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.Vector4f;
+import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.ducks.IEGameRenderer;
+import qouteall.imm_ptl.core.ducks.IEMatrix4f;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.DQuaternion;
 
 @Environment(EnvType.CLIENT)
 public class TransformationManager {

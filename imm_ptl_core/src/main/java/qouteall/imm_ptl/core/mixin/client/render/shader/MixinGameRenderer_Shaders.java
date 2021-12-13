@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.mixin.client.render.shader;
 
-import qouteall.imm_ptl.core.render.MyRenderHelper;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Shader;
 import net.minecraft.resource.ResourceManager;
@@ -10,6 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.render.MyRenderHelper;
 
 import java.util.Map;
 

@@ -1,9 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.BoxPredicate;
-import qouteall.q_misc_util.my_util.Plane;
-import qouteall.imm_ptl.core.render.MyGameRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -13,6 +9,9 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.BoxPredicate;
+import qouteall.q_misc_util.my_util.Plane;
 
 import javax.annotation.Nullable;
 import java.util.UUID;

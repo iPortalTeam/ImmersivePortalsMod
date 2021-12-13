@@ -1,20 +1,20 @@
 package qouteall.imm_ptl.core.portal.custom_portal_gen;
 
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.my_util.SignalArged;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalExtension;
-import qouteall.imm_ptl.core.portal.PortalManipulation;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
-import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
-import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
 import net.minecraft.entity.EntityType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalExtension;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
+import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalGeneration;
+import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.SignalArged;
 
 import javax.annotation.Nullable;
 

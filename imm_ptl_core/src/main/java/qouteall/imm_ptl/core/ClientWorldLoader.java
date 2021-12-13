@@ -1,18 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
-import qouteall.imm_ptl.core.ducks.IECamera;
-import qouteall.imm_ptl.core.ducks.IEClientWorld;
-import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
-import qouteall.imm_ptl.core.ducks.IEParticleManager;
-import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
-import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
-import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.LimitedLogger;
-import qouteall.q_misc_util.my_util.SignalArged;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -27,6 +14,17 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.dimension_sync.DimensionTypeSync;
+import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.ducks.IEClientWorld;
+import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.render.context_management.DimensionRenderHelper;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.util.Collection;
 import java.util.HashMap;

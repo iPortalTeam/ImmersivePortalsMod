@@ -2,7 +2,6 @@ package qouteall.imm_ptl.core.portal.custom_portal_gen.form;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -11,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.registry.SimpleRegistry;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;

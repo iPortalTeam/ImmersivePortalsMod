@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityType;
@@ -10,6 +8,8 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
 import java.util.Random;
 

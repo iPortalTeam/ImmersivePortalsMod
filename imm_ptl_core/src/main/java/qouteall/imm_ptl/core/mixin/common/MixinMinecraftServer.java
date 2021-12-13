@@ -3,10 +3,6 @@ package qouteall.imm_ptl.core.mixin.common;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.datafixers.DataFixer;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.dimension_sync.DimensionIdManagement;
-import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.resource.ServerResourceManager;
 import net.minecraft.server.MinecraftServer;
@@ -23,9 +19,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.q_misc_util.MiscHelper;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.dimension_sync.DimensionIdManagement;
+import qouteall.imm_ptl.core.ducks.IEMinecraftServer;
+import qouteall.imm_ptl.core.platform_specific.O_O;
 
-import java.lang.ref.WeakReference;
 import java.net.Proxy;
 import java.util.function.BooleanSupplier;
 

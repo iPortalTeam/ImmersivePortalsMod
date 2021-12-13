@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.core.platform_specific.mixin.common;
 
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -10,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGenManagement;
 
 @Mixin(ServerPlayerEntity.class)
 public class MixinServerPlayerEntity_MA {

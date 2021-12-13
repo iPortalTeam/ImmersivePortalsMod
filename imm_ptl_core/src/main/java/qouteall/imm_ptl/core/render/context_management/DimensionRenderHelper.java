@@ -1,9 +1,9 @@
 package qouteall.imm_ptl.core.render.context_management;
 
-import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 
 public class DimensionRenderHelper {
     private static final MinecraftClient client = MinecraftClient.getInstance();

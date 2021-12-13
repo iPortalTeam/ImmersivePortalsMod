@@ -1,22 +1,22 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vector4f;
-import qouteall.imm_ptl.core.IPCGlobal;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IEShader;
-import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.q_misc_util.my_util.Plane;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalLike;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.render.Shader;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vector4f;
 import org.lwjgl.opengl.GL11;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.IPCGlobal;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.ducks.IEShader;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalLike;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
+import qouteall.q_misc_util.my_util.Plane;
 
 public class FrontClipping {
     private static final MinecraftClient client = MinecraftClient.getInstance();

@@ -1,7 +1,7 @@
 package qouteall.imm_ptl.core.portal.nether_portal;
 
-import qouteall.q_misc_util.my_util.IntBox;
 import net.minecraft.util.math.BlockPos;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

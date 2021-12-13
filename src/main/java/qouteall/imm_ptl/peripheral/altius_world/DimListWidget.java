@@ -1,7 +1,5 @@
 package qouteall.imm_ptl.peripheral.altius_world;
 
-import qouteall.q_misc_util.Helper;
-import qouteall.q_misc_util.my_util.GuiHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -9,6 +7,8 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
+import qouteall.q_misc_util.Helper;
+import qouteall.q_misc_util.my_util.GuiHelper;
 
 import java.util.ArrayList;
 import java.util.List;

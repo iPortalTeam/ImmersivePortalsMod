@@ -1,8 +1,5 @@
 package qouteall.imm_ptl.core.portal;
 
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.q_misc_util.my_util.IntBox;
-import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -23,6 +20,9 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.portal.nether_portal.BlockPortalShape;
+import qouteall.q_misc_util.my_util.IntBox;
 
 import java.util.Random;
 
