@@ -1,7 +1,9 @@
 package qouteall.imm_ptl.core.block_manipulation;
 
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.commands.PortalCommand;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 import net.minecraft.block.BlockState;
@@ -216,22 +218,20 @@ public class BlockManipulationClient {
         BlockPos blockPos,
         Direction direction
     ) {
-//        if (remoteHitResult == null) {
-//            return false;
-//        }
+        ClientWorld targetWorld = ClientWorldLoader.getWorld(remotePointedDim);
         
-        ClientWorld oldWorld = client.world;
-        client.world = ClientWorldLoader.getWorld(remotePointedDim);
-        isContextSwitched = true;
-        
-        try {
-            return client.interactionManager.updateBlockBreakingProgress(blockPos, direction);
-        }
-        finally {
-            client.world = oldWorld;
-            isContextSwitched = false;
-        }
-        
+        return IPMcHelper.withSwitchedContextClient(
+            targetWorld,
+            () -> {
+                isContextSwitched = true;
+                try {
+                    return client.interactionManager.updateBlockBreakingProgress(blockPos, direction);
+                }
+                finally {
+                    isContextSwitched = false;
+                }
+            }
+        );
     }
     
     public static void myAttackBlock() {
@@ -248,21 +248,21 @@ public class BlockManipulationClient {
             return;
         }
         
-        ClientWorld oldWorld = client.world;
-        
-        client.world = targetWorld;
-        isContextSwitched = true;
-        
-        try {
-            client.interactionManager.attackBlock(
-                blockPos,
-                ((BlockHitResult) remoteHitResult).getSide()
-            );
-        }
-        finally {
-            client.world = oldWorld;
-            isContextSwitched = false;
-        }
+        IPCommonNetworkClient.withSwitchedWorld(
+            targetWorld,
+            () -> {
+                isContextSwitched = true;
+                try {
+                    client.interactionManager.attackBlock(
+                        blockPos,
+                        ((BlockHitResult) remoteHitResult).getSide()
+                    );
+                }
+                finally {
+                    isContextSwitched = false;
+                }
+            }
+        );
         
         client.player.swingHand(Hand.MAIN_HAND);
     }
@@ -329,22 +329,20 @@ public class BlockManipulationClient {
 //            return null;
 //        }
         
-        ClientWorld oldWorld = client.world;
-        
-        try {
-            client.player.world = targetWorld;
-            client.world = targetWorld;
-            isContextSwitched = true;
-            
-            return client.interactionManager.interactBlock(
-                client.player, targetWorld, hand, blockHitResult
-            );
-        }
-        finally {
-            client.player.world = oldWorld;
-            client.world = oldWorld;
-            isContextSwitched = false;
-        }
+        return IPMcHelper.withSwitchedContextClient(
+            targetWorld,
+            () -> {
+                isContextSwitched = true;
+                try {
+                    return client.interactionManager.interactBlock(
+                        client.player, targetWorld, hand, blockHitResult
+                    );
+                }
+                finally {
+                    isContextSwitched = false;
+                }
+            }
+        );
     }
     
 }

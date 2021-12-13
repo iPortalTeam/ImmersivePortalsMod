@@ -17,6 +17,7 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
 import qouteall.imm_ptl.core.ducks.IERayTraceContext;
+import qouteall.imm_ptl.core.network.IPCommonNetworkClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
@@ -82,7 +83,7 @@ public class IPMcHelper {
         // This could result in searching more chunks than necessary, but it always expands to completely cover any
         // chunks the line from start->end passes through.
         int chunkRadius = (int) Math.ceil(Math.abs(start.distanceTo(end) / 2) / 16);
-        List<Portal> nearby = McHelper.getEntitiesNearby(world, middle, Portal.class, chunkRadius*16);
+        List<Portal> nearby = McHelper.getEntitiesNearby(world, middle, Portal.class, chunkRadius * 16);
         
         if (includeGlobalPortals) {
             nearby.addAll(GlobalPortalStorage.getGlobalPortals(world));
@@ -118,21 +119,12 @@ public class IPMcHelper {
      * @see #withSwitchedContext(World, Supplier)
      */
     @Environment(EnvType.CLIENT)
-    private static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
-        boolean wasContextSwitched = BlockManipulationClient.isContextSwitched;
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientWorld lastWorld = client.world;
-        
-        try {
-            BlockManipulationClient.isContextSwitched = true;
-            client.world = world;
-            
-            return func.get();
-        }
-        finally {
-            client.world = lastWorld;
-            BlockManipulationClient.isContextSwitched = wasContextSwitched;
-        }
+    public static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
+        Helper.SimpleBox<T> box = new Helper.SimpleBox<>(null);
+        IPCommonNetworkClient.withSwitchedWorld(world, () -> {
+            box.obj = func.get();
+        });
+        return box.obj;
     }
     
     /**
@@ -166,7 +158,7 @@ public class IPMcHelper {
     
     /**
      * @author LoganDark
-     * @see Helper#rayTrace(World, RaycastContext, boolean, List)
+     * @see IPMcHelper#rayTrace(World, RaycastContext, boolean, List)
      */
     private static Pair<BlockHitResult, List<Portal>> rayTrace(
         World world,
@@ -194,10 +186,8 @@ public class IPMcHelper {
         // First ray trace normally
         BlockHitResult hitResult = world.raycast(context);
         
-        List<Pair<Portal, Vec3d>> rayTracedPortals = withSwitchedContext(
-            world,
-            () -> rayTracePortals(world, start, end, includeGlobalPortals, Portal::isInteractable)
-        );
+        List<Pair<Portal, Vec3d>> rayTracedPortals =
+            rayTracePortals(world, start, end, includeGlobalPortals, Portal::isInteractable);
         
         if (rayTracedPortals.isEmpty()) {
             return new Pair<>(hitResult, portals);
