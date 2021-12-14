@@ -1,5 +1,6 @@
 package qouteall.imm_ptl.core.platform_specific;
 
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMain;
@@ -40,7 +41,13 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Pehkui is not present");
         }
         
-       
+        if (FabricLoader.getInstance().isModLoaded("gravitychanger")) {
+            GravityChangerInterface.invoker = new GravityChangerInterface.OnGravityChangerPresent();
+            Helper.log("Gravity Changer is present");
+        }
+        else {
+            Helper.log("Gravity Changer is not present");
+        }
         
     }
     

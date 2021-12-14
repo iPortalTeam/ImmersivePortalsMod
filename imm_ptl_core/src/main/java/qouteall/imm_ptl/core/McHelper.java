@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
@@ -217,22 +218,36 @@ public class McHelper {
     }
     
     public static Vec3d getEyePos(Entity entity) {
-        float eyeHeight = entity.getStandingEyeHeight();
-        return entity.getPos().add(0, eyeHeight, 0);
+        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
+        return entity.getPos().add(eyeOffset);
+
+//        float eyeHeight = entity.getStandingEyeHeight();
+//        return entity.getPos().add(0, eyeHeight, 0);
     }
     
     public static Vec3d getLastTickEyePos(Entity entity) {
-        float eyeHeight = entity.getStandingEyeHeight();
-        return lastTickPosOf(entity).add(0, eyeHeight, 0);
+        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
+        return lastTickPosOf(entity).add(eyeOffset);
+
+//        float eyeHeight = entity.getStandingEyeHeight();
+//        return lastTickPosOf(entity).add(0, eyeHeight, 0);
     }
     
     public static void setEyePos(Entity entity, Vec3d eyePos, Vec3d lastTickEyePos) {
-        float eyeHeight = entity.getStandingEyeHeight();
+        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
+        
         setPosAndLastTickPos(
             entity,
-            eyePos.add(0, -eyeHeight, 0),
-            lastTickEyePos.add(0, -eyeHeight, 0)
+            eyePos.subtract(eyeOffset),
+            lastTickEyePos.subtract(eyeOffset)
         );
+
+//        float eyeHeight = entity.getStandingEyeHeight();
+//        setPosAndLastTickPos(
+//            entity,
+//            eyePos.add(0, -eyeHeight, 0),
+//            lastTickEyePos.add(0, -eyeHeight, 0)
+//        );
     }
     
     public static double getVehicleY(Entity vehicle, Entity passenger) {

@@ -51,6 +51,8 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -143,6 +145,11 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Whether the entity scale changes after crossing the portal
      */
     public boolean teleportChangesScale = true;
+    
+    /**
+     * Whether the entity gravity direction changes after crossing the portal
+     */
+    protected boolean teleportChangesGravity = false;
     
     /**
      * Whether the player can place and break blocks across the portal
@@ -260,14 +267,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     public void onEntityTeleportedOnServer(Entity entity) {
         if (commandsOnTeleported != null) {
             McHelper.invokeCommandAs(entity, commandsOnTeleported);
-
-//            ServerCommandSource commandSource =
-//                entity.getCommandSource().withLevel(2).withSilent();
-//
-//            CommandManager commandManager = McHelper.getServer().getCommandManager();
-//            for (String command : commandsOnTeleported) {
-//                commandManager.execute(commandSource, command);
-//            }
         }
     }
     
@@ -566,6 +565,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         if (compoundTag.contains("teleportChangesScale")) {
             teleportChangesScale = compoundTag.getBoolean("teleportChangesScale");
         }
+        if (compoundTag.contains("teleportChangesGravity")) {
+            teleportChangesGravity = compoundTag.getBoolean("teleportChangesGravity");
+        }
         
         if (compoundTag.contains("portalTag")) {
             portalTag = compoundTag.getString("portalTag");
@@ -638,6 +640,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         
         compoundTag.putDouble("scale", scaling);
         compoundTag.putBoolean("teleportChangesScale", teleportChangesScale);
+        compoundTag.putBoolean("teleportChangesGravity", teleportChangesGravity);
         
         if (portalTag != null) {
             compoundTag.putString("portalTag", portalTag);
@@ -1385,5 +1388,23 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Override
     public boolean getHasCrossPortalCollision() {
         return hasCrossPortalCollision;
+    }
+    
+    public boolean getTeleportChangesGravity() {
+        return teleportChangesGravity;
+    }
+    
+    public void setTeleportChangesGravity(boolean cond) {
+        teleportChangesGravity = cond;
+    }
+    
+    public Direction getTransformedGravityDirection(Direction oldGravityDir) {
+        Vec3d oldGravityVec = Vec3d.of(oldGravityDir.getVector());
+        
+        Vec3d newGravityVec = transformLocalVecNonScale(oldGravityVec);
+        
+        return Direction.getFacing(
+            newGravityVec.x, newGravityVec.y, newGravityVec.z
+        );
     }
 }

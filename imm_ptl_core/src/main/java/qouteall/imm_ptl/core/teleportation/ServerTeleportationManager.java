@@ -1,6 +1,8 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import net.minecraft.util.math.Direction;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
@@ -148,6 +150,13 @@ public class ServerTeleportationManager {
             portal.onEntityTeleportedOnServer(player);
             
             PehkuiInterface.onServerEntityTeleported.accept(player, portal);
+            
+            if (portal.getTeleportChangesGravity()) {
+                Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
+                GravityChangerInterface.invoker.setGravityDirection(
+                    player, portal.getTransformedGravityDirection(oldGravityDir)
+                );
+            }
         }
         else {
             Helper.err(String.format(

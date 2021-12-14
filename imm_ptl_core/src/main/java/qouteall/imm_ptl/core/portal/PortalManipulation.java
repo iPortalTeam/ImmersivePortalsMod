@@ -294,6 +294,7 @@ public class PortalManipulation {
     public static void copyAdditionalProperties(Portal to, Portal from) {
         to.teleportable = from.teleportable;
         to.teleportChangesScale = from.teleportChangesScale;
+        to.teleportChangesGravity = from.teleportChangesGravity;
         to.specificPlayerId = from.specificPlayerId;
         PortalExtension.get(to).motionAffinity = PortalExtension.get(from).motionAffinity;
         PortalExtension.get(to).adjustPositionAfterTeleport = PortalExtension.get(from).adjustPositionAfterTeleport;
