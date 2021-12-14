@@ -1,15 +1,19 @@
 package qouteall.imm_ptl.peripheral.portal_generation;
 
 import com.google.common.collect.Lists;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.AreaHelper;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.custom_portal_gen.CustomPortalGeneration;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class IntrinsicPortalGeneration {
     public static final IntrinsicNetherPortalForm intrinsicNetherPortalForm =
@@ -86,5 +90,36 @@ public class IntrinsicPortalGeneration {
         BlockPos firePos
     ) {
         return portalHelper.perform(fromWorld, firePos, null);
+    }
+    
+    public static boolean onCrouchingPlayerIgnite(
+        ServerWorld world,
+        ServerPlayerEntity player,
+        BlockPos firePos
+    ) {
+        if (IPGlobal.netherPortalMode == IPGlobal.NetherPortalMode.disabled) {
+            return false;
+        }
+        
+        if (!IPGlobal.lightVanillaNetherPortalWhenCrouching) {
+            return false;
+        }
+        
+        boolean dimensionCorrect =
+            world.getRegistryKey() == World.OVERWORLD || world.getRegistryKey() == World.NETHER;
+        
+        if (!dimensionCorrect) {
+            return false;
+        }
+        
+        Optional<AreaHelper> newPortal = AreaHelper.getNewPortal(world, firePos, Direction.Axis.X);
+        
+        if (newPortal.isEmpty()) {
+            return false;
+        }
+        
+        AreaHelper areaHelper = newPortal.get();
+        areaHelper.createPortal();
+        return true;
     }
 }

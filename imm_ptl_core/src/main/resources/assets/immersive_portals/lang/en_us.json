@@ -137,6 +137,6 @@
   "imm_ptl.enable_warning": "Enable Warning",
   "imm_ptl.top_y": "Top Y",
   "imm_ptl.bottom_y": "Bottom Y",
-  "imm_ptl.bedrock_replacement": "Bedrock Replacement"
-
+  "imm_ptl.bedrock_replacement": "Bedrock Replacement",
+  "imm_ptl.light_vanilla_nether_portal_when_crouching": "Light vanilla portal when crouching"
 }

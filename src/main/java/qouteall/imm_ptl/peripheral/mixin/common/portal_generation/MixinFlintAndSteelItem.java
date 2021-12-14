@@ -2,8 +2,12 @@ package qouteall.imm_ptl.peripheral.mixin.common.portal_generation;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
@@ -20,29 +24,6 @@ import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
 
 @Mixin(FlintAndSteelItem.class)
 public class MixinFlintAndSteelItem {
-    //TODO make it possible to ignite on horizontal obsidian face
-
-//    @Inject(
-//        method = "canIgnite",
-//        at = @At("HEAD"),
-//        cancellable = true
-//    )
-//    private static void onCanIgnite(
-//        BlockState block,
-//        WorldAccess world,
-//        BlockPos pos,
-//        CallbackInfoReturnable<Boolean> cir
-//    ) {
-//        for (Direction direction : Direction.values()) {
-//            if (O_O.isObsidian(world, pos.offset(direction))) {
-//                if (block.isAir()) {
-//                    cir.setReturnValue(true);
-//                    cir.cancel();
-//                }
-//            }
-//        }
-//    }
-    
     @Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
     private void onUseFlintAndSteel(
         ItemUsageContext context,
@@ -66,6 +47,22 @@ public class MixinFlintAndSteelItem {
                     ((ServerWorld) world),
                     firePos
                 );
+            }
+            else if (targetBlock == Blocks.OBSIDIAN) {
+                PlayerEntity player = context.getPlayer();
+                if (player != null) {
+                    if (player.getPose() == EntityPose.CROUCHING) {
+                        boolean succeeded = IntrinsicPortalGeneration.onCrouchingPlayerIgnite(
+                            ((ServerWorld) world),
+                            ((ServerPlayerEntity) player),
+                            firePos
+                        );
+                        if (succeeded) {
+                            cir.setReturnValue(ActionResult.SUCCESS);
+                            
+                        }
+                    }
+                }
             }
         }
     }

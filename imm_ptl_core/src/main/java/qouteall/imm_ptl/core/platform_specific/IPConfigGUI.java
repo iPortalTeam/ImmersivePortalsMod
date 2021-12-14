@@ -96,6 +96,10 @@ public class IPConfigGUI {
             new TranslatableText("imm_ptl.enable_nether_portal_overlay"),
             currConfig.netherPortalOverlay
         ).setDefaultValue(false).build();
+        BooleanListEntry entryLightVanillaNetherPortalWhenCrouching = builder.entryBuilder().startBooleanToggle(
+            new TranslatableText("imm_ptl.light_vanilla_nether_portal_when_crouching"),
+            currConfig.lightVanillaNetherPortalWhenCrouching
+        ).setDefaultValue(false).build();
         EnumListEntry<IPGlobal.NetherPortalMode> entryNetherPortalMode = builder.entryBuilder()
             .startEnumSelector(
                 new TranslatableText("imm_ptl.nether_portal_mode"),
@@ -129,6 +133,7 @@ public class IPConfigGUI {
         serverSide.addEntry(entryEndPortalMode);
         serverSide.addEntry(entryEnableAlternateDimensions);
         serverSide.addEntry(entryNetherPortalOverlay);
+        serverSide.addEntry(entryLightVanillaNetherPortalWhenCrouching);
         serverSide.addEntry(entryPortalSearchingRange);
         serverSide.addEntry(entryTeleportDebug);
         serverSide.addEntry(entryLooseMovementCheck);
@@ -155,6 +160,7 @@ public class IPConfigGUI {
                 newConfig.looseMovementCheck = entryLooseMovementCheck.getValue();
                 newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                 newConfig.netherPortalOverlay = entryNetherPortalOverlay.getValue();
+                newConfig.lightVanillaNetherPortalWhenCrouching = entryLightVanillaNetherPortalWhenCrouching.getValue();
                 
                 newConfig.saveConfigFile();
                 newConfig.onConfigChanged();

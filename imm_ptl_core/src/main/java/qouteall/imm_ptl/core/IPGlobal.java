@@ -108,6 +108,8 @@ public class IPGlobal {
     
     public static boolean enableWarning = true;
     
+    public static boolean lightVanillaNetherPortalWhenCrouching = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,
