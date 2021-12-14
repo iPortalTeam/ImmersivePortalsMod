@@ -1,5 +1,23 @@
 package qouteall.imm_ptl.core.teleportation;
 
+import net.minecraft.util.math.Direction;
+import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
+import qouteall.q_misc_util.Helper;
+import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.PehkuiInterface;
+import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEEntity;
+import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
+import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
+import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.my_util.LimitedLogger;
+import qouteall.q_misc_util.my_util.MyTaskList;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.MobEntity;
@@ -147,6 +165,14 @@ public class ServerTeleportationManager {
             
             portal.onEntityTeleportedOnServer(player);
             
+            PehkuiInterface.onServerEntityTeleported.accept(player, portal);
+            
+            if (portal.getTeleportChangesGravity()) {
+                Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
+                GravityChangerInterface.invoker.setGravityDirection(
+                    player, portal.getTransformedGravityDirection(oldGravityDir)
+                );
+            }
             PehkuiInterface.invoker.onServerEntityTeleported(player, portal);
         }
         else {

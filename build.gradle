@@ -86,6 +86,9 @@ allprojects {
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12'
 
+        modCompileOnly ("com.github.qouteall:GravityChanger:f48da21") {
+            transitive = false
+        }
     }
 
     afterEvaluate {
