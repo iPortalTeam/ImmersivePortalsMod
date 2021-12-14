@@ -92,10 +92,11 @@ public class IPModMainClient {
     }
     
     private static void showIntelVideoCardWarning() {
-        MinecraftClient.getInstance().execute(() -> {
+        IPGlobal.clientTaskList.addTask(() -> {
             if (GlDebugInfo.getVendor().toLowerCase().contains("intel")) {
                 CHelper.printChat(new TranslatableText("imm_ptl.intel_warning"));
             }
+            return true;
         });
     }
     
