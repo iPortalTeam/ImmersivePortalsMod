@@ -165,7 +165,7 @@ public class ServerTeleportationManager {
             
             portal.onEntityTeleportedOnServer(player);
             
-            PehkuiInterface.onServerEntityTeleported.accept(player, portal);
+            PehkuiInterface.invoker.onServerEntityTeleported(player, portal);
             
             if (portal.getTeleportChangesGravity()) {
                 Direction oldGravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
@@ -173,7 +173,7 @@ public class ServerTeleportationManager {
                     player, portal.getTransformedGravityDirection(oldGravityDir)
                 );
             }
-            PehkuiInterface.invoker.onServerEntityTeleported(player, portal);
+            
         }
         else {
             Helper.err(String.format(
