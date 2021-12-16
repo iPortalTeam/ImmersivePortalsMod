@@ -80,24 +80,28 @@ public class IPModMainClient {
         IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
             () -> MinecraftClient.getInstance().world == null,
             MyTaskList.oneShotTask(() -> {
-                MinecraftClient.getInstance().inGameHud.addChatMessage(
-                    MessageType.CHAT,
-                    new TranslatableText("imm_ptl.preview_warning").append(
-                        McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
-                    ),
-                    UUID.randomUUID()
-                );
+                if (IPGlobal.enableWarning) {
+                    MinecraftClient.getInstance().inGameHud.addChatMessage(
+                        MessageType.CHAT,
+                        new TranslatableText("imm_ptl.preview_warning").append(
+                            McHelper.getLinkText("https://github.com/qouteall/ImmersivePortalsMod/issues")
+                        ),
+                        UUID.randomUUID()
+                    );
+                }
             })
         ));
     }
     
     private static void showIntelVideoCardWarning() {
-        IPGlobal.clientTaskList.addTask(() -> {
-            if (GlDebugInfo.getVendor().toLowerCase().contains("intel")) {
-                CHelper.printChat(new TranslatableText("imm_ptl.intel_warning"));
-            }
-            return true;
-        });
+        IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+            () -> MinecraftClient.getInstance().world == null,
+            MyTaskList.oneShotTask(() -> {
+                if (GlDebugInfo.getVendor().toLowerCase().contains("intel")) {
+                    CHelper.printChat(new TranslatableText("imm_ptl.intel_warning"));
+                }
+            })
+        ));
     }
     
     public static void init() {
@@ -136,8 +140,8 @@ public class IPModMainClient {
         GcMonitor.initClient();
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
-        
-        showPreviewWarning();
+
+//        showPreviewWarning();
         
         showIntelVideoCardWarning();
     }
