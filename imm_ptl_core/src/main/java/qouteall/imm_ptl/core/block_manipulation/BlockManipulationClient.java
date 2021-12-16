@@ -220,7 +220,7 @@ public class BlockManipulationClient {
     ) {
         ClientWorld targetWorld = ClientWorldLoader.getWorld(remotePointedDim);
         
-        return IPMcHelper.withSwitchedContextClient(
+        return IPMcHelper.withSwitchedContext(
             targetWorld,
             () -> {
                 isContextSwitched = true;
@@ -248,7 +248,7 @@ public class BlockManipulationClient {
             return;
         }
         
-        IPCommonNetworkClient.withSwitchedWorld(
+        IPMcHelper.withSwitchedContext(
             targetWorld,
             () -> {
                 isContextSwitched = true;
@@ -257,6 +257,7 @@ public class BlockManipulationClient {
                         blockPos,
                         ((BlockHitResult) remoteHitResult).getSide()
                     );
+                    return null; // Must return null for "void" supplier
                 }
                 finally {
                     isContextSwitched = false;
@@ -329,7 +330,7 @@ public class BlockManipulationClient {
 //            return null;
 //        }
         
-        return IPMcHelper.withSwitchedContextClient(
+        return IPMcHelper.withSwitchedContext(
             targetWorld,
             () -> {
                 isContextSwitched = true;

@@ -25,6 +25,7 @@ import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.SignalArged;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public class IPCommonNetworkClient {
@@ -88,8 +89,14 @@ public class IPCommonNetworkClient {
         }
     }
     
-    
     public static void withSwitchedWorld(ClientWorld newWorld, Runnable runnable) {
+        withSwitchedWorld(newWorld, () -> {
+            runnable.run();
+            return null; // Must return null for "void" supplier
+        });
+    }
+
+    public static <T> T withSwitchedWorld(ClientWorld newWorld, Supplier<T> supplier) {
         Validate.isTrue(client.isOnThread());
         
         ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
@@ -103,12 +110,13 @@ public class IPCommonNetworkClient {
         Validate.notNull(newWorldRenderer);
         
         client.world = newWorld;
+        client.player.world = newWorld;
         ((IEParticleManager) client.particleManager).ip_setWorld(newWorld);
         ((IEMinecraftClient) client).setWorldRenderer(newWorldRenderer);
         ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(newWorld);
         
         try {
-            runnable.run();
+            return supplier.get();
         }
         finally {
             if (client.world != newWorld) {
@@ -119,6 +127,7 @@ public class IPCommonNetworkClient {
             }
             
             client.world = originalWorld;
+            client.player.world = originalWorld;
             ((IEMinecraftClient) client).setWorldRenderer(originalWorldRenderer);
             ((IEParticleManager) client.particleManager).ip_setWorld(originalWorld);
             ((IEClientPlayNetworkHandler) networkHandler).ip_setWorld(originalNetHandlerWorld);
