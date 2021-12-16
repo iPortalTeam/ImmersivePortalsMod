@@ -322,9 +322,6 @@ public class ClientTeleportationManager {
             ClientWorldLoader.getWorldRenderer(toDimension)
         );
         
-        // don't know whether it's necessary
-        MyGameRenderer.resetGlStates();
-        
         toWorld.setScoreboard(fromWorld.getScoreboard());
         
         if (client.particleManager != null) {

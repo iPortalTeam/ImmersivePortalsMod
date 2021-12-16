@@ -250,12 +250,13 @@ public class MyGameRenderer {
     }
     
     public static void resetGlStates() {
-        for (int i = 0; i < 16; i++) {
-            GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
-            GlStateManager._bindTexture(0);
-        }
-        
-        GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0);
+        // not working with sodium
+//        for (int i = 0; i < 16; i++) {
+//            GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
+//            GlStateManager._bindTexture(0);
+//        }
+//
+//        GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0);
 
 //        GlStateManager.disableAlphaTest();
 //        GlStateManager._enableCull();

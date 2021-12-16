@@ -95,16 +95,17 @@ public class IPCommonNetworkClient {
             return null; // Must return null for "void" supplier
         });
     }
-
+    
     public static <T> T withSwitchedWorld(ClientWorld newWorld, Supplier<T> supplier) {
         Validate.isTrue(client.isOnThread());
+        Validate.isTrue(client.player != null);
         
         ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
         
         ClientWorld originalWorld = client.world;
         WorldRenderer originalWorldRenderer = client.worldRenderer;
         ClientWorld originalNetHandlerWorld = networkHandler.getWorld();
-    
+        
         WorldRenderer newWorldRenderer = ClientWorldLoader.getWorldRenderer(newWorld.getRegistryKey());
         
         Validate.notNull(newWorldRenderer);
