@@ -114,27 +114,6 @@ public class IPMcHelper {
     }
     
     /**
-     * @see #withSwitchedContext(World, Supplier)
-     */
-    @Environment(EnvType.CLIENT)
-    public static <T> T withSwitchedContextClient(ClientWorld world, Supplier<T> func) {
-        Helper.SimpleBox<T> box = new Helper.SimpleBox<>(null);
-        IPCommonNetworkClient.withSwitchedWorld(world, () -> {
-            box.obj = func.get();
-        });
-        return box.obj;
-    }
-    
-    /**
-     * @see #withSwitchedContext(World, Supplier)
-     */
-    @SuppressWarnings("unused")
-    private static <T> T withSwitchedContextServer(ServerWorld world, Supplier<T> func) {
-        // lol
-        return func.get();
-    }
-    
-    /**
      * Execute {@code func} with the world being set to {@code world}, hopefully bypassing any issues that may be
      * related to mutating a world that is not currently set as the current world.
      * <p>
@@ -145,12 +124,12 @@ public class IPMcHelper {
      * @param <T>   The return type of {@code func}.
      * @return Whatever {@code func} returned.
      */
-    static <T> T withSwitchedContext(World world, Supplier<T> func) {
+    public static <T> T withSwitchedContext(World world, Supplier<T> func) {
         if (world.isClient) {
-            return withSwitchedContextClient((ClientWorld) world, func);
+            return IPCommonNetworkClient.withSwitchedWorld((ClientWorld) world, func);
         }
         else {
-            return withSwitchedContextServer((ServerWorld) world, func);
+            return func.get();
         }
     }
     
