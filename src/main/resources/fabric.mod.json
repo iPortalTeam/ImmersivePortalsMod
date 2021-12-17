@@ -40,7 +40,8 @@
   },
   "breaks": {
     "optifabric": "*",
-    "pehkui": "<3.0.0"
+    "pehkui": "<3.0.0",
+    "krypton": "*"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
