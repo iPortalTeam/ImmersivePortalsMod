@@ -1,15 +1,14 @@
 # Immersive Portals Mod
 
-It's a minecraft mod that provides see-through portals and seamless teleportation.
-It can create "Non-Euclidean" (Uneuclidean) space effect.
+It's a minecraft mod that provides see-through portals and seamless teleportation. It can create "Non-Euclidean" (Uneuclidean) space effect.
 
 ![immptl.png](https://i.loli.net/2021/09/30/chHMG45dsnZNqep.png)
 
-https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
+CurseForge: https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
 
-(The experimental website: https://qouteall.fun/immptl)
+Website: https://qouteall.fun/immptl
 
-This is one of the most complex minecraft mods.
+This is one of the most complex Minecraft mods. [Implementation Details](https://qouteall.fun/immptl/wiki/Implementation-Details)
 * It eliminates the limitation that only one dimension can be loaded and rendered on client
 * It eliminates the limitation that only the chunks nearby player can be synchronized to client
 * It eliminates the limitation that client can only load and render chunks nearby the player
@@ -21,24 +20,12 @@ This is one of the most complex minecraft mods.
 * Place and break blocks through portal
 * Portal frame matching (supports any shaped portal frame and adaptive matching)
 
-Portals let the game loads more chunk and render more chunks which creates additional performance cost.
-
-In vanilla when the player moves only the edge chunks are loaded/unloaded.
- But with this mod approaching/getting away from portals cause the game to abruptly load and
- unload many chunks which cause lag spikes. These optimizations are used to mitigate the lag spikes:
-* Reduce the sections being rebuild during portal rendering
-* Change portal render distance gradually on the server side
-* Defer chunk unloading
-* Defer the client light updates caused by chunk unloading
-* Reduce the lag spikes caused by dynamically creating GL buffer objects
-
-It also provides performance configurations to adjust the performance.
-
 Many optimizations have been made to portal rendering which includes:
 * Do aggressive frustum culling during portal rendering
 * Do aggressive frustum culling for the sections that are hidden by the portal during outer world rendering
 * Reduce occlusion query stalls by utilizing temporal coherence
 * Merge the rendering of the portals that have the same spacial transformation (for example the scale box end portal)
+
 
 ## How to run this code
 https://fabricmc.net/wiki/tutorial:setup
