@@ -6,6 +6,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.entity_sync.MixinServerPlayNetworkHandler_E;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -13,6 +14,9 @@ import qouteall.imm_ptl.core.platform_specific.IPNetworking;
 import javax.annotation.Nullable;
 
 public class IPCommonNetwork {
+    
+    private static final ThreadLocal<RegistryKey<World>> tlForceRedirect =
+        ThreadLocal.withInitial(() -> null);
     
     @Nullable
     private static RegistryKey<World> forceRedirect = null;
@@ -23,13 +27,25 @@ public class IPCommonNetwork {
             "Maybe a mod is trying to add entity in a non-server thread. This is probably not IP's issue"
         );
         
-        RegistryKey<World> oldForceRedirect = forceRedirect;
-        forceRedirect = world.getRegistryKey();
-        try {
-            func.run();
+        if (IPGlobal.useThreadLocalServerPacketRedirect) {
+            RegistryKey<World> oldForceRedirect = tlForceRedirect.get();
+            tlForceRedirect.set(world.getRegistryKey());
+            try {
+                func.run();
+            }
+            finally {
+                tlForceRedirect.set(oldForceRedirect);
+            }
         }
-        finally {
-            forceRedirect = oldForceRedirect;
+        else {
+            RegistryKey<World> oldForceRedirect = forceRedirect;
+            forceRedirect = world.getRegistryKey();
+            try {
+                func.run();
+            }
+            finally {
+                forceRedirect = oldForceRedirect;
+            }
         }
     }
     
@@ -39,7 +55,12 @@ public class IPCommonNetwork {
      */
     @Nullable
     public static RegistryKey<World> getForceRedirectDimension() {
-        return forceRedirect;
+        if (IPGlobal.useThreadLocalServerPacketRedirect) {
+            return tlForceRedirect.get();
+        }
+        else {
+            return forceRedirect;
+        }
     }
     
     // avoid duplicate redirect nesting

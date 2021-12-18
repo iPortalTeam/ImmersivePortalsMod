@@ -112,6 +112,8 @@ public class IPGlobal {
     
     public static boolean enableNetherPortalEffect = true;
     
+    public static boolean useThreadLocalServerPacketRedirect = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,
