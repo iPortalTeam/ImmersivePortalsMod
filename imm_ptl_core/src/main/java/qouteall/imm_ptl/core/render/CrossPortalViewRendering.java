@@ -93,7 +93,7 @@ public class CrossPortalViewRendering {
             ClientWorldLoader.getWorld(portal.dimensionTo),
             renderingCameraPos, portal.getAdditionalCameraTransformation(),
             false, null,
-            MinecraftClient.getInstance().options.viewDistance,
+            client.options.viewDistance,
             ((IEGameRenderer) client.gameRenderer).getDoRenderHand()
         );
         
@@ -136,7 +136,7 @@ public class CrossPortalViewRendering {
     }
     
     private static double getThirdPersonMaxDistance() {
-        return 4.0d * PehkuiInterface.getScale.apply(MinecraftClient.getInstance().player);
+        return 4.0d * PehkuiInterface.computeThirdPersonScale.apply(client.player, client.getTickDelta());
     }
     
     //    private static Vec3d getThirdPersonCameraPos(Portal portalHit, Camera resuableCamera) {

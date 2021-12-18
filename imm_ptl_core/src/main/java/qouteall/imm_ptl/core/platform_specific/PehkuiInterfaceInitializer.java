@@ -15,8 +15,6 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.Validate;
-import virtuoel.pehkui.api.ScaleData;
-import virtuoel.pehkui.api.ScaleTypes;
 
 public class PehkuiInterfaceInitializer {
     
@@ -26,88 +24,46 @@ public class PehkuiInterfaceInitializer {
         }
         
         PehkuiInterface.onServerEntityTeleported = PehkuiInterfaceInitializer::onEntityTeleportedServer;
-        
-        PehkuiInterface.getScale = e -> {
-            try {
-                return ScaleTypes.BASE.getScaleData(e).getScale();
-            }
-            catch (Throwable ex) {
-                ex.printStackTrace();
-                return 1.0f;
-            }
-        };
     }
     
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
-        try {
-            if (portal.hasScaling()) {
-                if (!portal.teleportChangesScale) {
-                    return;
-                }
-                
-                MinecraftClient client = MinecraftClient.getInstance();
-                
-                ClientPlayerEntity player = client.player;
-                
-                Validate.notNull(player);
-                
-                ScaleData scaleData = ScaleTypes.BASE.getScaleData(player);
-                Vec3d eyePos = McHelper.getEyePos(player);
-                Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
-                
-                float oldScale = scaleData.getBaseScale();
-                final float newScale = transformScale(portal, oldScale);
-                
-                scaleData.setTargetScale(newScale);
-                scaleData.setScale(newScale);
-                scaleData.setScale(newScale);
-                scaleData.tick();
-                
-                McHelper.setEyePos(player, eyePos, lastTickEyePos);
-                McHelper.updateBoundingBox(player);
-                
-                IECamera camera = (IECamera) client.gameRenderer.getCamera();
-                camera.setCameraY(
-                    ((float) (camera.getCameraY() * portal.scaling)),
-                    ((float) (camera.getLastCameraY() * portal.scaling))
-                );
-                
-                
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            CHelper.printChat("Something is wrong with Pehkui");
+        if (portal.hasScaling() && portal.teleportChangesScale) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            
+            ClientPlayerEntity player = client.player;
+            
+            Validate.notNull(player);
+            
+            doScalingForEntity(player, portal);
+            
+            IECamera camera = (IECamera) client.gameRenderer.getCamera();
+            camera.setCameraY(
+                ((float) (camera.getCameraY() * portal.scaling)),
+                ((float) (camera.getLastCameraY() * portal.scaling))
+            );
         }
     }
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
-        try {
+        if (portal.hasScaling() && portal.teleportChangesScale) {
             doScalingForEntity(entity, portal);
             
             if (entity.getVehicle() != null) {
                 doScalingForEntity(entity.getVehicle(), portal);
             }
         }
-        catch (Throwable e) {
-            e.printStackTrace();
-        }
     }
     
     private static void doScalingForEntity(Entity entity, Portal portal) {
-        if (portal.hasScaling()) {
-            if (!portal.teleportChangesScale) {
-                return;
-            }
-            ScaleData scaleData = ScaleTypes.BASE.getScaleData(entity);
-            Vec3d eyePos = McHelper.getEyePos(entity);
-            Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
-            
-            float oldScale = scaleData.getBaseScale();
+        Vec3d eyePos = McHelper.getEyePos(entity);
+        Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
+        
+        try {
+            float oldScale = PehkuiInterface.getBaseScale.apply(entity, 1.0f);
             float newScale = transformScale(portal, oldScale);
             
-            if (isScaleIllegal(newScale)) {
+            if (!entity.world.isClient && isScaleIllegal(newScale)) {
                 newScale = 1;
                 entity.sendSystemMessage(
                     new LiteralText("Scale out of range"),
@@ -115,18 +71,23 @@ public class PehkuiInterfaceInitializer {
                 );
             }
             
-            scaleData.setTargetScale(newScale);
-            scaleData.setScale(newScale);
-            scaleData.setScale(newScale);
-            scaleData.tick();
-            
+            PehkuiInterface.setBaseScale.accept(entity, newScale);
+        }
+        catch (Throwable e) {
+            e.printStackTrace();
+            CHelper.printChat("Something went wrong with Pehkui");
+        }
+        
+        if (!entity.world.isClient) {
             IPGlobal.serverTaskList.addTask(() -> {
                 McHelper.setEyePos(entity, eyePos, lastTickEyePos);
                 McHelper.updateBoundingBox(entity);
                 return true;
             });
-            
-            scaleData.onUpdate();
+        }
+        else {
+            McHelper.setEyePos(entity, eyePos, lastTickEyePos);
+            McHelper.updateBoundingBox(entity);
         }
     }
     

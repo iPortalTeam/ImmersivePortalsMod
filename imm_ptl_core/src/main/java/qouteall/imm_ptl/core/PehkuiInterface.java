@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core;
 
-import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -9,8 +8,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class PehkuiInterface {
     
@@ -24,9 +23,15 @@ public class PehkuiInterface {
     
     };
     
-    public static Function<Entity, Float> getScale = e -> 1.0f;
+    public static BiFunction<Entity, Float, Float> getBaseScale = (e, d) -> 1.0f;
     
-    public static Function<Entity, Float> getMotionScale = e -> 1.0f;
+    public static BiConsumer<Entity, Float> setBaseScale = (e, s) -> { };
+    
+    public static BiFunction<Entity, Float, Float> computeThirdPersonScale = (e, d) -> 1.0f;
+    
+    public static BiFunction<Entity, Float, Float> computeBlockReachScale = (e, d) -> 1.0f;
+    
+    public static BiFunction<Entity, Float, Float> computeMotionScale = (e, d) -> 1.0f;
     
     private static void onClientPlayerTeleportDefault(Portal portal) {
         showMissingPehkui(portal);
@@ -34,9 +39,6 @@ public class PehkuiInterface {
     
     @Environment(EnvType.CLIENT)
     private static void showMissingPehkui(Portal portal) {
-        if (O_O.isForge()) {
-            return;
-        }
         if (portal.hasScaling() && portal.teleportChangesScale) {
             if (!messageShown) {
                 messageShown = true;
