@@ -15,8 +15,6 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.ducks.IECamera;
 import qouteall.imm_ptl.core.portal.Portal;
-import virtuoel.pehkui.api.ScaleData;
-import virtuoel.pehkui.api.ScaleTypes;
 
 public class PehkuiInterfaceInitializer {
     
@@ -33,37 +31,9 @@ public class PehkuiInterfaceInitializer {
         
         @Override
         public void onServerEntityTeleported(Entity entity, Portal portal) {
-            try {
-                onEntityTeleportedServer(entity, portal);
-            }
-            catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
-        
-        @Override
-        public float getScale(Entity entity) {
-            try {
-                return ScaleTypes.BASE.getScaleData(entity).getScale();
-            }
-            catch (Throwable e) {
-                e.printStackTrace();
-                return 1;
-            }
-        }
-        
-        @Override
-        public float getMotionScale(Entity entity) {
-            try {
-                return ScaleTypes.MOTION.getScaleData(entity).getScale();
-            }
-            catch (Throwable e) {
-                e.printStackTrace();
-                return 1;
-            }
+            onEntityTeleportedServer(entity, portal);
         }
     }
-    
     
     public static void init() {
         PehkuiInterface.invoker = new OnPehkuiPresent();
@@ -71,69 +41,42 @@ public class PehkuiInterfaceInitializer {
     
     @Environment(EnvType.CLIENT)
     private static void onPlayerTeleportedClient(Portal portal) {
-        try {
-            if (portal.hasScaling()) {
-                if (!portal.teleportChangesScale) {
-                    return;
-                }
-                
-                MinecraftClient client = MinecraftClient.getInstance();
-                
-                ClientPlayerEntity player = client.player;
-                
-                Validate.notNull(player);
-                
-                ScaleData scaleData = ScaleTypes.BASE.getScaleData(player);
-                Vec3d eyePos = McHelper.getEyePos(player);
-                Vec3d lastTickEyePos = McHelper.getLastTickEyePos(player);
-                
-                float oldScale = scaleData.getBaseScale();
-                final float newScale = transformScale(portal, oldScale);
-                
-                scaleData.setTargetScale(newScale);
-                scaleData.setScale(newScale);
-                scaleData.setScale(newScale);
-                scaleData.tick();
-                
-                McHelper.setEyePos(player, eyePos, lastTickEyePos);
-                McHelper.updateBoundingBox(player);
-                
-                IECamera camera = (IECamera) client.gameRenderer.getCamera();
-                camera.setCameraY(
-                    ((float) (camera.getCameraY() * portal.scaling)),
-                    ((float) (camera.getLastCameraY() * portal.scaling))
-                );
-                
-                
-            }
-        }
-        catch (Throwable e) {
-            e.printStackTrace();
-            CHelper.printChat("Something went wrong with Pehkui");
+        if (portal.hasScaling() && portal.teleportChangesScale) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            
+            ClientPlayerEntity player = client.player;
+            
+            Validate.notNull(player);
+            
+            doScalingForEntity(player, portal);
+            
+            IECamera camera = (IECamera) client.gameRenderer.getCamera();
+            camera.setCameraY(
+                ((float) (camera.getCameraY() * portal.scaling)),
+                ((float) (camera.getLastCameraY() * portal.scaling))
+            );
         }
     }
     
     private static void onEntityTeleportedServer(Entity entity, Portal portal) {
-        doScalingForEntity(entity, portal);
-        
-        if (entity.getVehicle() != null) {
-            doScalingForEntity(entity.getVehicle(), portal);
+        if (portal.hasScaling() && portal.teleportChangesScale) {
+            doScalingForEntity(entity, portal);
+            
+            if (entity.getVehicle() != null) {
+                doScalingForEntity(entity.getVehicle(), portal);
+            }
         }
     }
     
     private static void doScalingForEntity(Entity entity, Portal portal) {
-        if (portal.hasScaling()) {
-            if (!portal.teleportChangesScale) {
-                return;
-            }
-            ScaleData scaleData = ScaleTypes.BASE.getScaleData(entity);
-            Vec3d eyePos = McHelper.getEyePos(entity);
-            Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
-            
-            float oldScale = scaleData.getBaseScale();
+        Vec3d eyePos = McHelper.getEyePos(entity);
+        Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
+        
+        try {
+            float oldScale = PehkuiInterface.invoker.getBaseScale(entity);
             float newScale = transformScale(portal, oldScale);
             
-            if (isScaleIllegal(newScale)) {
+            if (!entity.world.isClient && isScaleIllegal(newScale)) {
                 newScale = 1;
                 entity.sendSystemMessage(
                     new LiteralText("Scale out of range"),
@@ -141,18 +84,23 @@ public class PehkuiInterfaceInitializer {
                 );
             }
             
-            scaleData.setTargetScale(newScale);
-            scaleData.setScale(newScale);
-            scaleData.setScale(newScale);
-            scaleData.tick();
-            
+            PehkuiInterface.invoker.setBaseScale(entity, newScale);
+        }
+        catch (Throwable e) {
+            e.printStackTrace();
+            CHelper.printChat("Something went wrong with Pehkui");
+        }
+        
+        if (!entity.world.isClient) {
             IPGlobal.serverTaskList.addTask(() -> {
                 McHelper.setEyePos(entity, eyePos, lastTickEyePos);
                 McHelper.updateBoundingBox(entity);
                 return true;
             });
-            
-            scaleData.onUpdate();
+        }
+        else {
+            McHelper.setEyePos(entity, eyePos, lastTickEyePos);
+            McHelper.updateBoundingBox(entity);
         }
     }
     
