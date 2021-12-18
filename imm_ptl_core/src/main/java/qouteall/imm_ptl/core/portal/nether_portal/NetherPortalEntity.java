@@ -8,6 +8,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.PortalPlaceholderBlock;
 
@@ -62,7 +63,7 @@ public class NetherPortalEntity extends BreakablePortalEntity {
             }
         }
         
-        if (random.nextInt(800) == 0) {
+        if (IPGlobal.enableNetherPortalNoise && random.nextInt(800) == 0) {
             world.playSound(
                 getX(),
                 getY(),
