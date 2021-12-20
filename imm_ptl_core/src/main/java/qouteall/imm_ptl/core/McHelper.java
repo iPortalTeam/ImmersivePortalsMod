@@ -7,10 +7,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.nbt.NbtByte;
+import net.minecraft.nbt.visitor.NbtTextFormatter;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.ducks.IEWorld;
+import qouteall.imm_ptl.core.mc_utils.MyNbtTextFormatter;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
 import qouteall.imm_ptl.core.portal.Portal;
 import net.fabricmc.api.EnvType;
@@ -640,76 +643,9 @@ public class McHelper {
         }
         return world;
     }
-
-//    private static Text prettyPrintTagKey(String key) {
-//        return (new LiteralText(key)).formatted(Formatting.AQUA);
-//    }
-//
-//    public static Text tagToTextSorted(NbtElement tag, String indent, int depth) {
-//        if (tag instanceof NbtCompound) {
-//            return compoundTagToTextSorted(((NbtCompound) tag), indent, depth);
-//        }
-//        if (tag instanceof NbtList) {
-//            if (!((NbtList) tag).isEmpty()) {
-//                NbtElement firstElement = ((NbtList) tag).get(0);
-//                if (firstElement instanceof NbtInt || firstElement instanceof NbtDouble) {
-//                    return tag.toText("", depth);
-//                }
-//            }
-//        }
-//        if (tag instanceof NbtByte) {
-//            byte value = ((NbtByte) tag).byteValue();
-//            if (value == 1) {
-//                return new LiteralText("true").formatted(Formatting.GOLD);
-//            }
-//            else if (value == 0) {
-//                return new LiteralText("false").formatted(Formatting.GOLD);
-//            }
-//        }
-//        return tag.toText(indent, depth);
-//    }
     
-    // TODO rewrite
     public static Text compoundTagToTextSorted(NbtCompound tag, String indent, int depth) {
-        return NbtHelper.toPrettyPrintedText(tag);
-//        if (tag.isEmpty()) {
-//            return new LiteralText("{}");
-//        }
-//        else {
-//            MutableText mutableText = new LiteralText("{");
-//            Collection<String> collection = tag.getKeys();
-//
-//            List<String> list = Lists.newArrayList(collection);
-//            Collections.sort(list);
-//            collection = list;
-//
-//
-//            if (!indent.isEmpty()) {
-//                mutableText.append("\n");
-//            }
-//
-//            MutableText mutableText2;
-//            for (Iterator iterator = ((Collection) collection).iterator(); iterator.hasNext(); mutableText.append((Text) mutableText2)) {
-//                String keyName = (String) iterator.next();
-//                mutableText2 = (new LiteralText(Strings.repeat(indent, depth + 1)))
-//                    .append(prettyPrintTagKey(keyName))
-//                    .append(String.valueOf(':'))
-//                    .append(" ")
-//                    .append(
-//                        tagToTextSorted(tag.get(keyName), indent, depth)
-//                    );
-//                if (iterator.hasNext()) {
-//                    mutableText2.append(String.valueOf(',')).append(indent.isEmpty() ? " " : "\n");
-//                }
-//            }
-//
-//            if (!indent.isEmpty()) {
-//                mutableText.append("\n").append(Strings.repeat(indent, depth));
-//            }
-//
-//            mutableText.append("}");
-//            return mutableText;
-//        }
+        return new MyNbtTextFormatter(" ", 0).apply(tag);
     }
     
     public static int getMinY(WorldAccess world) {
