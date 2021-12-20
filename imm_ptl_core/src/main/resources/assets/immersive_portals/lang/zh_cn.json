@@ -137,5 +137,8 @@
   "imm_ptl.enable_warning": "启用警告",
   "imm_ptl.top_y": "顶部纵坐标",
   "imm_ptl.bottom_y": "底部纵坐标",
-  "imm_ptl.bedrock_replacement": "基岩替换方块"
+  "imm_ptl.bedrock_replacement": "基岩替换方块",
+  "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
+  "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod.",
+  "imm_ptl.light_vanilla_nether_portal_when_crouching": "Light vanilla portal when crouching"
 }

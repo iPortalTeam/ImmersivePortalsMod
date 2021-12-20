@@ -138,5 +138,7 @@
   "imm_ptl.top_y": "高度上限",
   "imm_ptl.bottom_y": "高度下限",
   "imm_ptl.bedrock_replacement": "岩盤の置き換え",
-  "imm_ptl.light_vanilla_nether_portal_when_crouching": "スニーク中の軽量バニラポータル"
+  "imm_ptl.light_vanilla_nether_portal_when_crouching": "スニーク中の軽量バニラポータル",
+  "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
+  "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod."
 }

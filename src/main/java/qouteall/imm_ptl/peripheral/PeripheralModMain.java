@@ -81,6 +81,9 @@ public class PeripheralModMain {
         registerPortalSubCommandStick(
             "accelerate200", "debug accelerate 200"
         );
+        registerPortalSubCommandStick(
+            "enable_gravity_change", "set_portal_nbt {teleportChangesGravity:true}"
+        );
         if (O_O.getIsPehkuiPresent()) {
             //PehkuiInterface.isPehkuiPresent may not be initialized in time
             CommandStickItem.registerType("imm_ptl:reset_scale", new CommandStickItem.Data(
