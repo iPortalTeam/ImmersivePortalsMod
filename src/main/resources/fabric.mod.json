@@ -41,7 +41,6 @@
   "breaks": {
     "optifabric": "*",
     "pehkui": "<3.0.0",
-    "krypton": "*",
     "sodium": ">0.4.0-alpha5"
   },
   "custom": {
