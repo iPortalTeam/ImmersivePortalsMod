@@ -114,6 +114,8 @@ public class IPGlobal {
     
     public static boolean useThreadLocalServerPacketRedirect = true;
     
+    public static boolean tickOnlyIfChunkLoaded = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

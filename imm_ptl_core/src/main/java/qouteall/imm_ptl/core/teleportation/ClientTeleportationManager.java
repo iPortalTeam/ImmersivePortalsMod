@@ -205,6 +205,7 @@ public class ClientTeleportationManager {
         lastTeleportGameTime = tickTimeForTeleportation;
         
         ClientPlayerEntity player = client.player;
+        Validate.isTrue(player != null);
         
         RegistryKey<World> toDimension = portal.dimensionTo;
         
@@ -227,6 +228,9 @@ public class ClientTeleportationManager {
         McHelper.setWorldVelocity(player, oldRealVelocity); // reset velocity change
         
         portal.transformVelocity(player);
+        if (player.getVehicle() != null) {
+            portal.transformVelocity(player.getVehicle());
+        }
         
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
@@ -244,7 +248,7 @@ public class ClientTeleportationManager {
         McHelper.adjustVehicle(player);
         
         if (player.getVehicle() != null) {
-            disableTeleportFor(40);
+            disableTeleportFor(10);
         }
         
         //because the teleportation may happen before rendering

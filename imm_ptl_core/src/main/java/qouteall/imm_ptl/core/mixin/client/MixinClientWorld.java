@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -120,11 +121,13 @@ public abstract class MixinClientWorld implements IEClientWorld {
         cancellable = true
     )
     private void onIsChunkLoaded(int chunkX, int chunkZ, CallbackInfoReturnable<Boolean> cir) {
-        WorldChunk chunk = chunkManager.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
-        if (chunk == null || chunk instanceof EmptyChunk) {
-            cir.setReturnValue(false);
-//            Helper.log("chunk not loaded");
-//            new Throwable().printStackTrace();
+        if (IPGlobal.tickOnlyIfChunkLoaded) {
+            WorldChunk chunk = chunkManager.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+            if (chunk == null || chunk instanceof EmptyChunk) {
+                cir.setReturnValue(false);
+                //            Helper.log("chunk not loaded");
+                //            new Throwable().printStackTrace();
+            }
         }
     }
     

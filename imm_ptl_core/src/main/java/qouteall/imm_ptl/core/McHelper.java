@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.entity.LivingEntity;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
@@ -255,11 +256,26 @@ public class McHelper {
             return;
         }
         
-        vehicle.setPosition(
-            entity.getX(),
-            getVehicleY(vehicle, entity),
-            entity.getZ()
+        Vec3d currVelocity = vehicle.getVelocity();
+        
+        double newX = entity.getX();
+        double newY = getVehicleY(vehicle, entity);
+        double newZ = entity.getZ();
+        vehicle.setPosition(newX, newY, newZ);
+        Vec3d newPos = new Vec3d(newX, newY, newZ);
+        McHelper.setPosAndLastTickPos(
+            vehicle, newPos, newPos
         );
+        
+        // MinecartEntity or LivingEntity use position interpolation
+        // disable the interpolation or it may interpolate into unloaded chunks
+        vehicle.updateTrackedPositionAndAngles(
+            newX, newY, newZ, vehicle.getYaw(), vehicle.getPitch(),
+            0, false
+        );
+        
+        vehicle.setVelocity(currVelocity);
+        
     }
     
     public static WorldChunk getServerChunkIfPresent(
