@@ -9,6 +9,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import qouteall.imm_ptl.core.IPMcHelper;
+import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
@@ -43,7 +44,7 @@ public class CrossPortalSound {
         
         double soundRadius = Math.min(64, Math.max(VOLUME_RADIUS_MULT * soundVol, MIN_SOUND_RADIUS));
         Vec3d playerCameraPos = RenderStates.originalPlayerPos.add(
-            0, client.player.getStandingEyeHeight(), 0
+            McHelper.getEyeOffset(client.player)
         );
         
         // find portals in range of the sound

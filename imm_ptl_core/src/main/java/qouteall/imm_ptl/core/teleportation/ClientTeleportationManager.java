@@ -221,11 +221,12 @@ public class ClientTeleportationManager {
             
             changePlayerDimension(player, fromWorld, toWorld, newEyePos);
         }
-    
-        GravityChangerInterface.invoker.transformVelocityToWorld(player);// temporary workaround
+        
+        Vec3d oldRealVelocity = McHelper.getWorldVelocity(player);
         TransformationManager.managePlayerRotationAndChangeGravity(portal);
+        McHelper.setWorldVelocity(player, oldRealVelocity); // reset velocity change
+        
         portal.transformVelocity(player);
-        GravityChangerInterface.invoker.transformVelocityToLocal(player);
         
         McHelper.setEyePos(player, newEyePos, newLastTickEyePos);
         McHelper.updateBoundingBox(player);
@@ -255,8 +256,10 @@ public class ClientTeleportationManager {
         isTeleportingTick = true;
         isTeleportingFrame = true;
         
-        if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
-            adjustPlayerPosition(player);
+        if (!portal.getTeleportChangesGravity()) {
+            if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
+                adjustPlayerPosition(player);
+            }
         }
         
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
@@ -476,7 +479,7 @@ public class ClientTeleportationManager {
             Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
             if (collidingPortal != null) {
                 Vec3d eyePos = McHelper.getEyePos(player);
-                Vec3d newEyePos = newPos.add(0, player.getStandingEyeHeight(), 0);
+                Vec3d newEyePos = newPos.add(McHelper.getEyeOffset(player));
                 if (collidingPortal.rayTrace(eyePos, newEyePos) != null) {
                     return true;//avoid going back into the portal
                 }

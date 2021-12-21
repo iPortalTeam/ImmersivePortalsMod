@@ -74,6 +74,8 @@ public class IPNetworking {
         
     }
     
+    // TODO the packet is being serialized in server thread which may impact performance
+    // create a new vanilla packet type to allow it to be serialized in networking thread
     public static Packet createRedirectedMessage(
         RegistryKey<World> dimension,
         Packet packet

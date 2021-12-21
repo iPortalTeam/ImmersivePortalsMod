@@ -2,11 +2,11 @@ package qouteall.imm_ptl.core.compat;
 
 import me.andrew.gravitychanger.accessor.EntityAccessor;
 import me.andrew.gravitychanger.accessor.RotatableEntityAccessor;
+import me.andrew.gravitychanger.api.GravityChangerAPI;
 import me.andrew.gravitychanger.util.RotationUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -37,14 +37,12 @@ public class GravityChangerInterface {
             return null;
         }
         
-        // temporary workaround
-        public void transformVelocityToWorld(Entity entity) {
-        
+        public Vec3d getWorldVelocity(Entity entity) {
+            return entity.getVelocity();
         }
         
-        // temporary workaround
-        public void transformVelocityToLocal(Entity entity) {
-        
+        public void setWorldVelocity(Entity entity, Vec3d newVelocity) {
+            entity.setVelocity(newVelocity);
         }
     }
     
@@ -58,11 +56,7 @@ public class GravityChangerInterface {
         @Override
         public Vec3d getEyeOffset(Entity entity) {
             if (entity instanceof PlayerEntity player) {
-                Direction gravityDirection = getGravityDirection(player);
-                
-                return RotationUtil.vecPlayerToWorld(
-                    0.0D, entity.getStandingEyeHeight(), 0.0D, gravityDirection
-                );
+                return GravityChangerAPI.getEyeOffset(player);
             }
             else {
                 return super.getEyeOffset(entity);
@@ -90,23 +84,24 @@ public class GravityChangerInterface {
                 RotationUtil.getWorldRotationQuaternion(gravityDirection)
             );
         }
-    
-        // temporary workaround
+        
         @Override
-        public void transformVelocityToWorld(Entity entity) {
+        public Vec3d getWorldVelocity(Entity entity) {
             if (entity instanceof PlayerEntity player) {
-                Direction gravityDirection = getGravityDirection(player);
-                Vec3d newVelocity = RotationUtil.vecPlayerToWorld(entity.getVelocity(), gravityDirection);
-                entity.setVelocity(newVelocity);
+                return GravityChangerAPI.getWorldVelocity(player);
+            }
+            else {
+                return super.getWorldVelocity(entity);
             }
         }
         
         @Override
-        public void transformVelocityToLocal(Entity entity) {
+        public void setWorldVelocity(Entity entity, Vec3d newVelocity) {
             if (entity instanceof PlayerEntity player) {
-                Direction gravityDirection = getGravityDirection(player);
-                Vec3d newVelocity = RotationUtil.vecWorldToPlayer(entity.getVelocity(), gravityDirection);
-                entity.setVelocity(newVelocity);
+                GravityChangerAPI.setWorldVelocity(player, newVelocity);
+            }
+            else {
+                super.setWorldVelocity(entity, newVelocity);
             }
         }
     }

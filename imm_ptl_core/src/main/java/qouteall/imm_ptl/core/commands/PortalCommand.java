@@ -1954,7 +1954,8 @@ public class PortalCommand {
             
             ClientPlayerEntity player = client.player;
             
-            player.setVelocity(
+            McHelper.setWorldVelocity(
+                player,
                 player.getRotationVec(1).multiply(v / 20)
             );
         }

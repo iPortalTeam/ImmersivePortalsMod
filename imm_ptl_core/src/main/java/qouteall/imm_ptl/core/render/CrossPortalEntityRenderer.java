@@ -18,6 +18,7 @@ import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
@@ -233,7 +234,7 @@ public class CrossPortalEntityRenderer {
         if (PortalRendering.isRendering()) {
             PortalLike renderingPortal = PortalRendering.getRenderingPortal();
             
-            Vec3d transformedEntityPos = newEyePos.subtract(0, entity.getStandingEyeHeight(), 0);
+            Vec3d transformedEntityPos = newEyePos.subtract(McHelper.getEyeOffset(entity));
             Box transformedBoundingBox = McHelper.getBoundingBoxWithMovedPosition(entity, transformedEntityPos);
             
             boolean intersects = PortalManipulation.isOtherSideBoxInside(transformedBoundingBox, renderingPortal);
@@ -393,7 +394,9 @@ public class CrossPortalEntityRenderer {
     
     public static Vec3d getRenderingCameraPos(Entity entity) {
         if (entity instanceof ClientPlayerEntity) {
-            return RenderStates.originalPlayerPos.add(0, entity.getStandingEyeHeight(), 0);
+            return RenderStates.originalPlayerPos.add(
+                McHelper.getEyeOffset(entity)
+            );
         }
         return entity.getCameraPosVec(RenderStates.tickDelta);
     }

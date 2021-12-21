@@ -51,7 +51,7 @@ public class MixinLivingEntity_C {
                 McHelper.setPosAndLastTickPos(
                     this_,
                     currPos,
-                    currPos.subtract(this_.getVelocity())
+                    currPos.subtract(McHelper.getWorldVelocity(this_))
                 );
                 McHelper.updateBoundingBox(this_);
             }

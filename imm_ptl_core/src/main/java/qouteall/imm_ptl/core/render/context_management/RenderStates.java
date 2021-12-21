@@ -117,7 +117,7 @@ public class RenderStates {
         
         QueryManager.queryStallCounter = 0;
         
-        Vec3d velocity = cameraEntity.getVelocity();
+        Vec3d velocity = McHelper.getWorldVelocity(cameraEntity);
         originalPlayerBoundingBox = cameraEntity.getBoundingBox().stretch(
             -velocity.x, -velocity.y, -velocity.z
         );

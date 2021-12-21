@@ -7,8 +7,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.nbt.NbtByte;
-import net.minecraft.nbt.visitor.NbtTextFormatter;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
@@ -21,7 +19,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -50,11 +47,6 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.ducks.IEEntityTrackingSection;
-import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
-import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
-import qouteall.imm_ptl.core.ducks.IEWorld;
-import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
-import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
@@ -229,17 +221,11 @@ public class McHelper {
     public static Vec3d getEyePos(Entity entity) {
         Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
         return entity.getPos().add(eyeOffset);
-
-//        float eyeHeight = entity.getStandingEyeHeight();
-//        return entity.getPos().add(0, eyeHeight, 0);
     }
     
     public static Vec3d getLastTickEyePos(Entity entity) {
         Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(entity);
         return lastTickPosOf(entity).add(eyeOffset);
-
-//        float eyeHeight = entity.getStandingEyeHeight();
-//        return lastTickPosOf(entity).add(0, eyeHeight, 0);
     }
     
     public static void setEyePos(Entity entity, Vec3d eyePos, Vec3d lastTickEyePos) {
@@ -695,4 +681,17 @@ public class McHelper {
         }
         return result;
     }
+    
+    public static Vec3d getWorldVelocity(Entity entity) {
+        return GravityChangerInterface.invoker.getWorldVelocity(entity);
+    }
+    
+    public static void setWorldVelocity(Entity entity, Vec3d newVelocity) {
+        GravityChangerInterface.invoker.setWorldVelocity(entity, newVelocity);
+    }
+    
+    public static Vec3d getEyeOffset(Entity entity) {
+        return GravityChangerInterface.invoker.getEyeOffset(entity);
+    }
+    
 }

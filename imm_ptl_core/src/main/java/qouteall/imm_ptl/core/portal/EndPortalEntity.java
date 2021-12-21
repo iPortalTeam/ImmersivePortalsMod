@@ -182,7 +182,7 @@ public class EndPortalEntity extends Portal {
     
     @Override
     public void transformVelocity(Entity entity) {
-    
+        // avoid scale box portal to transform velocity
     }
     
     // arrows cannot go through end portal

@@ -837,27 +837,31 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     public void transformVelocity(Entity entity) {
+        Vec3d oldVelocity = McHelper.getWorldVelocity(entity);
         if (PehkuiInterface.invoker.isPehkuiPresent()) {
             if (teleportChangesScale) {
-                entity.setVelocity(transformLocalVecNonScale(entity.getVelocity()));
+                McHelper.setWorldVelocity(entity, transformLocalVecNonScale(oldVelocity));
             }
             else {
-                entity.setVelocity(transformLocalVec(entity.getVelocity()));
+                McHelper.setWorldVelocity(entity, transformLocalVec(oldVelocity));
             }
         }
         else {
-            entity.setVelocity(transformLocalVec(entity.getVelocity()));
+            McHelper.setWorldVelocity(entity, transformLocalVec(oldVelocity));
         }
         
         final int maxVelocity = 15;
-        if (entity.getVelocity().length() > maxVelocity) {
+        if (oldVelocity.length() > maxVelocity) {
             // cannot be too fast
-            entity.setVelocity(entity.getVelocity().normalize().multiply(maxVelocity));
+            McHelper.setWorldVelocity(
+                entity,
+                McHelper.getWorldVelocity(entity).normalize().multiply(maxVelocity)
+            );
         }
         
         // avoid cannot push minecart out of nether portal
-        if (entity instanceof AbstractMinecartEntity && entity.getVelocity().lengthSquared() < 0.5) {
-            entity.setVelocity(entity.getVelocity().multiply(2));
+        if (entity instanceof AbstractMinecartEntity && oldVelocity.lengthSquared() < 0.5) {
+            McHelper.setWorldVelocity(entity, McHelper.getWorldVelocity(entity).multiply(2));
         }
     }
     

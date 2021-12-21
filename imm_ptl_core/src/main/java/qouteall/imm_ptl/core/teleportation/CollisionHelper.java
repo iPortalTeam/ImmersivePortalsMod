@@ -482,7 +482,7 @@ public class CollisionHelper {
         // normal colliding portal update lags 1 tick before collision calculation
         // the velocity updates later after updating colliding portal
         // expand the velocity to avoid not collide with portal in time
-        Vec3d expand = entity.getVelocity().multiply(1.2);
+        Vec3d expand = McHelper.getWorldVelocity(entity).multiply(1.2);
         return entity.getBoundingBox().stretch(expand);
     }
     

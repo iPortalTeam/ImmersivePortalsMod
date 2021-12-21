@@ -87,7 +87,7 @@ public class ServerTeleportationManager {
             portal.canTeleportEntity(entity) &&
             portal.isMovedThroughPortal(
                 entity.getCameraPosVec(0),
-                entity.getCameraPosVec(1).add(entity.getVelocity())
+                entity.getCameraPosVec(1).add(McHelper.getWorldVelocity(entity))
             );
     }
     
@@ -150,7 +150,7 @@ public class ServerTeleportationManager {
         Portal portal = findPortal(dimensionBefore, portalId);
         lastTeleportGameTime.put(player, McHelper.getServerGameTime());
         
-        Vec3d oldFeetPos = oldEyePos.subtract(0, player.getStandingEyeHeight(), 0);
+        Vec3d oldFeetPos = oldEyePos.subtract(McHelper.getEyeOffset(player));
         if (canPlayerTeleport(player, dimensionBefore, oldFeetPos, portal)) {
             if (isTeleporting(player)) {
                 Helper.log(player.toString() + "is teleporting frequently");
@@ -335,7 +335,7 @@ public class ServerTeleportationManager {
             changeEntityDimension(
                 vehicle,
                 toWorld.getRegistryKey(),
-                vehiclePos.add(0, vehicle.getStandingEyeHeight(), 0),
+                vehiclePos.add(McHelper.getEyeOffset(vehicle)),
                 false
             );
             ((IEServerPlayerEntity) player).startRidingWithoutTeleportRequest(vehicle);
@@ -612,7 +612,7 @@ public class ServerTeleportationManager {
                 IPGlobal.serverTeleportationManager.changeEntityDimension(
                     entity,
                     targetWorld.getRegistryKey(),
-                    targetPos.add(0, entity.getStandingEyeHeight(), 0),
+                    targetPos.add(McHelper.getEyeOffset(entity)),
                     true
                 );
             }

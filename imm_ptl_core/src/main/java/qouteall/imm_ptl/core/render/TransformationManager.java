@@ -127,6 +127,7 @@ public class TransformationManager {
 //        return Math.sqrt(1 - (1 - progress) * (1 - progress));
     }
     
+    // this may change player velocity, must change it back
     public static void managePlayerRotationAndChangeGravity(
         Portal portal
     ) {
@@ -150,11 +151,9 @@ public class TransformationManager {
                 portal.getTransformedGravityDirection(oldGravityDir) : oldGravityDir;
             
             if (newGravityDir != oldGravityDir) {
-                Vec3d oldVelocity = player.getVelocity();
                 GravityChangerInterface.invoker.setGravityDirection(
                     player, newGravityDir
                 );
-                player.setVelocity(oldVelocity); // gravity changer changes velocity, change back
             }
             
             DQuaternion newExtraCameraRot = GravityChangerInterface.invoker.getExtraCameraRotation(newGravityDir);
