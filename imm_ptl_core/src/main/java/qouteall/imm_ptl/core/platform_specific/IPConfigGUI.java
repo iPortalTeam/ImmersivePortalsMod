@@ -126,8 +126,8 @@ public class IPConfigGUI {
         clientSide.addEntry(entryPureMirror);
         clientSide.addEntry(entryRenderYourselfInPortal);
         clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
+        clientSide.addEntry(entryEnableWarning);
         
-        serverSide.addEntry(entryEnableWarning);
         serverSide.addEntry(entryIndirectLoadingRadiusCap);
         serverSide.addEntry(entryNetherPortalMode);
         serverSide.addEntry(entryEndPortalMode);
@@ -161,6 +161,7 @@ public class IPConfigGUI {
                 newConfig.visibilityPrediction = entryVisibilityPrediction.getValue();
                 newConfig.netherPortalOverlay = entryNetherPortalOverlay.getValue();
                 newConfig.lightVanillaNetherPortalWhenCrouching = entryLightVanillaNetherPortalWhenCrouching.getValue();
+                newConfig.enableWarning = entryEnableWarning.getValue();
                 
                 newConfig.saveConfigFile();
                 newConfig.onConfigChanged();

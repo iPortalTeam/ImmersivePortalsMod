@@ -42,7 +42,7 @@ public class IPModMain {
         GlobalPortalStorage.init();
         
         EntitySync.init();
-    
+        
         ServerEntityStorageManagement.init();
         
         CollisionHelper.init();
@@ -50,7 +50,7 @@ public class IPModMain {
         PortalExtension.init();
         
         GcMonitor.initCommon();
-    
+        
         VisibleSectionDiscovery.init();
     }
     
