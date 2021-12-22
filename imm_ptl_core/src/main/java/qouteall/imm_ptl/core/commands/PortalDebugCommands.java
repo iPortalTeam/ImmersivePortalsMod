@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
@@ -35,6 +36,8 @@ import qouteall.imm_ptl.core.api.example.ExampleGuiPortalRendering;
 import qouteall.imm_ptl.core.chunk_loading.ChunkVisibility;
 import qouteall.imm_ptl.core.chunk_loading.MyLoadingTicket;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.ducks.IEServerEntityManager;
+import qouteall.imm_ptl.core.ducks.IEServerWorld;
 import qouteall.imm_ptl.core.ducks.IEWorld;
 import qouteall.imm_ptl.core.mixin.common.mc_util.IESimpleEntityLookup;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -371,15 +374,25 @@ public class PortalDebugCommands {
                 MiscHelper.getServer().getWorlds().forEach(
                     world -> {
                         LongSortedSet rec = MyLoadingTicket.loadedChunkRecord.get(world);
-                        EntityLookup<Entity> entityEntityLookup = ((IEWorld) world).portal_getEntityLookup();
+                        EntityLookup<Entity> entityLookup = ((IEWorld) world).portal_getEntityLookup();
                         
                         str.append(String.format(
-                            "%s:\nIP Tracked Chunks: %s\nIP Loading Ticket:%s\nEntities:%s\n\n",
+                            "%s:\nIP Tracked Chunks: %s\nIP Loading Ticket:%s\nEntities:%s Entity Sections:%s\n",
                             world.getRegistryKey().getValue(),
                             NewChunkTrackingGraph.getLoadedChunkNum(world.getRegistryKey()),
                             rec == null ? "null" : rec.size(),
-                            ((IESimpleEntityLookup) entityEntityLookup).getIndex().size()
+                            ((IESimpleEntityLookup) entityLookup).getIndex().size(),
+                            ((IESimpleEntityLookup) entityLookup).getCache().sectionCount()
                         ));
+                        
+                        ServerEntityManager<Entity> entityManager = ((IEServerWorld) world).ip_getEntityManager();
+                        entityManager.flush();
+                        str.append(String.format(
+                            "Entity Manager: %s\n",
+                            entityManager.getDebugString()
+                        ));
+                        
+                        str.append("\n");
                     }
                 );
                 

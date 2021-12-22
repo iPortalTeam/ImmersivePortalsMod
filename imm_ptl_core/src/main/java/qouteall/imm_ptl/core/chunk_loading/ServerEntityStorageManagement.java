@@ -71,6 +71,8 @@ public class ServerEntityStorageManagement {
             });
             
         });
+        
+        chunksToUpdate.clear();
     }
     
     public static void onChunkWatchStatusChange(
