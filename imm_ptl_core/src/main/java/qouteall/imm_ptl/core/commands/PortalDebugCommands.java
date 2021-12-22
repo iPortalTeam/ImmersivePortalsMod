@@ -263,31 +263,47 @@ public class PortalDebugCommands {
         );
         
         builder.then(CommandManager.literal("is_chunk_loaded")
-            .then(CommandManager.argument("chunkX", IntegerArgumentType.integer())
-                .then(CommandManager.argument("chunkZ", IntegerArgumentType.integer())
-                    .executes(context -> {
-                        int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
-                        int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
-                        ServerPlayerEntity player = context.getSource().getPlayer();
-                        
-                        WorldChunk chunk = McHelper.getServerChunkIfPresent(
-                            context.getSource().getWorld(),
-                            chunkX, chunkZ
-                        );
-                        
-                        McHelper.serverLog(
-                            player,
-                            chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no"
-                        );
-                        
-                        McRemoteProcedureCall.tellClientToInvoke(
-                            player,
-                            "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientChunkLoadStatus",
-                            chunkX, chunkZ
-                        );
-                        
-                        return 0;
-                    })
+            .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
+                .then(CommandManager.argument("chunkX", IntegerArgumentType.integer())
+                    .then(CommandManager.argument("chunkZ", IntegerArgumentType.integer())
+                        .executes(context -> {
+                            int chunkX = IntegerArgumentType.getInteger(context, "chunkX");
+                            int chunkZ = IntegerArgumentType.getInteger(context, "chunkZ");
+                            ServerWorld dim = DimensionArgumentType.getDimensionArgument(context, "dim");
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            
+                            WorldChunk chunk = McHelper.getServerChunkIfPresent(
+                                dim,
+                                chunkX, chunkZ
+                            );
+                            
+                            boolean loaded = chunk != null && !(chunk instanceof EmptyChunk);
+                            
+                            if (loaded) {
+                                long longPos = ChunkPos.toLong(chunkX, chunkZ);
+                                boolean shouldTickEntities =
+                                    MyLoadingTicket.getTicketManager(dim).shouldTickEntities(longPos);
+                                if (shouldTickEntities) {
+                                    McHelper.serverLog(player, "server chunk loaded and entity tickable");
+                                }
+                                else {
+                                    McHelper.serverLog(player, "server chunk loaded but entity not tickable");
+                                }
+                            }
+                            else {
+                                McHelper.serverLog(player, "server chunk not loaded");
+                            }
+                            
+                            
+                            McRemoteProcedureCall.tellClientToInvoke(
+                                player,
+                                "qouteall.imm_ptl.core.commands.ClientDebugCommand.RemoteCallables.reportClientChunkLoadStatus",
+                                chunkX, chunkZ
+                            );
+                            
+                            return 0;
+                        })
+                    )
                 )
             )
         );

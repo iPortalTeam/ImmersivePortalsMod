@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
+import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ChunkTaskPrioritySystem;
@@ -111,7 +112,16 @@ public abstract class MixinThreadedAnvilChunkStorage_C implements IEThreadedAnvi
     private void sendChunkDataPackets(
         ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk
     ) {
-        //chunk data packet will be sent on ChunkDataSyncManager
+        //chunk data packets will be sent on ChunkDataSyncManager
+    }
+    
+    /**
+     * @author qouteall
+     * @reason make mod incompatibility fail fast
+     */
+    @Overwrite
+    public void sendWatchPackets(ServerPlayerEntity player, ChunkPos pos, MutableObject<ChunkDataS2CPacket> mutableObject, boolean oldWithinViewDistance, boolean newWithinViewDistance) {
+        // packets will be sent on ChunkDataSyncManager
     }
     
     //do my packet sending

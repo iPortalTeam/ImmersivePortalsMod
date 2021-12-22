@@ -2,15 +2,18 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSortedSet;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ChunkTicket;
 import net.minecraft.server.world.ChunkTicketManager;
 import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.SortedArraySet;
 import net.minecraft.util.math.ChunkPos;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEChunkTicketManager;
 import qouteall.imm_ptl.core.ducks.IEServerChunkManager;
+import qouteall.imm_ptl.core.ducks.IEServerWorld;
 
 import java.util.Comparator;
 import java.util.WeakHashMap;
@@ -26,7 +29,7 @@ public class MyLoadingTicket {
             300//15 seconds
         );
     
-    private static ChunkTicketManager getTicketManager(ServerWorld world) {
+    public static ChunkTicketManager getTicketManager(ServerWorld world) {
         return ((IEServerChunkManager) world.getChunkManager()).getTicketManager();
     }
     
@@ -46,6 +49,7 @@ public class MyLoadingTicket {
             getTicketManager(world).addTicket(
                 portalLoadingTicketType, chunkPos, getLoadingRadius(), chunkPos
             );
+            ServerEntityManager<Entity> entityManager = ((IEServerWorld) world).ip_getEntityManager();
         }
     }
     

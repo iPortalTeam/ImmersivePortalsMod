@@ -1,8 +1,10 @@
 package qouteall.imm_ptl.core.mixin.common;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.level.ServerWorldProperties;
@@ -32,6 +34,10 @@ public abstract class MixinServerWorld implements IEServerWorld {
     @Final
     private ServerWorldProperties worldProperties;
     
+    @Shadow
+    @Final
+    private ServerEntityManager<Entity> entityManager;
+    
     //in vanilla if a dimension has no player and no forced chunks then it will not tick
     @Redirect(
         method = "tick",
@@ -48,29 +54,16 @@ public abstract class MixinServerWorld implements IEServerWorld {
         return list.isEmpty();
     }
     
-    @Redirect(
-        method = "tick",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/PlayerManager;sendToAll(Lnet/minecraft/network/Packet;)V"
-        ),
-        require = 0 //Forge changes that. avoid crashing in forge version
-    )
-    private void redirectSendToAll(PlayerManager playerManager, Packet<?> packet) {
-        final ServerWorld this_ = (ServerWorld) (Object) this;
-        IPCommonNetwork.withForceRedirect(
-            this_,
-            () -> {
-                playerManager.sendToAll(packet);
-            }
-        );
-    }
-    
     // for debug
     @Inject(method = "toString", at = @At("HEAD"), cancellable = true)
     private void onToString(CallbackInfoReturnable<String> cir) {
         final ServerWorld this_ = (ServerWorld) (Object) this;
         cir.setReturnValue("ServerWorld " + this_.getRegistryKey().getValue() +
             " " + worldProperties.getLevelName());
+    }
+    
+    @Override
+    public ServerEntityManager<Entity> ip_getEntityManager() {
+        return entityManager;
     }
 }

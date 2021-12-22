@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core;
 
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
+import qouteall.imm_ptl.core.chunk_loading.ServerEntityStorageManagement;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
@@ -41,6 +42,8 @@ public class IPModMain {
         GlobalPortalStorage.init();
         
         EntitySync.init();
+    
+        ServerEntityStorageManagement.init();
         
         CollisionHelper.init();
         

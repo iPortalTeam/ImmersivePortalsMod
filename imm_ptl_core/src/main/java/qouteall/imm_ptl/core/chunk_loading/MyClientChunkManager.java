@@ -66,6 +66,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             if (positionEquals(chunk, x, z)) {
                 chunkMap.remove(chunkPos.toLong());
                 O_O.postClientChunkUnloadEvent(chunk);
+                // wrong yarn name, also unloads entities
                 world.unloadBlockEntities(chunk);
                 clientChunkUnloadSignal.emit(chunk);
             }
@@ -112,6 +113,7 @@ public class MyClientChunkManager extends ClientChunkManager {
             }
         }
         
+        // wrong yarn name. it loads entities
         this.world.resetChunkColor(new ChunkPos(x, z));
         
         O_O.postClientChunkLoadEvent(worldChunk);

@@ -28,6 +28,7 @@
     "common.collision.MixinSnowballEntity",
     "common.entity_sync.MixinEntityTracker",
     "common.entity_sync.MixinEntityTrackerEntry",
+    "common.entity_sync.MixinServerEntityManager",
     "common.entity_sync.MixinServerPlayerEntity",
     "common.entity_sync.MixinServerPlayNetworkHandler_E",
     "common.entity_sync.MixinThreadedAnvilChunkStorage_E",

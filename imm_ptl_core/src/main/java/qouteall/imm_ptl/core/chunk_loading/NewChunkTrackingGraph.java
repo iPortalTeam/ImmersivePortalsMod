@@ -184,6 +184,9 @@ public class NewChunkTrackingGraph {
                                 new ChunkPos(record.chunkPos)
                             );
                         }
+                        ServerEntityStorageManagement.onChunkWatchStatusChange(
+                            record.dimension, record.chunkPos
+                        );
                         
                         if (!record.isDirectLoading) {
                             loaded++;
@@ -299,6 +302,10 @@ public class NewChunkTrackingGraph {
                                 )
                             );
                         }
+                        
+                        ServerEntityStorageManagement.onChunkWatchStatusChange(
+                            record.dimension, record.chunkPos
+                        );
                     }
                 );
                 
@@ -319,6 +326,9 @@ public class NewChunkTrackingGraph {
                         if (world.getRegistryKey() == dim) {
                             additionalLoadedChunks.add(ChunkPos.toLong(x, z));
                             MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(x, z));
+                            ServerEntityStorageManagement.onChunkWatchStatusChange(
+                                dim, ChunkPos.toLong(x, z)
+                            );
                         }
                     }
                 );
@@ -444,6 +454,20 @@ public class NewChunkTrackingGraph {
             return Stream.empty();
         }
         return records.stream().filter(r -> r.isLoadedToPlayer).map(r -> r.player);
+    }
+    
+    // return -1 for none
+    public static int getMinimumWatchingDistance(
+        RegistryKey<World> dimension,
+        long chunkPos
+    ) {
+        ArrayList<PlayerWatchRecord> records = getChunkRecordMap(dimension)
+            .get(chunkPos);
+        if (records == null) {
+            return -1;
+        }
+        
+        return records.stream().mapToInt(r -> r.distanceToSource).min().orElse(-1);
     }
     
     /**
