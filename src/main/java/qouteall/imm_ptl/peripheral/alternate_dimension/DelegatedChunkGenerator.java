@@ -47,6 +47,9 @@ public class DelegatedChunkGenerator extends ChunkGenerator {
     
     @Override
     public MultiNoiseUtil.MultiNoiseSampler getMultiNoiseSampler() {
+        if (delegate == null) {
+            return null;
+        }
         return delegate.getMultiNoiseSampler();
     }
     
