@@ -140,8 +140,8 @@ public class IPModMainClient {
         GcMonitor.initClient();
         
         ClientDebugCommand.register(ClientCommandManager.DISPATCHER);
-
-//        showPreviewWarning();
+        
+        showPreviewWarning();
         
         showIntelVideoCardWarning();
     }
