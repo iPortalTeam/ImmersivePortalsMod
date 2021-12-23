@@ -37,7 +37,6 @@
   "imm_ptl.enable_alternate_dimensions": "启用备用位面",
   "imm_ptl.needs_pehkui": "由于未安装Pehkui，玩家的大小没有变化",
   "imm_ptl.indirect_loading_radius_cap": "间接区块加载最大半径",
-  "imm_ptl.server_side_config": "服务端设置",
   "imm_ptl.client_side_config": "客户端设置",
   "imm_ptl.nether_portal_mode": "地狱传送门类型",
   "imm_ptl.end_portal_mode": "末地传送门类型",
@@ -138,7 +137,8 @@
   "imm_ptl.top_y": "顶部纵坐标",
   "imm_ptl.bottom_y": "底部纵坐标",
   "imm_ptl.bedrock_replacement": "基岩替换方块",
-  "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
-  "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod.",
-  "imm_ptl.light_vanilla_nether_portal_when_crouching": "Light vanilla portal when crouching"
+  "imm_ptl.command.enable_gravity_change": "启用引力方向变换",
+  "imm_ptl.command_desc.enable_gravity_change": "需要Gravity Changer模组",
+  "imm_ptl.light_vanilla_nether_portal_when_crouching": "潜行时创建原版地狱传送门",
+  "imm_ptl.common_config": "通用设置"
 }

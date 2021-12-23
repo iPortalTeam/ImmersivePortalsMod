@@ -17,8 +17,8 @@ public class IPConfigGUI {
         IPConfig currConfig = IPConfig.readConfig();
         
         ConfigBuilder builder = ConfigBuilder.create();
-        ConfigCategory serverSide = builder.getOrCreateCategory(
-            new TranslatableText("imm_ptl.server_side_config")
+        ConfigCategory commonSide = builder.getOrCreateCategory(
+            new TranslatableText("imm_ptl.common_config")
         );
         ConfigCategory clientSide = builder.getOrCreateCategory(
             new TranslatableText("imm_ptl.client_side_config")
@@ -126,17 +126,17 @@ public class IPConfigGUI {
         clientSide.addEntry(entryPureMirror);
         clientSide.addEntry(entryRenderYourselfInPortal);
         clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
-        clientSide.addEntry(entryEnableWarning);
-        
-        serverSide.addEntry(entryIndirectLoadingRadiusCap);
-        serverSide.addEntry(entryNetherPortalMode);
-        serverSide.addEntry(entryEndPortalMode);
-        serverSide.addEntry(entryEnableAlternateDimensions);
-        serverSide.addEntry(entryNetherPortalOverlay);
-        serverSide.addEntry(entryLightVanillaNetherPortalWhenCrouching);
-        serverSide.addEntry(entryPortalSearchingRange);
-        serverSide.addEntry(entryTeleportDebug);
-        serverSide.addEntry(entryLooseMovementCheck);
+    
+        commonSide.addEntry(entryEnableWarning);
+        commonSide.addEntry(entryIndirectLoadingRadiusCap);
+        commonSide.addEntry(entryNetherPortalMode);
+        commonSide.addEntry(entryEndPortalMode);
+        commonSide.addEntry(entryEnableAlternateDimensions);
+        commonSide.addEntry(entryNetherPortalOverlay);
+        commonSide.addEntry(entryLightVanillaNetherPortalWhenCrouching);
+        commonSide.addEntry(entryPortalSearchingRange);
+        commonSide.addEntry(entryTeleportDebug);
+        commonSide.addEntry(entryLooseMovementCheck);
         
         return builder
             .setParentScreen(parent)

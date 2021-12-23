@@ -1,5 +1,4 @@
 {
-  "imm_ptl.server_side_config": "サーバー側設定",
   "imm_ptl.client_side_config": "クライアント側設定",
   "imm_ptl.loading_chunks": "チャンク情報を読込中：%1$s/%2$s",
   "imm_ptl.searching_for_frame": "現存するフレームを読込中...",
@@ -140,5 +139,6 @@
   "imm_ptl.bedrock_replacement": "岩盤の置き換え",
   "imm_ptl.light_vanilla_nether_portal_when_crouching": "スニーク中の軽量バニラポータル",
   "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
-  "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod."
+  "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod.",
+  "imm_ptl.common_config": "Common"
 }
