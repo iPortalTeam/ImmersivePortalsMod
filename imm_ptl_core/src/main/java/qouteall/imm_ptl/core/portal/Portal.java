@@ -50,8 +50,6 @@ import qouteall.q_misc_util.my_util.SignalArged;
 import qouteall.q_misc_util.my_util.SignalBiArged;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -277,7 +275,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         Validate.isTrue(!isGlobalPortal);
         Validate.isTrue(!world.isClient(), "must be used on server side");
         updateCache();
-        McHelper.getIEStorage(this.world.getRegistryKey()).resendSpawnPacketToTrackers(this);
+        Portal entity = this;
+        McHelper.resendSpawnPacketToTrackers(entity);
     }
     
     /**

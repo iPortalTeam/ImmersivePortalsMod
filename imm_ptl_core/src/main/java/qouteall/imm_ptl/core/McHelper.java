@@ -8,6 +8,8 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.network.Packet;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IESectionedEntityCache;
 import qouteall.imm_ptl.core.ducks.IEThreadedAnvilChunkStorage;
@@ -376,6 +378,21 @@ public class McHelper {
         for (String command : commandList) {
             commandManager.execute(commandSource, command);
         }
+    }
+    
+    public static void resendSpawnPacketToTrackers(Entity entity) {
+        getIEStorage(entity.world.getRegistryKey()).resendSpawnPacketToTrackers(entity);
+    }
+    
+    public static void sendToTrackers(Entity entity, Packet<?> packet) {
+        ThreadedAnvilChunkStorage.EntityTracker entityTracker =
+            getIEStorage(entity.world.getRegistryKey()).getEntityTrackerMap().get(entity.getId());
+        if (entityTracker == null) {
+            Helper.err("missing entity tracker object");
+            return;
+        }
+        
+        entityTracker.sendToNearbyPlayers(packet);
     }
     
     public static interface ChunkAccessor {

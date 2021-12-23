@@ -35,6 +35,10 @@ public class ServerEntityStorageManagement {
     }
     
     private static void tick() {
+        if (!IPGlobal.useIpEntityManagement) {
+            return;
+        }
+        
         MinecraftServer server = MiscHelper.getServer();
         
         int simulationDistance = server.getPlayerManager().getSimulationDistance();
@@ -79,6 +83,10 @@ public class ServerEntityStorageManagement {
         RegistryKey<World> dimension,
         long chunkPos
     ) {
+        if (!IPGlobal.useIpEntityManagement) {
+            return;
+        }
+        
         chunksToUpdate.computeIfAbsent(
             dimension,
             d -> new LongAVLTreeSet()

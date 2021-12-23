@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
@@ -50,6 +51,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PortalDebugCommands {
     static void registerDebugCommands(
@@ -251,7 +253,7 @@ public class PortalDebugCommands {
         );
         
         builder.then(CommandManager
-            .literal("report_server_entities")
+            .literal("report_server_entities_nearby")
             .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
             .executes(context -> {
                 ServerPlayerEntity player = context.getSource().getPlayer();
@@ -260,7 +262,8 @@ public class PortalDebugCommands {
                     new Box(player.getPos(), player.getPos()).expand(32),
                     e -> true
                 );
-                McHelper.serverLog(player, entities.toString());
+                McHelper.serverLog(player, entities.stream().map(Entity::toString)
+                    .collect(Collectors.joining("\n")));
                 return 0;
             })
         );
@@ -297,6 +300,23 @@ public class PortalDebugCommands {
                                 McHelper.serverLog(player, "server chunk not loaded");
                             }
                             
+                            ChunkHolder chunkHolder = McHelper.getIEStorage(dim.getRegistryKey()).getChunkHolder_(
+                                ChunkPos.toLong(chunkX, chunkZ)
+                            );
+                            
+                            if (chunkHolder == null) {
+                                McHelper.serverLog(player, "no chunk holder");
+                            }
+                            else {
+                                McHelper.serverLog(
+                                    player,
+                                    String.format(
+                                        "chunk holder level:%s %s",
+                                        chunkHolder.getLevel(),
+                                        chunk.getLevelType()
+                                    )
+                                );
+                            }
                             
                             McRemoteProcedureCall.tellClientToInvoke(
                                 player,

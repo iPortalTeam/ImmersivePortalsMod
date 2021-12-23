@@ -467,7 +467,8 @@ public class NewChunkTrackingGraph {
             return -1;
         }
         
-        return records.stream().mapToInt(r -> r.distanceToSource).min().orElse(-1);
+        return records.stream().filter(r -> r.isLoadedToPlayer)
+            .mapToInt(r -> r.distanceToSource).min().orElse(-1);
     }
     
     /**

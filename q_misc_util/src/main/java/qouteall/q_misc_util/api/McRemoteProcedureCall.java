@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.jetbrains.annotations.NotNull;
 import qouteall.q_misc_util.ImplRemoteProcedureCall;
 
 /**
@@ -107,9 +108,19 @@ public class McRemoteProcedureCall {
         String methodPath,
         Object... arguments
     ) {
+        CustomPayloadS2CPacket packet = createPacketToSendToClient(methodPath, arguments);
+        player.networkHandler.sendPacket(packet);
+    }
+    
+    /**
+     * Same as the above, but only creates packet and does not send.
+     */
+    public static CustomPayloadS2CPacket createPacketToSendToClient(
+        String methodPath, Object... arguments
+    ) {
         CustomPayloadS2CPacket packet =
             ImplRemoteProcedureCall.createS2CPacket(methodPath, arguments);
-        player.networkHandler.sendPacket(packet);
+        return packet;
     }
     
     /**

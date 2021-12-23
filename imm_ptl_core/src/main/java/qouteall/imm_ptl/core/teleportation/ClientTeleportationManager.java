@@ -497,5 +497,31 @@ public class ClientTeleportationManager {
         
     }
     
-    
+    public static class RemoteCallables {
+        // living entities do position interpolation
+        // it may interpolate into unloaded chunks and stuck
+        // avoid position interpolation
+        public static void updateEntityPos(
+            RegistryKey<World> dim,
+            int entityId,
+            Vec3d pos
+        ) {
+            ClientWorld world = ClientWorldLoader.getWorld(dim);
+            
+            Entity entity = world.getEntityById(entityId);
+            
+            if (entity == null) {
+                Helper.err("cannot find entity to update position");
+                return;
+            }
+            
+            // both of them are important for Minecart
+            entity.updateTrackedPositionAndAngles(
+                pos.x, pos.y, pos.z,
+                entity.getYaw(), entity.getPitch(),
+                0, false
+            );
+            entity.setPosition(pos);
+        }
+    }
 }

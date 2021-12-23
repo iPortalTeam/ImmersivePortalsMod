@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.ducks;
 
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.world.EntityList;
 import qouteall.imm_ptl.core.portal.Portal;
 
 import javax.annotation.Nullable;
@@ -17,4 +18,6 @@ public interface IEClientWorld {
     void setGlobalPortals(List<Portal> arg);
     
     void resetWorldRendererRef();
+    
+    EntityList ip_getEntityList();
 }

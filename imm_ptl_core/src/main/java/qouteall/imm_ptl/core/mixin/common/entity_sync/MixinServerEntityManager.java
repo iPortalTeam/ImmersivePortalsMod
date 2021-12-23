@@ -11,6 +11,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.ducks.IEServerEntityManager;
 
 import java.util.Queue;
@@ -34,14 +38,17 @@ public class MixinServerEntityManager implements IEServerEntityManager {
     private Queue loadingQueue;
     
     /**
-     * @author qouteall
-     * @reason make incompat fail fast
-     * This is originally called from
      * {@link net.minecraft.server.world.ThreadedAnvilChunkStorage#onChunkStatusChange(ChunkPos, ChunkHolder.LevelType)}
-     * ImmPtl will manage it in {@link qouteall.imm_ptl.core.chunk_loading.ServerEntityStorageManagement}
      */
-    @Overwrite
-    public void updateTrackingStatus(ChunkPos chunkPos, ChunkHolder.LevelType levelType) {
-        throw new RuntimeException("This is possibly a mod compat issue with ImmPtl");
+    @Inject(
+        method = "updateTrackingStatus(Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/server/world/ChunkHolder$LevelType;)V",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onUpdateTrackingStatus(ChunkPos chunkPos, ChunkHolder.LevelType levelType, CallbackInfo ci) {
+        if (IPGlobal.useIpEntityManagement) {
+            throw new RuntimeException("This is possibly a mod compat issue with ImmPtl");
+        }
     }
+    
 }

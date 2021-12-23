@@ -116,6 +116,10 @@ public class IPGlobal {
     
     public static boolean tickOnlyIfChunkLoaded = true;
     
+    public static boolean useIpEntityManagement = false;
+    
+    public static boolean allowClientEntityPosInterpolation = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

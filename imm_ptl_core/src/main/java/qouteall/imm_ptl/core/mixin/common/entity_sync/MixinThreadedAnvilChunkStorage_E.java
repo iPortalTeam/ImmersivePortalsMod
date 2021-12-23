@@ -112,14 +112,15 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         );
     }
     
-    /**
-     * @author qouteall
-     * @reason make mod incompat fail fast
-     * Will be managed by {@link qouteall.imm_ptl.core.chunk_loading.ServerEntityStorageManagement}
-     */
-    @Overwrite
-    public void onChunkStatusChange(ChunkPos chunkPos, ChunkHolder.LevelType levelType) {
-        // nothing
+    @Inject(
+        method = "onChunkStatusChange",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onChunkStatusChange(ChunkPos chunkPos, ChunkHolder.LevelType levelType, CallbackInfo ci) {
+        if (IPGlobal.useIpEntityManagement) {
+            ci.cancel();
+        }
     }
     
     @Override

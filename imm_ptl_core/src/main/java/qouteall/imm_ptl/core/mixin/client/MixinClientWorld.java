@@ -9,6 +9,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.EntityList;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -56,6 +57,9 @@ public abstract class MixinClientWorld implements IEClientWorld {
     @Final
     private WorldRenderer worldRenderer;
     
+    @Shadow
+    @Final
+    private EntityList entityList;
     private List<Portal> portal_globalPortals;
     
     @Override
@@ -143,5 +147,10 @@ public abstract class MixinClientWorld implements IEClientWorld {
     @Override
     public void resetWorldRendererRef() {
         worldRenderer = null;
+    }
+    
+    @Override
+    public EntityList ip_getEntityList() {
+        return entityList;
     }
 }

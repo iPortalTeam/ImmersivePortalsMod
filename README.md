@@ -4,9 +4,11 @@ It's a minecraft mod that provides see-through portals and seamless teleportatio
 
 ![immptl.png](https://i.loli.net/2021/09/30/chHMG45dsnZNqep.png)
 
-CurseForge: https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod
+[On CurseForge](https://www.curseforge.com/minecraft/mc-mods/immersive-portals-mod)
 
-Website: https://qouteall.fun/immptl
+[Modrinth](https://modrinth.com/mod/immersiveportals)
+
+[Website](https://qouteall.fun/immptl)
 
 This is one of the most complex Minecraft mods. [Implementation Details](https://qouteall.fun/immptl/wiki/Implementation-Details)
 * It eliminates the limitation that only one dimension can be loaded and rendered on client

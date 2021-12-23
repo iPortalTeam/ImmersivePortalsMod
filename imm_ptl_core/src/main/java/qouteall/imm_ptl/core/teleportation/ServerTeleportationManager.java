@@ -14,6 +14,7 @@ import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -252,6 +253,8 @@ public class ServerTeleportationManager {
         ServerWorld fromWorld = (ServerWorld) player.world;
         ServerWorld toWorld = MiscHelper.getServer().getWorld(dimensionTo);
         
+        NewChunkTrackingGraph.addAdditionalDirectLoadingTickets(player);
+        
         if (player.world.getRegistryKey() == dimensionTo) {
             McHelper.setEyePos(player, newEyePos, newEyePos);
             McHelper.updateBoundingBox(player);
@@ -304,8 +307,6 @@ public class ServerTeleportationManager {
         ServerWorld toWorld,
         Vec3d newEyePos
     ) {
-        NewChunkTrackingGraph.addAdditionalDirectLoadingTickets(player);
-        
         teleportingEntities.add(player);
         
         Entity vehicle = player.getVehicle();
@@ -465,6 +466,19 @@ public class ServerTeleportationManager {
         
         McHelper.setEyePos(entity, newEyePos, newEyePos);
         McHelper.updateBoundingBox(entity);
+        
+        // living entities do position interpolation
+        // it may interpolate into unloaded chunks and stuck
+        // avoid position interpolation
+        McHelper.sendToTrackers(
+            entity,
+            McRemoteProcedureCall.createPacketToSendToClient(
+                "qouteall.imm_ptl.core.teleportation.ClientTeleportationManager.RemoteCallables.updateEntityPos",
+                entity.world.getRegistryKey(),
+                entity.getId(),
+                entity.getPos()
+            )
+        );
         
         portal.onEntityTeleportedOnServer(entity);
         

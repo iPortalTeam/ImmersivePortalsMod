@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -40,9 +41,15 @@ public class MixinLivingEntity_C {
         boolean interpolate,
         CallbackInfo ci
     ) {
+        LivingEntity this_ = ((LivingEntity) (Object) this);
+        if (!IPGlobal.allowClientEntityPosInterpolation) {
+            this_.setPosition(x, y, z);
+            return;
+        }
+        
         Portal collidingPortal = ((IEEntity) this).getCollidingPortal();
         if (collidingPortal != null) {
-            LivingEntity this_ = ((LivingEntity) (Object) this);
+            
             double dx = this_.getX() - serverX;
             double dy = this_.getY() - serverY;
             double dz = this_.getZ() - serverZ;

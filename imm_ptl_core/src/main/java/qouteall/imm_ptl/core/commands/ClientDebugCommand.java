@@ -33,6 +33,7 @@ import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.EntityList;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -45,6 +46,7 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
+import qouteall.imm_ptl.core.ducks.IEClientWorld;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.platform_specific.IPConfigGUI;
@@ -258,6 +260,28 @@ public class ClientDebugCommand {
                         false
                     );
                 });
+                return 0;
+            })
+        );
+        builder.then(ClientCommandManager
+            .literal("report_client_entities")
+            .executes(context -> {
+                ClientWorld world = MinecraftClient.getInstance().world;
+                
+                CHelper.printChat("client entity manager:");
+                
+                for (Entity entity : world.getEntities()) {
+                    CHelper.printChat(entity.toString());
+                }
+                
+                CHelper.printChat("client entity list:");
+                
+                EntityList entityList = ((IEClientWorld) world).ip_getEntityList();
+                
+                entityList.forEach(e -> {
+                    CHelper.printChat(e.toString());
+                });
+                
                 return 0;
             })
         );
@@ -488,6 +512,11 @@ public class ClientDebugCommand {
             "shared_block_mesh_builder",
             cond -> IPGlobal.enableSharedBlockMeshBuffers = cond
         );
+        registerSwitchCommand(
+            builder,
+            "entity_pos_interpolation",
+            cond -> IPGlobal.allowClientEntityPosInterpolation = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")
@@ -546,7 +575,10 @@ public class ClientDebugCommand {
             Chunk chunk = MinecraftClient.getInstance().world.getChunk(
                 chunkX, chunkZ
             );
-            CHelper.printChat(chunk != null && !(chunk instanceof EmptyChunk) ? "yes" : "no");
+            CHelper.printChat(
+                chunk != null && !(chunk instanceof EmptyChunk) ?
+                    "client loaded" : "client not loaded"
+            );
         }
         
         public static void reportClientPlayerStatus() {
