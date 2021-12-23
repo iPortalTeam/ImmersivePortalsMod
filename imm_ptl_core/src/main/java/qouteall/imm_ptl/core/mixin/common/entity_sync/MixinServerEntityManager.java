@@ -21,34 +21,4 @@ import java.util.Queue;
 
 @Mixin(ServerEntityManager.class)
 public class MixinServerEntityManager implements IEServerEntityManager {
-    @Shadow
-    @Final
-    private Long2ObjectMap<EntityTrackingStatus> trackingStatuses;
-    
-    @Shadow
-    @Final
-    private Long2ObjectMap managedStatuses;
-    
-    @Shadow
-    @Final
-    private LongSet pendingUnloads;
-    
-    @Shadow
-    @Final
-    private Queue loadingQueue;
-    
-    /**
-     * {@link net.minecraft.server.world.ThreadedAnvilChunkStorage#onChunkStatusChange(ChunkPos, ChunkHolder.LevelType)}
-     */
-    @Inject(
-        method = "updateTrackingStatus(Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/server/world/ChunkHolder$LevelType;)V",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onUpdateTrackingStatus(ChunkPos chunkPos, ChunkHolder.LevelType levelType, CallbackInfo ci) {
-        if (IPGlobal.useIpEntityManagement) {
-            throw new RuntimeException("This is possibly a mod compat issue with ImmPtl");
-        }
-    }
-    
 }

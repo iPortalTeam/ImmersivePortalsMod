@@ -112,17 +112,6 @@ public abstract class MixinThreadedAnvilChunkStorage_E implements IEThreadedAnvi
         );
     }
     
-    @Inject(
-        method = "onChunkStatusChange",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void onChunkStatusChange(ChunkPos chunkPos, ChunkHolder.LevelType levelType, CallbackInfo ci) {
-        if (IPGlobal.useIpEntityManagement) {
-            ci.cancel();
-        }
-    }
-    
     @Override
     public void resendSpawnPacketToTrackers(Entity entity) {
         Object tracker = entityTrackers.get(entity.getId());

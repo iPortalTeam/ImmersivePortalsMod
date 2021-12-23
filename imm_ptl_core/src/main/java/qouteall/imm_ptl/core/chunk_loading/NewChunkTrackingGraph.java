@@ -137,6 +137,7 @@ public class NewChunkTrackingGraph {
     
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> beginWatchChunkSignal = new SignalBiArged<>();
     public static final SignalBiArged<ServerPlayerEntity, DimensionalChunkPos> endWatchChunkSignal = new SignalBiArged<>();
+    public static final SignalBiArged<RegistryKey<World>, Long> watchStatusChangeSignal = new SignalBiArged<>();
     
     private static Long2ObjectLinkedOpenHashMap<ArrayList<PlayerWatchRecord>> getChunkRecordMap(RegistryKey<World> dimension) {
         return data.computeIfAbsent(dimension, k -> new Long2ObjectLinkedOpenHashMap<>());
@@ -184,7 +185,7 @@ public class NewChunkTrackingGraph {
                                 new ChunkPos(record.chunkPos)
                             );
                         }
-                        ServerEntityStorageManagement.onChunkWatchStatusChange(
+                        watchStatusChangeSignal.emit(
                             record.dimension, record.chunkPos
                         );
                         
@@ -303,7 +304,7 @@ public class NewChunkTrackingGraph {
                             );
                         }
                         
-                        ServerEntityStorageManagement.onChunkWatchStatusChange(
+                        watchStatusChangeSignal.emit(
                             record.dimension, record.chunkPos
                         );
                     }
@@ -326,7 +327,7 @@ public class NewChunkTrackingGraph {
                         if (world.getRegistryKey() == dim) {
                             additionalLoadedChunks.add(ChunkPos.toLong(x, z));
                             MyLoadingTicket.addTicketIfNotLoaded(world, new ChunkPos(x, z));
-                            ServerEntityStorageManagement.onChunkWatchStatusChange(
+                            watchStatusChangeSignal.emit(
                                 dim, ChunkPos.toLong(x, z)
                             );
                         }
