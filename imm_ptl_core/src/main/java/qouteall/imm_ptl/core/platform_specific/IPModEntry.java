@@ -4,7 +4,6 @@ import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.compat.iris_compatibility.IrisInterface;
 import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.IPModMain;
-import qouteall.imm_ptl.core.PehkuiInterface;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -31,9 +30,7 @@ public class IPModEntry implements ModInitializer {
             Helper.log("Dimensional Threading is not present");
         }
         
-        PehkuiInterface.isPehkuiPresent =
-            O_O.getIsPehkuiPresent();
-        if (PehkuiInterface.isPehkuiPresent) {
+        if (O_O.getIsPehkuiPresent()) {
             PehkuiInterfaceInitializer.init();
             Helper.log("Pehkui is present");
         }

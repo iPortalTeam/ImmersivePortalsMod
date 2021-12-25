@@ -136,7 +136,7 @@ public class CrossPortalViewRendering {
     }
     
     private static double getThirdPersonMaxDistance() {
-        return 4.0d * PehkuiInterface.computeThirdPersonScale.apply(client.player, client.getTickDelta());
+        return 4.0d * PehkuiInterface.invoker.computeThirdPersonScale(client.player, client.getTickDelta());
     }
     
     //    private static Vec3d getThirdPersonCameraPos(Portal portalHit, Camera resuableCamera) {
