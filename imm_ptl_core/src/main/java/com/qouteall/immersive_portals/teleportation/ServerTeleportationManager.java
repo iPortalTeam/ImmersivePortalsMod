@@ -145,7 +145,7 @@ public class ServerTeleportationManager {
             
             portal.onEntityTeleportedOnServer(player);
             
-            PehkuiInterface.onServerEntityTeleported.accept(player, portal);
+            PehkuiInterface.invoker.onServerEntityTeleported(player, portal);
         }
         else {
             Helper.err(String.format(
@@ -448,7 +448,7 @@ public class ServerTeleportationManager {
         
         portal.onEntityTeleportedOnServer(entity);
         
-        PehkuiInterface.onServerEntityTeleported.accept(entity, portal);
+        PehkuiInterface.invoker.onServerEntityTeleported(entity, portal);
         
         // a new entity may be created
         this.lastTeleportGameTime.put(entity, currGameTime);

@@ -1,12 +1,13 @@
 package com.qouteall.hiding_in_the_bushes;
 
-import com.qouteall.immersive_portals.CHelper;
 import com.qouteall.immersive_portals.Global;
 import com.qouteall.immersive_portals.McHelper;
 import com.qouteall.immersive_portals.ModMain;
 import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.ducks.IECamera;
 import com.qouteall.immersive_portals.portal.Portal;
+import virtuoel.pehkui.api.ScaleData;
+import virtuoel.pehkui.api.ScaleTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -19,12 +20,111 @@ import org.apache.commons.lang3.Validate;
 
 public class PehkuiInterfaceInitializer {
     
-    public static void init() {
-        if (!O_O.isDedicatedServer()) {
-            PehkuiInterface.onClientPlayerTeleported = PehkuiInterfaceInitializer::onPlayerTeleportedClient;
+    public static class OnPehkuiPresent extends PehkuiInterface.Invoker {
+        
+        private boolean loggedGetBaseMessage = false;
+        private boolean loggedSetBaseMessage = false;
+        private boolean loggedComputeThirdPersonMessage = false;
+        private boolean loggedComputeBlockReachMessage = false;
+        private boolean loggedComputeMotionMessage = false;
+        
+        @Override
+        public boolean isPehkuiPresent() {
+            return true;
         }
         
-        PehkuiInterface.onServerEntityTeleported = PehkuiInterfaceInitializer::onEntityTeleportedServer;
+        @Override
+        public void onClientPlayerTeleported(Portal portal) {
+            onPlayerTeleportedClient(portal);
+        }
+        
+        @Override
+        public void onServerEntityTeleported(Entity entity, Portal portal) {
+            onEntityTeleportedServer(entity, portal);
+        }
+        
+        private void logErrorMessage(Entity entity, Throwable e, String situation) {
+            e.printStackTrace();
+            entity.sendSystemMessage(
+                new LiteralText("Something went wrong with Pehkui (" + situation + ")"),
+                Util.NIL_UUID
+            );
+        }
+        
+        @Override
+        public float getBaseScale(Entity entity, float tickDelta) {
+            try {
+                return ScaleTypes.BASE.getScaleData(entity).getBaseScale(tickDelta);
+            }
+            catch (Throwable e) {
+                if (!loggedGetBaseMessage) {
+                    loggedGetBaseMessage = true;
+                    logErrorMessage(entity, e, "getting scale");
+                }
+                return super.getBaseScale(entity, tickDelta);
+            }
+        }
+        
+        @Override
+        public void setBaseScale(Entity entity, float scale) {
+            try {
+                final ScaleData data = ScaleTypes.BASE.getScaleData(entity);
+                data.setScale(scale);
+                data.setBaseScale(scale);
+            }
+            catch (Throwable e) {
+                if (!loggedSetBaseMessage) {
+                    loggedSetBaseMessage = true;
+                    logErrorMessage(entity, e, "setting scale");
+                }
+            }
+        }
+        
+        @Override
+        public float computeThirdPersonScale(Entity entity, float tickDelta) {
+            try {
+                return ScaleTypes.THIRD_PERSON.getScaleData(entity).getScale(tickDelta);
+            }
+            catch (Throwable e) {
+                if (!loggedComputeThirdPersonMessage) {
+                    loggedComputeThirdPersonMessage = true;
+                    logErrorMessage(entity, e, "getting third person scale");
+                }
+                return super.computeThirdPersonScale(entity, tickDelta);
+            }
+        }
+        
+        @Override
+        public float computeBlockReachScale(Entity entity, float tickDelta) {
+            try {
+                return ScaleTypes.BLOCK_REACH.getScaleData(entity).getScale(tickDelta);
+            }
+            catch (Throwable e) {
+                if (!loggedComputeBlockReachMessage) {
+                    loggedComputeBlockReachMessage = true;
+                    logErrorMessage(entity, e, "getting reach scale");
+                }
+                return super.computeBlockReachScale(entity, tickDelta);
+            }
+        }
+        
+        @Override
+        public float computeMotionScale(Entity entity, float tickDelta) {
+            try {
+                return ScaleTypes.MOTION.getScaleData(entity).getScale(tickDelta);
+            }
+            catch (Throwable e) {
+                if (!loggedComputeMotionMessage) {
+                    loggedComputeMotionMessage = true;
+                    logErrorMessage(entity, e, "getting motion scale");
+                }
+                return super.computeMotionScale(entity, tickDelta);
+            }
+        }
+    }
+    
+    public static void init() {
+        PehkuiInterface.invoker = new OnPehkuiPresent();
     }
     
     @Environment(EnvType.CLIENT)
@@ -60,24 +160,18 @@ public class PehkuiInterfaceInitializer {
         Vec3d eyePos = McHelper.getEyePos(entity);
         Vec3d lastTickEyePos = McHelper.getLastTickEyePos(entity);
         
-        try {
-            float oldScale = PehkuiInterface.getBaseScale.apply(entity, 1.0f);
-            float newScale = transformScale(portal, oldScale);
-            
-            if (!entity.world.isClient && isScaleIllegal(newScale)) {
-                newScale = 1;
-                entity.sendSystemMessage(
-                    new LiteralText("Scale out of range"),
-                    Util.NIL_UUID
-                );
-            }
-            
-            PehkuiInterface.setBaseScale.accept(entity, newScale);
+        float oldScale = PehkuiInterface.invoker.getBaseScale(entity);
+        float newScale = transformScale(portal, oldScale);
+        
+        if (!entity.world.isClient && isScaleIllegal(newScale)) {
+            newScale = 1;
+            entity.sendSystemMessage(
+                new LiteralText("Scale out of range"),
+                Util.NIL_UUID
+            );
         }
-        catch (Throwable e) {
-            e.printStackTrace();
-            CHelper.printChat("Something went wrong with Pehkui");
-        }
+        
+        PehkuiInterface.invoker.setBaseScale(entity, newScale);
         
         if (!entity.world.isClient) {
             ModMain.serverTaskList.addTask(() -> {
