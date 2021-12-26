@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.TranslatableText;
-import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.imm_ptl.core.portal.Portal;
 
 public class PehkuiInterface {
@@ -23,12 +22,36 @@ public class PehkuiInterface {
         
         }
         
-        public float getScale(Entity entity) {
-            return 1;
+        public float getBaseScale(Entity entity) {
+            return getBaseScale(entity, 1.0f);
         }
         
-        public float getMotionScale(Entity entity) {
-            return 1;
+        public float getBaseScale(Entity entity, float tickDelta) {
+            return 1.0f;
+        }
+        
+        public void setBaseScale(Entity entity, float scale) {
+            
+        }
+        
+        public float computeThirdPersonScale(Entity entity, float tickDelta) {
+            return 1.0f;
+        }
+        
+        public float computeBlockReachScale(Entity entity) {
+            return computeBlockReachScale(entity, 1.0f);
+        }
+        
+        public float computeBlockReachScale(Entity entity, float tickDelta) {
+            return 1.0f;
+        }
+        
+        public float computeMotionScale(Entity entity) {
+            return computeMotionScale(entity, 1.0f);
+        }
+        
+        public float computeMotionScale(Entity entity, float tickDelta) {
+            return 1.0f;
         }
     }
     
@@ -38,9 +61,6 @@ public class PehkuiInterface {
     
     @Environment(EnvType.CLIENT)
     private static void showMissingPehkui(Portal portal) {
-        if (O_O.isForge()) {
-            return;
-        }
         if (portal.hasScaling() && portal.teleportChangesScale) {
             if (!messageShown) {
                 messageShown = true;
