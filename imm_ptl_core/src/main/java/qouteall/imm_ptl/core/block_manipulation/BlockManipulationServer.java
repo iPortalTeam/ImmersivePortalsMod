@@ -67,7 +67,7 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
-        Float playerScale = PehkuiInterface.invoker.getScale(player);
+        Float playerScale = PehkuiInterface.invoker.computeBlockReachScale(player);
         
         Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
