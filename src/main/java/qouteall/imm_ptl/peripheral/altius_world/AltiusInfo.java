@@ -28,11 +28,13 @@ import java.util.stream.Collectors;
 public class AltiusInfo {
     
     public final boolean loop;
+    public final boolean gravityChange;
     public final List<AltiusEntry> entries;
     
-    public AltiusInfo(List<AltiusEntry> entries, boolean loop) {
+    public AltiusInfo(List<AltiusEntry> entries, boolean loop, boolean gravityChange) {
         this.entries = entries;
         this.loop = loop;
+        this.gravityChange = gravityChange;
     }
     
     public static void initializeFuseViewProperty(Portal portal) {
@@ -42,7 +44,7 @@ public class AltiusInfo {
     }
     
     public static void createConnectionBetween(
-        AltiusEntry a, AltiusEntry b
+        AltiusEntry a, AltiusEntry b, boolean gravityChange
     ) {
         ServerWorld fromWorld = McHelper.getServerWorld(a.dimension);
         ServerWorld toWorld = McHelper.getServerWorld(b.dimension);
@@ -83,6 +85,11 @@ public class AltiusInfo {
         initializeFuseViewProperty(connectingPortal);
         initializeFuseViewProperty(reverse);
         
+        if (gravityChange) {
+            connectingPortal.setTeleportChangesGravity(true);
+            reverse.setTeleportChangesGravity(true);
+        }
+        
         PortalAPI.addGlobalPortal(fromWorld, connectingPortal);
         PortalAPI.addGlobalPortal(toWorld, reverse);
     }
@@ -104,14 +111,14 @@ public class AltiusInfo {
         Helper.wrapAdjacentAndMap(
             entries.stream(),
             (before, after) -> {
-                createConnectionBetween(before, after);
+                createConnectionBetween(before, after, gravityChange);
                 return null;
             }
         ).forEach(k -> {
         });
         
         if (loop) {
-            createConnectionBetween(entries.get(entries.size() - 1), entries.get(0));
+            createConnectionBetween(entries.get(entries.size() - 1), entries.get(0), gravityChange);
         }
         
         Map<RegistryKey<World>, BlockState> bedrockReplacementMap = new HashMap<>();
@@ -137,6 +144,7 @@ public class AltiusInfo {
     public NbtCompound toNbt() {
         NbtCompound nbtCompound = new NbtCompound();
         nbtCompound.putBoolean("loop", loop);
+        nbtCompound.putBoolean("gravityChange", gravityChange);
         NbtList list = new NbtList();
         for (AltiusEntry entry : entries) {
             list.add(entry.toNbt());
@@ -147,10 +155,11 @@ public class AltiusInfo {
     
     public static AltiusInfo fromNbt(NbtCompound compound) {
         boolean loop = compound.getBoolean("loop");
+        boolean gravityChange = compound.getBoolean("gravityChange");
         NbtList list = compound.getList("entries", new NbtCompound().getType());
         List<AltiusEntry> entries = list.stream()
             .map(n -> AltiusEntry.fromNbt(((NbtCompound) n))).collect(Collectors.toList());
-        return new AltiusInfo(entries, loop);
+        return new AltiusInfo(entries, loop, gravityChange);
     }
     
     @Nullable

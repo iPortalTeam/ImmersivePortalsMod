@@ -36,11 +36,16 @@ public class AltiusScreen extends Screen {
     
     private final ButtonWidget helpButton;
     
+    private final ButtonWidget loopButton;
+    private final ButtonWidget gravityChangeButton;
+    
     private int titleY;
     
     public boolean isEnabled = false;
     public final DimListWidget dimListWidget;
+    
     public boolean loopEnabled = false;
+    public boolean gravityChangeEnabled = false;
     
     public final Supplier<List<RegistryKey<World>>> dimensionListSupplier;
     private final Consumer<AltiusInfo> finishCallback;
@@ -54,12 +59,35 @@ public class AltiusScreen extends Screen {
         this.parent = parent;
         this.dimensionListSupplier = dimensionListSupplier;
         this.finishCallback = finishCallback;
-    
+        
         toggleButton = new ButtonWidget(
             0, 0, 150, 20,
-            new TranslatableText("imm_ptl.toggle_altius"),
+            new TranslatableText("imm_ptl.altius_toggle_false"),
             (buttonWidget) -> {
                 setEnabled(!isEnabled);
+            }
+        );
+        
+        loopButton = new ButtonWidget(
+            0, 0, 150, 20,
+            new TranslatableText("imm_ptl.loop_disabled"),
+            (buttonWidget) -> {
+                loopEnabled = !loopEnabled;
+                buttonWidget.setMessage(new TranslatableText(
+                    loopEnabled ? "imm_ptl.loop_enabled" : "imm_ptl.loop_disabled"
+                ));
+            }
+        );
+        
+        gravityChangeButton = new ButtonWidget(
+            0, 0, 150, 20,
+            new TranslatableText("imm_ptl.gravity_change_disabled"),
+            (buttonWidget) -> {
+                gravityChangeEnabled = !gravityChangeEnabled;
+                buttonWidget.setMessage(new TranslatableText(
+                    gravityChangeEnabled ? "imm_ptl.gravity_change_enabled" :
+                        "imm_ptl.gravity_change_disabled"
+                ));
             }
         );
         
@@ -111,14 +139,6 @@ public class AltiusScreen extends Screen {
         }
         dimListWidget.entryWidgets.add(createDimEntryWidget(World.OVERWORLD));
         dimListWidget.entryWidgets.add(createDimEntryWidget(World.NETHER));
-
-//        generatorOptionsSupplier1 = Helper.cached(() -> {
-//            GeneratorOptions rawGeneratorOptions =
-//                this.parent.moreOptionsDialog.getGeneratorOptions(false);
-//            return WorldCreationDimensionHelper.populateGeneratorOptions(
-//                this.parent, rawGeneratorOptions, this.parent.moreOptionsDialog.getRegistryManager()
-//            );
-//        });
         
         helpButton = createHelpButton(this);
     }
@@ -145,7 +165,9 @@ public class AltiusScreen extends Screen {
             return new AltiusInfo(
                 dimListWidget.entryWidgets.stream().map(
                     dimEntryWidget -> dimEntryWidget.entry
-                ).collect(Collectors.toList()), loopEnabled
+                ).collect(Collectors.toList()),
+                loopEnabled,
+                gravityChangeEnabled
             );
         }
         else {
@@ -162,8 +184,9 @@ public class AltiusScreen extends Screen {
         addDrawableChild(removeDimensionButton);
         
         addDrawableChild(editButton);
-        
         addDrawableChild(helpButton);
+        addDrawableChild(loopButton);
+        addDrawableChild(gravityChangeButton);
         
         setEnabled(isEnabled);
         
@@ -179,10 +202,14 @@ public class AltiusScreen extends Screen {
                 helpButton.y = from;
                 helpButton.setWidth(30);
             }),
-            new GuiHelper.LayoutElement(true, 20, (a, b) -> {
-                toggleButton.x = 10;
-                toggleButton.y = a;
-            }),
+            new GuiHelper.LayoutElement(
+                true, 20,
+                GuiHelper.combine(
+                    GuiHelper.layoutButtonVertically(toggleButton),
+                    GuiHelper.layoutButtonVertically(loopButton),
+                    GuiHelper.layoutButtonVertically(gravityChangeButton)
+                )
+            ),
             GuiHelper.blankSpace(5),
             new GuiHelper.LayoutElement(false, 1, (from, to) -> {
                 dimListWidget.updateSize(
@@ -222,6 +249,23 @@ public class AltiusScreen extends Screen {
                 );
             }),
             GuiHelper.blankSpace(5)
+        );
+        
+        GuiHelper.layout(
+            0, width,
+            GuiHelper.blankSpace(10),
+            new GuiHelper.LayoutElement(
+                false, 10, GuiHelper.layoutButtonHorizontally(toggleButton)
+            ),
+            GuiHelper.blankSpace(5),
+            new GuiHelper.LayoutElement(
+                false, 8, GuiHelper.layoutButtonHorizontally(loopButton)
+            ),
+            GuiHelper.blankSpace(5),
+            new GuiHelper.LayoutElement(
+                false, 10, GuiHelper.layoutButtonHorizontally(gravityChangeButton)
+            ),
+            GuiHelper.blankSpace(10)
         );
     }
     
@@ -264,8 +308,9 @@ public class AltiusScreen extends Screen {
         }
         addDimensionButton.visible = isEnabled;
         removeDimensionButton.visible = isEnabled;
-        
         editButton.visible = isEnabled;
+        loopButton.visible = isEnabled;
+        gravityChangeButton.visible = isEnabled;
     }
     
     private void onAddEntry() {

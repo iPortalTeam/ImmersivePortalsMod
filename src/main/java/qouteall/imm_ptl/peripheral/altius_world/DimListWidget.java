@@ -18,8 +18,6 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     public final Screen parent;
     private final Type type;
     
-    private ButtonWidget extraLoopButton;
-    
     @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
     
@@ -42,22 +40,22 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
         this.parent = parent;
         this.type = type;
         
-        if (type == Type.mainDimensionList) {
-            AltiusScreen parent1 = (AltiusScreen) parent;
-            
-            extraLoopButton = new ButtonWidget(
-                0, 0, 100, 20,
-                new TranslatableText(parent1.loopEnabled ?
-                    "imm_ptl.enabled" : "imm_ptl.disabled"),
-                button -> {
-                    parent1.loopEnabled = !parent1.loopEnabled;
-                    button.setMessage(
-                        new TranslatableText(parent1.loopEnabled ?
-                            "imm_ptl.enabled" : "imm_ptl.disabled")
-                    );
-                }
-            );
-        }
+//        if (type == Type.mainDimensionList) {
+//            AltiusScreen parent1 = (AltiusScreen) parent;
+//
+//            extraLoopButton = new ButtonWidget(
+//                0, 0, 100, 20,
+//                new TranslatableText(parent1.loopEnabled ?
+//                    "imm_ptl.enabled" : "imm_ptl.disabled"),
+//                button -> {
+//                    parent1.loopEnabled = !parent1.loopEnabled;
+//                    button.setMessage(
+//                        new TranslatableText(parent1.loopEnabled ?
+//                            "imm_ptl.enabled" : "imm_ptl.disabled")
+//                    );
+//                }
+//            );
+//        }
     }
     
     public void update() {
@@ -98,14 +96,14 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
         update();
     }
     
-    @Override
-    protected int getMaxPosition() {
-        if (type == Type.mainDimensionList) {
-            return super.getMaxPosition() + itemHeight;
-        }
-        
-        return super.getMaxPosition();
-    }
+//    @Override
+//    protected int getMaxPosition() {
+//        if (type == Type.mainDimensionList) {
+//            return super.getMaxPosition() + itemHeight;
+//        }
+//
+//        return super.getMaxPosition();
+//    }
     
     @Override
     protected void renderList(MatrixStack matrices, int x, int y, int mouseX, int mouseY, float delta) {
@@ -124,21 +122,21 @@ public class DimListWidget extends EntryListWidget<DimEntryWidget> {
     private void renderLoopButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int localOffset = getMaxPosition() - 35;
         int currY = top + 4 - (int) getScrollAmount() + localOffset;
-        extraLoopButton.y = currY;
-        extraLoopButton.x = getRowLeft() + 100;
+//        extraLoopButton.y = currY;
+//        extraLoopButton.x = getRowLeft() + 100;
+//
+//        extraLoopButton.render(matrices, mouseX, mouseY, delta);
         
-        extraLoopButton.render(matrices, mouseX, mouseY, delta);
-        
-        new GuiHelper.Rect(
-            getRowLeft() + 30, currY, 200, currY + 100
-        ).renderTextLeft(new TranslatableText("imm_ptl.loop"), matrices);
+//        new GuiHelper.Rect(
+//            getRowLeft() + 30, currY, 200, currY + 100
+//        ).renderTextLeft(new TranslatableText("imm_ptl.loop"), matrices);
     }
     
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (type == Type.mainDimensionList) {
-            extraLoopButton.mouseClicked(mouseX, mouseY, button);
-        }
+//        if (type == Type.mainDimensionList) {
+//            extraLoopButton.mouseClicked(mouseX, mouseY, button);
+//        }
         
         return super.mouseClicked(mouseX, mouseY, button);
     }
