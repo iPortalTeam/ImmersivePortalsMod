@@ -41,8 +41,7 @@
   "breaks": {
     "optifabric": "*",
     "pehkui": "<3.0.0",
-    "sodium": ">0.4.0-alpha5",
-    "altoclef": "*"
+    "sodium": ">0.4.0-alpha5"
   },
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
