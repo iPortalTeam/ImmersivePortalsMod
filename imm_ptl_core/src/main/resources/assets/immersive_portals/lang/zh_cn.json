@@ -140,5 +140,10 @@
   "imm_ptl.command.enable_gravity_change": "启用引力方向变换",
   "imm_ptl.command_desc.enable_gravity_change": "需要Gravity Changer模组",
   "imm_ptl.light_vanilla_nether_portal_when_crouching": "潜行时创建原版地狱传送门",
-  "imm_ptl.common_config": "通用设置"
+  "imm_ptl.common_config": "通用设置",
+  "imm_ptl.loop_enabled": "启用循环",
+  "imm_ptl.loop_disabled": "禁用循环",
+  "imm_ptl.gravity_change_enabled": "启用引力改变",
+  "imm_ptl.gravity_change_disabled": "禁用引力改变",
+  "imm_ptl.missing_gravity_changer": "由于未安装Gravity Changer模组，你的引力方向没有改变。"
 }

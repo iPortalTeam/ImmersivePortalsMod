@@ -140,5 +140,10 @@
   "imm_ptl.light_vanilla_nether_portal_when_crouching": "スニーク中の軽量バニラポータル",
   "imm_ptl.command.enable_gravity_change": "Enable Gravity Changing",
   "imm_ptl.command_desc.enable_gravity_change": "Requires Gravity Changer Mod.",
-  "imm_ptl.common_config": "Common"
+  "imm_ptl.common_config": "Common",
+  "imm_ptl.loop_enabled": "Loop Enabled",
+  "imm_ptl.loop_disabled": "Loop Disabled",
+  "imm_ptl.gravity_change_enabled": "Gravity Change Enabled",
+  "imm_ptl.gravity_change_disabled": "Gravity Change Disabled",
+  "imm_ptl.missing_gravity_changer": "Gravity Changer mod is not present. Your gravity direction is not changed"
 }

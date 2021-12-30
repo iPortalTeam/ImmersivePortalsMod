@@ -4,10 +4,14 @@ import me.andrew.gravitychanger.accessor.EntityAccessor;
 import me.andrew.gravitychanger.accessor.RotatableEntityAccessor;
 import me.andrew.gravitychanger.api.GravityChangerAPI;
 import me.andrew.gravitychanger.util.RotationUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import qouteall.imm_ptl.core.CHelper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import javax.annotation.Nullable;
@@ -29,7 +33,9 @@ public class GravityChangerInterface {
         }
         
         public void setGravityDirection(Entity entity, Direction direction) {
-        
+            if (entity instanceof PlayerEntity && entity.world.isClient()) {
+                warnGravityChangerNotPresent();
+            }
         }
         
         @Nullable
@@ -43,6 +49,16 @@ public class GravityChangerInterface {
         
         public void setWorldVelocity(Entity entity, Vec3d newVelocity) {
             entity.setVelocity(newVelocity);
+        }
+    }
+    
+    private static boolean warned = false;
+    
+    @Environment(EnvType.CLIENT)
+    private static void warnGravityChangerNotPresent() {
+        if (!warned) {
+            warned = true;
+            CHelper.printChat(new TranslatableText("imm_ptl.missing_gravity_changer"));
         }
     }
     

@@ -86,7 +86,7 @@ allprojects {
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12'
 
-        modImplementation ("maven.modrinth:gravitychanger:0.3.0") {
+        modCompileOnly ("maven.modrinth:gravitychanger:0.3.0") {
             transitive = false
         }
     }
