@@ -21,18 +21,17 @@ public class IPModCompatibilityWarning {
     private static List<ModInfo> incompatibleMods = Lists.newArrayList(
         new ModInfo("dimthread", "Dimensional Threading"),
         new ModInfo("c2me", "C2ME"),
-        new ModInfo("replaymod", "Replay Mod"),
-        new ModInfo("physicsmod", "Physics Mod"),
-        new ModInfo("resolutioncontrol", "Resolution Control"),
-        new ModInfo("viafabric-mc118", "ViaFabric for MC 1.18"),
         new ModInfo("mcxr-core", "MCXR"),
-        new ModInfo("multiconnect", "MultiConnect"),
         new ModInfo("taterzens", "Taterzens"),
-        new ModInfo("requiem", "Requiem"),
         new ModInfo("modern_industrialization", "Modern Industrialization"),
-        new ModInfo("canvas", "Canvas"),
-        new ModInfo("cardboard", "Cardboard"),
         new ModInfo("altoclef", "Altoclef")
+    );
+    
+    private static List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
+        new ModInfo("physicsmod", "Physics Mod"),
+        new ModInfo("replaymod", "Replay Mod"),
+        new ModInfo("lithium", "Lithium"),
+        new ModInfo("requiem", "Requiem")
     );
     
     public static record ModInfo(String modId, String modName) {}
@@ -42,6 +41,15 @@ public class IPModCompatibilityWarning {
             if (FabricLoader.getInstance().isModLoaded(mod.modId)) {
                 Helper.err(String.format(
                     "WARNING: This mod is incompatible with Immersive Portals: %s(%s)",
+                    mod.modName, mod.modId
+                ));
+            }
+        }
+        
+        for (ModInfo mod : maybeIncompatibleMods) {
+            if (FabricLoader.getInstance().isModLoaded(mod.modId)) {
+                Helper.err(String.format(
+                    "WARNING: This mod is maybe incompatible with Immersive Portals: %s(%s)",
                     mod.modName, mod.modId
                 ));
             }
@@ -57,7 +65,24 @@ public class IPModCompatibilityWarning {
                     MyTaskList.oneShotTask(() -> {
                         CHelper.printChat(new LiteralText(
                             String.format(
-                                "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues may occur.",
+                                "WARNING: Immersive Portals mod is incompatible with mod %s(%s) . Major issues will occur.",
+                                mod.modName, mod.modId
+                            )
+                        ).formatted(Formatting.RED));
+                    })
+                ));
+                
+            }
+        }
+        
+        for (ModInfo mod : maybeIncompatibleMods) {
+            if (FabricLoader.getInstance().isModLoaded(mod.modId)) {
+                IPGlobal.clientTaskList.addTask(MyTaskList.withDelayCondition(
+                    () -> MinecraftClient.getInstance().world == null,
+                    MyTaskList.oneShotTask(() -> {
+                        CHelper.printChat(new LiteralText(
+                            String.format(
+                                "WARNING: Immersive Portals mod is maybe incompatible with mod %s(%s) . Major issues may occur.",
                                 mod.modName, mod.modId
                             )
                         ).formatted(Formatting.RED));

@@ -1,5 +1,5 @@
 {
-  "imm_ptl.common_config": "Common",
+  "imm_ptl.common_config": "Common Side",
   "imm_ptl.client_side_config": "Client Side",
   "imm_ptl.loading_chunks": "Loading Chunks %1$s/%2$s",
   "imm_ptl.searching_for_frame": "Searching for existing frame",
