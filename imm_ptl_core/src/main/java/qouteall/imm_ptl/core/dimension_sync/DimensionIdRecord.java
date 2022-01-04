@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtInt;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 public class DimensionIdRecord {
@@ -31,6 +32,11 @@ public class DimensionIdRecord {
             );
         }
         return result;
+    }
+    
+    @Nullable
+    public RegistryKey<World> getDimFromIntOptional(int integerId) {
+        return inverseMap.get(integerId);
     }
     
     public int getIntId(RegistryKey<World> dim) {
