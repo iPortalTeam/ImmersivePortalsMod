@@ -10,6 +10,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.q_misc_util.Helper;
 
 public class DimId {
     
@@ -48,6 +49,9 @@ public class DimId {
         }
     }
     
+    // NOTE Minecraft use a global map to store these
+    // that map can only grow but cannot be cleaned.
+    // so a malicious client may make the server memory leak by that
     public static RegistryKey<World> idToKey(Identifier identifier) {
         return RegistryKey.of(Registry.WORLD_KEY, identifier);
     }
@@ -66,7 +70,12 @@ public class DimId {
             int intId = ((NbtInt) term).intValue();
             DimensionIdRecord record = isClient ?
                 DimensionIdRecord.clientRecord : DimensionIdRecord.serverRecord;
-            return record.getDim(intId);
+            RegistryKey<World> result = record.getDimFromIntOptional(intId);
+            if (result == null) {
+                Helper.err("unknown dimension id " + intId);
+                return World.OVERWORLD;
+            }
+            return result;
         }
         
         if (term instanceof NbtString) {

@@ -3,19 +3,14 @@ package qouteall.imm_ptl.core.dimension_sync;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtInt;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.level.storage.LevelStorage;
 import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.platform_specific.O_O;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +22,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+// ImmPtl in 1.15 and before store integer dimension id
+// It used to be able to upgrade the dimension id by reading the id map inside fabric api
+// I removed that because Fabric API changed so the hack broke and very few people use 1.15 now
 public class DimensionIdManagement {
     private static Field fabric_activeTag_field;
     
@@ -35,22 +33,7 @@ public class DimensionIdManagement {
         if (ipRecord == null) {
             Helper.log("Immersive Portals' dimension id record is missing");
             
-            DimensionIdRecord fabricRecord = getFabricRecord();
-            
-            if (fabricRecord != null) {
-                Helper.log("Found Fabric's dimension id record");
-                Helper.log("\n" + fabricRecord);
-                
-                DimensionIdRecord.serverRecord = fabricRecord;
-                fabricRecord = null;
-            }
-            else {
-                Helper.log("Cannot retrieve Fabric's dimension id record.");
-                Helper.log("If this is not a newly created world," +
-                    " existing portal data may be corrupted!!!"
-                );
-                DimensionIdRecord.serverRecord = null;
-            }
+            DimensionIdRecord.serverRecord = null;
         }
         else {
             DimensionIdRecord.serverRecord = ipRecord;
@@ -144,66 +127,5 @@ public class DimensionIdManagement {
         });
         
         Helper.log("After:\n" + DimensionIdRecord.serverRecord);
-    }
-    
-    /**
-     * MixinLevelStorageSession
-     */
-    @Nullable
-    private static DimensionIdRecord getFabricRecord() {
-        if (O_O.isForge()) {
-            return null;
-        }
-        
-        try {
-            if (fabric_activeTag_field == null) {
-                fabric_activeTag_field = LevelStorage.Session.class.getDeclaredField("fabric_activeTag");
-                fabric_activeTag_field.setAccessible(true);
-            }
-            
-            LevelStorage.Session session = MiscHelper.getServer().session;
-            
-            NbtCompound tag = (NbtCompound) fabric_activeTag_field.get(session);
-            
-            if (tag == null) {
-                return null;
-            }
-            
-            return readIdsFromFabricRegistryRecord(tag);
-        }
-        catch (Throwable e) {
-            throw new RuntimeException(
-                "Cannot get Fabric registry info", e
-            );
-        }
-    }
-    
-    /**
-     * RegistrySyncManager#apply(CompoundTag, RemappableRegistry.RemapMode)
-     */
-    private static DimensionIdRecord readIdsFromFabricRegistryRecord(NbtCompound fabricRegistryRecord) {
-        NbtCompound dimensionTypeTag = fabricRegistryRecord.getCompound("minecraft:dimension_type");
-        
-        if (dimensionTypeTag.isEmpty()) {
-            Helper.err("Missing 'minecraft:dimension_type' " + fabricRegistryRecord);
-            return null;
-        }
-        
-        HashBiMap<RegistryKey<World>, Integer> bimap = HashBiMap.create();
-        
-        dimensionTypeTag.getKeys().forEach(dim -> {
-            NbtElement t = dimensionTypeTag.get(dim);
-            if (t instanceof NbtInt) {
-                int data = ((NbtInt) t).intValue();
-                bimap.put(DimId.idToKey(dim), data - 1);
-            }
-            else {
-                Helper.err(String.format(
-                    "Non-int tag in fabric registry data %s %s %s", t, dim, fabricRegistryRecord
-                ));
-            }
-        });
-        
-        return new DimensionIdRecord(bimap);
     }
 }
