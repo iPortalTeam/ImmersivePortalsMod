@@ -50,6 +50,14 @@ public class GravityChangerInterface {
         public void setWorldVelocity(Entity entity, Vec3d newVelocity) {
             entity.setVelocity(newVelocity);
         }
+    
+        public Vec3d transformPlayerToWorld(Direction gravity, Vec3d vec3d) {
+            return vec3d;
+        }
+    
+        public Vec3d transformWorldToPlayer(Direction gravity, Vec3d vec3d) {
+            return vec3d;
+        }
     }
     
     private static boolean warned = false;
@@ -119,6 +127,16 @@ public class GravityChangerInterface {
             else {
                 super.setWorldVelocity(entity, newVelocity);
             }
+        }
+    
+        @Override
+        public Vec3d transformPlayerToWorld(Direction gravity, Vec3d vec3d) {
+            return RotationUtil.vecPlayerToWorld(vec3d, gravity);
+        }
+    
+        @Override
+        public Vec3d transformWorldToPlayer(Direction gravity, Vec3d vec3d) {
+            return RotationUtil.vecWorldToPlayer(vec3d, gravity);
         }
     }
 }

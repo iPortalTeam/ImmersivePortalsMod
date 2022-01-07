@@ -101,6 +101,30 @@ public class Helper {
         }
     }
     
+    public static double getBoxCoordinate(Box box, Direction direction) {
+        switch (direction) {
+            case DOWN -> {return box.minY;}
+            case UP -> {return box.maxY;}
+            case NORTH -> {return box.minZ;}
+            case SOUTH -> {return box.maxZ;}
+            case WEST -> {return box.minX;}
+            case EAST -> {return box.maxX;}
+        }
+        throw new RuntimeException();
+    }
+    
+    public static Box replaceBoxCoordinate(Box box, Direction direction, double coordinate) {
+        switch (direction) {
+            case DOWN -> {return new Box(box.minX, coordinate, box.minZ, box.maxX, box.maxY, box.maxZ);}
+            case UP -> {return new Box(box.minX, box.minY, box.minZ, box.maxX, coordinate, box.maxZ);}
+            case NORTH -> {return new Box(box.minX, box.minY, coordinate, box.maxX, box.maxY, box.maxZ);}
+            case SOUTH -> {return new Box(box.minX, box.minY, box.minZ, box.maxX, box.maxY, coordinate);}
+            case WEST -> {return new Box(coordinate, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);}
+            case EAST -> {return new Box(box.minX, box.minY, box.minZ, coordinate, box.maxY, box.maxZ);}
+        }
+        throw new RuntimeException();
+    }
+    
     public static <A, B> Pair<B, A> swaped(Pair<A, B> p) {
         return new Pair<>(p.getRight(), p.getLeft());
     }
@@ -720,7 +744,7 @@ public class Helper {
         return value;
     }
     
-    public static interface IntObjectConsumer<T>{
+    public static interface IntObjectConsumer<T> {
         void consume(int index, T object);
     }
     

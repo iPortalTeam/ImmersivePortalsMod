@@ -8,7 +8,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.shape.VoxelShape;
@@ -17,10 +17,9 @@ import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.GravityChangerInterface;
-import qouteall.q_misc_util.Helper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEClientPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
@@ -37,19 +36,6 @@ import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import qouteall.q_misc_util.Helper;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
 
 import java.util.Comparator;
 import java.util.stream.Stream;
@@ -260,10 +246,8 @@ public class ClientTeleportationManager {
         isTeleportingTick = true;
         isTeleportingFrame = true;
         
-        if (!portal.getTeleportChangesGravity()) {
-            if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
-                adjustPlayerPosition(player);
-            }
+        if (PortalExtension.get(portal).adjustPositionAfterTeleport) {
+            adjustPlayerPosition(player);
         }
         
         MyGameRenderer.vanillaTerrainSetupOverride = 1;
@@ -429,30 +413,58 @@ public class ClientTeleportationManager {
             return;
         }
         
-        Box boundingBox = player.getBoundingBox();
-        Box bottomHalfBox = boundingBox.shrink(0, boundingBox.getYLength() / 2, 0);
+        Box playerBoundingBox = player.getBoundingBox();
+        
+        Direction gravityDir = GravityChangerInterface.invoker.getGravityDirection(player);
+        Direction levitationDir = gravityDir.getOpposite();
+        Vec3d eyeOffset = GravityChangerInterface.invoker.getEyeOffset(player);
+        
+        Box bottomHalfBox = playerBoundingBox.shrink(eyeOffset.x / 2, eyeOffset.y / 2, eyeOffset.z / 2);
         Iterable<VoxelShape> collisions = player.world.getBlockCollisions(
             player, bottomHalfBox
         );
         
-        double maxY = player.getY();
+        Box collisionUnion = null;
         for (VoxelShape collision : collisions) {
-            maxY = Math.max(
-                collision.getBoundingBox().maxY,
-                maxY
-            );
+            Box collisionBoundingBox = collision.getBoundingBox();
+            if (collisionUnion == null) {
+                collisionUnion = collisionBoundingBox;
+            }
+            else {
+                collisionUnion = collisionUnion.union(collisionBoundingBox);
+            }
         }
         
-        double maxY1 = maxY;// must effectively final
-        double delta = maxY - player.getY();
+        if (collisionUnion == null) {
+            return;
+        }
+        
+        Vec3d anchor = player.getPos();
+        Box collisionUnionLocal = Helper.transformBox(
+            collisionUnion, v -> GravityChangerInterface.invoker.transformWorldToPlayer(
+                gravityDir, v.subtract(anchor)
+            )
+        );
+        
+        Box playerBoxLocal = Helper.transformBox(
+            playerBoundingBox, v -> GravityChangerInterface.invoker.transformWorldToPlayer(
+                gravityDir, v.subtract(anchor)
+            )
+        );
+        
+        double targetLocalY = collisionUnionLocal.maxY + 0.001;
+        double originalLocalY = playerBoxLocal.minY;
+        double delta = targetLocalY - originalLocalY;
         
         if (delta <= 0) {
             return;
         }
         
-        final int ticks = 5;
+        Vec3d levitationVec = Vec3d.of(levitationDir.getVector());
         
-        double originalY = player.getY();
+        Vec3d offset = levitationVec.multiply(delta);
+        
+        final int ticks = 5;
         
         Helper.log("Adjusting Client Player Position");
         
@@ -461,7 +473,8 @@ public class ClientTeleportationManager {
             if (player.isRemoved()) {
                 return true;
             }
-            if (player.getY() < originalY - 1 || player.getY() > maxY1 + 1) {
+            
+            if (GravityChangerInterface.invoker.getGravityDirection(player) != gravityDir) {
                 return true;
             }
             
@@ -471,14 +484,20 @@ public class ClientTeleportationManager {
             
             counter[0]++;
             
+            double len = player.getPos().subtract(anchor).dotProduct(levitationVec);
+            if (len < -1 || len > 1) {
+                // stop early
+                return true;
+            }
+            
             double progress = ((double) counter[0]) / ticks;
             progress = TransformationManager.mapProgress(progress);
-            double newY = MathHelper.lerp(
-                progress,
-                originalY, maxY1
-            );
             
-            Vec3d newPos = new Vec3d(player.getX(), newY, player.getZ());
+            Vec3d expectedPos = anchor.add(offset.multiply(progress));
+            
+            Vec3d newPos = Helper.putCoordinate(player.getPos(), levitationDir.getAxis(),
+                Helper.getCoordinate(expectedPos, levitationDir.getAxis())
+            );
             
             Portal collidingPortal = ((IEEntity) player).getCollidingPortal();
             if (collidingPortal != null) {
