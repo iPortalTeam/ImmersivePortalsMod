@@ -191,18 +191,10 @@ public abstract class MixinEntity implements IEEntity {
     }
     
     // Avoid instant crouching when crossing a scaling portal
-    @Inject(method = "setPose", at = @At("HEAD"), cancellable = true)
-    private void onSetPose(EntityPose pose, CallbackInfo ci) {
-        Entity this_ = (Entity) (Object) this;
-        
-        if (this_ instanceof PlayerEntity) {
-            if (this_.getPose() == EntityPose.STANDING) {
-                if (pose == EntityPose.SWIMMING) {
-                    if (isRecentlyCollidingWithPortal()) {
-                        ci.cancel();
-                    }
-                }
-            }
+    @Inject(method = "wouldPoseNotCollide", at = @At("HEAD"), cancellable = true)
+    private void onWouldPoseNotCollide(EntityPose pose, CallbackInfoReturnable<Boolean> cir) {
+        if (isRecentlyCollidingWithPortal()) {
+            cir.setReturnValue(true);
         }
     }
     
