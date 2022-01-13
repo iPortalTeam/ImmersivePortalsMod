@@ -16,6 +16,7 @@ import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -115,6 +116,14 @@ public class PortalAPI {
     public static void removeChunkLoaderForPlayer(ServerPlayerEntity player, ChunkLoader chunkLoader) {
         McHelper.validateOnServerThread();
         NewChunkTrackingGraph.removePerPlayerAdditionalChunkLoader(player, chunkLoader);
+    }
+    
+    
+    /**
+     * It can teleport the player without loading screen
+     */
+    public static void teleportEntity(Entity entity, ServerWorld targetWorld, Vec3d targetPos) {
+        ServerTeleportationManager.teleportEntityGeneral(entity, targetPos, targetWorld);
     }
     
 }
