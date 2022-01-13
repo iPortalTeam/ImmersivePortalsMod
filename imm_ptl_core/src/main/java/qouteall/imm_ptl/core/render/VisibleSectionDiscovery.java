@@ -47,7 +47,7 @@ public class VisibleSectionDiscovery {
         resultHolder.clear();
         tempQueue.clear();
         
-        updateViewDistance1();
+        updateViewDistance();
         
         timeMark = System.nanoTime();
         
@@ -65,7 +65,8 @@ public class VisibleSectionDiscovery {
             checkSection(
                 cameraSectionPos.getSectionX(),
                 cameraSectionPos.getSectionY(),
-                cameraSectionPos.getSectionZ()
+                cameraSectionPos.getSectionZ(),
+                true
             );
         }
         
@@ -76,12 +77,12 @@ public class VisibleSectionDiscovery {
             int cy = ChunkSectionPos.getSectionCoord(curr.getOrigin().getY());
             int cz = ChunkSectionPos.getSectionCoord(curr.getOrigin().getZ());
             
-            checkSection(cx + 1, cy, cz);
-            checkSection(cx - 1, cy, cz);
-            checkSection(cx, cy + 1, cz);
-            checkSection(cx, cy - 1, cz);
-            checkSection(cx, cy, cz + 1);
-            checkSection(cx, cy, cz - 1);
+            checkSection(cx + 1, cy, cz, false);
+            checkSection(cx - 1, cy, cz, false);
+            checkSection(cx, cy + 1, cz, false);
+            checkSection(cx, cy - 1, cz, false);
+            checkSection(cx, cy, cz + 1, false);
+            checkSection(cx, cy, cz - 1, false);
         }
         
         // avoid memory leak
@@ -90,15 +91,14 @@ public class VisibleSectionDiscovery {
         vanillaFrustum = null;
     }
     
-    private static void updateViewDistance1() {
+    private static void updateViewDistance() {
         int distance = WorldRenderInfo.getRenderDistance();
-        int viewDistanceCap = PerformanceLevel.getPortalRenderingChunkRadiusCap(
-            ClientPerformanceMonitor.currentPerformanceLevel
+        viewDistance = PerformanceLevel.getPortalRenderingDistance(
+            ClientPerformanceMonitor.currentPerformanceLevel, distance
         );
-        
-        viewDistance = Math.min(distance, viewDistanceCap);
     }
     
+    // NOTE the vanilla frustum culling code may wrongly cull the first section
     private static boolean isVisible(ChunkBuilder.BuiltChunk builtChunk) {
         Box box = builtChunk.boundingBox;
         return vanillaFrustum.isVisible(box);
@@ -110,13 +110,13 @@ public class VisibleSectionDiscovery {
             cameraSectionPos.getSectionZ(),
             viewDistance - 1,
             (cx, cz) -> {
-                checkSection(cx, cy, cz);
+                checkSection(cx, cy, cz, false);
                 return null;
             }
         );
     }
     
-    private static void checkSection(int cx, int cy, int cz) {
+    private static void checkSection(int cx, int cy, int cz, boolean skipFrustumTest) {
         if (Math.abs(cx - cameraSectionPos.getSectionX()) > viewDistance) {
             return;
         }
@@ -133,7 +133,7 @@ public class VisibleSectionDiscovery {
             IEBuiltChunk ieBuiltChunk = (IEBuiltChunk) builtChunk;
             if (ieBuiltChunk.portal_getMark() != timeMark) {
                 ieBuiltChunk.portal_setMark(timeMark);// mark it checked
-                if (isVisible(builtChunk)) {
+                if (skipFrustumTest || isVisible(builtChunk)) {
                     tempQueue.add(builtChunk);
                     resultHolder.add(ieBuiltChunk.portal_getDummyChunkInfo());
                 }

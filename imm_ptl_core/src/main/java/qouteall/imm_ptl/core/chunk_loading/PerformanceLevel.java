@@ -69,14 +69,14 @@ public enum PerformanceLevel {
         }
     }
     
-    public static int getPortalRenderingChunkRadiusCap(
-        PerformanceLevel level
+    public static int getPortalRenderingDistance(
+        PerformanceLevel level, int originalDistance
     ) {
         if (level == good) {
-            return 9999;
+            return originalDistance;
         }
         else if (level == medium) {
-            return 6;
+            return Math.min(2, originalDistance / 2);
         }
         else {
             return 2;
