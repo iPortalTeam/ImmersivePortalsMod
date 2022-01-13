@@ -107,7 +107,9 @@ public class IPGlobal {
     public static boolean viewBobbingCameraCorrection = false;
     
     public static boolean enableWarning = true;
-    
+
+    public static boolean enableMirrorCreation = true;
+
     public static boolean lightVanillaNetherPortalWhenCrouching = false;
     
     public static boolean enableNetherPortalEffect = true;

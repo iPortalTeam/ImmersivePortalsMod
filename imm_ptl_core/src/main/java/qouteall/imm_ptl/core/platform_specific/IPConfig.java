@@ -18,6 +18,7 @@ public class IPConfig {
     public String check_the_wiki_for_more_information = "https://qouteall.fun/immptl/wiki/Config-Options";
     
     public boolean enableWarning = true;
+    public boolean enableMirrorCreation = true;
     public int maxPortalLayer = 5;
     public boolean sharedBlockMeshBufferOptimization = true;
     public boolean lagAttackProof = true;
@@ -124,6 +125,7 @@ public class IPConfig {
             IPGlobal.renderMode = IPGlobal.RenderMode.normal;
         }
         IPGlobal.enableWarning = enableWarning;
+        IPGlobal.enableMirrorCreation = enableMirrorCreation;
         IPGlobal.doCheckGlError = doCheckGlError;
         IPGlobal.maxPortalLayer = maxPortalLayer;
         IPGlobal.lagAttackProof = lagAttackProof;

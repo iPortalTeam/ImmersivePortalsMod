@@ -47,6 +47,10 @@ public class IPConfigGUI {
             new TranslatableText("imm_ptl.enable_warning"),
             currConfig.enableWarning
         ).setDefaultValue(true).build();
+        BooleanListEntry entryEnableMirrorCreation = builder.entryBuilder().startBooleanToggle(
+                new TranslatableText("imm_ptl.enable_mirror_creation"),
+                currConfig.enableMirrorCreation
+        ).setDefaultValue(true).build();
         BooleanListEntry entryCompatibilityRenderMode = builder.entryBuilder().startBooleanToggle(
             new TranslatableText("imm_ptl.compatibility_render_mode"),
             currConfig.compatibilityRenderMode
@@ -128,6 +132,7 @@ public class IPConfigGUI {
         clientSide.addEntry(entryCorrectCrossPortalEntityRendering);
     
         commonSide.addEntry(entryEnableWarning);
+        commonSide.addEntry(entryEnableMirrorCreation);
         commonSide.addEntry(entryIndirectLoadingRadiusCap);
         commonSide.addEntry(entryNetherPortalMode);
         commonSide.addEntry(entryEndPortalMode);
@@ -162,6 +167,7 @@ public class IPConfigGUI {
                 newConfig.netherPortalOverlay = entryNetherPortalOverlay.getValue();
                 newConfig.lightVanillaNetherPortalWhenCrouching = entryLightVanillaNetherPortalWhenCrouching.getValue();
                 newConfig.enableWarning = entryEnableWarning.getValue();
+                newConfig.enableMirrorCreation = entryEnableMirrorCreation.getValue();
                 
                 newConfig.saveConfigFile();
                 newConfig.onConfigChanged();
