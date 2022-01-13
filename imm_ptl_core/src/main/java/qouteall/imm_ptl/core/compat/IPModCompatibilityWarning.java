@@ -29,7 +29,7 @@ public class IPModCompatibilityWarning {
     private static List<ModInfo> maybeIncompatibleMods = Lists.newArrayList(
         new ModInfo("physicsmod", "Physics Mod"),
         new ModInfo("replaymod", "Replay Mod"),
-        new ModInfo("lithium", "Lithium"),
+//        new ModInfo("lithium", "Lithium"),
         new ModInfo("requiem", "Requiem")
     );
     
