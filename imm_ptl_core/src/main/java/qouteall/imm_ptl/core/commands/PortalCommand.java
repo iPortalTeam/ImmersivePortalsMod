@@ -462,6 +462,7 @@ public class PortalCommand {
                             ));
                             
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                             
                             sendMessage(context, portal.toString());
                             
@@ -588,6 +589,7 @@ public class PortalCommand {
                                 portal.getZ() + offset.z
                             );
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                         }
                         catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
@@ -616,6 +618,7 @@ public class PortalCommand {
                                 portal.transformLocalVecNonScale(offset)
                             ));
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                         }
                         catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
@@ -690,6 +693,7 @@ public class PortalCommand {
                 portal -> {
                     makePortalRound(portal);
                     portal.reloadAndSyncToClient();
+                    portal.rectifyClusterPortals();
                 }
             ))
         );
@@ -703,6 +707,7 @@ public class PortalCommand {
                         portal.scaling = scale;
                         
                         portal.reloadAndSyncToClient();
+                        portal.rectifyClusterPortals();
                     }
                 ))
             )
@@ -715,6 +720,7 @@ public class PortalCommand {
                     portal.dimensionTo = entity.world.getRegistryKey();
                     portal.setDestination(entity.getPos());
                     portal.reloadAndSyncToClient();
+                    portal.rectifyClusterPortals();
                 }))
             )
         );
@@ -735,6 +741,7 @@ public class PortalCommand {
                     portal.axisW = new Vec3d(1, 0, 0);
                     portal.axisH = new Vec3d(0, 1, 0);
                     portal.reloadAndSyncToClient();
+                    portal.rectifyClusterPortals();
                 }
             ))
         );
@@ -770,6 +777,7 @@ public class PortalCommand {
                         )
                     );
                     portal.reloadAndSyncToClient();
+                    portal.rectifyClusterPortals();
                 }))
             )
         );
@@ -803,6 +811,7 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                             
                             sendEditBreakableWarning(context, portal);
                         }
@@ -831,6 +840,7 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                             
                             sendEditBreakableWarning(context, portal);
                         }
@@ -857,6 +867,7 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                             
                             sendEditBreakableWarning(context, portal);
                         }
@@ -883,6 +894,7 @@ public class PortalCommand {
                             func.accept(portal, rot);
                             
                             portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
                             
                             sendEditBreakableWarning(context, portal);
                         }
@@ -903,6 +915,7 @@ public class PortalCommand {
         }
         
         portal.reloadAndSyncToClient();
+        portal.rectifyClusterPortals();
     }
     
     // only portal custom data can be changed
@@ -916,6 +929,7 @@ public class PortalCommand {
         portal.readPortalDataFromNbt(data);
         
         portal.reloadAndSyncToClient();
+        portal.rectifyClusterPortals();
     }
     
     private static void registerCBPortalCommands(

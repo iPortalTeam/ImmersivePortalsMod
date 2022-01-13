@@ -775,4 +775,13 @@ public class Helper {
             MathHelper.lerp(progress, from.z, to.z)
         );
     }
+    
+    public static <T> T getFirstNullable(List<T> list) {
+        if (list.isEmpty()) {
+            return null;
+        }
+        else {
+            return list.get(0);
+        }
+    }
 }

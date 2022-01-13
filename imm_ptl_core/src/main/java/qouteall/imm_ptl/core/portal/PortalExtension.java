@@ -3,9 +3,10 @@ package qouteall.imm_ptl.core.portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
+import qouteall.imm_ptl.core.McHelper;
+import qouteall.q_misc_util.Helper;
 
-import java.util.WeakHashMap;
+import javax.annotation.Nullable;
 
 // the additional features of a portal
 public class PortalExtension {
@@ -44,7 +45,7 @@ public class PortalExtension {
     /**
      * If positive, the player that's touching the portal will be accelerated
      * If negative, the player that's touching the portal and moving quickly will
-     *  be decelerated
+     * be decelerated
      */
     public double motionAffinity = 0;
     
@@ -54,32 +55,14 @@ public class PortalExtension {
      */
     public boolean adjustPositionAfterTeleport = false;
     
-    private static class PlayerPortalVisibility {
-        public long lastVisibleTime = 0;
-        public double currentCap = 0;
-        public int targetCap = 0;
-        
-        public void updateEverySecond() {
-            double targetCapSq = targetCap * targetCap;
-            double currentCapSq = currentCap * currentCap;
-            
-            if (currentCapSq < targetCapSq) {
-                currentCapSq = Math.min(
-                    currentCapSq + (targetCapSq / 12),
-                    targetCapSq
-                );
-            }
-            else {
-                currentCapSq = Math.max(
-                    currentCapSq - (targetCapSq / 12),
-                    targetCapSq
-                );
-            }
-            currentCap = Math.sqrt(currentCapSq);
-        }
-    }
+    public boolean bindCluster = false;
     
-    private WeakHashMap<ServerPlayerEntity, PlayerPortalVisibility> playerLoadStatus;
+    @Nullable
+    public Portal reversePortal;
+    @Nullable
+    public Portal flippedPortal;
+    @Nullable
+    public Portal parallelPortal;
     
     public PortalExtension() {
     
@@ -98,6 +81,13 @@ public class PortalExtension {
         else {
             adjustPositionAfterTeleport = false;
         }
+        
+        if (compoundTag.contains("bindCluster")) {
+            bindCluster = compoundTag.getBoolean("bindCluster");
+        }
+        else {
+            bindCluster = false;
+        }
     }
     
     private void writeToNbt(NbtCompound compoundTag) {
@@ -105,6 +95,7 @@ public class PortalExtension {
             compoundTag.putDouble("motionAffinity", motionAffinity);
         }
         compoundTag.putBoolean("adjustPositionAfterTeleport", adjustPositionAfterTeleport);
+        compoundTag.putBoolean("bindCluster", bindCluster);
     }
     
     private void tick(Portal portal) {
@@ -112,16 +103,7 @@ public class PortalExtension {
             tickClient(portal);
         }
         else {
-            if (playerLoadStatus == null) {
-                playerLoadStatus = new WeakHashMap<>();
-            }
-            playerLoadStatus.entrySet().removeIf(e -> e.getKey().isRemoved());
-            
-            if (portal.world.getTime() % 20 == 1) {
-                for (PlayerPortalVisibility value : playerLoadStatus.values()) {
-                    value.updateEverySecond();
-                }
-            }
+            updateClusterStatus(portal);
         }
     }
     
@@ -130,36 +112,105 @@ public class PortalExtension {
     
     }
     
-//    public int refreshAndGetLoadDistanceCap(Portal portal, ServerPlayerEntity player, int currentCap) {
-//        if (playerLoadStatus == null) {
-//            playerLoadStatus = new WeakHashMap<>();
-//        }
-//
-//        PlayerPortalVisibility rec = playerLoadStatus.computeIfAbsent(
-//            player, k -> new PlayerPortalVisibility()
-//        );
-//
-//        final int dropTimeout = NewChunkTrackingGraph.updateInterval * 2;
-//
-//        long worldTime = portal.world.getTime();
-//
-//        long timePassed = Math.abs(worldTime - rec.lastVisibleTime);
-//        if (timePassed > dropTimeout) {
-//            // not loaded for sometime and reload, reset all
-//            rec.targetCap = currentCap;
-//            rec.currentCap = 0;
-//        }
-//        else if (timePassed == 0) {
-//            // being checked the second time in this turn
-//            rec.targetCap = Math.max(rec.targetCap, currentCap);
-//        }
-//        else {
-//            // being checked the first time in this turn
-//            rec.targetCap = currentCap;
-//        }
-//
-//        rec.lastVisibleTime = portal.world.getTime();
-//
-//        return (int) Math.round(rec.currentCap);
-//    }
+    private void updateClusterStatus(Portal portal) {
+        if (bindCluster) {
+            flippedPortal = Helper.getFirstNullable(McHelper.findEntitiesRough(
+                Portal.class,
+                portal.getOriginWorld(),
+                portal.getOriginPos(),
+                0,
+                p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSquared() < 0.5 &&
+                    p1.getNormal().dotProduct(portal.getNormal()) < -0.9
+            ));
+            
+            if (flippedPortal != null) {
+                PortalExtension.get(flippedPortal).bindCluster = true;
+            }
+            
+            reversePortal = Helper.getFirstNullable(McHelper.findEntitiesRough(
+                Portal.class,
+                portal.getDestinationWorld(),
+                portal.getDestPos(),
+                0,
+                p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.5 &&
+                    p1.getNormal().dotProduct(portal.getContentDirection()) > 0.9
+            ));
+            
+            if (reversePortal != null) {
+                PortalExtension.get(reversePortal).bindCluster = true;
+            }
+            
+            parallelPortal = Helper.getFirstNullable(McHelper.findEntitiesRough(
+                Portal.class,
+                portal.getDestinationWorld(),
+                portal.getDestPos(),
+                0,
+                p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.5 &&
+                    p1.getNormal().dotProduct(portal.getContentDirection()) < -0.9
+            ));
+            
+            if (parallelPortal != null) {
+                PortalExtension.get(parallelPortal).bindCluster = true;
+            }
+        }
+        else {
+            flippedPortal = null;
+            reversePortal = null;
+            parallelPortal = null;
+        }
+    }
+    
+    public void rectifyClusterPortals(Portal portal) {
+        if (bindCluster) {
+            if (flippedPortal != null) {
+                flippedPortal.setOriginPos(portal.getOriginPos());
+                flippedPortal.setDestination(portal.getDestPos());
+                
+                flippedPortal.axisW = portal.axisW;
+                flippedPortal.axisH = portal.axisH.multiply(-1);
+                
+                flippedPortal.scaling = portal.scaling;
+                flippedPortal.rotation = portal.rotation.copy();
+                
+                flippedPortal.reloadAndSyncToClient();
+            }
+            
+            if (reversePortal != null) {
+                reversePortal.setOriginPos(portal.getDestPos());
+                reversePortal.setDestination(portal.getOriginPos());
+                
+                reversePortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
+                reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH.multiply(-1));
+                reversePortal.scaling = 1.0 / portal.scaling;
+                if (portal.rotation != null) {
+                    reversePortal.rotation = portal.rotation.copy();
+                    reversePortal.rotation.conjugate();
+                }
+                else {
+                    reversePortal.rotation = null;
+                }
+                
+                reversePortal.reloadAndSyncToClient();
+            }
+            
+            if (parallelPortal != null) {
+                parallelPortal.setOriginPos(portal.getDestPos());
+                parallelPortal.setDestination(portal.getOriginPos());
+                
+                parallelPortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
+                parallelPortal.axisH = portal.transformLocalVecNonScale(portal.axisH);
+                parallelPortal.scaling = 1.0 / portal.scaling;
+                if (portal.rotation != null) {
+                    parallelPortal.rotation = portal.rotation.copy();
+                    parallelPortal.rotation.conjugate();
+                }
+                else {
+                    parallelPortal.rotation = null;
+                }
+                
+                parallelPortal.reloadAndSyncToClient();
+            }
+        }
+    }
+    
 }

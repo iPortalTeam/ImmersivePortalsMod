@@ -351,7 +351,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
      * Set the portal's center position
      */
     public void setOriginPos(Vec3d pos) {
-        setPosition(pos.x, pos.y, pos.z);
+        setPosition(pos);
         // it will call setPos and update the cache
     }
     
@@ -1522,6 +1522,10 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public void readPortalDataFromNbt(NbtCompound compound) {
         readCustomDataFromNbt(compound);
+    }
+    
+    public void rectifyClusterPortals() {
+        PortalExtension.get(this).rectifyClusterPortals(this);
     }
     
     public static class RemoteCallables {
