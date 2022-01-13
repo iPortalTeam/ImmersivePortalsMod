@@ -53,6 +53,7 @@ public class ChunkVisibility {
             NewChunkTrackingGraph.getPlayerInfo(player).performanceLevel;
         int cap1 = PerformanceLevel.getIndirectLoadingRadiusCap(performanceLevel);
         int cap2 = IPGlobal.indirectLoadingRadiusCap;
+        int cap3 = PerformanceLevel.getIndirectLoadingRadiusCap(ServerPerformanceMonitor.getLevel());
         
         int cap = Math.min(cap1, cap2);
         
@@ -228,7 +229,7 @@ public class ChunkVisibility {
     }
     
     public static boolean isShrinkLoading() {
-        return IPGlobal.indirectLoadingRadiusCap < 4;
+        return ServerPerformanceMonitor.getLevel() != PerformanceLevel.good;
     }
     
 }

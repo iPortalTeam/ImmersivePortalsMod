@@ -76,7 +76,7 @@ public class ClientPerformanceMonitor {
             return;
         }
         
-        currentPerformanceLevel = PerformanceLevel.getPerformanceLevel(averageFps, averageFreeMemoryMB);
+        currentPerformanceLevel = PerformanceLevel.getClientPerformanceLevel(averageFps, averageFreeMemoryMB);
         
         McRemoteProcedureCall.tellServerToInvoke(
             "qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph.RemoteCallables.acceptClientPerformanceInfo",

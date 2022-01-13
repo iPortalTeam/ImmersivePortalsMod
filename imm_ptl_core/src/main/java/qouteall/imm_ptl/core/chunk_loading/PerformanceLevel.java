@@ -3,7 +3,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 public enum PerformanceLevel {
     good, medium, bad;
     
-    public static PerformanceLevel getPerformanceLevel(
+    public static PerformanceLevel getClientPerformanceLevel(
         int averageFPS,
         int averageFreeMemoryMB
     ) {
@@ -11,6 +11,19 @@ public enum PerformanceLevel {
             return good;
         }
         else if (averageFPS > 30 && averageFreeMemoryMB > 400) {
+            return medium;
+        }
+        else {
+            return bad;
+        }
+    }
+    
+    
+    public static PerformanceLevel getServerPerformanceLevel(float tickTimeMs) {
+        if (tickTimeMs < 40) {
+            return good;
+        }
+        else if (tickTimeMs < 80) {
             return medium;
         }
         else {

@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core;
 import qouteall.imm_ptl.core.chunk_loading.ChunkDataSyncManager;
 import qouteall.imm_ptl.core.chunk_loading.EntitySync;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
@@ -49,6 +50,8 @@ public class IPModMain {
         GcMonitor.initCommon();
         
         VisibleSectionDiscovery.init();
+        
+        ServerPerformanceMonitor.init();
     }
     
 }
