@@ -18,7 +18,6 @@ import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
-import qouteall.imm_ptl.core.ducks.IEWorldRenderer;
 import qouteall.imm_ptl.core.miscellaneous.ClientPerformanceMonitor;
 import qouteall.imm_ptl.core.mixin.client.particle.IEParticle;
 import qouteall.imm_ptl.core.portal.PortalLike;
@@ -185,14 +184,6 @@ public class RenderStates {
         IEGameRenderer gameRenderer = (IEGameRenderer) MinecraftClient.getInstance().gameRenderer;
         gameRenderer.setLightmapTextureManager(ClientWorldLoader
             .getDimensionRenderHelper(client.world.getRegistryKey()).lightmapTexture);
-        
-        if (getRenderedPortalNum() != 0) {
-            //recover chunk renderer dispatcher
-            ((IEWorldRenderer) client.worldRenderer).ip_getBuiltChunkStorage().updateCameraPosition(
-                client.cameraEntity.getX(),
-                client.cameraEntity.getZ()
-            );
-        }
         
         Vec3d currCameraPos = client.gameRenderer.getCamera().getPos();
         cameraPosDelta = currCameraPos.subtract(lastCameraPos);

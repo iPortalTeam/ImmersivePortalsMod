@@ -255,7 +255,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
             }
         }
         
-        if (shouldOverrideTerrainSetup()) {
+        if (ip_allowOverrideTerrainSetup()) {
             if (WorldRenderInfo.isRendering()) {
                 world.getProfiler().push("ip_terrain_setup");
                 VisibleSectionDiscovery.discoverVisibleSections(
@@ -271,7 +271,7 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         }
     }
     
-    private boolean shouldOverrideTerrainSetup() {
+    private boolean ip_allowOverrideTerrainSetup() {
         return !SodiumInterface.invoker.isSodiumPresent()
             && !IrisInterface.invoker.isRenderingShadowMap();
     }
@@ -286,11 +286,22 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
         CallbackInfo ci
     ) {
         if (!WorldRenderInfo.isRendering()) {
-            if (shouldOverrideTerrainSetup()) {
+            if (ip_allowOverrideTerrainSetup()) {
                 if (MyGameRenderer.vanillaTerrainSetupOverride > 0) {
                     MyGameRenderer.vanillaTerrainSetupOverride--;
                     
                     world.getProfiler().push("ip_terrain_setup");
+                    VisibleSectionDiscovery.discoverVisibleSections(
+                        world, ((MyBuiltChunkStorage) chunks),
+                        camera,
+                        new Frustum(frustum).method_38557(8),
+                        chunkInfos
+                    );
+                    world.getProfiler().pop();
+                }
+                else if (IPGlobal.alwaysOverrideTerrainSetup) {
+                    // debug
+                    world.getProfiler().push("ip_terrain_setup_debug");
                     VisibleSectionDiscovery.discoverVisibleSections(
                         world, ((MyBuiltChunkStorage) chunks),
                         camera,
@@ -643,38 +654,6 @@ public abstract class MixinWorldRenderer implements IEWorldRenderer {
     @Override
     public void ip_setBufferBuilderStorage(BufferBuilderStorage arg) {
         bufferBuilders = arg;
-    }
-    
-    @Override
-    public int portal_getRenderDistance() {
-        return viewDistance;
-    }
-    
-    @Override
-    public void portal_setRenderDistance(int arg) {
-        viewDistance = arg;
-        
-        IPGlobal.preGameRenderTaskList.addTask(() -> {
-            portal_increaseRenderDistance(arg);
-            return true;
-        });
-    }
-    
-    private void portal_increaseRenderDistance(int targetRadius) {
-        // TODO implement resizing with changing ChunkInfoList
-//        if (chunks instanceof MyBuiltChunkStorage) {
-//            int radius = ((MyBuiltChunkStorage) chunks).getRadius();
-//
-//            if (radius < targetRadius) {
-//                Helper.log("Resizing built chunk storage to " + targetRadius);
-//
-//                chunks.clear();
-//
-//                chunks = new MyBuiltChunkStorage(
-//                    chunkBuilder, world, targetRadius, ((WorldRenderer) (Object) this)
-//                );
-//            }
-//        }
     }
     
     @Override

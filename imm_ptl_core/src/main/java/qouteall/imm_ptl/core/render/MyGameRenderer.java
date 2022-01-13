@@ -1,6 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.fabricmc.api.EnvType;
@@ -26,10 +25,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import org.lwjgl.opengl.GL20C;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.IPCGlobal;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.block_manipulation.BlockManipulationClient;
@@ -113,13 +110,6 @@ public class MyGameRenderer {
         
         float tickDelta = RenderStates.tickDelta;
         
-        if (IPCGlobal.useHackedChunkRenderDispatcher) {
-            ((IEWorldRenderer) worldRenderer).ip_getBuiltChunkStorage().updateCameraPosition(
-                cameraEntity.getX(),
-                cameraEntity.getZ()
-            );
-        }
-        
         IEGameRenderer ieGameRenderer = (IEGameRenderer) client.gameRenderer;
         DimensionRenderHelper helper =
             ClientWorldLoader.getDimensionRenderHelper(newDimension);
@@ -143,7 +133,6 @@ public class MyGameRenderer {
         ObjectArrayList<WorldRenderer.ChunkInfo> newChunkInfoList = VisibleSectionDiscovery.takeList();
         ((IEWorldRenderer) oldWorldRenderer).portal_setChunkInfoList(newChunkInfoList);
         
-        int oldRenderDistance = ((IEWorldRenderer) worldRenderer).portal_getRenderDistance();
         Object irisPipeline = IrisInterface.invoker.getPipeline(worldRenderer);
         
         //switch

@@ -37,10 +37,6 @@ public interface IEWorldRenderer {
     
     void ip_setBufferBuilderStorage(BufferBuilderStorage arg);
     
-    int portal_getRenderDistance();
-    
-    void portal_setRenderDistance(int arg);
-    
     Frustum portal_getFrustum();
     
     void portal_setFrustum(Frustum arg);

@@ -93,11 +93,12 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         );
         columnMap.clear();
         presets.clear();
-//        builtChunkBuffer.destroyAll();
         
         isAlive = false;
     }
     
+    // it will only be called during vanilla outer world rendering
+    // won't be called in portal rendering
     @Override
     public void updateCameraPosition(double playerX, double playerZ) {
         MinecraftClient.getInstance().getProfiler().push("built_chunk_storage");
@@ -121,9 +122,6 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         
         this.chunks = preset.data;
         this.currentPreset = preset;
-        
-        MinecraftClient.getInstance().getProfiler().push("neighbor");
-        MinecraftClient.getInstance().getProfiler().pop();
         
         MinecraftClient.getInstance().getProfiler().pop();
     }
@@ -394,6 +392,7 @@ public class MyBuiltChunkStorage extends BuiltChunkStorage {
         }
     }
     
+    // NOTE it may be accessed from another thread
     @Nullable
     @Override
     protected BuiltChunk getRenderedChunk(BlockPos pos) {

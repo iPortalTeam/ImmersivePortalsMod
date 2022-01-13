@@ -118,6 +118,8 @@ public class IPGlobal {
     
     public static boolean allowClientEntityPosInterpolation = true;
     
+    public static boolean alwaysOverrideTerrainSetup = false;
+    
     public static enum RenderMode {
         normal,
         compatibility,

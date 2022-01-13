@@ -517,6 +517,11 @@ public class ClientDebugCommand {
             "entity_pos_interpolation",
             cond -> IPGlobal.allowClientEntityPosInterpolation = cond
         );
+        registerSwitchCommand(
+            builder,
+            "always_override_terrain_setup",
+            cond -> IPGlobal.alwaysOverrideTerrainSetup = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")
