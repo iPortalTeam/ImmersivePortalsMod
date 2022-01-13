@@ -7,6 +7,7 @@ import qouteall.imm_ptl.core.chunk_loading.ServerPerformanceMonitor;
 import qouteall.imm_ptl.core.chunk_loading.WorldInfoSender;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworking;
+import qouteall.imm_ptl.core.portal.PortalAnimation;
 import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.render.VisibleSectionDiscovery;
@@ -52,6 +53,8 @@ public class IPModMain {
         VisibleSectionDiscovery.init();
         
         ServerPerformanceMonitor.init();
+        
+        PortalAnimation.init();
     }
     
 }

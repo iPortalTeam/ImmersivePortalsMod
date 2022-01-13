@@ -9,6 +9,7 @@ import java.util.Objects;
 
 /**
  * Quaternion but in double and immutable
+ * Immutability reduce the change of having bugs
  * Minecraft's quaternion {@link Quaternion} uses float and is mutable
  */
 public class DQuaternion {
@@ -16,6 +17,9 @@ public class DQuaternion {
     public final double y;
     public final double z;
     public final double w;
+    
+    // represents no rotation
+    public static final DQuaternion identity = new DQuaternion(0, 0, 0, 1);
     
     public DQuaternion(double x, double y, double z, double w) {
         this.x = x;

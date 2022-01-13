@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.portal;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Util;
@@ -29,6 +31,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.ClientWorldLoader;
 import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
@@ -43,7 +46,9 @@ import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.teleportation.CollisionHelper;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.BoxPredicate;
+import qouteall.q_misc_util.my_util.DQuaternion;
 import qouteall.q_misc_util.my_util.Plane;
 import qouteall.q_misc_util.my_util.RotationHelper;
 import qouteall.q_misc_util.my_util.SignalArged;
@@ -195,6 +200,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Environment(EnvType.CLIENT)
     PortalRenderInfo portalRenderInfo;
     
+    protected PortalAnimation animation = PortalAnimation.defaultAnimation;
+    
     public static final SignalArged<Portal> clientPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> serverPortalTickSignal = new SignalArged<>();
     public static final SignalArged<Portal> portalCacheUpdateSignal = new SignalArged<>();
@@ -219,7 +226,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     /**
-     * @param pos
      * @return use the portal's transformation to transform a point
      */
     @Override
@@ -268,15 +274,26 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     /**
-     * Update the portal's cache and send the entity spawn packet to client again
+     * Update the portal's cache and send the portal data to client
      * Call this when you changed the portal after spawning the portal
      */
     public void reloadAndSyncToClient() {
         Validate.isTrue(!isGlobalPortal);
         Validate.isTrue(!world.isClient(), "must be used on server side");
         updateCache();
-        Portal entity = this;
-        McHelper.resendSpawnPacketToTrackers(entity);
+        
+        NbtCompound customData = new NbtCompound();
+        writeCustomDataToNbt(customData);
+        
+        CustomPayloadS2CPacket packet = McRemoteProcedureCall.createPacketToSendToClient(
+            "qouteall.imm_ptl.core.portal.Portal.RemoteCallables.acceptPortalDataSync",
+            world.getRegistryKey(),
+            getId(),
+            getPos(),
+            customData
+        );
+        
+        McHelper.sendToTrackers(this, packet);
     }
     
     /**
@@ -429,7 +446,6 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     }
     
     /**
-     * @param entity
      * @return Can the portal teleport this entity.
      */
     public boolean canTeleportEntity(Entity entity) {
@@ -486,9 +502,18 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         updateCache();
     }
     
-    public void setRotationTransformation(Quaternion quaternion) {
+    public void setRotationTransformation(@Nullable Quaternion quaternion) {
         rotation = quaternion;
         updateCache();
+    }
+    
+    public void setRotationTransformationD(@Nullable DQuaternion quaternion) {
+        if (quaternion == null) {
+            setRotationTransformation(null);
+        }
+        else {
+            setRotationTransformation(quaternion.toMcQuaternion());
+        }
     }
     
     public void setScaleTransformation(double newScale) {
@@ -497,6 +522,13 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     protected void readCustomDataFromNbt(NbtCompound compoundTag) {
+        if (compoundTag.contains("animation")) {
+            animation = PortalAnimation.fromNbt(compoundTag.getCompound("animation"));
+        }
+        else {
+            animation = PortalAnimation.defaultAnimation;
+        }
+        
         width = compoundTag.getDouble("width");
         height = compoundTag.getDouble("height");
         axisW = Helper.getVec3d(compoundTag, "axisW").normalize();
@@ -518,6 +550,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                     specialShape = null;
                 }
             }
+        }
+        else {
+            specialShape = null;
         }
         if (compoundTag.contains("teleportable")) {
             teleportable = compoundTag.getBoolean("teleportable");
@@ -551,6 +586,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
                 compoundTag.getFloat("rotationD"),
                 compoundTag.getFloat("rotationA")
             );
+        }
+        else {
+            rotation = null;
         }
         
         if (compoundTag.contains("interactable")) {
@@ -603,6 +641,8 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     @Override
     protected void writeCustomDataToNbt(NbtCompound compoundTag) {
+        compoundTag.put("animation", animation.toNbt());
+        
         compoundTag.putDouble("width", width);
         compoundTag.putDouble("height", height);
         Helper.putVec3d(compoundTag, "axisW", axisW);
@@ -1409,4 +1449,97 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             newGravityVec.x, newGravityVec.y, newGravityVec.z
         );
     }
+    
+    // if the portal is not yet initialized, will return null
+    @Nullable
+    public PortalState getPortalState() {
+        if (axisW == null) {
+            return null;
+        }
+        
+        if (age == 0) {
+            return null;
+        }
+        
+        return new PortalState(
+            world.getRegistryKey(),
+            getOriginPos(),
+            dimensionTo,
+            getDestPos(),
+            getScale(),
+            getRotation() == null ? DQuaternion.identity : DQuaternion.fromMcQuaternion(getRotation()),
+            PortalManipulation.getPortalOrientationQuaternion(axisW, axisH)
+        );
+    }
+    
+    public void setPortalState(PortalState state) {
+        Validate.isTrue(world.getRegistryKey() == state.fromWorld);
+        Validate.isTrue(dimensionTo == state.toWorld);
+        
+        setOriginPos(state.fromPos);
+        setDestination(state.toPos);
+        PortalManipulation.setPortalOrientationQuaternion(this, state.orientation);
+        if (DQuaternion.isClose(state.rotation, DQuaternion.identity, 0.00005)) {
+            setRotationTransformation(null);
+        }
+        else {
+            setRotationTransformation(state.rotation.toMcQuaternion());
+        }
+        
+        setScaleTransformation(state.scaling);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private void startAnimationClient(PortalState animationStartState) {
+        PortalState newState = getPortalState();
+        if (newState == null) {
+            Helper.err("portal animation state abnormal");
+            return;
+        }
+        
+        Validate.notNull(animation);
+        
+        PortalAnimation.addAnimation(this, animationStartState, newState, animation);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    private void acceptDataSync(Vec3d pos, NbtCompound customData) {
+        PortalState oldState = getPortalState();
+        
+        setPosition(pos);
+        readCustomDataFromNbt(customData);
+        
+        if (animation.durationTicks > 0) {
+            startAnimationClient(oldState);
+        }
+    }
+    
+    public NbtCompound writePortalDataToNbt() {
+        NbtCompound nbtCompound = new NbtCompound();
+        writeCustomDataToNbt(nbtCompound);
+        return nbtCompound;
+    }
+    
+    public void readPortalDataFromNbt(NbtCompound compound) {
+        readCustomDataFromNbt(compound);
+    }
+    
+    public static class RemoteCallables {
+        public static void acceptPortalDataSync(
+            RegistryKey<World> dim,
+            int entityId,
+            Vec3d pos,
+            NbtCompound customData
+        ) {
+            ClientWorld world = ClientWorldLoader.getWorld(dim);
+            Entity entity = world.getEntityById(entityId);
+            if (entity instanceof Portal portal) {
+                portal.acceptDataSync(pos, customData);
+            }
+            else {
+                Helper.err("missing portal entity to sync " + entityId);
+            }
+        }
+    }
+    
 }

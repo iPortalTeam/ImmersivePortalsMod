@@ -7,6 +7,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
@@ -765,5 +766,13 @@ public class Helper {
             Method method = target.getClass().getDeclaredMethod(methodName);
             return method.invoke(target);
         });
+    }
+    
+    public static Vec3d interpolatePos(Vec3d from, Vec3d to, double progress) {
+        return new Vec3d(
+            MathHelper.lerp(progress, from.x, to.x),
+            MathHelper.lerp(progress, from.y, to.y),
+            MathHelper.lerp(progress, from.z, to.z)
+        );
     }
 }

@@ -5,6 +5,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -73,7 +74,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -434,6 +434,13 @@ public class PortalCommand {
                             }
                         }
                         
+                        if (newNbt.contains("dimensionTo")) {
+                            context.getSource().sendError(new LiteralText(
+                                "Cannot change tag dimensionTo. use command /portal set_portal_destination"
+                            ));
+                            return;
+                        }
+                        
                         setPortalNbt(portal, newNbt);
                         
                         sendPortalInfo(context, portal);
@@ -445,14 +452,22 @@ public class PortalCommand {
         builder.then(CommandManager.literal("set_portal_destination")
             .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                 .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
-                    .executes(
-                        context -> processPortalTargetedCommand(
-                            context,
-                            portal -> {
-                                invokeSetPortalDestination(context, portal);
-                            }
-                        )
-                    )
+                    .executes(context -> processPortalTargetedCommand(
+                        context, portal -> {
+                            portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
+                                context, "dim"
+                            ).getRegistryKey();
+                            portal.setDestination(Vec3ArgumentType.getVec3(
+                                context, "dest"
+                            ));
+                            
+                            portal.reloadAndSyncToClient();
+                            
+                            sendMessage(context, portal.toString());
+                            
+                            sendEditBreakableWarning(context, portal);
+                        }
+                    ))
                 )
             )
         );
@@ -554,32 +569,32 @@ public class PortalCommand {
         );
         
         builder.then(CommandManager.literal("move_portal")
-                .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
-                        .executes(context -> processPortalTargetedCommand(
-                            context, portal -> {
-                                try {
-                                    double distance =
-                                        DoubleArgumentType.getDouble(context, "distance");
-                                    
-                                    ServerPlayerEntity player = context.getSource().getPlayer();
-                                    Vec3d viewVector = player.getRotationVector();
-                                    Direction facing = Direction.getFacing(
-                                        viewVector.x, viewVector.y, viewVector.z
-                                    );
-                                    Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
-                                    portal.setPosition(
-                                        portal.getX() + offset.x,
-                                        portal.getY() + offset.y,
-                                        portal.getZ() + offset.z
-                                    );
-//                            portal.reloadAndSyncToClient();
-                                }
-                                catch (CommandSyntaxException e) {
-                                    sendMessage(context, "This command can only be invoked by player");
-                                }
-                            }
-                        ))
-                )
+            .then(CommandManager.argument("distance", DoubleArgumentType.doubleArg())
+                .executes(context -> processPortalTargetedCommand(
+                    context, portal -> {
+                        try {
+                            double distance =
+                                DoubleArgumentType.getDouble(context, "distance");
+                            
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            Vec3d viewVector = player.getRotationVector();
+                            Direction facing = Direction.getFacing(
+                                viewVector.x, viewVector.y, viewVector.z
+                            );
+                            Vec3d offset = Vec3d.of(facing.getVector()).multiply(distance);
+                            portal.setPosition(
+                                portal.getX() + offset.x,
+                                portal.getY() + offset.y,
+                                portal.getZ() + offset.z
+                            );
+                            portal.reloadAndSyncToClient();
+                        }
+                        catch (CommandSyntaxException e) {
+                            sendMessage(context, "This command can only be invoked by player");
+                        }
+                    }
+                ))
+            )
         );
         
         builder.then(CommandManager.literal("move_portal_destination")
@@ -890,16 +905,15 @@ public class PortalCommand {
         portal.reloadAndSyncToClient();
     }
     
+    // only portal custom data can be changed
     private static void setPortalNbt(Portal portal, NbtCompound newNbt) {
-        NbtCompound portalNbt = portal.writeNbt(new NbtCompound());
+        NbtCompound data = portal.writePortalDataToNbt();
         
         newNbt.getKeys().forEach(
-            key -> portalNbt.put(key, newNbt.get(key))
+            key -> data.put(key, newNbt.get(key))
         );
         
-        UUID uuid = portal.getUuid();
-        portal.readNbt(portalNbt);
-        portal.setUuid(uuid);
+        portal.readPortalDataFromNbt(data);
         
         portal.reloadAndSyncToClient();
     }
@@ -919,32 +933,54 @@ public class PortalCommand {
                                 Entity fromEntity = EntityArgumentType.getEntity(context, "from");
                                 Entity toEntity = EntityArgumentType.getEntity(context, "to");
                                 
-                                Portal portal = Portal.entityType.create(fromEntity.world);
-                                
-                                portal.setPosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
-                                
-                                portal.dimensionTo = toEntity.world.getRegistryKey();
-                                portal.setDestination(toEntity.getPos());
-                                portal.width = width;
-                                portal.height = height;
-                                
-                                Vec3d normal = fromEntity.getRotationVec(1);
-                                Vec3d rightVec = getRightVec(fromEntity);
-                                
-                                Vec3d axisH = rightVec.crossProduct(normal).normalize();
-                                
-                                portal.axisW = rightVec;
-                                portal.axisH = axisH;
-                                
-                                McHelper.spawnServerEntity(portal);
+                                invokeCbMakePortal(width, height, fromEntity, toEntity, "");
                                 
                                 return 0;
                             })
+                            .then(CommandManager.argument("portalTag", StringArgumentType.string())
+                                .executes(context -> {
+                                    double width = DoubleArgumentType.getDouble(context, "width");
+                                    double height = DoubleArgumentType.getDouble(context, "height");
+                                    
+                                    Entity fromEntity = EntityArgumentType.getEntity(context, "from");
+                                    Entity toEntity = EntityArgumentType.getEntity(context, "to");
+                                    
+                                    String portalTag = StringArgumentType.getString(context, "portalTag");
+                                    
+                                    invokeCbMakePortal(width, height, fromEntity, toEntity, portalTag);
+                                    
+                                    return 0;
+                                })
+                            )
                         )
                     )
                 )
             )
         );
+    }
+    
+    private static void invokeCbMakePortal(
+        double width, double height, Entity fromEntity, Entity toEntity,
+        String portalTag
+    ) {
+        Portal portal = Portal.entityType.create(fromEntity.world);
+        
+        portal.setPosition(fromEntity.getX(), fromEntity.getY(), fromEntity.getZ());
+        
+        portal.dimensionTo = toEntity.world.getRegistryKey();
+        portal.setDestination(toEntity.getPos());
+        portal.width = width;
+        portal.height = height;
+        
+        Vec3d normal = fromEntity.getRotationVec(1);
+        Vec3d rightVec = getRightVec(fromEntity);
+        
+        Vec3d axisH = rightVec.crossProduct(normal).normalize();
+        
+        portal.axisW = rightVec;
+        portal.axisH = axisH;
+        
+        McHelper.spawnServerEntity(portal);
     }
     
     private static void registerUtilityCommands(
@@ -1502,24 +1538,6 @@ public class PortalCommand {
         return 0;
     }
     
-    private static void invokeSetPortalDestination(
-        CommandContext<ServerCommandSource> context,
-        Portal portal
-    ) throws CommandSyntaxException {
-        portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
-            context, "dim"
-        ).getRegistryKey();
-        portal.setDestination(Vec3ArgumentType.getVec3(
-            context, "dest"
-        ));
-        
-        portal.reloadAndSyncToClient();
-        
-        sendMessage(context, portal.toString());
-        
-        sendEditBreakableWarning(context, portal);
-    }
-    
     private static void sendEditBreakableWarning(
         CommandContext<ServerCommandSource> context, Portal portal
     ) {
@@ -1621,17 +1639,6 @@ public class PortalCommand {
                 player.getName().asString() + " now"
         );
         sendMessage(context, portal.toString());
-    }
-    
-    private static void invokeSetPortalNBT(CommandContext<ServerCommandSource> context, Portal portal) throws CommandSyntaxException {
-        
-        NbtCompound newNbt = NbtCompoundArgumentType.getNbtCompound(
-            context, "nbt"
-        );
-        
-        setPortalNbt(portal, newNbt);
-        
-        sendPortalInfo(context, portal);
     }
     
     private static void removeMultidestEntry(
