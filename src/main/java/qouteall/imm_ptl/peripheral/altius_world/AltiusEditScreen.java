@@ -94,6 +94,7 @@ public class AltiusEditScreen extends Screen {
             0, 0, 0, 20,
             new LiteralText("you cannot see me")
         );
+        bedrockBlockField.setMaxLength(200);
         if (editing.entry.bedrockReplacementStr != null) {
             bedrockBlockField.setText(editing.entry.bedrockReplacementStr);
         }
