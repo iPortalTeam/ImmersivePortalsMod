@@ -1499,7 +1499,7 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         
         Validate.notNull(animation);
         
-        PortalAnimation.addAnimation(this, animationStartState, newState, animation);
+        PortalAnimationManagement.addAnimation(this, animationStartState, newState, animation);
     }
     
     @Environment(EnvType.CLIENT)

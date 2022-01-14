@@ -13,6 +13,7 @@ import qouteall.imm_ptl.core.compat.iris_compatibility.IrisPortalRenderer;
 import qouteall.imm_ptl.core.miscellaneous.GcMonitor;
 import qouteall.imm_ptl.core.platform_specific.IPNetworkingClient;
 import qouteall.imm_ptl.core.platform_specific.O_O;
+import qouteall.imm_ptl.core.portal.PortalAnimationManagement;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.CrossPortalEntityRenderer;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
@@ -144,6 +145,8 @@ public class IPModMainClient {
 //        showPreviewWarning();
         
         showIntelVideoCardWarning();
+    
+        PortalAnimationManagement.init();
     }
     
 }
