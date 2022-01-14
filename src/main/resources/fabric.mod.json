@@ -41,7 +41,10 @@
   "breaks": {
     "optifabric": "*",
     "pehkui": "<3.0.0",
-    "sodium": ">0.4.0-alpha5",
+    "sodium": [
+      ">0.4.0-alpha6",
+      "<0.4.0-alpha6"
+    ],
     "multiconnect": "*",
     "viafabric-mc118": "*",
     "resolutioncontrol": "*",
@@ -53,8 +56,8 @@
   "custom": {
     "fabric-renderer-indigo:force_compatibility": true,
     "lithium:options": {
-    	"mixin.world.player_chunk_tick": false
+      "mixin.world.player_chunk_tick": false
     }
   },
-  "accessWidener" : "imm_ptl_peripheral.accesswidener"
+  "accessWidener": "imm_ptl_peripheral.accesswidener"
 }
