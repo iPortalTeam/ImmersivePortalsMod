@@ -51,12 +51,12 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.GeometryPortalShape;
 import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalExtension;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.portal.global_portals.BorderBarrierFiller;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
-import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalMatcher;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
@@ -454,6 +454,8 @@ public class PortalCommand {
                 .then(CommandManager.argument("dest", Vec3ArgumentType.vec3(false))
                     .executes(context -> processPortalTargetedCommand(
                         context, portal -> {
+                            sendEditBiWayPortalWarning(context, portal);
+                            
                             portal.dimensionTo = DimensionArgumentType.getDimensionArgument(
                                 context, "dim"
                             ).getRegistryKey();
@@ -465,8 +467,6 @@ public class PortalCommand {
                             portal.rectifyClusterPortals();
                             
                             sendMessage(context, portal.toString());
-                            
-                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -574,6 +574,8 @@ public class PortalCommand {
                 .executes(context -> processPortalTargetedCommand(
                     context, portal -> {
                         try {
+                            sendEditBiWayPortalWarning(context, portal);
+                            
                             double distance =
                                 DoubleArgumentType.getDouble(context, "distance");
                             
@@ -604,6 +606,8 @@ public class PortalCommand {
                 .executes(context -> processPortalTargetedCommand(
                     context, portal -> {
                         try {
+                            sendEditBiWayPortalWarning(context, portal);
+                            
                             double distance =
                                 DoubleArgumentType.getDouble(context, "distance");
                             
@@ -832,6 +836,8 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
+                            sendEditBiWayPortalWarning(context, portal);
+                            
                             Vec3d rotatingAxis = Vec3ArgumentType.getVec3(
                                 context, "rotatingAxis"
                             ).normalize();
@@ -850,8 +856,6 @@ public class PortalCommand {
                             
                             portal.reloadAndSyncToClient();
                             portal.rectifyClusterPortals();
-                            
-                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -864,6 +868,8 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
+                            sendEditBiWayPortalWarning(context, portal);
+                            
                             Vec3f axis = new Vec3f(1, 0, 0);
                             
                             double angleDegrees =
@@ -879,8 +885,6 @@ public class PortalCommand {
                             
                             portal.reloadAndSyncToClient();
                             portal.rectifyClusterPortals();
-                            
-                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -890,8 +894,9 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            Vec3f axis = new Vec3f(0, 1, 0);
+                            sendEditBiWayPortalWarning(context, portal);
                             
+                            Vec3f axis = new Vec3f(0, 1, 0);
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
@@ -906,8 +911,6 @@ public class PortalCommand {
                             
                             portal.reloadAndSyncToClient();
                             portal.rectifyClusterPortals();
-                            
-                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -917,8 +920,9 @@ public class PortalCommand {
                     .executes(context -> processPortalTargetedCommand(
                         context,
                         portal -> {
-                            Vec3f axis = new Vec3f(0, 0, 1);
+                            sendEditBiWayPortalWarning(context, portal);
                             
+                            Vec3f axis = new Vec3f(0, 0, 1);
                             
                             double angleDegrees =
                                 DoubleArgumentType.getDouble(context, "angleDegrees");
@@ -933,8 +937,6 @@ public class PortalCommand {
                             
                             portal.reloadAndSyncToClient();
                             portal.rectifyClusterPortals();
-                            
-                            sendEditBreakableWarning(context, portal);
                         }
                     ))
                 )
@@ -1590,14 +1592,14 @@ public class PortalCommand {
         return 0;
     }
     
-    private static void sendEditBreakableWarning(
+    private static void sendEditBiWayPortalWarning(
         CommandContext<ServerCommandSource> context, Portal portal
     ) {
-        if (portal instanceof BreakablePortalEntity) {
-            if (!((BreakablePortalEntity) portal).unbreakable) {
-                sendMessage(context, "You are editing a breakable portal." +
-                    " If the breakable portal entity is wrongly linked, it will automatically break." +
-                    " To avoid that, use command /portal set_portal_nbt {unbreakable:true} for 4 portal entities."
+        if (!PortalExtension.get(portal).bindCluster) {
+            if (PortalManipulation.findReversePortal(portal) != null) {
+                sendMessage(context, "You are editing a bi-way portal." +
+                    " It's recommended to enable bindCluster or you will get unlinked portal entities." +
+                    " Use command /portal set_portal_nbt {bindCluster:true}"
                 );
             }
         }

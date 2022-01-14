@@ -87,6 +87,8 @@
   "imm_ptl.command_desc.complete_bi_way_bi_faced_portal": "Create portal entities",
   "imm_ptl.command.complete_bi_way_portal": "Make the portal bi-way",
   "imm_ptl.command_desc.complete_bi_way_portal": "Create a new portal entity",
+  "imm_ptl.command.bind_cluster": "Bind Portal Cluster",
+  "imm_ptl.command_desc.bind_cluster": "Allow Easy Editing of Bi-way Bi-faced Portal",
   "imm_ptl.command.move_portal_front": "Move the portal front 0.5",
   "imm_ptl.command_desc.move_portal_front": "Along the direction that you are looking at",
   "imm_ptl.command.move_portal_back": "Move the portal back 0.5",

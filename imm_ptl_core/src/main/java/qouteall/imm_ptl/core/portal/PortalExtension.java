@@ -3,8 +3,6 @@ package qouteall.imm_ptl.core.portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.q_misc_util.Helper;
 
 import javax.annotation.Nullable;
 
@@ -114,40 +112,19 @@ public class PortalExtension {
     
     private void updateClusterStatus(Portal portal) {
         if (bindCluster) {
-            flippedPortal = Helper.getFirstNullable(McHelper.findEntitiesRough(
-                Portal.class,
-                portal.getOriginWorld(),
-                portal.getOriginPos(),
-                0,
-                p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSquared() < 0.5 &&
-                    p1.getNormal().dotProduct(portal.getNormal()) < -0.9
-            ));
+            flippedPortal = PortalManipulation.findFlippedPortal(portal);
             
             if (flippedPortal != null) {
                 PortalExtension.get(flippedPortal).bindCluster = true;
             }
             
-            reversePortal = Helper.getFirstNullable(McHelper.findEntitiesRough(
-                Portal.class,
-                portal.getDestinationWorld(),
-                portal.getDestPos(),
-                0,
-                p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.5 &&
-                    p1.getNormal().dotProduct(portal.getContentDirection()) > 0.9
-            ));
+            reversePortal = PortalManipulation.findReversePortal(portal);
             
             if (reversePortal != null) {
                 PortalExtension.get(reversePortal).bindCluster = true;
             }
             
-            parallelPortal = Helper.getFirstNullable(McHelper.findEntitiesRough(
-                Portal.class,
-                portal.getDestinationWorld(),
-                portal.getDestPos(),
-                0,
-                p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.5 &&
-                    p1.getNormal().dotProduct(portal.getContentDirection()) < -0.9
-            ));
+            parallelPortal = PortalManipulation.findParallelPortal(portal);
             
             if (parallelPortal != null) {
                 PortalExtension.get(parallelPortal).bindCluster = true;
@@ -159,6 +136,7 @@ public class PortalExtension {
             parallelPortal = null;
         }
     }
+    
     
     public void rectifyClusterPortals(Portal portal) {
         

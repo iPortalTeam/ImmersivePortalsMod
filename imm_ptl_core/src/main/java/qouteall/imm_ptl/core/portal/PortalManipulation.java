@@ -452,4 +452,40 @@ public class PortalManipulation {
             .anyMatch(p -> renderingPortal.isInside(p, 0));
         return intersects;
     }
+    
+    @Nullable
+    public static Portal findParallelPortal(Portal portal) {
+        return Helper.getFirstNullable(McHelper.findEntitiesRough(
+            Portal.class,
+            portal.getDestinationWorld(),
+            portal.getDestPos(),
+            0,
+            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.5 &&
+                p1.getNormal().dotProduct(portal.getContentDirection()) < -0.9
+        ));
+    }
+    
+    @Nullable
+    public static Portal findReversePortal(Portal portal) {
+        return Helper.getFirstNullable(McHelper.findEntitiesRough(
+            Portal.class,
+            portal.getDestinationWorld(),
+            portal.getDestPos(),
+            0,
+            p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.5 &&
+                p1.getNormal().dotProduct(portal.getContentDirection()) > 0.9
+        ));
+    }
+    
+    @Nullable
+    public static Portal findFlippedPortal(Portal portal) {
+        return Helper.getFirstNullable(McHelper.findEntitiesRough(
+            Portal.class,
+            portal.getOriginWorld(),
+            portal.getOriginPos(),
+            0,
+            p1 -> p1.getOriginPos().subtract(portal.getOriginPos()).lengthSquared() < 0.5 &&
+                p1.getNormal().dotProduct(portal.getNormal()) < -0.9
+        ));
+    }
 }

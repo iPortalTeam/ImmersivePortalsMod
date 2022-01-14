@@ -40,6 +40,9 @@ public class PeripheralModMain {
         registerPortalSubCommandStick("eradicate_portal_cluster");
         registerPortalSubCommandStick("complete_bi_way_bi_faced_portal");
         registerPortalSubCommandStick("complete_bi_way_portal");
+        registerPortalSubCommandStick(
+            "bind_cluster", "set_portal_nbt {bindCluster:true}"
+        );
         registerPortalSubCommandStick("move_portal_front", "move_portal 0.5");
         registerPortalSubCommandStick("move_portal_back", "move_portal -0.5");
         registerPortalSubCommandStick(
