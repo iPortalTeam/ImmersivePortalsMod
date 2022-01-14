@@ -729,9 +729,47 @@ public class PortalCommand {
             .then(CommandManager.argument("dim", DimensionArgumentType.dimension())
                 .then(CommandManager.argument("pos", Vec3ArgumentType.vec3(false))
                     .executes(context -> processPortalTargetedCommand(context, portal -> {
-                        invokeSetPortalLocation(context, portal);
+                        ServerWorld targetWorld =
+                            DimensionArgumentType.getDimensionArgument(context, "dim");
+                        
+                        Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
+                        
+                        if (targetWorld == portal.world) {
+                            portal.setOriginPos(pos);
+                            portal.reloadAndSyncToClient();
+                            portal.rectifyClusterPortals();
+                        }
+                        else {
+                            ServerTeleportationManager.teleportEntityGeneral(
+                                portal, pos, targetWorld
+                            );
+                        }
+                        
+                        sendMessage(context, portal.toString());
+                        
                     }))
                 )
+            )
+        );
+        
+        builder.then(CommandManager.literal("set_portal_position_to")
+            .then(CommandManager.argument("targetEntity", EntityArgumentType.entity())
+                .executes(context -> processPortalTargetedCommand(context, portal -> {
+                    Entity targetEntity = EntityArgumentType.getEntity(context, "targetEntity");
+                    
+                    if (targetEntity.world == portal.world) {
+                        portal.setOriginPos(targetEntity.getPos());
+                        portal.reloadAndSyncToClient();
+                        portal.rectifyClusterPortals();
+                    }
+                    else {
+                        ServerTeleportationManager.teleportEntityGeneral(
+                            portal, targetEntity.getPos(), ((ServerWorld) targetEntity.world)
+                        );
+                    }
+                    
+                    sendMessage(context, portal.toString());
+                }))
             )
         );
         
@@ -1563,23 +1601,6 @@ public class PortalCommand {
                 );
             }
         }
-    }
-    
-    private static void invokeSetPortalLocation(
-        CommandContext<ServerCommandSource> context,
-        Portal portal
-    ) throws CommandSyntaxException {
-        ServerWorld targetWorld =
-            DimensionArgumentType.getDimensionArgument(context, "dim");
-        
-        Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
-        
-        ServerTeleportationManager.teleportEntityGeneral(
-            portal, pos, targetWorld
-        );
-        
-        sendMessage(context, portal.toString());
-        
     }
     
     private static void invokeCompleteBiWayBiFacedPortal(

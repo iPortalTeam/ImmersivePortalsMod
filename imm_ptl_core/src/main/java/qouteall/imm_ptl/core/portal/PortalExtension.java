@@ -161,55 +161,60 @@ public class PortalExtension {
     }
     
     public void rectifyClusterPortals(Portal portal) {
-        if (bindCluster) {
-            if (flippedPortal != null) {
-                flippedPortal.setOriginPos(portal.getOriginPos());
-                flippedPortal.setDestination(portal.getDestPos());
-                
-                flippedPortal.axisW = portal.axisW;
-                flippedPortal.axisH = portal.axisH.multiply(-1);
-                
-                flippedPortal.scaling = portal.scaling;
-                flippedPortal.rotation = portal.rotation.copy();
-                
-                flippedPortal.reloadAndSyncToClient();
+        
+        if (flippedPortal != null) {
+            flippedPortal.setOriginPos(portal.getOriginPos());
+            flippedPortal.setDestination(portal.getDestPos());
+            
+            flippedPortal.axisW = portal.axisW;
+            flippedPortal.axisH = portal.axisH.multiply(-1);
+            
+            flippedPortal.scaling = portal.scaling;
+            flippedPortal.rotation = portal.rotation;
+            
+            PortalManipulation.copyAdditionalProperties(flippedPortal, portal);
+            
+            flippedPortal.reloadAndSyncToClient();
+        }
+        
+        if (reversePortal != null) {
+            reversePortal.setOriginPos(portal.getDestPos());
+            reversePortal.setDestination(portal.getOriginPos());
+            
+            reversePortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
+            reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH.multiply(-1));
+            reversePortal.scaling = 1.0 / portal.scaling;
+            if (portal.rotation != null) {
+                reversePortal.rotation = portal.rotation.copy();
+                reversePortal.rotation.conjugate();
+            }
+            else {
+                reversePortal.rotation = null;
             }
             
-            if (reversePortal != null) {
-                reversePortal.setOriginPos(portal.getDestPos());
-                reversePortal.setDestination(portal.getOriginPos());
-                
-                reversePortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
-                reversePortal.axisH = portal.transformLocalVecNonScale(portal.axisH.multiply(-1));
-                reversePortal.scaling = 1.0 / portal.scaling;
-                if (portal.rotation != null) {
-                    reversePortal.rotation = portal.rotation.copy();
-                    reversePortal.rotation.conjugate();
-                }
-                else {
-                    reversePortal.rotation = null;
-                }
-                
-                reversePortal.reloadAndSyncToClient();
+            PortalManipulation.copyAdditionalProperties(reversePortal, portal);
+            
+            reversePortal.reloadAndSyncToClient();
+        }
+        
+        if (parallelPortal != null) {
+            parallelPortal.setOriginPos(portal.getDestPos());
+            parallelPortal.setDestination(portal.getOriginPos());
+            
+            parallelPortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
+            parallelPortal.axisH = portal.transformLocalVecNonScale(portal.axisH);
+            parallelPortal.scaling = 1.0 / portal.scaling;
+            if (portal.rotation != null) {
+                parallelPortal.rotation = portal.rotation.copy();
+                parallelPortal.rotation.conjugate();
+            }
+            else {
+                parallelPortal.rotation = null;
             }
             
-            if (parallelPortal != null) {
-                parallelPortal.setOriginPos(portal.getDestPos());
-                parallelPortal.setDestination(portal.getOriginPos());
-                
-                parallelPortal.axisW = portal.transformLocalVecNonScale(portal.axisW);
-                parallelPortal.axisH = portal.transformLocalVecNonScale(portal.axisH);
-                parallelPortal.scaling = 1.0 / portal.scaling;
-                if (portal.rotation != null) {
-                    parallelPortal.rotation = portal.rotation.copy();
-                    parallelPortal.rotation.conjugate();
-                }
-                else {
-                    parallelPortal.rotation = null;
-                }
-                
-                parallelPortal.reloadAndSyncToClient();
-            }
+            PortalManipulation.copyAdditionalProperties(parallelPortal, portal);
+            
+            parallelPortal.reloadAndSyncToClient();
         }
     }
     

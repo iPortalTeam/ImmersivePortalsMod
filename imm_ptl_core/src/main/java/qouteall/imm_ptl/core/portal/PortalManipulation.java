@@ -301,6 +301,7 @@ public class PortalManipulation {
         to.portalTag = from.portalTag;
         to.hasCrossPortalCollision = from.hasCrossPortalCollision;
         to.commandsOnTeleported = from.commandsOnTeleported;
+        PortalExtension.get(to).bindCluster = PortalExtension.get(from).bindCluster;
     }
     
     public static void createScaledBoxView(
