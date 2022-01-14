@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.portal.BreakableMirror;
 import qouteall.imm_ptl.peripheral.PeripheralModMain;
 import qouteall.imm_ptl.peripheral.portal_generation.IntrinsicPortalGeneration;
@@ -36,7 +37,7 @@ public class MixinFlintAndSteelItem {
             BlockPos firePos = targetPos.offset(side);
             BlockState targetBlockState = world.getBlockState(targetPos);
             Block targetBlock = targetBlockState.getBlock();
-            if (BreakableMirror.isGlass(((World) world), targetPos)) {
+            if (BreakableMirror.isGlass(((World) world), targetPos) && IPGlobal.enableMirrorCreation) {
                 BreakableMirror mirror = BreakableMirror.createMirror(
                     ((ServerWorld) world), targetPos, side
                 );

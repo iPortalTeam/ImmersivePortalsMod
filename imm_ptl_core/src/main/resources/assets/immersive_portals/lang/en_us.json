@@ -137,6 +137,7 @@
   "imm_ptl.intel_warning": "[Immersive Portals] You are using Intel videocard. GUI rendering may be abnormal. The issue is still under investigation.",
   "modmenu.descriptionTranslation.immersive_portals": "See through portals and teleport seamlessly.",
   "imm_ptl.enable_warning": "Enable Warning",
+  "imm_ptl.enable_mirror_creation": "Enable Mirror Creation",
   "imm_ptl.top_y": "Top Y",
   "imm_ptl.bottom_y": "Bottom Y",
   "imm_ptl.bedrock_replacement": "Bedrock Replacement",
