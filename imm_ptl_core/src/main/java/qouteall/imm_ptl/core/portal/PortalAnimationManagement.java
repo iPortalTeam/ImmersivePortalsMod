@@ -27,9 +27,17 @@ public class PortalAnimationManagement {
             return;
         }
         
+        PortalState initialState = fromState;
+        
+        if (animatedPortals.containsKey(portal)) {
+            // make animation to resume normally
+            RunningAnimation oldAnimation = animatedPortals.get(portal);
+            initialState = oldAnimation.getCurrentState(System.nanoTime());
+        }
+        
         long currTime = System.nanoTime();
         RunningAnimation runningAnimation = new RunningAnimation(
-            fromState,
+            initialState,
             toState,
             currTime,
             currTime + Helper.secondToNano(animation.durationTicks / 20.0),
@@ -55,19 +63,9 @@ public class PortalAnimationManagement {
                 return true;
             }
             
-            double progress = (currTime - animation.startTimeNano)
-                / ((double) (animation.toTimeNano - animation.startTimeNano));
+            PortalState currentState = animation.getCurrentState(currTime);
             
-            if (progress < 0) {
-                Helper.err("invalid portal animation");
-                return true;
-            }
-            
-            progress = PortalAnimation.mapProgress(progress, animation.curve);
-            
-            portal.setPortalState(PortalState.interpolate(
-                animation.fromState, animation.toState, progress
-            ));
+            portal.setPortalState(currentState);
             
             return false;
         });
@@ -90,6 +88,25 @@ public class PortalAnimationManagement {
             this.startTimeNano = startTimeNano;
             this.toTimeNano = toTimeNano;
             this.curve = curve;
+        }
+        
+        public PortalState getCurrentState(long currTime) {
+            
+            double progress = (currTime - this.startTimeNano)
+                / ((double) (this.toTimeNano - this.startTimeNano));
+            
+            if (progress < 0) {
+                Helper.err("invalid portal animation");
+                progress = 0;
+            }
+            
+            progress = PortalAnimation.mapProgress(progress, this.curve);
+            
+            PortalState currState = PortalState.interpolate(
+                this.fromState, this.toState, progress
+            );
+            
+            return currState;
         }
     }
 }
