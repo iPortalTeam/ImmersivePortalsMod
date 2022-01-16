@@ -26,18 +26,10 @@ public class PortalAnimationManagement {
         if (animation.durationTicks <= 0) {
             return;
         }
-        
-        PortalState initialState = fromState;
-        
-        if (animatedPortals.containsKey(portal)) {
-            // make animation to resume normally
-            RunningAnimation oldAnimation = animatedPortals.get(portal);
-            initialState = oldAnimation.getCurrentState(System.nanoTime());
-        }
-        
+    
         long currTime = System.nanoTime();
         RunningAnimation runningAnimation = new RunningAnimation(
-            initialState,
+            fromState,
             toState,
             currTime,
             currTime + Helper.secondToNano(animation.durationTicks / 20.0),

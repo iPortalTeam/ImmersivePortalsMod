@@ -1500,6 +1500,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         Validate.notNull(animation);
         
         PortalAnimationManagement.addAnimation(this, animationStartState, newState, animation);
+        
+        // multiple animations may start at the same tick. correct the current state
+        setPortalState(animationStartState);
     }
     
     @Environment(EnvType.CLIENT)
