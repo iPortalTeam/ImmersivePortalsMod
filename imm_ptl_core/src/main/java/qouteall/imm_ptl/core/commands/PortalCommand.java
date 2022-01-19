@@ -801,6 +801,8 @@ public class PortalCommand {
                             portal.getNormal().multiply(offset.z)
                         )
                     );
+                    portal.reloadAndSyncToClient();
+                    portal.rectifyClusterPortals();
                 }))
             )
         );

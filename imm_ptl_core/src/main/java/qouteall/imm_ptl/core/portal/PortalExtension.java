@@ -150,7 +150,7 @@ public class PortalExtension {
             flippedPortal.scaling = portal.scaling;
             flippedPortal.rotation = portal.rotation;
             
-            PortalManipulation.copyAdditionalProperties(flippedPortal, portal);
+            PortalManipulation.copyAdditionalProperties(flippedPortal, portal, false);
             
             flippedPortal.reloadAndSyncToClient();
         }
@@ -170,7 +170,7 @@ public class PortalExtension {
                 reversePortal.rotation = null;
             }
             
-            PortalManipulation.copyAdditionalProperties(reversePortal, portal);
+            PortalManipulation.copyAdditionalProperties(reversePortal, portal, false);
             
             reversePortal.reloadAndSyncToClient();
         }
@@ -190,7 +190,7 @@ public class PortalExtension {
                 parallelPortal.rotation = null;
             }
             
-            PortalManipulation.copyAdditionalProperties(parallelPortal, portal);
+            PortalManipulation.copyAdditionalProperties(parallelPortal, portal, false);
             
             parallelPortal.reloadAndSyncToClient();
         }
