@@ -364,12 +364,6 @@ public class BlockPortalShape {
         Vec3d center = innerAreaBox.getCenterVec();
         portal.setPosition(center.x, center.y, center.z);
         
-        IntBox rectanglePart = Helper.expandRectangle(
-            anchor,
-            blockPos -> area.contains(blockPos),
-            axis
-        );
-        
         Direction[] anotherFourDirections = Helper.getAnotherFourDirections(axis);
         Direction wDirection;
         Direction hDirection;
@@ -386,42 +380,54 @@ public class BlockPortalShape {
         portal.width = Helper.getCoordinate(innerAreaBox.getSize(), wDirection.getAxis());
         portal.height = Helper.getCoordinate(innerAreaBox.getSize(), hDirection.getAxis());
         
-        GeometryPortalShape shape = new GeometryPortalShape();
         Vec3d offset = Vec3d.of(
             Direction.get(Direction.AxisDirection.POSITIVE, axis)
                 .getVector()
         ).multiply(0.5);
         
-        Stream.concat(
-            area.stream()
-                .filter(blockPos -> !rectanglePart.contains(blockPos))
-                .map(blockPos -> new IntBox(blockPos, blockPos)),
-            Stream.of(rectanglePart)
-        ).forEach(part -> {
-            Vec3d p1 = Vec3d.of(part.l).add(offset);
-            Vec3d p2 = Vec3d.of(part.h).add(1, 1, 1).add(offset);
+        if (isRectangle()) {
+            portal.specialShape = null;
+        }
+        else {
+            GeometryPortalShape shape = new GeometryPortalShape();
+            
+            IntBox rectanglePart = Helper.expandRectangle(
+                anchor,
+                blockPos -> area.contains(blockPos),
+                axis
+            );
+            
+            Stream.concat(
+                area.stream()
+                    .filter(blockPos -> !rectanglePart.contains(blockPos))
+                    .map(blockPos -> new IntBox(blockPos, blockPos)),
+                Stream.of(rectanglePart)
+            ).forEach(part -> {
+                Vec3d p1 = Vec3d.of(part.l).add(offset);
+                Vec3d p2 = Vec3d.of(part.h).add(1, 1, 1).add(offset);
+                double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
+                double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
+                double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
+                double p2LocalY = p2.subtract(center).dotProduct(portal.axisH);
+                shape.addTriangleForRectangle(
+                    p1LocalX, p1LocalY,
+                    p2LocalX, p2LocalY
+                );
+            });
+            
+            portal.specialShape = shape;
+            
+            Vec3d p1 = Vec3d.of(rectanglePart.l).add(offset);
+            Vec3d p2 = Vec3d.of(rectanglePart.h).add(1, 1, 1).add(offset);
             double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
             double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
             double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
             double p2LocalY = p2.subtract(center).dotProduct(portal.axisH);
-            shape.addTriangleForRectangle(
-                p1LocalX, p1LocalY,
-                p2LocalX, p2LocalY
+            portal.initCullableRange(
+                p1LocalX, p2LocalX,
+                p1LocalY, p2LocalY
             );
-        });
-        
-        portal.specialShape = shape;
-        
-        Vec3d p1 = Vec3d.of(rectanglePart.l).add(offset);
-        Vec3d p2 = Vec3d.of(rectanglePart.h).add(1, 1, 1).add(offset);
-        double p1LocalX = p1.subtract(center).dotProduct(portal.axisW);
-        double p1LocalY = p1.subtract(center).dotProduct(portal.axisH);
-        double p2LocalX = p2.subtract(center).dotProduct(portal.axisW);
-        double p2LocalY = p2.subtract(center).dotProduct(portal.axisH);
-        portal.initCullableRange(
-            p1LocalX, p2LocalX,
-            p1LocalY, p2LocalY
-        );
+        }
     }
     
     public BlockPortalShape matchShapeWithMovedFirstFramePos(
@@ -493,11 +499,16 @@ public class BlockPortalShape {
     
     public BlockPortalShape getShapeWithMovedTotalAreaBox(IntBox newTotalAreaBox) {
         Validate.isTrue(totalAreaBox.getSize().equals(newTotalAreaBox.getSize()));
-    
+        
         return getShapeWithMovedAnchor(
             newTotalAreaBox.l.subtract(totalAreaBox.l)
                 .add(anchor)
         );
+    }
+    
+    public boolean isRectangle() {
+        BlockPos size = innerAreaBox.getSize();
+        return size.getX() * size.getY() * size.getZ() == area.size();
     }
     
     @Override

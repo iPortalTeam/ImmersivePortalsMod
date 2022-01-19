@@ -9,15 +9,17 @@ import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class PortalState {
-    public RegistryKey<World> fromWorld;
-    public Vec3d fromPos;
-    public RegistryKey<World> toWorld;
-    public Vec3d toPos;
-    public double scaling;
-    public DQuaternion rotation;
-    public DQuaternion orientation;
+    public final RegistryKey<World> fromWorld;
+    public final Vec3d fromPos;
+    public final RegistryKey<World> toWorld;
+    public final Vec3d toPos;
+    public final double scaling;
+    public final DQuaternion rotation;
+    public final DQuaternion orientation;
+    public final double width;
+    public final double height;
     
-    public PortalState(RegistryKey<World> fromWorld, Vec3d fromPos, RegistryKey<World> toWorld, Vec3d toPos, double scaling, DQuaternion rotation, DQuaternion orientation) {
+    public PortalState(RegistryKey<World> fromWorld, Vec3d fromPos, RegistryKey<World> toWorld, Vec3d toPos, double scaling, DQuaternion rotation, DQuaternion orientation, double width, double height) {
         this.fromWorld = fromWorld;
         this.fromPos = fromPos;
         this.toWorld = toWorld;
@@ -25,6 +27,8 @@ public class PortalState {
         this.scaling = scaling;
         this.rotation = rotation;
         this.orientation = orientation;
+        this.width = width;
+        this.height = height;
     }
     
     public static PortalState interpolate(PortalState a, PortalState b, double progress) {
@@ -38,7 +42,9 @@ public class PortalState {
             Helper.interpolatePos(a.toPos, b.toPos, progress),
             MathHelper.lerp(progress, a.scaling, b.scaling),
             DQuaternion.interpolate(a.rotation, b.rotation, progress),
-            DQuaternion.interpolate(a.orientation, b.orientation, progress)
+            DQuaternion.interpolate(a.orientation, b.orientation, progress),
+            MathHelper.lerp(progress, a.width, b.width),
+            MathHelper.lerp(progress, a.height, b.height)
         );
     }
     

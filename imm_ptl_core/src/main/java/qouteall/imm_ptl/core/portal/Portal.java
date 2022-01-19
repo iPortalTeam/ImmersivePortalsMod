@@ -1468,13 +1468,17 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
             getDestPos(),
             getScale(),
             getRotation() == null ? DQuaternion.identity : DQuaternion.fromMcQuaternion(getRotation()),
-            PortalManipulation.getPortalOrientationQuaternion(axisW, axisH)
+            PortalManipulation.getPortalOrientationQuaternion(axisW, axisH),
+            width, height
         );
     }
     
     public void setPortalState(PortalState state) {
         Validate.isTrue(world.getRegistryKey() == state.fromWorld);
         Validate.isTrue(dimensionTo == state.toWorld);
+        
+        width = state.width;
+        height = state.height;
         
         setOriginPos(state.fromPos);
         setDestination(state.toPos);
