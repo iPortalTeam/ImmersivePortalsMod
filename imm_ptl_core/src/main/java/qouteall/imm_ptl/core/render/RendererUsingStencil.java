@@ -13,7 +13,6 @@ import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.portal.PortalRenderInfo;
 import qouteall.imm_ptl.core.render.context_management.FogRendererContext;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 import static org.lwjgl.opengl.GL11.GL_ALWAYS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_FUNC;
@@ -189,7 +188,7 @@ public class RendererUsingStencil extends PortalRenderer {
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3d.ZERO,
             matrixStack.peek().getPositionMatrix(),
-            RenderStates.projectionMatrix,
+            RenderSystem.getProjectionMatrix(),
             true, true,
             true);
     }
@@ -235,7 +234,7 @@ public class RendererUsingStencil extends PortalRenderer {
         ViewAreaRenderer.renderPortalArea(
             portal, Vec3d.ZERO,
             matrixStack.peek().getPositionMatrix(),
-            RenderStates.projectionMatrix,
+            RenderSystem.getProjectionMatrix(),
             false,
             false,
             true

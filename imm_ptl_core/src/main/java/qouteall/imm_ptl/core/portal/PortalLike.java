@@ -94,7 +94,7 @@ public interface PortalLike {
     boolean getHasCrossPortalCollision();
     
     default boolean hasScaling() {
-        return getScale() != 1.0;
+        return Math.abs(getScale() - 1.0) > 0.01;
     }
     
     default RegistryKey<World> getOriginDim() {
@@ -123,7 +123,7 @@ public interface PortalLike {
     default void doAdditionalRenderingCull(ObjectList<?> visibleChunks) {
 //        MyGameRenderer.cullRenderingSections(visibleChunks, this);
     }
-    
+
 //    // do additional cull when sodium is present
 //    @Environment(EnvType.CLIENT)
 //    @Nullable

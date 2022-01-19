@@ -107,9 +107,9 @@ public class IPGlobal {
     public static boolean viewBobbingCameraCorrection = false;
     
     public static boolean enableWarning = true;
-
+    
     public static boolean enableMirrorCreation = true;
-
+    
     public static boolean lightVanillaNetherPortalWhenCrouching = false;
     
     public static boolean enableNetherPortalEffect = true;
@@ -121,6 +121,8 @@ public class IPGlobal {
     public static boolean allowClientEntityPosInterpolation = true;
     
     public static boolean alwaysOverrideTerrainSetup = false;
+    
+    public static boolean viewBobbingReduce = true;
     
     public static enum RenderMode {
         normal,

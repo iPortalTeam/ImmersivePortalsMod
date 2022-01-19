@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
@@ -63,7 +64,7 @@ public abstract class PortalRenderer {
         Supplier<Frustum> frustumSupplier = Helper.cached(() -> {
             Frustum frustum = new Frustum(
                 matrixStack.peek().getPositionMatrix(),
-                RenderStates.projectionMatrix
+                RenderSystem.getProjectionMatrix()
             );
             
             Vec3d cameraPos = client.gameRenderer.getCamera().getPos();

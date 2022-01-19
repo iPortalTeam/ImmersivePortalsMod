@@ -37,7 +37,7 @@ public class GuiPortalRendering {
         WorldRenderInfo worldRenderInfo,
         Framebuffer framebuffer
     ) {
-        RenderStates.projectionMatrix = null;
+        RenderStates.basicProjectionMatrix = null;
         
         CHelper.checkGlError();
         
@@ -74,7 +74,7 @@ public class GuiPortalRendering {
         
         CHelper.checkGlError();
         
-        RenderStates.projectionMatrix = null;
+        RenderStates.basicProjectionMatrix = null;
     }
     
     private static final HashMap<Framebuffer, WorldRenderInfo> renderingTasks = new HashMap<>();

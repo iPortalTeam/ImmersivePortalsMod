@@ -1,20 +1,5 @@
 package qouteall.imm_ptl.core.render;
 
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vector4f;
-import org.apache.commons.lang3.Validate;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.GravityChangerInterface;
-import qouteall.imm_ptl.core.ducks.IECamera;
-import qouteall.imm_ptl.core.ducks.IEGameRenderer;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.ducks.IEMatrix4f;
-import qouteall.q_misc_util.my_util.DQuaternion;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
-import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -22,6 +7,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
@@ -29,7 +15,7 @@ import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Vector4f;
 import org.apache.commons.lang3.Validate;
 import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.ducks.IECamera;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.ducks.IEMatrix4f;
 import qouteall.imm_ptl.core.portal.Portal;
@@ -264,7 +250,6 @@ public class TransformationManager {
         return m1;
     }
     
-    // design this weird thing to make it compatible with pehkui
     public static boolean isCalculatingViewBobbingOffset = false;
     
     /**

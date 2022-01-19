@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.compat.iris_compatibility;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -227,7 +228,7 @@ public class IrisPortalRenderer extends PortalRenderer {
         }
         
         //reset projection matrix
-        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
+//        client.gameRenderer.loadProjectionMatrix(RenderStates.basicProjectionMatrix);
         
         //write to deferred buffer
         if (!tryRenderViewAreaInDeferredBufferAndIncreaseStencil(portal, matrixStack)) {
@@ -288,7 +289,7 @@ public class IrisPortalRenderer extends PortalRenderer {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
                 matrixStack.peek().getPositionMatrix(),
-                RenderStates.projectionMatrix,
+                RenderSystem.getProjectionMatrix(),
                 true, true, true
             );
         });

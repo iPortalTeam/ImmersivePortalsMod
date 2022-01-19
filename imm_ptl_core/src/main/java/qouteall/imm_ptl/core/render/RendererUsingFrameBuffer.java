@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,7 +13,6 @@ import qouteall.imm_ptl.core.ducks.IEMinecraftClient;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalLike;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 
 public class RendererUsingFrameBuffer extends PortalRenderer {
     SecondaryFrameBuffer secondaryFrameBuffer = new SecondaryFrameBuffer();
@@ -110,7 +110,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
                 matrixStack.peek().getPositionMatrix(),
-                RenderStates.projectionMatrix,
+                RenderSystem.getProjectionMatrix(),
                 true, true,
                 true);
         });
@@ -121,7 +121,7 @@ public class RendererUsingFrameBuffer extends PortalRenderer {
             portal,
             secondaryFrameBuffer.fb,
             matrixStack.peek().getPositionMatrix(),
-            RenderStates.projectionMatrix
+            RenderSystem.getProjectionMatrix()
         );
     }
     

@@ -45,7 +45,6 @@
       ">0.4.0-alpha6",
       "<0.4.0-alpha6"
     ],
-    "multiconnect": "*",
     "viafabric-mc118": "*",
     "resolutioncontrol": "*",
     "canvas": "*",

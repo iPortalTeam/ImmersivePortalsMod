@@ -22,9 +22,9 @@ import qouteall.imm_ptl.core.ducks.IEGameRenderer;
 import qouteall.imm_ptl.core.render.CrossPortalViewRendering;
 import qouteall.imm_ptl.core.render.GuiPortalRendering;
 import qouteall.imm_ptl.core.render.MyRenderHelper;
-import qouteall.imm_ptl.core.render.TransformationManager;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.imm_ptl.core.render.context_management.RenderStates;
+import qouteall.q_misc_util.Helper;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer implements IEGameRenderer {
@@ -200,36 +200,39 @@ public abstract class MixinGameRenderer implements IEGameRenderer {
         if (portal_isRenderingHand) {
             matrixStack.translate(x, y, z);
         }
-        else if (TransformationManager.isCalculatingViewBobbingOffset) {
+        else {
+            double multiplier = RenderStates.getViewBobbingOffsetMultiplier();
             matrixStack.translate(
-                x * RenderStates.viewBobFactor,
-                y * RenderStates.viewBobFactor,
-                z * RenderStates.viewBobFactor
+                x * multiplier, y * multiplier, z * multiplier
             );
         }
-//
     }
     
+    // make sure that the portal rendering basic projection matrix is right
+    // the basic projection matrix does not contain view bobbing
     @Redirect(
         method = "renderWorld",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/GameRenderer;loadProjectionMatrix(Lnet/minecraft/util/math/Matrix4f;)V"
+            ordinal = 0,
+            target = "Lnet/minecraft/client/render/GameRenderer;getBasicProjectionMatrix(D)Lnet/minecraft/util/math/Matrix4f;"
         )
     )
-    private void redirectLoadProjectionMatrix(GameRenderer gameRenderer, Matrix4f matrix4f) {
+    private Matrix4f redirectGetBasicProjectionMatrix(GameRenderer instance, double fov) {
         if (PortalRendering.isRendering()) {
-            // change the projection matrix
-            matrix4f.load(RenderStates.projectionMatrix);
-        }
-        else {
-            //record projection matrix
-            if (RenderStates.projectionMatrix == null) {
-                RenderStates.projectionMatrix = matrix4f.copy();
+            if (RenderStates.basicProjectionMatrix != null) {
+                // replace the basic projection matrix
+                return RenderStates.basicProjectionMatrix;
+            }
+            else {
+                Helper.err("projection matrix state abnormal");
             }
         }
         
-        loadProjectionMatrix(matrix4f);
+        Matrix4f result = instance.getBasicProjectionMatrix(fov);
+        RenderStates.basicProjectionMatrix = result;
+        
+        return result;
     }
     
     @Override

@@ -44,7 +44,7 @@ public class RenderStates {
     public static Set<RegistryKey<World>> renderedDimensions = new HashSet<>();
     public static List<List<WeakReference<PortalLike>>> lastPortalRenderInfos = new ArrayList<>();
     public static List<List<WeakReference<PortalLike>>> portalRenderInfos = new ArrayList<>();
-    public static int portalsRenderedThisFrame=0;// mixins to sodium use that
+    public static int portalsRenderedThisFrame = 0;// mixins to sodium use that
     
     public static Vec3d lastCameraPos = Vec3d.ZERO;
     public static Vec3d cameraPosDelta = Vec3d.ZERO;
@@ -55,8 +55,8 @@ public class RenderStates {
     
     public static double viewBobFactor;
     
-    //null indicates not gathered
-    public static Matrix4f projectionMatrix;
+    public static Matrix4f basicProjectionMatrix;
+//    public static Matrix4f fullProjectionMatrix;
     
     public static Camera originalCamera;
     
@@ -95,7 +95,7 @@ public class RenderStates {
         renderedDimensions.clear();
         lastPortalRenderInfos = portalRenderInfos;
         portalRenderInfos = new ArrayList<>();
-        portalsRenderedThisFrame=0;
+        portalsRenderedThisFrame = 0;
         
         FogRendererContext.update();
         
@@ -103,7 +103,7 @@ public class RenderStates {
         
         updateViewBobbingFactor(cameraEntity);
         
-        projectionMatrix = null;
+        basicProjectionMatrix = null;
         originalCamera = MyRenderHelper.client.gameRenderer.getCamera();
         
         originalCameraLightPacked = MyRenderHelper.client.getEntityRenderDispatcher()
@@ -147,10 +147,12 @@ public class RenderStates {
     }
     
     private static void updateViewBobbingFactor(Entity cameraEntity) {
-//        if (renderedScalingPortal) {
-//            setViewBobFactor(0);
-//            renderedScalingPortal = false;
-//            return;
+//        if (!IrisInterface.invoker.isIrisPresent()) {
+//            if (renderedScalingPortal) {
+//                setViewBobFactor(0);
+//                renderedScalingPortal = false;
+//                return;
+//            }
 //        }
         
         Vec3d cameraPosVec = cameraEntity.getCameraPosVec(tickDelta);
@@ -168,6 +170,15 @@ public class RenderStates {
         else {
             setViewBobFactor(1);
         }
+    }
+    
+    public static double getViewBobbingOffsetMultiplier() {
+        if (!IPGlobal.viewBobbingReduce) {
+            return 1;
+        }
+    
+        double allScaling = PortalRendering.getAllScaling();
+        return viewBobFactor * allScaling;
     }
     
     private static void setViewBobFactor(double arg) {

@@ -54,6 +54,12 @@ allprojects {
             }
         }
 
+        // for databreaker
+        maven {
+            name = "Gegy's Maven"
+            url = "https://maven.gegy.dev/"
+        }
+
 
     }
 
@@ -82,11 +88,11 @@ allprojects {
         modCompileOnly "maven.modrinth:sodium:mc1.18.1-0.4.0-alpha6"
 //        implementation "org.joml:joml:1.10.2" // for sodium
 
-        modCompileOnly 'maven.modrinth:iris:1.18.x-v1.1.4'
+        modCompileOnly 'maven.modrinth:iris:1.18.x-v1.2.0'
 //        implementation "org.anarres:jcpp:1.4.14" // for iris
 //        implementation 'org.slf4j:slf4j-api:1.7.12' // for iris
 
-        modImplementation ("maven.modrinth:gravitychanger:0.3.0") {
+        modCompileOnly("maven.modrinth:gravitychanger:0.3.0") {
             transitive = false
         }
     }
@@ -160,6 +166,10 @@ publishing {
 
 dependencies {
 
+    modRuntime("supercoder79:databreaker:0.2.8") {
+        exclude module: "fabric-loader"
+    }
+
     modImplementation "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
@@ -226,7 +236,8 @@ task publishModrinth(type: TaskModrinthUpload) { // Make sure it runs after buil
     projectId = 'zJpHMkdD'
     versionNumber = "${project.version}-${project.minecraft_version}" // Will fail if Modrinth has this version already
     // On fabric, use 'remapJar' instead of 'jar'
-    uploadFile = file("${project.buildDir}/to_upload/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar") // This is the java jar task. If it can't find the jar, try 'jar.outputs.getFiles().asPath' in place of 'jar'
+    uploadFile = file("${project.buildDir}/to_upload/$archivesBaseName-${version}-mc${project.minecraft_version}-fabric.jar")
+    // This is the java jar task. If it can't find the jar, try 'jar.outputs.getFiles().asPath' in place of 'jar'
 //    uploadFile = remapJar
     addGameVersion("${project.minecraft_version}")
     // Call this multiple times to add multiple game versions. There are tools that can help you generate the list of versions

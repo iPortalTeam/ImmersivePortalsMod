@@ -522,6 +522,11 @@ public class ClientDebugCommand {
             "always_override_terrain_setup",
             cond -> IPGlobal.alwaysOverrideTerrainSetup = cond
         );
+        registerSwitchCommand(
+            builder,
+            "view_bob_reduce",
+            cond -> IPGlobal.viewBobbingReduce = cond
+        );
         
         builder.then(ClientCommandManager
             .literal("print_class_path")

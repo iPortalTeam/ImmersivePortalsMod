@@ -1,6 +1,7 @@
 package qouteall.imm_ptl.core.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -79,7 +80,7 @@ public class RendererDebug extends PortalRenderer {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
                 matrixStack.peek().getPositionMatrix(),
-                RenderStates.projectionMatrix,
+                RenderSystem.getProjectionMatrix(),
                 true, true,
                 true);
         });

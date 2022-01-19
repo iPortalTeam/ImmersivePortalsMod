@@ -18,7 +18,6 @@ import qouteall.imm_ptl.core.render.PortalRenderer;
 import qouteall.imm_ptl.core.render.SecondaryFrameBuffer;
 import qouteall.imm_ptl.core.render.ViewAreaRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
-import qouteall.imm_ptl.core.render.context_management.RenderStates;
 import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
@@ -95,8 +94,6 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
         
         PortalRendering.popPortalLayer();
         
-        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
-        
         CHelper.enableDepthClamp();
         
         if (!isDebugMode) {
@@ -106,7 +103,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
                 portal,
                 client.getFramebuffer(),
                 matrixStack.peek().getPositionMatrix(),
-                RenderStates.projectionMatrix
+                RenderSystem.getProjectionMatrix()
             );
         }
         else {
@@ -142,7 +139,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
     private boolean testShouldRenderPortal(PortalLike portal, MatrixStack matrixStack) {
         
         //reset projection matrix
-        client.gameRenderer.loadProjectionMatrix(RenderStates.projectionMatrix);
+//        client.gameRenderer.loadProjectionMatrix(RenderStates.basicProjectionMatrix);
         
         deferredBuffer.fb.beginWrite(true);
         
@@ -151,7 +148,7 @@ public class IrisCompatibilityPortalRenderer extends PortalRenderer {
             ViewAreaRenderer.renderPortalArea(
                 portal, Vec3d.ZERO,
                 matrixStack.peek().getPositionMatrix(),
-                RenderStates.projectionMatrix,
+                RenderSystem.getProjectionMatrix(),
                 true, false, false
             );
         });
