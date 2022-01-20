@@ -469,6 +469,7 @@ public class PortalManipulation {
             portal.getDestPos(),
             0,
             p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.01 &&
+                p1.getDestPos().subtract(portal.getOriginPos()).lengthSquared() < 0.01 &&
                 p1.getNormal().dotProduct(portal.getContentDirection()) < -0.9
         ));
     }
@@ -481,6 +482,7 @@ public class PortalManipulation {
             portal.getDestPos(),
             0,
             p1 -> p1.getOriginPos().subtract(portal.getDestPos()).lengthSquared() < 0.01 &&
+                p1.getDestPos().subtract(portal.getOriginPos()).lengthSquared() < 0.01 &&
                 p1.getNormal().dotProduct(portal.getContentDirection()) > 0.9
         ));
     }

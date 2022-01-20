@@ -1176,16 +1176,16 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     
     public static boolean isParallelOrientedPortal(Portal currPortal, Portal outerPortal) {
         return currPortal.world.getRegistryKey() == outerPortal.dimensionTo &&
-            currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) <= -0.9 &&
+            currPortal.getNormal().dotProduct(outerPortal.getContentDirection()) < -0.9 &&
             !outerPortal.isInside(currPortal.getOriginPos(), 0.1);
     }
     
     public static boolean isReversePortal(Portal a, Portal b) {
         return a.dimensionTo == b.world.getRegistryKey() &&
             a.world.getRegistryKey() == b.dimensionTo &&
-            a.getOriginPos().distanceTo(b.getDestPos()) < 1 &&
-            a.getDestPos().distanceTo(b.getOriginPos()) < 1 &&
-            a.getNormal().dotProduct(b.getContentDirection()) > 0.5;
+            a.getOriginPos().distanceTo(b.getDestPos()) < 0.1 &&
+            a.getDestPos().distanceTo(b.getOriginPos()) < 0.1 &&
+            a.getNormal().dotProduct(b.getContentDirection()) > 0.9;
     }
     
     public static boolean isFlippedPortal(Portal a, Portal b) {
@@ -1194,9 +1194,9 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
         }
         return a.world == b.world &&
             a.dimensionTo == b.dimensionTo &&
-            a.getOriginPos().distanceTo(b.getOriginPos()) < 1 &&
-            a.getDestPos().distanceTo(b.getDestPos()) < 1 &&
-            a.getNormal().dotProduct(b.getNormal()) < -0.5;
+            a.getOriginPos().distanceTo(b.getOriginPos()) < 0.1 &&
+            a.getDestPos().distanceTo(b.getDestPos()) < 0.1 &&
+            a.getNormal().dotProduct(b.getNormal()) < -0.9;
     }
     
     @Override
@@ -1496,8 +1496,15 @@ public class Portal extends Entity implements PortalLike, IPEntityEventListenabl
     @Environment(EnvType.CLIENT)
     private void startAnimationClient(PortalState animationStartState) {
         PortalState newState = getPortalState();
+        
         if (newState == null) {
             Helper.err("portal animation state abnormal");
+            return;
+        }
+        
+        if (newState.fromWorld != animationStartState.fromWorld ||
+            newState.toWorld != animationStartState.toWorld
+        ) {
             return;
         }
         
