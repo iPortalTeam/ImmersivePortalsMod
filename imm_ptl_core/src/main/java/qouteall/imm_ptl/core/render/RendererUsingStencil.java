@@ -82,10 +82,10 @@ public class RendererUsingStencil extends PortalRenderer {
 //                client.worldRenderer.reload();
             }
         }
-    
+        
         GL11.glClearStencil(0);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-    
+        
         GlStateManager._enableDepthTest();
         GL11.glEnable(GL_STENCIL_TEST);
         
@@ -174,7 +174,7 @@ public class RendererUsingStencil extends PortalRenderer {
         //is the mask here different from the mask of glStencilMask?
         GL11.glStencilFunc(GL_EQUAL, outerPortalStencilValue, 0xFF);
         
-        //if stencil and depth test pass, the data in stencil packetBuffer will increase by 1
+        //if stencil and depth test pass, the data in stencil buffer will increase by 1
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
         //NOTE about GL_INCR:
         //if multiple triangles occupy the same pixel and passed stencil and depth tests,
@@ -197,6 +197,7 @@ public class RendererUsingStencil extends PortalRenderer {
         PortalLike portal
     ) {
         GlStateManager._enableDepthTest();
+        GlStateManager._depthMask(true);
         
         setStencilStateForWorldRendering();
         
@@ -246,6 +247,8 @@ public class RendererUsingStencil extends PortalRenderer {
     public static void clampStencilValue(
         int maximumValue
     ) {
+        GlStateManager._depthMask(true);
+        
         //NOTE GL_GREATER means ref > stencil
         //GL_LESS means ref < stencil
         
@@ -255,10 +258,10 @@ public class RendererUsingStencil extends PortalRenderer {
         //if stencil test passed, encode the stencil value
         GL11.glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
         
-        //do not manipulate the depth packetBuffer
+        //do not manipulate the depth buffer
         GL11.glDepthMask(false);
         
-        //do not manipulate the color packetBuffer
+        //do not manipulate the color buffer
         GL11.glColorMask(false, false, false, false);
         
         GlStateManager._disableDepthTest();
@@ -278,7 +281,7 @@ public class RendererUsingStencil extends PortalRenderer {
         //draw content in the mask
         GL11.glStencilFunc(GL_EQUAL, thisPortalStencilValue, 0xFF);
         
-        //do not manipulate stencil packetBuffer now
+        //do not manipulate stencil buffer now
         GL11.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     }
     
