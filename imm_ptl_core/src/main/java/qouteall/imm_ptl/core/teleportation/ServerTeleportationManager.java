@@ -1,24 +1,5 @@
 package qouteall.imm_ptl.core.teleportation;
 
-import net.minecraft.util.math.Direction;
-import qouteall.imm_ptl.core.IPGlobal;
-import qouteall.imm_ptl.core.compat.GravityChangerInterface;
-import qouteall.q_misc_util.Helper;
-import qouteall.imm_ptl.core.IPMcHelper;
-import qouteall.imm_ptl.core.McHelper;
-import qouteall.imm_ptl.core.PehkuiInterface;
-import qouteall.imm_ptl.core.platform_specific.IPNetworking;
-import qouteall.imm_ptl.core.platform_specific.O_O;
-import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
-import qouteall.imm_ptl.core.ducks.IEEntity;
-import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
-import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
-import qouteall.q_misc_util.MiscHelper;
-import qouteall.q_misc_util.api.McRemoteProcedureCall;
-import qouteall.q_misc_util.my_util.LimitedLogger;
-import qouteall.q_misc_util.my_util.MyTaskList;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.MobEntity;
@@ -30,6 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -39,6 +21,7 @@ import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.McHelper;
 import qouteall.imm_ptl.core.PehkuiInterface;
 import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
+import qouteall.imm_ptl.core.compat.GravityChangerInterface;
 import qouteall.imm_ptl.core.ducks.IEEntity;
 import qouteall.imm_ptl.core.ducks.IEServerPlayNetworkHandler;
 import qouteall.imm_ptl.core.ducks.IEServerPlayerEntity;
@@ -48,6 +31,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
+import qouteall.q_misc_util.api.McRemoteProcedureCall;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 import qouteall.q_misc_util.my_util.MyTaskList;
 
@@ -593,9 +577,9 @@ public class ServerTeleportationManager {
         Vec3d newPos = new Vec3d(x, y, z);
         if (canPlayerReachPos(player, dimension, newPos)) {
             recordLastPosition(player);
-            teleportPlayer(player, dimension, newPos);
+            invokeTpmeCommand(player, dimension, newPos);
             limitedLogger.log(String.format("accepted dubious move packet %s %s %s %s %s %s %s",
-                player.world.getRegistryKey(), x, y, z, player.getX(), player.getY(), player.getZ()
+                player.world.getRegistryKey().getValue(), x, y, z, player.getX(), player.getY(), player.getZ()
             ));
         }
         else {
