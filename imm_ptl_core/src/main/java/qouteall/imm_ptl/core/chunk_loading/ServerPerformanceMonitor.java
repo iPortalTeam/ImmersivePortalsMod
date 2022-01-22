@@ -21,6 +21,11 @@ public class ServerPerformanceMonitor {
     private static long lastUpdateTime = 0;
     
     private static void tick() {
+        if (!IPGlobal.enableServerPerformanceAdjustment) {
+            level = PerformanceLevel.good;
+            return;
+        }
+        
         MinecraftServer server = MiscHelper.getServer();
         if (server == null) {
             return;

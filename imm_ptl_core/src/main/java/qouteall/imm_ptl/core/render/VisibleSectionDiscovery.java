@@ -94,7 +94,7 @@ public class VisibleSectionDiscovery {
     private static void updateViewDistance() {
         int distance = WorldRenderInfo.getRenderDistance();
         viewDistance = PerformanceLevel.getPortalRenderingDistance(
-            ClientPerformanceMonitor.currentPerformanceLevel, distance
+            ClientPerformanceMonitor.level, distance
         );
     }
     

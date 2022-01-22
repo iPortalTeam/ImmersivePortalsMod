@@ -124,6 +124,9 @@ public class IPGlobal {
     
     public static boolean viewBobbingReduce = true;
     
+    public static boolean enableClientPerformanceAdjustment = true;
+    public static boolean enableServerPerformanceAdjustment = true;
+    
     public static enum RenderMode {
         normal,
         compatibility,

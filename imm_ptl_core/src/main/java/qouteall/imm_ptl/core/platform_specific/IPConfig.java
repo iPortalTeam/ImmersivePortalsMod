@@ -46,6 +46,8 @@ public class IPConfig {
     public boolean enableDepthClampForPortalRendering = false;
     public boolean lightVanillaNetherPortalWhenCrouching = false;
     public boolean enableNetherPortalEffect = true;
+    public boolean enableClientPerformanceAdjustment = true;
+    public boolean enableServerPerformanceAdjustment = true;
     public IPGlobal.NetherPortalMode netherPortalMode = IPGlobal.NetherPortalMode.normal;
     public IPGlobal.EndPortalMode endPortalMode = IPGlobal.EndPortalMode.normal;
 //    public boolean enableServerCollision = true;
@@ -152,6 +154,8 @@ public class IPConfig {
         IPGlobal.enableClippingMechanism = enableClippingMechanism;
         IPGlobal.lightVanillaNetherPortalWhenCrouching = lightVanillaNetherPortalWhenCrouching;
         IPGlobal.enableNetherPortalEffect = enableNetherPortalEffect;
+        IPGlobal.enableClientPerformanceAdjustment = enableClientPerformanceAdjustment;
+        IPGlobal.enableServerPerformanceAdjustment = enableServerPerformanceAdjustment;
         
         if (enableDepthClampForPortalRendering) {
             IPGlobal.enableDepthClampForPortalRendering = true;

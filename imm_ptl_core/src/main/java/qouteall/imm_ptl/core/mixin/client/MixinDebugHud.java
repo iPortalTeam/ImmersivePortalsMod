@@ -34,7 +34,7 @@ public class MixinDebugHud {
         
         returnValue.add("Occlusion Query Stall: " + QueryManager.queryStallCounter);
         returnValue.add("Client Perf %s %d %d".formatted(
-            ClientPerformanceMonitor.currentPerformanceLevel,
+            ClientPerformanceMonitor.level,
             ClientPerformanceMonitor.getAverageFps(),
             ClientPerformanceMonitor.getAverageFreeMemoryMB()
         ));

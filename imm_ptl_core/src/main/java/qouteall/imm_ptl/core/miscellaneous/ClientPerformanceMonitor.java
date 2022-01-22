@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.chunk_loading.PerformanceLevel;
 import qouteall.imm_ptl.core.commands.PortalDebugCommands;
 import qouteall.q_misc_util.api.McRemoteProcedureCall;
@@ -13,7 +14,7 @@ import java.util.ArrayDeque;
 @Environment(EnvType.CLIENT)
 public class ClientPerformanceMonitor {
     
-    public static PerformanceLevel currentPerformanceLevel = PerformanceLevel.medium;
+    public static PerformanceLevel level = PerformanceLevel.medium;
     
     public static class Record {
         public final int FPS;
@@ -54,7 +55,7 @@ public class ClientPerformanceMonitor {
         
         counter++;
         if (counter % 5 == 0) {
-            sendPerformanceInfo();
+            updateAndSend();
         }
     }
     
@@ -70,17 +71,21 @@ public class ClientPerformanceMonitor {
         return averageFreeMemoryMB;
     }
     
-    private static void sendPerformanceInfo() {
+    private static void updateAndSend() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) {
             return;
         }
         
-        currentPerformanceLevel = PerformanceLevel.getClientPerformanceLevel(averageFps, averageFreeMemoryMB);
+        level = PerformanceLevel.getClientPerformanceLevel(averageFps, averageFreeMemoryMB);
+        
+        if (!IPGlobal.enableClientPerformanceAdjustment) {
+            level = PerformanceLevel.good;
+        }
         
         McRemoteProcedureCall.tellServerToInvoke(
             "qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph.RemoteCallables.acceptClientPerformanceInfo",
-            currentPerformanceLevel
+            level
         );
     }
 }
