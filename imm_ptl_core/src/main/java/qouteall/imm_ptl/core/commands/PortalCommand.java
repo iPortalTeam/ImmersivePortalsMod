@@ -57,6 +57,7 @@ import qouteall.imm_ptl.core.portal.global_portals.BorderBarrierFiller;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 import qouteall.imm_ptl.core.portal.global_portals.VerticalConnectingPortal;
 import qouteall.imm_ptl.core.portal.global_portals.WorldWrappingPortal;
+import qouteall.imm_ptl.core.portal.nether_portal.BreakablePortalEntity;
 import qouteall.imm_ptl.core.portal.nether_portal.NetherPortalMatcher;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 import qouteall.q_misc_util.Helper;
@@ -1602,6 +1603,15 @@ public class PortalCommand {
                 sendMessage(context, "You are editing a bi-way portal." +
                     " It's recommended to enable bindCluster or you will get unlinked portal entities." +
                     " Use command /portal set_portal_nbt {bindCluster:true}"
+                );
+            }
+        }
+        
+        if (portal instanceof BreakablePortalEntity breakablePortalEntity) {
+            if (!breakablePortalEntity.unbreakable) {
+                sendMessage(context, "You are editing a breakable portal. " +
+                    "It may break if its state is abnormal. " +
+                    "It's recommended to make it unbreakable by /portal set_portal_nbt {unbreakable:true}"
                 );
             }
         }

@@ -387,7 +387,7 @@ public class McHelper {
         ThreadedAnvilChunkStorage.EntityTracker entityTracker =
             getIEStorage(entity.world.getRegistryKey()).getEntityTrackerMap().get(entity.getId());
         if (entityTracker == null) {
-            Helper.err("missing entity tracker object");
+//            Helper.err("missing entity tracker object");
             return;
         }
         

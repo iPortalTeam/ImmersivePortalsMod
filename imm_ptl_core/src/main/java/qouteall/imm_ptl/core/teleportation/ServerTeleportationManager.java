@@ -596,25 +596,31 @@ public class ServerTeleportationManager {
             );
         }
         else {
-            if (targetWorld == entity.world) {
-                entity.refreshPositionAndAngles(
-                    targetPos.x,
-                    targetPos.y,
-                    targetPos.z,
-                    entity.getYaw(),
-                    entity.getPitch()
-                );
-                entity.setHeadYaw(entity.getYaw());
-            }
-            else {
-                IPGlobal.serverTeleportationManager.changeEntityDimension(
-                    entity,
-                    targetWorld.getRegistryKey(),
-                    targetPos.add(McHelper.getEyeOffset(entity)),
-                    true
-                );
-            }
+            teleportRegularEntityTo(entity, targetWorld.getRegistryKey(), targetPos);
         }
+    }
+    
+    public static <E extends Entity> E teleportRegularEntityTo(
+        E entity, RegistryKey<World> targetDim, Vec3d targetPos
+    ) {
+        if (entity.world.getRegistryKey() == targetDim) {
+            entity.refreshPositionAndAngles(
+                targetPos.x,
+                targetPos.y,
+                targetPos.z,
+                entity.getYaw(),
+                entity.getPitch()
+            );
+            entity.setHeadYaw(entity.getYaw());
+            return entity;
+        }
+        
+        return (E) IPGlobal.serverTeleportationManager.changeEntityDimension(
+            entity,
+            targetDim,
+            targetPos.add(McHelper.getEyeOffset(entity)),
+            true
+        );
     }
     
     // make the mobs chase the player through portal

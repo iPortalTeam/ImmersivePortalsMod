@@ -3,6 +3,7 @@ package qouteall.imm_ptl.core.portal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
+import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
 
 import javax.annotation.Nullable;
 
@@ -141,6 +142,13 @@ public class PortalExtension {
     public void rectifyClusterPortals(Portal portal) {
         
         if (flippedPortal != null) {
+            flippedPortal = ServerTeleportationManager.teleportRegularEntityTo(
+                flippedPortal,
+                portal.world.getRegistryKey(),
+                portal.getOriginPos()
+            );
+            
+            flippedPortal.dimensionTo = portal.dimensionTo;
             flippedPortal.setOriginPos(portal.getOriginPos());
             flippedPortal.setDestination(portal.getDestPos());
             
@@ -161,6 +169,13 @@ public class PortalExtension {
         }
         
         if (reversePortal != null) {
+            reversePortal = ServerTeleportationManager.teleportRegularEntityTo(
+                reversePortal,
+                portal.getDestDim(),
+                portal.getDestPos()
+            );
+            
+            reversePortal.dimensionTo = portal.getOriginDim();
             reversePortal.setOriginPos(portal.getDestPos());
             reversePortal.setDestination(portal.getOriginPos());
             
@@ -186,6 +201,13 @@ public class PortalExtension {
         }
         
         if (parallelPortal != null) {
+            parallelPortal = ServerTeleportationManager.teleportRegularEntityTo(
+                parallelPortal,
+                portal.getDestDim(),
+                portal.getDestPos()
+            );
+            
+            parallelPortal.dimensionTo = portal.getOriginDim();
             parallelPortal.setOriginPos(portal.getDestPos());
             parallelPortal.setDestination(portal.getOriginPos());
             
