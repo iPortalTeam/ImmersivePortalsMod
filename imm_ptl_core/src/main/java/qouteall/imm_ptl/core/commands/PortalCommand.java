@@ -464,8 +464,7 @@ public class PortalCommand {
                                 context, "dest"
                             ));
                             
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                             
                             sendMessage(context, portal.toString());
                         }
@@ -591,8 +590,7 @@ public class PortalCommand {
                                 portal.getY() + offset.y,
                                 portal.getZ() + offset.z
                             );
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                         catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
@@ -622,8 +620,7 @@ public class PortalCommand {
                             portal.setDestination(portal.getDestPos().add(
                                 portal.transformLocalVecNonScale(offset)
                             ));
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                         catch (CommandSyntaxException e) {
                             sendMessage(context, "This command can only be invoked by player");
@@ -697,8 +694,7 @@ public class PortalCommand {
                 context,
                 portal -> {
                     makePortalRound(portal);
-                    portal.reloadAndSyncToClient();
-                    portal.rectifyClusterPortals();
+                    reloadPortal(portal);
                 }
             ))
         );
@@ -711,8 +707,7 @@ public class PortalCommand {
                         
                         portal.scaling = scale;
                         
-                        portal.reloadAndSyncToClient();
-                        portal.rectifyClusterPortals();
+                        reloadPortal(portal);
                     }
                 ))
             )
@@ -724,8 +719,7 @@ public class PortalCommand {
                     Entity entity = EntityArgumentType.getEntity(context, "entity");
                     portal.dimensionTo = entity.world.getRegistryKey();
                     portal.setDestination(entity.getPos());
-                    portal.reloadAndSyncToClient();
-                    portal.rectifyClusterPortals();
+                    reloadPortal(portal);
                 }))
             )
         );
@@ -741,8 +735,7 @@ public class PortalCommand {
                         
                         if (targetWorld == portal.world) {
                             portal.setOriginPos(pos);
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                         else {
                             ServerTeleportationManager.teleportEntityGeneral(
@@ -764,8 +757,7 @@ public class PortalCommand {
                     
                     if (targetEntity.world == portal.world) {
                         portal.setOriginPos(targetEntity.getPos());
-                        portal.reloadAndSyncToClient();
-                        portal.rectifyClusterPortals();
+                        reloadPortal(portal);
                     }
                     else {
                         ServerTeleportationManager.teleportEntityGeneral(
@@ -783,8 +775,7 @@ public class PortalCommand {
                 context, portal -> {
                     portal.axisW = new Vec3d(1, 0, 0);
                     portal.axisH = new Vec3d(0, 1, 0);
-                    portal.reloadAndSyncToClient();
-                    portal.rectifyClusterPortals();
+                    reloadPortal(portal);
                 }
             ))
         );
@@ -802,8 +793,7 @@ public class PortalCommand {
                             portal.getNormal().multiply(offset.z)
                         )
                     );
-                    portal.reloadAndSyncToClient();
-                    portal.rectifyClusterPortals();
+                    reloadPortal(portal);
                 }))
             )
         );
@@ -821,11 +811,15 @@ public class PortalCommand {
                             portal.transformLocalVec(portal.getNormal()).multiply(offset.z)
                         )
                     );
-                    portal.reloadAndSyncToClient();
-                    portal.rectifyClusterPortals();
+                    reloadPortal(portal);
                 }))
             )
         );
+    }
+    
+    public static void reloadPortal(Portal portal) {
+        portal.rectifyClusterPortals();
+        portal.reloadAndSyncToClient();
     }
     
     private static void registerPortalTargetedCommandWithRotationArgument(
@@ -857,8 +851,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                     ))
                 )
@@ -886,8 +879,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                     ))
                 )
@@ -912,8 +904,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                     ))
                 )
@@ -938,8 +929,7 @@ public class PortalCommand {
                             
                             func.accept(portal, rot);
                             
-                            portal.reloadAndSyncToClient();
-                            portal.rectifyClusterPortals();
+                            reloadPortal(portal);
                         }
                     ))
                 )
@@ -957,8 +947,7 @@ public class PortalCommand {
             portal.rotation = null;
         }
         
-        portal.reloadAndSyncToClient();
-        portal.rectifyClusterPortals();
+        reloadPortal(portal);
     }
     
     // only portal custom data can be changed
@@ -971,8 +960,7 @@ public class PortalCommand {
         
         portal.readPortalDataFromNbt(data);
         
-        portal.reloadAndSyncToClient();
-        portal.rectifyClusterPortals();
+        reloadPortal(portal);
     }
     
     private static void registerCBPortalCommands(
@@ -994,7 +982,7 @@ public class PortalCommand {
                                 
                                 return 0;
                             })
-                            .then(CommandManager.argument("portalTag", StringArgumentType.string())
+                            .then(CommandManager.argument("portalName", StringArgumentType.string())
                                 .executes(context -> {
                                     double width = DoubleArgumentType.getDouble(context, "width");
                                     double height = DoubleArgumentType.getDouble(context, "height");
@@ -1002,9 +990,9 @@ public class PortalCommand {
                                     Entity fromEntity = EntityArgumentType.getEntity(context, "from");
                                     Entity toEntity = EntityArgumentType.getEntity(context, "to");
                                     
-                                    String portalTag = StringArgumentType.getString(context, "portalTag");
+                                    String portalName = StringArgumentType.getString(context, "portalName");
                                     
-                                    invokeCbMakePortal(width, height, fromEntity, toEntity, portalTag);
+                                    invokeCbMakePortal(width, height, fromEntity, toEntity, portalName);
                                     
                                     return 0;
                                 })
@@ -1018,7 +1006,7 @@ public class PortalCommand {
     
     private static void invokeCbMakePortal(
         double width, double height, Entity fromEntity, Entity toEntity,
-        String portalTag
+        String portalName
     ) {
         Portal portal = Portal.entityType.create(fromEntity.world);
         
@@ -1036,6 +1024,8 @@ public class PortalCommand {
         
         portal.axisW = rightVec;
         portal.axisH = axisH;
+        
+        portal.setCustomName(new LiteralText(portalName));
         
         McHelper.spawnServerEntity(portal);
     }

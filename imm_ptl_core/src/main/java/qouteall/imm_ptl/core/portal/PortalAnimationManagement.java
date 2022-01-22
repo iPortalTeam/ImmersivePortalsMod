@@ -26,14 +26,15 @@ public class PortalAnimationManagement {
         if (animation.durationTicks <= 0) {
             return;
         }
-    
+        
         long currTime = System.nanoTime();
         RunningAnimation runningAnimation = new RunningAnimation(
             fromState,
             toState,
             currTime,
             currTime + Helper.secondToNano(animation.durationTicks / 20.0),
-            animation.curve
+            animation.curve,
+            animation.inverseScale
         );
         animatedPortals.put(portal, runningAnimation);
     }
@@ -73,13 +74,19 @@ public class PortalAnimationManagement {
         public long startTimeNano;
         public long toTimeNano;
         public PortalAnimation.Curve curve;
+        public boolean inverseScale;
         
-        public RunningAnimation(PortalState fromState, PortalState toState, long startTimeNano, long toTimeNano, PortalAnimation.Curve curve) {
+        public RunningAnimation(
+            PortalState fromState, PortalState toState, long startTimeNano, long toTimeNano,
+            PortalAnimation.Curve curve,
+            boolean inverseScale
+        ) {
             this.fromState = fromState;
             this.toState = toState;
             this.startTimeNano = startTimeNano;
             this.toTimeNano = toTimeNano;
             this.curve = curve;
+            this.inverseScale = inverseScale;
         }
         
         public PortalState getCurrentState(long currTime) {
@@ -95,7 +102,7 @@ public class PortalAnimationManagement {
             progress = PortalAnimation.mapProgress(progress, this.curve);
             
             PortalState currState = PortalState.interpolate(
-                this.fromState, this.toState, progress
+                this.fromState, this.toState, progress, inverseScale
             );
             
             return currState;

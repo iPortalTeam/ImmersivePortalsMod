@@ -9,13 +9,16 @@ public class PortalAnimation {
     
     public final Curve curve;
     public final int durationTicks;
+    public final boolean inverseScale;
     
-    public PortalAnimation(Curve curve, int durationTicks) {
+    public PortalAnimation(Curve curve, int durationTicks, boolean inverseScale) {
         this.curve = curve;
         this.durationTicks = durationTicks;
+        this.inverseScale = inverseScale;
     }
     
-    public static final PortalAnimation defaultAnimation = new PortalAnimation(Curve.sine, 10);
+    public static final PortalAnimation defaultAnimation =
+        new PortalAnimation(Curve.sine, 10, false);
     
     public static PortalAnimation fromNbt(NbtCompound nbt) {
         String c = nbt.getString("curve");
@@ -26,15 +29,21 @@ public class PortalAnimation {
             default -> Curve.sine;
         };
         int durationTicks = nbt.getInt("durationTicks");
+        boolean inverseScale = nbt.getBoolean("inverseScale");
         
-        return new PortalAnimation(curve, durationTicks);
+        return new PortalAnimation(curve, durationTicks, inverseScale);
     }
     
     public NbtCompound toNbt() {
         NbtCompound nbtCompound = new NbtCompound();
         nbtCompound.putString("curve", curve.toString());
         nbtCompound.putInt("durationTicks", durationTicks);
+        nbtCompound.putBoolean("inverseScale", inverseScale);
         return nbtCompound;
+    }
+    
+    public PortalAnimation updateInverseScale(boolean newValue) {
+        return new PortalAnimation(curve, durationTicks, newValue);
     }
     
     public static double mapProgress(double progress, Curve curve) {
@@ -46,5 +55,4 @@ public class PortalAnimation {
         }
         throw new RuntimeException();
     }
-    
 }

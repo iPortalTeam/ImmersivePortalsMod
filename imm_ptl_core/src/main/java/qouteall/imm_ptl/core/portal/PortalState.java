@@ -31,7 +31,9 @@ public class PortalState {
         this.height = height;
     }
     
-    public static PortalState interpolate(PortalState a, PortalState b, double progress) {
+    public static PortalState interpolate(
+        PortalState a, PortalState b, double progress, boolean inverseScale
+    ) {
         Validate.isTrue(a.fromWorld == b.fromWorld);
         Validate.isTrue(a.toWorld == b.toWorld);
         
@@ -40,12 +42,21 @@ public class PortalState {
             Helper.interpolatePos(a.fromPos, b.fromPos, progress),
             a.toWorld,
             Helper.interpolatePos(a.toPos, b.toPos, progress),
-            MathHelper.lerp(progress, a.scaling, b.scaling),
+            interpolateScale(a, b, progress, inverseScale),
             DQuaternion.interpolate(a.rotation, b.rotation, progress),
             DQuaternion.interpolate(a.orientation, b.orientation, progress),
             MathHelper.lerp(progress, a.width, b.width),
             MathHelper.lerp(progress, a.height, b.height)
         );
+    }
+    
+    private static double interpolateScale(PortalState a, PortalState b, double progress, boolean inverseScale) {
+        if (inverseScale) {
+            return 1.0 / (MathHelper.lerp(progress, 1.0 / a.scaling, 1.0 / b.scaling));
+        }
+        else {
+            return MathHelper.lerp(progress, a.scaling, b.scaling);
+        }
     }
     
 }
