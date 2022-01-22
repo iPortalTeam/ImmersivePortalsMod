@@ -2,6 +2,7 @@ package qouteall.imm_ptl.core.chunk_loading;
 
 import net.minecraft.server.MinecraftServer;
 import qouteall.imm_ptl.core.IPGlobal;
+import qouteall.q_misc_util.Helper;
 import qouteall.q_misc_util.MiscHelper;
 import qouteall.q_misc_util.my_util.LimitedLogger;
 
@@ -17,6 +18,8 @@ public class ServerPerformanceMonitor {
         IPGlobal.postServerTickSignal.connect(ServerPerformanceMonitor::tick);
     }
     
+    private static long lastUpdateTime = 0;
+    
     private static void tick() {
         MinecraftServer server = MiscHelper.getServer();
         if (server == null) {
@@ -25,6 +28,16 @@ public class ServerPerformanceMonitor {
         
         if (!server.isRunning()) {
             return;
+        }
+        
+        long currTime = System.nanoTime();
+        
+        // update every 20 seconds
+        if (currTime - lastUpdateTime < Helper.secondToNano(20)) {
+            return;
+        }
+        else {
+            lastUpdateTime = currTime;
         }
         
         float tickTime = server.getTickTime();
