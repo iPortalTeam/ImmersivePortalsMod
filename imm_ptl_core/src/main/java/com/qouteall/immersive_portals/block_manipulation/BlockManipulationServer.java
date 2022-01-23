@@ -3,6 +3,7 @@ package com.qouteall.immersive_portals.block_manipulation;
 import com.qouteall.hiding_in_the_bushes.MyNetwork;
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.McHelper;
+import com.qouteall.immersive_portals.PehkuiInterface;
 import com.qouteall.immersive_portals.portal.Portal;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -64,9 +65,11 @@ public class BlockManipulationServer {
         ServerPlayerEntity player,
         BlockPos requestPos
     ) {
+        Float playerScale = PehkuiInterface.invoker.computeBlockReachScale(player, 1.0f);
+        
         Vec3d pos = Vec3d.ofCenter(requestPos);
         Vec3d playerPos = player.getPos();
-        double distanceSquare = 6 * 6 * 4 * 4;//TODO get pehkui reach scale
+        double distanceSquare = 6 * 6 * 4 * 4 * playerScale * playerScale;
         if (player.world.getRegistryKey() == dimension) {
             if (playerPos.squaredDistanceTo(pos) < distanceSquare) {
                 return true;

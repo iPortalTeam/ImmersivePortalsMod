@@ -2,7 +2,6 @@ package com.qouteall.hiding_in_the_bushes;
 
 import com.qouteall.immersive_portals.Helper;
 import com.qouteall.immersive_portals.ModMain;
-import com.qouteall.immersive_portals.PehkuiInterface;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -30,9 +29,7 @@ public class ModEntry implements ModInitializer {
             Helper.log("Reach entity attributes mod is not present");
         }
         
-        PehkuiInterface.isPehkuiPresent =
-            O_O.getIsPehkuiPresent();
-        if (PehkuiInterface.isPehkuiPresent) {
+        if (O_O.getIsPehkuiPresent()) {
             PehkuiInterfaceInitializer.init();
             Helper.log("Pehkui is present");
         }
