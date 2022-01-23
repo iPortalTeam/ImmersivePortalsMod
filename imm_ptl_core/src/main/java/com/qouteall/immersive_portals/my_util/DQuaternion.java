@@ -155,7 +155,7 @@ public class DQuaternion {
     }
     
     /**
-     * vector multiplication
+     * vector multiplication by scalar
      */
     public DQuaternion multiply(double val) {
         return new DQuaternion(
